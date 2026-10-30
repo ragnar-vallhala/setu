@@ -20,7 +20,7 @@ jobs:
       SETU_WINE: /usr/lib/wine/wine64
       SETU_WINESERVER: /usr/lib/wine/wineserver64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install mingw-w64 and Wine
         run: |
@@ -42,7 +42,7 @@ jobs:
 
       - name: Upload report and results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: oracle-report
           path: |
