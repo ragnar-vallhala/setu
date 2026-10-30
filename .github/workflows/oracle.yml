@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Builds every oracle test and runs the Setu side against the committed golden
+# files. The Windows VM side is local-only (see oracle/vm/README.md).
+name: oracle
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setu-vs-golden:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SETU_WINE: /usr/lib/wine/wine64
+      SETU_WINESERVER: /usr/lib/wine/wineserver64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mingw-w64 and Wine
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 wine64 libz-mingw-w64
+          x86_64-w64-mingw32-gcc --version | head -1
+          $SETU_WINE --version
+
+      - name: Harness self-tests
+        run: python3 -m unittest discover -s oracle/tests -v
+
+      - name: Build tests, run on Setu (twice), diff against golden, check ratchet
+        run: python3 oracle/run.py ci
+
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f build/report/report.md ]; then cat build/report/report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload report and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oracle-report
+          path: |
+            build/report/
+            build/results/
+          if-no-files-found: warn

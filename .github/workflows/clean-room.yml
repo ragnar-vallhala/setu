@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Implementation PRs must record their clean-room sources (docs/CLEAN_ROOM.md §4).
+name: clean-room
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    paths:
+      - "personality/**"
+      - "services/**"
+      - "shell/**"
+      - "distro/**"
+      - "!**/*.md"
+
+permissions:
+  contents: read
+
+jobs:
+  sources-section:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check the PR description for a Clean-room sources section
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          fail=0
+          printf '%s' "$BODY" | grep -qi '^## *Clean-room sources' || { echo "::error::PR description needs a '## Clean-room sources' section (see docs/CLEAN_ROOM.md §4)"; fail=1; }
+          printf '%s' "$BODY" | grep -qi 'Docs:' || { echo "::error::List the public docs you used ('- Docs: ...')"; fail=1; }
+          printf '%s' "$BODY" | grep -qi 'Oracle tests:' || { echo "::error::List the oracle tests that justify the change ('- Oracle tests: ...')"; fail=1; }
+          printf '%s' "$BODY" | grep -qi 'did not inspect Windows binaries' || { echo "::error::Include the clean-room confirmation line from the PR template"; fail=1; }
+          exit $fail
