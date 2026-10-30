@@ -1,0 +1,48 @@
+Setu
+Copyright (c) 2026 The Setu Contributors
+
+Setu contains code under two licensing regimes. Which one applies depends on
+where a file lives in the tree.
+
+1. Setu's own code: MIT OR Apache-2.0
+   ------------------------------------
+   Everything outside the `personality/` directory is original Setu work,
+   unless a file header says otherwise. You may use it under either:
+
+     * the MIT License        (see LICENSE-MIT), or
+     * the Apache License 2.0 (see LICENSE-APACHE),
+
+   at your option. Unless you explicitly state otherwise, any contribution
+   you intentionally submit for inclusion in Setu, as defined in the Apache-2.0
+   license, is dual licensed as above, without any additional terms or
+   conditions.
+
+2. Wine-derived code: LGPL-2.1-or-later
+   -------------------------------------
+   The `personality/` directory is (or will be) a fork of the Wine project
+   (https://www.winehq.org/). Wine is Copyright (c) its many authors and is
+   licensed under the GNU Lesser General Public License, version 2.1 or (at
+   your option) any later version. See personality/COPYING.LGPL.
+
+   Everything under `personality/`, including the changes Setu contributors
+   make to it, is distributed under LGPL-2.1-or-later. Code is never copied
+   from `personality/` into the MIT/Apache parts of the tree.
+
+   Setu components outside `personality/` talk to the Wine-derived code only
+   through process boundaries, documented IPC, or dynamic linking. That keeps
+   the LGPL obligations limited to the `personality/` tree.
+
+3. No Microsoft code
+   ------------------
+   Setu contains no Microsoft source code, binaries, or symbols, and was not
+   written by inspecting them. See docs/CLEAN_ROOM.md.
+
+   Setu is an independent project. It is not affiliated with, endorsed by, or
+   sponsored by Microsoft Corporation. "Windows", "Win32", "NTFS", and related
+   names are trademarks of Microsoft Corporation, used here only to describe
+   compatibility.
+
+SPDX identifiers
+----------------
+  Setu code:          SPDX-License-Identifier: MIT OR Apache-2.0
+  personality/ code:  SPDX-License-Identifier: LGPL-2.1-or-later

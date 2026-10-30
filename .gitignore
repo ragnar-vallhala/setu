@@ -1,0 +1,17 @@
+# Build output from the oracle harness
+/build/
+
+# Local oracle configuration and caches (SSH keys, known_hosts, Wine prefixes)
+/oracle/config.toml
+/oracle/.cache/
+/oracle/vm/state/
+
+# VM images and installer media: never commit these
+*.qcow2
+*.iso
+*.img
+*.fd
+
+__pycache__/
+*.pyc
+.venv/
