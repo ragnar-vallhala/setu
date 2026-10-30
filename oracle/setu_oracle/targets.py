@@ -125,7 +125,12 @@ class WineTarget(Target):
 
 
 class WindowsTarget(Target):
-    """Runs tests on a Windows VM over OpenSSH. The guest's default SSH shell is cmd.exe."""
+    """Runs tests on a Windows VM over OpenSSH.
+
+    The guest's default SSH shell is cmd.exe, and Win32-OpenSSH runs each command
+    as `cmd.exe /c "<command>"`. So commands are plain cmd syntax: don't add
+    another `cmd /c` prefix, or the nested cmd sees a stray trailing quote.
+    """
 
     name = "windows"
 
@@ -170,7 +175,7 @@ class WindowsTarget(Target):
         last = ""
         while time.time() < deadline:
             try:
-                r = self.ssh("cmd /c echo ready", timeout=15)
+                r = self.ssh("echo ready", timeout=15)
                 if r.returncode == 0 and b"ready" in r.stdout:
                     return
                 last = r.stderr.decode(errors="replace").strip()
@@ -207,8 +212,8 @@ class WindowsTarget(Target):
         else:
             self.wait_ready()
         rd = self.rdir
-        self.ssh(f'cmd /c "if exist {rd} rmdir /s /q {rd}"', timeout=120)
-        self.ssh(f'cmd /c "mkdir {rd}\\bin && mkdir {rd}\\work"', check=True)
+        self.ssh(f"if exist {rd} rmdir /s /q {rd}", timeout=120)
+        self.ssh(f"mkdir {rd}\\bin && mkdir {rd}\\work", check=True)
         staging = BUILD_DIR / "stage-windows"
         if staging.exists():
             shutil.rmtree(staging)
@@ -228,7 +233,7 @@ class WindowsTarget(Target):
         rd, f = self.rdir, test.flat
         w = f"{rd}\\work\\{f}"
         # Fresh, empty working directory for every run (repeats included).
-        command = (f'cmd /c "(if exist {w} rmdir /s /q {w}) & mkdir {w} && cd /d {w} && {rd}\\bin\\{f}.exe"')
+        command = f"(if exist {w} rmdir /s /q {w}) & mkdir {w} && cd /d {w} && {rd}\\bin\\{f}.exe"
         try:
             r = self.ssh(command)
             return RawRun(r.stdout, r.stderr, r.returncode)
@@ -238,13 +243,13 @@ class WindowsTarget(Target):
 
     def prepare_single(self, test: Test) -> None:
         rd = self.rdir
-        self.ssh(f'cmd /c "if not exist {rd}\\bin mkdir {rd}\\bin"', timeout=60)
-        self.ssh(f'cmd /c "if not exist {rd}\\work mkdir {rd}\\work"', timeout=60)
+        self.ssh(f"if not exist {rd}\\bin mkdir {rd}\\bin", timeout=60)
+        self.ssh(f"if not exist {rd}\\work mkdir {rd}\\work", timeout=60)
         dst = BUILD_DIR / "stage-windows" / f"{test.flat}.exe"
         self.scp([dst], rd.replace("\\", "/") + "/bin/")
 
     def describe(self) -> dict:
-        r = self.ssh("cmd /c ver", timeout=30)
+        r = self.ssh("ver", timeout=30)
         ver = r.stdout.decode(errors="replace").strip()
         return {"target": "windows", "version": ver}
 

@@ -140,7 +140,7 @@ ssh_base() {
 wait_ssh() {
   local limit="${1:-1800}" t0=$SECONDS
   log "waiting for SSH on 127.0.0.1:$SSH_PORT (up to ${limit}s) ..."
-  until $(ssh_base) "cmd /c echo ready" 2>/dev/null | grep -q ready; do
+  until $(ssh_base) "echo ready" 2>/dev/null | grep -q ready; do
     running || die "VM is not running"
     (( SECONDS - t0 > limit )) && die "SSH not ready after ${limit}s (check the VM display: VNC 127.0.0.1:$((5900 + VNC)))"
     sleep 10
@@ -194,7 +194,8 @@ cmd_provision() {
   [ "${1:-}" = --settle ] && settle="$2"
   running || die "VM is not running (vmctl.sh start)"
   wait_ssh 3600
-  $(ssh_base) "cmd /c if exist C:\\setu-oracle-ready.txt (echo provisioned) else (echo NOT-PROVISIONED)"
+  $(ssh_base) "type C:\\setu-oracle-ready.txt" \
+    || die "guest setup marker C:\\setu-oracle-ready.txt missing: check C:\\setu-setup.log in the guest"
   # A live snapshot can only be loaded into a QEMU with the same devices, so
   # power off and come back up in the normal "run" configuration (no ISOs).
   log "shutting down to restart without installer media ..."
@@ -207,7 +208,7 @@ cmd_provision() {
   log "letting the guest settle for ${settle}s (background first-boot tasks) ..."
   sleep "$settle"
   cmd_snapshot clean
-  $(ssh_base) "cmd /c ver"
+  $(ssh_base) "ver"
   log "done. The oracle can now run: python3 oracle/run.py build windows"
 }
 
