@@ -1,0 +1,111 @@
+{
+  "test": "kernel32/directory_ops",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "mkdir_new": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir_sorted": "d1"
+    },
+    "mkdir_exists": {
+      "ret": false,
+      "last_error": 183,
+      "dir_sorted": "d1"
+    },
+    "mkdir_exists_other_case": {
+      "ret": false,
+      "last_error": 183,
+      "dir_sorted": "d1"
+    },
+    "mkdir_missing_parent": {
+      "ret": false,
+      "last_error": 3,
+      "dir_sorted": "d1"
+    },
+    "mkdir_over_file": {
+      "ret": false,
+      "last_error": 183,
+      "dir_sorted": "d1,file"
+    },
+    "mkdir_empty_name": {
+      "ret": false,
+      "last_error": 3,
+      "dir_sorted": "d1,file"
+    },
+    "rmdir_not_empty": {
+      "ret": false,
+      "last_error": 145,
+      "dir_sorted": "d1,file"
+    },
+    "rmdir_on_file": {
+      "ret": false,
+      "last_error": 267,
+      "dir_sorted": "d1,file"
+    },
+    "rmdir_missing": {
+      "ret": false,
+      "last_error": 2,
+      "dir_sorted": "d1,file"
+    },
+    "delete_on_directory": {
+      "ret": false,
+      "last_error": 5,
+      "dir_sorted": "d1,file"
+    },
+    "delete_missing": {
+      "ret": false,
+      "last_error": 2,
+      "dir_sorted": "d1,file"
+    },
+    "delete_missing_parent": {
+      "ret": false,
+      "last_error": 3,
+      "dir_sorted": "d1,file"
+    },
+    "delete_child": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir_sorted": "d1,file"
+    },
+    "rmdir_now_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir_sorted": "file"
+    },
+    "delete_readonly": {
+      "ret": false,
+      "last_error": 5,
+      "dir_sorted": "file,ro"
+    },
+    "delete_open_no_share_delete": {
+      "ret": false,
+      "last_error": 32,
+      "dir_sorted": "file,ro"
+    },
+    "move_onto_existing_no_flag": {
+      "ret": false,
+      "last_error": 183,
+      "dir_sorted": "dst,file,ro,src"
+    },
+    "move_onto_existing_replace": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir_sorted": "dst,file,ro"
+    },
+    "move_replace_result": {
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 1,
+      "dst.data": "73"
+    },
+    "move_missing_source": {
+      "ret": false,
+      "last_error": 2,
+      "dir_sorted": "dst,file,ro"
+    }
+  },
+  "errors": [],
+  "source_sha256": "03bf89c95fa813ef1e28cb6a78c96eacfbfcd243934c7842655ffcd917e0510f"
+}

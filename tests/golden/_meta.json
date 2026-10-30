@@ -1,0 +1,7 @@
+{
+  "recorded_on": {
+    "target": "windows",
+    "version": "Microsoft Windows [Version 10.0.19045.2965]"
+  },
+  "recorded_with": "oracle/run.py windows"
+}

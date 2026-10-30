@@ -1,0 +1,85 @@
+{
+  "test": "kernel32/GetFileAttributesW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "plain_file": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "directory": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "directory_trailing_backslash": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "file_trailing_backslash": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "missing_file": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "missing_parent": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "current_dir_dot": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "empty_string": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "wildcard": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "set_readonly": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000001"
+    },
+    "set_hidden_system": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000006"
+    },
+    "set_normal": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000080"
+    },
+    "set_zero": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000080"
+    },
+    "set_directory_bit_on_file": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000080"
+    },
+    "set_hidden_on_dir": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000012"
+    },
+    "set_on_missing": {
+      "set_ret": false,
+      "last_error": 2,
+      "get": "0xffffffff"
+    },
+    "created_hidden": {
+      "ret": "0x00000022",
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "c5cfc268b38b2ecf5b269b89e0ee73e17806a99e61d466ef3fd619a2a1fd988c"
+}

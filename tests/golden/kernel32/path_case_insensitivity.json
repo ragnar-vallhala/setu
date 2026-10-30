@@ -1,0 +1,69 @@
+{
+  "test": "kernel32/path_case_insensitivity",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "open_lowercase": {
+      "ret": "valid",
+      "last_error": 0,
+      "dir_sorted": "MixedCase.TxT,SubDir"
+    },
+    "open_uppercase": {
+      "ret": "valid",
+      "last_error": 0,
+      "dir_sorted": "MixedCase.TxT,SubDir"
+    },
+    "create_new_other_case_exists": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 80,
+      "dir_sorted": "MixedCase.TxT,SubDir"
+    },
+    "create_always_other_case_keeps_name": {
+      "ret": "valid",
+      "last_error": 183,
+      "dir_sorted": "MixedCase.TxT,SubDir"
+    },
+    "open_dir_component_other_case": {
+      "ret": "valid",
+      "last_error": 0,
+      "dir_sorted": "MixedCase.TxT,SubDir"
+    },
+    "find_exact_lowercase_query": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "found_name": "MixedCase.TxT"
+    },
+    "find_upper_dir_query": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "found_name": "Inner.dat"
+    },
+    "find_wildcard_upper": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "found_name": "MixedCase.TxT"
+    },
+    "attrs_dir_other_case": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "long_path_name_restores_case": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "path": "SubDir\\Inner.dat"
+    },
+    "rename_case_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir_sorted": "MIXEDCASE.TXT,SubDir"
+    },
+    "delete_other_case": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir_sorted": "SubDir"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4879606aa3fd2919dca01830b935d6c9793d91b4555dd746a6097e3559fa50b1"
+}

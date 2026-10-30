@@ -1,0 +1,71 @@
+{
+  "test": "kernel32/ReadFile",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "read_4": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_read": 4,
+      "data": "30313233"
+    },
+    "read_rest_ask_more": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_read": 6,
+      "data": "343536373839"
+    },
+    "read_at_eof": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_read": 0,
+      "data": ""
+    },
+    "read_zero_bytes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_read": 0,
+      "data": ""
+    },
+    "read_past_eof": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_read": 0,
+      "data": ""
+    },
+    "read_write_only_handle": {
+      "ret": false,
+      "last_error": 5,
+      "bytes_read": 0
+    },
+    "read_invalid_handle_value": {
+      "ret": false,
+      "last_error": 6,
+      "bytes_read": 0
+    },
+    "read_null_handle": {
+      "ret": false,
+      "last_error": 6,
+      "bytes_read": 0
+    },
+    "read_closed_handle": {
+      "ret": false,
+      "last_error": 6,
+      "bytes_read": 0
+    },
+    "read_directory_handle": {
+      "ret": false,
+      "last_error": 1,
+      "bytes_read": 0
+    },
+    "read_empty_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_read": 0,
+      "data": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "b819b904f6681f596cd3e5deed7396807ce65500f0869145bdcf3ec449d3d418"
+}

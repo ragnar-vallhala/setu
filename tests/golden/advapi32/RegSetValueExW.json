@@ -1,0 +1,169 @@
+{
+  "test": "advapi32/RegSetValueExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_with_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1,
+      "readback_size": 12,
+      "readback_data": "680065006c006c006f000000"
+    },
+    "sz_without_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1,
+      "readback_size": 12,
+      "readback_data": "680065006c006c006f000000"
+    },
+    "sz_odd_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1,
+      "readback_size": 3,
+      "readback_data": "680000"
+    },
+    "sz_zero_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1,
+      "readback_size": 0,
+      "readback_data": ""
+    },
+    "expand_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 2,
+      "readback_size": 14,
+      "readback_data": "2500500041005400480025000000"
+    },
+    "multi_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 7,
+      "readback_size": 18,
+      "readback_data": "6f006e0065000000740077006f0000000000"
+    },
+    "dword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 4,
+      "readback_size": 4,
+      "readback_data": "44332211"
+    },
+    "dword_short_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 4,
+      "readback_size": 2,
+      "readback_data": "4433"
+    },
+    "dword_long_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 4,
+      "readback_size": 8,
+      "readback_data": "6f006e0065000000"
+    },
+    "dword_big_endian": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 5,
+      "readback_size": 4,
+      "readback_data": "44332211"
+    },
+    "qword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 11,
+      "readback_size": 8,
+      "readback_data": "0807060504030201"
+    },
+    "binary": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 3,
+      "readback_size": 5,
+      "readback_data": "000102feff"
+    },
+    "binary_empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 3,
+      "readback_size": 0,
+      "readback_data": ""
+    },
+    "none_type": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 0,
+      "readback_size": 2,
+      "readback_data": "0001"
+    },
+    "unknown_type_1234": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1234,
+      "readback_size": 5,
+      "readback_data": "000102feff"
+    },
+    "default_value_null_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1,
+      "readback_size": 12,
+      "readback_data": "680065006c006c006f000000"
+    },
+    "overwrite_changes_type": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1,
+      "readback_size": 12,
+      "readback_data": "680065006c006c006f000000"
+    },
+    "name_case_insensitive_overwrite": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 4,
+      "readback_size": 4,
+      "readback_data": "44332211"
+    },
+    "null_data_nonzero_size": {
+      "ret": 998,
+      "last_error": "unchanged",
+      "readback_ret": 2
+    },
+    "set_via_readonly_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "readback_ret": 2
+    },
+    "set_invalid_hkey": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "readback_ret": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "d9183b29e0e8fcb510bdb5b80a45fbcf620803a7db3064c45879c4f05f2a7e5f"
+}

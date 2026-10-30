@@ -1,0 +1,140 @@
+{
+  "test": "advapi32/RegCreateKeyExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
+    "create_existing_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
+    "create_multi_level": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "create_double_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
+    "create_volatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_nonvolatile_under_volatile": {
+      "ret": 1021,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": false
+    },
+    "create_invalid_hkey": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "create_name_255_chars": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_name_256_chars": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "open_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_other_case_multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "open_missing_parent": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "open_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "create_via_readonly_handle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "delete_with_subkeys": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "delete_leaf": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "delete_missing": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "delete_other_case": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "open_after_delete": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "e61b061d0c486a6a3cda90d250c05cad926bd10b16156ba5e128c30f3949a7cd"
+}

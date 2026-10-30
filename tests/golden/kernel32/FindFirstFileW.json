@@ -1,0 +1,78 @@
+{
+  "test": "kernel32/FindFirstFileW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "all_entries_order": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "./,../,10.txt,9.txt,Alpha.txt,beta.log,Delta/,Gamma.TXT,zeta.txt,_under.txt",
+      "count": 10,
+      "end_error": 18
+    },
+    "star_dot_star": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "./,../,10.txt,9.txt,Alpha.txt,beta.log,Delta/,Gamma.TXT,zeta.txt,_under.txt",
+      "count": 10,
+      "end_error": 18
+    },
+    "txt_case_insensitive_ext": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "10.txt,9.txt,Alpha.txt,Gamma.TXT,zeta.txt,_under.txt",
+      "count": 6,
+      "end_error": 18
+    },
+    "question_mark": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "9.txt",
+      "count": 1,
+      "end_error": 18
+    },
+    "prefix_wildcard": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "Alpha.txt,beta.log,Delta/,Gamma.TXT,zeta.txt",
+      "count": 5,
+      "end_error": 18
+    },
+    "empty_dir": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "./,../",
+      "count": 2,
+      "end_error": 18
+    },
+    "no_match": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "exact_name": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "beta.log",
+      "count": 1,
+      "end_error": 18
+    },
+    "dir_itself": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "entries_in_order": "e/",
+      "count": 1,
+      "end_error": 18
+    },
+    "trailing_backslash": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "a07c8a68746b5f401a8f55823e6947e007267ec077a4e69edb86fbbf73f2fe99"
+}

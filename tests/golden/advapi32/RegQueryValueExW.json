@@ -1,0 +1,137 @@
+{
+  "test": "advapi32/RegQueryValueExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12
+    },
+    "exact_buffer": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "680065006c006c006f000000"
+    },
+    "buffer_too_small": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccc"
+    },
+    "buffer_zero": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12
+    },
+    "type_only_no_size_change": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "dword_big_buffer": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "2a000000cccccccccccccccccccccccc"
+    },
+    "value_name_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "680065006c006c006f000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "missing_value": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 64,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "default_value_unset": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 64,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "default_value_empty_name": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 64,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "string_without_nul_raw": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "680065006c006c006f000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "getvalue_dword_as_dword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "2a000000"
+    },
+    "getvalue_sz_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12
+    },
+    "getvalue_sz_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "data": "680065006c006c006f000000"
+    },
+    "getvalue_sz_adds_missing_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "data": "680065006c006c006f000000"
+    },
+    "getvalue_expand_sz_expanded": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 36,
+      "data": "6100620063005c00790000004f005200410043004c0045005f00580025005c0079000000"
+    },
+    "getvalue_expand_sz_noexpand": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 36,
+      "data": "250053004500540055005f004f005200410043004c0045005f00580025005c0079000000"
+    },
+    "getvalue_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 64
+    },
+    "getvalue_no_type_flags": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 64
+    }
+  },
+  "errors": [],
+  "source_sha256": "ab6fe86519d92f8f03aefd9c2b61ef614795753bc439aff785ee3b57a0d33919"
+}

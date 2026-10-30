@@ -9,8 +9,9 @@ that match real Windows, not in features that seem to work.
 - [x] Oracle harness: build → run on Windows VM → run on Setu → diff → report
 - [x] ~10 seed tests (kernel32 file APIs, registry, error codes)
 - [x] CI: build tests and run the Setu side against committed golden files
-- [ ] First golden files recorded from a real Windows 11 VM
-- [ ] First expectations ratchet (`tests/expectations.json`) committed
+- [x] First golden files recorded from a real Windows VM (interim: Windows 10 22H2, build 19045)
+- [ ] Re-record golden files on Windows 11
+- [x] First expectations ratchet (`tests/expectations.json`): 167/188 cases pass on stock Wine 9.0
 
 ## Milestone 1: "Measured kernel32" + "first boot" (proposed)
 

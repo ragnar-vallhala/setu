@@ -1,0 +1,37 @@
+{
+  "test": "advapi32/RegEnumKeyExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "query_info": {
+      "ret": 0,
+      "subkeys": 8,
+      "max_subkey_len": 7,
+      "values": 6,
+      "max_value_name_len": 3,
+      "max_value_data": 4
+    },
+    "enum_keys_order": {
+      "order": "10,9,Alpha,alpha2,bravo,Charlie,zulu,_x",
+      "count": 8,
+      "final_ret": 259
+    },
+    "enum_values_order": {
+      "order": "Zed,ant,Bee,(default),10,9",
+      "count": 6,
+      "final_ret": 259
+    },
+    "enum_key_name_buffer_exact_len_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "len_after": 7
+    },
+    "enum_key_index_out_of_range": {
+      "ret": 259,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "3b676dc1815862c7f9b97f665141f5ff74c2d2a6fc97bc822f560d06f839d2b6"
+}

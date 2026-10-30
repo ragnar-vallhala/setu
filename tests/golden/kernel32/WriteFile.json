@@ -1,0 +1,86 @@
+{
+  "test": "kernel32/WriteFile",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "write_hello": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_written": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 5,
+      "file.data": "68656c6c6f"
+    },
+    "write_zero_bytes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_written": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 5,
+      "file.data": "68656c6c6f"
+    },
+    "write_after_gap": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_written": 1,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 9,
+      "file.data": "68656c6c6f00000021"
+    },
+    "overwrite_middle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_written": 2,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 9,
+      "file.data": "68454c6c6f00000021"
+    },
+    "write_read_only_handle": {
+      "ret": false,
+      "last_error": 5,
+      "bytes_written": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 9,
+      "file.data": "68454c6c6f00000021"
+    },
+    "append_data_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_written": 2,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 11,
+      "file.data": "68454c6c6f000000212b2b"
+    },
+    "write_new_readonly_attr_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_written": 3,
+      "file.exists": true,
+      "file.attrs": "0x00000021",
+      "file.size": 3
+    },
+    "reopen_readonly_attr_for_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "write_invalid_handle_value": {
+      "ret": false,
+      "last_error": 6,
+      "bytes_written": 0
+    },
+    "write_null_handle": {
+      "ret": false,
+      "last_error": 6,
+      "bytes_written": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "fa99204c3fdf5d3140d7081c68474711e6a0b854813e1eb11cebc05e594453e0"
+}

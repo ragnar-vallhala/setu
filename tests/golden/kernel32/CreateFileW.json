@@ -1,0 +1,161 @@
+{
+  "test": "kernel32/CreateFileW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_new_fresh": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_new_exists": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 80,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_always_exists_truncates": {
+      "ret": "valid",
+      "last_error": 183,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_always_fresh": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "open_always_exists": {
+      "ret": "valid",
+      "last_error": 183,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 4,
+      "file.data": "6b656570"
+    },
+    "open_always_fresh": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "open_existing_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2,
+      "file.exists": false
+    },
+    "open_existing_missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "create_new_missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "truncate_existing": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "truncate_existing_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2,
+      "file.exists": false
+    },
+    "truncate_existing_readonly_access": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 3,
+      "file.data": "616263"
+    },
+    "invalid_disposition_0": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87,
+      "file.exists": false
+    },
+    "invalid_disposition_6": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87,
+      "file.exists": false
+    },
+    "open_dir_no_backup_semantics": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "open_dir_backup_semantics": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_new_over_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000010"
+    },
+    "invalid_char_lt": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "invalid_char_pipe": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "invalid_char_quote": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "empty_path": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "trailing_dot": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "trailing_space": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "sharing_violation_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 32
+    },
+    "sharing_ok_read": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "delete_on_close": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "2bc3867d0ba0edec37fa68e84f0bc55fc34bcc870993935abdc1fcd18a4d9b82"
+}

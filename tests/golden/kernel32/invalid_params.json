@@ -1,0 +1,60 @@
+{
+  "test": "kernel32/invalid_params",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "close_current_process_pseudo": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "close_null": {
+      "ret": false,
+      "last_error": 6
+    },
+    "close_twice": {
+      "ret": false,
+      "last_error": 6
+    },
+    "fullpath_buffer_too_small": {
+      "ret_minus_cwd_len": 4,
+      "size_query_minus_cwd_len": 4,
+      "last_error": "unchanged"
+    },
+    "fullpath_empty": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "getenv_missing": {
+      "ret": 0,
+      "last_error": 203
+    },
+    "getenv_buffer_too_small": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "getenv_case_insensitive": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "value": "hello"
+    },
+    "seek_negative": {
+      "ret": false,
+      "last_error": 131,
+      "new_pos": 12345
+    },
+    "seek_bad_method": {
+      "ret": false,
+      "last_error": 87
+    },
+    "wait_bogus_handle": {
+      "ret": "0xffffffff",
+      "last_error": 6
+    },
+    "last_error_roundtrip": {
+      "value": "0x20001234"
+    }
+  },
+  "errors": [],
+  "source_sha256": "89a76273bfc1ff7a5c9bd8225257c3255a5c09fbaeea9205f6a4cd2423a21b50"
+}
