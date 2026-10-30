@@ -4,7 +4,7 @@
 # vmctl.sh: manage the Windows 11 oracle VM (QEMU/KVM, UEFI + Secure Boot,
 # software TPM 2.0, SSH on 127.0.0.1:2222). All state lives in oracle/vm/state/.
 #
-#   vmctl.sh create --iso Win11.iso   build disk + seed media, start unattended install
+#   vmctl.sh create --iso Win11.iso [--gui]  build disk + seed media, start unattended install
 #   vmctl.sh start [--gui]            boot the installed VM (headless by default; VNC on 127.0.0.1:5901)
 #   vmctl.sh wait-ssh [SECONDS]       wait until the guest's sshd answers
 #   vmctl.sh provision [--settle N]   wait for SSH, let the guest settle, then take the 'clean' snapshot
@@ -13,6 +13,7 @@
 #   vmctl.sh snapshots                list snapshots
 #   vmctl.sh ssh [COMMAND...]         SSH into the guest (cmd.exe)
 #   vmctl.sh monitor "HMP COMMAND"    raw QEMU monitor command
+#   vmctl.sh screenshot [FILE.png]    capture the VM display (handy for headless installs)
 #   vmctl.sh status | stop | kill
 #
 # Environment overrides: SETU_VM_RAM (default 4G), SETU_VM_CPUS (4), SETU_VM_DISK (64G),
@@ -162,10 +163,11 @@ build_seed() {
 }
 
 cmd_create() {
-  local iso=""
+  local iso="" ui=headless
   while [ $# -gt 0 ]; do
     case "$1" in
       --iso) iso="$2"; shift 2 ;;
+      --gui) ui=gui; shift ;;
       *) die "unknown option $1" ;;
     esac
   done
@@ -179,7 +181,7 @@ cmd_create() {
   qemu-img create -q -f qcow2 "$DISK" "$DISK_SIZE"
   qemu-img convert -q -f raw -O qcow2 "$(find_fw VARS)" "$VARS"
   build_seed
-  ISO="$(realpath "$iso")" launch install gui
+  ISO="$(realpath "$iso")" launch install "$ui"
   # The Windows boot media asks "Press any key to boot from CD or DVD": press it for a while.
   log "pressing a key to boot from the installer ..."
   for _ in $(seq 25); do hmp "sendkey spc" >/dev/null 2>&1 || true; sleep 1; done
@@ -235,6 +237,9 @@ case "${1:-}" in
   snapshots) running && hmp "info snapshots" || qemu-img snapshot -l "$DISK" ;;
   ssh) shift; exec $(ssh_base) "$@" ;;
   monitor) shift; hmp "$*" ;;
+  screenshot)
+    shift; out="$(realpath -m "${1:-$STATE/screen.png}")"
+    hmp "screendump $out -f png" && log "saved $out" ;;
   status)
     if running; then log "running (pid $(cat "$PIDF"))"; hmp "info status"; else log "not running"; fi ;;
   stop) running && hmp "system_powerdown" && log "ACPI shutdown requested" || log "not running" ;;
@@ -242,5 +247,5 @@ case "${1:-}" in
     if running; then hmp "quit" >/dev/null 2>&1 || kill "$(cat "$PIDF")"; fi
     pkill -f "swtpm.*$STATE/swtpm.sock" 2>/dev/null || true
     rm -f "$PIDF" "$MON"; log "stopped" ;;
-  *) sed -n '3,20p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '3,21p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac
