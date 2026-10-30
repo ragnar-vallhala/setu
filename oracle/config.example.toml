@@ -1,0 +1,32 @@
+# Copy to oracle/config.toml (git-ignored) and adjust. Every key is optional;
+# the defaults are shown. Env overrides: SETU_CC, SETU_WINE, SETU_WINESERVER,
+# SETU_WINEPREFIX.
+
+[build]
+cc = "x86_64-w64-mingw32-gcc"
+cflags = ["-std=c11", "-O1", "-Wall", "-Wextra", "-Werror"]
+ldflags = ["-static", "-ladvapi32"]
+
+[run]
+timeout = 60            # seconds per test program
+
+[setu]
+# How to run a PE on the Setu side. Today: stock Wine. Later: the personality/ build.
+wine = ""               # "" = $SETU_WINE, else `wine`, else `wine64` on PATH
+wineserver = ""         # "" = `wineserver` on PATH (used to wait for / kill the server)
+prefix = "oracle/.cache/wineprefix"
+winedebug = "-all"
+
+[windows]
+host = "127.0.0.1"
+port = 2222
+user = "setu"
+identity = "oracle/vm/state/id_ed25519"
+known_hosts = "oracle/vm/state/known_hosts"
+remote_dir = 'C:\setu-oracle'
+revert = "loadvm"       # "loadvm" | "command" | "none"
+snapshot = "clean"
+monitor = "oracle/vm/state/monitor.sock"
+revert_command = ""     # used when revert = "command", e.g. a virsh snapshot-revert line
+revert_each_test = false
+ssh_ready_timeout = 180
