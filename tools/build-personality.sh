@@ -16,7 +16,8 @@
 # Needs: gcc, make, flex, bison, x86_64-w64-mingw32-gcc and
 # i686-w64-mingw32-gcc (new WoW64 mode builds 32-bit PE code with mingw and
 # needs no 32-bit Linux libraries), plus whatever host -dev libraries you
-# want Wine to use (X11, freetype, fontconfig, Wayland, ...). Without root,
+# want Wine to use (X11, freetype, fontconfig, Wayland, ...): the list is
+# tools/personality-build-deps.txt. Without root,
 # tools/bootstrap-toolchain.sh provides the compilers, flex and bison.
 set -euo pipefail
 
@@ -64,7 +65,12 @@ if [ ! -f Makefile ] || [ "$SRC/configure" -nt Makefile ]; then
   echo "personality: configuring (out of tree, $OBJ)"
   # --disable-tests: Wine's own conformance tests are not needed for a
   # runtime build, and skipping them roughly halves the build time.
-  "$SRC/configure" \
+  # Use ccache when it is installed (CI caches its directory between runs).
+  cc=()
+  if command -v ccache >/dev/null && [ "${SETU_CCACHE:-1}" != 0 ]; then
+    cc=(CC="ccache gcc" x86_64_CC="ccache x86_64-w64-mingw32-gcc" i386_CC="ccache i686-w64-mingw32-gcc")
+  fi
+  "$SRC/configure" "${cc[@]}" \
     --prefix="$INSTALL" \
     --enable-archs=x86_64,i386 \
     --disable-tests \

@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Debian/Ubuntu packages for building personality/wine (tools/build-personality.sh):
+#   sudo apt install $(grep -v '^#' tools/personality-build-deps.txt)
+# CI installs exactly this list; changing it invalidates CI's cached build.
+gcc make flex bison ccache
+gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
+libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxcomposite-dev
+libfreetype-dev libfontconfig-dev
+libwayland-dev libxkbcommon-dev libgl-dev libegl-dev
+libdbus-1-dev libudev-dev libunwind-dev libgnutls28-dev

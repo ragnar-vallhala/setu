@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
-# Builds every oracle test and runs the Setu side against the committed golden
-# files. The Windows VM side is local-only (see oracle/vm/README.md).
+# Builds the Setu personality (personality/wine), then builds every oracle test
+# and runs it on that build, comparing against the committed golden files.
+# The Windows VM side is local-only (see oracle/vm/README.md).
+#
+# The personality build is cached by the git tree hash of personality/wine
+# (plus the build script and dependency list), so it is only rebuilt when the
+# Wine source changes. Rebuilds reuse a ccache.
 name: oracle
 
 on:
@@ -13,21 +18,98 @@ permissions:
   contents: read
 
 jobs:
-  setu-vs-golden:
+  personality:
+    name: build personality (Wine fork)
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    env:
-      SETU_WINE: /usr/lib/wine/wine64
-      SETU_WINESERVER: /usr/lib/wine/wineserver64
+    timeout-minutes: 180
+    outputs:
+      key: ${{ steps.key.outputs.key }}
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install mingw-w64 and Wine
+      - name: Cache key (source tree hash)
+        id: key
+        run: |
+          tree=$(git rev-parse HEAD:personality/wine)
+          echo "key=personality-ubuntu-24.04-$tree-${{ hashFiles('tools/build-personality.sh', 'tools/personality-build-deps.txt') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Look for a cached build
+        id: cached
+        uses: actions/cache/restore@v6
+        with:
+          path: build/personality/install
+          key: ${{ steps.key.outputs.key }}
+          lookup-only: true
+
+      - name: Install build dependencies
+        if: steps.cached.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 wine64 libz-mingw-w64
+          sudo apt-get install -y --no-install-recommends $(grep -v '^#' tools/personality-build-deps.txt)
+
+      - name: Restore ccache
+        if: steps.cached.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.cache/ccache
+          key: ccache-ubuntu-24.04-${{ github.run_id }}
+          restore-keys: ccache-ubuntu-24.04-
+
+      - name: Build
+        if: steps.cached.outputs.cache-hit != 'true'
+        env:
+          CCACHE_MAXSIZE: 3G
+          CCACHE_COMPRESS: "1"
+        run: |
+          export CCACHE_DIR="$HOME/.cache/ccache"
+          ccache -z
+          tools/build-personality.sh
+          ccache -s
+
+      - name: Save ccache
+        if: always() && steps.cached.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.cache/ccache
+          key: ccache-ubuntu-24.04-${{ github.run_id }}
+
+      - name: Save build
+        if: steps.cached.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: build/personality/install
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: personality-build-logs
+          path: build/personality/*.log
+          if-no-files-found: ignore
+
+  setu-vs-golden:
+    needs: personality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SETU_IMPL: personality   # never silently fall back to stock Wine
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Restore the personality build
+        uses: actions/cache/restore@v6
+        with:
+          path: build/personality/install
+          key: ${{ needs.personality.outputs.key }}
+          fail-on-cache-miss: true
+
+      - name: Install mingw-w64
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64
           x86_64-w64-mingw32-gcc --version | head -1
-          $SETU_WINE --version
+          cat build/personality/install/SETU_BUILD
 
       - name: Harness self-tests
         run: python3 -m unittest discover -s oracle/tests -v
