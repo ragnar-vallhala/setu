@@ -19,10 +19,11 @@ where a file lives in the tree.
 
 2. Wine-derived code: LGPL-2.1-or-later
    -------------------------------------
-   The `personality/` directory is (or will be) a fork of the Wine project
-   (https://www.winehq.org/). Wine is Copyright (c) its many authors and is
+   The `personality/` directory is a fork of the Wine project
+   (https://www.winehq.org/), imported from Wine 11.0 into personality/wine. Wine is Copyright (c) its many authors and is
    licensed under the GNU Lesser General Public License, version 2.1 or (at
-   your option) any later version. See personality/COPYING.LGPL.
+   your option) any later version. See personality/COPYING.LGPL and
+   personality/wine/COPYING.LIB.
 
    Everything under `personality/`, including the changes Setu contributors
    make to it, is distributed under LGPL-2.1-or-later. Code is never copied

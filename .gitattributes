@@ -1,0 +1,4 @@
+# Wine (personality/wine) defines this macro in its own .gitattributes, but git
+# only honours macro definitions at the top level. Define it here so its
+# "generated" markers work; git warns about the copy inside personality/wine.
+[attr]generated gitlab-generated linguist-generated=true

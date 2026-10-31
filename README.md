@@ -32,7 +32,7 @@ it. That's the job of the oracle.
                                            │
               ┌────────────────────────────┴───────────────────────────┐
               ▼                                                        ▼
-   Windows 11 VM (QEMU/KVM, SSH)                         Setu (today: stock Wine)
+   Windows 11 VM (QEMU/KVM, SSH)                         Setu (personality/: Wine fork)
    reverted to a clean snapshot                          fresh prefix / sandbox
               │                                                        │
               ▼                                                        ▼
@@ -56,7 +56,7 @@ behaviour change in Setu must move those diffs toward zero.
 | `tests/win32/` | Oracle test programs, one file per API: `tests/win32/<dll>/<api>.c` |
 | `tests/golden/` | Golden results recorded on real Windows (inputs/outputs only) |
 | `tests/expectations.json` | Ratchet: tests that must keep passing on Setu |
-| `personality/` | *(planned)* Wine fork: NT personality and Win32 layer, LGPL-2.1+ |
+| `personality/` | Wine fork (imported from Wine 11.0, no Setu changes yet): NT personality and Win32 layer, LGPL-2.1+ |
 | `services/` | *(stub)* registry service, service control manager, filesystem semantics |
 | `shell/` | *(stub)* Explorer-style desktop |
 | `distro/` | *(stub)* bootable ISO, installer, first-boot setup |
@@ -71,8 +71,13 @@ sudo apt install gcc-mingw-w64-x86-64 wine64 python3
 # ...or, without root, a private toolchain under ~/.local/setu-toolchain:
 tools/bootstrap-toolchain.sh && export PATH="$HOME/.local/setu-toolchain/bin:$PATH"
 
+# Build the Wine fork (first time ~15 min on 12 cores; see personality/README.md).
+# Optional: without it, the harness falls back to stock Wine.
+sudo apt install $(grep -v '^#' tools/personality-build-deps.txt)
+tools/build-personality.sh
+
 python3 oracle/run.py build     # cross-compile all tests
-python3 oracle/run.py setu      # run them on the Setu target (Wine for now)
+python3 oracle/run.py setu      # run them on the Setu target (personality build, else stock Wine)
 python3 oracle/run.py report    # diff against tests/golden/, write build/report/
 ```
 
