@@ -24,6 +24,11 @@ PKGS=(
   binutils-mingw-w64-x86-64 mingw-w64-x86-64-dev mingw-w64-common
   # Wine (64-bit) and its PE-side dependencies that are usually not installed
   wine64 libwine libz-mingw-w64
+  # Needed to build personality/ (the Wine fork): 32-bit PE compiler for the
+  # new WoW64 mode, plus the parser generators Wine's build uses
+  gcc-mingw-w64-i686-posix gcc-mingw-w64-i686-posix-runtime
+  binutils-mingw-w64-i686 mingw-w64-i686-dev
+  flex bison
 )
 echo "downloading: ${PKGS[*]}"
 (cd "$DEBS" && apt-get download "${PKGS[@]}")
@@ -42,9 +47,20 @@ rm -f "$ZDLL" && cp "$U/x86_64-w64-mingw32/lib/zlib1.dll" "$ZDLL"
 
 # Wrappers on PATH.
 ln -sf "$U/bin/x86_64-w64-mingw32-gcc-posix" "$PREFIX/bin/x86_64-w64-mingw32-gcc"
-for tool in "$U"/bin/x86_64-w64-mingw32-{ar,ld,nm,objcopy,strip,windres,dlltool,ranlib}; do
-  [ -e "$tool" ] && ln -sf "$tool" "$PREFIX/bin/$(basename "$tool")"
+ln -sf "$U/bin/i686-w64-mingw32-gcc-posix" "$PREFIX/bin/i686-w64-mingw32-gcc"
+for arch in x86_64 i686; do
+  for tool in "$U"/bin/$arch-w64-mingw32-{ar,as,ld,nm,objcopy,strip,windres,dlltool,ranlib}; do
+    [ -e "$tool" ] && ln -sf "$tool" "$PREFIX/bin/$(basename "$tool")"
+  done
 done
+ln -sf "$U/bin/flex" "$PREFIX/bin/flex"
+# Relocated bison must be told where its skeleton files are.
+cat > "$PREFIX/bin/bison" <<EOF
+#!/bin/sh
+export BISON_PKGDATADIR="$U/share/bison"
+exec "$U/bin/bison" "\$@"
+EOF
+chmod +x "$PREFIX/bin/bison"
 cat > "$PREFIX/bin/wine" <<EOF
 #!/bin/sh
 export LD_LIBRARY_PATH="$U/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
