@@ -134,9 +134,12 @@ and commit the updated file together with the fix.
   the VM (default shell `cmd.exe`), revert via the QEMU monitor (`loadvm
   clean`), copy every `.exe` in one `scp`, run each in
   `C:\setu-oracle\work\<test>`. See [oracle/vm/README.md](../oracle/vm/README.md).
-* **Setu** (`WineTarget`): today stock Wine with a dedicated prefix
-  (`oracle/.cache/wineprefix`), each test in a fresh `build/work/setu/<test>`.
-  Once `personality/` builds, point `[setu] wine` at it.
+* **Setu** (`WineTarget`): the Wine fork in `personality/wine`, built by
+  `tools/build-personality.sh` into `build/personality/install`. Without
+  that build, the harness falls back to stock Wine from PATH
+  (`--setu-impl personality|stock` forces one). Each implementation gets its
+  own prefix (`oracle/.cache/wineprefix-<impl>`), and each test runs in a fresh
+  `build/work/setu/<test>`.
 
 ## CI
 

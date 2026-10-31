@@ -1,6 +1,6 @@
 # Copy to oracle/config.toml (git-ignored) and adjust. Every key is optional;
-# the defaults are shown. Env overrides: SETU_CC, SETU_WINE, SETU_WINESERVER,
-# SETU_WINEPREFIX.
+# the defaults are shown. Env overrides: SETU_CC, SETU_IMPL, SETU_WINE,
+# SETU_WINESERVER, SETU_WINEPREFIX.
 
 [build]
 cc = "x86_64-w64-mingw32-gcc"
@@ -11,10 +11,13 @@ ldflags = ["-static", "-ladvapi32"]
 timeout = 60            # seconds per test program
 
 [setu]
-# How to run a PE on the Setu side. Today: stock Wine. Later: the personality/ build.
-wine = ""               # "" = $SETU_WINE, else `wine`, else `wine64` on PATH
-wineserver = ""         # "" = `wineserver` on PATH (used to wait for / kill the server)
-prefix = "oracle/.cache/wineprefix"
+# Which build runs PEs on the Setu side: "auto" (the personality/ build if
+# tools/build-personality.sh has been run, else stock Wine), "personality", or
+# "stock". Also selectable per run with --setu-impl.
+implementation = "auto"
+wine = ""               # explicit command; overrides `implementation`
+wineserver = ""         # with an explicit `wine`: "" = `wineserver` on PATH
+prefix = ""             # "" = oracle/.cache/wineprefix-<implementation>
 winedebug = "-all"
 
 [windows]

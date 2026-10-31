@@ -80,7 +80,10 @@ def step_windows(cfg, tests, args) -> int:
 
 
 def step_setu(cfg, tests, args) -> int:
+    if args.setu_impl:
+        cfg["setu"]["implementation"] = args.setu_impl
     target = WineTarget(cfg, fresh_prefix=args.fresh_prefix)
+    print(f"setu: using {target.impl}: {' '.join(target.wine)}")
     res, flaky = run_target(target, tests, args.repeat)
     RESULTS_SETU.mkdir(parents=True, exist_ok=True)
     for tid, r in res.items():
@@ -157,6 +160,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--force-build", action="store_true", help="rebuild even if up to date")
     ap.add_argument("--no-revert", action="store_true", help="windows: don't revert the VM snapshot first")
     ap.add_argument("--fresh-prefix", action="store_true", help="setu: recreate the Wine prefix first")
+    ap.add_argument("--setu-impl", choices=["auto", "personality", "stock"],
+                    help="setu: which build to run (default: [setu] implementation, i.e. auto)")
     ap.add_argument("--update-expectations", action="store_true",
                     help="report: write currently passing cases to tests/expectations.json")
     ap.add_argument("--check-expectations", action="store_true",

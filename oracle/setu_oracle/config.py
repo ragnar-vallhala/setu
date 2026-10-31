@@ -26,10 +26,17 @@ DEFAULTS: dict = {
         "timeout": 60,
     },
     "setu": {
-        # Command used to run a PE on the Setu side. Today: stock Wine.
-        "wine": "",  # empty = $SETU_WINE, else `wine`, else `wine64` on PATH
-        "wineserver": "",  # empty = $SETU_WINESERVER, else `wineserver` on PATH
-        "prefix": str(ORACLE_DIR / ".cache" / "wineprefix"),
+        # Which build runs PEs on the Setu side:
+        #   "auto"        - the personality/ build if it exists, else stock Wine
+        #   "personality" - build/personality/install (tools/build-personality.sh)
+        #   "stock"       - stock Wine from PATH
+        # An explicit `wine` command (or $SETU_WINE) overrides all of these.
+        "implementation": "auto",
+        "wine": "",
+        "wineserver": "",
+        # "" = oracle/.cache/wineprefix-<implementation>, so builds never share
+        # (and upgrade or downgrade) each other's prefix.
+        "prefix": "",
         "winedebug": "-all",
     },
     "windows": {
@@ -91,6 +98,8 @@ def load(path: str | None = None) -> Config:
         data["setu"]["wine"] = env["SETU_WINE"]
     if env.get("SETU_WINESERVER"):
         data["setu"]["wineserver"] = env["SETU_WINESERVER"]
+    if env.get("SETU_IMPL"):
+        data["setu"]["implementation"] = env["SETU_IMPL"]
     if env.get("SETU_WINEPREFIX"):
         data["setu"]["prefix"] = env["SETU_WINEPREFIX"]
     # Relative paths in the config are relative to the repository root.

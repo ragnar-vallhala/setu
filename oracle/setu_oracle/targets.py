@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 """Execution targets: where a test .exe actually runs.
 
-* WineTarget    - the Setu side. Today that's stock Wine; later it's the Setu
-                  personality built from personality/.
+* WineTarget    - the Setu side: the personality built from personality/wine
+                  (tools/build-personality.sh), or stock Wine as a fallback.
 * WindowsTarget - a real Windows 11 VM reached over SSH, reverted to a clean
                   snapshot before each run. Produces golden files.
 """
@@ -16,7 +16,7 @@ import time
 from pathlib import Path
 
 from . import hmp
-from .config import BUILD_DIR, Config
+from .config import BUILD_DIR, ORACLE_DIR, Config
 from .results import RawRun
 from .tests import Test
 
@@ -38,15 +38,35 @@ class Target:
 # --------------------------------------------------------------------------- Setu / Wine
 
 
+PERSONALITY = BUILD_DIR / "personality" / "install"
+
+
 class WineTarget(Target):
     name = "setu"
 
     def __init__(self, cfg: Config, fresh_prefix: bool = False):
         c = cfg["setu"]
         self.timeout = cfg["run"]["timeout"]
-        self.wine = self._resolve(c["wine"], ["wine", "wine64"], "wine")
-        self.wineserver = self._resolve(c["wineserver"], ["wineserver"], None)
-        self.prefix = Path(c["prefix"])
+        impl = c["implementation"]
+        if impl not in ("auto", "personality", "stock"):
+            raise SystemExit(f"[setu] implementation must be auto, personality or stock (got {impl!r})")
+        built = (PERSONALITY / "bin" / "wine").exists()
+        if c["wine"]:
+            self.impl = "custom"
+            self.wine = shlex.split(c["wine"])
+            self.wineserver = self._resolve(c["wineserver"], ["wineserver"], None)
+        elif impl == "personality" or (impl == "auto" and built):
+            if not built:
+                raise SystemExit("personality build not found in build/personality/install: "
+                                 "run tools/build-personality.sh")
+            self.impl = "personality"
+            self.wine = [str(PERSONALITY / "bin" / "wine")]
+            self.wineserver = [str(PERSONALITY / "bin" / "wineserver")]
+        else:
+            self.impl = "stock-wine"
+            self.wine = self._resolve("", ["wine", "wine64"], "wine")
+            self.wineserver = self._resolve(c["wineserver"], ["wineserver"], None)
+        self.prefix = Path(c["prefix"]) if c["prefix"] else ORACLE_DIR / ".cache" / f"wineprefix-{self.impl}"
         self.fresh_prefix = fresh_prefix
         self.env = dict(os.environ)
         self.env.update({
@@ -81,7 +101,7 @@ class WineTarget(Target):
             shutil.rmtree(self.prefix)
         stamp = self.prefix / ".setu-oracle-initialized"
         if not stamp.exists():
-            print(f"setu: initialising Wine prefix {self.prefix} (one-time, ~10-60s)")
+            print(f"setu: initialising {self.impl} prefix {self.prefix} (one-time, ~10-60s)")
             self.prefix.parent.mkdir(parents=True, exist_ok=True)
             r = subprocess.run([*self.wine, "wineboot", "--init"], env=self.env, capture_output=True,
                                timeout=600)
@@ -115,7 +135,16 @@ class WineTarget(Target):
             v = subprocess.run([*self.wine, "--version"], capture_output=True, text=True, timeout=30).stdout.strip()
         except (OSError, subprocess.SubprocessError):
             v = "unknown"
-        return {"target": "setu", "implementation": "stock-wine", "version": v}
+        if self.impl == "personality":
+            stamp = PERSONALITY / "SETU_BUILD"
+            tree = ""
+            if stamp.exists():
+                for line in stamp.read_text().splitlines():
+                    if line.startswith("tree="):
+                        tree = line[5:]
+            if tree:
+                v = f"{v} (personality tree {tree[:12]}{'-dirty' if tree.endswith('-dirty') else ''})"
+        return {"target": "setu", "implementation": self.impl, "version": v}
 
     def finish(self) -> None:
         self._wineserver("-w")
