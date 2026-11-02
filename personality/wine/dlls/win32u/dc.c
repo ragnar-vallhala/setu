@@ -625,6 +625,7 @@ BOOL WINAPI NtGdiRestoreDC( HDC hdc, INT level )
     if (abs(level) > dc->attr->save_level || level == 0)
     {
         release_dc_ptr( dc );
+        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
         return FALSE;
     }
 
