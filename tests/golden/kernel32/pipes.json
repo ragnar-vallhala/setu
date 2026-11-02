@@ -1,0 +1,592 @@
+{
+  "test": "kernel32/pipes",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "anon_create": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_read": 3,
+      "type_write": 3
+    },
+    "anon_peek_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0,
+      "data": "",
+      "avail": 0,
+      "left_this_message": 0
+    },
+    "anon_write_5": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 5
+    },
+    "anon_write_zero": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 0
+    },
+    "anon_peek_2_of_5": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "6865",
+      "avail": 5,
+      "left_this_message": 4294967294
+    },
+    "anon_peek_null_buffer": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0,
+      "avail": 5,
+      "left_this_message": 0
+    },
+    "anon_read_3": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 3,
+      "data": "68656c"
+    },
+    "anon_peek_after_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "6c6f",
+      "avail": 2,
+      "left_this_message": 4294967294
+    },
+    "anon_read_rest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "6c6f"
+    },
+    "anon_write_on_read_end": {
+      "ret": false,
+      "last_error": 5,
+      "written": 0
+    },
+    "anon_read_on_write_end": {
+      "ret": false,
+      "last_error": 5,
+      "read": 0,
+      "data": ""
+    },
+    "anon_info_read_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000001",
+      "out_size": 4096,
+      "in_size": 4096,
+      "max_instances": 1
+    },
+    "anon_info_write_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000000",
+      "out_size": 4096,
+      "in_size": 4096,
+      "max_instances": 1
+    },
+    "anon_state_read_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "0x00000000",
+      "instances": 1
+    },
+    "anon_set_message_mode": {
+      "ret": false,
+      "last_error": 87
+    },
+    "anon_set_nowait": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "anon_state_after_nowait": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "0x00000001",
+      "instances": 1
+    },
+    "anon_nowait_read_empty": {
+      "ret": false,
+      "last_error": 232,
+      "read": 0,
+      "data": ""
+    },
+    "anon_get_file_size": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "anon_set_file_pointer": {
+      "ret": "0x0000000a",
+      "last_error": "unchanged"
+    },
+    "anon_flush_write_end": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "anon_write_before_close": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 3
+    },
+    "anon_peek_after_writer_closed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 3,
+      "data": "627965",
+      "avail": 3,
+      "left_this_message": 4294967293
+    },
+    "anon_read_after_writer_closed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 3,
+      "data": "627965"
+    },
+    "anon_read_after_writer_closed_empty": {
+      "ret": false,
+      "last_error": 109,
+      "read": 0,
+      "data": ""
+    },
+    "anon_peek_after_writer_closed_empty": {
+      "ret": false,
+      "last_error": 109
+    },
+    "anon_write_after_reader_closed": {
+      "ret": false,
+      "last_error": 232,
+      "written": 0
+    },
+    "anon_write_zero_after_reader_closed": {
+      "ret": false,
+      "last_error": 232,
+      "written": 0
+    },
+    "msg_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "msg_info_server_before_connect": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000005",
+      "out_size": 1024,
+      "in_size": 1024,
+      "max_instances": 1
+    },
+    "msg_state_server_before_connect": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "0x00000002",
+      "instances": 1
+    },
+    "msg_connect_nowait_no_client": {
+      "ret": false,
+      "last_error": 536
+    },
+    "msg_read_listening": {
+      "ret": false,
+      "last_error": 536,
+      "read": 0,
+      "data": ""
+    },
+    "msg_write_listening": {
+      "ret": false,
+      "last_error": 536,
+      "written": 0
+    },
+    "msg_client_open": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "msg_connect_after_client": {
+      "ret": false,
+      "last_error": 535
+    },
+    "msg_client_open_busy": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 231
+    },
+    "msg_wait_named_pipe_busy": {
+      "ret": false,
+      "last_error": 121
+    },
+    "msg_create_over_max": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 231
+    },
+    "msg_info_client": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000004",
+      "out_size": 1024,
+      "in_size": 1024,
+      "max_instances": 1
+    },
+    "msg_state_client": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "0x00000000",
+      "instances": 1
+    },
+    "msg_state_server": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "0x00000002",
+      "instances": 1
+    },
+    "msg_client_process_id": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_self": true
+    },
+    "msg_server_process_id": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_self": true
+    },
+    "msg_client_write_10": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 10
+    },
+    "msg_client_write_3": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 3
+    },
+    "msg_client_write_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 0
+    },
+    "msg_peek_4": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4,
+      "data": "30313233",
+      "avail": 13,
+      "left_this_message": 6
+    },
+    "msg_peek_null_buffer": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0,
+      "avail": 13,
+      "left_this_message": 10
+    },
+    "msg_read_4_of_10": {
+      "ret": false,
+      "last_error": 234,
+      "read": 4,
+      "data": "30313233"
+    },
+    "msg_peek_after_partial": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 6,
+      "data": "343536373839",
+      "avail": 9,
+      "left_this_message": 0
+    },
+    "msg_read_rest_of_10": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 6,
+      "data": "343536373839"
+    },
+    "msg_read_3": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 3,
+      "data": "616263"
+    },
+    "msg_peek_empty_message": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0,
+      "data": "",
+      "avail": 0,
+      "left_this_message": 0
+    },
+    "msg_read_empty_message": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0,
+      "data": ""
+    },
+    "msg_peek_nothing": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0,
+      "data": "",
+      "avail": 0,
+      "left_this_message": 0
+    },
+    "msg_server_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 4
+    },
+    "msg_client_set_byte_mode": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "msg_client_byte_read_2": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "706f"
+    },
+    "msg_client_byte_read_rest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "6e67"
+    },
+    "msg_disconnect": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "msg_client_write_after_disconnect": {
+      "ret": false,
+      "last_error": 233,
+      "written": 0
+    },
+    "msg_client_read_after_disconnect": {
+      "ret": false,
+      "last_error": 233,
+      "read": 0,
+      "data": ""
+    },
+    "msg_client_peek_after_disconnect": {
+      "ret": false,
+      "last_error": 233
+    },
+    "msg_state_server_after_disconnect": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "0x00000002",
+      "instances": 1
+    },
+    "msg_server_read_after_disconnect": {
+      "ret": false,
+      "last_error": 233,
+      "read": 0,
+      "data": ""
+    },
+    "msg_disconnect_again": {
+      "ret": false,
+      "last_error": 233
+    },
+    "msg_client_open_after_disconnect": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 231
+    },
+    "msg_client_open_after_server_closed": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "byte_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "byte_create_second_instance": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "byte_create_first_instance_flag": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "byte_create_different_max": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "byte_create_message_type_mismatch": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "byte_create_inbound_mismatch": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "byte_state_two_instances": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "0x00000000",
+      "instances": 2
+    },
+    "byte_client_open": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "byte_client_open_second": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "byte_client_open_third_no_instance": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 231
+    },
+    "byte_client_set_message_mode": {
+      "ret": false,
+      "last_error": 87
+    },
+    "byte_client_write_a": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 2
+    },
+    "byte_client_write_b": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 2
+    },
+    "byte_peek_merged": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4,
+      "data": "61626364",
+      "avail": 4,
+      "left_this_message": 4294967292
+    },
+    "byte_read_merged": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4,
+      "data": "61626364"
+    },
+    "byte_client_write_before_close": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 2
+    },
+    "byte_server_read_after_client_closed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "7a7a"
+    },
+    "byte_server_read_after_client_closed_empty": {
+      "ret": false,
+      "last_error": 109,
+      "read": 0,
+      "data": ""
+    },
+    "byte_server_write_after_client_closed": {
+      "ret": false,
+      "last_error": 232,
+      "written": 0
+    },
+    "byte_server_peek_after_client_closed": {
+      "ret": false,
+      "last_error": 109
+    },
+    "byte_connect_after_client_closed": {
+      "ret": false,
+      "last_error": 232
+    },
+    "byte_client2_read_after_server_closed": {
+      "ret": false,
+      "last_error": 109,
+      "read": 0,
+      "data": ""
+    },
+    "byte_client2_write_after_server_closed": {
+      "ret": false,
+      "last_error": 232,
+      "written": 0
+    },
+    "inbound_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "inbound_client_open_read_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "inbound_client_open_write": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "inbound_server_write": {
+      "ret": false,
+      "last_error": 5,
+      "written": 0
+    },
+    "inbound_client_read": {
+      "ret": false,
+      "last_error": 5,
+      "read": 0,
+      "data": ""
+    },
+    "create_no_pipe_prefix": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_bad_open_mode": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "create_max_instances_zero": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "create_max_instances_256": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "create_readmode_message_on_byte": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "open_missing_pipe": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "wait_missing_pipe": {
+      "ret": false,
+      "last_error": 2
+    },
+    "wait_free_instance": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "wait_free_instance_other_case": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "open_other_case": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "zero_buffer_sizes_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000001",
+      "out_size": 0,
+      "in_size": 0,
+      "max_instances": 1
+    },
+    "connect_on_file_handle": {
+      "ret": false,
+      "last_error": 1
+    },
+    "peek_on_file_handle": {
+      "ret": false,
+      "last_error": 1
+    },
+    "info_on_file_handle": {
+      "ret": false,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "477b158d0d084fc331bdf263625f971dc3303bb9b88d2726a48b64bda1f75da3"
+}

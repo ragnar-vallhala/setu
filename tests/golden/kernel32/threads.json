@@ -1,0 +1,474 @@
+{
+  "test": "kernel32/threads",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_suspended": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "tid_nonzero": true,
+      "tid_matches_GetThreadId": true,
+      "tid_not_current": true
+    },
+    "suspended_exit_code": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 259
+    },
+    "suspended_not_signalled": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "suspend_1": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "suspend_2": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "resume_3": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "resume_2": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "priority_of_suspended": {
+      "prio": 0
+    },
+    "set_priority_suspended_lowest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": -2
+    },
+    "resume_1": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "exited_signalled": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "exit_code_return_value": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 42
+    },
+    "resume_after_exit": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "suspend_after_exit": {
+      "ret": -1,
+      "last_error": 5
+    },
+    "set_priority_after_exit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 0
+    },
+    "terminate_after_exit": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "exit_code_after_terminate_exited": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 42
+    },
+    "exit_code_ExitThread": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 7
+    },
+    "exit_code_returns_still_active": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 259
+    },
+    "still_active_thread_signalled": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "terminate_suspended": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "exit_code_terminated": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 99
+    },
+    "resume_terminated": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "create_bad_flags": {
+      "ret": "valid"
+    },
+    "create_stack_reservation": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "stack_reservation_exit_code": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 3
+    },
+    "exit_code_null_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "exit_code_invalid_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "resume_null": {
+      "ret": -1,
+      "last_error": 6
+    },
+    "suspend_null": {
+      "ret": -1,
+      "last_error": 6
+    },
+    "resume_current_thread": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "resume_event_handle": {
+      "ret": -1,
+      "last_error": 6
+    },
+    "exit_code_event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "get_priority_event_handle": {
+      "ret": 2147483647,
+      "last_error": 6
+    },
+    "get_thread_id_event_handle": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "get_priority_null": {
+      "ret": 2147483647,
+      "last_error": 6
+    },
+    "get_thread_id_null": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "current_thread_pseudo": {
+      "is_minus_2": true,
+      "id_matches": true,
+      "process_id_of_thread": true
+    },
+    "exit_code_current_thread": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 259
+    },
+    "open_current_thread": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "id_matches": true
+    },
+    "set_priority_without_access": {
+      "ret": false,
+      "last_error": 5,
+      "now": 0
+    },
+    "suspend_without_access": {
+      "ret": -1,
+      "last_error": 5
+    },
+    "open_thread_id_zero": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "open_thread_bogus_id": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "priority_default": {
+      "prio": 0
+    },
+    "set_priority_above_normal": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 1
+    },
+    "set_priority_highest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 2
+    },
+    "set_priority_idle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": -15
+    },
+    "set_priority_below_normal": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": -1
+    },
+    "set_priority_3": {
+      "ret": false,
+      "last_error": 87,
+      "now": -1
+    },
+    "set_priority_minus_3": {
+      "ret": false,
+      "last_error": 87,
+      "now": -1
+    },
+    "set_priority_6": {
+      "ret": false,
+      "last_error": 87,
+      "now": -1
+    },
+    "set_priority_14": {
+      "ret": false,
+      "last_error": 87,
+      "now": -1
+    },
+    "set_priority_16": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 15
+    },
+    "set_priority_minus_7": {
+      "ret": false,
+      "last_error": 87,
+      "now": 15
+    },
+    "set_priority_bg_begin": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": -4
+    },
+    "set_priority_bg_begin_again": {
+      "ret": false,
+      "last_error": 400,
+      "now": -4
+    },
+    "set_priority_bg_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 15
+    },
+    "set_priority_bg_end_again": {
+      "ret": false,
+      "last_error": 401,
+      "now": 15
+    },
+    "set_priority_normal": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 0
+    },
+    "priority_boost_default": {
+      "ret": true,
+      "last_error": "unchanged",
+      "disabled": 0
+    },
+    "priority_boost_disable": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "priority_boost_after_disable": {
+      "disabled": 1
+    },
+    "apc_queue_current": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "apc_sleep_not_alertable": {
+      "ret": "0x00000000",
+      "last_error": "unchanged",
+      "order": ""
+    },
+    "apc_sleep_alertable": {
+      "ret": "0x000000c0",
+      "last_error": "unchanged",
+      "order": "A"
+    },
+    "apc_sleep_alertable_empty": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "apc_two_fifo_wait_signalled_object": {
+      "ret": "0x000000c0",
+      "order": "12"
+    },
+    "apc_two_fifo_after_drain": {
+      "order": "12"
+    },
+    "apc_suspended_thread_order": {
+      "order": "AS"
+    },
+    "apc_queue_exited_thread": {
+      "ret": 0,
+      "last_error": 31
+    },
+    "apc_queue_null_handle": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "tls_alloc": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "tls_get_fresh": {
+      "null": true,
+      "last_error": 0
+    },
+    "tls_set": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "tls_get_after_set": {
+      "value": "0x00001234",
+      "last_error": 0
+    },
+    "tls_other_thread_sees_null": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 1
+    },
+    "tls_free": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "tls_free_again": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_get_after_free": {
+      "null": true,
+      "last_error": 0
+    },
+    "tls_get_index_5000": {
+      "null": true,
+      "last_error": 87
+    },
+    "tls_set_index_5000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_free_index_5000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_free_out_of_indexes": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_alloc_100": {
+      "allocated": 100,
+      "fresh_null": 100,
+      "roundtrip": 100,
+      "uses_expansion_slots": true
+    },
+    "tls_realloc_after_free": {
+      "value_cleared": true
+    },
+    "fls_alloc": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "fls_get_fresh": {
+      "null": true,
+      "last_error": 0
+    },
+    "fls_set": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "fls_get_after_set": {
+      "value": "0x00000055",
+      "last_error": 0
+    },
+    "fls_callback_on_thread_exit": {
+      "calls": 1,
+      "value": "0x00000077"
+    },
+    "fls_no_callback_for_null": {
+      "calls": 0
+    },
+    "fls_overwrite_no_callback": {
+      "calls": 0
+    },
+    "fls_free": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "fls_free_runs_callback": {
+      "calls": 1,
+      "value": "0x00000066"
+    },
+    "fls_free_again": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fls_get_after_free": {
+      "null": true,
+      "last_error": 0
+    },
+    "fls_set_after_free": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "fls_get_index_5000": {
+      "null": true,
+      "last_error": 87
+    },
+    "fls_set_index_5000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fls_free_index_5000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fls_free_out_of_indexes": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fls_alloc_null_callback": {
+      "ok": true
+    },
+    "description_apis_present": {
+      "set": true,
+      "get": true
+    },
+    "description_default": {
+      "hr": "0x10000000",
+      "last_error": "unchanged",
+      "desc": ""
+    },
+    "description_set": {
+      "hr": "0x10000000",
+      "last_error": "unchanged"
+    },
+    "description_get_after_set": {
+      "hr": "0x10000000",
+      "desc": "setu worker"
+    },
+    "description_set_empty": {
+      "hr": "0x10000000",
+      "desc": ""
+    },
+    "description_set_null_handle": {
+      "hr": "0xd0000008",
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "3f59425132566506ff4876bdbd1b534fbc9e33a7534b8662c2e1ab608294a682"
+}

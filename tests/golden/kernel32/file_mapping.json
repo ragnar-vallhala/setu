@@ -1,0 +1,348 @@
+{
+  "test": "kernel32/file_mapping",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "empty_file_size_zero": {
+      "ret": "NULL",
+      "last_error": 1006
+    },
+    "empty_file_readonly_size_100": {
+      "ret": "NULL",
+      "last_error": 8
+    },
+    "empty_file_after_readonly_map": {
+      "size": 0
+    },
+    "empty_file_readwrite_size_100": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "empty_file_extended_by_mapping": {
+      "size": 100
+    },
+    "readonly_handle_page_readwrite": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "readonly_handle_page_writecopy": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "readonly_handle_page_execute_read": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "readonly_handle_size_200": {
+      "ret": "NULL",
+      "last_error": 8
+    },
+    "readonly_handle_bad_protect": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "readonly_handle_protect_zero": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "readonly_handle_page_noaccess": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "readonly_handle_sec_image_not_pe": {
+      "ret": "NULL",
+      "last_error": 193
+    },
+    "readonly_handle_readonly": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "view_write_on_readonly_mapping": {
+      "ret": false,
+      "last_error": 5
+    },
+    "view_copy_on_readonly_mapping": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "view_execute_on_readonly_mapping": {
+      "ret": false,
+      "last_error": 5
+    },
+    "view_read_on_readonly_mapping": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "view_read_contents": {
+      "first": "72727272",
+      "tail_past_eof": "00000000"
+    },
+    "view_read_vq": {
+      "ret": true,
+      "base_is_view": true,
+      "alloc_base_is_view": true,
+      "alloc_protect": "READONLY",
+      "protect": "READONLY",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "type": "0x00040000"
+    },
+    "view_size_larger_than_mapping": {
+      "ret": false,
+      "last_error": 5
+    },
+    "view_offset_unaligned": {
+      "ret": false,
+      "last_error": 1132
+    },
+    "view_offset_beyond_mapping": {
+      "ret": false,
+      "last_error": 5
+    },
+    "view_access_zero": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rw_mapping": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "rw_view_all": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rw_view_vq": {
+      "ret": true,
+      "base_is_view": true,
+      "alloc_base_is_view": true,
+      "alloc_protect": "READWRITE",
+      "protect": "READWRITE",
+      "region_size": 73728,
+      "state": "0x00001000",
+      "type": "0x00040000"
+    },
+    "readfile_sees_view_write": {
+      "data": "56494557"
+    },
+    "view_sees_writefile": {
+      "data": "46494c45"
+    },
+    "flush_view_whole": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "flush_view_partial": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rw_view_offset_64k": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "second_view_coherent": {
+      "data": "5a61"
+    },
+    "view_offset_64k_vq": {
+      "ret": true,
+      "base_is_view": true,
+      "alloc_base_is_view": true,
+      "alloc_protect": "READONLY",
+      "protect": "READONLY",
+      "region_size": 8192,
+      "state": "0x00001000",
+      "type": "0x00040000"
+    },
+    "truncate_while_mapped": {
+      "ret": false,
+      "last_error": 1224
+    },
+    "extend_while_mapped": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "size_after_extend_while_mapped": {
+      "size": 100000
+    },
+    "unmap": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unmap_twice": {
+      "ret": false,
+      "last_error": 487
+    },
+    "unmap_null": {
+      "ret": false,
+      "last_error": 487
+    },
+    "unmap_private_memory": {
+      "ret": false,
+      "last_error": 487
+    },
+    "delete_while_section_open": {
+      "ret": false,
+      "last_error": 5
+    },
+    "truncate_existing_while_section_open": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "delete_after_section_closed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "cow_mapping": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "cow_view": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "cow_vq_before_write": {
+      "ret": true,
+      "base_is_view": true,
+      "alloc_base_is_view": true,
+      "alloc_protect": "WRITECOPY",
+      "protect": "WRITECOPY",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "type": "0x00040000"
+    },
+    "cow_vq_after_write": {
+      "ret": true,
+      "base_is_view": true,
+      "alloc_base_is_view": true,
+      "alloc_protect": "WRITECOPY",
+      "protect": "READWRITE",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "type": "0x00040000"
+    },
+    "cow_mapping_view_write": {
+      "ret": false,
+      "last_error": 5
+    },
+    "cow_mapping_view_read": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "cow_mapping_read_vq": {
+      "ret": true,
+      "base_is_view": true,
+      "alloc_base_is_view": true,
+      "alloc_protect": "READONLY",
+      "protect": "READONLY",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "type": "0x00040000"
+    },
+    "cow_file_unchanged": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 4096,
+      "file.data": "63636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363"
+    },
+    "anon_size_zero": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "anon_writecopy": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "anon_named_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "anon_named_create_again": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "anon_named_shared_view": {
+      "fresh": "00000000",
+      "shared": true,
+      "distinct_views": true
+    },
+    "anon_view_vq": {
+      "ret": true,
+      "base_is_view": true,
+      "alloc_base_is_view": true,
+      "alloc_protect": "READWRITE",
+      "protect": "READWRITE",
+      "region_size": 12288,
+      "state": "0x00001000",
+      "type": "0x00040000"
+    },
+    "anon_view_too_big": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "anon_view_size_10000": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "open_existing": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_read_view_write": {
+      "ret": false,
+      "last_error": 5
+    },
+    "open_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "open_null_name": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "open_name_other_case": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "create_name_used_by_event": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "open_name_used_by_event": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "open_after_all_closed": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "mapex_busy_address": {
+      "ret": false,
+      "last_error": 487
+    },
+    "mapex_unaligned_address": {
+      "ret": false,
+      "last_error": 1132
+    },
+    "unmap_inside_view": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "view_survives_handle_close": {
+      "byte": 9
+    },
+    "mapping_size_high_nonzero_readonly": {
+      "ret": "NULL",
+      "last_error": 8
+    },
+    "mapping_on_closed_handle_style_invalid": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "mapping_on_directory": {
+      "ret": "NULL",
+      "last_error": 193
+    }
+  },
+  "errors": [],
+  "source_sha256": "3c49c527701411407cc44092f412be91ca73e670a93b14891bb06f16e49810a2"
+}

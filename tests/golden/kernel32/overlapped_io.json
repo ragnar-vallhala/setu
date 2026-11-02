@@ -1,0 +1,338 @@
+{
+  "test": "kernel32/overlapped_io",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "file_write_offset_0": {
+      "start": "started",
+      "result": true,
+      "last_error": 0,
+      "bytes": 10,
+      "internal": "0x00000000",
+      "internal_high": 10,
+      "event_signalled": true
+    },
+    "file_write_offset_20_leaves_gap": {
+      "start": "started",
+      "result": true,
+      "last_error": 0,
+      "bytes": 2,
+      "internal": "0x00000000",
+      "internal_high": 2
+    },
+    "file_state_after_gap_write": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 22,
+      "file.data": "30313233343536373839000000000000000000005859"
+    },
+    "file_write_append_offset": {
+      "start": "started",
+      "result": true,
+      "last_error": 0,
+      "bytes": 1,
+      "internal": "0x00000000",
+      "internal_high": 1
+    },
+    "file_state_after_append_write": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 23,
+      "file.data": "3031323334353637383900000000000000000000585945"
+    },
+    "file_read_offset_3": {
+      "start": "started",
+      "result": true,
+      "last_error": 0,
+      "bytes": 4,
+      "internal": "0x00000000",
+      "internal_high": 4,
+      "data": "33343536"
+    },
+    "file_read_short_at_end": {
+      "start": "started",
+      "result": true,
+      "last_error": 0,
+      "bytes": 3,
+      "internal": "0x00000000",
+      "internal_high": 3
+    },
+    "file_read_past_eof": {
+      "start": "started",
+      "result": false,
+      "last_error": 38,
+      "bytes": 0,
+      "internal": "0xc0000011",
+      "internal_high": 0,
+      "event_signalled": true
+    },
+    "file_read_zero_past_eof": {
+      "start": "started",
+      "result": true,
+      "last_error": 0,
+      "bytes": 0,
+      "internal": "0x00000000",
+      "internal_high": 0
+    },
+    "file_read_no_overlapped_on_async_handle": {
+      "ret": false,
+      "last_error": 87,
+      "read": 0
+    },
+    "file_write_no_overlapped_on_async_handle": {
+      "ret": false,
+      "last_error": 87,
+      "written": 0
+    },
+    "file_read_without_event": {
+      "start": "started",
+      "result": true,
+      "last_error": 0,
+      "bytes": 2,
+      "internal": "0x00000000",
+      "internal_high": 2,
+      "file_handle_signalled": true
+    },
+    "cancel_io_nothing_pending": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "cancel_io_ex_nothing_pending": {
+      "ret": false,
+      "last_error": 1168
+    },
+    "cancel_io_ex_completed_overlapped": {
+      "ret": false,
+      "last_error": 1168
+    },
+    "cancel_io_ex_invalid_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "readfileex_start": {
+      "ret": true,
+      "last_error": "unchanged",
+      "calls_before_alertable": 0
+    },
+    "readfileex_complete": {
+      "sleep_ret": "0x000000c0",
+      "calls": 1,
+      "err": 0,
+      "bytes": 3,
+      "same_overlapped": true,
+      "data": "323334"
+    },
+    "readfileex_past_eof": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "readfileex_past_eof_completion": {
+      "calls": 1,
+      "err": 38,
+      "bytes": 0
+    },
+    "writefileex_start": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "writefileex_complete": {
+      "calls": 1,
+      "err": 0,
+      "bytes": 2
+    },
+    "readfileex_sync_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "sync_handle_with_overlapped": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 3,
+      "data": "343536",
+      "event_signalled": true,
+      "pointer_after": 7,
+      "internal": "0x00000000",
+      "internal_high": 3
+    },
+    "sync_handle_with_overlapped_past_eof": {
+      "ret": false,
+      "last_error": 38,
+      "read": 0,
+      "internal": "0xc0000011"
+    },
+    "pipe_connect_overlapped_pending": {
+      "ret": false,
+      "last_error": 997,
+      "event_reset": true,
+      "has_completed": false
+    },
+    "pipe_connect_completes_on_client_open": {
+      "result": true,
+      "last_error": 0,
+      "bytes": 0,
+      "internal": "0x00000000",
+      "internal_high": 0,
+      "event_signalled": true
+    },
+    "pipe_read_pending": {
+      "ret": false,
+      "last_error": 997,
+      "event_reset": true,
+      "has_completed": false,
+      "internal": "0x00000103"
+    },
+    "pipe_result_incomplete": {
+      "ret": false,
+      "last_error": 996,
+      "bytes": 43690
+    },
+    "pipe_result_ex_timeout_0": {
+      "ret": false,
+      "last_error": 996
+    },
+    "pipe_result_ex_timeout_1": {
+      "ret": false,
+      "last_error": 258
+    },
+    "pipe_read_completes_after_write": {
+      "result": true,
+      "last_error": 0,
+      "bytes": 4,
+      "internal": "0x00000000",
+      "internal_high": 4,
+      "data": "64617461",
+      "event_signalled": true
+    },
+    "pipe_cancel_io_ex": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "pipe_result_after_cancel": {
+      "result": false,
+      "last_error": 995,
+      "bytes": 0,
+      "internal": "0xc0000120",
+      "internal_high": 0
+    },
+    "pipe_cancel_io_ex_again": {
+      "ret": false,
+      "last_error": 1168
+    },
+    "pipe_cancel_io": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "pipe_result_after_cancel_io": {
+      "result": false,
+      "last_error": 995,
+      "bytes": 0,
+      "internal": "0xc0000120",
+      "internal_high": 0
+    },
+    "pipe_result_after_client_close": {
+      "result": false,
+      "last_error": 109,
+      "bytes": 0,
+      "internal": "0xc000014b",
+      "internal_high": 0
+    },
+    "iocp_create": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "iocp_get_empty": {
+      "ret": false,
+      "last_error": 258,
+      "ov_null": true
+    },
+    "iocp_post": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "iocp_post_null_overlapped": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "iocp_get_posted": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 77,
+      "key": "0x00001234",
+      "ov_matches": true
+    },
+    "iocp_get_posted_null_overlapped": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 5,
+      "key": "0x00000055",
+      "ov_null": true
+    },
+    "iocp_associate_file": {
+      "same_port": true,
+      "last_error": "unchanged"
+    },
+    "iocp_associate_file_twice": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "iocp_file_read": {
+      "start": "started"
+    },
+    "iocp_file_read_packet": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 5,
+      "key": "0x0000f11e",
+      "ov_matches": true
+    },
+    "iocp_file_read_eof": {
+      "start": "started"
+    },
+    "iocp_file_read_eof_packet": {
+      "ret": false,
+      "last_error": 38,
+      "ov_matches": true
+    },
+    "iocp_event_low_bit_suppresses_packet": {
+      "ret": false,
+      "last_error": 258,
+      "ov_null": true
+    },
+    "iocp_get_ex_two": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 2,
+      "bytes0": 1,
+      "bytes1": 2,
+      "key0": "0x00000001"
+    },
+    "iocp_get_ex_empty": {
+      "ret": false,
+      "last_error": 258,
+      "count": 1
+    },
+    "skip_on_success_mode": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "iocp_invalid_file_existing_port": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "iocp_get_on_event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "iocp_post_on_event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "iocp_associate_sync_handle": {
+      "ret": "NULL",
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "cbdb04a262ea5f63b62a881d1df5dcb73888db4c6283db9fee1633886de5e91c"
+}
