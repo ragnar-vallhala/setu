@@ -140,7 +140,7 @@ LPWSTR WINAPI KERNELBASE_lstrcpynW( LPWSTR dst, LPCWSTR src, INT n )
     }
     __EXCEPT_PAGE_FAULT
     {
-        SetLastError( ERROR_INVALID_PARAMETER );
+        /* the last error is left alone */
         return 0;
     }
     __ENDTRY
@@ -172,7 +172,7 @@ INT WINAPI KERNELBASE_lstrlenW( LPCWSTR str )
     }
     __EXCEPT_PAGE_FAULT
     {
-        SetLastError( ERROR_INVALID_PARAMETER );
+        /* the last error is left alone */
         return 0;
     }
     __ENDTRY

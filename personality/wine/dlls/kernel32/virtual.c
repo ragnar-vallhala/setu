@@ -281,7 +281,7 @@ LPWSTR WINAPI lstrcatW( LPWSTR dst, LPCWSTR src )
     }
     __EXCEPT( badptr_handler )
     {
-        SetLastError( ERROR_INVALID_PARAMETER );
+        /* the last error is left alone */
         return NULL;
     }
     __ENDTRY
