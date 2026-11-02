@@ -14,6 +14,7 @@
  *       https://learn.microsoft.com/en-us/windows/win32/api/heapapi/nf-heapapi-heaprealloc
  *       https://learn.microsoft.com/en-us/windows/win32/api/heapapi/nf-heapapi-heapsize
  *       https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsysteminfo
+ *       https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntprotectvirtualmemory
  */
 #include "oracle.h"
 
@@ -148,6 +149,67 @@ int main(void)
         alloc_case("commit_without_address_or_reserve", NULL, PAGE, MEM_COMMIT, PAGE_READWRITE, &p);
         if (p) VirtualFree(p, 0, MEM_RELEASE);
         alloc_case("reset_on_null", NULL, PAGE, MEM_RESET, PAGE_READWRITE, NULL);
+    }
+
+    {   /* Probes: which protection values fail, and with which error. */
+        static const DWORD prots[] = {
+            0x3, 0x45, 0x8, 0x80, 0x100, 0x104, 0x204, 0x404, 0x304, 0x604, 0x1004,
+            0x2004, 0x10004, 0x10000, 0x12345, 0x40000004, 0x20000004, 0x80000004,
+            0x804, 0x4004, 0x8004, 0x20004, 0x100004, 0x1000004, 0x4000004, 0x8000004,
+            0x10000004, 0x10003,
+        };
+        char name[64];
+        char *r = VirtualAlloc(NULL, 64 * PAGE, MEM_RESERVE, PAGE_READWRITE);
+        char *c = VirtualAlloc(NULL, PAGE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+        for (int i = 0; i < (int)(sizeof prots / sizeof prots[0]); i++) {
+            void *p;
+            snprintf(name, sizeof name, "probe_commit_prot_%lx", (unsigned long)prots[i]);
+            alloc_case(name, r + i * PAGE, PAGE, MEM_COMMIT, prots[i], NULL);
+            snprintf(name, sizeof name, "probe_reserve_commit_prot_%lx", (unsigned long)prots[i]);
+            alloc_case(name, NULL, PAGE, MEM_RESERVE | MEM_COMMIT, prots[i], &p);
+            if (p) VirtualFree(p, 0, MEM_RELEASE);
+            snprintf(name, sizeof name, "probe_protect_prot_%lx", (unsigned long)prots[i]);
+            protect_case(name, c, PAGE, prots[i]);
+            DWORD old;
+            VirtualProtect(c, PAGE, PAGE_READWRITE, &old);
+        }
+        protect_case("probe_protect_bad_prot_on_reserved", r + 63 * PAGE, PAGE, 0x3);
+        protect_case("probe_protect_unsupported_on_reserved", r + 63 * PAGE, PAGE, 0x10004);
+        protect_case("probe_protect_size0_unaligned", c + 100, 0, PAGE_READONLY);
+        protect_case("probe_protect_size1", c + 100, 1, PAGE_READONLY);
+        VirtualFree(r, 0, MEM_RELEASE);
+        protect_case("probe_protect_free_address", r, PAGE, PAGE_READONLY);
+        alloc_case("probe_reset_on_free_address", r, PAGE, MEM_RESET, PAGE_READWRITE, NULL);
+        alloc_case("probe_reset_with_commit", c, PAGE, MEM_RESET | MEM_COMMIT, PAGE_READWRITE, NULL);
+        alloc_case("probe_reset_on_null_noaccess", NULL, PAGE, MEM_RESET, PAGE_NOACCESS, NULL);
+        alloc_case("probe_reset_committed", c, PAGE, MEM_RESET, PAGE_READWRITE, NULL);
+
+        typedef LONG (WINAPI *ntprot_fn)(HANDLE, void **, SIZE_T *, ULONG, ULONG *);
+        ntprot_fn ntprot = (ntprot_fn)(void *)GetProcAddress(GetModuleHandleW(L"ntdll.dll"),
+                                                             "NtProtectVirtualMemory");
+        {
+            void *a = c;
+            SIZE_T sz = 0;
+            ULONG old = 0xdead;
+            LONG st = ntprot(GetCurrentProcess(), &a, &sz, PAGE_READONLY, &old);
+            oracle_case("probe_ntprotect_size0");
+            o_hex32("status", (DWORD)st);
+            o_hex32("old", old);
+            o_u64("size_out", sz);
+            o_bool("addr_unchanged", a == c);
+            oracle_case_end();
+        }
+        {
+            void *a = c;
+            SIZE_T sz = PAGE;
+            ULONG old = 0xdead;
+            LONG st = ntprot(GetCurrentProcess(), &a, &sz, 0x3, &old);
+            oracle_case("probe_ntprotect_bad_prot");
+            o_hex32("status", (DWORD)st);
+            o_hex32("old", old);
+            oracle_case_end();
+        }
+        VirtualFree(c, 0, MEM_RELEASE);
     }
 
     {   /* Heap. */

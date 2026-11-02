@@ -29,6 +29,23 @@
       "last_error": "unchanged",
       "value": "hello"
     },
+    "probe_get_size_one": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "buf_untouched": false,
+      "buf_head": "00002300230023002300230023002300"
+    },
+    "probe_get_size_three": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "buf_untouched": false,
+      "buf_head": "00002300230023002300230023002300"
+    },
+    "probe_rtl_query_too_small": {
+      "status": "0xc0000023",
+      "length": 10,
+      "buf_head": "00002300230023002300230023002300"
+    },
     "get_null_buffer": {
       "ret": 6,
       "last_error": "unchanged"
@@ -199,6 +216,65 @@
       "last_error": "unchanged",
       "out": "h"
     },
+    "probe_expand_undefined_then_var": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "%SETU_UNDEFex"
+    },
+    "probe_expand_two_vars": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "exex"
+    },
+    "probe_expand_triple_percent": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "%%ex"
+    },
+    "probe_expand_var_then_percent": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "ex%"
+    },
+    "probe_expand_two_percents": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "%%"
+    },
+    "probe_expand_one_percent": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "%"
+    },
+    "probe_expand_space_name_then_var": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "%a bex"
+    },
+    "probe_expand_undefined_twice": {
+      "ret": 27,
+      "last_error": "unchanged",
+      "out": "x%SETU_UNDEF%%SETU_UNDEF%y"
+    },
+    "probe_expand_undef_var_undef": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "%U1exU2%"
+    },
+    "probe_expand_double_percent_small_buf": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "probe_expand_double_percent_exact_buf": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "%ex%"
+    },
+    "probe_rtl_expand_double_percent": {
+      "status": "0x00000000",
+      "len": 10,
+      "out": "%ex%"
+    },
     "block_contains_variable": {
       "found": 1,
       "found_other_case": 0
@@ -226,5 +302,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "79bbb510e6ce4ad360ff208f9cee786653ca1b46c91d12ff4a437547e7660c77"
+  "source_sha256": "89110e22d1c58021d1d24c0595585a82a81ec6030432e4f96f3236b16f88f942"
 }

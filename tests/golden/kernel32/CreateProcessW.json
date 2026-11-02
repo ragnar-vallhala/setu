@@ -145,6 +145,16 @@
       "ret": false,
       "last_error": 5
     },
+    "terminate_exited": {
+      "ret": false,
+      "last_error": 5,
+      "exit_code": 3
+    },
+    "terminate_suspended": {
+      "ret": true,
+      "last_error": "unchanged",
+      "exit_code": 9
+    },
     "suspended": {
       "ret": true,
       "not_finished": true,
@@ -183,11 +193,83 @@
       "ret": false,
       "last_error": 87
     },
+    "one_byte_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "text_file_txt_ext": {
+      "ret": false,
+      "last_error": 193
+    },
+    "text_file_no_ext": {
+      "ret": false,
+      "last_error": 193
+    },
+    "text_file_com_ext": {
+      "ret": false,
+      "last_error": 216
+    },
+    "text_file_via_cmdline": {
+      "ret": false,
+      "last_error": 216
+    },
+    "mz_text_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "mz_header_only_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "mz_header_txt_ext": {
+      "ret": false,
+      "last_error": 216
+    },
+    "mz_header_no_ext": {
+      "ret": false,
+      "last_error": 216
+    },
+    "text_file_pif_ext": {
+      "ret": false,
+      "last_error": 216
+    },
+    "text_file_scr_ext": {
+      "ret": false,
+      "last_error": 193
+    },
+    "text_file_dll_ext": {
+      "ret": false,
+      "last_error": 193
+    },
+    "mz_lfanew_past_eof_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "mz_dos_program_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "mz_ne_win16_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "mz_pe_bad_machine_exe": {
+      "ret": false,
+      "last_error": 193
+    },
+    "directory_with_exe_ext": {
+      "ret": false,
+      "last_error": 5
+    },
+    "directory_via_cmdline": {
+      "ret": false,
+      "last_error": 5
+    },
     "both_null": {
       "ret": false,
       "last_error": 87
     }
   },
   "errors": [],
-  "source_sha256": "20e98cde123771bd7a0aa08d125226a33345f644e01f45992c337b50bb0c770c"
+  "source_sha256": "e7cd7086afeb189a7d2bd71f265e565d2ad4287510b7ff2a6d8992b9a250a9fa"
 }

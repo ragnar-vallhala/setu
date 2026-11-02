@@ -15,6 +15,8 @@
  *       https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject
  *       https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitformultipleobjects
  *       https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-createwaitabletimerw
+ *       https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-setwaitabletimer
+ *       https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-setwaitabletimerex
  *       https://learn.microsoft.com/en-us/windows/win32/sync/object-names
  */
 #include "oracle.h"
@@ -182,6 +184,13 @@ int main(void)
         o_lasterr();
         o_i64("prev", prev);
         oracle_case_end();
+        prev = -77;
+        ORACLE_CALL(ok, ReleaseSemaphore(s1, -1, &prev));
+        oracle_case("probe_semaphore_release_negative");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_i64("prev", prev);
+        oracle_case_end();
         wait_case("semaphore_wait_1", s1);
         wait_case("semaphore_wait_2", s1);
         wait_case("semaphore_wait_3", s1);
@@ -209,6 +218,28 @@ int main(void)
         HANDLE dup[2] = {ea, ea};
         waitm_case("wfmo_duplicate_handle_all", 2, dup, TRUE);
         waitm_case("wfmo_duplicate_handle_any", 2, dup, FALSE);
+        {   /* Probes: is the duplicate check on handles or on objects? */
+            HANDLE ea2, ed, ed2;
+            DuplicateHandle(GetCurrentProcess(), ea, GetCurrentProcess(), &ea2, 0, FALSE,
+                            DUPLICATE_SAME_ACCESS);
+            HANDLE dobj[2] = {ea, ea2};
+            waitm_case("probe_wfmo_duplicate_object_all", 2, dobj, TRUE);
+            waitm_case("probe_wfmo_duplicate_object_any", 2, dobj, FALSE);
+            HANDLE dup3[3] = {eb, ea, ea2};
+            waitm_case("probe_wfmo_duplicate_object_all_third", 3, dup3, TRUE);
+            ed = CreateEventW(NULL, TRUE, FALSE, NULL);
+            DuplicateHandle(GetCurrentProcess(), ed, GetCurrentProcess(), &ed2, 0, FALSE,
+                            DUPLICATE_SAME_ACCESS);
+            HANDLE dunsig[2] = {ed, ed};
+            waitm_case("probe_wfmo_duplicate_handle_all_unsignalled", 2, dunsig, TRUE);
+            HANDLE dbad[3] = {ed, ed, NULL};
+            waitm_case("probe_wfmo_duplicate_then_null_all", 3, dbad, TRUE);
+            HANDLE dsem[2] = {s1, s1};
+            waitm_case("probe_wfmo_duplicate_semaphore_all", 2, dsem, TRUE);
+            CloseHandle(ea2);
+            CloseHandle(ed);
+            CloseHandle(ed2);
+        }
         waitm_case("wfmo_zero_count", 0, hs, FALSE);
         HANDLE many[MAXIMUM_WAIT_OBJECTS + 1];
         for (int i = 0; i <= MAXIMUM_WAIT_OBJECTS; i++) many[i] = eb;
@@ -240,6 +271,17 @@ int main(void)
         SetWaitableTimer(t1, &due, 0, NULL, NULL, FALSE);
         wait_case("timer_reset_by_set", t1);
         CancelWaitableTimer(t1);
+
+        /* Probes: when does SetWaitableTimer write the last error? */
+        BOOL_CASE("probe_timer_set_again", SetWaitableTimer(t1, &due, 0, NULL, NULL, FALSE));
+        BOOL_CASE("probe_timer_set_periodic", SetWaitableTimer(t1, &due, 1000, NULL, NULL, FALSE));
+        BOOL_CASE("probe_timer_set_resume", SetWaitableTimer(t1, &due, 0, NULL, NULL, TRUE));
+        BOOL_CASE("probe_timer_set_ex", SetWaitableTimerEx(t1, &due, 0, NULL, NULL, NULL, 0));
+        due.QuadPart = 0;
+        BOOL_CASE("probe_timer_set_absolute_past", SetWaitableTimer(t1, &due, 0, NULL, NULL, FALSE));
+        BOOL_CASE("probe_timer_set_on_semaphore", SetWaitableTimer(s1, &due, 0, NULL, NULL, FALSE));
+        BOOL_CASE("probe_timer_set_null_handle", SetWaitableTimer(NULL, &due, 0, NULL, NULL, FALSE));
+        BOOL_CASE("probe_timer_cancel_after_probes", CancelWaitableTimer(t1));
     }
     CloseHandle(t1);
     CloseHandle(s1);

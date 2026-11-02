@@ -10,6 +10,7 @@
  *       https://learn.microsoft.com/en-us/windows/win32/procthread/environment-variables
  */
 #include "oracle.h"
+#include <winternl.h>
 
 static void get_case(const char *name, const wchar_t *var, DWORD size)
 {
@@ -62,6 +63,24 @@ int main(void)
     get_case("get_other_case", L"setu_oracle_a", 64);
     get_case("get_size_exact_len", L"SETU_ORACLE_A", 5);
     get_case("get_size_len_plus_one", L"SETU_ORACLE_A", 6);
+    get_case("probe_get_size_one", L"SETU_ORACLE_A", 1);
+    get_case("probe_get_size_three", L"SETU_ORACLE_A", 3);
+    {   /* The same through ntdll: buffer for 3 characters. */
+        typedef LONG (WINAPI *rtl_query_fn)(void *, UNICODE_STRING *, UNICODE_STRING *);
+        rtl_query_fn fn = (rtl_query_fn)(void *)GetProcAddress(GetModuleHandleW(L"ntdll.dll"),
+                                                               "RtlQueryEnvironmentVariable_U");
+        static wchar_t name[] = L"SETU_ORACLE_A";
+        wchar_t buf[8];
+        wmemset(buf, L'#', 8);
+        UNICODE_STRING un = {sizeof name - sizeof(wchar_t), sizeof name, name};
+        UNICODE_STRING uv = {0, 3 * sizeof(wchar_t), buf};
+        LONG st = fn(NULL, &un, &uv);
+        oracle_case("probe_rtl_query_too_small");
+        o_hex32("status", (DWORD)st);
+        o_u32("length", uv.Length);
+        o_bytes("buf_head", buf, 8 * sizeof(wchar_t));
+        oracle_case_end();
+    }
     get_case("get_null_buffer", L"SETU_ORACLE_A", 0);
     get_case("get_missing", L"SETU_ORACLE_MISSING", 64);
     get_case("get_missing_null_buffer", L"SETU_ORACLE_MISSING", 0);
@@ -105,6 +124,37 @@ int main(void)
     expand_case("expand_buffer_exact", L"a%SETU_X%b", 5);
     expand_case("expand_empty_variable", L"[%SETU_ORACLE_EMPTY%]", 256);
     expand_case("expand_hidden_variable", L"%=SETU_HIDDEN%", 256);
+    /* Probes for the general '%' rule. */
+    expand_case("probe_expand_undefined_then_var", L"%SETU_UNDEF%SETU_X%", 256);
+    expand_case("probe_expand_two_vars", L"%SETU_X%%SETU_X%", 256);
+    expand_case("probe_expand_triple_percent", L"%%%SETU_X%", 256);
+    expand_case("probe_expand_var_then_percent", L"%SETU_X%%", 256);
+    expand_case("probe_expand_two_percents", L"%%", 256);
+    expand_case("probe_expand_one_percent", L"%", 256);
+    expand_case("probe_expand_space_name_then_var", L"%a b%SETU_X%", 256);
+    expand_case("probe_expand_undefined_twice", L"x%SETU_UNDEF%%SETU_UNDEF%y", 256);
+    expand_case("probe_expand_undef_var_undef", L"%U1%SETU_X%U2%", 256);
+    expand_case("probe_expand_double_percent_small_buf", L"%%SETU_X%%", 3);
+    expand_case("probe_expand_double_percent_exact_buf", L"%%SETU_X%%", 5);
+    {   /* The same through ntdll. */
+        typedef LONG (WINAPI *rtl_expand_fn)(void *, UNICODE_STRING *, UNICODE_STRING *, ULONG *);
+        rtl_expand_fn fn = (rtl_expand_fn)(void *)GetProcAddress(GetModuleHandleW(L"ntdll.dll"),
+                                                                 "RtlExpandEnvironmentStrings_U");
+        static wchar_t src[] = L"%%SETU_X%%";
+        wchar_t out[64];
+        UNICODE_STRING us = {sizeof src - sizeof(wchar_t), sizeof src, src};
+        UNICODE_STRING ud = {0, sizeof out, out};
+        ULONG len = 0;
+        LONG st = fn(NULL, &us, &ud, &len);
+        oracle_case("probe_rtl_expand_double_percent");
+        o_hex32("status", (DWORD)st);
+        o_u32("len", len);
+        if (!st) {
+            out[ud.Length / sizeof(wchar_t)] = 0;
+            o_wstr("out", out);
+        }
+        oracle_case_end();
+    }
 
     {   /* The block must contain our variable once, in the exact case we set. */
         SetEnvironmentVariableW(L"Setu_Block", L"v");

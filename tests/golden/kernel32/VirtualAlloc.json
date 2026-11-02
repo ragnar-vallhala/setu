@@ -254,6 +254,425 @@
       "ret_null": true,
       "last_error": 487
     },
+    "probe_commit_prot_3": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_3": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_3": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_45": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_45": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_45": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_8": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_8": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_8": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_80": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_80": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_80": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_100": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_100": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_100": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_104": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "offset_from_request": 0
+    },
+    "probe_reserve_commit_prot_104": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "probe_protect_prot_104": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000004"
+    },
+    "probe_commit_prot_204": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "offset_from_request": 0
+    },
+    "probe_reserve_commit_prot_204": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "probe_protect_prot_204": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000004"
+    },
+    "probe_commit_prot_404": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "offset_from_request": 0
+    },
+    "probe_reserve_commit_prot_404": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "probe_protect_prot_404": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000004"
+    },
+    "probe_commit_prot_304": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_304": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_304": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_604": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_604": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_604": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_1004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_1004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_1004": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_2004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_2004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_2004": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_10004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_10004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_10004": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_10000": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_10000": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_10000": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_12345": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_12345": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_12345": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_40000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_40000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_40000004": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_20000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_20000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_20000004": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000004"
+    },
+    "probe_commit_prot_80000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_80000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_80000004": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_804": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_804": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_804": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_4004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_4004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_4004": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_8004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_8004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_8004": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_20004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_20004": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_20004": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_100004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_100004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_100004": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_1000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_1000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_1000004": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_4000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_4000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_4000004": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_8000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_8000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_8000004": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_commit_prot_10000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reserve_commit_prot_10000004": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_protect_prot_10000004": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x00000001"
+    },
+    "probe_commit_prot_10003": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_reserve_commit_prot_10003": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "probe_protect_prot_10003": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_protect_bad_prot_on_reserved": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_protect_unsupported_on_reserved": {
+      "ret": false,
+      "last_error": 50,
+      "old": "0x00000001"
+    },
+    "probe_protect_size0_unaligned": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "probe_protect_size1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000004"
+    },
+    "probe_protect_free_address": {
+      "ret": false,
+      "last_error": 487,
+      "old": "0x00000001"
+    },
+    "probe_reset_on_free_address": {
+      "ret_null": true,
+      "last_error": 487
+    },
+    "probe_reset_with_commit": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "probe_reset_on_null_noaccess": {
+      "ret_null": true,
+      "last_error": 487
+    },
+    "probe_reset_committed": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "offset_from_request": 0
+    },
+    "probe_ntprotect_size0": {
+      "status": "0xc00000f1",
+      "old": "0x0000dead",
+      "size_out": 0,
+      "addr_unchanged": true
+    },
+    "probe_ntprotect_bad_prot": {
+      "status": "0xc0000045",
+      "old": "0x0000dead"
+    },
     "heap_alloc_zero": {
       "ret_null": false,
       "last_error": "unchanged",
@@ -302,5 +721,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "4f9bec14e89a8aeeb9b2cd93cfab1e3303178cc4b8dd884bba116cfdfddbabf1"
+  "source_sha256": "0cd4566d17523b3c8fdddf822d76479cb5bb91b344c475180fdfacf01364d124"
 }

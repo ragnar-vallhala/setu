@@ -132,6 +132,14 @@ static void fail_case(const char *name, const wchar_t *app, const wchar_t *cmdli
     }
 }
 
+static void write_bytes(const wchar_t *name, const void *data, DWORD size)
+{
+    DWORD n;
+    HANDLE h = CreateFileW(name, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    WriteFile(h, data, size, &n, NULL);
+    CloseHandle(h);
+}
+
 /* The CRT's wide argv (msvcrt): the child's view of its command line. */
 typedef struct { int newmode; } oracle_startupinfo;
 extern int __cdecl __wgetmainargs(int *, wchar_t ***, wchar_t ***, int, oracle_startupinfo *);
@@ -264,6 +272,38 @@ int main(void)
         CloseHandle(pi.hThread);
     }
 
+    {   /* TerminateProcess on a process that exited by itself. */
+        PROCESS_INFORMATION pi;
+        DWORD code = 0;
+        BOOL ok = spawn(NULL, L"exit 3", FALSE, 0, NULL, NULL, &pi);
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        ORACLE_CALL(ok, TerminateProcess(pi.hProcess, 9));
+        GetExitCodeProcess(pi.hProcess, &code);
+        oracle_case("terminate_exited");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_u32("exit_code", code);
+        oracle_case_end();
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+
+    {   /* TerminateProcess on a process that never ran (suspended). */
+        PROCESS_INFORMATION pi;
+        DWORD code = 0;
+        BOOL ok = spawn(NULL, L"exit 5", FALSE, CREATE_SUSPENDED, NULL, NULL, &pi);
+        ORACLE_CALL(ok, TerminateProcess(pi.hProcess, 9));
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        GetExitCodeProcess(pi.hProcess, &code);
+        oracle_case("terminate_suspended");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_u32("exit_code", code);
+        oracle_case_end();
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+
     {   /* Suspended start. */
         PROCESS_INFORMATION pi;
         DWORD code = 0, prev;
@@ -293,6 +333,43 @@ int main(void)
         WriteFile(h, "MZ", 2, &n, NULL);
         CloseHandle(h);
     }
+    {   /* More file shapes (probes for the bad-executable error codes). */
+        unsigned char img[0x200];
+        write_bytes(L"one_byte.exe", "X", 1);
+        write_bytes(L"text.txt", "this is not a program", 21);
+        write_bytes(L"text_noext", "this is not a program", 21);
+        write_bytes(L"text.com", "this is not a program", 21);
+        write_bytes(L"text.pif", "this is not a program", 21);
+        write_bytes(L"text.scr", "this is not a program", 21);
+        write_bytes(L"text.dll", "this is not a program", 21);
+        write_bytes(L"mz_text.exe", "MZ is not a program..", 21);
+        /* A full 64-byte DOS header whose e_lfanew points at itself. */
+        memset(img, 0, sizeof img);
+        img[0] = 'M'; img[1] = 'Z';
+        write_bytes(L"mz_header.exe", img, 64);
+        write_bytes(L"mz_header.txt", img, 64);
+        write_bytes(L"mz_header_noext", img, 64);
+        /* DOS header with e_lfanew past the end of the file. */
+        img[0x3c] = 0x00; img[0x3d] = 0x10;
+        write_bytes(L"mz_lfanew_eof.exe", img, 64);
+        /* A 512-byte DOS program: header plus zeros, no new header. */
+        img[0x3c] = 0; img[0x3d] = 0;
+        write_bytes(L"mz_dos_zeros.exe", img, sizeof img);
+        /* DOS header + a Win16 NE header. */
+        memset(img, 0, sizeof img);
+        img[0] = 'M'; img[1] = 'Z'; img[0x3c] = 0x40;
+        img[0x40] = 'N'; img[0x41] = 'E'; img[0x40 + 0x36] = 2;
+        write_bytes(L"mz_ne_win16.exe", img, sizeof img);
+        /* DOS header + PE header with an unknown machine. */
+        memset(img, 0, sizeof img);
+        img[0] = 'M'; img[1] = 'Z'; img[0x3c] = 0x40;
+        img[0x40] = 'P'; img[0x41] = 'E';
+        img[0x44] = 0x34; img[0x45] = 0x12;          /* Machine 0x1234 */
+        img[0x54] = 0xf0;                            /* SizeOfOptionalHeader */
+        img[0x58] = 0x0b; img[0x59] = 0x02;          /* PE32+ magic */
+        write_bytes(L"mz_pe_bad_machine.exe", img, sizeof img);
+        CreateDirectoryW(L"dir.exe", NULL);
+    }
     fail_case("missing_exe_app_name", L"no_such_program.exe", NULL);
     fail_case("missing_exe_cmdline", NULL, L"no_such_program.exe arg");
     fail_case("missing_exe_in_missing_dir", NULL, L"nodir\\no_such_program.exe");
@@ -301,6 +378,24 @@ int main(void)
     fail_case("mz_only_exe", L"mz_only.exe", NULL);
     fail_case("directory_as_exe", L"childdir", NULL);
     fail_case("empty_cmdline", NULL, L"");
+    fail_case("one_byte_exe", L"one_byte.exe", NULL);
+    fail_case("text_file_txt_ext", L"text.txt", NULL);
+    fail_case("text_file_no_ext", L"text_noext", NULL);
+    fail_case("text_file_com_ext", L"text.com", NULL);
+    fail_case("text_file_via_cmdline", NULL, L"text.exe");
+    fail_case("mz_text_exe", L"mz_text.exe", NULL);
+    fail_case("mz_header_only_exe", L"mz_header.exe", NULL);
+    fail_case("mz_header_txt_ext", L"mz_header.txt", NULL);
+    fail_case("mz_header_no_ext", L"mz_header_noext", NULL);
+    fail_case("text_file_pif_ext", L"text.pif", NULL);
+    fail_case("text_file_scr_ext", L"text.scr", NULL);
+    fail_case("text_file_dll_ext", L"text.dll", NULL);
+    fail_case("mz_lfanew_past_eof_exe", L"mz_lfanew_eof.exe", NULL);
+    fail_case("mz_dos_program_exe", L"mz_dos_zeros.exe", NULL);
+    fail_case("mz_ne_win16_exe", L"mz_ne_win16.exe", NULL);
+    fail_case("mz_pe_bad_machine_exe", L"mz_pe_bad_machine.exe", NULL);
+    fail_case("directory_with_exe_ext", L"dir.exe", NULL);
+    fail_case("directory_via_cmdline", NULL, L"dir.exe");
     /* Last on purpose: if this crashes, every earlier case is still recorded. */
     fail_case("both_null", NULL, NULL);
 
