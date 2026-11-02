@@ -327,6 +327,7 @@ WCHAR** WINAPI CommandLineToArgvW(const WCHAR *cmdline, int *numargs)
         argv[1] = NULL;
         *numargs = 1;
 
+        SetLastError(ERROR_SUCCESS);
         return argv;
     }
 
@@ -443,6 +444,7 @@ WCHAR** WINAPI CommandLineToArgvW(const WCHAR *cmdline, int *numargs)
         /* There are no parameters so we are all done */
         argv[argc] = NULL;
         *numargs = argc;
+        SetLastError(ERROR_SUCCESS);
         return argv;
     }
 
@@ -516,6 +518,8 @@ WCHAR** WINAPI CommandLineToArgvW(const WCHAR *cmdline, int *numargs)
     argv[argc] = NULL;
     *numargs = argc;
 
+    /* the last error is cleared on success */
+    SetLastError(ERROR_SUCCESS);
     return argv;
 }
 
