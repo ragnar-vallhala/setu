@@ -60,6 +60,8 @@
     "advapi32/RegSetValueExW:qword",
     "advapi32/RegSetValueExW:set_invalid_hkey",
     "advapi32/RegSetValueExW:set_via_readonly_handle",
+    "advapi32/RegSetValueExW:sz_odd_size",
+    "advapi32/RegSetValueExW:sz_odd_size_5",
     "advapi32/RegSetValueExW:sz_odd_size_stored_raw",
     "advapi32/RegSetValueExW:sz_with_nul",
     "advapi32/RegSetValueExW:sz_without_nul",

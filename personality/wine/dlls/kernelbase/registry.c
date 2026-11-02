@@ -1685,10 +1685,12 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegQueryValueExW( HKEY hkey, LPCWSTR name, LPDW
         {
             memcpy( data, buf_ptr + info_size, total_size - info_size );
             /* if the type is REG_SZ and data is not 0-terminated
-             * and there is enough space in the buffer NT appends a \0 */
+             * and there is enough space in the buffer NT appends a \0,
+             * at a WCHAR boundary: with odd-sized data the last byte is
+             * overwritten (the reported size is unchanged) */
             if (total_size - info_size <= *count-sizeof(WCHAR) && is_string(info->Type))
             {
-                WCHAR *ptr = (WCHAR *)(data + total_size - info_size);
+                WCHAR *ptr = (WCHAR *)(data + (total_size - info_size) / sizeof(WCHAR) * sizeof(WCHAR));
                 if (ptr > (WCHAR *)data && ptr[-1]) *ptr = 0;
             }
         }
