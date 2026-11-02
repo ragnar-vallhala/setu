@@ -1,0 +1,239 @@
+{
+  "test": "user32/messages",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_user32": {
+      "ret": "valid"
+    },
+    "setup": {
+      "windows": true
+    },
+    "send_same_thread": {
+      "ret": 41,
+      "last_error": "unchanged",
+      "log": "a:1:20:direct"
+    },
+    "send_bad_hwnd": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "post_bad_hwnd": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "post_wm_settext_sync_only": {
+      "ret": false,
+      "last_error": 1159
+    },
+    "post_wm_gettext_sync_only": {
+      "ret": false,
+      "last_error": 1159
+    },
+    "postthread_wm_copydata_sync_only": {
+      "ret": false,
+      "last_error": 1159
+    },
+    "postthread_bad_tid": {
+      "ret": false,
+      "last_error": 1444
+    },
+    "sendmessagetimeout_same_thread": {
+      "ret": 1,
+      "result": 11,
+      "last_error": "unchanged",
+      "log": "a:2:5:direct"
+    },
+    "sendnotify_same_thread": {
+      "ret": true,
+      "last_error": "unchanged",
+      "log_before_pump": "a:3:6:direct"
+    },
+    "posted_fifo_sent_immediate": {
+      "log": "a:11:4:direct,peek:a:10:1,a:10:1:direct,peek:b:10:2,b:10:2:direct,peek:a:10:3,a:10:3:direct,peek:null:12:5"
+    },
+    "filter_range_single": {
+      "log": "peek:a:22:3,a:22:3:direct"
+    },
+    "filter_hwnd_b": {
+      "log": "peek:b:21:2,b:21:2:direct"
+    },
+    "filter_hwnd_minus1_thread_only": {
+      "log": "peek:null:23:4"
+    },
+    "filter_range_inverted": {
+      "log": ""
+    },
+    "filter_rest": {
+      "log": "peek:a:20:1,a:20:1:direct"
+    },
+    "peek_noremove": {
+      "ret": true,
+      "msg": 24,
+      "hwnd": "a",
+      "last_error": "unchanged"
+    },
+    "peek_bad_hwnd": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "peek_noremove_left_it": {
+      "log": "peek:a:24:1,a:24:1:direct"
+    },
+    "peek_empty": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "postquit_after_other_messages": {
+      "log": "peek:a:30:1,a:30:1:direct,peek:null:31:2,peek:quit:5"
+    },
+    "postquit_consumed_once": {
+      "ret": false
+    },
+    "postquit_twice_last_wins": {
+      "log": "peek:quit:7"
+    },
+    "posted_wm_quit_in_order": {
+      "log": "peek:quit:8,peek:a:32:1,a:32:1:direct"
+    },
+    "postquit_filtered_out": {
+      "log": "peek:quit:9"
+    },
+    "postquit_hwnd_filter": {
+      "log": ""
+    },
+    "postquit_unfiltered": {
+      "log": ""
+    },
+    "getmessage_quit": {
+      "ret": 0,
+      "message": 18,
+      "wparam": 11,
+      "hwnd": "null"
+    },
+    "getmessage_normal": {
+      "ret": 1,
+      "message": 33,
+      "hwnd": "a"
+    },
+    "registerwindowmessage_first": {
+      "in_range": true,
+      "last_error": "unchanged"
+    },
+    "registerwindowmessage_repeat": {
+      "same_string_same_id": true,
+      "case_insensitive": true,
+      "different_string_differs": true,
+      "clipboard_format_same_id": true,
+      "last_error": "unchanged"
+    },
+    "registerwindowmessage_empty": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "registerwindowmessage_299_chars": {
+      "nonzero": false,
+      "last_error": 234
+    },
+    "registerwindowmessage_hash_number": {
+      "in_range": false,
+      "ret_if_small": 123,
+      "last_error": "unchanged"
+    },
+    "queuestatus_empty": {
+      "ret": "0x00000000"
+    },
+    "queuestatus_after_post": {
+      "ret": "0x00080008"
+    },
+    "queuestatus_after_post_again": {
+      "ret": "0x00080000"
+    },
+    "queuestatus_postmessage_only": {
+      "ret": "0x00080000"
+    },
+    "queuestatus_timer_only": {
+      "ret": "0x00000000"
+    },
+    "msgwait_new_post": {
+      "ret": 0
+    },
+    "msgwait_old_post": {
+      "ret": 258
+    },
+    "msgwait_signaled_handle_first": {
+      "ret": 0
+    },
+    "queuestatus_pump": {
+      "log": "peek:a:40:1,a:40:1:direct,peek:a:41:2,a:41:2:direct"
+    },
+    "queuestatus_after_pump": {
+      "ret": "0x00000000"
+    },
+    "settimer_elapse_0": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "settimer_replace_same_id": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "settimer_bad_hwnd": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "queuestatus_timer_due": {
+      "ret": "0x00000000"
+    },
+    "timer_fired": {
+      "got": true
+    },
+    "timer_after_post": {
+      "log": "peek:a:timer,a:timer:1,peek:a:42:1,a:42:1:direct"
+    },
+    "killtimer": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "killtimer_twice": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "killtimer_unknown_id": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "killtimer_bad_hwnd": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "settimer_thread_timer": {
+      "ret_nonzero": true,
+      "last_error": "unchanged"
+    },
+    "killtimer_thread_timer": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "settimer_window_id_0": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "cross_thread_send_before_post": {
+      "send_was_pending": true,
+      "peek_ret": true,
+      "log": "a:50:7:sent,peek:a:60"
+    },
+    "post_destroyed_window": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "posted_to_window_destroyed_before_peek": {
+      "ret": false,
+      "is_test_message": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "9367cab6e75639939a1390bd76348a8c9d33b3d748875054983b9db6e785c0e8"
+}

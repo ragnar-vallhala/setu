@@ -1,0 +1,285 @@
+{
+  "test": "user32/window_tree",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_user32": {
+      "ret": "valid"
+    },
+    "register_class": {
+      "ret_nonzero": true,
+      "desktop_is_window": true,
+      "desktop_parent": "null",
+      "desktop_ga_parent": "null"
+    },
+    "create_messages_toplevel": {
+      "messages": "w0:NCCREATE,w0:CREATE"
+    },
+    "create_messages_child": {
+      "messages": "w1:NCCREATE,w1:CREATE,w1:SIZE,w1:MOVE,w0:PARENTNOTIFY:create"
+    },
+    "create_messages_grandchild": {
+      "messages": "w2:NCCREATE,w2:CREATE,w2:SIZE,w2:MOVE,w1:PARENTNOTIFY:create"
+    },
+    "create_messages_owned_popup": {
+      "messages": "w3:NCCREATE,w3:CREATE,w3:SIZE,w3:MOVE"
+    },
+    "create_messages_message_only": {
+      "messages": "w6:NCCREATE,w6:CREATE"
+    },
+    "all_created": {
+      "ok": true,
+      "message_parent_is_desktop": false,
+      "message_parent_is_null": false
+    },
+    "rel_toplevel": {
+      "parent": "null",
+      "ga_parent": "desktop",
+      "ga_root": "w0",
+      "ga_rootowner": "w0",
+      "owner": "null",
+      "first_child": "w1"
+    },
+    "rel_child": {
+      "parent": "w0",
+      "ga_parent": "w0",
+      "ga_root": "w0",
+      "ga_rootowner": "w0",
+      "owner": "null",
+      "first_child": "w2"
+    },
+    "rel_grandchild": {
+      "parent": "w1",
+      "ga_parent": "w1",
+      "ga_root": "w0",
+      "ga_rootowner": "w0",
+      "owner": "null",
+      "first_child": "null"
+    },
+    "rel_owned_popup": {
+      "parent": "w0",
+      "ga_parent": "desktop",
+      "ga_root": "w3",
+      "ga_rootowner": "w0",
+      "owner": "w0",
+      "first_child": "null"
+    },
+    "rel_owned_overlapped": {
+      "parent": "null",
+      "ga_parent": "desktop",
+      "ga_root": "w5",
+      "ga_rootowner": "w5",
+      "owner": "w0",
+      "first_child": "null"
+    },
+    "rel_message_only": {
+      "parent": "null",
+      "ga_parent": "message_parent",
+      "ga_root": "w6",
+      "ga_rootowner": "w6",
+      "owner": "null",
+      "first_child": "w7"
+    },
+    "rel_child_of_message_only": {
+      "parent": "w6",
+      "ga_parent": "w6",
+      "ga_root": "w6",
+      "ga_rootowner": "w6",
+      "owner": "null",
+      "first_child": "null"
+    },
+    "getparent_bad_hwnd": {
+      "ret": "null",
+      "last_error": 1400
+    },
+    "getancestor_flag_0": {
+      "ret": "null",
+      "last_error": 87
+    },
+    "getancestor_flag_4": {
+      "ret": "null",
+      "last_error": 87
+    },
+    "getwindow_bad_cmd": {
+      "ret": "null",
+      "last_error": 1443
+    },
+    "getwindow_bad_hwnd": {
+      "ret": "null",
+      "last_error": 1400
+    },
+    "getwindow_child_of_leaf": {
+      "ret": "null",
+      "last_error": "unchanged"
+    },
+    "getwindow_enabledpopup_of_popup": {
+      "ret": "null",
+      "last_error": "unchanged"
+    },
+    "ischild": {
+      "a_c": true,
+      "a_d": true,
+      "a_b_owned": false,
+      "c_a": false,
+      "a_a": false,
+      "desktop_a": false,
+      "m_mc": true,
+      "bad_c": false
+    },
+    "children_of_toplevel": {
+      "zorder": "w1,w4,w8,w9",
+      "enum": "w1,w2,w4,w8,w9",
+      "enum_ret": true,
+      "last": "w9",
+      "first_from_last": "w1",
+      "prev_of_first": "null"
+    },
+    "children_of_child": {
+      "zorder": "w2",
+      "enum": "w2",
+      "enum_ret": true,
+      "last": "w2",
+      "first_from_last": "w2",
+      "prev_of_first": "null"
+    },
+    "children_of_leaf": {
+      "zorder": "",
+      "enum": "",
+      "enum_ret": false,
+      "last": "null",
+      "first_from_last": "null",
+      "prev_of_first": "null"
+    },
+    "findwindowex_message": {
+      "ret": "w6",
+      "last_error": "unchanged"
+    },
+    "findwindowex_first_child": {
+      "ret": "w1",
+      "last_error": "unchanged"
+    },
+    "findwindowex_next_child": {
+      "ret": "w4",
+      "last_error": "unchanged"
+    },
+    "findwindowex_missing_class": {
+      "ret": "null",
+      "last_error": "unchanged"
+    },
+    "setparent_messages": {
+      "messages": ""
+    },
+    "setparent_grandchild_to_sibling": {
+      "ret": "w1",
+      "last_error": "unchanged",
+      "parent_after": "w4"
+    },
+    "children_after_setparent": {
+      "zorder": "w1,w4,w8,w9",
+      "enum": "w1,w4,w2,w8,w9",
+      "enum_ret": true,
+      "last": "w9",
+      "first_from_last": "w1",
+      "prev_of_first": "null"
+    },
+    "children_of_new_parent": {
+      "zorder": "w2",
+      "enum": "w2",
+      "enum_ret": true,
+      "last": "w2",
+      "first_from_last": "w2",
+      "prev_of_first": "null"
+    },
+    "setparent_to_own_descendant": {
+      "ret": "null",
+      "last_error": 87,
+      "parent_after": "null"
+    },
+    "setparent_to_self": {
+      "ret": "null",
+      "last_error": 87
+    },
+    "setparent_bad_parent": {
+      "ret": "null",
+      "last_error": 1400,
+      "parent_after": "w0"
+    },
+    "setparent_child_to_message": {
+      "ret": "w0",
+      "last_error": "unchanged",
+      "ga_parent_after": "message_parent",
+      "style_after": "0x40000000"
+    },
+    "setparent_to_null": {
+      "ret": "message_parent",
+      "last_error": "unchanged",
+      "ga_parent_after": "desktop",
+      "getparent_after": "desktop",
+      "style_after": "0x44000000"
+    },
+    "setparent_back": {
+      "ret": "desktop",
+      "last_error": "unchanged",
+      "parent_after": "w0"
+    },
+    "destroy_messages_noparentnotify_child": {
+      "messages": "w8:DESTROY,w8:NCDESTROY"
+    },
+    "destroy_noparentnotify_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "destroy_messages_toplevel_tree": {
+      "messages": "w5:DESTROY,w5:NCDESTROY,w3:DESTROY,w3:NCDESTROY,w0:DESTROY,w9:DESTROY,w1:DESTROY,w4:DESTROY,w2:DESTROY,w9:NCDESTROY,w1:NCDESTROY,w2:NCDESTROY,w4:NCDESTROY,w0:NCDESTROY"
+    },
+    "destroy_toplevel_tree": {
+      "ret": true,
+      "last_error": "unchanged",
+      "a_alive": false,
+      "b_owned_alive": false,
+      "c_child_alive": false,
+      "d_grandchild_alive": false,
+      "e_child_alive": false,
+      "f_owned_alive": false,
+      "g_child_alive": false,
+      "m_unrelated_alive": true
+    },
+    "destroy_twice": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "iswindow_null": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "iswindow_bad": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "destroy_null": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "destroy_desktop": {
+      "ret": false,
+      "last_error": 5,
+      "desktop_alive": true
+    },
+    "destroy_messages_message_only": {
+      "messages": "w6:DESTROY,w7:DESTROY,w7:NCDESTROY,w6:NCDESTROY"
+    },
+    "destroy_message_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "mc_alive": false
+    },
+    "destroy_from_other_thread": {
+      "ret": false,
+      "last_error": 5,
+      "alive_after": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "b3141465fcca13ab43c25e768d35fde8ade0caa82451fd97ab363a46cd7d9c08"
+}

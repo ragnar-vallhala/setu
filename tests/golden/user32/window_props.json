@@ -1,0 +1,569 @@
+{
+  "test": "user32/window_props",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_user32": {
+      "ret": "valid"
+    },
+    "register_class": {
+      "ret_nonzero": true
+    },
+    "style_overlapped_zero": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x04c00000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x00000000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_overlappedwindow": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x04cf0000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x00cf0000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_popup": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000000",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_popup_caption": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84c00000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x80c00000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_popup_border": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84800000",
+      "exstyle": "0x00000000",
+      "style_requested": "0x80800000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_popup_dlgframe": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84400000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x80400000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_popup_thickframe": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84040000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x80040000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_overlapped_sysmenu": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x04c80000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x00080000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_overlapped_clipchildren": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x06c00000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x02000000",
+      "exstyle_requested": "0x00000000"
+    },
+    "exstyle_dlgmodalframe": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000101",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000001"
+    },
+    "exstyle_toolwindow": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000080",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000080"
+    },
+    "exstyle_clientedge": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000200",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000200"
+    },
+    "exstyle_staticedge": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00020000",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00020000"
+    },
+    "exstyle_windowedge_popup": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000000",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000100"
+    },
+    "exstyle_topmost": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000008",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000008"
+    },
+    "exstyle_overlappedwindow_ex": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000200",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000300"
+    },
+    "exstyle_appwindow": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00040000",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00040000"
+    },
+    "exstyle_noactivate": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x08000000",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x08000000"
+    },
+    "exstyle_mdichild_no_client": {
+      "ret": "NULL",
+      "last_error": 1400
+    },
+    "exstyle_bogus_bits": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "style_message_only": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x04c00000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x00000000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_message_only_caption": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x04c00000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x00c00000",
+      "exstyle_requested": "0x00000000"
+    },
+    "exstyle_message_only_dlgmodalframe": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x04c00000",
+      "exstyle": "0x00000101",
+      "style_requested": "0x00000000",
+      "exstyle_requested": "0x00000001"
+    },
+    "style_child": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x40000000",
+      "exstyle": "0x00000000",
+      "style_requested": "0x40000000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_child_caption": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x40c00000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x40c00000",
+      "exstyle_requested": "0x00000000"
+    },
+    "exstyle_child_dlgmodalframe": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x40000000",
+      "exstyle": "0x00000101",
+      "style_requested": "0x40000000",
+      "exstyle_requested": "0x00000001"
+    },
+    "style_child_and_popup": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0xc4000000",
+      "exstyle": "0x00000000",
+      "style_requested": "0xc0000000",
+      "exstyle_requested": "0x00000000"
+    },
+    "style_owned_overlapped": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x04c00000",
+      "exstyle": "0x00000100",
+      "style_requested": "0x00000000",
+      "exstyle_requested": "0x00000000"
+    },
+    "userdata_initial": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "userdata_set_first": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "userdata_set_second": {
+      "ret": 4660,
+      "last_error": "unchanged"
+    },
+    "userdata_get": {
+      "ret": 8603657889541918976,
+      "last_error": "unchanged"
+    },
+    "userdata_set_zero": {
+      "ret": 8603657889541918976,
+      "last_error": "unchanged"
+    },
+    "userdata_set_after_zero": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "extra_0_initial": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "extra_8_initial": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "extra_0_set": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "extra_8_set": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "extra_8_get": {
+      "ret": -2,
+      "last_error": "unchanged"
+    },
+    "extra_4_straddle": {
+      "ret": -8589934592,
+      "last_error": "unchanged"
+    },
+    "extra_9_overrun": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "extra_16_past_end": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "extra_16_set_past_end": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "extra_12_dword": {
+      "ret": -1,
+      "last_error": "unchanged"
+    },
+    "extra_13_dword_overrun": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "extra_12_dword_set": {
+      "ret": -1,
+      "last_error": "unchanged"
+    },
+    "extra_8_dword_after_set": {
+      "ret": -2,
+      "last_error": "unchanged"
+    },
+    "index_bogus_negative": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "index_bogus_positive": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "set_index_bogus_negative": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "bad_hwnd_userdata": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "bad_hwnd_set_userdata": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "null_hwnd_style": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "hinstance_is_self": {
+      "ret_is_self": true,
+      "last_error": "unchanged"
+    },
+    "wndproc_is_class_proc": {
+      "ret_is_ours": true,
+      "last_error": "unchanged"
+    },
+    "hwndparent_message_only": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "is_window_unicode": {
+      "ret": true
+    },
+    "child_id": {
+      "ret": 1234,
+      "last_error": "unchanged"
+    },
+    "child_id_set": {
+      "ret": 1234,
+      "last_error": "unchanged"
+    },
+    "child_id_after_set": {
+      "ret": 99,
+      "last_error": "unchanged"
+    },
+    "toplevel_id": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "child_hwndparent_is_parent": {
+      "ret_is_parent": true,
+      "last_error": "unchanged"
+    },
+    "owned_hwndparent_is_owner": {
+      "ret_is_owner": true,
+      "last_error": "unchanged"
+    },
+    "set_style_popup_disabled": {
+      "ret": "0x84000000",
+      "last_error": "unchanged",
+      "style_after": "0x8e000000"
+    },
+    "set_style_caption": {
+      "ret": "0x8e000000",
+      "last_error": "unchanged",
+      "style_after": "0x84c00000",
+      "visible": false
+    },
+    "set_exstyle_toolwindow": {
+      "ret": "0x00000100",
+      "last_error": "unchanged",
+      "exstyle_after": "0x00000180"
+    },
+    "set_exstyle_dlgmodalframe": {
+      "ret": "0x00000180",
+      "last_error": "unchanged",
+      "exstyle_after": "0x00000101"
+    },
+    "set_exstyle_zero": {
+      "ret": "0x00000101",
+      "last_error": "unchanged",
+      "exstyle_after": "0x00000100"
+    },
+    "text_null_at_create_len": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "text_null_at_create_get": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": ""
+    },
+    "settext_hello": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_after": 5
+    },
+    "text_hello_len": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "gettext_buf_10": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "buf": "Hello"
+    },
+    "gettext_buf_6_exact": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "buf": "Hello"
+    },
+    "gettext_buf_5_short": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "buf": "Hell"
+    },
+    "gettext_buf_2": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "buf": "H"
+    },
+    "gettext_buf_1": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": ""
+    },
+    "gettext_buf_0": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf_strlen": 2099
+    },
+    "gettext_buf_negative": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "buf": "Hello"
+    },
+    "gettext_a_buf_4": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "buf": "Hel"
+    },
+    "text_hello_len_a": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "settext_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_after": 0
+    },
+    "text_empty_len": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "gettext_empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": ""
+    },
+    "settext_null": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_after": 0
+    },
+    "text_after_null_len": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "settext_embedded_crlf_tab": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_after": 6
+    },
+    "gettext_crlf_tab": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "buf": "a\r\nb\tc"
+    },
+    "settext_2000_chars": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_after": 2000
+    },
+    "gettext_2000_buf_2100": {
+      "ret": 2000,
+      "last_error": "unchanged",
+      "buf_strlen": 2000
+    },
+    "gettext_2000_buf_1000": {
+      "ret": 999,
+      "last_error": "unchanged",
+      "buf_strlen": 999
+    },
+    "settext_unicode": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_after": 4
+    },
+    "gettext_unicode": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "buf": "é€😀"
+    },
+    "gettext_unicode_split_surrogate": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "buf": "é€�"
+    },
+    "settext_bad_hwnd": {
+      "ret": false,
+      "last_error": 1400,
+      "len_after": 0
+    },
+    "gettext_bad_hwnd": {
+      "ret": 0,
+      "last_error": 1400,
+      "buf": ""
+    },
+    "textlen_bad_hwnd": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "wm_gettextlength": {
+      "ret": 7,
+      "last_error": "unchanged"
+    },
+    "wm_gettext_buf_4": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "buf": "Mes"
+    },
+    "wm_gettext_buf_0": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf_untouched": true
+    },
+    "wm_settext": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "len_after": 14
+    },
+    "wm_settext_null": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "len_after": 0
+    },
+    "gettext_destroyed": {
+      "ret": 0,
+      "last_error": 1400,
+      "buf": ""
+    },
+    "getlong_destroyed": {
+      "ret": 0,
+      "last_error": 1400
+    }
+  },
+  "errors": [],
+  "source_sha256": "773b9dc915ec2ac390dc8d23cebd2814e8a0af197aad16541301c6416cb83664"
+}

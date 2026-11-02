@@ -1,0 +1,516 @@
+{
+  "test": "user32/window_class",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_user32": {
+      "ret": "valid"
+    },
+    "register_basic": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "register_duplicate": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 1410
+    },
+    "register_duplicate_other_case": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 1410
+    },
+    "register_w_duplicate_of_ex": {
+      "ret_nonzero": false,
+      "last_error": 1410
+    },
+    "register_a_duplicate_of_w": {
+      "ret_nonzero": false,
+      "last_error": 1410
+    },
+    "register_cbsize_zero": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 87
+    },
+    "register_cbsize_too_big": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 87
+    },
+    "register_cbsize_too_small": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 87
+    },
+    "register_negative_cbclsextra": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 87
+    },
+    "register_negative_cbwndextra": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 87
+    },
+    "register_cbwndextra_40000": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "register_empty_name": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 123
+    },
+    "register_name_299_chars": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 87
+    },
+    "register_name_255_chars": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "register_null_hinstance": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "info_null_hinstance_class_by_self": {
+      "ret_nonzero": true,
+      "ret_is_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x00000000",
+      "cbClsExtra": 0,
+      "cbWndExtra": 0,
+      "hinstance_is_self": true,
+      "hinstance_null": false,
+      "wndproc_is_ours": true,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_null_hinstance_class_by_null": {
+      "ret_nonzero": false,
+      "ret_is_atom": false,
+      "last_error": 1411
+    },
+    "register_local_named_button": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "register_globalclass": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "info_own_class": {
+      "ret_nonzero": true,
+      "ret_is_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x0000000a",
+      "cbClsExtra": 16,
+      "cbWndExtra": 24,
+      "hinstance_is_self": true,
+      "hinstance_null": false,
+      "wndproc_is_ours": true,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_own_class_other_case": {
+      "ret_nonzero": true,
+      "ret_is_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x0000000a",
+      "cbClsExtra": 16,
+      "cbWndExtra": 24,
+      "hinstance_is_self": true,
+      "hinstance_null": false,
+      "wndproc_is_ours": true,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_own_class_by_atom": {
+      "ret_nonzero": true,
+      "ret_is_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x0000000a",
+      "cbClsExtra": 16,
+      "cbWndExtra": 24,
+      "hinstance_is_self": true,
+      "hinstance_null": false,
+      "wndproc_is_ours": true,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_own_class_null_hinstance": {
+      "ret_nonzero": false,
+      "ret_is_atom": false,
+      "last_error": 1411
+    },
+    "info_missing_class": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 1411
+    },
+    "info_global_class_null_hinstance": {
+      "ret_nonzero": true,
+      "ret_is_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x00004000",
+      "cbClsExtra": 0,
+      "cbWndExtra": 0,
+      "hinstance_is_self": false,
+      "hinstance_null": true,
+      "wndproc_is_ours": true,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_button_null_hinstance": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x0000008b",
+      "cbClsExtra": 0,
+      "cbWndExtra": 8,
+      "hinstance_is_self": false,
+      "hinstance_null": true,
+      "wndproc_is_ours": false,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_button_self_local_override": {
+      "ret_nonzero": true,
+      "ret_is_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x00000000",
+      "cbClsExtra": 0,
+      "cbWndExtra": 0,
+      "hinstance_is_self": true,
+      "hinstance_null": false,
+      "wndproc_is_ours": true,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_static_null_hinstance": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x00000088",
+      "cbClsExtra": 0,
+      "cbWndExtra": 8,
+      "hinstance_is_self": false,
+      "hinstance_null": true,
+      "wndproc_is_ours": false,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_edit_null_hinstance": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x00000088",
+      "cbClsExtra": 0,
+      "cbWndExtra": 8,
+      "hinstance_is_self": false,
+      "hinstance_null": true,
+      "wndproc_is_ours": false,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_dialog_null_hinstance": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": false,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x00000808",
+      "cbClsExtra": 0,
+      "cbWndExtra": 30,
+      "hinstance_is_self": false,
+      "hinstance_null": true,
+      "wndproc_is_ours": false,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "info_bogus_hinstance": {
+      "ret_nonzero": false,
+      "ret_is_atom": false,
+      "last_error": 1411
+    },
+    "info_cbsize_zero": {
+      "ret_nonzero": true,
+      "last_error": "unchanged",
+      "cbSize_after": 0
+    },
+    "create_message_only": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "create_missing_class": {
+      "ret": "NULL",
+      "last_error": 1407
+    },
+    "create_missing_class_atom": {
+      "ret": "NULL",
+      "last_error": 1407
+    },
+    "create_by_atom": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "create_child_null_parent": {
+      "ret": "NULL",
+      "last_error": 1406
+    },
+    "create_bogus_parent": {
+      "ret": "NULL",
+      "last_error": 1400
+    },
+    "create_popup_bogus_owner": {
+      "ret": "NULL",
+      "last_error": 1400
+    },
+    "create_child_of_message_window": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "create_empty_name_class": {
+      "ret": "NULL",
+      "last_error": 1407
+    },
+    "create_big_extra_class": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "create_local_button": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "create_hidden_toplevel": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "create_destroyed_parent": {
+      "ret": "NULL",
+      "last_error": 1400
+    },
+    "classname_buf_256": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "buf": "SetuOracleWC_Main"
+    },
+    "classname_buf_18": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "buf": "SetuOracleWC_Main"
+    },
+    "classname_buf_17": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "buf": "SetuOracleWC_Mai"
+    },
+    "classname_buf_2": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "buf": "S"
+    },
+    "classname_buf_1": {
+      "ret": 0,
+      "last_error": 122,
+      "buf": "#"
+    },
+    "classname_buf_0": {
+      "ret": 0,
+      "last_error": 122,
+      "buf_untouched": true
+    },
+    "classname_bad_hwnd": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "classname_empty_class": {
+      "ret": 0,
+      "last_error": 1400,
+      "buf": ""
+    },
+    "classname_local_button": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "buf": "Button"
+    },
+    "classlong_atom": {
+      "ret_is_atom": true,
+      "last_error": "unchanged"
+    },
+    "classlong_style": {
+      "ret": 10,
+      "last_error": "unchanged"
+    },
+    "classlong_cbclsextra": {
+      "ret": 16,
+      "last_error": "unchanged"
+    },
+    "classlong_cbwndextra": {
+      "ret": 24,
+      "last_error": "unchanged"
+    },
+    "classlong_extra_0": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "classlong_extra_8": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "classlong_extra_9": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "classlong_extra_16": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "classlong_bad_negative": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "classlong_bad_large": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "classlong_wndproc": {
+      "ret_is_ours": true,
+      "last_error": "unchanged"
+    },
+    "classlong_hmodule": {
+      "ret_is_self": true,
+      "last_error": "unchanged"
+    },
+    "set_classlong_extra_0": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "classlong_extra_0_shared_by_other_window": {
+      "ret_lo": "0x55667788",
+      "ret_hi": "0x11223344",
+      "last_error": "unchanged"
+    },
+    "set_classlong_extra_0_again": {
+      "ret_lo": "0x55667788",
+      "ret_hi": "0x11223344",
+      "last_error": "unchanged"
+    },
+    "set_classlong_style": {
+      "ret": "0x0000000a",
+      "last_error": "unchanged"
+    },
+    "classlong_style_after_set": {
+      "ret": "0x00000008",
+      "last_error": "unchanged"
+    },
+    "classlong_bad_hwnd": {
+      "ret": 0,
+      "last_error": 1400
+    },
+    "classlong_big_extra_cbwndextra": {
+      "ret": 40000,
+      "last_error": "unchanged"
+    },
+    "unregister_with_windows": {
+      "ret": false,
+      "last_error": 1412
+    },
+    "unregister_missing": {
+      "ret": false,
+      "last_error": 1411
+    },
+    "unregister_system_button_null_inst": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unregister_wrong_hinstance": {
+      "ret": false,
+      "last_error": 1411
+    },
+    "unregister_after_destroy": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unregister_twice": {
+      "ret": false,
+      "last_error": 1411
+    },
+    "register_after_unregister": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "unregister_by_atom_of_new": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unregister_local_button": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_button_after_local_unregister": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged",
+      "cbSize": 80,
+      "style": "0x0000008b",
+      "cbClsExtra": 0,
+      "cbWndExtra": 8,
+      "hinstance_is_self": true,
+      "hinstance_null": false,
+      "wndproc_is_ours": false,
+      "classname_ptr_is_input": true,
+      "menuname_null": true
+    },
+    "unregister_empty_name": {
+      "ret": false,
+      "last_error": 1411
+    },
+    "unregister_global": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unregister_null_hinst_class": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unregister_long_255": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "destroy_parent_then_child_gone": {
+      "destroy_top": true,
+      "destroy_w1": true,
+      "child_is_window": false
+    },
+    "unregister_after_all_destroyed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_after_unregister": {
+      "ret_nonzero": false,
+      "ret_is_class_atom": false,
+      "last_error": 1411
+    }
+  },
+  "errors": [],
+  "source_sha256": "627b88c5a1a188e035d81659edc0ba65d86d18b92e035f211ed3b3980479eddc"
+}
