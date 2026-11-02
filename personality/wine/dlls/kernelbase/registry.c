@@ -1915,6 +1915,10 @@ LSTATUS WINAPI RegGetValueW( HKEY hKey, LPCWSTR pszSubKey, LPCWSTR pszValue,
     if (pvData && !pcbData)
         return ERROR_INVALID_PARAMETER;
 
+    /* At least one RRF_RT_* type restriction is required. */
+    if (!(dwFlags & RRF_RT_ANY))
+        return ERROR_INVALID_PARAMETER;
+
     if ((dwFlags & RRF_RT_REG_EXPAND_SZ) && !(dwFlags & RRF_NOEXPAND) &&
             ((dwFlags & RRF_RT_ANY) != RRF_RT_ANY))
         return ERROR_INVALID_PARAMETER;

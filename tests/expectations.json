@@ -34,6 +34,7 @@
     "advapi32/RegQueryValueExW:getvalue_dword_as_dword",
     "advapi32/RegQueryValueExW:getvalue_expand_sz_noexpand",
     "advapi32/RegQueryValueExW:getvalue_missing",
+    "advapi32/RegQueryValueExW:getvalue_no_type_flags",
     "advapi32/RegQueryValueExW:getvalue_sz_adds_missing_nul",
     "advapi32/RegQueryValueExW:getvalue_sz_any",
     "advapi32/RegQueryValueExW:getvalue_sz_as_dword",
