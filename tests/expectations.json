@@ -1593,6 +1593,8 @@
     "kernel32/modules:gpa_ntdll_function",
     "kernel32/modules:gpa_null_module",
     "kernel32/modules:gpa_on_datafile_module",
+    "kernel32/modules:gpa_ordinal_0",
+    "kernel32/modules:gpa_ordinal_ffff",
     "kernel32/modules:gpa_sleep_lives_in_kernelbase",
     "kernel32/modules:gpa_wrong_case",
     "kernel32/modules:load_bad_chars",

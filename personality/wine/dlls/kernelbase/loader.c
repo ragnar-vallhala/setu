@@ -76,6 +76,11 @@ FARPROC WINAPI get_proc_address( HMODULE module, LPCSTR function )
         RtlInitAnsiString( &str, function );
         if (!set_ntstatus( LdrGetProcedureAddress( module, &str, 0, (void**)&proc ))) return NULL;
     }
+    else if (!function)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return NULL;
+    }
     else if (!set_ntstatus( LdrGetProcedureAddress( module, NULL, LOWORD(function), (void**)&proc )))
         return NULL;
 

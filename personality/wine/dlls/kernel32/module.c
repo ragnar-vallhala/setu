@@ -288,6 +288,12 @@ FARPROC get_proc_address( HMODULE hModule, LPCSTR function )
         RtlInitAnsiString( &str, function );
         if (!set_ntstatus( LdrGetProcedureAddress( hModule, &str, 0, (void**)&fp ))) return NULL;
     }
+    else if (!function)
+    {
+        /* ordinal 0 is never valid */
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return NULL;
+    }
     else
         if (!set_ntstatus( LdrGetProcedureAddress( hModule, NULL, LOWORD(function), (void**)&fp )))
             return NULL;

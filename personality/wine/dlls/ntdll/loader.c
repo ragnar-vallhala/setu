@@ -2085,6 +2085,8 @@ NTSTATUS WINAPI LdrGetProcedureAddress(HMODULE module, const ANSI_STRING *name,
             *address = proc;
             ret = STATUS_SUCCESS;
         }
+        else if (!name && ord - exports->Base >= exports->NumberOfFunctions)
+            ret = STATUS_ORDINAL_NOT_FOUND;
         else
         {
             WARN( "%s (ordinal %lu) not found in %s\n", debugstr_a(name ? name->Buffer : NULL),
