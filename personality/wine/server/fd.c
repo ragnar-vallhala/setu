@@ -2880,7 +2880,11 @@ void default_fd_ioctl( struct fd *fd, ioctl_code_t code, struct async *async )
         break;
 
     default:
-        set_error( STATUS_NOT_SUPPORTED );
+        /* named pipe requests on something that is not a pipe */
+        if ((code >> 16) == FILE_DEVICE_NAMED_PIPE)
+            set_error( STATUS_INVALID_DEVICE_REQUEST );
+        else
+            set_error( STATUS_NOT_SUPPORTED );
     }
 }
 
