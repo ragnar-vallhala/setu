@@ -62,7 +62,7 @@ from a fresh builder, so it is repeatable; artifacts live in `build/distro/`.
 | `run-qemu.sh` | boots the image (OVMF, virtio-gpu, VNC, serial log, monitor socket) |
 | `docs/` | screenshot of the booted session |
 
-![The dev image after boot with --shell: the Setu taskbar on the fullscreen personality desktop](docs/session-shell.png)
+![The dev image with --shell: the Setu taskbar and launcher with Notepad on the fullscreen personality desktop](docs/session-shell.png)
 
 Without `--shell` the session runs notepad instead ([screenshot](docs/session.png)).
 

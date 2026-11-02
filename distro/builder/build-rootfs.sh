@@ -116,11 +116,14 @@ chroot $T runuser -u setu -- env HOME=/home/setu WINEPREFIX=/home/setu/.setu/pre
     sh -c 'mkdir -p /home/setu/.setu && wineboot -i && wineserver -w' \
     || log "warning: prefix creation failed; setu-session will retry on first boot"
 
-# Regenerate SSH host keys on first boot instead of baking them in.
+# Regenerate SSH host keys on first boot instead of baking them in. The
+# keys must exist before Debian's own `sshd -t` check, so restate the list.
 mkdir -p $T/etc/systemd/system/ssh.service.d
 cat > $T/etc/systemd/system/ssh.service.d/hostkeys.conf <<'EOF'
 [Service]
+ExecStartPre=
 ExecStartPre=/usr/bin/ssh-keygen -A
+ExecStartPre=/usr/sbin/sshd -t
 EOF
 ln -sf /run/systemd/resolve/stub-resolv.conf $T/etc/resolv.conf
 
