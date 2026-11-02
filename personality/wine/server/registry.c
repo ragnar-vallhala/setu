@@ -691,7 +691,14 @@ static struct key *create_key_object( struct object *parent, const struct unicod
 {
     struct key *key;
 
-    if (!name->len) return open_named_object( parent, &key_ops, name, attributes );
+    if (!name->len)
+    {
+        /* An empty name opens the parent itself: report it as existing, so
+         * that it is not treated (and access-checked) as a new key. */
+        if ((key = open_named_object( parent, &key_ops, name, attributes )))
+            set_error( STATUS_OBJECT_NAME_EXISTS );
+        return key;
+    }
 
     if ((key = create_named_object( parent, &key_ops, name, attributes, sd )))
     {

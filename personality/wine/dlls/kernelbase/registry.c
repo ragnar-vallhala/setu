@@ -569,6 +569,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExW( HKEY hkey, LPCWSTR name, DWORD
                              PHKEY retkey, LPDWORD dispos )
 {
     UNICODE_STRING nameW, classW;
+    NTSTATUS status;
 
     if (!retkey) return ERROR_BADKEY;
     if (reserved) return ERROR_INVALID_PARAMETER;
@@ -577,7 +578,11 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExW( HKEY hkey, LPCWSTR name, DWORD
     RtlInitUnicodeString( &nameW, name );
     RtlInitUnicodeString( &classW, class );
 
-    return RtlNtStatusToDosError( create_key( retkey, hkey, nameW, options, access, &classW, dispos ) );
+    status = create_key( retkey, hkey, nameW, options, access, &classW, dispos );
+    /* A non-volatile key under a volatile one fails, but still reports
+     * REG_OPENED_EXISTING_KEY. */
+    if (status == STATUS_CHILD_MUST_BE_VOLATILE && dispos) *dispos = REG_OPENED_EXISTING_KEY;
+    return RtlNtStatusToDosError( status );
 }
 
 

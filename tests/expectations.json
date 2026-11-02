@@ -1,6 +1,8 @@
 {
   "passing_cases": [
     "advapi32/RegCreateKeyExW:create_double_backslash",
+    "advapi32/RegCreateKeyExW:create_empty_subkey",
+    "advapi32/RegCreateKeyExW:create_empty_subkey_volatile",
     "advapi32/RegCreateKeyExW:create_existing",
     "advapi32/RegCreateKeyExW:create_existing_other_case",
     "advapi32/RegCreateKeyExW:create_invalid_hkey",
@@ -9,6 +11,8 @@
     "advapi32/RegCreateKeyExW:create_name_255_chars",
     "advapi32/RegCreateKeyExW:create_name_256_chars",
     "advapi32/RegCreateKeyExW:create_new",
+    "advapi32/RegCreateKeyExW:create_nonvolatile_under_volatile",
+    "advapi32/RegCreateKeyExW:create_nonvolatile_under_volatile_deep",
     "advapi32/RegCreateKeyExW:create_trailing_backslash",
     "advapi32/RegCreateKeyExW:create_via_readonly_handle",
     "advapi32/RegCreateKeyExW:create_volatile",
