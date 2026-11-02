@@ -324,6 +324,7 @@ HWND WIN_CreateWindowEx( CREATESTRUCTW *cs, LPCWSTR className, HINSTANCE module,
         if (!NtUserGetMDIClientInfo( cs->hwndParent ))
         {
             WARN("WS_EX_MDICHILD, but parent %p is not MDIClient\n", cs->hwndParent);
+            if (!IsWindow( cs->hwndParent )) SetLastError( ERROR_INVALID_WINDOW_HANDLE );
             return 0;
         }
 
