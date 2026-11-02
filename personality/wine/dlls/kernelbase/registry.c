@@ -1700,6 +1700,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegQueryValueExW( HKEY hkey, LPCWSTR name, LPDW
     if (count) *count = total_size - info_size;
 
  done:
+    /* A missing value reports REG_NONE as its type; data and size are left alone. */
+    if (status == STATUS_OBJECT_NAME_NOT_FOUND && type) *type = REG_NONE;
     if (buf_ptr != buffer) HeapFree( GetProcessHeap(), 0, buf_ptr );
     return RtlNtStatusToDosError(status);
 }
@@ -1902,7 +1904,7 @@ LSTATUS WINAPI RegGetValueW( HKEY hKey, LPCWSTR pszSubKey, LPCWSTR pszValue,
                           DWORD dwFlags, LPDWORD pdwType, PVOID pvData,
                           LPDWORD pcbData )
 {
-    DWORD dwType, cbData = (pvData && pcbData) ? *pcbData : 0;
+    DWORD dwType = REG_NONE, cbData = (pvData && pcbData) ? *pcbData : 0;
     PVOID pvBuf = NULL;
     LONG ret;
 
