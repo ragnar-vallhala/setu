@@ -4467,7 +4467,8 @@ void loader_init( CONTEXT *context, void **entry )
         update_load_config( wm->ldr.DllBase );
 #endif
 
-        if ((status = load_dll( NULL, L"kernel32.dll", 0, &kernel32, FALSE )) != STATUS_SUCCESS)
+        /* the loader asks for kernel32 in upper case, which shows in its module file name */
+        if ((status = load_dll( NULL, L"KERNEL32.DLL", 0, &kernel32, FALSE )) != STATUS_SUCCESS)
         {
             MESSAGE( "wine: could not load kernel32.dll, status %lx\n", status );
             NtTerminateProcess( GetCurrentProcess(), status );
