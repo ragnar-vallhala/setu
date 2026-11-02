@@ -462,6 +462,7 @@
     "gdi32/memory_dc:select_brush",
     "gdi32/memory_dc:select_brush_back",
     "gdi32/memory_dc:select_dib",
+    "gdi32/memory_dc:select_dib_into_second_dc",
     "gdi32/memory_dc:select_mono_bitmap",
     "gdi32/memory_dc:select_null_dc",
     "gdi32/memory_dc:setpixel",

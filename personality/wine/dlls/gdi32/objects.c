@@ -347,8 +347,9 @@ HGDIOBJ WINAPI SelectObject( HDC hdc, HGDIOBJ obj )
         ret = NtGdiSelectFont( hdc, obj );
         break;
     case NTGDI_OBJ_BITMAP:
-        ret = NtGdiSelectBitmap( hdc, obj );
-        break;
+        /* failing to select a bitmap (e.g. one already selected into
+         * another DC) leaves the last error alone */
+        return NtGdiSelectBitmap( hdc, obj );
     case NTGDI_OBJ_REGION:
         ret = ULongToHandle(SelectClipRgn( hdc, obj ));
         break;
