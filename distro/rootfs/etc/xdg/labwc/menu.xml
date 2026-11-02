@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<!-- Setu session: no compositor root menu (the Setu shell is the desktop UI). -->
+<openbox_menu>
+  <menu id="root-menu" label="" />
+</openbox_menu>

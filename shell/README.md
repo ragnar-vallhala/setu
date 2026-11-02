@@ -56,6 +56,9 @@ wine reg add 'HKCU\Software\Wine\Explorer' /v Desktop /d setu /f
 wine reg add 'HKCU\Software\Wine\Explorer\Desktops' /v setu /d 1280x800 /f
 ```
 
+The bootable dev image (distro/) runs the shell this way as its session:
+`distro/build-image.sh --shell build/shell/setu-shell.exe`.
+
 Running `setu-shell.exe` again with options forwards them to the running
 shell (`WM_COPYDATA`):
 

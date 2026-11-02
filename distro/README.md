@@ -8,8 +8,16 @@ their own licenses).
 A Debian stable (trixie) disk image that boots with UEFI in QEMU, autologs in
 the `setu` user and starts a Wayland session: **labwc** (compositor, starts
 Xwayland on demand) → **`setu-session`** → the Setu personality (wineserver) →
-the shell. Until `shell/` ships `setu-shell.exe`, the session runs Wine's
-`notepad` as a placeholder.
+the shell (`setu-shell.exe` with `--shell`, else Wine's `notepad` as a
+placeholder).
+
+All Windows programs share one personality desktop, `setu`: a single
+fullscreen Xwayland window sized to the display's preferred mode (read from
+`/sys/class/drm`; override with `SETU_RES=WxH`). The personality draws every
+window inside it, so labwc never decorates or places them, and the shell's
+taskbar and work area apply to all programs. labwc's config
+(`rootfs/etc/xdg/labwc/`) turns off server-side decorations, its key
+bindings and its root menu.
 
 ```sh
 distro/build-image.sh     # ~10 min; writes build/distro/setu-dev.qcow2 (~4 GB)
@@ -48,12 +56,15 @@ from a fresh builder, so it is repeatable; artifacts live in `build/distro/`.
 | `builder/build-rootfs.sh` | runs as root in the builder VM |
 | `packages.list` | packages in the image (`packages-wine-debian.list` for `--wine=debian`) |
 | `rootfs/` | files copied into the image as-is |
-| `rootfs/usr/local/bin/setu-session` | the session launcher (personality + shell) |
+| `rootfs/usr/local/bin/setu-session` | the session launcher (personality, desktop size, shell) |
+| `rootfs/etc/xdg/labwc/` | labwc config: no decorations, key bindings or root menu |
 | `rootfs/etc/systemd/system/setu-session.service` | tty1 autologin running `labwc -S setu-session` |
 | `run-qemu.sh` | boots the image (OVMF, virtio-gpu, VNC, serial log, monitor socket) |
 | `docs/` | screenshot of the booted session |
 
-![The dev image after boot: labwc + Xwayland running notepad on the Setu personality](docs/session.png)
+![The dev image after boot with --shell: the Setu taskbar on the fullscreen personality desktop](docs/session-shell.png)
+
+Without `--shell` the session runs notepad instead ([screenshot](docs/session.png)).
 
 ### Known gaps
 

@@ -3,8 +3,13 @@
 #
 # Runs inside the Wayland compositor (labwc starts it with `-S`, so the
 # compositor exits when this script does). It starts the Setu personality
-# (wineserver) and then the shell. Until shell/ ships setu-shell.exe, it runs
-# Wine's notepad as a placeholder.
+# (wineserver) and then the shell (setu-shell.exe if the image has it, else
+# Wine's notepad as a placeholder).
+#
+# Every Windows program shares one personality desktop, "setu": a single
+# fullscreen Xwayland window the size of the display. Inside it the
+# personality draws all windows itself, so labwc never decorates, stacks or
+# places them, and the shell's taskbar and work area apply to every program.
 #
 # Overrides (environment):
 #   SETU_PERSONALITY  personality install prefix (default /opt/setu/personality,
@@ -12,6 +17,8 @@
 #   SETU_SHELL        Windows program to run as the shell
 #                     (default /opt/setu/shell/setu-shell.exe, else notepad)
 #   WINEPREFIX        default ~/.setu/prefix
+#   SETU_RES          desktop size WxH (default: the first connected DRM
+#                     output's preferred mode, else 1280x800)
 
 log() { echo "setu-session: $*"; }
 
@@ -39,6 +46,20 @@ if [ ! -f "$WINEPREFIX/system.reg" ]; then
 fi
 wineserver -p
 log "personality up"
+
+# One desktop for the whole session, sized to the display. When the size
+# matches the output, the personality makes the desktop window fullscreen.
+if [ -z "$SETU_RES" ]; then
+    for c in /sys/class/drm/card*-*; do
+        [ "$(cat "$c/status" 2>/dev/null)" = connected ] || continue
+        SETU_RES=$(head -n1 "$c/modes" 2>/dev/null)
+        [ -n "$SETU_RES" ] && break
+    done
+fi
+SETU_RES=${SETU_RES:-1280x800}
+log "desktop: setu $SETU_RES"
+wine reg add 'HKCU\Software\Wine\Explorer' /v Desktop /d setu /f >/dev/null 2>&1
+wine reg add 'HKCU\Software\Wine\Explorer\Desktops' /v setu /d "$SETU_RES" /f >/dev/null 2>&1
 
 SETU_SHELL=${SETU_SHELL:-/opt/setu/shell/setu-shell.exe}
 if [ -f "$SETU_SHELL" ]; then
