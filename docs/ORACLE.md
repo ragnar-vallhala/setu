@@ -140,6 +140,11 @@ and commit the updated file together with the fix.
   (`--setu-impl personality|stock` forces one). Each implementation gets its
   own prefix (`oracle/.cache/wineprefix-<impl>`), and each test runs in a fresh
   `build/work/setu/<test>`.
+  The Setu side is headless: the harness drops `DISPLAY`, `WAYLAND_DISPLAY`
+  and `XAUTHORITY` from the environment and selects Wine's null graphics
+  driver in the prefix (`HKCU\Software\Wine\Drivers` `Graphics=null`,
+  stamped by `.setu-oracle-null-graphics`), so user32/gdi32 tests can create
+  hidden windows without touching the host's display.
 
 ## CI
 

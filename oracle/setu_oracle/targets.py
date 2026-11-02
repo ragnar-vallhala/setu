@@ -73,6 +73,11 @@ class WineTarget(Target):
         # tools set this variable, which drops the current directory from
         # CreateProcess's search path; the Windows VM does not have it.
         self.env.pop("NoDefaultCurrentDirectoryInExePath", None)
+        # Never talk to the host's display server: tests must be headless and
+        # must not open windows on the developer's desktop. Window creation
+        # goes through Wine's null graphics driver instead (see prepare()).
+        for var in ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"):
+            self.env.pop(var, None)
         self.env.update({
             "WINEPREFIX": str(self.prefix),
             "WINEDEBUG": c["winedebug"],
@@ -117,9 +122,29 @@ class WineTarget(Target):
             elif r.returncode != 0:
                 raise SystemExit(f"wineboot failed ({r.returncode}):\n{r.stderr.decode(errors='replace')[-2000:]}")
             stamp.write_text("ok\n")
+        self._use_null_graphics_driver()
         if self.workroot.exists():
             shutil.rmtree(self.workroot)
         self.workroot.mkdir(parents=True)
+
+    def _use_null_graphics_driver(self) -> None:
+        """Select Wine's null graphics driver (HKCU\\Software\\Wine\\Drivers Graphics=null).
+
+        With no display server, Wine would otherwise refuse to create any
+        window that is not message-only. The null driver gives user32/gdi32
+        tests a working, deterministic, invisible desktop, much like the
+        Windows VM's non-interactive SSH session.
+        """
+        stamp = self.prefix / ".setu-oracle-null-graphics"
+        if stamp.exists():
+            return
+        r = subprocess.run([*self.wine, "reg", "add", "HKCU\\Software\\Wine\\Drivers", "/v", "Graphics",
+                            "/t", "REG_SZ", "/d", "null", "/f"], env=self.env, capture_output=True, timeout=300)
+        self._wineserver("-w")
+        if r.returncode != 0:
+            raise SystemExit(f"setu: could not select the null graphics driver ({r.returncode}):\n"
+                             f"{r.stderr.decode(errors='replace')[-2000:]}")
+        stamp.write_text("ok\n")
 
     def run(self, test: Test) -> RawRun:
         work = self.workroot / test.flat
