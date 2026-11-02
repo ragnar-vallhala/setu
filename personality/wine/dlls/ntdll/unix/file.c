@@ -1741,21 +1741,28 @@ static int fd_set_dos_attrib( int fd, UINT attr, BOOL force_set )
 static NTSTATUS fd_set_file_info( int fd, UINT attr, BOOL force_set_xattr )
 {
     struct stat st;
+    mode_t mode;
 
     if (fstat( fd, &st ) == -1) return errno_to_status( errno );
+    mode = st.st_mode;
     if (attr & FILE_ATTRIBUTE_READONLY)
     {
         if (S_ISDIR( st.st_mode))
             WARN("FILE_ATTRIBUTE_READONLY ignored for directory.\n");
         else
-            st.st_mode &= ~0222; /* clear write permission bits */
+            mode &= ~0222; /* clear write permission bits */
     }
     else
     {
         /* add write permission only where we already have read permission */
-        st.st_mode |= (0600 | ((st.st_mode & 044) >> 1)) & (~start_umask);
+        mode |= (0600 | ((st.st_mode & 044) >> 1)) & (~start_umask);
     }
-    if (fchmod( fd, st.st_mode ) == -1) return errno_to_status( errno );
+
+    /* Linux only lets user extended attributes change while the file is
+     * writable, so set them before clearing the write bits (and make a
+     * read-only file briefly writable to change them). */
+    if (!(st.st_mode & S_IWUSR) && fchmod( fd, st.st_mode | S_IWUSR ) == -1)
+        return errno_to_status( errno );
 
     /* if the file has multiple names, we can't be sure that it is safe to not
        set the extended attribute, since any of the names could start with a dot */
@@ -1764,6 +1771,8 @@ static NTSTATUS fd_set_file_info( int fd, UINT attr, BOOL force_set_xattr )
     if (fd_set_dos_attrib( fd, attr, force_set_xattr ) == -1 && errno != ENOTSUP)
         WARN( "Failed to set extended attribute " SAMBA_XATTR_DOS_ATTRIB ". errno %d (%s)\n",
               errno, strerror( errno ) );
+
+    if (fchmod( fd, mode ) == -1) return errno_to_status( errno );
 
     return STATUS_SUCCESS;
 }
