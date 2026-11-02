@@ -6144,6 +6144,50 @@ static unsigned int set_pending_write( HANDLE device )
 }
 
 
+/* Byte-range locks are mandatory on Windows: a read fails if another handle
+ * holds an exclusive lock on any byte of the range, a write fails if any lock
+ * other than the handle's own exclusive one covers a byte of it. The server
+ * mirrors each lock as a POSIX lock on the Unix file, so a F_GETLK query (which
+ * the kernel answers at once for a file without locks) tells whether there is
+ * any lock on the range at all, and only then the server is asked whether this
+ * handle may do the I/O. */
+static NTSTATUS check_file_lock( HANDLE handle, int fd, ULONGLONG offset, ULONG length, BOOL write )
+{
+    const ULONGLONG max_offset = 0x7fffffffffffffffull;
+    struct flock fl;
+    unsigned int status;
+
+    if (!length || offset > max_offset) return STATUS_SUCCESS;
+
+    fl.l_type   = F_WRLCK;  /* reports any lock: exclusive locks on read-only fds are read locks */
+    fl.l_whence = SEEK_SET;
+    fl.l_start  = offset;
+    fl.l_len    = (offset > max_offset - length) ? 0 : length;
+    fl.l_pid    = 0;
+    if (fcntl( fd, F_GETLK, &fl ) == -1 || fl.l_type == F_UNLCK) return STATUS_SUCCESS;
+
+    SERVER_START_REQ( check_file_lock )
+    {
+        req->handle = wine_server_obj_handle( handle );
+        req->offset = offset;
+        req->count  = length;
+        req->write  = write;
+        status = wine_server_call( req );
+    }
+    SERVER_END_REQ;
+    return status;
+}
+
+/* same for I/O at the current file position */
+static NTSTATUS check_file_lock_at_pos( HANDLE handle, int fd, ULONG length, BOOL write )
+{
+    off_t pos;
+
+    if (!length || (pos = lseek( fd, 0, SEEK_CUR )) == -1) return STATUS_SUCCESS;
+    return check_file_lock( handle, fd, pos, length, write );
+}
+
+
 /******************************************************************************
  *              NtReadFile   (NTDLL.@)
  */
@@ -6186,6 +6230,10 @@ NTSTATUS WINAPI NtReadFile( HANDLE handle, HANDLE event, PIO_APC_ROUTINE apc, vo
 
         if (offset && offset->QuadPart != FILE_USE_FILE_POINTER_POSITION)
         {
+            if (offset->QuadPart >= 0 &&
+                (status = check_file_lock( handle, unix_handle, offset->QuadPart, length, FALSE )))
+                goto err;
+
             /* async I/O doesn't make sense on regular files */
             while ((result = virtual_locked_pread( unix_handle, buffer, length, offset->QuadPart )) == -1)
             {
@@ -6202,6 +6250,7 @@ NTSTATUS WINAPI NtReadFile( HANDLE handle, HANDLE event, PIO_APC_ROUTINE apc, vo
             status = (total || !length) ? STATUS_SUCCESS : STATUS_END_OF_FILE;
             goto done;
         }
+        if ((status = check_file_lock_at_pos( handle, unix_handle, length, FALSE ))) goto err;
     }
     else if (type == FD_TYPE_SERIAL || type == FD_TYPE_DEVICE)
     {
@@ -6378,6 +6427,12 @@ NTSTATUS WINAPI NtReadFileScatter( HANDLE file, HANDLE event, PIO_APC_ROUTINE ap
         goto error;
     }
 
+    if (offset && offset->QuadPart != FILE_USE_FILE_POINTER_POSITION)
+        status = offset->QuadPart >= 0 ? check_file_lock( file, unix_handle, offset->QuadPart, length, FALSE ) : 0;
+    else
+        status = check_file_lock_at_pos( file, unix_handle, length, FALSE );
+    if (status) goto error;
+
     while (length)
     {
         if (offset && offset->QuadPart != FILE_USE_FILE_POINTER_POSITION)
@@ -6502,6 +6557,8 @@ NTSTATUS WINAPI NtWriteFile( HANDLE handle, HANDLE event, PIO_APC_ROUTINE apc, v
                 goto done;
             }
 
+            if ((status = check_file_lock( handle, unix_handle, off, length, TRUE ))) goto err;
+
             /* async I/O doesn't make sense on regular files */
             while ((result = pwrite( unix_handle, buffer, length, off )) == -1)
             {
@@ -6520,6 +6577,7 @@ NTSTATUS WINAPI NtWriteFile( HANDLE handle, HANDLE event, PIO_APC_ROUTINE apc, v
             status = STATUS_SUCCESS;
             goto done;
         }
+        if ((status = check_file_lock_at_pos( handle, unix_handle, length, TRUE ))) goto err;
     }
     else if (type == FD_TYPE_SERIAL || type == FD_TYPE_DEVICE)
     {
@@ -6677,6 +6735,12 @@ NTSTATUS WINAPI NtWriteFileGather( HANDLE file, HANDLE event, PIO_APC_ROUTINE ap
         status = STATUS_INVALID_PARAMETER;
         goto done;
     }
+
+    if (offset && offset->QuadPart != FILE_USE_FILE_POINTER_POSITION)
+        status = offset->QuadPart >= 0 ? check_file_lock( file, unix_handle, offset->QuadPart, length, TRUE ) : 0;
+    else
+        status = check_file_lock_at_pos( file, unix_handle, length, TRUE );
+    if (status) goto done;
 
     while (length)
     {

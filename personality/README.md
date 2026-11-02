@@ -20,6 +20,47 @@ git log --grep='^Setu-Oracle:' --format='%h %s' -- personality/wine
 |---|---|
 | xattr `user.WINENOARCHIVE` | Set on a file whose ARCHIVE attribute was cleared, next to Samba's `user.DOSATTRIB`. Holds the file's mtime at that moment; ARCHIVE reads as set again once the mtime changes. On kernels without multigrain timestamps (before Linux 6.13), a write in the same clock tick as the clear can go unnoticed. |
 
+## Mandatory byte-range locks
+
+Windows byte-range locks (`LockFile`, `LockFileEx`) are mandatory: `ReadFile`
+fails with `ERROR_LOCK_VIOLATION` when another handle holds an exclusive lock on
+any byte of the range, and `WriteFile` fails when any lock covers a byte of the
+range, except the writing handle's own exclusive lock (the handle's own shared
+lock blocks it too). Upstream Wine tracks locks in the wineserver but does
+plain `pread`/`pwrite` in ntdll, so it never enforces them.
+
+How Setu enforces them without slowing down unlocked files:
+
+* The wineserver already mirrors each lock as a POSIX `fcntl` lock on the Unix
+  file (shared locks as read locks, exclusive ones as write locks). The kernel's
+  lock list on the inode is the "this range has locks" flag; nothing new is
+  stored.
+* Before a read or write on a regular file (`NtReadFile`, `NtWriteFile`,
+  `NtReadFileScatter`, `NtWriteFileGather`, explicit offset or file pointer),
+  ntdll asks the kernel with `fcntl(F_GETLK)` whether any lock overlaps the
+  range. For a file without locks the kernel answers at once, so there is no
+  wineserver round trip, only one cheap syscall.
+* Only when some lock overlaps does ntdll send `check_file_lock` to the
+  wineserver, which applies the Windows rules against its own lock list
+  (owner = the file object, as for lock conflicts) and returns
+  `STATUS_FILE_LOCK_CONFLICT` if the I/O is not allowed. No bytes are
+  transferred then.
+
+Limits:
+
+* Memory-mapped views (`MapViewOfFile`) and I/O done by Unix code (other Unix
+  processes, Unix libraries in the same process) bypass the check.
+* If the filesystem has no POSIX locks (the server then stops mirroring them,
+  for example on some network filesystems), or a lock lies beyond the largest
+  Unix offset, the fast path sees no lock and the I/O goes through.
+* POSIX locks held by other Unix processes (another wineserver, native apps)
+  are visible to `F_GETLK` too; they only cost a server round trip, the server
+  then allows the I/O.
+* The check and the I/O are not atomic: a lock taken by another thread between
+  them does not stop that one I/O.
+* Other operations Windows may also block on locked ranges (truncation with
+  `SetEndOfFile`, for example) are not checked.
+
 ## Layout
 
 | Path | What |
