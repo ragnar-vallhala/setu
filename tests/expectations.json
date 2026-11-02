@@ -1996,6 +1996,7 @@
     "kernel32/threads:apc_sleep_not_alertable",
     "kernel32/threads:apc_suspended_thread_order",
     "kernel32/threads:apc_two_fifo_after_drain",
+    "kernel32/threads:apc_two_fifo_wait_signalled_object",
     "kernel32/threads:create_bad_flags",
     "kernel32/threads:create_stack_reservation",
     "kernel32/threads:create_suspended",

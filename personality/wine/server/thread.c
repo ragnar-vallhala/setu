@@ -1184,6 +1184,9 @@ static int check_wait( struct thread *thread )
     /* Suspended threads may not acquire locks, but they can run system APCs */
     if (is_thread_suspended( thread )) return -1;
 
+    /* pending user APCs end an alertable wait even if the objects are signaled */
+    if ((wait->flags & SELECT_ALERTABLE) && !list_empty(&thread->user_apc)) return STATUS_USER_APC;
+
     if (wait->select == SELECT_WAIT_ALL)
     {
         int not_ok = 0;
@@ -1199,7 +1202,6 @@ static int check_wait( struct thread *thread )
             if (object_sync_signaled( entry->obj, entry )) return i;
     }
 
-    if ((wait->flags & SELECT_ALERTABLE) && !list_empty(&thread->user_apc)) return STATUS_USER_APC;
     if (wait->when >= 0 && wait->when <= current_time) return STATUS_TIMEOUT;
     if (wait->when < 0 && -wait->when <= monotonic_time) return STATUS_TIMEOUT;
     return -1;
