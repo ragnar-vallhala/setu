@@ -456,7 +456,8 @@ BOOL WINAPI CreateWellKnownSid( WELL_KNOWN_SID_TYPE type, PSID domain, PSID sid,
         }
     }
 
-    if (domain == NULL || *GetSidSubAuthorityCount(domain) == SID_MAX_SUB_AUTHORITIES)
+    /* the Rtl helpers are used so that the last error is left alone on success */
+    if (domain == NULL || *RtlSubAuthorityCountSid(domain) == SID_MAX_SUB_AUTHORITIES)
     {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -466,7 +467,7 @@ BOOL WINAPI CreateWellKnownSid( WELL_KNOWN_SID_TYPE type, PSID domain, PSID sid,
     {
         if (WellKnownRids[i].Type == type)
         {
-            UCHAR domain_subauth = *GetSidSubAuthorityCount(domain);
+            UCHAR domain_subauth = *RtlSubAuthorityCountSid(domain);
             DWORD domain_sid_length = GetSidLengthRequired(domain_subauth);
             DWORD output_sid_length = GetSidLengthRequired(domain_subauth + 1);
 
@@ -482,8 +483,8 @@ BOOL WINAPI CreateWellKnownSid( WELL_KNOWN_SID_TYPE type, PSID domain, PSID sid,
                 return FALSE;
             }
             CopyMemory(sid, domain, domain_sid_length);
-            (*GetSidSubAuthorityCount(sid))++;
-            (*GetSidSubAuthority(sid, domain_subauth)) = WellKnownRids[i].Rid;
+            (*RtlSubAuthorityCountSid(sid))++;
+            (*RtlSubAuthoritySid(sid, domain_subauth)) = WellKnownRids[i].Rid;
             *size = output_sid_length;
             return TRUE;
         }
@@ -505,6 +506,19 @@ BOOL WINAPI IsWellKnownSid( PSID sid, WELL_KNOWN_SID_TYPE type )
         if (WellKnownSids[i].Type == type)
             if (EqualSid(sid, (PSID)&WellKnownSids[i].Sid.Revision))
                 return TRUE;
+
+    /* account SIDs are relative to an account domain, S-1-5-21-X-Y-Z-RID */
+    for (i = 0; i < ARRAY_SIZE(WellKnownRids); i++)
+    {
+        static const SID_IDENTIFIER_AUTHORITY nt = { SECURITY_NT_AUTHORITY };
+        const SID *s = sid;
+
+        if (WellKnownRids[i].Type != type) continue;
+        return s->Revision == SID_REVISION && s->SubAuthorityCount == SECURITY_NT_NON_UNIQUE_SUB_AUTH_COUNT + 2
+               && !memcmp( &s->IdentifierAuthority, &nt, sizeof(nt) )
+               && s->SubAuthority[0] == SECURITY_NT_NON_UNIQUE
+               && s->SubAuthority[s->SubAuthorityCount - 1] == WellKnownRids[i].Rid;
+    }
 
     return FALSE;
 }
