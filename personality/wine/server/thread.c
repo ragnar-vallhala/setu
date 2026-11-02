@@ -863,6 +863,10 @@ unsigned int set_thread_base_priority( struct thread *thread, int base_priority 
     int priority;
     int is_realtime = thread->process->priority == PROCESS_PRIOCLASS_REALTIME;
 
+    /* the saturation values one beyond time critical and idle */
+    if (base_priority == THREAD_PRIORITY_TIME_CRITICAL + 1) base_priority = THREAD_PRIORITY_TIME_CRITICAL;
+    else if (base_priority == THREAD_PRIORITY_IDLE - 1) base_priority = THREAD_PRIORITY_IDLE;
+
     if (base_priority != THREAD_PRIORITY_IDLE && base_priority != THREAD_PRIORITY_TIME_CRITICAL)
     {
         int min = is_realtime ? THREAD_PRIORITY_REALTIME_LOWEST : THREAD_PRIORITY_LOWEST;
