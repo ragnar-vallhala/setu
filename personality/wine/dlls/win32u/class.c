@@ -798,6 +798,12 @@ INT WINAPI NtUserGetClassName( HWND hwnd, BOOL real, UNICODE_STRING *name )
         len = class_shm->name_len - class_shm->name_offset * sizeof(WCHAR);
         if (len) memcpy( buffer, (WCHAR *)class_shm->name + class_shm->name_offset, len );
     }
+    if (status)
+    {
+        name->Buffer[0] = 0;
+        RtlSetLastWin32Error( ERROR_INVALID_WINDOW_HANDLE );
+        return 0;
+    }
 
     ret = min( name->MaximumLength - sizeof(WCHAR), len );
     if (ret) memcpy( name->Buffer, buffer, ret );
