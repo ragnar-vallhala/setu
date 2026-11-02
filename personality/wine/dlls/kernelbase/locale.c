@@ -5362,6 +5362,12 @@ static const WCHAR *get_message( DWORD flags, const void *src, UINT id, UINT lan
             if (HRESULT_SEVERITY(id) == SEVERITY_ERROR && HRESULT_FACILITY(id) == FACILITY_WIN32)
                 id = HRESULT_CODE( id );
             status = RtlFindMessage( kernelbase_handle, RT_MESSAGETABLE, lang, id, &entry );
+            /* system messages come from per-language resource files */
+            if (status == STATUS_RESOURCE_LANG_NOT_FOUND)
+            {
+                SetLastError( ERROR_MUI_FILE_NOT_FOUND );
+                return NULL;
+            }
         }
         if (!set_ntstatus( status )) return NULL;
 

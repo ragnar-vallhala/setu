@@ -1676,6 +1676,7 @@
     "kernel32/string_format:string_type_zero_length",
     "kernel32/string_format:sys_buffer_too_small",
     "kernel32/string_format:sys_missing_id",
+    "kernel32/string_format:sys_unknown_language",
     "kernel32/sync_objects:auto_event_first_wait",
     "kernel32/sync_objects:auto_event_second_wait",
     "kernel32/sync_objects:event_after_pulse",
