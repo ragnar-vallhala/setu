@@ -272,6 +272,61 @@
       "last_error": "unchanged",
       "now": 0
     },
+    "set_priority_17": {
+      "ret": false,
+      "last_error": 87,
+      "now": 0
+    },
+    "set_priority_minus_16": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": -15
+    },
+    "set_priority_minus_17": {
+      "ret": false,
+      "last_error": 87,
+      "now": -15
+    },
+    "set_priority_normal_again": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 0
+    },
+    "set_priority_bg_begin_other_thread": {
+      "ret": false,
+      "last_error": 87,
+      "now": 0
+    },
+    "set_priority_bg_end_other_thread": {
+      "ret": false,
+      "last_error": 87,
+      "now": 0
+    },
+    "set_priority_highest_before_bg": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 2
+    },
+    "set_priority_bg_begin_from_highest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": -4
+    },
+    "set_priority_lowest_in_bg": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": -2
+    },
+    "set_priority_bg_end_after_lowest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 2
+    },
+    "set_priority_normal_after_bg": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": 0
+    },
     "priority_boost_default": {
       "ret": true,
       "last_error": "unchanged",
@@ -470,5 +525,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "3f59425132566506ff4876bdbd1b534fbc9e33a7534b8662c2e1ab608294a682"
+  "source_sha256": "9d06abd8834aa51cb4da59e1a0956379b9a431d68d5b5e9d26657b384034bfe3"
 }

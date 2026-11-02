@@ -278,6 +278,7 @@ int main(void)
     /* Loading a DLL not yet loaded, then unloading it. */
     h = load_case("load_version_dll", L"version.dll", 0);
     gmh_case("gmh_version_after_load", L"version.dll");
+    gmfn_case("gmfn_version_dll", h, MAX_PATH);
     h2 = load_case("load_version_dll_again", L"VERSION.DLL", 0);
     oracle_case("load_twice_same_handle");
     o_bool("same", h == h2);
@@ -375,6 +376,18 @@ int main(void)
         BOOL_CASE("set_default_dll_directories_zero", SetDefaultDllDirectories(0));
         BOOL_CASE("set_default_dll_directories_bad", SetDefaultDllDirectories(0x10));
     }
+
+    /* ---- case of the module file name, flag validation ---- */
+    gmfn_case("gmfn_kernelbase", GetModuleHandleW(L"kernelbase.dll"), MAX_PATH);
+    h = load_case("load_mixed_case_name", L"VeRsIoN.DlL", 0);
+    if (h) {
+        gmfn_case("gmfn_mixed_case_name", h, MAX_PATH);
+        FreeLibrary(h);
+    }
+    h = load_case("load_flag_0x10000", L"kernel32.dll", 0x10000);
+    if (h) FreeLibrary(h);
+    h = load_case("load_empty_name_as_datafile", L"", LOAD_LIBRARY_AS_DATAFILE);
+    if (h) FreeLibrary(h);
 
     /* ---- risky last: FreeLibrary on bogus values ---- */
     BOOL_CASE("free_null", FreeLibrary(NULL));

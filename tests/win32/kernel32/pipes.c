@@ -185,6 +185,16 @@ int main(void)
         o_hex32("ret", p);
         o_lasterr();
         oracle_case_end();
+        ORACLE_CALL(p, SetFilePointer(r, 0, NULL, FILE_CURRENT));
+        oracle_case("anon_get_file_pointer_after_set");
+        o_hex32("ret", p);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(p, SetFilePointer(r, 0, NULL, FILE_END));
+        oracle_case("anon_set_file_pointer_end");
+        o_hex32("ret", p);
+        o_lasterr();
+        oracle_case_end();
         BOOL_CASE("anon_flush_write_end", FlushFileBuffers(w));
     }
     write_case("anon_write_before_close", w, "bye", 3);
@@ -342,6 +352,13 @@ int main(void)
     s = create_case("create_max_instances_zero", PIPE("zero"), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE, 0);
     if (s != INVALID_HANDLE_VALUE) CloseHandle(s);
     s = create_case("create_max_instances_256", PIPE("big"), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE, 256);
+    if (s != INVALID_HANDLE_VALUE) CloseHandle(s);
+    s = create_case("create_max_instances_255", PIPE("big255"), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE, 255);
+    if (s != INVALID_HANDLE_VALUE) CloseHandle(s);
+    s = create_case("create_max_instances_254", PIPE("big254"), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE, 254);
+    if (s != INVALID_HANDLE_VALUE) CloseHandle(s);
+    s = create_case("create_first_instance_flag_fresh", PIPE("first"),
+                    PIPE_ACCESS_DUPLEX | FILE_FLAG_FIRST_PIPE_INSTANCE, PIPE_TYPE_BYTE, 1);
     if (s != INVALID_HANDLE_VALUE) CloseHandle(s);
     s = create_case("create_readmode_message_on_byte", PIPE("rm"), PIPE_ACCESS_DUPLEX,
                     PIPE_TYPE_BYTE | PIPE_READMODE_MESSAGE, 1);

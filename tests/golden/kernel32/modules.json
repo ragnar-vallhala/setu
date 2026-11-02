@@ -249,6 +249,11 @@
       "ret": "valid",
       "last_error": "unchanged"
     },
+    "gmfn_version_dll": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "path": "<sysdir>\\version.dll"
+    },
     "load_version_dll_again": {
       "ret": "valid",
       "last_error": "unchanged",
@@ -381,6 +386,29 @@
       "ret": false,
       "last_error": 87
     },
+    "gmfn_kernelbase": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "path": "<sysdir>\\KERNELBASE.dll"
+    },
+    "load_mixed_case_name": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "gmfn_mixed_case_name": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "path": "<sysdir>\\VeRsIoN.DlL"
+    },
+    "load_flag_0x10000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "load_empty_name_as_datafile": {
+      "ret": "NULL",
+      "last_error": 87
+    },
     "free_null": {
       "ret": false,
       "last_error": 126
@@ -391,5 +419,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "f0fc698b33277a746932e94a8d339e7c11aaa56f79636bc36b1c649addfb88b4"
+  "source_sha256": "b5a1fc5e5f50af7a77762c02ee0b3980e73b3bda56e32e521a77893484a270be"
 }

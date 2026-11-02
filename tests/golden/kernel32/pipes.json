@@ -124,6 +124,14 @@
       "ret": "0x0000000a",
       "last_error": "unchanged"
     },
+    "anon_get_file_pointer_after_set": {
+      "ret": "0x0000000a",
+      "last_error": "unchanged"
+    },
+    "anon_set_file_pointer_end": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
     "anon_flush_write_end": {
       "ret": true,
       "last_error": "unchanged"
@@ -542,6 +550,18 @@
       "ret": "INVALID_HANDLE_VALUE",
       "last_error": 87
     },
+    "create_max_instances_255": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_max_instances_254": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_first_instance_flag_fresh": {
+      "ret": "valid",
+      "last_error": 0
+    },
     "create_readmode_message_on_byte": {
       "ret": "INVALID_HANDLE_VALUE",
       "last_error": 87
@@ -588,5 +608,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "477b158d0d084fc331bdf263625f971dc3303bb9b88d2726a48b64bda1f75da3"
+  "source_sha256": "c693f37876c37ddf2f4f8ecb0fa21d5a67ca65033e63bc7025cf2ef49033f3e5"
 }

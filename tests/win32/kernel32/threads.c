@@ -253,6 +253,23 @@ int main(void)
         priority_case("set_priority_bg_end", cur, THREAD_MODE_BACKGROUND_END);
         priority_case("set_priority_bg_end_again", cur, THREAD_MODE_BACKGROUND_END);
         priority_case("set_priority_normal", cur, THREAD_PRIORITY_NORMAL);
+        priority_case("set_priority_17", cur, 17);
+        priority_case("set_priority_minus_16", cur, -16);
+        priority_case("set_priority_minus_17", cur, -17);
+        priority_case("set_priority_normal_again", cur, THREAD_PRIORITY_NORMAL);
+        {
+            HANDLE other = CreateThread(NULL, 0, ret_arg, (void *)0, CREATE_SUSPENDED, NULL);
+            priority_case("set_priority_bg_begin_other_thread", other, THREAD_MODE_BACKGROUND_BEGIN);
+            priority_case("set_priority_bg_end_other_thread", other, THREAD_MODE_BACKGROUND_END);
+            TerminateThread(other, 0);
+            WaitForSingleObject(other, INFINITE);
+            CloseHandle(other);
+        }
+        priority_case("set_priority_highest_before_bg", cur, THREAD_PRIORITY_HIGHEST);
+        priority_case("set_priority_bg_begin_from_highest", cur, THREAD_MODE_BACKGROUND_BEGIN);
+        priority_case("set_priority_lowest_in_bg", cur, THREAD_PRIORITY_LOWEST);
+        priority_case("set_priority_bg_end_after_lowest", cur, THREAD_MODE_BACKGROUND_END);
+        priority_case("set_priority_normal_after_bg", cur, THREAD_PRIORITY_NORMAL);
 
         BOOL dis = 7;
         BOOL ok;

@@ -125,6 +125,76 @@
       "last_error": 206,
       "now": "<cwd>"
     },
+    "setcd_len_257": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "setcd_len_258": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "setcd_len_259": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "setcd_len_260": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "setcd_missing_component_255": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "setcd_missing_component_256": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "setcd_nul_device_lower": {
+      "ret": false,
+      "last_error": 267,
+      "now": "<cwd>"
+    },
+    "setcd_con_device": {
+      "ret": false,
+      "last_error": 267,
+      "now": "<cwd>"
+    },
+    "setcd_nul_device_in_subdir": {
+      "ret": false,
+      "last_error": 267,
+      "now": "<cwd>"
+    },
+    "setcd_total_256": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_total_257": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_total_258": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_total_259": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_total_260": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
     "remove_current_directory": {
       "ret": false,
       "last_error": 32
@@ -198,6 +268,18 @@
       "last_error": 3,
       "name": "\\t7.tmp",
       "created": false
+    },
+    "gtfn_missing_nested_dir": {
+      "ret": "0x00000000",
+      "last_error": 267
+    },
+    "gtfn_file_as_dir": {
+      "ret": "0x00000000",
+      "last_error": 267
+    },
+    "gtfn_bad_char_dir": {
+      "ret": "0x00000000",
+      "last_error": 267
     },
     "gtfn_unique_0_creates": {
       "ret_nonzero": true,
@@ -320,13 +402,57 @@
       "ret": "nonzero",
       "last_error": "unchanged",
       "ret_minus_cwd_len": 9,
-      "buffer_untouched": false
+      "buffer_untouched": false,
+      "buffer_starts_nul": true
     },
     "search_buffer_exact_len": {
       "ret": "nonzero",
       "last_error": "unchanged",
       "ret_minus_cwd_len": 9,
-      "buffer_untouched": false
+      "buffer_untouched": false,
+      "buffer_starts_nul": true
+    },
+    "search_buffer_len_plus_1": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_minus_cwd_len": 9,
+      "buffer_untouched": false,
+      "buffer_starts_nul": true
+    },
+    "search_buffer_len_plus_2": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_minus_cwd_len": 9,
+      "buffer_untouched": false,
+      "buffer_starts_nul": true
+    },
+    "search_buffer_len_plus_3": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\a.txt",
+      "file_part": "a.txt"
+    },
+    "search_buffer_len_plus_4": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\a.txt",
+      "file_part": "a.txt"
+    },
+    "search_buffer_too_small_subpath": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_minus_cwd_len": 13,
+      "buffer_untouched": false,
+      "buffer_starts_nul": true
+    },
+    "search_buffer_size_0": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_minus_cwd_len": 9,
+      "buffer_untouched": true,
+      "buffer_starts_nul": false
     },
     "search_empty_name": {
       "ret": 0,
@@ -356,5 +482,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "440de112d2ee20eb7f6fcc4776c638d1b555ba0e64af6526f3c1e6672efcab59"
+  "source_sha256": "2966a60cb6361fc3e9ad8f2a6727b3fef4f92e62f921b613bc78fa9e75e22963"
 }

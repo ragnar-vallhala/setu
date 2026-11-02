@@ -89,6 +89,7 @@ static void search_case(const char *name, const wchar_t *path, const wchar_t *fi
         /* Too small: the return value is a size; print it relative to the cwd length. */
         o_i64("ret_minus_cwd_len", (long long)r - (long long)wcslen(cwd));
         o_bool("buffer_untouched", buf[0] == L'#');
+        o_bool("buffer_starts_nul", buf[0] == 0);
     }
     oracle_case_end();
 }
@@ -169,6 +170,38 @@ int main(void)
         for (int i = 0; i < 40; i++) wcscat(lng, L"sub\\..\\");
         wcscat(lng, L"sub");
         setcd_case("setcd_long_relative_resolves_short", lng);
+        /* Where the length limits start: ".\\" padding that resolves to "sub". */
+        static const struct { const char *name; int dots; const wchar_t *tail; } lens[] = {
+            { "setcd_len_257", 127, L"sub" }, { "setcd_len_258", 127, L"sub\\" },
+            { "setcd_len_259", 128, L"sub" }, { "setcd_len_260", 128, L"sub\\" },
+        };
+        for (int k = 0; k < 4; k++) {
+            wcscpy(lng, L"");
+            for (int i = 0; i < lens[k].dots; i++) wcscat(lng, L".\\");
+            wcscat(lng, lens[k].tail);
+            setcd_case(lens[k].name, lng);
+        }
+        wcscpy(lng, L"");
+        for (int i = 0; i < 255; i++) wcscat(lng, L"a");
+        setcd_case("setcd_missing_component_255", lng);
+        wcscat(lng, L"a");
+        setcd_case("setcd_missing_component_256", lng);
+        setcd_case("setcd_nul_device_lower", L"nul");
+        setcd_case("setcd_con_device", L"CON");
+        setcd_case("setcd_nul_device_in_subdir", L"sub\\NUL");
+        /* Relative names resolving to "sub" whose length plus the cwd's
+         * (cwd + "\\" + name) is exactly N. */
+        static const struct { const char *name; size_t total; } totals[] = {
+            { "setcd_total_256", 256 }, { "setcd_total_257", 257 }, { "setcd_total_258", 258 },
+            { "setcd_total_259", 259 }, { "setcd_total_260", 260 },
+        };
+        for (int k = 0; k < 5; k++) {
+            size_t want = totals[k].total - wcslen(cwd) - 1;
+            wcscpy(lng, L"");
+            while (wcslen(lng) + 2 + 3 <= want && want - wcslen(lng) - 3 >= 2) wcscat(lng, L".\\");
+            wcscat(lng, wcslen(lng) + 3 == want ? L"sub" : L"sub\\");
+            setcd_case(totals[k].name, wcslen(lng) == want ? lng : L"length-mismatch");
+        }
     }
 
     /* The current directory cannot be removed (it is held open). */
@@ -209,6 +242,9 @@ int main(void)
     gtfn_case("gtfn_missing_dir_fixed_unique", L"missing", L"t", 0x1);
     gtfn_case("gtfn_missing_dir_unique_0", L"missing", L"t", 0);
     gtfn_case("gtfn_empty_path", L"", L"t", 0x7);
+    gtfn_case("gtfn_missing_nested_dir", L"missing\\x", L"t", 0x7);
+    gtfn_case("gtfn_file_as_dir", L"file.txt", L"t", 0x7);
+    gtfn_case("gtfn_bad_char_dir", L"a|b", L"t", 0x7);
     {
         /* uUnique 0: a new file is created; its number is not deterministic. */
         wchar_t out[MAX_PATH];
@@ -277,6 +313,12 @@ int main(void)
     search_case("search_directory_name", NULL, L"sub", NULL, MAX_PATH);
     search_case("search_buffer_too_small", NULL, L"a.txt", NULL, 4);
     search_case("search_buffer_exact_len", NULL, L"a.txt", NULL, (DWORD)(len + 6));
+    search_case("search_buffer_len_plus_1", NULL, L"a.txt", NULL, (DWORD)(len + 7));
+    search_case("search_buffer_len_plus_2", NULL, L"a.txt", NULL, (DWORD)(len + 8));
+    search_case("search_buffer_len_plus_3", NULL, L"a.txt", NULL, (DWORD)(len + 9));
+    search_case("search_buffer_len_plus_4", NULL, L"a.txt", NULL, (DWORD)(len + 10));
+    search_case("search_buffer_too_small_subpath", NULL, L"sub\\b.dat", NULL, 4);
+    search_case("search_buffer_size_0", NULL, L"a.txt", NULL, 0);
     search_case("search_empty_name", NULL, L"", NULL, MAX_PATH);
     search_case("search_wildcard", NULL, L"a.*", NULL, MAX_PATH);
     search_case("search_system_dll", NULL, L"kernel32.dll", NULL, MAX_PATH);
