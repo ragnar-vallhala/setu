@@ -2034,6 +2034,7 @@
     "ole32/com_basics:apartment_main_still_uninitialised",
     "ole32/com_basics:apartment_sta",
     "ole32/com_basics:clsid_bad_hex",
+    "ole32/com_basics:clsid_empty",
     "ole32/com_basics:clsid_iunknown_upper",
     "ole32/com_basics:clsid_lowercase",
     "ole32/com_basics:clsid_missing_close_brace",

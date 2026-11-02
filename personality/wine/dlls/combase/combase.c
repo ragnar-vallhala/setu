@@ -1516,6 +1516,10 @@ HRESULT WINAPI CLSIDFromString(LPCOLESTR str, LPCLSID clsid)
     if (!clsid)
         return E_INVALIDARG;
 
+    /* an empty string fails without touching the output */
+    if (str && !*str)
+        return CO_E_CLASSSTRING;
+
     if (guid_from_string(str, clsid))
         return S_OK;
 
