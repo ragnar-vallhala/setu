@@ -421,6 +421,8 @@ static inline void init_thread_structure( struct thread *thread )
     thread->priority        = 0;
     thread->base_priority   = 0;
     thread->disable_boost   = 0;
+    thread->background      = 0;
+    thread->saved_base_priority = 0;
     thread->suspend         = 0;
     thread->dbg_hidden      = 0;
     thread->bypass_proc_suspend = 0;
@@ -857,11 +859,37 @@ unsigned int set_thread_priority( struct thread *thread, int priority )
 #define THREAD_PRIORITY_REALTIME_HIGHEST 6
 #define THREAD_PRIORITY_REALTIME_LOWEST -7
 
+/* absolute priority of a thread in background processing mode */
+#define BACKGROUND_PRIORITY 4
+
+/* enter or leave background processing mode; only the current thread can do this */
+static unsigned int set_thread_background_mode( struct thread *thread, int begin )
+{
+    unsigned int status;
+
+    if (thread != current) return STATUS_INVALID_PARAMETER;
+    if (begin)
+    {
+        if (thread->background) return STATUS_THREAD_ALREADY_IN_SESSION;
+        if ((status = set_thread_priority( thread, BACKGROUND_PRIORITY ))) return status;
+        thread->saved_base_priority = thread->base_priority;
+        thread->base_priority = BACKGROUND_PRIORITY - thread->process->base_priority;
+        thread->background = 1;
+        return STATUS_SUCCESS;
+    }
+    if (!thread->background) return STATUS_THREAD_NOT_IN_SESSION;
+    thread->background = 0;
+    return set_thread_base_priority( thread, thread->saved_base_priority );
+}
+
 /* sets the thread base priority level, relative to its process base priority */
 unsigned int set_thread_base_priority( struct thread *thread, int base_priority )
 {
     int priority;
     int is_realtime = thread->process->priority == PROCESS_PRIOCLASS_REALTIME;
+
+    if (base_priority == THREAD_MODE_BACKGROUND_BEGIN) return set_thread_background_mode( thread, 1 );
+    if (base_priority == THREAD_MODE_BACKGROUND_END) return set_thread_background_mode( thread, 0 );
 
     /* the saturation values one beyond time critical and idle */
     if (base_priority == THREAD_PRIORITY_TIME_CRITICAL + 1) base_priority = THREAD_PRIORITY_TIME_CRITICAL;

@@ -618,7 +618,20 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetThreadLocale( LCID lcid )
 BOOL WINAPI DECLSPEC_HOTPATCH SetThreadPriority( HANDLE thread, INT priority )
 {
     DWORD prio = priority;
-    return set_ntstatus( NtSetInformationThread( thread, ThreadBasePriority, &prio, sizeof(prio) ));
+    NTSTATUS status = NtSetInformationThread( thread, ThreadBasePriority, &prio, sizeof(prio) );
+
+    /* the server reports background mode transitions that don't apply with these */
+    if (status == STATUS_THREAD_ALREADY_IN_SESSION && priority == THREAD_MODE_BACKGROUND_BEGIN)
+    {
+        SetLastError( ERROR_THREAD_MODE_ALREADY_BACKGROUND );
+        return FALSE;
+    }
+    if (status == STATUS_THREAD_NOT_IN_SESSION && priority == THREAD_MODE_BACKGROUND_END)
+    {
+        SetLastError( ERROR_THREAD_MODE_NOT_BACKGROUND );
+        return FALSE;
+    }
+    return set_ntstatus( status );
 }
 
 
