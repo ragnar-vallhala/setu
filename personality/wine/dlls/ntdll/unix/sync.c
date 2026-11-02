@@ -1069,6 +1069,8 @@ NTSTATUS WINAPI NtReleaseSemaphore( HANDLE handle, ULONG count, ULONG *previous 
 
     TRACE( "handle %p, count %u, prev_count %p\n", handle, count, previous );
 
+    if ((LONG)count <= 0) return STATUS_INVALID_PARAMETER;
+
     if ((ret = inproc_release_semaphore( handle, count, previous )) != STATUS_NOT_IMPLEMENTED)
         return ret;
 
