@@ -2215,10 +2215,23 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetLongPathNameW( LPCWSTR shortpath, LPWSTR longp
         if (handle == INVALID_HANDLE_VALUE)
         {
             TRACE( "not found %s\n", debugstr_w( tmplongpath ));
-            SetLastError ( ERROR_FILE_NOT_FOUND );
+            /* a missing directory before the last component is a missing path */
+            for (p = shortpath + sp + tmplen; *p == '/' || *p == '\\'; p++);
+            SetLastError( *p ? ERROR_PATH_NOT_FOUND : ERROR_FILE_NOT_FOUND );
             return 0;
         }
         FindClose( handle );
+
+        /* a file can't be the parent of a further component */
+        if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        {
+            for (p = shortpath + sp + tmplen; *p == '/' || *p == '\\'; p++);
+            if (*p)
+            {
+                SetLastError( ERROR_PATH_NOT_FOUND );
+                return 0;
+            }
+        }
 
         /* Use the existing file name if it's a short name */
         RtlInitUnicodeString( &nameW, tmplongpath + lp );
