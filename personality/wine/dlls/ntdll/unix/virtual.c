@@ -5140,6 +5140,7 @@ static NTSTATUS allocate_virtual_memory( void **ret, SIZE_T *size_ptr, ULONG typ
         return STATUS_INVALID_PARAMETER;
     }
 
+    if ((type & MEM_RESET) && (type & (MEM_COMMIT | MEM_RESERVE))) return STATUS_INVALID_PARAMETER;
     if (type & MEM_RESERVE_PLACEHOLDER && (protect != PAGE_NOACCESS)) return STATUS_INVALID_PARAMETER;
     if (!arm64ec_view && (attributes & MEM_EXTENDED_PARAMETER_EC_CODE)) return STATUS_INVALID_PARAMETER;
     if (protect & PAGE_UNSUPPORTED_FLAGS) return STATUS_NOT_SUPPORTED;
@@ -5149,6 +5150,7 @@ static NTSTATUS allocate_virtual_memory( void **ret, SIZE_T *size_ptr, ULONG typ
 
     server_enter_uninterrupted_section( &virtual_mutex, &sigset );
 
+    if ((type & MEM_RESERVE) || (!base && !(type & MEM_RESET)))
     {
         if (!(status = get_vprot_flags( protect, &vprot, FALSE )))
         {
@@ -5171,7 +5173,7 @@ static NTSTATUS allocate_virtual_memory( void **ret, SIZE_T *size_ptr, ULONG typ
     }
     else if (type & MEM_RESET)
     {
-        if (!(view = find_view( base, size ))) status = STATUS_NOT_MAPPED_VIEW;
+        if (!base || !(view = find_view( base, size ))) status = STATUS_NOT_MAPPED_VIEW;
         else madvise( base, size, MADV_DONTNEED );
     }
     else  /* commit the pages */
