@@ -3037,8 +3037,15 @@ LSTATUS WINAPI RegLoadMUIStringW(HKEY hKey, LPCWSTR pwszValue, LPWSTR pwszBuffer
     /* Check for value existence and correctness of its type, allocate a buffer and load it. */
     result = RegQueryValueExW(hKey, pwszValue, NULL, &dwValueType, NULL, &cbData);
     if (result != ERROR_SUCCESS) goto cleanup;
-    if (!(dwValueType == REG_SZ || dwValueType == REG_EXPAND_SZ) || !cbData) {
-        result = ERROR_FILE_NOT_FOUND;
+    if (!(dwValueType == REG_SZ || dwValueType == REG_EXPAND_SZ)) {
+        result = ERROR_INVALID_DATA;
+        goto cleanup;
+    }
+    /* an empty string is not a resource reference either, and that error
+     * is also set as the last error */
+    if (!cbData) {
+        SetLastError(ERROR_INVALID_DATA);
+        result = ERROR_INVALID_DATA;
         goto cleanup;
     }
     pwszTempBuffer = HeapAlloc(GetProcessHeap(), 0, cbData);
@@ -3051,6 +3058,7 @@ LSTATUS WINAPI RegLoadMUIStringW(HKEY hKey, LPCWSTR pwszValue, LPWSTR pwszBuffer
 
     /* '@' is the prefix for resource based string entries. */
     if (*pwszTempBuffer != '@') {
+        SetLastError(ERROR_INVALID_DATA);
         result = ERROR_INVALID_DATA;
         goto cleanup;
     }
@@ -3074,6 +3082,7 @@ LSTATUS WINAPI RegLoadMUIStringW(HKEY hKey, LPCWSTR pwszValue, LPWSTR pwszBuffer
 
         /* Format of the expanded value is 'path_to_dll,-resId' */
         if (!pComma || pComma[1] != '-') {
+            SetLastError(ERROR_INVALID_DATA);
             result = ERROR_INVALID_DATA;
             goto cleanup;
         }
