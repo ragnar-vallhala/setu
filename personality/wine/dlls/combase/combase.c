@@ -1756,7 +1756,7 @@ static HRESULT com_get_class_object(REFCLSID rclsid, DWORD clscontext,
         COSERVERINFO *server_info, REFIID riid, void **obj)
 {
     struct class_reg_data clsreg = { 0 };
-    HRESULT hr = E_UNEXPECTED;
+    HRESULT hr = REGDB_E_CLASSNOTREG; /* also the result when no context matches */
     IUnknown *registered_obj;
     struct apartment *apt;
 
