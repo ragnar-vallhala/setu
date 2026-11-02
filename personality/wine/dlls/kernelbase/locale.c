@@ -6201,14 +6201,14 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetStringTypeA( LCID locale, DWORD type, const cha
  */
 BOOL WINAPI DECLSPEC_HOTPATCH GetStringTypeW( DWORD type, const WCHAR *src, INT count, WORD *chartype )
 {
-    if (!src)
+    if (!src || !count)
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return FALSE;
     }
     if (type != CT_CTYPE1 && type != CT_CTYPE2 && type != CT_CTYPE3)
     {
-        SetLastError( ERROR_INVALID_PARAMETER );
+        SetLastError( ERROR_INVALID_FLAGS );
         return FALSE;
     }
 
