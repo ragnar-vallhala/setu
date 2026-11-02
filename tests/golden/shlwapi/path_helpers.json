@@ -1,0 +1,1035 @@
+{
+  "test": "shlwapi/path_helpers",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_shlwapi": {
+      "ret": "valid"
+    },
+    "combine_simple": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\dir\\file.txt"
+    },
+    "combine_dir_trailing_slash": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\dir\\file.txt"
+    },
+    "combine_file_absolute": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "D:\\other\\f"
+    },
+    "combine_file_rooted": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\f"
+    },
+    "combine_dotdot": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\a\\x"
+    },
+    "combine_dotdot_past_root": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\x"
+    },
+    "combine_dot": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\a\\b\\c"
+    },
+    "combine_null_dir": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "rel\\f"
+    },
+    "combine_null_file": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\b"
+    },
+    "combine_both_null": {
+      "ret": "null",
+      "last_error": "unchanged",
+      "out": ""
+    },
+    "combine_empty_dir": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "f"
+    },
+    "combine_empty_file": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\a"
+    },
+    "combine_unc": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "\\\\server\\share\\dir\\f"
+    },
+    "combine_unc_dotdot": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "\\\\f"
+    },
+    "combine_forward_slashes": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:/a/b\\c/d"
+    },
+    "combine_relative_dir": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "a\\b\\c"
+    },
+    "combine_drive_relative": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\f"
+    },
+    "combine_trailing_dots": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\a\\b"
+    },
+    "combine_result_too_long": {
+      "ret": "null",
+      "last_error": "unchanged",
+      "out": ""
+    },
+    "canon_dotdot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\c"
+    },
+    "canon_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b"
+    },
+    "canon_past_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a"
+    },
+    "canon_trailing_dotdot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a"
+    },
+    "canon_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a"
+    },
+    "canon_relative": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\b"
+    },
+    "canon_leading_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "a"
+    },
+    "canon_double_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\\\b"
+    },
+    "canon_forward_slash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:/a/../b"
+    },
+    "canon_unc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\\\server\\x"
+    },
+    "canon_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\"
+    },
+    "canon_root_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\"
+    },
+    "canon_drive_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\"
+    },
+    "canon_triple_dots": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\...\\b"
+    },
+    "canon_dots_in_name": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\c.d"
+    },
+    "canon_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b\\"
+    },
+    "append_simple": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b"
+    },
+    "append_leading_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b"
+    },
+    "append_absolute": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "D:\\b"
+    },
+    "append_dotdot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\c"
+    },
+    "append_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a"
+    },
+    "append_to_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "b"
+    },
+    "append_unc_more": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\\\s\\sh\\x"
+    },
+    "find_plain_file": {
+      "ext": 11,
+      "filename": 7,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 15,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_double_ext": {
+      "ext": 18,
+      "filename": 7,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 21,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_dot_in_dir": {
+      "ext": 12,
+      "filename": 8,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 12,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_trailing_dot": {
+      "ext": 4,
+      "filename": 0,
+      "next_component": 5,
+      "skip_root": "null",
+      "args": 5,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_dotfile": {
+      "ext": 3,
+      "filename": 3,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 10,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_space_in_ext": {
+      "ext": 5,
+      "filename": 0,
+      "next_component": 5,
+      "skip_root": "null",
+      "args": 4,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_long_ext": {
+      "ext": 1,
+      "filename": 0,
+      "next_component": 19,
+      "skip_root": "null",
+      "args": 19,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_trailing_backslash": {
+      "ext": 7,
+      "filename": 3,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 7,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_root": {
+      "ext": 3,
+      "filename": 0,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 3,
+      "is_relative": false,
+      "is_root": true,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_drive_relative": {
+      "ext": 6,
+      "filename": 2,
+      "next_component": 6,
+      "skip_root": "null",
+      "args": 6,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_drive_only": {
+      "ext": 2,
+      "filename": 0,
+      "next_component": 2,
+      "skip_root": "null",
+      "args": 2,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_unc_server": {
+      "ext": 8,
+      "filename": 2,
+      "next_component": 2,
+      "skip_root": 8,
+      "args": 8,
+      "is_relative": false,
+      "is_root": true,
+      "is_unc": true,
+      "is_unc_server": true,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_unc_share": {
+      "ext": 14,
+      "filename": 9,
+      "next_component": 2,
+      "skip_root": 14,
+      "args": 14,
+      "is_relative": false,
+      "is_root": true,
+      "is_unc": true,
+      "is_unc_server": false,
+      "is_unc_server_share": true,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_unc_share_dir": {
+      "ext": 18,
+      "filename": 15,
+      "next_component": 2,
+      "skip_root": 15,
+      "args": 18,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": true,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_unc_trailing": {
+      "ext": 15,
+      "filename": 9,
+      "next_component": 2,
+      "skip_root": 15,
+      "args": 15,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": true,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_rooted_no_drive": {
+      "ext": 6,
+      "filename": 5,
+      "next_component": 1,
+      "skip_root": 1,
+      "args": 6,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_relative": {
+      "ext": 5,
+      "filename": 4,
+      "next_component": 4,
+      "skip_root": "null",
+      "args": 7,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_empty": {
+      "ext": 0,
+      "filename": 0,
+      "next_component": "null",
+      "skip_root": "null",
+      "args": 0,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_device_prefix": {
+      "ext": 10,
+      "filename": 9,
+      "next_component": 2,
+      "skip_root": 7,
+      "args": 12,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_url_http": {
+      "ext": 20,
+      "filename": 19,
+      "next_component": 22,
+      "skip_root": "null",
+      "args": 22,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": true
+    },
+    "find_url_file": {
+      "ext": 12,
+      "filename": 11,
+      "next_component": 16,
+      "skip_root": "null",
+      "args": 16,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": true
+    },
+    "find_args": {
+      "ext": 17,
+      "filename": 3,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 12,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_quoted_args": {
+      "ext": 19,
+      "filename": 4,
+      "next_component": 4,
+      "skip_root": "null",
+      "args": 17,
+      "is_relative": true,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_lowercase_drive": {
+      "ext": 4,
+      "filename": 3,
+      "next_component": 3,
+      "skip_root": 3,
+      "args": 4,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 25,
+      "is_url": false
+    },
+    "find_forward_slash": {
+      "ext": 11,
+      "filename": 7,
+      "next_component": 15,
+      "skip_root": "null",
+      "args": 15,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "mod_plain_file": {
+      "remove_extension": "C:\\dir\\file",
+      "rename_ext_ret": true,
+      "rename_ext": "C:\\dir\\file.new",
+      "add_ext_ret": false,
+      "add_ext_default": "C:\\dir\\file.txt",
+      "add_backslash_ret": 16,
+      "add_backslash": "C:\\dir\\file.txt\\",
+      "remove_backslash_ret": 14,
+      "remove_backslash": "C:\\dir\\file.txt",
+      "remove_filespec_ret": true,
+      "remove_filespec": "C:\\dir",
+      "strip_path": "file.txt",
+      "strip_to_root_ret": true,
+      "strip_to_root": "C:\\",
+      "remove_args": "C:\\dir\\file.txt",
+      "remove_blanks": "C:\\dir\\file.txt",
+      "quote_spaces_ret": false,
+      "quote_spaces": "C:\\dir\\file.txt",
+      "unquote_spaces": "C:\\dir\\file.txt"
+    },
+    "mod_no_ext": {
+      "remove_extension": "C:\\dir\\file",
+      "rename_ext_ret": true,
+      "rename_ext": "C:\\dir\\file.new",
+      "add_ext_ret": true,
+      "add_ext_default": "C:\\dir\\file.exe",
+      "add_backslash_ret": 12,
+      "add_backslash": "C:\\dir\\file\\",
+      "remove_backslash_ret": 10,
+      "remove_backslash": "C:\\dir\\file",
+      "remove_filespec_ret": true,
+      "remove_filespec": "C:\\dir",
+      "strip_path": "file",
+      "strip_to_root_ret": true,
+      "strip_to_root": "C:\\",
+      "remove_args": "C:\\dir\\file",
+      "remove_blanks": "C:\\dir\\file",
+      "quote_spaces_ret": false,
+      "quote_spaces": "C:\\dir\\file",
+      "unquote_spaces": "C:\\dir\\file"
+    },
+    "mod_trailing_backslash": {
+      "remove_extension": "C:\\dir\\",
+      "rename_ext_ret": true,
+      "rename_ext": "C:\\dir\\.new",
+      "add_ext_ret": true,
+      "add_ext_default": "C:\\dir\\.exe",
+      "add_backslash_ret": 7,
+      "add_backslash": "C:\\dir\\",
+      "remove_backslash_ret": 6,
+      "remove_backslash": "C:\\dir",
+      "remove_filespec_ret": true,
+      "remove_filespec": "C:\\dir",
+      "strip_path": "dir\\",
+      "strip_to_root_ret": true,
+      "strip_to_root": "C:\\",
+      "remove_args": "C:\\dir\\",
+      "remove_blanks": "C:\\dir\\",
+      "quote_spaces_ret": false,
+      "quote_spaces": "C:\\dir\\",
+      "unquote_spaces": "C:\\dir\\"
+    },
+    "mod_root": {
+      "remove_extension": "C:\\",
+      "rename_ext_ret": true,
+      "rename_ext": "C:\\.new",
+      "add_ext_ret": true,
+      "add_ext_default": "C:\\.exe",
+      "add_backslash_ret": 3,
+      "add_backslash": "C:\\",
+      "remove_backslash_ret": 2,
+      "remove_backslash": "C:\\",
+      "remove_filespec_ret": false,
+      "remove_filespec": "C:\\",
+      "strip_path": "C:\\",
+      "strip_to_root_ret": true,
+      "strip_to_root": "C:\\",
+      "remove_args": "C:\\",
+      "remove_blanks": "C:\\",
+      "quote_spaces_ret": false,
+      "quote_spaces": "C:\\",
+      "unquote_spaces": "C:\\"
+    },
+    "mod_drive": {
+      "remove_extension": "C:",
+      "rename_ext_ret": true,
+      "rename_ext": "C:.new",
+      "add_ext_ret": true,
+      "add_ext_default": "C:.exe",
+      "add_backslash_ret": 3,
+      "add_backslash": "C:\\",
+      "remove_backslash_ret": 1,
+      "remove_backslash": "C:",
+      "remove_filespec_ret": false,
+      "remove_filespec": "C:",
+      "strip_path": "C:",
+      "strip_to_root_ret": true,
+      "strip_to_root": "C:",
+      "remove_args": "C:",
+      "remove_blanks": "C:",
+      "quote_spaces_ret": false,
+      "quote_spaces": "C:",
+      "unquote_spaces": "C:"
+    },
+    "mod_unc_share_dir": {
+      "remove_extension": "\\\\server\\share\\dir\\f",
+      "rename_ext_ret": true,
+      "rename_ext": "\\\\server\\share\\dir\\f.new",
+      "add_ext_ret": false,
+      "add_ext_default": "\\\\server\\share\\dir\\f.x",
+      "add_backslash_ret": 23,
+      "add_backslash": "\\\\server\\share\\dir\\f.x\\",
+      "remove_backslash_ret": 21,
+      "remove_backslash": "\\\\server\\share\\dir\\f.x",
+      "remove_filespec_ret": true,
+      "remove_filespec": "\\\\server\\share\\dir",
+      "strip_path": "f.x",
+      "strip_to_root_ret": true,
+      "strip_to_root": "\\\\server\\share",
+      "remove_args": "\\\\server\\share\\dir\\f.x",
+      "remove_blanks": "\\\\server\\share\\dir\\f.x",
+      "quote_spaces_ret": false,
+      "quote_spaces": "\\\\server\\share\\dir\\f.x",
+      "unquote_spaces": "\\\\server\\share\\dir\\f.x"
+    },
+    "mod_unc_share": {
+      "remove_extension": "\\\\server\\share",
+      "rename_ext_ret": true,
+      "rename_ext": "\\\\server\\share.new",
+      "add_ext_ret": true,
+      "add_ext_default": "\\\\server\\share.exe",
+      "add_backslash_ret": 15,
+      "add_backslash": "\\\\server\\share\\",
+      "remove_backslash_ret": 13,
+      "remove_backslash": "\\\\server\\share",
+      "remove_filespec_ret": true,
+      "remove_filespec": "\\\\server",
+      "strip_path": "share",
+      "strip_to_root_ret": true,
+      "strip_to_root": "\\\\server\\share",
+      "remove_args": "\\\\server\\share",
+      "remove_blanks": "\\\\server\\share",
+      "quote_spaces_ret": false,
+      "quote_spaces": "\\\\server\\share",
+      "unquote_spaces": "\\\\server\\share"
+    },
+    "mod_relative": {
+      "remove_extension": "a\\b",
+      "rename_ext_ret": true,
+      "rename_ext": "a\\b.new",
+      "add_ext_ret": false,
+      "add_ext_default": "a\\b.c",
+      "add_backslash_ret": 6,
+      "add_backslash": "a\\b.c\\",
+      "remove_backslash_ret": 4,
+      "remove_backslash": "a\\b.c",
+      "remove_filespec_ret": true,
+      "remove_filespec": "a",
+      "strip_path": "b.c",
+      "strip_to_root_ret": false,
+      "strip_to_root": "",
+      "remove_args": "a\\b.c",
+      "remove_blanks": "a\\b.c",
+      "quote_spaces_ret": false,
+      "quote_spaces": "a\\b.c",
+      "unquote_spaces": "a\\b.c"
+    },
+    "mod_spaces": {
+      "remove_extension": "  C:\\my dir\\a b.txt  ",
+      "rename_ext_ret": true,
+      "rename_ext": "  C:\\my dir\\a b.txt  .new",
+      "add_ext_ret": true,
+      "add_ext_default": "  C:\\my dir\\a b.txt  .exe",
+      "add_backslash_ret": 22,
+      "add_backslash": "  C:\\my dir\\a b.txt  \\",
+      "remove_backslash_ret": 20,
+      "remove_backslash": "  C:\\my dir\\a b.txt  ",
+      "remove_filespec_ret": true,
+      "remove_filespec": "  C:\\my dir",
+      "strip_path": "a b.txt  ",
+      "strip_to_root_ret": false,
+      "strip_to_root": "",
+      "remove_args": "",
+      "remove_blanks": "C:\\my dir\\a b.txt",
+      "quote_spaces_ret": true,
+      "quote_spaces": "\"  C:\\my dir\\a b.txt  \"",
+      "unquote_spaces": "  C:\\my dir\\a b.txt  "
+    },
+    "mod_quoted": {
+      "remove_extension": "\"C:\\my dir\\a",
+      "rename_ext_ret": true,
+      "rename_ext": "\"C:\\my dir\\a.new",
+      "add_ext_ret": false,
+      "add_ext_default": "\"C:\\my dir\\a.txt\"",
+      "add_backslash_ret": 18,
+      "add_backslash": "\"C:\\my dir\\a.txt\"\\",
+      "remove_backslash_ret": 16,
+      "remove_backslash": "\"C:\\my dir\\a.txt\"",
+      "remove_filespec_ret": true,
+      "remove_filespec": "\"C:\\my dir",
+      "strip_path": "a.txt\"",
+      "strip_to_root_ret": false,
+      "strip_to_root": "",
+      "remove_args": "\"C:\\my dir\\a.txt\"",
+      "remove_blanks": "\"C:\\my dir\\a.txt\"",
+      "quote_spaces_ret": true,
+      "quote_spaces": "\"\"C:\\my dir\\a.txt\"\"",
+      "unquote_spaces": "C:\\my dir\\a.txt"
+    },
+    "mod_args": {
+      "remove_extension": "C:\\p.exe /x y",
+      "rename_ext_ret": true,
+      "rename_ext": "C:\\p.exe /x y.new",
+      "add_ext_ret": true,
+      "add_ext_default": "C:\\p.exe /x y.exe",
+      "add_backslash_ret": 14,
+      "add_backslash": "C:\\p.exe /x y\\",
+      "remove_backslash_ret": 12,
+      "remove_backslash": "C:\\p.exe /x y",
+      "remove_filespec_ret": true,
+      "remove_filespec": "C:\\",
+      "strip_path": "x y",
+      "strip_to_root_ret": true,
+      "strip_to_root": "C:\\",
+      "remove_args": "C:\\p.exe",
+      "remove_blanks": "C:\\p.exe /x y",
+      "quote_spaces_ret": true,
+      "quote_spaces": "\"C:\\p.exe /x y\"",
+      "unquote_spaces": "C:\\p.exe /x y"
+    },
+    "mod_empty": {
+      "remove_extension": "",
+      "rename_ext_ret": true,
+      "rename_ext": ".new",
+      "add_ext_ret": true,
+      "add_ext_default": ".exe",
+      "add_backslash_ret": 0,
+      "add_backslash": "",
+      "remove_backslash_ret": 0,
+      "remove_backslash": "",
+      "remove_filespec_ret": false,
+      "remove_filespec": "",
+      "strip_path": "",
+      "strip_to_root_ret": false,
+      "strip_to_root": "",
+      "remove_args": "",
+      "remove_blanks": "",
+      "quote_spaces_ret": false,
+      "quote_spaces": "",
+      "unquote_spaces": ""
+    },
+    "mod_rooted": {
+      "remove_extension": "\\file",
+      "rename_ext_ret": true,
+      "rename_ext": "\\file.new",
+      "add_ext_ret": false,
+      "add_ext_default": "\\file.txt",
+      "add_backslash_ret": 10,
+      "add_backslash": "\\file.txt\\",
+      "remove_backslash_ret": 8,
+      "remove_backslash": "\\file.txt",
+      "remove_filespec_ret": true,
+      "remove_filespec": "\\",
+      "strip_path": "file.txt",
+      "strip_to_root_ret": true,
+      "strip_to_root": "\\",
+      "remove_args": "\\file.txt",
+      "remove_blanks": "\\file.txt",
+      "quote_spaces_ret": false,
+      "quote_spaces": "\\file.txt",
+      "unquote_spaces": "\\file.txt"
+    },
+    "buildroot_0": {
+      "ret": 0,
+      "out": "A:\\"
+    },
+    "buildroot_2": {
+      "ret": 0,
+      "out": "C:\\"
+    },
+    "buildroot_25": {
+      "ret": 0,
+      "out": "Z:\\"
+    },
+    "buildroot_26": {
+      "ret": 0,
+      "out": ""
+    },
+    "buildroot_-1": {
+      "ret": 0,
+      "out": ""
+    },
+    "match_star_ext": {
+      "ret": true
+    },
+    "match_star_ext_case": {
+      "ret": true
+    },
+    "match_star_ext_no": {
+      "ret": false
+    },
+    "match_multi_spec": {
+      "ret": true
+    },
+    "match_multi_spec_space": {
+      "ret": true
+    },
+    "match_question": {
+      "ret": true
+    },
+    "match_question_too_short": {
+      "ret": false
+    },
+    "match_star_dot_star_no_ext": {
+      "ret": true
+    },
+    "match_star": {
+      "ret": true
+    },
+    "match_path_with_dir": {
+      "ret": true
+    },
+    "match_empty_spec": {
+      "ret": true
+    },
+    "match_dot_spec": {
+      "ret": false
+    },
+    "prefix_shared_dir": {
+      "ret": 6,
+      "out": "C:\\a\\b",
+      "is_prefix_a_of_b": false,
+      "same_root": true
+    },
+    "prefix_case": {
+      "ret": 6,
+      "out": "C:\\A\\b",
+      "is_prefix_a_of_b": true,
+      "same_root": true
+    },
+    "prefix_partial_name": {
+      "ret": 3,
+      "out": "C:\\",
+      "is_prefix_a_of_b": false,
+      "same_root": true
+    },
+    "prefix_root_only": {
+      "ret": 3,
+      "out": "C:\\",
+      "is_prefix_a_of_b": false,
+      "same_root": true
+    },
+    "prefix_different_drives": {
+      "ret": 0,
+      "out": "",
+      "is_prefix_a_of_b": false,
+      "same_root": false
+    },
+    "prefix_unc": {
+      "ret": 6,
+      "out": "\\\\s\\sh",
+      "is_prefix_a_of_b": false,
+      "same_root": true
+    },
+    "prefix_identical": {
+      "ret": 6,
+      "out": "C:\\a\\b",
+      "is_prefix_a_of_b": true,
+      "same_root": true
+    },
+    "rel_sibling_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "..\\c\\f.txt"
+    },
+    "rel_from_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": ".\\c\\f.txt"
+    },
+    "rel_same": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "."
+    },
+    "rel_child": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": ".\\b\\c"
+    },
+    "rel_parent": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "..\\.."
+    },
+    "rel_different_drive": {
+      "ret": false,
+      "last_error": "unchanged",
+      "out": ""
+    },
+    "rel_case_insensitive": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": ".\\f"
+    },
+    "icon_index": {
+      "index": 3,
+      "path": "C:\\x\\shell.dll"
+    },
+    "icon_negative": {
+      "index": -12,
+      "path": "C:\\x\\shell.dll"
+    },
+    "icon_none": {
+      "index": 0,
+      "path": "C:\\x\\shell.dll"
+    },
+    "icon_spaces": {
+      "index": 0,
+      "path": "C:\\x\\a.dll"
+    },
+    "icon_quoted": {
+      "index": 2,
+      "path": "C:\\x y\\a.dll"
+    },
+    "compact_fits": {
+      "ret": true,
+      "out": "C:\\a\\b.txt"
+    },
+    "compact_short": {
+      "ret": true,
+      "out": "C:\\long...\\file.txt"
+    },
+    "compact_very_short": {
+      "ret": true,
+      "out": "...\\."
+    },
+    "compact_filename_only": {
+      "ret": true,
+      "out": "averyv..."
+    },
+    "compact_max_1": {
+      "ret": true,
+      "out": ""
+    },
+    "compact_max_0": {
+      "ret": false,
+      "out": "############################################################"
+    },
+    "strcmplogical": {
+      "p0": -1,
+      "p1": 1,
+      "p2": 0,
+      "p3": -1,
+      "p4": -1,
+      "p5": -1,
+      "p6": 0,
+      "p7": -1,
+      "p8": 1,
+      "p9": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "fa5944a25d6d72499ba9ba4a7122c0e4ec58da8281dca5ed0145f2f8d352bcf7"
+}

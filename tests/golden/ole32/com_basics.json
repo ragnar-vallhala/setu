@@ -1,0 +1,250 @@
+{
+  "test": "ole32/com_basics",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_ole32": {
+      "ret": "valid"
+    },
+    "apartment_before_init": {
+      "hr": "0x800401f0",
+      "type": -1,
+      "qualifier": 0
+    },
+    "cocreateinstance_before_init": {
+      "hr": "0x800401f0",
+      "out_null": true
+    },
+    "coinit_flags_0x100": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_sta_0x80": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_0xffffffff": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_speed_over_memory": {
+      "hr": "0x00000000",
+      "apartment_type": 1
+    },
+    "apartment_main_still_uninitialised": {
+      "hr": "0x800401f0",
+      "type": -1,
+      "qualifier": 0
+    },
+    "coinit_sta_first": {
+      "hr": "0x00000000"
+    },
+    "coinit_sta_second": {
+      "hr": "0x00000001"
+    },
+    "coinit_mta_on_sta": {
+      "hr": "0x80010106"
+    },
+    "coinit_sta_disable_ole1dde": {
+      "hr": "0x00000001"
+    },
+    "coinit_reserved_nonnull": {
+      "hr": "0x80070057"
+    },
+    "apartment_sta": {
+      "hr": "0x00000000",
+      "type": 3,
+      "qualifier": 0
+    },
+    "cocreateinstance_unregistered": {
+      "hr": "0x80040154",
+      "out_null": true
+    },
+    "cocreateinstance_null_out": {
+      "hr": "0x80070057"
+    },
+    "cocreateinstance_clsctx_0": {
+      "hr": "0x80040154"
+    },
+    "progidfromclsid_unregistered": {
+      "hr": "0x80040154",
+      "out_null": true
+    },
+    "thread_mta_then_sta": {
+      "mta_first": "0x00000000",
+      "sta_on_mta": "0x80010106",
+      "mta_again": "0x00000001",
+      "sta_after_uninit": "0x00000000"
+    },
+    "clsid_iunknown_upper": {
+      "hr": "0x00000000",
+      "clsid": "00000000-0000-0000-C000-000000000046"
+    },
+    "clsid_lowercase": {
+      "hr": "0x00000000",
+      "clsid": "5E7A0001-1234-5678-9ABC-DEF012345678"
+    },
+    "clsid_no_braces": {
+      "hr": "0x800401f3",
+      "clsid": "00000000-0000-0000-0000-000000000000"
+    },
+    "clsid_missing_close_brace": {
+      "hr": "0x800401f3",
+      "clsid": "5E7A0001-1234-5678-9ABC-DEF012345678"
+    },
+    "clsid_trailing_garbage": {
+      "hr": "0x800401f3",
+      "clsid": "5E7A0001-1234-5678-9ABC-DEF012345678"
+    },
+    "clsid_bad_hex": {
+      "hr": "0x800401f3",
+      "clsid": "5E7A0001-1234-5678-9ABC-DEF0123456AB"
+    },
+    "clsid_short": {
+      "hr": "0x800401f3",
+      "clsid": "5E7A0001-1234-5678-9ABC-DEF0123456AB"
+    },
+    "clsid_no_dashes": {
+      "hr": "0x800401f3",
+      "clsid": "5E7A0001-ABAB-ABAB-ABAB-ABABABABABAB"
+    },
+    "clsid_empty": {
+      "hr": "0x800401f3",
+      "clsid": "ABABABAB-ABAB-ABAB-ABAB-ABABABABABAB"
+    },
+    "clsid_null": {
+      "hr": "0x00000000",
+      "clsid": "00000000-0000-0000-0000-000000000000"
+    },
+    "clsid_unknown_progid": {
+      "hr": "0x800401f3",
+      "clsid": "00000000-0000-0000-0000-000000000000"
+    },
+    "clsid_spaces": {
+      "hr": "0x800401f3",
+      "clsid": "00000000-ABAB-ABAB-ABAB-ABABABABABAB"
+    },
+    "iid_iunknown": {
+      "hr": "0x00000000",
+      "iid": "00000000-0000-0000-C000-000000000046"
+    },
+    "iid_lowercase": {
+      "hr": "0x00000000",
+      "iid": "5E7A0001-1234-5678-9ABC-DEF012345678"
+    },
+    "iid_no_braces": {
+      "hr": "0x80070057",
+      "iid": "ABABABAB-ABAB-ABAB-ABAB-ABABABABABAB"
+    },
+    "iid_trailing_garbage": {
+      "hr": "0x80070057",
+      "iid": "ABABABAB-ABAB-ABAB-ABAB-ABABABABABAB"
+    },
+    "iid_bad_hex": {
+      "hr": "0x800401f4",
+      "iid": "5E7A0001-1234-5678-9ABC-DEF0123456AB"
+    },
+    "iid_empty": {
+      "hr": "0x80070057",
+      "iid": "ABABABAB-ABAB-ABAB-ABAB-ABABABABABAB"
+    },
+    "iid_null": {
+      "hr": "0x00000000",
+      "iid": "00000000-0000-0000-0000-000000000000"
+    },
+    "iid_progid": {
+      "hr": "0x80070057",
+      "iid": "ABABABAB-ABAB-ABAB-ABAB-ABABABABABAB"
+    },
+    "stringfromguid2_buf_39": {
+      "ret": 39,
+      "buf": "{5E7A0001-1234-5678-9ABC-DEF012345678}"
+    },
+    "stringfromguid2_buf_40": {
+      "ret": 39,
+      "buf": "{5E7A0001-1234-5678-9ABC-DEF012345678}"
+    },
+    "stringfromguid2_buf_38": {
+      "ret": 0,
+      "buf": "#############################################"
+    },
+    "stringfromguid2_buf_1": {
+      "ret": 0,
+      "buf": "#############################################"
+    },
+    "stringfromguid2_buf_0": {
+      "ret": 0,
+      "buf": "#############################################"
+    },
+    "stringfromclsid": {
+      "hr": "0x00000000",
+      "str": "{5E7A0001-1234-5678-9ABC-DEF012345678}"
+    },
+    "cocreateguid": {
+      "hr1": "0x00000000",
+      "hr2": "0x00000000",
+      "different": true,
+      "version": 4,
+      "variant_bits": 2
+    },
+    "cotaskmemalloc_0": {
+      "nonnull": true
+    },
+    "cotaskmemrealloc_grow": {
+      "nonnull": true,
+      "kept": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a"
+    },
+    "cotaskmemrealloc_to_0": {
+      "null": true
+    },
+    "cotaskmemrealloc_null_is_alloc": {
+      "nonnull": true
+    },
+    "cotaskmemalloc_huge": {
+      "null": true
+    },
+    "cogetmalloc_task": {
+      "hr": "0x00000000",
+      "nonnull": true
+    },
+    "cogetmalloc_shared": {
+      "hr": "0x80070057",
+      "out_null": true
+    },
+    "cogetmalloc_bogus_ctx": {
+      "hr": "0x80070057",
+      "out_null": true
+    },
+    "imalloc_alloc_getsize_didalloc": {
+      "alloc_nonnull": true,
+      "getsize": 100,
+      "didalloc_own": 1,
+      "didalloc_null": -1,
+      "cotaskmemfree_compatible": true
+    },
+    "imalloc_getsize_of_cotaskmemalloc": {
+      "getsize": 33
+    },
+    "apartment_after_two_uninit": {
+      "hr": "0x00000000",
+      "type": 3,
+      "qualifier": 0
+    },
+    "apartment_after_full_uninit": {
+      "hr": "0x800401f0",
+      "type": -1,
+      "qualifier": 0
+    },
+    "coinit_mta_after_uninit": {
+      "hr": "0x00000000"
+    },
+    "apartment_mta": {
+      "hr": "0x00000000",
+      "type": 1,
+      "qualifier": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "73a16a4ffd2d15e45222130f75ef8eff052308202fc3606ddf96df9458e578cf"
+}

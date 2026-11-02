@@ -1,0 +1,337 @@
+{
+  "test": "shell32/shell_misc",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_shell32": {
+      "ret": "valid"
+    },
+    "argv_simple": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 4,
+      "argv0": "prog",
+      "argv1": "a",
+      "argv2": "b",
+      "argv3": "c"
+    },
+    "argv_multiple_spaces_tabs": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 4,
+      "argv0": "prog",
+      "argv1": "a",
+      "argv2": "b",
+      "argv3": "c"
+    },
+    "argv_quoted_arg": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "prog",
+      "argv1": "a b",
+      "argv2": "c"
+    },
+    "argv_quoted_program": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "C:\\Program Files\\p.exe",
+      "argv1": "x"
+    },
+    "argv_program_backslash_quote": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "C:\\dir\\\"p",
+      "argv1": "q x"
+    },
+    "argv_program_not_unquoted_midword": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "pro\"g",
+      "argv1": "a b"
+    },
+    "argv_escaped_quote": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a\"b"
+    },
+    "argv_two_backslashes_quote": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a\\b c"
+    },
+    "argv_three_backslashes_quote": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a\\\"b"
+    },
+    "argv_backslashes_no_quote": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a\\\\b\\c"
+    },
+    "argv_trailing_backslash": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "prog",
+      "argv1": "a\\",
+      "argv2": "b"
+    },
+    "argv_double_quote_inside_quotes": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a\"b c"
+    },
+    "argv_triple_quotes": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "prog",
+      "argv1": "\"a\"",
+      "argv2": "b"
+    },
+    "argv_empty_quotes": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "prog",
+      "argv1": "",
+      "argv2": "b"
+    },
+    "argv_unterminated_quote": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a b"
+    },
+    "argv_quote_mid_word": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "prog",
+      "argv1": "abc def",
+      "argv2": "g"
+    },
+    "argv_trailing_spaces": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a"
+    },
+    "argv_leading_space": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "",
+      "argv1": "prog",
+      "argv2": "a"
+    },
+    "argv_leading_tab": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "",
+      "argv1": "prog",
+      "argv2": "a"
+    },
+    "argv_program_only": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 1,
+      "argv0": "prog"
+    },
+    "argv_empty_program_quotes": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "",
+      "argv1": "a"
+    },
+    "argv_newline_not_separator": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 2,
+      "argv0": "prog",
+      "argv1": "a\nb"
+    },
+    "argv_unicode": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 3,
+      "argv0": "prog",
+      "argv1": "été",
+      "argv2": "€"
+    },
+    "argv_empty_string": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 1
+    },
+    "argv_only_spaces": {
+      "ret_nonnull": true,
+      "last_error": 0,
+      "argc": 1,
+      "argv0": ""
+    },
+    "argv_null_argc": {
+      "ret_nonnull": false,
+      "last_error": 87
+    },
+    "folder_windows": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true
+    },
+    "folder_system": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_program_files": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_common_appdata": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_appdata": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_local_appdata": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_appdata_default": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_fonts": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_appdata_dont_verify": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_bogus_csidl_0xff": {
+      "hr": "0x80070057",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_bogus_csidl_0x7f": {
+      "hr": "0x80070057",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_desktop_virtual_0": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_internet_virtual": {
+      "hr": "0x80004005",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_drives_virtual": {
+      "hr": "0x80004005",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_bad_flags": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true
+    },
+    "folder_negative_csidl": {
+      "hr": "0x80070057",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "special_system": {
+      "ret": true,
+      "ends_with_system32": true
+    },
+    "special_bogus": {
+      "ret": false
+    },
+    "known_windows": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "absolute": true
+    },
+    "known_roaming_appdata": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "absolute": true
+    },
+    "known_virtual_computer": {
+      "hr": "0x80004005",
+      "out_null": true,
+      "absolute": false
+    },
+    "known_bogus_guid": {
+      "hr": "0x80070002",
+      "out_null": true,
+      "absolute": false
+    },
+    "known_windows_bogus_flags": {
+      "hr": "0x80070057",
+      "out_null": true,
+      "absolute": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "61fb5421f47f6df2f4dd86cd24238c8397a6c40c7d090528c4ede192a86c008b"
+}

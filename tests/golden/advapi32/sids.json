@@ -1,0 +1,609 @@
+{
+  "test": "advapi32/sids",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "str_local_system": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-18"
+    },
+    "str_everyone": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-1-0"
+    },
+    "str_builtin_admins": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 16,
+      "subauth_count": 2,
+      "string": "S-1-5-32-544"
+    },
+    "str_domain_like": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 28,
+      "subauth_count": 5,
+      "string": "S-1-5-21-1-2-3-500"
+    },
+    "str_lowercase_s": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-18"
+    },
+    "str_hex_authority": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-18"
+    },
+    "str_large_authority": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-0xFFFFFFFFFFFF-1"
+    },
+    "str_authority_too_large": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_hex_authority_6_bytes": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-0xFFFFFFFFFFFF-1"
+    },
+    "str_no_subauthorities": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_15_subauthorities": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 68,
+      "subauth_count": 15,
+      "string": "S-1-5-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15"
+    },
+    "str_16_subauthorities": {
+      "ret": true,
+      "last_error": 0,
+      "valid": false,
+      "length": 72,
+      "subauth_count": 16,
+      "string": "convert failed"
+    },
+    "str_subauth_max": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-4294967295"
+    },
+    "str_subauth_overflow": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-4294967295"
+    },
+    "str_subauth_hex": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-18"
+    },
+    "str_revision_2": {
+      "ret": true,
+      "last_error": 0,
+      "valid": false,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "convert failed"
+    },
+    "str_trailing_dash": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_double_dash": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_spaces": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_letters": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_missing_prefix": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_empty": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_only_s": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "alias_wd": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-1-0"
+    },
+    "alias_sy": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-18"
+    },
+    "alias_ba": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 16,
+      "subauth_count": 2,
+      "string": "S-1-5-32-544"
+    },
+    "alias_bu": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 16,
+      "subauth_count": 2,
+      "string": "S-1-5-32-545"
+    },
+    "alias_au": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-11"
+    },
+    "alias_ns": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-20"
+    },
+    "alias_ls": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-19"
+    },
+    "alias_co": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-3-0"
+    },
+    "alias_lowercase": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-1-0"
+    },
+    "alias_unknown": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "alias_integrity_high": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-16-12288"
+    },
+    "alias_integrity_low": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-16-4096"
+    },
+    "str_null": {
+      "ret": false,
+      "last_error": 87
+    },
+    "wk_world": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 12,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 12,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-1-0",
+      "is_well_known": true
+    },
+    "wk_local_system": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 12,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 12,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-18",
+      "is_well_known": true
+    },
+    "wk_builtin_admins": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 16,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 16,
+      "valid": true,
+      "length": 16,
+      "subauth_count": 2,
+      "string": "S-1-5-32-544",
+      "is_well_known": true
+    },
+    "wk_builtin_users": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 16,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 16,
+      "valid": true,
+      "length": 16,
+      "subauth_count": 2,
+      "string": "S-1-5-32-545",
+      "is_well_known": true
+    },
+    "wk_authenticated_users": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 12,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 12,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-11",
+      "is_well_known": true
+    },
+    "wk_null": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 12,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 12,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-0-0",
+      "is_well_known": true
+    },
+    "wk_creator_owner": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 12,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 12,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-3-0",
+      "is_well_known": true
+    },
+    "wk_high_label": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 12,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 12,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-16-12288",
+      "is_well_known": true
+    },
+    "wk_account_admin_no_domain": {
+      "size_query_ret": false,
+      "size_query_err": 87,
+      "size": 0,
+      "ret": false,
+      "last_error": 87,
+      "size_after": 68
+    },
+    "wk_account_admin_with_domain": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 28,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 28,
+      "valid": true,
+      "length": 28,
+      "subauth_count": 5,
+      "string": "S-1-5-21-1-2-3-500",
+      "is_well_known": true
+    },
+    "wk_account_guest_with_domain": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 28,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 28,
+      "valid": true,
+      "length": 28,
+      "subauth_count": 5,
+      "string": "S-1-5-21-1-2-3-501",
+      "is_well_known": true
+    },
+    "wk_world_with_domain_ignored": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 12,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 12,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-1-0",
+      "is_well_known": true
+    },
+    "wk_account_admin_bad_domain": {
+      "size_query_ret": false,
+      "size_query_err": 122,
+      "size": 16,
+      "ret": true,
+      "last_error": "unchanged",
+      "size_after": 16,
+      "valid": true,
+      "length": 16,
+      "subauth_count": 2,
+      "string": "S-1-5-18-500",
+      "is_well_known": false
+    },
+    "wk_bogus_type": {
+      "size_query_ret": false,
+      "size_query_err": 87,
+      "size": 0,
+      "ret": false,
+      "last_error": 87,
+      "size_after": 68
+    },
+    "wk_buffer_too_small": {
+      "ret": false,
+      "last_error": 122,
+      "size": 12
+    },
+    "allocate_builtin_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "valid": true,
+      "length": 16,
+      "subauth_count": 2,
+      "string": "S-1-5-32-544"
+    },
+    "equalsid": {
+      "alloc_vs_alias": true,
+      "admins_vs_world": false
+    },
+    "allocate_9_subauthorities": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "allocate_0_subauthorities": {
+      "ret": true,
+      "last_error": "unchanged",
+      "valid": true,
+      "length": 8,
+      "subauth_count": 0,
+      "string": "S-1-5"
+    },
+    "isvalidsid_bad_revision": {
+      "ret": false
+    },
+    "isvalidsid_too_many_subauth": {
+      "ret": false
+    },
+    "sidtostring_invalid_sid": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "sd_owner_group_dacl": {
+      "ret": true,
+      "last_error": 0,
+      "length": 76,
+      "getlength": 76,
+      "control": "0x00008004",
+      "roundtrip": "O:BAG:SYD:(A;;GA;;;WD)"
+    },
+    "sd_dacl_only": {
+      "ret": true,
+      "last_error": 0,
+      "length": 76,
+      "getlength": 76,
+      "control": "0x00008004",
+      "roundtrip": "D:(A;;FA;;;BA)(A;;FR;;;BU)"
+    },
+    "sd_protected_autoinherited": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00009404",
+      "roundtrip": "D:PAI(A;OICI;FA;;;SY)"
+    },
+    "sd_deny_and_allow": {
+      "ret": true,
+      "last_error": 0,
+      "length": 68,
+      "getlength": 68,
+      "control": "0x00008004",
+      "roundtrip": "D:(D;;WD;;;AN)(A;;0x1200a9;;;WD)"
+    },
+    "sd_hex_mask": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008004",
+      "roundtrip": "D:(A;;FA;;;SY)"
+    },
+    "sd_null_dacl": {
+      "ret": true,
+      "last_error": 0,
+      "length": 20,
+      "getlength": 20,
+      "control": "0x00008004",
+      "roundtrip": "D:NO_ACCESS_CONTROL"
+    },
+    "sd_empty_dacl": {
+      "ret": true,
+      "last_error": 0,
+      "length": 28,
+      "getlength": 28,
+      "control": "0x00008004",
+      "roundtrip": "D:"
+    },
+    "sd_sacl_audit": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008010",
+      "roundtrip": "S:(AU;SAFA;FA;;;WD)"
+    },
+    "sd_mandatory_label": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008010",
+      "roundtrip": "S:(ML;;NW;;;LW)"
+    },
+    "sd_numeric_sid": {
+      "ret": true,
+      "last_error": 0,
+      "length": 92,
+      "getlength": 92,
+      "control": "0x00008004",
+      "roundtrip": "O:S-1-5-21-1-2-3-500D:(A;;GA;;;S-1-5-21-1-2-3-500)"
+    },
+    "sd_whitespace": {
+      "ret": true,
+      "last_error": 0,
+      "length": 76,
+      "getlength": 76,
+      "control": "0x00008004",
+      "roundtrip": "O:BAG:SYD:(A;;GA;;;WD)"
+    },
+    "sd_lowercase": {
+      "ret": false,
+      "last_error": 87
+    },
+    "sd_empty": {
+      "ret": true,
+      "last_error": 0,
+      "length": 20,
+      "getlength": 20,
+      "control": "0x00008000",
+      "roundtrip": ""
+    },
+    "sd_bad_ace_type": {
+      "ret": false,
+      "last_error": 1804
+    },
+    "sd_bad_rights": {
+      "ret": false,
+      "last_error": 1336
+    },
+    "sd_bad_sid_alias": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "sd_unterminated_ace": {
+      "ret": false,
+      "last_error": 1336
+    },
+    "sd_missing_fields": {
+      "ret": false,
+      "last_error": 87
+    },
+    "sd_bad_owner": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "sd_unknown_component": {
+      "ret": false,
+      "last_error": 87
+    },
+    "sd_object_ace": {
+      "ret": true,
+      "last_error": 0,
+      "length": 68,
+      "getlength": 68,
+      "control": "0x00008004",
+      "roundtrip": "D:(OA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD)"
+    },
+    "sd_bad_revision": {
+      "ret": false,
+      "last_error": 1305
+    },
+    "sd_null_size_out": {
+      "ret": true,
+      "last_error": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "2ab238bf148350c75e6bf94443ec32a5ee8222301400be59aa1cc4b82bd37227"
+}

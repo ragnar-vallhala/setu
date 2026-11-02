@@ -1,0 +1,241 @@
+{
+  "test": "user32/clipboard",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_user32": {
+      "ret": "valid"
+    },
+    "registerformat": {
+      "in_range": true,
+      "repeat_same": true,
+      "case_insensitive": true,
+      "last_error": "unchanged"
+    },
+    "registerformat_empty": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "formatname_buf_64": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "buf": "SetuOracle Format"
+    },
+    "formatname_buf_18": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "buf": "SetuOracle Format"
+    },
+    "formatname_buf_17": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "buf": "SetuOracle Forma"
+    },
+    "formatname_buf_2": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "buf": "S"
+    },
+    "formatname_buf_1": {
+      "ret": 0,
+      "last_error": 122,
+      "buf": "#"
+    },
+    "formatname_buf_0": {
+      "ret": 0,
+      "last_error": 122,
+      "buf": "####"
+    },
+    "formatname_predefined_cf_text": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "formatname_unregistered_0xbfff": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "close_not_open": {
+      "ret": false,
+      "last_error": 1418
+    },
+    "empty_not_open": {
+      "ret": false,
+      "last_error": 1418
+    },
+    "setdata_not_open": {
+      "ret": "NULL",
+      "last_error": 1418
+    },
+    "getdata_not_open": {
+      "ret": "NULL",
+      "last_error": 1418
+    },
+    "enumformats_not_open": {
+      "ret": 0,
+      "last_error": 1418
+    },
+    "open": {
+      "ret": true,
+      "open_window": "owner"
+    },
+    "open_again_same_window": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "open_again_other_window_same_thread": {
+      "ret": false,
+      "last_error": 5,
+      "open_window": "owner"
+    },
+    "empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "owner": "owner",
+      "count": 0,
+      "seq_changed": true
+    },
+    "setdata_unicodetext": {
+      "ret_is_input": true,
+      "last_error": 0,
+      "seq_changed": true
+    },
+    "setdata_custom": {
+      "ret_is_input": true,
+      "last_error": 0
+    },
+    "setdata_delayed_null": {
+      "ret": "NULL",
+      "last_error": "unchanged"
+    },
+    "setdata_format_0": {
+      "ret": "NULL",
+      "last_error": 1418
+    },
+    "available_while_open": {
+      "unicodetext": true,
+      "text": false,
+      "oemtext": false,
+      "locale": false,
+      "custom": true,
+      "bitmap": false,
+      "count": 3
+    },
+    "enum_while_open": {
+      "formats": "13,custom,delayed"
+    },
+    "getdata_unicodetext_while_open": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "text": "Hello clip",
+      "size": 22
+    },
+    "getdata_custom_while_open": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "data": "01020304050007",
+      "size": 7
+    },
+    "getdata_delayed_while_open": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "72656e646572656400",
+      "size": 9
+    },
+    "delayed_render_log": {
+      "log": "owner:RENDERFORMAT:delayed"
+    },
+    "getdata_bitmap_absent": {
+      "ret": "NULL",
+      "last_error": "unchanged"
+    },
+    "close": {
+      "ret": true,
+      "last_error": "unchanged",
+      "open_window": "null",
+      "owner": "owner"
+    },
+    "close_twice": {
+      "ret": false,
+      "last_error": 1418
+    },
+    "available_after_close": {
+      "unicodetext": true,
+      "text": true,
+      "oemtext": true,
+      "locale": true,
+      "custom": true,
+      "bitmap": false,
+      "count": 6
+    },
+    "open_null_window": {
+      "ret": true,
+      "open_window": "null"
+    },
+    "enum_after_close": {
+      "formats": "13,custom,delayed,16,1,7"
+    },
+    "getdata_text_synthesized": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "48656c6c6f20636c697000",
+      "size": 11
+    },
+    "getdata_oemtext_synthesized": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "data": "48656c6c6f20636c697000",
+      "size": 11
+    },
+    "getdata_unicodetext_again": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "text": "Hello clip",
+      "size": 22
+    },
+    "getdata_locale": {
+      "ret": "valid",
+      "size": 4
+    },
+    "setdata_without_empty_null_owner": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "empty_with_null_window": {
+      "ret": true,
+      "last_error": "unchanged",
+      "owner": "null"
+    },
+    "destroyclipboard_log": {
+      "log": "owner:DESTROYCLIPBOARD"
+    },
+    "destroy_owner_renders_all": {
+      "ret": true,
+      "log": "owner:RENDERALLFORMATS",
+      "owner_after": "null"
+    },
+    "getdata_delayed_after_owner_destroyed": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "data": "616c6c00",
+      "size": 4
+    },
+    "getdata_text_after_owner_destroyed": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "data": "706c61696e00",
+      "size": 6
+    },
+    "getdata_unicode_from_text": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "text": "plain",
+      "size": 12
+    },
+    "final_log": {
+      "log": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "63e8c881ae554b0ac7d5a199ab95a56fc301b7717048d362cb55950d7f7ccceb"
+}

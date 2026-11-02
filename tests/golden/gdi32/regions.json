@@ -1,0 +1,566 @@
+{
+  "test": "gdi32/regions",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_gdi32": {
+      "ret": "valid"
+    },
+    "rect_basic": {
+      "handle": "valid",
+      "type": 2,
+      "box": "0,0,10,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,10,10"
+    },
+    "rect_object_type": {
+      "type": 8
+    },
+    "rect_reversed_coords": {
+      "handle": "valid",
+      "type": 2,
+      "box": "0,0,10,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,10,10"
+    },
+    "rect_empty_width": {
+      "handle": "valid",
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "rect_empty_height": {
+      "handle": "valid",
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "rect_negative": {
+      "handle": "valid",
+      "type": 2,
+      "box": "-20,-10,-5,-1",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "-20,-10,-5,-1"
+    },
+    "rect_huge": {
+      "handle": "NULL"
+    },
+    "rect_large_2_27": {
+      "handle": "NULL"
+    },
+    "rect_indirect_reversed": {
+      "handle": "valid",
+      "type": 2,
+      "box": "1,2,3,4",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "1,2,3,4"
+    },
+    "combine_and_overlap": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "5,5,10,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "5,5,10,10"
+    },
+    "combine_or_overlap": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "type": 3,
+      "box": "0,0,15,15",
+      "data_size": 80,
+      "nCount": 3,
+      "iType": 1,
+      "nRgnSize": 48,
+      "rects": "0,0,10,5;0,5,15,10;5,10,15,15"
+    },
+    "combine_xor_overlap": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "type": 3,
+      "box": "0,0,15,15",
+      "data_size": 96,
+      "nCount": 4,
+      "iType": 1,
+      "nRgnSize": 64,
+      "rects": "0,0,10,5;0,5,5,10;10,5,15,10;5,10,15,15"
+    },
+    "combine_diff_overlap": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "type": 3,
+      "box": "0,0,10,10",
+      "data_size": 64,
+      "nCount": 2,
+      "iType": 1,
+      "nRgnSize": 32,
+      "rects": "0,0,10,5;0,5,5,10"
+    },
+    "combine_diff_reverse": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "type": 3,
+      "box": "5,5,15,15",
+      "data_size": 64,
+      "nCount": 2,
+      "iType": 1,
+      "nRgnSize": 32,
+      "rects": "10,5,15,10;5,10,15,15"
+    },
+    "combine_copy": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,10,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,10,10"
+    },
+    "combine_and_disjoint": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "combine_or_disjoint": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "type": 3,
+      "box": "0,0,30,30",
+      "data_size": 64,
+      "nCount": 2,
+      "iType": 1,
+      "nRgnSize": 32,
+      "rects": "0,0,10,10;20,20,30,30"
+    },
+    "combine_xor_identical": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "combine_diff_contained": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "type": 3,
+      "box": "0,0,10,10",
+      "data_size": 96,
+      "nCount": 4,
+      "iType": 1,
+      "nRgnSize": 64,
+      "rects": "0,0,10,3;0,3,3,6;6,3,10,6;0,6,10,10"
+    },
+    "combine_or_adjacent_horizontal": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,10,5",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,10,5"
+    },
+    "combine_or_adjacent_vertical": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,5,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,5,10"
+    },
+    "combine_or_with_empty": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,10,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,10,10"
+    },
+    "combine_and_with_empty": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "combine_mode_0": {
+      "ret": 0,
+      "last_error": 87,
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "combine_mode_6": {
+      "ret": 0,
+      "last_error": 87,
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "combine_deleted_source": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "combine_null_source_or": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "combine_dest_is_source": {
+      "ret": 3,
+      "type": 3,
+      "box": "0,0,6,6",
+      "data_size": 80,
+      "nCount": 3,
+      "iType": 1,
+      "nRgnSize": 48,
+      "rects": "0,0,4,2;0,2,6,4;2,4,6,6"
+    },
+    "combine_complex_banding": {
+      "handle": "valid",
+      "type": 3,
+      "box": "0,0,12,12",
+      "data_size": 160,
+      "nCount": 8,
+      "iType": 1,
+      "nRgnSize": 128,
+      "rects": "0,0,10,2;0,2,2,4;0,4,2,6;4,4,6,6;0,6,2,8;0,8,2,10;8,8,12,10;8,10,12,12"
+    },
+    "offset": {
+      "ret": 2,
+      "type": 2,
+      "box": "5,-3,15,7",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "5,-3,15,7"
+    },
+    "offset_empty": {
+      "ret": 1,
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "setrectrgn_reversed": {
+      "ret": true,
+      "type": 2,
+      "box": "1,1,9,9",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "1,1,9,9"
+    },
+    "setrectrgn_empty": {
+      "ret": true,
+      "type": 1,
+      "box": "0,0,0,0",
+      "data_size": 32,
+      "nCount": 0,
+      "iType": 1,
+      "nRgnSize": 0,
+      "rects": ""
+    },
+    "equalrgn": {
+      "same_rect": true,
+      "different": false,
+      "two_empties": true,
+      "reversed_vs_normal": true,
+      "bad_handle": 0
+    },
+    "ptinregion": {
+      "inside": true,
+      "top_left_corner": true,
+      "right_edge": false,
+      "bottom_edge": false,
+      "last_pixel": true,
+      "negative": false
+    },
+    "rectinregion": {
+      "inside": true,
+      "partial": true,
+      "touching_outside": false,
+      "reversed": true,
+      "empty_rect": true
+    },
+    "polygon_triangle": {
+      "handle": "valid",
+      "type": 3,
+      "box": "0,0,8,8",
+      "data_size": 160,
+      "nCount": 8,
+      "iType": 1,
+      "nRgnSize": 128,
+      "rects": "0,0,8,1;0,1,7,2;0,2,6,3;0,3,5,4;0,4,4,5;0,5,3,6;0,6,2,7;0,7,1,8"
+    },
+    "polygon_star_alternate": {
+      "handle": "valid",
+      "type": 3,
+      "box": "0,1,10,10",
+      "data_size": 240,
+      "nCount": 13,
+      "iType": 1,
+      "nRgnSize": 208,
+      "rects": "5,1,6,4;0,4,4,5;7,4,10,5;2,5,4,6;7,5,9,6;3,6,4,7;7,6,8,7;3,7,4,8;6,7,8,8;3,8,5,9;6,8,8,9;3,9,4,10;7,9,8,10"
+    },
+    "polygon_star_winding": {
+      "handle": "valid",
+      "type": 3,
+      "box": "0,1,10,10",
+      "data_size": 160,
+      "nCount": 8,
+      "iType": 1,
+      "nRgnSize": 128,
+      "rects": "5,1,6,4;0,4,10,5;2,5,9,6;3,6,8,8;3,8,5,9;6,8,8,9;3,9,4,10;7,9,8,10"
+    },
+    "polygon_square": {
+      "handle": "valid",
+      "type": 2,
+      "box": "0,0,4,4",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,4,4"
+    },
+    "polygon_two_points": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "polygon_bad_fill_mode": {
+      "ret": "NULL",
+      "last_error": "unchanged"
+    },
+    "ellipse_8x8": {
+      "handle": "valid",
+      "type": 3,
+      "box": "0,0,7,7",
+      "data_size": 112,
+      "nCount": 5,
+      "iType": 1,
+      "nRgnSize": 80,
+      "rects": "3,0,4,1;1,1,6,3;0,3,7,4;1,4,6,6;3,6,4,7"
+    },
+    "ellipse_6x4": {
+      "handle": "valid",
+      "type": 3,
+      "box": "0,0,5,3",
+      "data_size": 80,
+      "nCount": 3,
+      "iType": 1,
+      "nRgnSize": 48,
+      "rects": "1,0,4,1;0,1,5,2;1,2,4,3"
+    },
+    "ellipse_empty": {
+      "handle": "valid",
+      "type": 2,
+      "box": "-1,0,0,4",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "-1,0,0,4"
+    },
+    "roundrect_10x10_r4": {
+      "handle": "valid",
+      "type": 3,
+      "box": "0,0,9,9",
+      "data_size": 80,
+      "nCount": 3,
+      "iType": 1,
+      "nRgnSize": 48,
+      "rects": "1,0,8,1;0,1,9,8;1,8,8,9"
+    },
+    "roundrect_zero_radius": {
+      "handle": "valid",
+      "type": 2,
+      "box": "0,0,5,5",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,5,5"
+    },
+    "extcreateregion_roundtrip": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "equal": true
+    },
+    "extcreateregion_xform_scale": {
+      "ret": "valid",
+      "type": 3,
+      "box": "10,0,26,4",
+      "data_size": 80,
+      "nCount": 3,
+      "iType": 1,
+      "nRgnSize": 48,
+      "rects": "10,0,18,2;22,0,26,2;10,2,18,4"
+    },
+    "extcreateregion_bad_itype": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "extcreateregion_short_size": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "extcreateregion_unsorted_overlapping": {
+      "ret": "valid",
+      "type": 3,
+      "box": "0,0,9,9",
+      "data_size": 112,
+      "nCount": 5,
+      "iType": 1,
+      "nRgnSize": 80,
+      "rects": "0,0,6,2;7,0,9,2;0,2,6,5;0,5,9,6;5,6,9,9"
+    },
+    "getregiondata_buffer_too_small": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "clip_initial": {
+      "clipbox_type": 2,
+      "clipbox": "0,0,16,16",
+      "getcliprgn": 0
+    },
+    "selectcliprgn_rect": {
+      "ret": 2,
+      "clipbox_type": 2,
+      "clipbox": "2,2,8,8",
+      "getcliprgn": 1
+    },
+    "intersectcliprect": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "4,4,8,8",
+      "getcliprgn": 1
+    },
+    "excludecliprect": {
+      "ret": 3,
+      "clipbox_type": 3,
+      "clipbox": "4,4,8,8",
+      "getcliprgn": 1
+    },
+    "extselectcliprgn_or": {
+      "ret": 3,
+      "clipbox_type": 3,
+      "clipbox": "0,0,8,16",
+      "getcliprgn": 1
+    },
+    "extselectcliprgn_and_disjoint": {
+      "ret": 1,
+      "clipbox_type": 1,
+      "clipbox": "0,0,0,0",
+      "getcliprgn": 1
+    },
+    "extselectcliprgn_null_copy_resets": {
+      "ret": 2,
+      "clipbox_type": 2,
+      "clipbox": "0,0,16,16",
+      "getcliprgn": 0
+    },
+    "extselectcliprgn_null_and": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "extselectcliprgn_bad_mode": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "selectcliprgn_larger_than_surface": {
+      "ret": 2,
+      "clipbox_type": 2,
+      "clipbox": "0,0,16,16",
+      "getcliprgn": 1
+    },
+    "selectcliprgn_null": {
+      "ret": 2,
+      "clipbox_type": 2,
+      "clipbox": "0,0,16,16",
+      "getcliprgn": 0
+    },
+    "excludecliprect_everything": {
+      "ret": 1,
+      "clipbox_type": 1,
+      "clipbox": "0,0,0,0",
+      "getcliprgn": 1
+    },
+    "selectclippath_without_path": {
+      "ret": false,
+      "last_error": 1003
+    },
+    "getrgnbox_deleted": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "offsetrgn_deleted": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ptinregion_deleted": {
+      "ret": 0,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "79ed6948e5754cdd9ad6ddced85fda59f999f0b217d8cb0995cd6cf800a4e3c7"
+}
