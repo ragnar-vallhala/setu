@@ -1241,6 +1241,7 @@
     "kernel32/file_mapping:cow_mapping_view_read",
     "kernel32/file_mapping:cow_mapping_view_write",
     "kernel32/file_mapping:cow_view",
+    "kernel32/file_mapping:cow_vq_after_write",
     "kernel32/file_mapping:cow_vq_before_write",
     "kernel32/file_mapping:create_name_used_by_event",
     "kernel32/file_mapping:delete_after_section_closed",

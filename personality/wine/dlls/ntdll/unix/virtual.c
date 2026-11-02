@@ -5672,6 +5672,49 @@ static struct file_view *get_memory_region_size( char *base, char **region_start
 }
 
 
+/***********************************************************************
+ *           get_copied_range_size
+ *
+ * Copy-on-write pages of a file view become private read-write pages once
+ * they are written to. The host keeps no protection change for that, but
+ * /proc/self/pagemap tells a page that still maps the file from a private
+ * copy. Return the size of the run of pages starting at base that are all
+ * copied or all not copied, and which of the two it is.
+ */
+static SIZE_T get_copied_range_size( char *base, SIZE_T size, BOOL *copied )
+{
+#ifdef __linux__
+    static const ULONGLONG present = 1ull << 63, swapped = 1ull << 62, file_page = 1ull << 61;
+    ULONGLONG entries[64];
+    SIZE_T done = 0;
+    int fd;
+
+    *copied = FALSE;
+    if ((fd = open( "/proc/self/pagemap", O_RDONLY | O_CLOEXEC )) == -1) return size;
+    while (done < size)
+    {
+        size_t i, count = min( ARRAY_SIZE(entries), (size - done) / host_page_size );
+        off_t offset = (off_t)((UINT_PTR)(base + done) / host_page_size) * sizeof(entries[0]);
+        ssize_t ret = pread( fd, entries, count * sizeof(entries[0]), offset );
+
+        if (ret < (ssize_t)sizeof(entries[0])) break;
+        count = ret / sizeof(entries[0]);
+        for (i = 0; i < count; i++, done += host_page_size)
+        {
+            BOOL page_copied = (entries[i] & swapped) || ((entries[i] & present) && !(entries[i] & file_page));
+            if (!done) *copied = page_copied;
+            else if (page_copied != *copied) goto end;
+        }
+    }
+end:
+    close( fd );
+    return done ? min( done, size ) : size;
+#else
+    *copied = FALSE;
+    return size;
+#endif
+}
+
 static unsigned int fill_basic_memory_info( const void *addr, MEMORY_BASIC_INFORMATION *info )
 {
     char *base, *alloc_base, *alloc_end;
@@ -5718,6 +5761,15 @@ static unsigned int fill_basic_memory_info( const void *addr, MEMORY_BASIC_INFOR
 
         info->AllocationBase = alloc_base;
         info->RegionSize = get_committed_size( view, base, ~(size_t)0, &vprot, ~VPROT_WRITEWATCH );
+        /* a written copy-on-write page of a data file view is a private read-write page */
+        if ((vprot & VPROT_COMMITTED) && (vprot & VPROT_WRITECOPY) &&
+            (view->protect & SEC_FILE) && !(view->protect & SEC_IMAGE))
+        {
+            BOOL copied;
+
+            info->RegionSize = get_copied_range_size( base, info->RegionSize, &copied );
+            if (copied) vprot = (vprot & ~VPROT_WRITECOPY) | VPROT_WRITE;
+        }
         info->State = (vprot & VPROT_COMMITTED) ? MEM_COMMIT : MEM_RESERVE;
         info->Protect = (vprot & VPROT_COMMITTED) ? get_win32_prot( vprot, view->protect ) : 0;
         info->AllocationProtect = get_win32_prot( view->protect, view->protect );
