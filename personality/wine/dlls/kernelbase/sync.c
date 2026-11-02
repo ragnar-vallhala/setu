@@ -914,7 +914,16 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetWaitableTimer( HANDLE handle, const LARGE_INTEG
 {
     NTSTATUS status = NtSetTimer( handle, when, (PTIMER_APC_ROUTINE)callback,
                                   arg, resume, period, NULL );
-    return set_ntstatus( status ) || status == STATUS_TIMER_RESUME_IGNORED;
+
+    /* the last error is set on success too: 0, or ERROR_NOT_SUPPORTED when
+     * resume was requested but the system cannot honour it */
+    if (status == STATUS_TIMER_RESUME_IGNORED)
+    {
+        SetLastError( ERROR_NOT_SUPPORTED );
+        return TRUE;
+    }
+    SetLastError( RtlNtStatusToDosError( status ));
+    return !status;
 }
 
 
