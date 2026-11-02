@@ -5479,7 +5479,7 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             }
             SERVER_END_REQ;
         }
-        else status = STATUS_INVALID_PARAMETER_3;
+        else status = STATUS_INFO_LENGTH_MISMATCH;
         break;
 
     case FilePipeInformation:

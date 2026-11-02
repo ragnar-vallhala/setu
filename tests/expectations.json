@@ -1218,6 +1218,7 @@
     "kernel32/file_info_by_handle:set_end_of_file_negative",
     "kernel32/file_info_by_handle:set_end_of_file_shrink",
     "kernel32/file_info_by_handle:set_eof_read_only_handle",
+    "kernel32/file_info_by_handle:set_eof_short_buffer",
     "kernel32/file_info_by_handle:set_invalid_class",
     "kernel32/file_info_by_handle:set_standard_info_class",
     "kernel32/file_info_by_handle:std_info_directory",
