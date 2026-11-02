@@ -941,7 +941,7 @@ static void test_get_value(void)
     buf[0] = 0; type = 0xdeadbeef; size = sizeof(buf);
     ret = pRegGetValueA(hkey_main, NULL, "TP1_EXP_SZ", RRF_RT_REG_SZ, &type, buf, &size);
     ok(ret == ERROR_SUCCESS, "ret=%ld\n", ret);
-    todo_wine ok(size == strlen(sTestpath1)+1,
+    ok(size == strlen(sTestpath1)+1,
        "strlen(expanded)=%d, strlen(sTestpath1)=%d, size=%ld\n", lstrlenA(expanded), lstrlenA(sTestpath1), size);
     ok(type == REG_SZ, "type=%ld\n", type);
     ok(!strcmp(expanded, buf), "expanded=\"%s\" buf=\"%s\"\n", expanded, buf);
@@ -982,7 +982,7 @@ static void test_get_value(void)
     buf[0] = 0; type = 0xdeadbeef; size = sizeof(buf);
     ret = pRegGetValueA(hkey_main, NULL, "TP1_EXP_SZ", RRF_RT_ANY, &type, buf, &size);
     ok(ret == ERROR_SUCCESS, "ret=%ld\n", ret);
-    todo_wine ok(size == strlen(sTestpath1)+1,
+    ok(size == strlen(sTestpath1)+1,
         "strlen(expanded)=%d, strlen(sTestpath1)=%d, size=%ld\n", lstrlenA(expanded), lstrlenA(sTestpath1), size);
     ok(type == REG_SZ, "type=%ld\n", type);
     ok(!strcmp(expanded, buf), "expanded=\"%s\" buf=\"%s\"\n", expanded, buf);

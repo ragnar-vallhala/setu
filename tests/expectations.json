@@ -32,6 +32,7 @@
     "advapi32/RegQueryValueExW:dword_big_buffer",
     "advapi32/RegQueryValueExW:exact_buffer",
     "advapi32/RegQueryValueExW:getvalue_dword_as_dword",
+    "advapi32/RegQueryValueExW:getvalue_expand_sz_expanded",
     "advapi32/RegQueryValueExW:getvalue_expand_sz_noexpand",
     "advapi32/RegQueryValueExW:getvalue_missing",
     "advapi32/RegQueryValueExW:getvalue_no_type_flags",

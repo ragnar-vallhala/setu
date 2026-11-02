@@ -1981,11 +1981,18 @@ LSTATUS WINAPI RegGetValueW( HKEY hKey, LPCWSTR pszSubKey, LPCWSTR pszValue,
             /* Recheck dwType in case it changed since the first call */
             if (dwType == REG_EXPAND_SZ && !(dwFlags & RRF_NOEXPAND))
             {
+                DWORD raw = cbData;
+
+                /* The size argument is in characters, not bytes. */
                 cbData = ExpandEnvironmentStringsW(pvBuf, pvData,
-                                                   pcbData ? *pcbData : 0) * sizeof(WCHAR);
+                                                   pvData ? *pcbData / sizeof(WCHAR) : 0) * sizeof(WCHAR);
                 dwType = REG_SZ;
                 if (pvData && cbData > *pcbData)
                     ret = ERROR_MORE_DATA;
+                /* On success, the size reported is the larger of the stored
+                 * (unexpanded) and the expanded string. */
+                else if (pvData && raw > cbData)
+                    cbData = raw;
             }
             else if (pvData)
             {
@@ -2096,11 +2103,17 @@ LSTATUS WINAPI RegGetValueA( HKEY hKey, LPCSTR pszSubKey, LPCSTR pszValue,
             /* Recheck dwType in case it changed since the first call */
             if (dwType == REG_EXPAND_SZ && !(dwFlags & RRF_NOEXPAND))
             {
+                DWORD raw = cbData;
+
                 cbData = ExpandEnvironmentStringsA(pvBuf, pvData,
-                                                   pcbData ? *pcbData : 0);
+                                                   pvData ? *pcbData : 0);
                 dwType = REG_SZ;
                 if (pvData && cbData > *pcbData)
                     ret = ERROR_MORE_DATA;
+                /* On success, the size reported is the larger of the stored
+                 * (unexpanded) and the expanded string. */
+                else if (pvData && raw > cbData)
+                    cbData = raw;
             }
             else if (pvData)
             {
