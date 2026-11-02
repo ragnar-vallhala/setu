@@ -290,6 +290,13 @@ HWND WIN_CreateWindowEx( CREATESTRUCTW *cs, LPCWSTR className, HINSTANCE module,
     WCHAR name_buf[8];
     HMENU menu;
 
+    /* extended style bits that are not defined are rejected */
+    if (cs->dwExStyle & 0xf5808000)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+
     init_class_name( &class, className );
     get_class_version( &class, &version, TRUE );
 
