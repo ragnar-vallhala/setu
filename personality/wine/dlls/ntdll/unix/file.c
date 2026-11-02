@@ -5281,6 +5281,34 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             info->ReparseTag = reparse_tag;
         }
         break;
+    case FileStreamInformation:
+        if (fd_get_file_info( handle, fd, options, &st, &attr, NULL ) == -1)
+            status = errno_to_status( errno );
+        else if (!S_ISREG(st.st_mode))
+        {
+            FIXME( "stream information not supported on this file\n" );
+            status = STATUS_NOT_IMPLEMENTED;
+        }
+        else
+        {
+            /* host files only have the default data stream */
+            static const WCHAR data_streamW[] = {':',':','$','D','A','T','A'};
+            FILE_STREAM_INFORMATION *info = ptr;
+            ULONG size = offsetof( FILE_STREAM_INFORMATION, StreamName[ARRAY_SIZE(data_streamW)] );
+
+            if (len < size)
+            {
+                status = STATUS_BUFFER_OVERFLOW;
+                break;
+            }
+            info->NextEntryOffset = 0;
+            info->StreamNameLength = sizeof(data_streamW);
+            info->StreamSize.QuadPart = st.st_size;
+            info->StreamAllocationSize.QuadPart = (ULONGLONG)st.st_blocks * 512;
+            memcpy( info->StreamName, data_streamW, sizeof(data_streamW) );
+            io->Information = size;
+        }
+        break;
     case FileStatInformation:
         if (fd_get_file_info( handle, fd, options, &st, &attr, &reparse_tag ) == -1)
             status = errno_to_status( errno );
