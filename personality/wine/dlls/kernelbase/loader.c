@@ -561,7 +561,8 @@ HMODULE WINAPI DECLSPEC_HOTPATCH LoadLibraryExW( LPCWSTR name, HANDLE file, DWOR
     UNICODE_STRING str;
     HMODULE module;
 
-    if (!name)
+    /* an empty name, a file handle (reserved) and unknown flags are invalid */
+    if (!name || !name[0] || file || (flags & ~0xffff))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
