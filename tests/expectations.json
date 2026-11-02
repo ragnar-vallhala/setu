@@ -1806,6 +1806,7 @@
     "kernel32/pipes:inbound_client_read",
     "kernel32/pipes:inbound_create",
     "kernel32/pipes:inbound_server_write",
+    "kernel32/pipes:info_on_file_handle",
     "kernel32/pipes:msg_client_byte_read_2",
     "kernel32/pipes:msg_client_byte_read_rest",
     "kernel32/pipes:msg_client_open",

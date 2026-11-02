@@ -5336,6 +5336,10 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             info->EffectiveAccess = FILE_ALL_ACCESS; /* FIXME */
         }
         break;
+    case FilePipeLocalInformation:
+        /* a file with a unix fd is not a pipe */
+        status = STATUS_INVALID_PARAMETER;
+        break;
     default:
         FIXME("Unsupported class (%d)\n", class);
         status = STATUS_NOT_IMPLEMENTED;
