@@ -1020,6 +1020,13 @@ NTSTATUS WINAPI RtlSetCurrentDirectory_U(const UNICODE_STRING* dir)
         goto out;
     }
 
+    /* a device name is not a directory */
+    if (dir->Buffer && RtlIsDosDeviceName_U( dir->Buffer ))
+    {
+        nts = STATUS_NOT_A_DIRECTORY;
+        goto out;
+    }
+
     if (!RtlDosPathNameToNtPathName_U( dir->Buffer, &newdir, NULL, NULL ))
     {
         nts = STATUS_OBJECT_NAME_INVALID;
@@ -1038,6 +1045,16 @@ NTSTATUS WINAPI RtlSetCurrentDirectory_U(const UNICODE_STRING* dir)
     InitializeObjectAttributes( &attr, &newdir, OBJ_CASE_INSENSITIVE, 0, NULL );
     nts = NtOpenFile( &handle, FILE_TRAVERSE | SYNCHRONIZE, &attr, &io, FILE_SHARE_READ | FILE_SHARE_WRITE,
                       FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT );
+    if (nts == STATUS_OBJECT_NAME_INVALID && size && newdir.Buffer[newdir.Length / sizeof(WCHAR) - 1] == '\\')
+    {
+        /* "file\\" names an existing file, which is not a directory */
+        FILE_BASIC_INFORMATION info;
+
+        newdir.Length -= sizeof(WCHAR);
+        if (!NtQueryAttributesFile( &attr, &info ) && !(info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            nts = STATUS_NOT_A_DIRECTORY;
+        newdir.Length += sizeof(WCHAR);
+    }
     if (nts != STATUS_SUCCESS) goto out;
 
     /* don't keep the directory handle open on removable media */
