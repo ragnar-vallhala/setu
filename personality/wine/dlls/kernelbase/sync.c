@@ -1402,6 +1402,12 @@ HANDLE WINAPI DECLSPEC_HOTPATCH CreateNamedPipeW( LPCWSTR name, DWORD open_mode,
     TRACE( "(%s, %#08lx, %#08lx, %ld, %ld, %ld, %ld, %p)\n", debugstr_w(name),
            open_mode, pipe_mode, instances, out_buff, in_buff, timeout, sa );
 
+    /* between 1 and PIPE_UNLIMITED_INSTANCES */
+    if (!instances || instances > PIPE_UNLIMITED_INSTANCES)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return INVALID_HANDLE_VALUE;
+    }
     if (!RtlDosPathNameToNtPathName_U( name, &nt_name, NULL, NULL ))
     {
         SetLastError( ERROR_PATH_NOT_FOUND );
