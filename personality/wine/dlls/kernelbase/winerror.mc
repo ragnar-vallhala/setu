@@ -1019,17 +1019,17 @@ Error performing inpage operation.
 MessageId=1001
 SymbolicName=ERROR_STACK_OVERFLOW
 Language=ENU
-Stack overflow.
+Recursion too deep; the stack overflowed.
 .
 MessageId=1002
 SymbolicName=ERROR_INVALID_MESSAGE
 Language=ENU
-Invalid message.
+The window cannot act on the sent message.
 .
 MessageId=1003
 SymbolicName=ERROR_CAN_NOT_COMPLETE
 Language=ENU
-Cannot complete.
+Cannot complete this function.
 .
 MessageId=1004
 SymbolicName=ERROR_INVALID_FLAGS
@@ -1039,317 +1039,319 @@ Invalid flags.
 MessageId=1005
 SymbolicName=ERROR_UNRECOGNIZED_VOLUME
 Language=ENU
-Unrecognized volume.
+The volume does not contain a recognized file system.
+Please make sure that all required file system drivers are loaded and that the volume is not corrupted.
 .
 MessageId=1006
 SymbolicName=ERROR_FILE_INVALID
 Language=ENU
-File invalid.
+The volume for a file has been externally altered so that the opened file is no longer valid.
 .
 MessageId=1007
 SymbolicName=ERROR_FULLSCREEN_MODE
 Language=ENU
-Cannot run full-screen.
+The requested operation cannot be performed in full-screen mode.
 .
 MessageId=1008
 SymbolicName=ERROR_NO_TOKEN
 Language=ENU
-Nonexistent token.
+An attempt was made to reference a token that does not exist.
 .
 MessageId=1009
 SymbolicName=ERROR_BADDB
 Language=ENU
-Registry corrupt.
+The configuration registry database is corrupt.
 .
 MessageId=1010
 SymbolicName=ERROR_BADKEY
 Language=ENU
-Invalid key.
+The configuration registry key is invalid.
 .
 MessageId=1011
 SymbolicName=ERROR_CANTOPEN
 Language=ENU
-Can't open registry key.
+The configuration registry key could not be opened.
 .
 MessageId=1012
 SymbolicName=ERROR_CANTREAD
 Language=ENU
-Can't read registry key.
+The configuration registry key could not be read.
 .
 MessageId=1013
 SymbolicName=ERROR_CANTWRITE
 Language=ENU
-Can't write registry key.
+The configuration registry key could not be written.
 .
 MessageId=1014
 SymbolicName=ERROR_REGISTRY_RECOVERED
 Language=ENU
-Registry has been recovered.
+One of the files in the registry database had to be recovered by use of a log or alternate copy. The recovery was successful.
 .
 MessageId=1015
 SymbolicName=ERROR_REGISTRY_CORRUPT
 Language=ENU
-Registry is corrupt.
+The registry is corrupted. The structure of one of the files containing registry data is corrupted, or the system's memory image of the file is corrupted, or the file could not be recovered because the alternate copy or log was absent or corrupted.
 .
 MessageId=1016
 SymbolicName=ERROR_REGISTRY_IO_FAILED
 Language=ENU
-I/O to registry failed.
+An I/O operation initiated by the registry failed unrecoverably. The registry could not read in, or write out, or flush, one of the files that contain the system's image of the registry.
 .
 MessageId=1017
 SymbolicName=ERROR_NOT_REGISTRY_FILE
 Language=ENU
-Not registry file.
+The system has attempted to load or restore a file into the registry, but the specified file is not in a registry file format.
 .
 MessageId=1018
 SymbolicName=ERROR_KEY_DELETED
 Language=ENU
-Key deleted.
+Illegal operation attempted on a registry key that has been marked for deletion.
 .
 MessageId=1019
 SymbolicName=ERROR_NO_LOG_SPACE
 Language=ENU
-No registry log space.
+System could not allocate the required space in a registry log.
 .
 MessageId=1020
 SymbolicName=ERROR_KEY_HAS_CHILDREN
 Language=ENU
-Registry key has subkeys.
+Cannot create a symbolic link in a registry key that already has subkeys or values.
 .
 MessageId=1021
 SymbolicName=ERROR_CHILD_MUST_BE_VOLATILE
 Language=ENU
-Subkey must be volatile.
+Cannot create a stable subkey under a volatile parent key.
 .
 MessageId=1022
 SymbolicName=ERROR_NOTIFY_ENUM_DIR
 Language=ENU
-Notify change request in progress.
+A notify change request is being completed and the information is not being returned in the caller's buffer. The caller now needs to enumerate the files to find the changes.
 .
 MessageId=1051
 SymbolicName=ERROR_DEPENDENT_SERVICES_RUNNING
 Language=ENU
-Dependent services are running.
+A stop control has been sent to a service that other running services are dependent on.
 .
 MessageId=1052
 SymbolicName=ERROR_INVALID_SERVICE_CONTROL
 Language=ENU
-Invalid service control.
+The requested control is not valid for this service.
 .
 MessageId=1053
 SymbolicName=ERROR_SERVICE_REQUEST_TIMEOUT
 Language=ENU
-Service request timeout.
+The service did not respond to the start or control request in a timely fashion.
 .
 MessageId=1054
 SymbolicName=ERROR_SERVICE_NO_THREAD
 Language=ENU
-Cannot create service thread.
+A thread could not be created for the service.
 .
 MessageId=1055
 SymbolicName=ERROR_SERVICE_DATABASE_LOCKED
 Language=ENU
-Service database locked.
+The service database is locked.
 .
 MessageId=1056
 SymbolicName=ERROR_SERVICE_ALREADY_RUNNING
 Language=ENU
-Service already running.
+An instance of the service is already running.
 .
 MessageId=1057
 SymbolicName=ERROR_INVALID_SERVICE_ACCOUNT
 Language=ENU
-Invalid service account.
+The account name is invalid or does not exist, or the password is invalid for the account name specified.
 .
 MessageId=1058
 SymbolicName=ERROR_SERVICE_DISABLED
 Language=ENU
-Service is disabled.
+The service cannot be started, either because it is disabled or because it has no enabled devices associated with it.
 .
 MessageId=1059
 SymbolicName=ERROR_CIRCULAR_DEPENDENCY
 Language=ENU
-Circular dependency.
+Circular service dependency was specified.
 .
 MessageId=1060
 SymbolicName=ERROR_SERVICE_DOES_NOT_EXIST
 Language=ENU
-Service does not exist.
+The specified service does not exist as an installed service.
 .
 MessageId=1061
 SymbolicName=ERROR_SERVICE_CANNOT_ACCEPT_CTRL
 Language=ENU
-Service cannot accept control message.
+The service cannot accept control messages at this time.
 .
 MessageId=1062
 SymbolicName=ERROR_SERVICE_NOT_ACTIVE
 Language=ENU
-Service not active.
+The service has not been started.
 .
 MessageId=1063
 SymbolicName=ERROR_FAILED_SERVICE_CONTROLLER_CONNECT
 Language=ENU
-Service controller connect failed.
+The service process could not connect to the service controller.
 .
 MessageId=1064
 SymbolicName=ERROR_EXCEPTION_IN_SERVICE
 Language=ENU
-Exception in service.
+An exception occurred in the service when handling the control request.
 .
 MessageId=1065
 SymbolicName=ERROR_DATABASE_DOES_NOT_EXIST
 Language=ENU
-Database does not exist.
+The database specified does not exist.
 .
 MessageId=1066
 SymbolicName=ERROR_SERVICE_SPECIFIC_ERROR
 Language=ENU
-Service-specific error.
+The service has returned a service-specific error code.
 .
 MessageId=1067
 SymbolicName=ERROR_PROCESS_ABORTED
 Language=ENU
-Process aborted.
+The process terminated unexpectedly.
 .
 MessageId=1068
 SymbolicName=ERROR_SERVICE_DEPENDENCY_FAIL
 Language=ENU
-Service dependency failed.
+The dependency service or group failed to start.
 .
 MessageId=1069
 SymbolicName=ERROR_SERVICE_LOGON_FAILED
 Language=ENU
-Service login failed.
+The service did not start due to a logon failure.
 .
 MessageId=1070
 SymbolicName=ERROR_SERVICE_START_HANG
 Language=ENU
-Service start-hang.
+After starting, the service hung in a start-pending state.
 .
 MessageId=1071
 SymbolicName=ERROR_INVALID_SERVICE_LOCK
 Language=ENU
-Invalid service lock.
+The specified service database lock is invalid.
 .
 MessageId=1072
 SymbolicName=ERROR_SERVICE_MARKED_FOR_DELETE
 Language=ENU
-Service marked for delete.
+The specified service has been marked for deletion.
 .
 MessageId=1073
 SymbolicName=ERROR_SERVICE_EXISTS
 Language=ENU
-Service exists.
+The specified service already exists.
 .
 MessageId=1074
 SymbolicName=ERROR_ALREADY_RUNNING_LKG
 Language=ENU
-System running last-known-good config.
+The system is currently running with the last-known-good configuration.
 .
 MessageId=1075
 SymbolicName=ERROR_SERVICE_DEPENDENCY_DELETED
 Language=ENU
-Service dependency deleted.
+The dependency service does not exist or has been marked for deletion.
 .
 MessageId=1076
 SymbolicName=ERROR_BOOT_ALREADY_ACCEPTED
 Language=ENU
-Boot already accepted as last-good config.
+The current boot has already been accepted for use as the last-known-good control set.
 .
 MessageId=1077
 SymbolicName=ERROR_SERVICE_NEVER_STARTED
 Language=ENU
-Service not started since last boot.
+No attempts to start the service have been made since the last boot.
 .
 MessageId=1078
 SymbolicName=ERROR_DUPLICATE_SERVICE_NAME
 Language=ENU
-Duplicate service name.
+The name is already in use as either a service name or a service display name.
 .
 MessageId=1079
 SymbolicName=ERROR_DIFFERENT_SERVICE_ACCOUNT
 Language=ENU
-Different service account.
+The account specified for this service is different from the account specified for other services running in the same process.
 .
 MessageId=1080
 SymbolicName=ERROR_CANNOT_DETECT_DRIVER_FAILURE
 Language=ENU
-Driver failure cannot be detected.
+Failure actions can only be set for Win32 services, not for drivers.
 .
 MessageId=1081
 SymbolicName=ERROR_CANNOT_DETECT_PROCESS_ABORT
 Language=ENU
-Process abort cannot be detected.
+This service runs in the same process as the service control manager.
+Therefore, the service control manager cannot take action if this service's process terminates unexpectedly.
 .
 MessageId=1082
 SymbolicName=ERROR_NO_RECOVERY_PROGRAM
 Language=ENU
-No recovery program for service.
+No recovery program has been configured for this service.
 .
 MessageId=1083
 SymbolicName=ERROR_SERVICE_NOT_IN_EXE
 Language=ENU
-Service not implemented by exe.
+The executable program that this service is configured to run in does not implement the service.
 .
 MessageId=1100
 SymbolicName=ERROR_END_OF_MEDIA
 Language=ENU
-End of media.
+The physical end of the tape has been reached.
 .
 MessageId=1101
 SymbolicName=ERROR_FILEMARK_DETECTED
 Language=ENU
-Filemark detected.
+A tape access reached a filemark.
 .
 MessageId=1102
 SymbolicName=ERROR_BEGINNING_OF_MEDIA
 Language=ENU
-Beginning of media.
+The beginning of the tape or a partition was encountered.
 .
 MessageId=1103
 SymbolicName=ERROR_SETMARK_DETECTED
 Language=ENU
-Setmark detected.
+A tape access reached the end of a set of files.
 .
 MessageId=1104
 SymbolicName=ERROR_NO_DATA_DETECTED
 Language=ENU
-No data detected.
+No more data is on the tape.
 .
 MessageId=1105
 SymbolicName=ERROR_PARTITION_FAILURE
 Language=ENU
-Partition failure.
+Tape could not be partitioned.
 .
 MessageId=1106
 SymbolicName=ERROR_INVALID_BLOCK_LENGTH
 Language=ENU
-Invalid block length.
+When accessing a new tape of a multivolume partition, the current block size is incorrect.
 .
 MessageId=1107
 SymbolicName=ERROR_DEVICE_NOT_PARTITIONED
 Language=ENU
-Device not partitioned.
+Tape partition information could not be found when loading a tape.
 .
 MessageId=1108
 SymbolicName=ERROR_UNABLE_TO_LOCK_MEDIA
 Language=ENU
-Unable to lock media.
+Unable to lock the media eject mechanism.
 .
 MessageId=1109
 SymbolicName=ERROR_UNABLE_TO_UNLOAD_MEDIA
 Language=ENU
-Unable to unload media.
+Unable to unload the media.
 .
 MessageId=1110
 SymbolicName=ERROR_MEDIA_CHANGED
 Language=ENU
-Media changed.
+The media in the drive may have changed.
 .
 MessageId=1111
 SymbolicName=ERROR_BUS_RESET
 Language=ENU
-I/O bus reset.
+The I/O bus was reset.
 .
 MessageId=1112
 SymbolicName=ERROR_NO_MEDIA_IN_DRIVE
@@ -1359,202 +1361,204 @@ No media in drive.
 MessageId=1113
 SymbolicName=ERROR_NO_UNICODE_TRANSLATION
 Language=ENU
-No Unicode translation.
+No mapping for the Unicode character exists in the target multi-byte code page.
 .
 MessageId=1114
 SymbolicName=ERROR_DLL_INIT_FAILED
 Language=ENU
-DLL initialization failed.
+A dynamic link library (DLL) initialization routine failed.
 .
 MessageId=1115
 SymbolicName=ERROR_SHUTDOWN_IN_PROGRESS
 Language=ENU
-Shutdown in progress.
+A system shutdown is in progress.
 .
 MessageId=1116
 SymbolicName=ERROR_NO_SHUTDOWN_IN_PROGRESS
 Language=ENU
-No shutdown in progress.
+Unable to abort the system shutdown because no shutdown was in progress.
 .
 MessageId=1117
 SymbolicName=ERROR_IO_DEVICE
 Language=ENU
-I/O device error.
+The request could not be performed because of an I/O device error.
 .
 MessageId=1118
 SymbolicName=ERROR_SERIAL_NO_DEVICE
 Language=ENU
-No serial devices found.
+No serial device was successfully initialized. The serial driver will unload.
 .
 MessageId=1119
 SymbolicName=ERROR_IRQ_BUSY
 Language=ENU
-Shared IRQ busy.
+Unable to open a device that was sharing an interrupt request (IRQ) with other devices. At least one other device that uses that IRQ was already opened.
 .
 MessageId=1120
 SymbolicName=ERROR_MORE_WRITES
 Language=ENU
-Serial I/O completed.
+A serial I/O operation was completed by another write to the serial port.
+(The IOCTL_SERIAL_XOFF_COUNTER reached zero.)
 .
 MessageId=1121
 SymbolicName=ERROR_COUNTER_TIMEOUT
 Language=ENU
-Serial I/O counter timeout.
+A serial I/O operation completed because the timeout period expired.
+(The IOCTL_SERIAL_XOFF_COUNTER did not reach zero.)
 .
 MessageId=1122
 SymbolicName=ERROR_FLOPPY_ID_MARK_NOT_FOUND
 Language=ENU
-Floppy ID address mark not found.
+No ID address mark was found on the floppy disk.
 .
 MessageId=1123
 SymbolicName=ERROR_FLOPPY_WRONG_CYLINDER
 Language=ENU
-Floppy reports wrong cylinder.
+Mismatch between the floppy disk sector ID field and the floppy disk controller track address.
 .
 MessageId=1124
 SymbolicName=ERROR_FLOPPY_UNKNOWN_ERROR
 Language=ENU
-Unknown floppy error.
+The floppy disk controller reported an error that is not recognized by the floppy disk driver.
 .
 MessageId=1125
 SymbolicName=ERROR_FLOPPY_BAD_REGISTERS
 Language=ENU
-Floppy registers inconsistent.
+The floppy disk controller returned inconsistent results in its registers.
 .
 MessageId=1126
 SymbolicName=ERROR_DISK_RECALIBRATE_FAILED
 Language=ENU
-Hard disk recalibrate failed.
+While accessing the hard disk, a recalibrate operation failed, even after retries.
 .
 MessageId=1127
 SymbolicName=ERROR_DISK_OPERATION_FAILED
 Language=ENU
-Hard disk operation failed.
+While accessing the hard disk, a disk operation failed even after retries.
 .
 MessageId=1128
 SymbolicName=ERROR_DISK_RESET_FAILED
 Language=ENU
-Hard disk reset failed.
+While accessing the hard disk, a disk controller reset was needed, but even that failed.
 .
 MessageId=1129
 SymbolicName=ERROR_EOM_OVERFLOW
 Language=ENU
-End of tape media.
+Physical end of tape encountered.
 .
 MessageId=1130
 SymbolicName=ERROR_NOT_ENOUGH_SERVER_MEMORY
 Language=ENU
-Not enough server memory.
+Not enough server memory resources are available to process this command.
 .
 MessageId=1131
 SymbolicName=ERROR_POSSIBLE_DEADLOCK
 Language=ENU
-Possible deadlock.
+A potential deadlock condition has been detected.
 .
 MessageId=1132
 SymbolicName=ERROR_MAPPED_ALIGNMENT
 Language=ENU
-Incorrect alignment.
+The base address or the file offset specified does not have the proper alignment.
 .
 MessageId=1140
 SymbolicName=ERROR_SET_POWER_STATE_VETOED
 Language=ENU
-Set-power-state vetoed.
+An attempt to change the system power state was vetoed by another application or driver.
 .
 MessageId=1141
 SymbolicName=ERROR_SET_POWER_STATE_FAILED
 Language=ENU
-Set-power-state failed.
+The system BIOS failed an attempt to change the system power state.
 .
 MessageId=1142
 SymbolicName=ERROR_TOO_MANY_LINKS
 Language=ENU
-Too many links.
+An attempt was made to create more links on a file than the file system supports.
 .
 MessageId=1150
 SymbolicName=ERROR_OLD_WIN_VERSION
 Language=ENU
-Newer Windows version needed.
+The specified program requires a newer version of Windows.
 .
 MessageId=1151
 SymbolicName=ERROR_APP_WRONG_OS
 Language=ENU
-Wrong operating system.
+The specified program is not a Windows or MS-DOS program.
 .
 MessageId=1152
 SymbolicName=ERROR_SINGLE_INSTANCE_APP
 Language=ENU
-Single-instance application.
+Cannot start more than one instance of the specified program.
 .
 MessageId=1153
 SymbolicName=ERROR_RMODE_APP
 Language=ENU
-Real-mode application.
+The specified program was written for an earlier version of Windows.
 .
 MessageId=1154
 SymbolicName=ERROR_INVALID_DLL
 Language=ENU
-Invalid DLL.
+One of the library files needed to run this application is damaged.
 .
 MessageId=1155
 SymbolicName=ERROR_NO_ASSOCIATION
 Language=ENU
-No associated application.
+No application is associated with the specified file for this operation.
 .
 MessageId=1156
 SymbolicName=ERROR_DDE_FAIL
 Language=ENU
-DDE failure.
+An error occurred in sending the command to the application.
 .
 MessageId=1157
 SymbolicName=ERROR_DLL_NOT_FOUND
 Language=ENU
-DLL not found.
+One of the library files needed to run this application cannot be found.
 .
 MessageId=1158
 SymbolicName=ERROR_NO_MORE_USER_HANDLES
 Language=ENU
-Out of user handles.
+The current process has used all of its system allowance of handles for Window Manager objects.
 .
 MessageId=1159
 SymbolicName=ERROR_MESSAGE_SYNC_ONLY
 Language=ENU
-Message can only be used in synchronous calls.
+The message can be used only with synchronous operations.
 .
 MessageId=1160
 SymbolicName=ERROR_SOURCE_ELEMENT_EMPTY
 Language=ENU
-The source element is empty.
+The indicated source element has no media.
 .
 MessageId=1161
 SymbolicName=ERROR_DESTINATION_ELEMENT_FULL
 Language=ENU
-The destination element is full.
+The indicated destination element already contains media.
 .
 MessageId=1162
 SymbolicName=ERROR_ILLEGAL_ELEMENT_ADDRESS
 Language=ENU
-The element address is invalid.
+The indicated element does not exist.
 .
 MessageId=1163
 SymbolicName=ERROR_MAGAZINE_NOT_PRESENT
 Language=ENU
-The magazine is not present.
+The indicated element is part of a magazine that is not present.
 .
 MessageId=1164
 SymbolicName=ERROR_DEVICE_REINITIALIZATION_NEEDED
 Language=ENU
-The device needs reinitialization.
+The indicated device requires reinitialization due to hardware errors.
 .
 MessageId=1165
 SymbolicName=ERROR_DEVICE_REQUIRES_CLEANING
 Language=ENU
-The device requires cleaning.
+The device has indicated that cleaning is required before further operations are attempted.
 .
 MessageId=1166
 SymbolicName=ERROR_DEVICE_DOOR_OPEN
 Language=ENU
-The device door is open.
+The device has indicated that its door is open.
 .
 MessageId=1167
 SymbolicName=ERROR_DEVICE_NOT_CONNECTED
@@ -1569,27 +1573,27 @@ Element not found.
 MessageId=1169
 SymbolicName=ERROR_NO_MATCH
 Language=ENU
-No match found.
+There was no match for the specified key in the index.
 .
 MessageId=1170
 SymbolicName=ERROR_SET_NOT_FOUND
 Language=ENU
-Property set not found.
+The property set specified does not exist on the object.
 .
 MessageId=1171
 SymbolicName=ERROR_POINT_NOT_FOUND
 Language=ENU
-Point not found.
+The point passed to GetMouseMovePoints is not in the buffer.
 .
 MessageId=1172
 SymbolicName=ERROR_NO_TRACKING_SERVICE
 Language=ENU
-No running tracking service.
+The tracking (workstation) service is not running.
 .
 MessageId=1173
 SymbolicName=ERROR_NO_VOLUME_ID
 Language=ENU
-No such volume ID.
+The Volume ID could not be found.
 .
 MessageId=1175
 SymbolicName=ERROR_UNABLE_TO_REMOVE_REPLACED
@@ -1599,272 +1603,272 @@ Unable to remove the file to be replaced.
 MessageId=1176
 SymbolicName=ERROR_UNABLE_TO_MOVE_REPLACEMENT
 Language=ENU
-Unable to move the replacement file into place.
+Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.
 .
 MessageId=1177
 SymbolicName=ERROR_UNABLE_TO_MOVE_REPLACEMENT_2
 Language=ENU
-Moving the replacement file failed.
+Unable to move the replacement file to the file to be replaced. The file to be replaced has been renamed using the backup name.
 .
 MessageId=1178
 SymbolicName=ERROR_JOURNAL_DELETE_IN_PROGRESS
 Language=ENU
-The journal is being deleted.
+The volume change journal is being deleted.
 .
 MessageId=1179
 SymbolicName=ERROR_JOURNAL_NOT_ACTIVE
 Language=ENU
-The journal is not active.
+The volume change journal is not active.
 .
 MessageId=1180
 SymbolicName=ERROR_POTENTIAL_FILE_FOUND
 Language=ENU
-Potential matching file found.
+A file was found, but it may not be the correct file.
 .
 MessageId=1181
 SymbolicName=ERROR_JOURNAL_ENTRY_DELETED
 Language=ENU
-The journal entry was deleted.
+The journal entry has been deleted from the journal.
 .
 MessageId=1200
 SymbolicName=ERROR_BAD_DEVICE
 Language=ENU
-Invalid device name.
+The specified device name is invalid.
 .
 MessageId=1201
 SymbolicName=ERROR_CONNECTION_UNAVAIL
 Language=ENU
-Connection unavailable.
+The device is not currently connected but it is a remembered connection.
 .
 MessageId=1202
 SymbolicName=ERROR_DEVICE_ALREADY_REMEMBERED
 Language=ENU
-Device already remembered.
+The local device name has a remembered connection to another network resource.
 .
 MessageId=1203
 SymbolicName=ERROR_NO_NET_OR_BAD_PATH
 Language=ENU
-No network or bad path.
+The network path was either typed incorrectly, does not exist, or the network provider is not currently available. Please try retyping the path or contact your network administrator.
 .
 MessageId=1204
 SymbolicName=ERROR_BAD_PROVIDER
 Language=ENU
-Invalid network provider name.
+The specified network provider name is invalid.
 .
 MessageId=1205
 SymbolicName=ERROR_CANNOT_OPEN_PROFILE
 Language=ENU
-Cannot open network connection profile.
+Unable to open the network connection profile.
 .
 MessageId=1206
 SymbolicName=ERROR_BAD_PROFILE
 Language=ENU
-Corrupt network connection profile.
+The network connection profile is corrupted.
 .
 MessageId=1207
 SymbolicName=ERROR_NOT_CONTAINER
 Language=ENU
-Not a container.
+Cannot enumerate a noncontainer.
 .
 MessageId=1208
 SymbolicName=ERROR_EXTENDED_ERROR
 Language=ENU
-Extended error.
+An extended error has occurred.
 .
 MessageId=1209
 SymbolicName=ERROR_INVALID_GROUPNAME
 Language=ENU
-Invalid group name.
+The format of the specified group name is invalid.
 .
 MessageId=1210
 SymbolicName=ERROR_INVALID_COMPUTERNAME
 Language=ENU
-Invalid computer name.
+The format of the specified computer name is invalid.
 .
 MessageId=1211
 SymbolicName=ERROR_INVALID_EVENTNAME
 Language=ENU
-Invalid event name.
+The format of the specified event name is invalid.
 .
 MessageId=1212
 SymbolicName=ERROR_INVALID_DOMAINNAME
 Language=ENU
-Invalid domain name.
+The format of the specified domain name is invalid.
 .
 MessageId=1213
 SymbolicName=ERROR_INVALID_SERVICENAME
 Language=ENU
-Invalid service name.
+The format of the specified service name is invalid.
 .
 MessageId=1214
 SymbolicName=ERROR_INVALID_NETNAME
 Language=ENU
-Invalid network name.
+The format of the specified network name is invalid.
 .
 MessageId=1215
 SymbolicName=ERROR_INVALID_SHARENAME
 Language=ENU
-Invalid share name.
+The format of the specified share name is invalid.
 .
 MessageId=1216
 SymbolicName=ERROR_INVALID_PASSWORDNAME
 Language=ENU
-Invalid password.
+The format of the specified password is invalid.
 .
 MessageId=1217
 SymbolicName=ERROR_INVALID_MESSAGENAME
 Language=ENU
-Invalid message name.
+The format of the specified message name is invalid.
 .
 MessageId=1218
 SymbolicName=ERROR_INVALID_MESSAGEDEST
 Language=ENU
-Invalid message destination.
+The format of the specified message destination is invalid.
 .
 MessageId=1219
 SymbolicName=ERROR_SESSION_CREDENTIAL_CONFLICT
 Language=ENU
-Session credential conflict.
+Multiple connections to a server or shared resource by the same user, using more than one user name, are not allowed. Disconnect all previous connections to the server or shared resource and try again.
 .
 MessageId=1220
 SymbolicName=ERROR_REMOTE_SESSION_LIMIT_EXCEEDED
 Language=ENU
-Remote session limit exceeded.
+An attempt was made to establish a session to a network server, but there are already too many sessions established to that server.
 .
 MessageId=1221
 SymbolicName=ERROR_DUP_DOMAINNAME
 Language=ENU
-Duplicate domain or workgroup name.
+The workgroup or domain name is already in use by another computer on the network.
 .
 MessageId=1222
 SymbolicName=ERROR_NO_NETWORK
 Language=ENU
-No network.
+The network is not present or not started.
 .
 MessageId=1223
 SymbolicName=ERROR_CANCELLED
 Language=ENU
-Operation canceled by user.
+The operation was canceled by the user.
 .
 MessageId=1224
 SymbolicName=ERROR_USER_MAPPED_FILE
 Language=ENU
-File has a user-mapped section.
+The requested operation cannot be performed on a file with a user-mapped section open.
 .
 MessageId=1225
 SymbolicName=ERROR_CONNECTION_REFUSED
 Language=ENU
-Connection refused.
+The remote computer refused the network connection.
 .
 MessageId=1226
 SymbolicName=ERROR_GRACEFUL_DISCONNECT
 Language=ENU
-Connection gracefully closed.
+The network connection was gracefully closed.
 .
 MessageId=1227
 SymbolicName=ERROR_ADDRESS_ALREADY_ASSOCIATED
 Language=ENU
-Address already associated with transport endpoint.
+The network transport endpoint already has an address associated with it.
 .
 MessageId=1228
 SymbolicName=ERROR_ADDRESS_NOT_ASSOCIATED
 Language=ENU
-Address not associated with transport endpoint.
+An address has not yet been associated with the network endpoint.
 .
 MessageId=1229
 SymbolicName=ERROR_CONNECTION_INVALID
 Language=ENU
-Connection invalid.
+An operation was attempted on a nonexistent network connection.
 .
 MessageId=1230
 SymbolicName=ERROR_CONNECTION_ACTIVE
 Language=ENU
-Connection is active.
+An invalid operation was attempted on an active network connection.
 .
 MessageId=1231
 SymbolicName=ERROR_NETWORK_UNREACHABLE
 Language=ENU
-Network unreachable.
+The network location cannot be reached. For information about network troubleshooting, see Windows Help.
 .
 MessageId=1232
 SymbolicName=ERROR_HOST_UNREACHABLE
 Language=ENU
-Host unreachable.
+The network location cannot be reached. For information about network troubleshooting, see Windows Help.
 .
 MessageId=1233
 SymbolicName=ERROR_PROTOCOL_UNREACHABLE
 Language=ENU
-Protocol unreachable.
+The network location cannot be reached. For information about network troubleshooting, see Windows Help.
 .
 MessageId=1234
 SymbolicName=ERROR_PORT_UNREACHABLE
 Language=ENU
-Port unreachable.
+No service is operating at the destination network endpoint on the remote system.
 .
 MessageId=1235
 SymbolicName=ERROR_REQUEST_ABORTED
 Language=ENU
-Request aborted.
+The request was aborted.
 .
 MessageId=1236
 SymbolicName=ERROR_CONNECTION_ABORTED
 Language=ENU
-Connection aborted.
+The network connection was aborted by the local system.
 .
 MessageId=1237
 SymbolicName=ERROR_RETRY
 Language=ENU
-Please retry operation.
+The operation could not be completed. A retry should be performed.
 .
 MessageId=1238
 SymbolicName=ERROR_CONNECTION_COUNT_LIMIT
 Language=ENU
-Connection count limit reached.
+A connection to the server could not be made because the limit on the number of concurrent connections for this account has been reached.
 .
 MessageId=1239
 SymbolicName=ERROR_LOGIN_TIME_RESTRICTION
 Language=ENU
-Login time restriction.
+Attempting to log in during an unauthorized time of day for this account.
 .
 MessageId=1240
 SymbolicName=ERROR_LOGIN_WKSTA_RESTRICTION
 Language=ENU
-Login workstation restriction.
+The account is not authorized to log in from this station.
 .
 MessageId=1241
 SymbolicName=ERROR_INCORRECT_ADDRESS
 Language=ENU
-Incorrect network address.
+The network address could not be used for the operation requested.
 .
 MessageId=1242
 SymbolicName=ERROR_ALREADY_REGISTERED
 Language=ENU
-Service already registered.
+The service is already registered.
 .
 MessageId=1243
 SymbolicName=ERROR_SERVICE_NOT_FOUND
 Language=ENU
-Service not found.
+The specified service does not exist.
 .
 MessageId=1244
 SymbolicName=ERROR_NOT_AUTHENTICATED
 Language=ENU
-User not authenticated.
+The operation being requested was not performed because the user has not been authenticated.
 .
 MessageId=1245
 SymbolicName=ERROR_NOT_LOGGED_ON
 Language=ENU
-User not logged on.
+The operation being requested was not performed because the user has not logged on to the network. The specified service does not exist.
 .
 MessageId=1246
 SymbolicName=ERROR_CONTINUE
 Language=ENU
-Continue work in progress.
+Continue with work in progress.
 .
 MessageId=1247
 SymbolicName=ERROR_ALREADY_INITIALIZED
 Language=ENU
-Already initialized.
+An attempt was made to perform an initialization operation when initialization has already been completed.
 .
 MessageId=1248
 SymbolicName=ERROR_NO_MORE_DEVICES
@@ -1874,32 +1878,32 @@ No more local devices.
 MessageId=1249
 SymbolicName=ERROR_NO_SUCH_SITE
 Language=ENU
-The site does not exist.
+The specified site does not exist.
 .
 MessageId=1250
 SymbolicName=ERROR_DOMAIN_CONTROLLER_EXISTS
 Language=ENU
-The domain controller already exists.
+A domain controller with the specified name already exists.
 .
 MessageId=1251
 SymbolicName=ERROR_ONLY_IF_CONNECTED
 Language=ENU
-Supported only when connected.
+This operation is supported only when you are connected to the server.
 .
 MessageId=1252
 SymbolicName=ERROR_OVERRIDE_NOCHANGES
 Language=ENU
-Perform operation even when nothing changed.
+The group policy framework should call the extension even if there are no changes.
 .
 MessageId=1253
 SymbolicName=ERROR_BAD_USER_PROFILE
 Language=ENU
-The user profile is invalid.
+The specified user does not have a valid profile.
 .
 MessageId=1254
 SymbolicName=ERROR_NOT_SUPPORTED_ON_SBS
 Language=ENU
-Not supported on Small Business Server.
+This operation is not supported on a computer running Windows Server 2003 for Small Business Server
 .
 MessageId=1300
 SymbolicName=ERROR_NOT_ALL_ASSIGNED
