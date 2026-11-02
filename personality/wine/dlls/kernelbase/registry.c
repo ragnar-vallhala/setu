@@ -1149,6 +1149,7 @@ LSTATUS WINAPI RegDeleteKeyExW( HKEY hkey, LPCWSTR name, REGSAM access, DWORD re
     HKEY tmp;
 
     if (!name) return ERROR_INVALID_PARAMETER;
+    if (reserved) return ERROR_INVALID_PARAMETER;
 
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
@@ -1172,6 +1173,7 @@ LSTATUS WINAPI RegDeleteKeyExA( HKEY hkey, LPCSTR name, REGSAM access, DWORD res
     HKEY tmp;
 
     if (!name) return ERROR_INVALID_PARAMETER;
+    if (reserved) return ERROR_INVALID_PARAMETER;
 
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
