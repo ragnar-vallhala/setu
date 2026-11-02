@@ -3359,7 +3359,8 @@ DECL_HANDLER(set_fd_name_info)
 /* set fd eof information */
 DECL_HANDLER(set_fd_eof_info)
 {
-    struct fd *fd = get_handle_fd_obj( current->process, req->handle, 0 );
+    /* changing the end of file needs FILE_WRITE_DATA access on the handle */
+    struct fd *fd = get_handle_fd_obj( current->process, req->handle, FILE_WRITE_DATA );
     if (fd)
     {
         set_fd_eof( fd, req->eof );

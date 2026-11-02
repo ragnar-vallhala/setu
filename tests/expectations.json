@@ -581,6 +581,7 @@
     "kernel32/SetFilePointerEx:seek_negative_past_start_current",
     "kernel32/SetFilePointerEx:seek_past_eof",
     "kernel32/SetFilePointerEx:set_end_extend",
+    "kernel32/SetFilePointerEx:set_end_readonly_handle",
     "kernel32/SetFilePointerEx:set_end_truncate",
     "kernel32/SetFilePointerEx:size_after_write",
     "kernel32/SetFilePointerEx:size_invalid_handle",
