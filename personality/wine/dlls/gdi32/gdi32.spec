@@ -91,7 +91,7 @@
 @ stdcall CreatePenIndirect(ptr)
 @ stdcall CreatePolyPolygonRgn(ptr ptr long long)
 @ stdcall CreatePolygonRgn(ptr long long)
-@ stdcall CreateRectRgn(long long long long) NtGdiCreateRectRgn
+@ stdcall CreateRectRgn(long long long long)
 @ stdcall CreateRectRgnIndirect(ptr)
 @ stdcall CreateRoundRectRgn(long long long long long long) NtGdiCreateRoundRectRgn
 @ stdcall CreateScalableFontResourceA(long str str str)

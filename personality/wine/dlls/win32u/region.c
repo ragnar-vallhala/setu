@@ -534,6 +534,12 @@ static BOOL REGION_OffsetRegion( WINEREGION *rgn, WINEREGION *srcrgn, INT x, INT
  *                     one rectangle.
  *   Failure: ERROR
  */
+/* Region coordinates are limited to [-2^27, 2^27 - 1]. */
+static BOOL coord_in_range( LONGLONG coord )
+{
+    return coord >= -(1 << 27) && coord < (1 << 27);
+}
+
 INT WINAPI NtGdiOffsetRgn( HRGN hrgn, INT x, INT y )
 {
     WINEREGION *obj = GDI_GetObjPtr( hrgn, NTGDI_OBJ_REGION );
@@ -543,6 +549,17 @@ INT WINAPI NtGdiOffsetRgn( HRGN hrgn, INT x, INT y )
 
     if (!obj)
         return ERROR;
+
+    /* fail and leave the region alone if it would leave the coordinate space */
+    if (obj->numRects &&
+        (!coord_in_range( (LONGLONG)obj->extents.left + x ) ||
+         !coord_in_range( (LONGLONG)obj->extents.right + x ) ||
+         !coord_in_range( (LONGLONG)obj->extents.top + y ) ||
+         !coord_in_range( (LONGLONG)obj->extents.bottom + y )))
+    {
+        GDI_ReleaseObj( hrgn );
+        return ERROR;
+    }
 
     REGION_OffsetRegion( obj, obj, x, y);
 

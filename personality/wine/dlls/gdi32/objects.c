@@ -662,6 +662,26 @@ HRGN WINAPI CreatePolyPolygonRgn( const POINT *points, const INT *counts, INT co
     return ULongToHandle( ret );
 }
 
+/* Region coordinates are limited to [-2^27, 2^27 - 1]. */
+static BOOL region_coord_valid( INT coord )
+{
+    return coord >= -(1 << 27) && coord < (1 << 27);
+}
+
+/***********************************************************************
+ *           CreateRectRgn    (GDI32.@)
+ */
+HRGN WINAPI CreateRectRgn( INT left, INT top, INT right, INT bottom )
+{
+    if (!region_coord_valid( left ) || !region_coord_valid( top ) ||
+        !region_coord_valid( right ) || !region_coord_valid( bottom ))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    return NtGdiCreateRectRgn( left, top, right, bottom );
+}
+
 /***********************************************************************
  *           CreateRectRgnIndirect    (GDI32.@)
  *
@@ -669,7 +689,7 @@ HRGN WINAPI CreatePolyPolygonRgn( const POINT *points, const INT *counts, INT co
  */
 HRGN WINAPI CreateRectRgnIndirect( const RECT* rect )
 {
-    return NtGdiCreateRectRgn( rect->left, rect->top, rect->right, rect->bottom );
+    return CreateRectRgn( rect->left, rect->top, rect->right, rect->bottom );
 }
 
 /***********************************************************************
