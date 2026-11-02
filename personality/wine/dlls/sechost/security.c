@@ -73,6 +73,24 @@ ace_rights[] =
     { L"NX", SYSTEM_MANDATORY_LABEL_NO_EXECUTE_UP },
 };
 
+static const struct
+{
+    const WCHAR *str;
+    BYTE value;
+}
+ace_types[] =
+{
+    { L"AL", SYSTEM_ALARM_ACE_TYPE },
+    { L"AU", SYSTEM_AUDIT_ACE_TYPE },
+    { L"OA", ACCESS_ALLOWED_OBJECT_ACE_TYPE },
+    { L"OD", ACCESS_DENIED_OBJECT_ACE_TYPE },
+    { L"OU", ACCESS_AUDIT_OBJECT_ACE_TYPE },
+    { L"OL", ACCESS_ALARM_OBJECT_ACE_TYPE },
+    { L"ML", SYSTEM_MANDATORY_LABEL_ACE_TYPE },
+    { L"A",  ACCESS_ALLOWED_ACE_TYPE },
+    { L"D",  ACCESS_DENIED_ACE_TYPE },
+};
+
 struct max_sid
 {
     /* same fields as struct _SID */
@@ -192,6 +210,7 @@ static BOOL print_sid_numeric(PSID psid, WCHAR **pwptr, ULONG *plen)
     DWORD i;
     WCHAR buf[26];
     SID *pisid = psid;
+    ULONGLONG authority;
 
     if( !IsValidSid( psid ) || pisid->Revision != SDDL_REVISION)
     {
@@ -199,18 +218,15 @@ static BOOL print_sid_numeric(PSID psid, WCHAR **pwptr, ULONG *plen)
         return FALSE;
     }
 
-    if (pisid->IdentifierAuthority.Value[0] ||
-     pisid->IdentifierAuthority.Value[1])
-    {
-        FIXME("not matching MS' bugs\n");
-        SetLastError(ERROR_INVALID_SID);
-        return FALSE;
-    }
+    authority = 0;
+    for (i = 0; i < 6; i++)
+        authority = (authority << 8) | pisid->IdentifierAuthority.Value[i];
 
-    swprintf( buf, ARRAY_SIZE(buf), L"S-%u-%d", pisid->Revision, MAKELONG(
-            MAKEWORD( pisid->IdentifierAuthority.Value[5], pisid->IdentifierAuthority.Value[4] ),
-            MAKEWORD( pisid->IdentifierAuthority.Value[3], pisid->IdentifierAuthority.Value[2] )
-            ) );
+    /* authorities of 2^32 and above are printed in hexadecimal */
+    if (authority >> 32)
+        swprintf( buf, ARRAY_SIZE(buf), L"S-%u-0x%I64X", pisid->Revision, authority );
+    else
+        swprintf( buf, ARRAY_SIZE(buf), L"S-%u-%u", pisid->Revision, (DWORD)authority );
     print_string(buf, -1, pwptr, plen);
 
     for( i=0; i<pisid->SubAuthorityCount; i++ )
@@ -329,6 +345,34 @@ static void print_rights(DWORD mask, WCHAR **pwptr, ULONG *plen)
             print_string(bit_names[i], -1, pwptr, plen);
 }
 
+/* mandatory label ACEs use their own names for the low three bits */
+static void print_label_rights(DWORD mask, WCHAR **pwptr, ULONG *plen)
+{
+    static const WCHAR *names[3] = { L"NW", L"NR", L"NX" };
+    WCHAR buf[15];
+    unsigned int i;
+
+    if (mask & ~7)
+    {
+        swprintf(buf, ARRAY_SIZE(buf), L"0x%x", mask);
+        print_string(buf, -1, pwptr, plen);
+        return;
+    }
+    for (i = 0; i < 3; i++)
+        if (mask & (1 << i))
+            print_string(names[i], -1, pwptr, plen);
+}
+
+static void print_guid(const GUID *guid, WCHAR **pwptr, ULONG *plen)
+{
+    WCHAR buf[37];
+
+    swprintf(buf, ARRAY_SIZE(buf), L"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+             guid->Data1, guid->Data2, guid->Data3, guid->Data4[0], guid->Data4[1], guid->Data4[2],
+             guid->Data4[3], guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7]);
+    print_string(buf, -1, pwptr, plen);
+}
+
 static inline BOOL is_object_ace(BYTE type)
 {
     switch (type)
@@ -352,6 +396,8 @@ static BOOL print_ace(void *pace, WCHAR **pwptr, ULONG *plen)
 {
     ACCESS_ALLOWED_ACE *piace; /* all the supported ACEs have the same memory layout */
     DWORD *sid_start;
+    unsigned int i;
+    BYTE type;
 
     piace = pace;
 
@@ -361,21 +407,27 @@ static BOOL print_ace(void *pace, WCHAR **pwptr, ULONG *plen)
         return FALSE;
     }
 
-    print_string(L"(", -1, pwptr, plen);
-    switch (piace->Header.AceType)
+    type = piace->Header.AceType;
+    /* an object ACE without object types is printed as the plain ACE type */
+    if (is_object_ace(type) && !((ACCESS_ALLOWED_OBJECT_ACE *)pace)->Flags)
     {
-        case ACCESS_ALLOWED_ACE_TYPE:
-            print_string(L"A", -1, pwptr, plen);
+        switch (type)
+        {
+        case ACCESS_ALLOWED_OBJECT_ACE_TYPE: type = ACCESS_ALLOWED_ACE_TYPE; break;
+        case ACCESS_DENIED_OBJECT_ACE_TYPE: type = ACCESS_DENIED_ACE_TYPE; break;
+        case ACCESS_AUDIT_OBJECT_ACE_TYPE: type = SYSTEM_AUDIT_ACE_TYPE; break;
+        case ACCESS_ALARM_OBJECT_ACE_TYPE: type = SYSTEM_ALARM_ACE_TYPE; break;
+        }
+    }
+
+    print_string(L"(", -1, pwptr, plen);
+    for (i = 0; i < ARRAY_SIZE(ace_types); i++)
+    {
+        if (ace_types[i].value == type)
+        {
+            print_string(ace_types[i].str, -1, pwptr, plen);
             break;
-        case ACCESS_DENIED_ACE_TYPE:
-            print_string(L"D", -1, pwptr, plen);
-            break;
-        case SYSTEM_AUDIT_ACE_TYPE:
-            print_string(L"AU", -1, pwptr, plen);
-            break;
-        case SYSTEM_ALARM_ACE_TYPE:
-            print_string(L"AL", -1, pwptr, plen);
-            break;
+        }
     }
     print_string(L";", -1, pwptr, plen);
 
@@ -394,23 +446,33 @@ static BOOL print_ace(void *pace, WCHAR **pwptr, ULONG *plen)
     if (piace->Header.AceFlags & FAILED_ACCESS_ACE_FLAG)
         print_string(L"FA", -1, pwptr, plen);
     print_string(L";", -1, pwptr, plen);
-    print_rights(piace->Mask, pwptr, plen);
+    if (piace->Header.AceType == SYSTEM_MANDATORY_LABEL_ACE_TYPE)
+        print_label_rights(piace->Mask, pwptr, plen);
+    else
+        print_rights(piace->Mask, pwptr, plen);
     print_string(L";", -1, pwptr, plen);
     sid_start = &piace->SidStart;
     if (is_object_ace(piace->Header.AceType))
     {
         ACCESS_ALLOWED_OBJECT_ACE *objace = pace;
+        const GUID *guid = &objace->ObjectType;
 
         sid_start++; /* Flags */
         if (objace->Flags & ACE_OBJECT_TYPE_PRESENT)
+        {
+            print_guid(guid++, pwptr, plen);
             sid_start += sizeof(GUID) / sizeof(*sid_start); /* ObjectType */
+        }
+        print_string(L";", -1, pwptr, plen);
         if (objace->Flags & ACE_INHERITED_OBJECT_TYPE_PRESENT)
+        {
+            print_guid(guid, pwptr, plen);
             sid_start += sizeof(GUID) / sizeof(*sid_start); /* InheritedObjectType */
+        }
+        print_string(L";", -1, pwptr, plen);
     }
-    /* objects not supported */
-    print_string(L";", -1, pwptr, plen);
-    /* objects not supported */
-    print_string(L";", -1, pwptr, plen);
+    else
+        print_string(L";;", -1, pwptr, plen);
     if (!print_sid(sid_start, pwptr, plen))
         return FALSE;
     print_string(L")", -1, pwptr, plen);
@@ -430,7 +492,10 @@ static BOOL print_acl(ACL *pacl, WCHAR **pwptr, ULONG *plen, SECURITY_DESCRIPTOR
         print_string(L"AI", -1, pwptr, plen);
 
     if (pacl == NULL)
+    {
+        print_string(L"NO_ACCESS_CONTROL", -1, pwptr, plen);
         return TRUE;
+    }
 
     if (!IsValidAcl(pacl))
         return FALSE;
@@ -521,7 +586,8 @@ static BOOL print_sacl(PSECURITY_DESCRIPTOR sd, WCHAR **pwptr, ULONG *plen)
         return TRUE;
 
     print_string(L"S:", -1, pwptr, plen);
-    if (!print_acl(pacl, pwptr, plen, control))
+    /* the SE_SACL_* flags are the SE_DACL_* flags shifted left by one */
+    if (!print_acl(pacl, pwptr, plen, control >> 1))
         return FALSE;
     return TRUE;
 }
@@ -595,170 +661,130 @@ static BOOL get_computer_sid( PSID sid )
     return TRUE;
 }
 
-static BOOL parse_token( const WCHAR *string, const WCHAR **end, DWORD *result )
+/* Parse one decimal or "0x" hexadecimal number of a numeric SID string.
+ * Values that do not fit in 64 bits are returned as ~0. */
+static BOOL parse_sid_number( const WCHAR **string, ULONGLONG *result )
 {
-    if (string[0] == '0' && (string[1] == 'X' || string[1] == 'x'))
-    {
-        /* hexadecimal */
-        *result = wcstoul( string + 2, (WCHAR**)&string, 16 );
-        if (*string == '-')
-            string++;
-        *end = string;
-        return TRUE;
-    }
-    else if (iswdigit(string[0]) || string[0] == '-')
-    {
-        *result = wcstoul( string, (WCHAR**)&string, 10 );
-        if (*string == '-')
-            string++;
-        *end = string;
-        return TRUE;
-    }
+    const WCHAR *p = *string;
+    ULONGLONG value = 0;
+    BOOL overflow = FALSE;
+    unsigned int digits = 0, d;
 
-    *result = 0;
-    *end = string;
+    if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X'))
+    {
+        for (p += 2;; p++, digits++)
+        {
+            if (*p >= '0' && *p <= '9') d = *p - '0';
+            else if (*p >= 'a' && *p <= 'f') d = *p - 'a' + 10;
+            else if (*p >= 'A' && *p <= 'F') d = *p - 'A' + 10;
+            else break;
+            if (value >> 60) overflow = TRUE;
+            value = value * 16 + d;
+        }
+    }
+    else
+    {
+        for (;; p++, digits++)
+        {
+            if (*p >= '0' && *p <= '9') d = *p - '0';
+            else break;
+            if (value > (~(ULONGLONG)0 - d) / 10) overflow = TRUE;
+            value = value * 10 + d;
+        }
+    }
+    if (!digits) return FALSE;
+    *result = overflow ? ~(ULONGLONG)0 : value;
+    *string = p;
+    return TRUE;
+}
+
+/* S-R-I-S[-S...]: the revision must fit in a byte, the identifier authority
+ * in 48 bits, and each '-' must be followed by a number. Sub-authorities
+ * that do not fit in 32 bits are clamped to 0xffffffff. */
+static BOOL parse_numeric_sid( const WCHAR *string, const WCHAR **end, SID *pisid, DWORD *size )
+{
+    const WCHAR *p = string + 2;
+    ULONGLONG revision, authority, value;
+    DWORD count = 0;
+
+    if (!parse_sid_number( &p, &revision ) || revision > 0xff || *p != '-')
+        goto bad;
+    p++;
+    if (!parse_sid_number( &p, &authority ) || authority > 0xffffffffffff)
+        goto bad;
+    while (*p == '-')
+    {
+        p++;
+        if (!parse_sid_number( &p, &value ) || count == 0xff)
+            goto bad;
+        if (pisid) pisid->SubAuthority[count] = value > 0xffffffff ? 0xffffffff : value;
+        count++;
+    }
+    if (!count)
+        goto bad;
+
+    *size = GetSidLengthRequired( count );
+    if (pisid)
+    {
+        pisid->Revision = revision;
+        pisid->SubAuthorityCount = count;
+        pisid->IdentifierAuthority.Value[0] = authority >> 40;
+        pisid->IdentifierAuthority.Value[1] = authority >> 32;
+        pisid->IdentifierAuthority.Value[2] = authority >> 24;
+        pisid->IdentifierAuthority.Value[3] = authority >> 16;
+        pisid->IdentifierAuthority.Value[4] = authority >> 8;
+        pisid->IdentifierAuthority.Value[5] = authority;
+    }
+    if (end) *end = p;
+    return TRUE;
+
+bad:
+    SetLastError( ERROR_INVALID_SID );
     return FALSE;
 }
 
-static DWORD get_sid_size( const WCHAR *string, const WCHAR **end )
-{
-    if ((string[0] == 'S' || string[0] == 's') && string[1] == '-') /* S-R-I(-S)+ */
-    {
-        int token_count = 0;
-        DWORD value;
-
-        string += 2;
-
-        while (parse_token( string, &string, &value ))
-            token_count++;
-
-        if (end)
-            *end = string;
-
-        if (token_count >= 3)
-            return GetSidLengthRequired( token_count - 2 );
-    }
-    else /* String constant format  - Only available in winxp and above */
-    {
-        unsigned int i;
-
-        if (end)
-            *end = string + 2;
-
-        for (i = 0; i < ARRAY_SIZE(well_known_sids); i++)
-        {
-            if (!wcsnicmp( well_known_sids[i].str, string, 2 ))
-                return GetSidLengthRequired( well_known_sids[i].sid.SubAuthorityCount );
-        }
-
-        for (i = 0; i < ARRAY_SIZE(well_known_rids); i++)
-        {
-            if (!wcsnicmp( well_known_rids[i].str, string, 2 ))
-            {
-                struct max_sid local;
-                get_computer_sid(&local);
-                return GetSidLengthRequired( *GetSidSubAuthorityCount(&local) + 1 );
-            }
-        }
-    }
-
-    return GetSidLengthRequired( 0 );
-}
-
+/* Parse a numeric SID or a two-letter SDDL alias. When pisid is NULL, only
+ * the size is computed. */
 static BOOL parse_sid( const WCHAR *string, const WCHAR **end, SID *pisid, DWORD *size )
 {
-    while (*string == ' ')
-        string++;
+    unsigned int i;
 
-    *size = get_sid_size( string, end );
-    if (!pisid) /* Simply compute the size */
-        return TRUE;
+    if ((string[0] == 'S' || string[0] == 's') && string[1] == '-')
+        return parse_numeric_sid( string, end, pisid, size );
 
-    if ((string[0] == 'S' || string[0] == 's') && string[1] == '-') /* S-R-I-S-S */
+    /* String constant format  - Only available in winxp and above */
+    if (string[0] && string[1])
     {
-        DWORD i = 0, identAuth;
-        DWORD csubauth = ((*size - GetSidLengthRequired(0)) / sizeof(DWORD));
-        DWORD token;
-
-        string += 2; /* Advance to Revision */
-        parse_token( string, &string, &token );
-        pisid->Revision = token;
-
-        if (pisid->Revision != SDDL_REVISION)
-        {
-            TRACE("Revision %d is unknown\n", pisid->Revision);
-            SetLastError( ERROR_INVALID_SID );
-            return FALSE;
-        }
-        if (csubauth == 0)
-        {
-            TRACE("SubAuthorityCount is 0\n");
-            SetLastError( ERROR_INVALID_SID );
-            return FALSE;
-        }
-
-        pisid->SubAuthorityCount = csubauth;
-
-        /* MS' implementation can't handle values greater than 2^32 - 1, so
-         * we don't either; assume most significant bytes are always 0
-         */
-        pisid->IdentifierAuthority.Value[0] = 0;
-        pisid->IdentifierAuthority.Value[1] = 0;
-        parse_token( string, &string, &identAuth );
-        pisid->IdentifierAuthority.Value[5] = identAuth & 0xff;
-        pisid->IdentifierAuthority.Value[4] = (identAuth & 0xff00) >> 8;
-        pisid->IdentifierAuthority.Value[3] = (identAuth & 0xff0000) >> 16;
-        pisid->IdentifierAuthority.Value[2] = (identAuth & 0xff000000) >> 24;
-
-        while (parse_token( string, &string, &token ))
-        {
-            pisid->SubAuthority[i++] = token;
-        }
-
-        if (i != pisid->SubAuthorityCount)
-        {
-            SetLastError( ERROR_INVALID_SID );
-            return FALSE;
-        }
-
-        if (end)
-            assert(*end == string);
-
-        return TRUE;
-    }
-    else /* String constant format  - Only available in winxp and above */
-    {
-        unsigned int i;
-        pisid->Revision = SDDL_REVISION;
-
         for (i = 0; i < ARRAY_SIZE(well_known_sids); i++)
         {
-            if (!wcsnicmp(well_known_sids[i].str, string, 2))
-            {
-                DWORD j;
-                pisid->SubAuthorityCount = well_known_sids[i].sid.SubAuthorityCount;
-                pisid->IdentifierAuthority = well_known_sids[i].sid.IdentifierAuthority;
-                for (j = 0; j < well_known_sids[i].sid.SubAuthorityCount; j++)
-                    pisid->SubAuthority[j] = well_known_sids[i].sid.SubAuthority[j];
-                return TRUE;
-            }
+            if (!well_known_sids[i].str[0] || wcsnicmp( well_known_sids[i].str, string, 2 ))
+                continue;
+            *size = GetSidLengthRequired( well_known_sids[i].sid.SubAuthorityCount );
+            if (pisid)
+                memcpy( pisid, &well_known_sids[i].sid, *size );
+            if (end) *end = string + 2;
+            return TRUE;
         }
 
         for (i = 0; i < ARRAY_SIZE(well_known_rids); i++)
         {
-            if (!wcsnicmp(well_known_rids[i].str, string, 2))
-            {
-                get_computer_sid(pisid);
-                pisid->SubAuthority[pisid->SubAuthorityCount] = well_known_rids[i].rid;
-                pisid->SubAuthorityCount++;
-                return TRUE;
-            }
-        }
+            struct max_sid local;
 
-        FIXME("String constant not supported: %s\n", debugstr_wn(string, 2));
-        SetLastError( ERROR_INVALID_SID );
-        return FALSE;
+            if (!well_known_rids[i].str[0] || wcsnicmp( well_known_rids[i].str, string, 2 ))
+                continue;
+            get_computer_sid( &local );
+            local.SubAuthority[local.SubAuthorityCount++] = well_known_rids[i].rid;
+            *size = GetSidLengthRequired( local.SubAuthorityCount );
+            if (pisid)
+                memcpy( pisid, &local, *size );
+            if (end) *end = string + 2;
+            return TRUE;
+        }
     }
+
+    TRACE("String constant not supported: %s\n", debugstr_wn(string, 2));
+    SetLastError( ERROR_INVALID_SID );
+    return FALSE;
 }
 
 /******************************************************************************
@@ -792,64 +818,64 @@ BOOL WINAPI DECLSPEC_HOTPATCH ConvertStringSidToSidW( const WCHAR *string, PSID 
         return FALSE;
     }
 
-    *sid = LocalAlloc( 0, size );
-
-    if (!parse_sid( string, NULL, *sid, &size ))
+    if (!(*sid = LocalAlloc( 0, size )))
     {
-        LocalFree( *sid );
+        SetLastError( ERROR_NOT_ENOUGH_MEMORY );
         return FALSE;
     }
+
+    parse_sid( string, NULL, *sid, &size );
+    SetLastError( ERROR_SUCCESS );
     return TRUE;
 }
 
-static DWORD parse_acl_flags( const WCHAR **string_ptr )
+/* ACL flags: P, AR, AI, and NO_ACCESS_CONTROL for a NULL ACL. */
+static BOOL parse_acl_flags( const WCHAR **string_ptr, DWORD *flags, BOOL *null_acl )
 {
-    DWORD flags = 0;
     const WCHAR *string = *string_ptr;
+
+    *flags = 0;
+    *null_acl = FALSE;
 
     while (*string && *string != '(')
     {
-        if (*string == 'P')
-        {
-            flags |= SE_DACL_PROTECTED;
-        }
-        else if (*string == 'A')
-        {
+        if (*string == ' ')
             string++;
-            if (*string == 'R')
-                flags |= SE_DACL_AUTO_INHERIT_REQ;
-            else if (*string == 'I')
-                flags |= SE_DACL_AUTO_INHERITED;
+        else if (*string == 'P')
+        {
+            *flags |= SE_DACL_PROTECTED;
+            string++;
         }
-        string++;
+        else if (string[0] == 'A' && string[1] == 'R')
+        {
+            *flags |= SE_DACL_AUTO_INHERIT_REQ;
+            string += 2;
+        }
+        else if (string[0] == 'A' && string[1] == 'I')
+        {
+            *flags |= SE_DACL_AUTO_INHERITED;
+            string += 2;
+        }
+        else if (!wcsncmp( string, L"NO_ACCESS_CONTROL", 17 ))
+        {
+            *null_acl = TRUE;
+            string += 17;
+        }
+        else
+        {
+            SetLastError( ERROR_INVALID_DATATYPE );
+            return FALSE;
+        }
     }
 
     *string_ptr = string;
-    return flags;
+    return TRUE;
 }
 
-static BYTE parse_ace_type( const WCHAR **string_ptr )
+/* The ACE type is matched as a case-insensitive prefix; the caller checks
+ * that a ';' follows it. */
+static BOOL parse_ace_type( const WCHAR **string_ptr, BYTE *type )
 {
-    static const struct
-    {
-        const WCHAR *str;
-        DWORD value;
-    }
-    ace_types[] =
-    {
-        { L"AL", SYSTEM_ALARM_ACE_TYPE },
-        { L"AU", SYSTEM_AUDIT_ACE_TYPE },
-        { L"A",  ACCESS_ALLOWED_ACE_TYPE },
-        { L"D",  ACCESS_DENIED_ACE_TYPE },
-        { L"ML", SYSTEM_MANDATORY_LABEL_ACE_TYPE },
-        /*
-        { ACCESS_ALLOWED_OBJECT_ACE_TYPE },
-        { ACCESS_DENIED_OBJECT_ACE_TYPE },
-        { SYSTEM_ALARM_OBJECT_ACE_TYPE },
-        { SYSTEM_AUDIT_OBJECT_ACE_TYPE },
-        */
-    };
-
     const WCHAR *string = *string_ptr;
     unsigned int i;
 
@@ -859,13 +885,14 @@ static BYTE parse_ace_type( const WCHAR **string_ptr )
     for (i = 0; i < ARRAY_SIZE(ace_types); ++i)
     {
         size_t len = wcslen( ace_types[i].str );
-        if (!wcsncmp( string, ace_types[i].str, len ))
+        if (!wcsnicmp( string, ace_types[i].str, len ))
         {
             *string_ptr = string + len;
-            return ace_types[i].value;
+            *type = ace_types[i].value;
+            return TRUE;
         }
     }
-    return 0;
+    return FALSE;
 }
 
 static DWORD parse_ace_flag( const WCHAR *string )
@@ -915,10 +942,11 @@ static DWORD parse_ace_right( const WCHAR **string_ptr )
     return 0;
 }
 
-static BYTE parse_ace_flags( const WCHAR **string_ptr )
+static BOOL parse_ace_flags( const WCHAR **string_ptr, BYTE *flags )
 {
     const WCHAR *string = *string_ptr;
-    BYTE flags = 0;
+
+    *flags = 0;
 
     while (*string == ' ')
         string++;
@@ -926,13 +954,13 @@ static BYTE parse_ace_flags( const WCHAR **string_ptr )
     while (*string != ';')
     {
         DWORD flag = parse_ace_flag( string );
-        if (!flag) return 0;
-        flags |= flag;
+        if (!flag) return FALSE;
+        *flags |= flag;
         string += 2;
     }
 
     *string_ptr = string;
-    return flags;
+    return TRUE;
 }
 
 static DWORD parse_ace_rights( const WCHAR **string_ptr )
@@ -954,78 +982,143 @@ static DWORD parse_ace_rights( const WCHAR **string_ptr )
     return rights;
 }
 
-static BOOL parse_acl( const WCHAR *string, DWORD *flags, ACL *acl, DWORD *ret_size )
+static int hex_value( WCHAR c )
 {
-    DWORD val;
-    DWORD sidlen;
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+/* A GUID without braces: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx */
+static BOOL parse_guid( const WCHAR **string_ptr, GUID *guid )
+{
+    const WCHAR *string = *string_ptr;
+    BYTE bytes[16];
+    unsigned int i, n = 0;
+
+    for (i = 0; i < 36; i++)
+    {
+        if (i == 8 || i == 13 || i == 18 || i == 23)
+        {
+            if (string[i] != '-') return FALSE;
+            continue;
+        }
+        if (hex_value( string[i] ) < 0 || hex_value( string[i + 1] ) < 0) return FALSE;
+        bytes[n++] = hex_value( string[i] ) << 4 | hex_value( string[i + 1] );
+        i++;
+    }
+
+    guid->Data1 = (DWORD)bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
+    guid->Data2 = bytes[4] << 8 | bytes[5];
+    guid->Data3 = bytes[6] << 8 | bytes[7];
+    memcpy( guid->Data4, bytes + 8, 8 );
+    *string_ptr = string + 36;
+    return TRUE;
+}
+
+static BOOL parse_acl( const WCHAR *string, DWORD *flags, BOOL *null_acl, ACL *acl, DWORD *ret_size )
+{
     DWORD length = sizeof(ACL);
-    DWORD acesize = 0;
     DWORD acecount = 0;
-    ACCESS_ALLOWED_ACE *ace = NULL; /* pointer to current ACE */
+    BOOL has_object_aces = FALSE;
+    BYTE *ace = NULL; /* pointer to current ACE */
 
     TRACE("%s\n", debugstr_w(string));
 
     if (acl) /* ace is only useful if we're setting values */
-        ace = (ACCESS_ALLOWED_ACE *)(acl + 1);
+        ace = (BYTE *)(acl + 1);
 
     /* Parse ACL flags */
-    *flags = parse_acl_flags( &string );
+    if (!parse_acl_flags( &string, flags, null_acl ))
+        return FALSE;
+
+    if (*null_acl)
+    {
+        *ret_size = 0;
+        return TRUE;
+    }
 
     /* Parse ACE */
     while (*string == '(')
     {
-        string++;
+        const WCHAR *p, *close = wcschr( string, ')' );
+        unsigned int i, fields = 0;
+        BYTE type, ace_flags;
+        DWORD mask, sidlen, hdrsize, object_flags = 0;
+        GUID guids[2];
 
-        /* Parse ACE type */
-        val = parse_ace_type( &string );
-        if (ace)
-            ace->Header.AceType = val;
-        if (*string != ';')
+        if (!close)
+            goto err;
+
+        /* an ACE has exactly six fields */
+        for (p = string + 1; p < close; p++)
+            if (*p == ';') fields++;
+        if (fields != 5)
         {
-            SetLastError( RPC_S_INVALID_STRING_UUID );
+            SetLastError( ERROR_INVALID_PARAMETER );
             return FALSE;
         }
         string++;
 
-        /* Parse ACE flags */
-        val = parse_ace_flags( &string );
-        if (ace)
-            ace->Header.AceFlags = val;
+        /* Parse ACE type */
+        if (!parse_ace_type( &string, &type ))
+        {
+            SetLastError( ERROR_INVALID_DATATYPE );
+            return FALSE;
+        }
         if (*string != ';')
             goto err;
+        string++;
+
+        /* Parse ACE flags */
+        if (!parse_ace_flags( &string, &ace_flags ))
+        {
+            SetLastError( ERROR_INVALID_FLAGS );
+            return FALSE;
+        }
         string++;
 
         /* Parse ACE rights */
-        val = parse_ace_rights( &string );
-        if (ace)
-            ace->Mask = val;
+        mask = parse_ace_rights( &string );
         if (*string != ';')
             goto err;
         string++;
 
-        /* Parse ACE object guid */
-        while (*string == ' ')
-            string++;
-        if (*string != ';')
+        /* Parse ACE object guid and inherit object guid */
+        for (i = 0; i < 2; i++)
         {
-            FIXME("Support for *_OBJECT_ACE_TYPE not implemented\n");
-            goto err;
+            while (*string == ' ')
+                string++;
+            if (*string != ';')
+            {
+                if (!is_object_ace( type ))
+                    goto err;
+                if (!parse_guid( &string, &guids[i] ) || *string != ';')
+                {
+                    SetLastError( RPC_S_INVALID_STRING_UUID );
+                    return FALSE;
+                }
+                object_flags |= i ? ACE_INHERITED_OBJECT_TYPE_PRESENT : ACE_OBJECT_TYPE_PRESENT;
+            }
+            string++;
         }
-        string++;
 
-        /* Parse ACE inherit object guid */
-        while (*string == ' ')
-            string++;
-        if (*string != ';')
+        if (is_object_ace( type ))
         {
-            FIXME("Support for *_OBJECT_ACE_TYPE not implemented\n");
-            goto err;
+            hdrsize = offsetof( ACCESS_ALLOWED_OBJECT_ACE, ObjectType );
+            if (object_flags & ACE_OBJECT_TYPE_PRESENT) hdrsize += sizeof(GUID);
+            if (object_flags & ACE_INHERITED_OBJECT_TYPE_PRESENT) hdrsize += sizeof(GUID);
+            has_object_aces = TRUE;
         }
-        string++;
+        else
+            hdrsize = offsetof( ACCESS_ALLOWED_ACE, SidStart );
 
         /* Parse ACE account sid */
-        if (!parse_sid( string, &string, ace ? (SID *)&ace->SidStart : NULL, &sidlen ))
-            goto err;
+        while (*string == ' ')
+            string++;
+        if (!parse_sid( string, &string, ace ? (SID *)(ace + hdrsize) : NULL, &sidlen ))
+            return FALSE;
 
         while (*string == ' ')
             string++;
@@ -1034,13 +1127,26 @@ static BOOL parse_acl( const WCHAR *string, DWORD *flags, ACL *acl, DWORD *ret_s
             goto err;
         string++;
 
-        acesize = sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD) + sidlen;
-        length += acesize;
         if (ace)
         {
-            ace->Header.AceSize = acesize;
-            ace = (ACCESS_ALLOWED_ACE *)((BYTE *)ace + acesize);
+            ACCESS_ALLOWED_ACE *plain = (ACCESS_ALLOWED_ACE *)ace;
+
+            plain->Header.AceType = type;
+            plain->Header.AceFlags = ace_flags;
+            plain->Header.AceSize = hdrsize + sidlen;
+            plain->Mask = mask;
+            if (is_object_ace( type ))
+            {
+                ACCESS_ALLOWED_OBJECT_ACE *obj = (ACCESS_ALLOWED_OBJECT_ACE *)ace;
+                GUID *guid = &obj->ObjectType;
+
+                obj->Flags = object_flags;
+                if (object_flags & ACE_OBJECT_TYPE_PRESENT) *guid++ = guids[0];
+                if (object_flags & ACE_INHERITED_OBJECT_TYPE_PRESENT) *guid = guids[1];
+            }
+            ace += hdrsize + sidlen;
         }
+        length += hdrsize + sidlen;
         acecount++;
     }
 
@@ -1054,7 +1160,7 @@ static BOOL parse_acl( const WCHAR *string, DWORD *flags, ACL *acl, DWORD *ret_s
 
     if (acl)
     {
-        acl->AclRevision = ACL_REVISION;
+        acl->AclRevision = has_object_aces ? ACL_REVISION4 : ACL_REVISION;
         acl->Sbz1 = 0;
         acl->AclSize = length;
         acl->AceCount = acecount;
@@ -1123,7 +1229,11 @@ static BOOL parse_sd( const WCHAR *string, SECURITY_DESCRIPTOR_RELATIVE *sd, DWO
             {
                 DWORD bytes;
 
-                if (!parse_sid( tok, NULL, (SID *)next, &bytes ))
+                const WCHAR *sid_string = tok;
+
+                while (*sid_string == ' ')
+                    sid_string++;
+                if (!parse_sid( sid_string, NULL, (SID *)next, &bytes ))
                     goto out;
 
                 if (sd)
@@ -1141,7 +1251,11 @@ static BOOL parse_sd( const WCHAR *string, SECURITY_DESCRIPTOR_RELATIVE *sd, DWO
             {
                 DWORD bytes;
 
-                if (!parse_sid( tok, NULL, (SID *)next, &bytes ))
+                const WCHAR *sid_string = tok;
+
+                while (*sid_string == ' ')
+                    sid_string++;
+                if (!parse_sid( sid_string, NULL, (SID *)next, &bytes ))
                     goto out;
 
                 if (sd)
@@ -1159,14 +1273,15 @@ static BOOL parse_sd( const WCHAR *string, SECURITY_DESCRIPTOR_RELATIVE *sd, DWO
             {
                 DWORD flags;
                 DWORD bytes;
+                BOOL null_acl;
 
-                if (!parse_acl( tok, &flags, (ACL *)next, &bytes ))
+                if (!parse_acl( tok, &flags, &null_acl, (ACL *)next, &bytes ))
                     goto out;
 
                 if (sd)
                 {
-                    sd->Control |= SE_DACL_PRESENT | flags;
-                    sd->Dacl = next - (BYTE *)sd;
+                    sd->Control |= SE_DACL_PRESENT | (flags);
+                    sd->Dacl = null_acl ? 0 : next - (BYTE *)sd;
                     next += bytes; /* Advance to next token */
                 }
 
@@ -1179,14 +1294,15 @@ static BOOL parse_sd( const WCHAR *string, SECURITY_DESCRIPTOR_RELATIVE *sd, DWO
             {
                 DWORD flags;
                 DWORD bytes;
+                BOOL null_acl;
 
-                if (!parse_acl( tok, &flags, (ACL *)next, &bytes ))
+                if (!parse_acl( tok, &flags, &null_acl, (ACL *)next, &bytes ))
                     goto out;
 
                 if (sd)
                 {
-                    sd->Control |= SE_SACL_PRESENT | flags;
-                    sd->Sacl = next - (BYTE *)sd;
+                    sd->Control |= SE_SACL_PRESENT | (flags << 1);
+                    sd->Sacl = null_acl ? 0 : next - (BYTE *)sd;
                     next += bytes; /* Advance to next token */
                 }
 
@@ -1259,5 +1375,6 @@ BOOL WINAPI DECLSPEC_HOTPATCH ConvertStringSecurityDescriptorToSecurityDescripto
     }
 
     if (ret_size) *ret_size = size;
+    SetLastError( ERROR_SUCCESS );
     return TRUE;
 }
