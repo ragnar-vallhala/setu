@@ -1012,9 +1012,26 @@ NTSTATUS WINAPI RtlSetCurrentDirectory_U(const UNICODE_STRING* dir)
     else
         curdir = &NtCurrentTeb()->Peb->ProcessParameters->CurrentDirectory;
 
+    /* the current directory, a backslash and a relative name must fit in MAX_PATH */
+    if (dir->Buffer && RtlDetermineDosPathNameType_U( dir->Buffer ) == RtlPathTypeRelative &&
+        curdir->DosPath.Length / sizeof(WCHAR) + dir->Length / sizeof(WCHAR) >= MAX_PATH)
+    {
+        nts = STATUS_NAME_TOO_LONG;
+        goto out;
+    }
+
     if (!RtlDosPathNameToNtPathName_U( dir->Buffer, &newdir, NULL, NULL ))
     {
         nts = STATUS_OBJECT_NAME_INVALID;
+        goto out;
+    }
+
+    /* the full path with a trailing backslash and a null must fit in MAX_PATH */
+    size = newdir.Length / sizeof(WCHAR) - 4;
+    if (size && newdir.Buffer[newdir.Length / sizeof(WCHAR) - 1] != '\\') size++;
+    if (size + 1 > MAX_PATH || (size + 1) * sizeof(WCHAR) > curdir->DosPath.MaximumLength)
+    {
+        nts = STATUS_NAME_TOO_LONG;
         goto out;
     }
 
