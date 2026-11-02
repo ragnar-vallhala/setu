@@ -170,7 +170,11 @@ class WindowsTarget(Target):
         self.dest = f"{c['user']}@{c['host']}"
         self.rdir = c["remote_dir"].rstrip("\\")
         ctl = BUILD_DIR / "ssh-ctl"
-        ctl.mkdir(parents=True, exist_ok=True)
+        # A Unix socket path is limited to 108 bytes and %C adds 40: deep
+        # checkouts (e.g. git worktrees) use a short private directory instead.
+        if len(str(ctl)) > 60:
+            ctl = Path("/tmp") / f"setu-ssh-{os.getuid()}"
+        ctl.mkdir(mode=0o700, parents=True, exist_ok=True)
         self.common = [
             "-o", "BatchMode=yes",
             "-o", "StrictHostKeyChecking=accept-new",

@@ -6,6 +6,7 @@ import copy
 import os
 import tomllib
 from dataclasses import dataclass
+import subprocess
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -14,7 +15,27 @@ TESTS_DIR = REPO / "tests" / "win32"
 GOLDEN_DIR = REPO / "tests" / "golden"
 EXPECTATIONS = REPO / "tests" / "expectations.json"
 BUILD_DIR = REPO / "build"
-VM_STATE = ORACLE_DIR / "vm" / "state"
+
+
+def _vm_state() -> Path:
+    """oracle/vm/state, or the main checkout's when running from a git worktree.
+
+    The VM (disk, SSH key, monitor socket) exists once per machine, so a
+    worktree without its own state uses the main checkout's.
+    """
+    own = ORACLE_DIR / "vm" / "state"
+    if own.exists():
+        return own
+    try:
+        common = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--path-format=absolute",
+                                 "--git-common-dir"], capture_output=True, text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return own
+    main = Path(common).parent / "oracle" / "vm" / "state"
+    return main if main.exists() else own
+
+
+VM_STATE = _vm_state()
 
 DEFAULTS: dict = {
     "build": {
