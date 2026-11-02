@@ -401,6 +401,27 @@ int main(void)
     sysmsg_case("sys_missing_id", 0x2FFFFFFF, 0);
     sysmsg_case("sys_hresult_e_fail", 0x80004005, 0);
     sysmsg_case("sys_hresult_e_invalidarg", 0x80070057, 0);
+    /* probes: a spread of codes across the documented ranges */
+    sysmsg_case("probe_sys_path_not_found", ERROR_PATH_NOT_FOUND, 0);
+    sysmsg_case("probe_sys_lock_violation", ERROR_LOCK_VIOLATION, 0);
+    sysmsg_case("probe_sys_insufficient_buffer", ERROR_INSUFFICIENT_BUFFER, 0);
+    sysmsg_case("probe_sys_proc_not_found", ERROR_PROC_NOT_FOUND, 0);
+    sysmsg_case("probe_sys_dir_not_empty", ERROR_DIR_NOT_EMPTY, 0);
+    sysmsg_case("probe_sys_bad_exe_format", ERROR_BAD_EXE_FORMAT, 0);
+    sysmsg_case("probe_sys_no_more_items", ERROR_NO_MORE_ITEMS, 0);
+    sysmsg_case("probe_sys_service_does_not_exist", ERROR_SERVICE_DOES_NOT_EXIST, 0);
+    sysmsg_case("probe_sys_not_found", ERROR_NOT_FOUND, 0);
+    sysmsg_case("probe_sys_invalid_window_handle", ERROR_INVALID_WINDOW_HANDLE, 0);
+    sysmsg_case("probe_sys_timeout", ERROR_TIMEOUT, 0);
+    sysmsg_case("probe_sys_rpc_server_unavailable", RPC_S_SERVER_UNAVAILABLE, 0);
+    sysmsg_case("probe_sys_wsaeconnrefused", WSAECONNREFUSED, 0);
+    sysmsg_case("probe_sys_hresult_e_notimpl", 0x80004001, 0);
+    sysmsg_case("probe_sys_hresult_e_nointerface", 0x80004002, 0);
+    sysmsg_case("probe_sys_hresult_e_pointer", 0x80004003, 0);
+    sysmsg_case("probe_sys_hresult_e_unexpected", 0x8000FFFF, 0);
+    sysmsg_case("probe_sys_hresult_e_accessdenied", 0x80070005, 0);
+    sysmsg_case("probe_sys_hresult_class_not_reg", 0x80040154, 0);
+    sysmsg_case("probe_sys_hresult_co_not_initialized", 0x800401F0, 0);
     {
         wchar_t buf[64];
         DWORD r;

@@ -552,6 +552,66 @@
       "last_error": "unchanged",
       "out": "A.D.|A.D."
     },
+    "probe_era_en_us": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "A.D."
+    },
+    "probe_era_en_gb": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "A.D."
+    },
+    "probe_era_en_au": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "A.D."
+    },
+    "probe_era_en_in": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "A.D."
+    },
+    "probe_era_en_ca": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "A.D."
+    },
+    "probe_era_en_nz": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "AD"
+    },
+    "probe_era_en_za": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "AD"
+    },
+    "probe_era_de_de": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "n. Chr."
+    },
+    "probe_era_fr_fr": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "ap. J.-C."
+    },
+    "probe_era_es_es": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "d. C."
+    },
+    "probe_era_it_it": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "d.C."
+    },
+    "probe_era_ja_jp": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "西暦"
+    },
     "probe_tz_winter_to_local_again": {
       "ret": true,
       "last_error": "unchanged",
@@ -576,5 +636,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "292f05a4dc6e3ac3adafe2fffb4c208b2d61bf3200509ad9870413d472406d46"
+  "source_sha256": "13f12ff1549094acf60a5b7f4bb4943ec3e28a8c5b815e02a9f805e7790176b8"
 }

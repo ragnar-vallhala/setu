@@ -1,0 +1,3618 @@
+{
+  "test": "kernel32/system_messages",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "m_00000000": {
+      "ret": 39,
+      "out": "The operation completed successfully.\r\n"
+    },
+    "m_00000001": {
+      "ret": 21,
+      "out": "Incorrect function.\r\n"
+    },
+    "m_00000002": {
+      "ret": 44,
+      "out": "The system cannot find the file specified.\r\n"
+    },
+    "m_00000003": {
+      "ret": 44,
+      "out": "The system cannot find the path specified.\r\n"
+    },
+    "m_00000004": {
+      "ret": 34,
+      "out": "The system cannot open the file.\r\n"
+    },
+    "m_00000005": {
+      "ret": 19,
+      "out": "Access is denied.\r\n"
+    },
+    "m_00000006": {
+      "ret": 24,
+      "out": "The handle is invalid.\r\n"
+    },
+    "m_00000007": {
+      "ret": 44,
+      "out": "The storage control blocks were destroyed.\r\n"
+    },
+    "m_00000008": {
+      "ret": 68,
+      "out": "Not enough memory resources are available to process this command.\r\n"
+    },
+    "m_00000009": {
+      "ret": 47,
+      "out": "The storage control block address is invalid.\r\n"
+    },
+    "m_0000000a": {
+      "ret": 31,
+      "out": "The environment is incorrect.\r\n"
+    },
+    "m_0000000b": {
+      "ret": 65,
+      "out": "An attempt was made to load a program with an incorrect format.\r\n"
+    },
+    "m_0000000c": {
+      "ret": 29,
+      "out": "The access code is invalid.\r\n"
+    },
+    "m_0000000d": {
+      "ret": 22,
+      "out": "The data is invalid.\r\n"
+    },
+    "m_0000000e": {
+      "ret": 71,
+      "out": "Not enough memory resources are available to complete this operation.\r\n"
+    },
+    "m_0000000f": {
+      "ret": 45,
+      "out": "The system cannot find the drive specified.\r\n"
+    },
+    "m_00000010": {
+      "ret": 34,
+      "out": "The directory cannot be removed.\r\n"
+    },
+    "m_00000011": {
+      "ret": 60,
+      "out": "The system cannot move the file to a different disk drive.\r\n"
+    },
+    "m_00000012": {
+      "ret": 26,
+      "out": "There are no more files.\r\n"
+    },
+    "m_00000013": {
+      "ret": 31,
+      "out": "The media is write protected.\r\n"
+    },
+    "m_00000014": {
+      "ret": 46,
+      "out": "The system cannot find the device specified.\r\n"
+    },
+    "m_00000015": {
+      "ret": 26,
+      "out": "The device is not ready.\r\n"
+    },
+    "m_00000016": {
+      "ret": 44,
+      "out": "The device does not recognize the command.\r\n"
+    },
+    "m_00000017": {
+      "ret": 39,
+      "out": "Data error (cyclic redundancy check).\r\n"
+    },
+    "m_00000018": {
+      "ret": 67,
+      "out": "The program issued a command but the command length is incorrect.\r\n"
+    },
+    "m_00000019": {
+      "ret": 63,
+      "out": "The drive cannot locate a specific area or track on the disk.\r\n"
+    },
+    "m_0000001a": {
+      "ret": 52,
+      "out": "The specified disk or diskette cannot be accessed.\r\n"
+    },
+    "m_0000001b": {
+      "ret": 45,
+      "out": "The drive cannot find the sector requested.\r\n"
+    },
+    "m_0000001c": {
+      "ret": 30,
+      "out": "The printer is out of paper.\r\n"
+    },
+    "m_0000001d": {
+      "ret": 50,
+      "out": "The system cannot write to the specified device.\r\n"
+    },
+    "m_0000001e": {
+      "ret": 51,
+      "out": "The system cannot read from the specified device.\r\n"
+    },
+    "m_0000001f": {
+      "ret": 53,
+      "out": "A device attached to the system is not functioning.\r\n"
+    },
+    "m_00000020": {
+      "ret": 81,
+      "out": "The process cannot access the file because it is being used by another process.\r\n"
+    },
+    "m_00000021": {
+      "ret": 94,
+      "out": "The process cannot access the file because another process has locked a portion of the file.\r\n"
+    },
+    "m_00000022": {
+      "ret": 90,
+      "out": "The wrong diskette is in the drive.\r\nInsert %2 (Volume Serial Number: %3) into drive %1.\r\n"
+    },
+    "m_00000024": {
+      "ret": 36,
+      "out": "Too many files opened for sharing.\r\n"
+    },
+    "m_00000026": {
+      "ret": 30,
+      "out": "Reached the end of the file.\r\n"
+    },
+    "m_00000027": {
+      "ret": 19,
+      "out": "The disk is full.\r\n"
+    },
+    "m_00000032": {
+      "ret": 31,
+      "out": "The request is not supported.\r\n"
+    },
+    "m_00000033": {
+      "ret": 218,
+      "out": "Windows cannot find the network path. Verify that the network path is correct and the destination computer is not busy or turned off. If Windows still cannot find the network path, contact your network administrator.\r\n"
+    },
+    "m_00000034": {
+      "ret": 221,
+      "out": "You were not connected because a duplicate name exists on the network. If joining a domain, go to System in Control Panel to change the computer name and try again. If joining a workgroup, choose another workgroup name.\r\n"
+    },
+    "m_00000035": {
+      "ret": 33,
+      "out": "The network path was not found.\r\n"
+    },
+    "m_00000036": {
+      "ret": 22,
+      "out": "The network is busy.\r\n"
+    },
+    "m_00000037": {
+      "ret": 66,
+      "out": "The specified network resource or device is no longer available.\r\n"
+    },
+    "m_00000038": {
+      "ret": 50,
+      "out": "The network BIOS command limit has been reached.\r\n"
+    },
+    "m_00000039": {
+      "ret": 44,
+      "out": "A network adapter hardware error occurred.\r\n"
+    },
+    "m_0000003a": {
+      "ret": 62,
+      "out": "The specified server cannot perform the requested operation.\r\n"
+    },
+    "m_0000003b": {
+      "ret": 39,
+      "out": "An unexpected network error occurred.\r\n"
+    },
+    "m_0000003c": {
+      "ret": 39,
+      "out": "The remote adapter is not compatible.\r\n"
+    },
+    "m_0000003d": {
+      "ret": 28,
+      "out": "The printer queue is full.\r\n"
+    },
+    "m_0000003e": {
+      "ret": 79,
+      "out": "Space to store the file waiting to be printed is not available on the server.\r\n"
+    },
+    "m_0000003f": {
+      "ret": 46,
+      "out": "Your file waiting to be printed was deleted.\r\n"
+    },
+    "m_00000040": {
+      "ret": 52,
+      "out": "The specified network name is no longer available.\r\n"
+    },
+    "m_00000041": {
+      "ret": 27,
+      "out": "Network access is denied.\r\n"
+    },
+    "m_00000042": {
+      "ret": 43,
+      "out": "The network resource type is not correct.\r\n"
+    },
+    "m_00000043": {
+      "ret": 35,
+      "out": "The network name cannot be found.\r\n"
+    },
+    "m_00000044": {
+      "ret": 74,
+      "out": "The name limit for the local computer network adapter card was exceeded.\r\n"
+    },
+    "m_00000045": {
+      "ret": 46,
+      "out": "The network BIOS session limit was exceeded.\r\n"
+    },
+    "m_00000046": {
+      "ret": 74,
+      "out": "The remote server has been paused or is in the process of being started.\r\n"
+    },
+    "m_00000047": {
+      "ret": 144,
+      "out": "No more connections can be made to this remote computer at this time because there are already as many connections as the computer can accept.\r\n"
+    },
+    "m_00000048": {
+      "ret": 55,
+      "out": "The specified printer or disk device has been paused.\r\n"
+    },
+    "m_00000050": {
+      "ret": 18,
+      "out": "The file exists.\r\n"
+    },
+    "m_00000052": {
+      "ret": 42,
+      "out": "The directory or file cannot be created.\r\n"
+    },
+    "m_00000053": {
+      "ret": 17,
+      "out": "Fail on INT 24.\r\n"
+    },
+    "m_00000054": {
+      "ret": 51,
+      "out": "Storage to process this request is not available.\r\n"
+    },
+    "m_00000055": {
+      "ret": 42,
+      "out": "The local device name is already in use.\r\n"
+    },
+    "m_00000056": {
+      "ret": 48,
+      "out": "The specified network password is not correct.\r\n"
+    },
+    "m_00000057": {
+      "ret": 29,
+      "out": "The parameter is incorrect.\r\n"
+    },
+    "m_00000058": {
+      "ret": 40,
+      "out": "A write fault occurred on the network.\r\n"
+    },
+    "m_00000059": {
+      "ret": 55,
+      "out": "The system cannot start another process at this time.\r\n"
+    },
+    "m_00000064": {
+      "ret": 41,
+      "out": "Cannot create another system semaphore.\r\n"
+    },
+    "m_00000065": {
+      "ret": 54,
+      "out": "The exclusive semaphore is owned by another process.\r\n"
+    },
+    "m_00000066": {
+      "ret": 44,
+      "out": "The semaphore is set and cannot be closed.\r\n"
+    },
+    "m_00000067": {
+      "ret": 36,
+      "out": "The semaphore cannot be set again.\r\n"
+    },
+    "m_00000068": {
+      "ret": 56,
+      "out": "Cannot request exclusive semaphores at interrupt time.\r\n"
+    },
+    "m_00000069": {
+      "ret": 53,
+      "out": "The previous ownership of this semaphore has ended.\r\n"
+    },
+    "m_0000006a": {
+      "ret": 35,
+      "out": "Insert the diskette for drive %1.\r\n"
+    },
+    "m_0000006b": {
+      "ret": 69,
+      "out": "The program stopped because an alternate diskette was not inserted.\r\n"
+    },
+    "m_0000006c": {
+      "ret": 50,
+      "out": "The disk is in use or locked by another process.\r\n"
+    },
+    "m_0000006d": {
+      "ret": 26,
+      "out": "The pipe has been ended.\r\n"
+    },
+    "m_0000006e": {
+      "ret": 54,
+      "out": "The system cannot open the device or file specified.\r\n"
+    },
+    "m_0000006f": {
+      "ret": 28,
+      "out": "The file name is too long.\r\n"
+    },
+    "m_00000070": {
+      "ret": 40,
+      "out": "There is not enough space on the disk.\r\n"
+    },
+    "m_00000071": {
+      "ret": 46,
+      "out": "No more internal file identifiers available.\r\n"
+    },
+    "m_00000072": {
+      "ret": 51,
+      "out": "The target internal file identifier is incorrect.\r\n"
+    },
+    "m_00000075": {
+      "ret": 64,
+      "out": "The IOCTL call made by the application program is not correct.\r\n"
+    },
+    "m_00000076": {
+      "ret": 60,
+      "out": "The verify-on-write switch parameter value is not correct.\r\n"
+    },
+    "m_00000077": {
+      "ret": 52,
+      "out": "The system does not support the command requested.\r\n"
+    },
+    "m_00000078": {
+      "ret": 48,
+      "out": "This function is not supported on this system.\r\n"
+    },
+    "m_00000079": {
+      "ret": 43,
+      "out": "The semaphore timeout period has expired.\r\n"
+    },
+    "m_0000007a": {
+      "ret": 53,
+      "out": "The data area passed to a system call is too small.\r\n"
+    },
+    "m_0000007b": {
+      "ret": 68,
+      "out": "The filename, directory name, or volume label syntax is incorrect.\r\n"
+    },
+    "m_0000007c": {
+      "ret": 39,
+      "out": "The system call level is not correct.\r\n"
+    },
+    "m_0000007d": {
+      "ret": 31,
+      "out": "The disk has no volume label.\r\n"
+    },
+    "m_0000007e": {
+      "ret": 42,
+      "out": "The specified module could not be found.\r\n"
+    },
+    "m_0000007f": {
+      "ret": 45,
+      "out": "The specified procedure could not be found.\r\n"
+    },
+    "m_00000080": {
+      "ret": 43,
+      "out": "There are no child processes to wait for.\r\n"
+    },
+    "m_00000081": {
+      "ret": 49,
+      "out": "The %1 application cannot be run in Win32 mode.\r\n"
+    },
+    "m_00000082": {
+      "ret": 98,
+      "out": "Attempt to use a file handle to an open disk partition for an operation other than raw disk I/O.\r\n"
+    },
+    "m_00000083": {
+      "ret": 80,
+      "out": "An attempt was made to move the file pointer before the beginning of the file.\r\n"
+    },
+    "m_00000084": {
+      "ret": 65,
+      "out": "The file pointer cannot be set on the specified device or file.\r\n"
+    },
+    "m_00000085": {
+      "ret": 92,
+      "out": "A JOIN or SUBST command cannot be used for a drive that contains previously joined drives.\r\n"
+    },
+    "m_00000086": {
+      "ret": 93,
+      "out": "An attempt was made to use a JOIN or SUBST command on a drive that has already been joined.\r\n"
+    },
+    "m_00000087": {
+      "ret": 98,
+      "out": "An attempt was made to use a JOIN or SUBST command on a drive that has already been substituted.\r\n"
+    },
+    "m_00000088": {
+      "ret": 68,
+      "out": "The system tried to delete the JOIN of a drive that is not joined.\r\n"
+    },
+    "m_00000089": {
+      "ret": 81,
+      "out": "The system tried to delete the substitution of a drive that is not substituted.\r\n"
+    },
+    "m_0000008a": {
+      "ret": 68,
+      "out": "The system tried to join a drive to a directory on a joined drive.\r\n"
+    },
+    "m_0000008b": {
+      "ret": 79,
+      "out": "The system tried to substitute a drive to a directory on a substituted drive.\r\n"
+    },
+    "m_0000008c": {
+      "ret": 73,
+      "out": "The system tried to join a drive to a directory on a substituted drive.\r\n"
+    },
+    "m_0000008d": {
+      "ret": 69,
+      "out": "The system tried to SUBST a drive to a directory on a joined drive.\r\n"
+    },
+    "m_0000008e": {
+      "ret": 57,
+      "out": "The system cannot perform a JOIN or SUBST at this time.\r\n"
+    },
+    "m_0000008f": {
+      "ret": 87,
+      "out": "The system cannot join or substitute a drive to or for a directory on the same drive.\r\n"
+    },
+    "m_00000090": {
+      "ret": 60,
+      "out": "The directory is not a subdirectory of the root directory.\r\n"
+    },
+    "m_00000091": {
+      "ret": 29,
+      "out": "The directory is not empty.\r\n"
+    },
+    "m_00000092": {
+      "ret": 51,
+      "out": "The path specified is being used in a substitute.\r\n"
+    },
+    "m_00000093": {
+      "ret": 61,
+      "out": "Not enough resources are available to process this command.\r\n"
+    },
+    "m_00000094": {
+      "ret": 49,
+      "out": "The path specified cannot be used at this time.\r\n"
+    },
+    "m_00000095": {
+      "ret": 126,
+      "out": "An attempt was made to join or substitute a drive for which a directory on the drive is the target of a previous substitute.\r\n"
+    },
+    "m_00000096": {
+      "ret": 95,
+      "out": "System trace information was not specified in your CONFIG.SYS file, or tracing is disallowed.\r\n"
+    },
+    "m_00000097": {
+      "ret": 76,
+      "out": "The number of specified semaphore events for DosMuxSemWait is not correct.\r\n"
+    },
+    "m_00000098": {
+      "ret": 69,
+      "out": "DosMuxSemWait did not execute; too many semaphores are already set.\r\n"
+    },
+    "m_00000099": {
+      "ret": 40,
+      "out": "The DosMuxSemWait list is not correct.\r\n"
+    },
+    "m_0000009a": {
+      "ret": 91,
+      "out": "The volume label you entered exceeds the label character limit of the target file system.\r\n"
+    },
+    "m_0000009b": {
+      "ret": 31,
+      "out": "Cannot create another thread.\r\n"
+    },
+    "m_0000009c": {
+      "ret": 47,
+      "out": "The recipient process has refused the signal.\r\n"
+    },
+    "m_0000009d": {
+      "ret": 56,
+      "out": "The segment is already discarded and cannot be locked.\r\n"
+    },
+    "m_0000009e": {
+      "ret": 34,
+      "out": "The segment is already unlocked.\r\n"
+    },
+    "m_0000009f": {
+      "ret": 47,
+      "out": "The address for the thread ID is not correct.\r\n"
+    },
+    "m_000000a0": {
+      "ret": 40,
+      "out": "One or more arguments are not correct.\r\n"
+    },
+    "m_000000a1": {
+      "ret": 32,
+      "out": "The specified path is invalid.\r\n"
+    },
+    "m_000000a2": {
+      "ret": 30,
+      "out": "A signal is already pending.\r\n"
+    },
+    "m_000000a4": {
+      "ret": 47,
+      "out": "No more threads can be created in the system.\r\n"
+    },
+    "m_000000a7": {
+      "ret": 36,
+      "out": "Unable to lock a region of a file.\r\n"
+    },
+    "m_000000aa": {
+      "ret": 35,
+      "out": "The requested resource is in use.\r\n"
+    },
+    "m_000000ad": {
+      "ret": 68,
+      "out": "A lock request was not outstanding for the supplied cancel region.\r\n"
+    },
+    "m_000000ae": {
+      "ret": 67,
+      "out": "The file system does not support atomic changes to the lock type.\r\n"
+    },
+    "m_000000b4": {
+      "ret": 60,
+      "out": "The system detected a segment number that was not correct.\r\n"
+    },
+    "m_000000b6": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000b7": {
+      "ret": 53,
+      "out": "Cannot create a file when that file already exists.\r\n"
+    },
+    "m_000000ba": {
+      "ret": 33,
+      "out": "The flag passed is not correct.\r\n"
+    },
+    "m_000000bb": {
+      "ret": 52,
+      "out": "The specified system semaphore name was not found.\r\n"
+    },
+    "m_000000bc": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000bd": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000be": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000bf": {
+      "ret": 30,
+      "out": "Cannot run %1 in Win32 mode.\r\n"
+    },
+    "m_000000c0": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000c1": {
+      "ret": 38,
+      "out": "%1 is not a valid Win32 application.\r\n"
+    },
+    "m_000000c2": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000c3": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000c4": {
+      "ret": 59,
+      "out": "The operating system cannot run this application program.\r\n"
+    },
+    "m_000000c5": {
+      "ret": 75,
+      "out": "The operating system is not presently configured to run this application.\r\n"
+    },
+    "m_000000c6": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000c7": {
+      "ret": 59,
+      "out": "The operating system cannot run this application program.\r\n"
+    },
+    "m_000000c8": {
+      "ret": 58,
+      "out": "The code segment cannot be greater than or equal to 64K.\r\n"
+    },
+    "m_000000c9": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000ca": {
+      "ret": 37,
+      "out": "The operating system cannot run %1.\r\n"
+    },
+    "m_000000cb": {
+      "ret": 68,
+      "out": "The system could not find the environment option that was entered.\r\n"
+    },
+    "m_000000cd": {
+      "ret": 57,
+      "out": "No process in the command subtree has a signal handler.\r\n"
+    },
+    "m_000000ce": {
+      "ret": 40,
+      "out": "The filename or extension is too long.\r\n"
+    },
+    "m_000000cf": {
+      "ret": 29,
+      "out": "The ring 2 stack is in use.\r\n"
+    },
+    "m_000000d0": {
+      "ret": 119,
+      "out": "The global filename characters, * or ?, are entered incorrectly or too many global filename characters are specified.\r\n"
+    },
+    "m_000000d1": {
+      "ret": 41,
+      "out": "The signal being posted is not correct.\r\n"
+    },
+    "m_000000d2": {
+      "ret": 35,
+      "out": "The signal handler cannot be set.\r\n"
+    },
+    "m_000000d4": {
+      "ret": 50,
+      "out": "The segment is locked and cannot be reallocated.\r\n"
+    },
+    "m_000000d6": {
+      "ret": 84,
+      "out": "Too many dynamic-link modules are attached to this program or dynamic-link module.\r\n"
+    },
+    "m_000000d7": {
+      "ret": 34,
+      "out": "Cannot nest calls to LoadModule.\r\n"
+    },
+    "m_000000d8": {
+      "ret": 164,
+      "out": "This version of %1 is not compatible with the version of Windows you're running. Check your computer's system information and then contact the software publisher.\r\n"
+    },
+    "m_000000e6": {
+      "ret": 28,
+      "out": "The pipe state is invalid.\r\n"
+    },
+    "m_000000e7": {
+      "ret": 30,
+      "out": "All pipe instances are busy.\r\n"
+    },
+    "m_000000e8": {
+      "ret": 27,
+      "out": "The pipe is being closed.\r\n"
+    },
+    "m_000000e9": {
+      "ret": 45,
+      "out": "No process is on the other end of the pipe.\r\n"
+    },
+    "m_000000ea": {
+      "ret": 25,
+      "out": "More data is available.\r\n"
+    },
+    "m_000000f0": {
+      "ret": 27,
+      "out": "The session was canceled.\r\n"
+    },
+    "m_000000fe": {
+      "ret": 52,
+      "out": "The specified extended attribute name was invalid.\r\n"
+    },
+    "m_000000ff": {
+      "ret": 43,
+      "out": "The extended attributes are inconsistent.\r\n"
+    },
+    "m_00000103": {
+      "ret": 28,
+      "out": "No more data is available.\r\n"
+    },
+    "m_0000010a": {
+      "ret": 36,
+      "out": "The copy functions cannot be used.\r\n"
+    },
+    "m_0000010b": {
+      "ret": 32,
+      "out": "The directory name is invalid.\r\n"
+    },
+    "m_00000113": {
+      "ret": 52,
+      "out": "The extended attributes did not fit in the buffer.\r\n"
+    },
+    "m_00000114": {
+      "ret": 68,
+      "out": "The extended attribute file on the mounted file system is corrupt.\r\n"
+    },
+    "m_00000115": {
+      "ret": 44,
+      "out": "The extended attribute table file is full.\r\n"
+    },
+    "m_00000116": {
+      "ret": 53,
+      "out": "The specified extended attribute handle is invalid.\r\n"
+    },
+    "m_0000011a": {
+      "ret": 63,
+      "out": "The mounted file system does not support extended attributes.\r\n"
+    },
+    "m_00000120": {
+      "ret": 47,
+      "out": "Attempt to release mutex not owned by caller.\r\n"
+    },
+    "m_0000012a": {
+      "ret": 42,
+      "out": "Too many posts were made to a semaphore.\r\n"
+    },
+    "m_0000012b": {
+      "ret": 79,
+      "out": "Only part of a ReadProcessMemory or WriteProcessMemory request was completed.\r\n"
+    },
+    "m_0000012c": {
+      "ret": 31,
+      "out": "The oplock request is denied.\r\n"
+    },
+    "m_0000012d": {
+      "ret": 62,
+      "out": "An invalid oplock acknowledgment was received by the system.\r\n"
+    },
+    "m_0000013d": {
+      "ret": 89,
+      "out": "The system cannot find message text for message number 0x%1 in the message file for %2.\r\n"
+    },
+    "m_000001e7": {
+      "ret": 36,
+      "out": "Attempt to access invalid address.\r\n"
+    },
+    "m_00000216": {
+      "ret": 37,
+      "out": "Arithmetic result exceeded 32 bits.\r\n"
+    },
+    "m_00000217": {
+      "ret": 46,
+      "out": "There is a process on other end of the pipe.\r\n"
+    },
+    "m_00000218": {
+      "ret": 58,
+      "out": "Waiting for a process to open the other end of the pipe.\r\n"
+    },
+    "m_000003e2": {
+      "ret": 46,
+      "out": "Access to the extended attribute was denied.\r\n"
+    },
+    "m_000003e3": {
+      "ret": 95,
+      "out": "The I/O operation has been aborted because of either a thread exit or an application request.\r\n"
+    },
+    "m_000003e4": {
+      "ret": 50,
+      "out": "Overlapped I/O event is not in a signaled state.\r\n"
+    },
+    "m_000003e5": {
+      "ret": 42,
+      "out": "Overlapped I/O operation is in progress.\r\n"
+    },
+    "m_000003e6": {
+      "ret": 36,
+      "out": "Invalid access to memory location.\r\n"
+    },
+    "m_000003e7": {
+      "ret": 36,
+      "out": "Error performing inpage operation.\r\n"
+    },
+    "m_000003e9": {
+      "ret": 43,
+      "out": "Recursion too deep; the stack overflowed.\r\n"
+    },
+    "m_000003ea": {
+      "ret": 44,
+      "out": "The window cannot act on the sent message.\r\n"
+    },
+    "m_000003eb": {
+      "ret": 32,
+      "out": "Cannot complete this function.\r\n"
+    },
+    "m_000003ec": {
+      "ret": 16,
+      "out": "Invalid flags.\r\n"
+    },
+    "m_000003ed": {
+      "ret": 160,
+      "out": "The volume does not contain a recognized file system.\r\nPlease make sure that all required file system drivers are loaded and that the volume is not corrupted.\r\n"
+    },
+    "m_000003ee": {
+      "ret": 95,
+      "out": "The volume for a file has been externally altered so that the opened file is no longer valid.\r\n"
+    },
+    "m_000003ef": {
+      "ret": 66,
+      "out": "The requested operation cannot be performed in full-screen mode.\r\n"
+    },
+    "m_000003f0": {
+      "ret": 63,
+      "out": "An attempt was made to reference a token that does not exist.\r\n"
+    },
+    "m_000003f1": {
+      "ret": 49,
+      "out": "The configuration registry database is corrupt.\r\n"
+    },
+    "m_000003f2": {
+      "ret": 44,
+      "out": "The configuration registry key is invalid.\r\n"
+    },
+    "m_000003f3": {
+      "ret": 53,
+      "out": "The configuration registry key could not be opened.\r\n"
+    },
+    "m_000003f4": {
+      "ret": 51,
+      "out": "The configuration registry key could not be read.\r\n"
+    },
+    "m_000003f5": {
+      "ret": 54,
+      "out": "The configuration registry key could not be written.\r\n"
+    },
+    "m_000003f6": {
+      "ret": 127,
+      "out": "One of the files in the registry database had to be recovered by use of a log or alternate copy. The recovery was successful.\r\n"
+    },
+    "m_000003f7": {
+      "ret": 250,
+      "out": "The registry is corrupted. The structure of one of the files containing registry data is corrupted, or the system's memory image of the file is corrupted, or the file could not be recovered because the alternate copy or log was absent or corrupted.\r\n"
+    },
+    "m_000003f8": {
+      "ret": 188,
+      "out": "An I/O operation initiated by the registry failed unrecoverably. The registry could not read in, or write out, or flush, one of the files that contain the system's image of the registry.\r\n"
+    },
+    "m_000003f9": {
+      "ret": 128,
+      "out": "The system has attempted to load or restore a file into the registry, but the specified file is not in a registry file format.\r\n"
+    },
+    "m_000003fa": {
+      "ret": 82,
+      "out": "Illegal operation attempted on a registry key that has been marked for deletion.\r\n"
+    },
+    "m_000003fb": {
+      "ret": 65,
+      "out": "System could not allocate the required space in a registry log.\r\n"
+    },
+    "m_000003fc": {
+      "ret": 85,
+      "out": "Cannot create a symbolic link in a registry key that already has subkeys or values.\r\n"
+    },
+    "m_000003fd": {
+      "ret": 60,
+      "out": "Cannot create a stable subkey under a volatile parent key.\r\n"
+    },
+    "m_000003fe": {
+      "ret": 175,
+      "out": "A notify change request is being completed and the information is not being returned in the caller's buffer. The caller now needs to enumerate the files to find the changes.\r\n"
+    },
+    "m_0000041b": {
+      "ret": 89,
+      "out": "A stop control has been sent to a service that other running services are dependent on.\r\n"
+    },
+    "m_0000041c": {
+      "ret": 54,
+      "out": "The requested control is not valid for this service.\r\n"
+    },
+    "m_0000041d": {
+      "ret": 82,
+      "out": "The service did not respond to the start or control request in a timely fashion.\r\n"
+    },
+    "m_0000041e": {
+      "ret": 48,
+      "out": "A thread could not be created for the service.\r\n"
+    },
+    "m_0000041f": {
+      "ret": 33,
+      "out": "The service database is locked.\r\n"
+    },
+    "m_00000420": {
+      "ret": 48,
+      "out": "An instance of the service is already running.\r\n"
+    },
+    "m_00000421": {
+      "ret": 107,
+      "out": "The account name is invalid or does not exist, or the password is invalid for the account name specified.\r\n"
+    },
+    "m_00000422": {
+      "ret": 119,
+      "out": "The service cannot be started, either because it is disabled or because it has no enabled devices associated with it.\r\n"
+    },
+    "m_00000423": {
+      "ret": 44,
+      "out": "Circular service dependency was specified.\r\n"
+    },
+    "m_00000424": {
+      "ret": 63,
+      "out": "The specified service does not exist as an installed service.\r\n"
+    },
+    "m_00000425": {
+      "ret": 58,
+      "out": "The service cannot accept control messages at this time.\r\n"
+    },
+    "m_00000426": {
+      "ret": 35,
+      "out": "The service has not been started.\r\n"
+    },
+    "m_00000427": {
+      "ret": 66,
+      "out": "The service process could not connect to the service controller.\r\n"
+    },
+    "m_00000428": {
+      "ret": 73,
+      "out": "An exception occurred in the service when handling the control request.\r\n"
+    },
+    "m_00000429": {
+      "ret": 40,
+      "out": "The database specified does not exist.\r\n"
+    },
+    "m_0000042a": {
+      "ret": 57,
+      "out": "The service has returned a service-specific error code.\r\n"
+    },
+    "m_0000042b": {
+      "ret": 38,
+      "out": "The process terminated unexpectedly.\r\n"
+    },
+    "m_0000042c": {
+      "ret": 50,
+      "out": "The dependency service or group failed to start.\r\n"
+    },
+    "m_0000042d": {
+      "ret": 51,
+      "out": "The service did not start due to a logon failure.\r\n"
+    },
+    "m_0000042e": {
+      "ret": 60,
+      "out": "After starting, the service hung in a start-pending state.\r\n"
+    },
+    "m_0000042f": {
+      "ret": 49,
+      "out": "The specified service database lock is invalid.\r\n"
+    },
+    "m_00000430": {
+      "ret": 53,
+      "out": "The specified service has been marked for deletion.\r\n"
+    },
+    "m_00000431": {
+      "ret": 39,
+      "out": "The specified service already exists.\r\n"
+    },
+    "m_00000432": {
+      "ret": 73,
+      "out": "The system is currently running with the last-known-good configuration.\r\n"
+    },
+    "m_00000433": {
+      "ret": 72,
+      "out": "The dependency service does not exist or has been marked for deletion.\r\n"
+    },
+    "m_00000434": {
+      "ret": 88,
+      "out": "The current boot has already been accepted for use as the last-known-good control set.\r\n"
+    },
+    "m_00000435": {
+      "ret": 70,
+      "out": "No attempts to start the service have been made since the last boot.\r\n"
+    },
+    "m_00000436": {
+      "ret": 80,
+      "out": "The name is already in use as either a service name or a service display name.\r\n"
+    },
+    "m_00000437": {
+      "ret": 128,
+      "out": "The account specified for this service is different from the account specified for other services running in the same process.\r\n"
+    },
+    "m_00000438": {
+      "ret": 70,
+      "out": "Failure actions can only be set for Win32 services, not for drivers.\r\n"
+    },
+    "m_00000439": {
+      "ret": 181,
+      "out": "This service runs in the same process as the service control manager.\r\nTherefore, the service control manager cannot take action if this service's process terminates unexpectedly.\r\n"
+    },
+    "m_0000043a": {
+      "ret": 59,
+      "out": "No recovery program has been configured for this service.\r\n"
+    },
+    "m_0000043b": {
+      "ret": 98,
+      "out": "The executable program that this service is configured to run in does not implement the service.\r\n"
+    },
+    "m_0000044c": {
+      "ret": 48,
+      "out": "The physical end of the tape has been reached.\r\n"
+    },
+    "m_0000044d": {
+      "ret": 35,
+      "out": "A tape access reached a filemark.\r\n"
+    },
+    "m_0000044e": {
+      "ret": 59,
+      "out": "The beginning of the tape or a partition was encountered.\r\n"
+    },
+    "m_0000044f": {
+      "ret": 50,
+      "out": "A tape access reached the end of a set of files.\r\n"
+    },
+    "m_00000450": {
+      "ret": 30,
+      "out": "No more data is on the tape.\r\n"
+    },
+    "m_00000451": {
+      "ret": 32,
+      "out": "Tape could not be partitioned.\r\n"
+    },
+    "m_00000452": {
+      "ret": 92,
+      "out": "When accessing a new tape of a multivolume partition, the current block size is incorrect.\r\n"
+    },
+    "m_00000453": {
+      "ret": 68,
+      "out": "Tape partition information could not be found when loading a tape.\r\n"
+    },
+    "m_00000454": {
+      "ret": 43,
+      "out": "Unable to lock the media eject mechanism.\r\n"
+    },
+    "m_00000455": {
+      "ret": 29,
+      "out": "Unable to unload the media.\r\n"
+    },
+    "m_00000456": {
+      "ret": 42,
+      "out": "The media in the drive may have changed.\r\n"
+    },
+    "m_00000457": {
+      "ret": 24,
+      "out": "The I/O bus was reset.\r\n"
+    },
+    "m_00000458": {
+      "ret": 20,
+      "out": "No media in drive.\r\n"
+    },
+    "m_00000459": {
+      "ret": 81,
+      "out": "No mapping for the Unicode character exists in the target multi-byte code page.\r\n"
+    },
+    "m_0000045a": {
+      "ret": 61,
+      "out": "A dynamic link library (DLL) initialization routine failed.\r\n"
+    },
+    "m_0000045b": {
+      "ret": 35,
+      "out": "A system shutdown is in progress.\r\n"
+    },
+    "m_0000045c": {
+      "ret": 74,
+      "out": "Unable to abort the system shutdown because no shutdown was in progress.\r\n"
+    },
+    "m_0000045d": {
+      "ret": 68,
+      "out": "The request could not be performed because of an I/O device error.\r\n"
+    },
+    "m_0000045e": {
+      "ret": 79,
+      "out": "No serial device was successfully initialized. The serial driver will unload.\r\n"
+    },
+    "m_0000045f": {
+      "ret": 154,
+      "out": "Unable to open a device that was sharing an interrupt request (IRQ) with other devices. At least one other device that uses that IRQ was already opened.\r\n"
+    },
+    "m_00000460": {
+      "ret": 122,
+      "out": "A serial I/O operation was completed by another write to the serial port.\r\n(The IOCTL_SERIAL_XOFF_COUNTER reached zero.)\r\n"
+    },
+    "m_00000461": {
+      "ret": 123,
+      "out": "A serial I/O operation completed because the timeout period expired.\r\n(The IOCTL_SERIAL_XOFF_COUNTER did not reach zero.)\r\n"
+    },
+    "m_00000462": {
+      "ret": 50,
+      "out": "No ID address mark was found on the floppy disk.\r\n"
+    },
+    "m_00000463": {
+      "ret": 96,
+      "out": "Mismatch between the floppy disk sector ID field and the floppy disk controller track address.\r\n"
+    },
+    "m_00000464": {
+      "ret": 96,
+      "out": "The floppy disk controller reported an error that is not recognized by the floppy disk driver.\r\n"
+    },
+    "m_00000465": {
+      "ret": 76,
+      "out": "The floppy disk controller returned inconsistent results in its registers.\r\n"
+    },
+    "m_00000466": {
+      "ret": 84,
+      "out": "While accessing the hard disk, a recalibrate operation failed, even after retries.\r\n"
+    },
+    "m_00000467": {
+      "ret": 76,
+      "out": "While accessing the hard disk, a disk operation failed even after retries.\r\n"
+    },
+    "m_00000468": {
+      "ret": 90,
+      "out": "While accessing the hard disk, a disk controller reset was needed, but even that failed.\r\n"
+    },
+    "m_00000469": {
+      "ret": 35,
+      "out": "Physical end of tape encountered.\r\n"
+    },
+    "m_0000046a": {
+      "ret": 75,
+      "out": "Not enough server memory resources are available to process this command.\r\n"
+    },
+    "m_0000046b": {
+      "ret": 51,
+      "out": "A potential deadlock condition has been detected.\r\n"
+    },
+    "m_0000046c": {
+      "ret": 83,
+      "out": "The base address or the file offset specified does not have the proper alignment.\r\n"
+    },
+    "m_00000474": {
+      "ret": 90,
+      "out": "An attempt to change the system power state was vetoed by another application or driver.\r\n"
+    },
+    "m_00000475": {
+      "ret": 69,
+      "out": "The system BIOS failed an attempt to change the system power state.\r\n"
+    },
+    "m_00000476": {
+      "ret": 83,
+      "out": "An attempt was made to create more links on a file than the file system supports.\r\n"
+    },
+    "m_0000047e": {
+      "ret": 60,
+      "out": "The specified program requires a newer version of Windows.\r\n"
+    },
+    "m_0000047f": {
+      "ret": 59,
+      "out": "The specified program is not a Windows or MS-DOS program.\r\n"
+    },
+    "m_00000480": {
+      "ret": 63,
+      "out": "Cannot start more than one instance of the specified program.\r\n"
+    },
+    "m_00000481": {
+      "ret": 70,
+      "out": "The specified program was written for an earlier version of Windows.\r\n"
+    },
+    "m_00000482": {
+      "ret": 69,
+      "out": "One of the library files needed to run this application is damaged.\r\n"
+    },
+    "m_00000483": {
+      "ret": 74,
+      "out": "No application is associated with the specified file for this operation.\r\n"
+    },
+    "m_00000484": {
+      "ret": 62,
+      "out": "An error occurred in sending the command to the application.\r\n"
+    },
+    "m_00000485": {
+      "ret": 74,
+      "out": "One of the library files needed to run this application cannot be found.\r\n"
+    },
+    "m_00000486": {
+      "ret": 97,
+      "out": "The current process has used all of its system allowance of handles for Window Manager objects.\r\n"
+    },
+    "m_00000487": {
+      "ret": 59,
+      "out": "The message can be used only with synchronous operations.\r\n"
+    },
+    "m_00000488": {
+      "ret": 44,
+      "out": "The indicated source element has no media.\r\n"
+    },
+    "m_00000489": {
+      "ret": 59,
+      "out": "The indicated destination element already contains media.\r\n"
+    },
+    "m_0000048a": {
+      "ret": 39,
+      "out": "The indicated element does not exist.\r\n"
+    },
+    "m_0000048b": {
+      "ret": 66,
+      "out": "The indicated element is part of a magazine that is not present.\r\n"
+    },
+    "m_0000048c": {
+      "ret": 72,
+      "out": "The indicated device requires reinitialization due to hardware errors.\r\n"
+    },
+    "m_0000048d": {
+      "ret": 93,
+      "out": "The device has indicated that cleaning is required before further operations are attempted.\r\n"
+    },
+    "m_0000048e": {
+      "ret": 49,
+      "out": "The device has indicated that its door is open.\r\n"
+    },
+    "m_0000048f": {
+      "ret": 30,
+      "out": "The device is not connected.\r\n"
+    },
+    "m_00000490": {
+      "ret": 20,
+      "out": "Element not found.\r\n"
+    },
+    "m_00000491": {
+      "ret": 56,
+      "out": "There was no match for the specified key in the index.\r\n"
+    },
+    "m_00000492": {
+      "ret": 58,
+      "out": "The property set specified does not exist on the object.\r\n"
+    },
+    "m_00000493": {
+      "ret": 62,
+      "out": "The point passed to GetMouseMovePoints is not in the buffer.\r\n"
+    },
+    "m_00000494": {
+      "ret": 52,
+      "out": "The tracking (workstation) service is not running.\r\n"
+    },
+    "m_00000495": {
+      "ret": 35,
+      "out": "The Volume ID could not be found.\r\n"
+    },
+    "m_00000497": {
+      "ret": 43,
+      "out": "Unable to remove the file to be replaced.\r\n"
+    },
+    "m_00000498": {
+      "ret": 121,
+      "out": "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.\r\n"
+    },
+    "m_00000499": {
+      "ret": 129,
+      "out": "Unable to move the replacement file to the file to be replaced. The file to be replaced has been renamed using the backup name.\r\n"
+    },
+    "m_0000049a": {
+      "ret": 45,
+      "out": "The volume change journal is being deleted.\r\n"
+    },
+    "m_0000049b": {
+      "ret": 42,
+      "out": "The volume change journal is not active.\r\n"
+    },
+    "m_0000049c": {
+      "ret": 55,
+      "out": "A file was found, but it may not be the correct file.\r\n"
+    },
+    "m_0000049d": {
+      "ret": 54,
+      "out": "The journal entry has been deleted from the journal.\r\n"
+    },
+    "m_000004b0": {
+      "ret": 39,
+      "out": "The specified device name is invalid.\r\n"
+    },
+    "m_000004b1": {
+      "ret": 74,
+      "out": "The device is not currently connected but it is a remembered connection.\r\n"
+    },
+    "m_000004b2": {
+      "ret": 80,
+      "out": "The local device name has a remembered connection to another network resource.\r\n"
+    },
+    "m_000004b3": {
+      "ret": 184,
+      "out": "The network path was either typed incorrectly, does not exist, or the network provider is not currently available. Please try retyping the path or contact your network administrator.\r\n"
+    },
+    "m_000004b4": {
+      "ret": 49,
+      "out": "The specified network provider name is invalid.\r\n"
+    },
+    "m_000004b5": {
+      "ret": 48,
+      "out": "Unable to open the network connection profile.\r\n"
+    },
+    "m_000004b6": {
+      "ret": 46,
+      "out": "The network connection profile is corrupted.\r\n"
+    },
+    "m_000004b7": {
+      "ret": 34,
+      "out": "Cannot enumerate a noncontainer.\r\n"
+    },
+    "m_000004b8": {
+      "ret": 33,
+      "out": "An extended error has occurred.\r\n"
+    },
+    "m_000004b9": {
+      "ret": 52,
+      "out": "The format of the specified group name is invalid.\r\n"
+    },
+    "m_000004ba": {
+      "ret": 55,
+      "out": "The format of the specified computer name is invalid.\r\n"
+    },
+    "m_000004bb": {
+      "ret": 52,
+      "out": "The format of the specified event name is invalid.\r\n"
+    },
+    "m_000004bc": {
+      "ret": 53,
+      "out": "The format of the specified domain name is invalid.\r\n"
+    },
+    "m_000004bd": {
+      "ret": 54,
+      "out": "The format of the specified service name is invalid.\r\n"
+    },
+    "m_000004be": {
+      "ret": 54,
+      "out": "The format of the specified network name is invalid.\r\n"
+    },
+    "m_000004bf": {
+      "ret": 52,
+      "out": "The format of the specified share name is invalid.\r\n"
+    },
+    "m_000004c0": {
+      "ret": 50,
+      "out": "The format of the specified password is invalid.\r\n"
+    },
+    "m_000004c1": {
+      "ret": 54,
+      "out": "The format of the specified message name is invalid.\r\n"
+    },
+    "m_000004c2": {
+      "ret": 61,
+      "out": "The format of the specified message destination is invalid.\r\n"
+    },
+    "m_000004c3": {
+      "ret": 203,
+      "out": "Multiple connections to a server or shared resource by the same user, using more than one user name, are not allowed. Disconnect all previous connections to the server or shared resource and try again.\r\n"
+    },
+    "m_000004c4": {
+      "ret": 133,
+      "out": "An attempt was made to establish a session to a network server, but there are already too many sessions established to that server.\r\n"
+    },
+    "m_000004c5": {
+      "ret": 84,
+      "out": "The workgroup or domain name is already in use by another computer on the network.\r\n"
+    },
+    "m_000004c6": {
+      "ret": 44,
+      "out": "The network is not present or not started.\r\n"
+    },
+    "m_000004c7": {
+      "ret": 41,
+      "out": "The operation was canceled by the user.\r\n"
+    },
+    "m_000004c8": {
+      "ret": 88,
+      "out": "The requested operation cannot be performed on a file with a user-mapped section open.\r\n"
+    },
+    "m_000004c9": {
+      "ret": 53,
+      "out": "The remote computer refused the network connection.\r\n"
+    },
+    "m_000004ca": {
+      "ret": 47,
+      "out": "The network connection was gracefully closed.\r\n"
+    },
+    "m_000004cb": {
+      "ret": 75,
+      "out": "The network transport endpoint already has an address associated with it.\r\n"
+    },
+    "m_000004cc": {
+      "ret": 67,
+      "out": "An address has not yet been associated with the network endpoint.\r\n"
+    },
+    "m_000004cd": {
+      "ret": 65,
+      "out": "An operation was attempted on a nonexistent network connection.\r\n"
+    },
+    "m_000004ce": {
+      "ret": 69,
+      "out": "An invalid operation was attempted on an active network connection.\r\n"
+    },
+    "m_000004cf": {
+      "ret": 106,
+      "out": "The network location cannot be reached. For information about network troubleshooting, see Windows Help.\r\n"
+    },
+    "m_000004d0": {
+      "ret": 106,
+      "out": "The network location cannot be reached. For information about network troubleshooting, see Windows Help.\r\n"
+    },
+    "m_000004d1": {
+      "ret": 106,
+      "out": "The network location cannot be reached. For information about network troubleshooting, see Windows Help.\r\n"
+    },
+    "m_000004d2": {
+      "ret": 83,
+      "out": "No service is operating at the destination network endpoint on the remote system.\r\n"
+    },
+    "m_000004d3": {
+      "ret": 26,
+      "out": "The request was aborted.\r\n"
+    },
+    "m_000004d4": {
+      "ret": 57,
+      "out": "The network connection was aborted by the local system.\r\n"
+    },
+    "m_000004d5": {
+      "ret": 68,
+      "out": "The operation could not be completed. A retry should be performed.\r\n"
+    },
+    "m_000004d6": {
+      "ret": 139,
+      "out": "A connection to the server could not be made because the limit on the number of concurrent connections for this account has been reached.\r\n"
+    },
+    "m_000004d7": {
+      "ret": 75,
+      "out": "Attempting to log in during an unauthorized time of day for this account.\r\n"
+    },
+    "m_000004d8": {
+      "ret": 60,
+      "out": "The account is not authorized to log in from this station.\r\n"
+    },
+    "m_000004d9": {
+      "ret": 68,
+      "out": "The network address could not be used for the operation requested.\r\n"
+    },
+    "m_000004da": {
+      "ret": 36,
+      "out": "The service is already registered.\r\n"
+    },
+    "m_000004db": {
+      "ret": 39,
+      "out": "The specified service does not exist.\r\n"
+    },
+    "m_000004dc": {
+      "ret": 94,
+      "out": "The operation being requested was not performed because the user has not been authenticated.\r\n"
+    },
+    "m_000004dd": {
+      "ret": 138,
+      "out": "The operation being requested was not performed because the user has not logged on to the network. The specified service does not exist.\r\n"
+    },
+    "m_000004de": {
+      "ret": 33,
+      "out": "Continue with work in progress.\r\n"
+    },
+    "m_000004df": {
+      "ret": 108,
+      "out": "An attempt was made to perform an initialization operation when initialization has already been completed.\r\n"
+    },
+    "m_000004e0": {
+      "ret": 24,
+      "out": "No more local devices.\r\n"
+    },
+    "m_000004e1": {
+      "ret": 36,
+      "out": "The specified site does not exist.\r\n"
+    },
+    "m_000004e2": {
+      "ret": 61,
+      "out": "A domain controller with the specified name already exists.\r\n"
+    },
+    "m_000004e3": {
+      "ret": 72,
+      "out": "This operation is supported only when you are connected to the server.\r\n"
+    },
+    "m_000004e4": {
+      "ret": 84,
+      "out": "The group policy framework should call the extension even if there are no changes.\r\n"
+    },
+    "m_000004e5": {
+      "ret": 51,
+      "out": "The specified user does not have a valid profile.\r\n"
+    },
+    "m_000004e6": {
+      "ret": 101,
+      "out": "This operation is not supported on a computer running Windows Server 2003 for Small Business Server\r\n"
+    },
+    "m_00000514": {
+      "ret": 69,
+      "out": "Not all privileges or groups referenced are assigned to the caller.\r\n"
+    },
+    "m_00000515": {
+      "ret": 67,
+      "out": "Some mapping between account names and security IDs was not done.\r\n"
+    },
+    "m_00000516": {
+      "ret": 63,
+      "out": "No system quota limits are specifically set for this account.\r\n"
+    },
+    "m_00000517": {
+      "ret": 75,
+      "out": "No encryption key is available. A well-known encryption key was returned.\r\n"
+    },
+    "m_00000518": {
+      "ret": 124,
+      "out": "The password is too complex to be converted to a LAN Manager password. The LAN Manager password returned is a NULL string.\r\n"
+    },
+    "m_00000519": {
+      "ret": 32,
+      "out": "The revision level is unknown.\r\n"
+    },
+    "m_0000051a": {
+      "ret": 49,
+      "out": "Indicates two revision levels are incompatible.\r\n"
+    },
+    "m_0000051b": {
+      "ret": 67,
+      "out": "This security ID may not be assigned as the owner of this object.\r\n"
+    },
+    "m_0000051c": {
+      "ret": 73,
+      "out": "This security ID may not be assigned as the primary group of an object.\r\n"
+    },
+    "m_0000051d": {
+      "ret": 121,
+      "out": "An attempt has been made to operate on an impersonation token by a thread that is not currently impersonating a client.\r\n"
+    },
+    "m_0000051e": {
+      "ret": 32,
+      "out": "The group may not be disabled.\r\n"
+    },
+    "m_0000051f": {
+      "ret": 267,
+      "out": "We can't sign you in with this credential because your domain isn't available. Make sure your device is connected to your organization's network and try again. If you previously signed in on this device with another credential, you can sign in with that credential.\r\n"
+    },
+    "m_00000520": {
+      "ret": 80,
+      "out": "A specified logon session does not exist. It may already have been terminated.\r\n"
+    },
+    "m_00000521": {
+      "ret": 39,
+      "out": "A specified privilege does not exist.\r\n"
+    },
+    "m_00000522": {
+      "ret": 49,
+      "out": "A required privilege is not held by the client.\r\n"
+    },
+    "m_00000523": {
+      "ret": 58,
+      "out": "The name provided is not a properly formed account name.\r\n"
+    },
+    "m_00000524": {
+      "ret": 39,
+      "out": "The specified account already exists.\r\n"
+    },
+    "m_00000525": {
+      "ret": 39,
+      "out": "The specified account does not exist.\r\n"
+    },
+    "m_00000526": {
+      "ret": 37,
+      "out": "The specified group already exists.\r\n"
+    },
+    "m_00000527": {
+      "ret": 37,
+      "out": "The specified group does not exist.\r\n"
+    },
+    "m_00000528": {
+      "ret": 150,
+      "out": "Either the specified user account is already a member of the specified group, or the specified group cannot be deleted because it contains a member.\r\n"
+    },
+    "m_00000529": {
+      "ret": 76,
+      "out": "The specified user account is not a member of the specified group account.\r\n"
+    },
+    "m_0000052a": {
+      "ret": 122,
+      "out": "This operation is disallowed as it could result in an administration account being disabled, deleted or unable to logon.\r\n"
+    },
+    "m_0000052b": {
+      "ret": 89,
+      "out": "Unable to update the password. The value provided as the current password is incorrect.\r\n"
+    },
+    "m_0000052c": {
+      "ret": 123,
+      "out": "Unable to update the password. The value provided for the new password contains values that are not allowed in passwords.\r\n"
+    },
+    "m_0000052d": {
+      "ret": 149,
+      "out": "Unable to update the password. The value provided for the new password does not meet the length, complexity, or history requirements of the domain.\r\n"
+    },
+    "m_0000052e": {
+      "ret": 41,
+      "out": "The user name or password is incorrect.\r\n"
+    },
+    "m_0000052f": {
+      "ret": 179,
+      "out": "Account restrictions are preventing this user from signing in. For example: blank passwords aren't allowed, sign-in times are limited, or a policy restriction has been enforced.\r\n"
+    },
+    "m_00000530": {
+      "ret": 77,
+      "out": "Your account has time restrictions that keep you from signing in right now.\r\n"
+    },
+    "m_00000531": {
+      "ret": 54,
+      "out": "This user isn't allowed to sign in to this computer.\r\n"
+    },
+    "m_00000532": {
+      "ret": 44,
+      "out": "The password for this account has expired.\r\n"
+    },
+    "m_00000533": {
+      "ret": 69,
+      "out": "This user can't sign in because this account is currently disabled.\r\n"
+    },
+    "m_00000534": {
+      "ret": 61,
+      "out": "No mapping between account names and security IDs was done.\r\n"
+    },
+    "m_00000535": {
+      "ret": 69,
+      "out": "Too many local user identifiers (LUIDs) were requested at one time.\r\n"
+    },
+    "m_00000536": {
+      "ret": 55,
+      "out": "No more local user identifiers (LUIDs) are available.\r\n"
+    },
+    "m_00000537": {
+      "ret": 76,
+      "out": "The subauthority part of a security ID is invalid for this particular use.\r\n"
+    },
+    "m_00000538": {
+      "ret": 53,
+      "out": "The access control list (ACL) structure is invalid.\r\n"
+    },
+    "m_00000539": {
+      "ret": 39,
+      "out": "The security ID structure is invalid.\r\n"
+    },
+    "m_0000053a": {
+      "ret": 47,
+      "out": "The security descriptor structure is invalid.\r\n"
+    },
+    "m_0000053c": {
+      "ret": 91,
+      "out": "The inherited access control list (ACL) or access control entry (ACE) could not be built.\r\n"
+    },
+    "m_0000053d": {
+      "ret": 35,
+      "out": "The server is currently disabled.\r\n"
+    },
+    "m_0000053e": {
+      "ret": 34,
+      "out": "The server is currently enabled.\r\n"
+    },
+    "m_0000053f": {
+      "ret": 70,
+      "out": "The value provided was an invalid value for an identifier authority.\r\n"
+    },
+    "m_00000540": {
+      "ret": 63,
+      "out": "No more memory is available for security information updates.\r\n"
+    },
+    "m_00000541": {
+      "ret": 101,
+      "out": "The specified attributes are invalid, or incompatible with the attributes for the group as a whole.\r\n"
+    },
+    "m_00000542": {
+      "ret": 105,
+      "out": "Either a required impersonation level was not provided, or the provided impersonation level is invalid.\r\n"
+    },
+    "m_00000543": {
+      "ret": 48,
+      "out": "Cannot open an anonymous level security token.\r\n"
+    },
+    "m_00000544": {
+      "ret": 57,
+      "out": "The validation information class requested was invalid.\r\n"
+    },
+    "m_00000545": {
+      "ret": 63,
+      "out": "The type of the token is inappropriate for its attempted use.\r\n"
+    },
+    "m_00000546": {
+      "ret": 86,
+      "out": "Unable to perform a security operation on an object that has no associated security.\r\n"
+    },
+    "m_00000547": {
+      "ret": 143,
+      "out": "Configuration information could not be read from the domain controller, either because the machine is unavailable, or access has been denied.\r\n"
+    },
+    "m_00000548": {
+      "ret": 135,
+      "out": "The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.\r\n"
+    },
+    "m_00000549": {
+      "ret": 70,
+      "out": "The domain was in the wrong state to perform the security operation.\r\n"
+    },
+    "m_0000054a": {
+      "ret": 81,
+      "out": "This operation is only allowed for the Primary Domain Controller of the domain.\r\n"
+    },
+    "m_0000054b": {
+      "ret": 71,
+      "out": "The specified domain either does not exist or could not be contacted.\r\n"
+    },
+    "m_0000054c": {
+      "ret": 38,
+      "out": "The specified domain already exists.\r\n"
+    },
+    "m_0000054d": {
+      "ret": 78,
+      "out": "An attempt was made to exceed the limit on the number of domains per server.\r\n"
+    },
+    "m_0000054e": {
+      "ret": 135,
+      "out": "Unable to complete the requested operation because of either a catastrophic media failure or a data structure corruption on the disk.\r\n"
+    },
+    "m_0000054f": {
+      "ret": 29,
+      "out": "An internal error occurred.\r\n"
+    },
+    "m_00000550": {
+      "ret": 107,
+      "out": "Generic access types were contained in an access mask which should already be mapped to nongeneric types.\r\n"
+    },
+    "m_00000551": {
+      "ret": 79,
+      "out": "A security descriptor is not in the right format (absolute or self-relative).\r\n"
+    },
+    "m_00000552": {
+      "ret": 128,
+      "out": "The requested action is restricted for use by logon processes only. The calling process has not registered as a logon process.\r\n"
+    },
+    "m_00000553": {
+      "ret": 69,
+      "out": "Cannot start a new logon session with an ID that is already in use.\r\n"
+    },
+    "m_00000554": {
+      "ret": 48,
+      "out": "A specified authentication package is unknown.\r\n"
+    },
+    "m_00000555": {
+      "ret": 86,
+      "out": "The logon session is not in a state that is consistent with the requested operation.\r\n"
+    },
+    "m_00000556": {
+      "ret": 41,
+      "out": "The logon session ID is already in use.\r\n"
+    },
+    "m_00000557": {
+      "ret": 56,
+      "out": "A logon request contained an invalid logon type value.\r\n"
+    },
+    "m_00000558": {
+      "ret": 83,
+      "out": "Unable to impersonate using a named pipe until data has been read from that pipe.\r\n"
+    },
+    "m_00000559": {
+      "ret": 91,
+      "out": "The transaction state of a registry subtree is incompatible with the requested operation.\r\n"
+    },
+    "m_0000055a": {
+      "ret": 64,
+      "out": "An internal security database corruption has been encountered.\r\n"
+    },
+    "m_0000055b": {
+      "ret": 53,
+      "out": "Cannot perform this operation on built-in accounts.\r\n"
+    },
+    "m_0000055c": {
+      "ret": 63,
+      "out": "Cannot perform this operation on this built-in special group.\r\n"
+    },
+    "m_0000055d": {
+      "ret": 62,
+      "out": "Cannot perform this operation on this built-in special user.\r\n"
+    },
+    "m_0000055e": {
+      "ret": 98,
+      "out": "The user cannot be removed from a group because the group is currently the user's primary group.\r\n"
+    },
+    "m_0000055f": {
+      "ret": 49,
+      "out": "The token is already in use as a primary token.\r\n"
+    },
+    "m_00000560": {
+      "ret": 43,
+      "out": "The specified local group does not exist.\r\n"
+    },
+    "m_00000561": {
+      "ret": 58,
+      "out": "The specified account name is not a member of the group.\r\n"
+    },
+    "m_00000562": {
+      "ret": 62,
+      "out": "The specified account name is already a member of the group.\r\n"
+    },
+    "m_00000563": {
+      "ret": 43,
+      "out": "The specified local group already exists.\r\n"
+    },
+    "m_00000564": {
+      "ret": 89,
+      "out": "Logon failure: the user has not been granted the requested logon type at this computer.\r\n"
+    },
+    "m_00000565": {
+      "ret": 88,
+      "out": "The maximum number of secrets that may be stored in a single system has been exceeded.\r\n"
+    },
+    "m_00000566": {
+      "ret": 60,
+      "out": "The length of a secret exceeds the maximum length allowed.\r\n"
+    },
+    "m_00000567": {
+      "ret": 75,
+      "out": "The local security authority database contains an internal inconsistency.\r\n"
+    },
+    "m_00000568": {
+      "ret": 88,
+      "out": "During a logon attempt, the user's security context accumulated too many security IDs.\r\n"
+    },
+    "m_00000569": {
+      "ret": 89,
+      "out": "Logon failure: the user has not been granted the requested logon type at this computer.\r\n"
+    },
+    "m_0000056a": {
+      "ret": 68,
+      "out": "A cross-encrypted password is necessary to change a user password.\r\n"
+    },
+    "m_0000056b": {
+      "ret": 99,
+      "out": "A member could not be added to or removed from the local group because the member does not exist.\r\n"
+    },
+    "m_0000056c": {
+      "ret": 97,
+      "out": "A new member could not be added to a local group because the member has the wrong account type.\r\n"
+    },
+    "m_0000056d": {
+      "ret": 44,
+      "out": "Too many security IDs have been specified.\r\n"
+    },
+    "m_0000056e": {
+      "ret": 71,
+      "out": "A cross-encrypted password is necessary to change this user password.\r\n"
+    },
+    "m_0000056f": {
+      "ret": 54,
+      "out": "Indicates an ACL contains no inheritable components.\r\n"
+    },
+    "m_00000570": {
+      "ret": 52,
+      "out": "The file or directory is corrupted and unreadable.\r\n"
+    },
+    "m_00000571": {
+      "ret": 49,
+      "out": "The disk structure is corrupted and unreadable.\r\n"
+    },
+    "m_00000572": {
+      "ret": 63,
+      "out": "There is no user session key for the specified logon session.\r\n"
+    },
+    "m_00000573": {
+      "ret": 213,
+      "out": "The service being accessed is licensed for a particular number of connections. No more connections can be made to the service at this time because there are already as many connections as the service can accept.\r\n"
+    },
+    "m_00000574": {
+      "ret": 39,
+      "out": "The target account name is incorrect.\r\n"
+    },
+    "m_00000575": {
+      "ret": 94,
+      "out": "Mutual Authentication failed. The server's password is out of date at the domain controller.\r\n"
+    },
+    "m_00000576": {
+      "ret": 71,
+      "out": "There is a time and/or date difference between the client and server.\r\n"
+    },
+    "m_00000578": {
+      "ret": 24,
+      "out": "Invalid window handle.\r\n"
+    },
+    "m_00000579": {
+      "ret": 22,
+      "out": "Invalid menu handle.\r\n"
+    },
+    "m_0000057a": {
+      "ret": 24,
+      "out": "Invalid cursor handle.\r\n"
+    },
+    "m_0000057b": {
+      "ret": 35,
+      "out": "Invalid accelerator table handle.\r\n"
+    },
+    "m_0000057c": {
+      "ret": 22,
+      "out": "Invalid hook handle.\r\n"
+    },
+    "m_0000057d": {
+      "ret": 57,
+      "out": "Invalid handle to a multiple-window position structure.\r\n"
+    },
+    "m_0000057e": {
+      "ret": 41,
+      "out": "Cannot create a top-level child window.\r\n"
+    },
+    "m_0000057f": {
+      "ret": 27,
+      "out": "Cannot find window class.\r\n"
+    },
+    "m_00000580": {
+      "ret": 45,
+      "out": "Invalid window; it belongs to other thread.\r\n"
+    },
+    "m_00000581": {
+      "ret": 32,
+      "out": "Hot key is already registered.\r\n"
+    },
+    "m_00000582": {
+      "ret": 23,
+      "out": "Class already exists.\r\n"
+    },
+    "m_00000583": {
+      "ret": 23,
+      "out": "Class does not exist.\r\n"
+    },
+    "m_00000584": {
+      "ret": 31,
+      "out": "Class still has open windows.\r\n"
+    },
+    "m_00000585": {
+      "ret": 16,
+      "out": "Invalid index.\r\n"
+    },
+    "m_00000586": {
+      "ret": 22,
+      "out": "Invalid icon handle.\r\n"
+    },
+    "m_00000587": {
+      "ret": 36,
+      "out": "Using private DIALOG window words.\r\n"
+    },
+    "m_00000588": {
+      "ret": 40,
+      "out": "The list box identifier was not found.\r\n"
+    },
+    "m_00000589": {
+      "ret": 26,
+      "out": "No wildcards were found.\r\n"
+    },
+    "m_0000058a": {
+      "ret": 40,
+      "out": "Thread does not have a clipboard open.\r\n"
+    },
+    "m_0000058b": {
+      "ret": 28,
+      "out": "Hot key is not registered.\r\n"
+    },
+    "m_0000058c": {
+      "ret": 42,
+      "out": "The window is not a valid dialog window.\r\n"
+    },
+    "m_0000058d": {
+      "ret": 23,
+      "out": "Control ID not found.\r\n"
+    },
+    "m_0000058e": {
+      "ret": 75,
+      "out": "Invalid message for a combo box because it does not have an edit control.\r\n"
+    },
+    "m_0000058f": {
+      "ret": 32,
+      "out": "The window is not a combo box.\r\n"
+    },
+    "m_00000590": {
+      "ret": 31,
+      "out": "Height must be less than 256.\r\n"
+    },
+    "m_00000591": {
+      "ret": 37,
+      "out": "Invalid device context (DC) handle.\r\n"
+    },
+    "m_00000592": {
+      "ret": 30,
+      "out": "Invalid hook procedure type.\r\n"
+    },
+    "m_00000593": {
+      "ret": 25,
+      "out": "Invalid hook procedure.\r\n"
+    },
+    "m_00000594": {
+      "ret": 51,
+      "out": "Cannot set nonlocal hook without a module handle.\r\n"
+    },
+    "m_00000595": {
+      "ret": 47,
+      "out": "This hook procedure can only be set globally.\r\n"
+    },
+    "m_00000596": {
+      "ret": 50,
+      "out": "The journal hook procedure is already installed.\r\n"
+    },
+    "m_00000597": {
+      "ret": 38,
+      "out": "The hook procedure is not installed.\r\n"
+    },
+    "m_00000598": {
+      "ret": 48,
+      "out": "Invalid message for single-selection list box.\r\n"
+    },
+    "m_00000599": {
+      "ret": 40,
+      "out": "LB_SETCOUNT sent to non-lazy list box.\r\n"
+    },
+    "m_0000059a": {
+      "ret": 43,
+      "out": "This list box does not support tab stops.\r\n"
+    },
+    "m_0000059b": {
+      "ret": 50,
+      "out": "Cannot destroy object created by another thread.\r\n"
+    },
+    "m_0000059c": {
+      "ret": 34,
+      "out": "Child windows cannot have menus.\r\n"
+    },
+    "m_0000059d": {
+      "ret": 41,
+      "out": "The window does not have a system menu.\r\n"
+    },
+    "m_0000059e": {
+      "ret": 28,
+      "out": "Invalid message box style.\r\n"
+    },
+    "m_0000059f": {
+      "ret": 40,
+      "out": "Invalid system-wide (SPI_*) parameter.\r\n"
+    },
+    "m_000005a0": {
+      "ret": 24,
+      "out": "Screen already locked.\r\n"
+    },
+    "m_000005a1": {
+      "ret": 91,
+      "out": "All handles to windows in a multiple-window position structure must have the same parent.\r\n"
+    },
+    "m_000005a2": {
+      "ret": 35,
+      "out": "The window is not a child window.\r\n"
+    },
+    "m_000005a3": {
+      "ret": 23,
+      "out": "Invalid GW_* command.\r\n"
+    },
+    "m_000005a4": {
+      "ret": 28,
+      "out": "Invalid thread identifier.\r\n"
+    },
+    "m_000005a5": {
+      "ret": 96,
+      "out": "Cannot process a message from a window that is not a multiple document interface (MDI) window.\r\n"
+    },
+    "m_000005a6": {
+      "ret": 28,
+      "out": "Popup menu already active.\r\n"
+    },
+    "m_000005a7": {
+      "ret": 39,
+      "out": "The window does not have scroll bars.\r\n"
+    },
+    "m_000005a8": {
+      "ret": 50,
+      "out": "Scroll bar range cannot be greater than MAXLONG.\r\n"
+    },
+    "m_000005a9": {
+      "ret": 56,
+      "out": "Cannot show or remove the window in the way specified.\r\n"
+    },
+    "m_000005aa": {
+      "ret": 72,
+      "out": "Insufficient system resources exist to complete the requested service.\r\n"
+    },
+    "m_000005ab": {
+      "ret": 72,
+      "out": "Insufficient system resources exist to complete the requested service.\r\n"
+    },
+    "m_000005ac": {
+      "ret": 72,
+      "out": "Insufficient system resources exist to complete the requested service.\r\n"
+    },
+    "m_000005ad": {
+      "ret": 55,
+      "out": "Insufficient quota to complete the requested service.\r\n"
+    },
+    "m_000005ae": {
+      "ret": 55,
+      "out": "Insufficient quota to complete the requested service.\r\n"
+    },
+    "m_000005af": {
+      "ret": 62,
+      "out": "The paging file is too small for this operation to complete.\r\n"
+    },
+    "m_000005b0": {
+      "ret": 28,
+      "out": "A menu item was not found.\r\n"
+    },
+    "m_000005b1": {
+      "ret": 33,
+      "out": "Invalid keyboard layout handle.\r\n"
+    },
+    "m_000005b2": {
+      "ret": 24,
+      "out": "Hook type not allowed.\r\n"
+    },
+    "m_000005b3": {
+      "ret": 56,
+      "out": "This operation requires an interactive window station.\r\n"
+    },
+    "m_000005b4": {
+      "ret": 61,
+      "out": "This operation returned because the timeout period expired.\r\n"
+    },
+    "m_000005b5": {
+      "ret": 25,
+      "out": "Invalid monitor handle.\r\n"
+    },
+    "m_000005dc": {
+      "ret": 34,
+      "out": "The event log file is corrupted.\r\n"
+    },
+    "m_000005dd": {
+      "ret": 80,
+      "out": "No event log file could be opened, so the event logging service did not start.\r\n"
+    },
+    "m_000005de": {
+      "ret": 29,
+      "out": "The event log file is full.\r\n"
+    },
+    "m_000005df": {
+      "ret": 57,
+      "out": "The event log file has changed between read operations.\r\n"
+    },
+    "m_00000641": {
+      "ret": 169,
+      "out": "The Windows Installer Service could not be accessed. This can occur if the Windows Installer is not correctly installed. Contact your support personnel for assistance.\r\n"
+    },
+    "m_00000642": {
+      "ret": 30,
+      "out": "User cancelled installation.\r\n"
+    },
+    "m_00000643": {
+      "ret": 34,
+      "out": "Fatal error during installation.\r\n"
+    },
+    "m_00000644": {
+      "ret": 37,
+      "out": "Installation suspended, incomplete.\r\n"
+    },
+    "m_00000645": {
+      "ret": 70,
+      "out": "This action is only valid for products that are currently installed.\r\n"
+    },
+    "m_00000646": {
+      "ret": 28,
+      "out": "Feature ID not registered.\r\n"
+    },
+    "m_00000647": {
+      "ret": 30,
+      "out": "Component ID not registered.\r\n"
+    },
+    "m_00000648": {
+      "ret": 19,
+      "out": "Unknown property.\r\n"
+    },
+    "m_00000649": {
+      "ret": 32,
+      "out": "Handle is in an invalid state.\r\n"
+    },
+    "m_0000064a": {
+      "ret": 85,
+      "out": "The configuration data for this product is corrupt. Contact your support personnel.\r\n"
+    },
+    "m_0000064b": {
+      "ret": 34,
+      "out": "Component qualifier not present.\r\n"
+    },
+    "m_0000064c": {
+      "ret": 118,
+      "out": "The installation source for this product is not available. Verify that the source exists and that you can access it.\r\n"
+    },
+    "m_0000064d": {
+      "ret": 185,
+      "out": "This installation package cannot be installed by the Windows Installer service. You must install a Windows service pack that contains a newer version of the Windows Installer service.\r\n"
+    },
+    "m_0000064e": {
+      "ret": 25,
+      "out": "Product is uninstalled.\r\n"
+    },
+    "m_0000064f": {
+      "ret": 42,
+      "out": "SQL query syntax invalid or unsupported.\r\n"
+    },
+    "m_00000650": {
+      "ret": 30,
+      "out": "Record field does not exist.\r\n"
+    },
+    "m_00000651": {
+      "ret": 30,
+      "out": "The device has been removed.\r\n"
+    },
+    "m_00000652": {
+      "ret": 110,
+      "out": "Another installation is already in progress. Complete that installation before proceeding with this install.\r\n"
+    },
+    "m_00000653": {
+      "ret": 199,
+      "out": "This installation package could not be opened. Verify that the package exists and that you can access it, or contact the application vendor to verify that this is a valid Windows Installer package.\r\n"
+    },
+    "m_00000654": {
+      "ret": 137,
+      "out": "This installation package could not be opened. Contact the application vendor to verify that this is a valid Windows Installer package.\r\n"
+    },
+    "m_00000655": {
+      "ret": 107,
+      "out": "There was an error starting the Windows Installer service user interface. Contact your support personnel.\r\n"
+    },
+    "m_00000656": {
+      "ret": 119,
+      "out": "Error opening installation log file. Verify that the specified log file location exists and that you can write to it.\r\n"
+    },
+    "m_00000657": {
+      "ret": 76,
+      "out": "The language of this installation package is not supported by your system.\r\n"
+    },
+    "m_00000658": {
+      "ret": 81,
+      "out": "Error applying transforms. Verify that the specified transform paths are valid.\r\n"
+    },
+    "m_00000659": {
+      "ret": 85,
+      "out": "This installation is forbidden by system policy. Contact your system administrator.\r\n"
+    },
+    "m_0000065a": {
+      "ret": 33,
+      "out": "Function could not be executed.\r\n"
+    },
+    "m_0000065b": {
+      "ret": 35,
+      "out": "Function failed during execution.\r\n"
+    },
+    "m_0000065c": {
+      "ret": 37,
+      "out": "Invalid or unknown table specified.\r\n"
+    },
+    "m_0000065d": {
+      "ret": 33,
+      "out": "Data supplied is of wrong type.\r\n"
+    },
+    "m_0000065e": {
+      "ret": 37,
+      "out": "Data of this type is not supported.\r\n"
+    },
+    "m_0000065f": {
+      "ret": 80,
+      "out": "The Windows Installer service failed to start. Contact your support personnel.\r\n"
+    },
+    "m_00000660": {
+      "ret": 152,
+      "out": "The Temp folder is on a drive that is full or is inaccessible. Free up space on the drive or verify that you have write permission on the Temp folder.\r\n"
+    },
+    "m_00000661": {
+      "ret": 97,
+      "out": "This installation package is not supported by this processor type. Contact your product vendor.\r\n"
+    },
+    "m_00000662": {
+      "ret": 38,
+      "out": "Component not used on this computer.\r\n"
+    },
+    "m_00000663": {
+      "ret": 207,
+      "out": "This update package could not be opened. Verify that the update package exists and that you can access it, or contact the application vendor to verify that this is a valid Windows Installer update package.\r\n"
+    },
+    "m_00000664": {
+      "ret": 138,
+      "out": "This update package could not be opened. Contact the application vendor to verify that this is a valid Windows Installer update package.\r\n"
+    },
+    "m_00000665": {
+      "ret": 179,
+      "out": "This update package cannot be processed by the Windows Installer service. You must install a Windows service pack that contains a newer version of the Windows Installer service.\r\n"
+    },
+    "m_00000666": {
+      "ret": 208,
+      "out": "Another version of this product is already installed. Installation of this version cannot continue. To configure or remove the existing version of this product, use Add/Remove Programs on the Control Panel.\r\n"
+    },
+    "m_00000667": {
+      "ret": 98,
+      "out": "Invalid command line argument. Consult the Windows Installer SDK for detailed command line help.\r\n"
+    },
+    "m_00000668": {
+      "ret": 221,
+      "out": "Only administrators have permission to add, remove, or configure server software during a Terminal services remote session. If you want to install or configure software on the server, contact your network administrator.\r\n"
+    },
+    "m_00000669": {
+      "ret": 110,
+      "out": "The requested operation completed successfully. The system will be restarted so the changes can take effect.\r\n"
+    },
+    "m_000006a4": {
+      "ret": 32,
+      "out": "The string binding is invalid.\r\n"
+    },
+    "m_000006a5": {
+      "ret": 45,
+      "out": "The binding handle is not the correct type.\r\n"
+    },
+    "m_000006a6": {
+      "ret": 32,
+      "out": "The binding handle is invalid.\r\n"
+    },
+    "m_000006a7": {
+      "ret": 45,
+      "out": "The RPC protocol sequence is not supported.\r\n"
+    },
+    "m_000006a8": {
+      "ret": 39,
+      "out": "The RPC protocol sequence is invalid.\r\n"
+    },
+    "m_000006a9": {
+      "ret": 59,
+      "out": "The string universal unique identifier (UUID) is invalid.\r\n"
+    },
+    "m_000006aa": {
+      "ret": 33,
+      "out": "The endpoint format is invalid.\r\n"
+    },
+    "m_000006ab": {
+      "ret": 33,
+      "out": "The network address is invalid.\r\n"
+    },
+    "m_000006ac": {
+      "ret": 24,
+      "out": "No endpoint was found.\r\n"
+    },
+    "m_000006ad": {
+      "ret": 31,
+      "out": "The timeout value is invalid.\r\n"
+    },
+    "m_000006ae": {
+      "ret": 62,
+      "out": "The object universal unique identifier (UUID) was not found.\r\n"
+    },
+    "m_000006af": {
+      "ret": 76,
+      "out": "The object universal unique identifier (UUID) has already been registered.\r\n"
+    },
+    "m_000006b0": {
+      "ret": 74,
+      "out": "The type universal unique identifier (UUID) has already been registered.\r\n"
+    },
+    "m_000006b1": {
+      "ret": 38,
+      "out": "The RPC server is already listening.\r\n"
+    },
+    "m_000006b2": {
+      "ret": 45,
+      "out": "No protocol sequences have been registered.\r\n"
+    },
+    "m_000006b3": {
+      "ret": 34,
+      "out": "The RPC server is not listening.\r\n"
+    },
+    "m_000006b4": {
+      "ret": 30,
+      "out": "The manager type is unknown.\r\n"
+    },
+    "m_000006b5": {
+      "ret": 27,
+      "out": "The interface is unknown.\r\n"
+    },
+    "m_000006b6": {
+      "ret": 24,
+      "out": "There are no bindings.\r\n"
+    },
+    "m_000006b7": {
+      "ret": 34,
+      "out": "There are no protocol sequences.\r\n"
+    },
+    "m_000006b8": {
+      "ret": 33,
+      "out": "The endpoint cannot be created.\r\n"
+    },
+    "m_000006b9": {
+      "ret": 64,
+      "out": "Not enough resources are available to complete this operation.\r\n"
+    },
+    "m_000006ba": {
+      "ret": 32,
+      "out": "The RPC server is unavailable.\r\n"
+    },
+    "m_000006bb": {
+      "ret": 56,
+      "out": "The RPC server is too busy to complete this operation.\r\n"
+    },
+    "m_000006bc": {
+      "ret": 34,
+      "out": "The network options are invalid.\r\n"
+    },
+    "m_000006bd": {
+      "ret": 60,
+      "out": "There are no remote procedure calls active on this thread.\r\n"
+    },
+    "m_000006be": {
+      "ret": 35,
+      "out": "The remote procedure call failed.\r\n"
+    },
+    "m_000006bf": {
+      "ret": 55,
+      "out": "The remote procedure call failed and did not execute.\r\n"
+    },
+    "m_000006c0": {
+      "ret": 56,
+      "out": "A remote procedure call (RPC) protocol error occurred.\r\n"
+    },
+    "m_000006c2": {
+      "ret": 57,
+      "out": "The transfer syntax is not supported by the RPC server.\r\n"
+    },
+    "m_000006c4": {
+      "ret": 63,
+      "out": "The universal unique identifier (UUID) type is not supported.\r\n"
+    },
+    "m_000006c5": {
+      "ret": 21,
+      "out": "The tag is invalid.\r\n"
+    },
+    "m_000006c6": {
+      "ret": 31,
+      "out": "The array bounds are invalid.\r\n"
+    },
+    "m_000006c7": {
+      "ret": 45,
+      "out": "The binding does not contain an entry name.\r\n"
+    },
+    "m_000006c8": {
+      "ret": 29,
+      "out": "The name syntax is invalid.\r\n"
+    },
+    "m_000006c9": {
+      "ret": 35,
+      "out": "The name syntax is not supported.\r\n"
+    },
+    "m_000006cb": {
+      "ret": 91,
+      "out": "No network address is available to use to construct a universal unique identifier (UUID).\r\n"
+    },
+    "m_000006cc": {
+      "ret": 30,
+      "out": "The endpoint is a duplicate.\r\n"
+    },
+    "m_000006cd": {
+      "ret": 37,
+      "out": "The authentication type is unknown.\r\n"
+    },
+    "m_000006ce": {
+      "ret": 43,
+      "out": "The maximum number of calls is too small.\r\n"
+    },
+    "m_000006cf": {
+      "ret": 25,
+      "out": "The string is too long.\r\n"
+    },
+    "m_000006d0": {
+      "ret": 42,
+      "out": "The RPC protocol sequence was not found.\r\n"
+    },
+    "m_000006d1": {
+      "ret": 39,
+      "out": "The procedure number is out of range.\r\n"
+    },
+    "m_000006d2": {
+      "ret": 62,
+      "out": "The binding does not contain any authentication information.\r\n"
+    },
+    "m_000006d3": {
+      "ret": 40,
+      "out": "The authentication service is unknown.\r\n"
+    },
+    "m_000006d4": {
+      "ret": 38,
+      "out": "The authentication level is unknown.\r\n"
+    },
+    "m_000006d5": {
+      "ret": 34,
+      "out": "The security context is invalid.\r\n"
+    },
+    "m_000006d6": {
+      "ret": 39,
+      "out": "The authorization service is unknown.\r\n"
+    },
+    "m_000006d7": {
+      "ret": 23,
+      "out": "The entry is invalid.\r\n"
+    },
+    "m_000006d8": {
+      "ret": 51,
+      "out": "The server endpoint cannot perform the operation.\r\n"
+    },
+    "m_000006d9": {
+      "ret": 65,
+      "out": "There are no more endpoints available from the endpoint mapper.\r\n"
+    },
+    "m_000006da": {
+      "ret": 35,
+      "out": "No interfaces have been exported.\r\n"
+    },
+    "m_000006db": {
+      "ret": 31,
+      "out": "The entry name is incomplete.\r\n"
+    },
+    "m_000006dc": {
+      "ret": 32,
+      "out": "The version option is invalid.\r\n"
+    },
+    "m_000006dd": {
+      "ret": 28,
+      "out": "There are no more members.\r\n"
+    },
+    "m_000006de": {
+      "ret": 31,
+      "out": "There is nothing to unexport.\r\n"
+    },
+    "m_000006df": {
+      "ret": 30,
+      "out": "The interface was not found.\r\n"
+    },
+    "m_000006e0": {
+      "ret": 27,
+      "out": "The entry already exists.\r\n"
+    },
+    "m_000006e1": {
+      "ret": 25,
+      "out": "The entry is not found.\r\n"
+    },
+    "m_000006e2": {
+      "ret": 34,
+      "out": "The name service is unavailable.\r\n"
+    },
+    "m_000006e3": {
+      "ret": 40,
+      "out": "The network address family is invalid.\r\n"
+    },
+    "m_000006e4": {
+      "ret": 43,
+      "out": "The requested operation is not supported.\r\n"
+    },
+    "m_000006e5": {
+      "ret": 58,
+      "out": "No security context is available to allow impersonation.\r\n"
+    },
+    "m_000006e6": {
+      "ret": 62,
+      "out": "An internal error occurred in a remote procedure call (RPC).\r\n"
+    },
+    "m_000006e7": {
+      "ret": 55,
+      "out": "The RPC server attempted an integer division by zero.\r\n"
+    },
+    "m_000006e8": {
+      "ret": 49,
+      "out": "An addressing error occurred in the RPC server.\r\n"
+    },
+    "m_000006e9": {
+      "ret": 73,
+      "out": "A floating-point operation at the RPC server caused a division by zero.\r\n"
+    },
+    "m_000006ea": {
+      "ret": 56,
+      "out": "A floating-point underflow occurred at the RPC server.\r\n"
+    },
+    "m_000006eb": {
+      "ret": 55,
+      "out": "A floating-point overflow occurred at the RPC server.\r\n"
+    },
+    "m_000006ec": {
+      "ret": 87,
+      "out": "The list of RPC servers available for the binding of auto handles has been exhausted.\r\n"
+    },
+    "m_000006ed": {
+      "ret": 54,
+      "out": "Unable to open the character translation table file.\r\n"
+    },
+    "m_000006ee": {
+      "ret": 79,
+      "out": "The file containing the character translation table has fewer than 512 bytes.\r\n"
+    },
+    "m_000006ef": {
+      "ret": 94,
+      "out": "A null context handle was passed from the client to the host during a remote procedure call.\r\n"
+    },
+    "m_000006f1": {
+      "ret": 60,
+      "out": "The context handle changed during a remote procedure call.\r\n"
+    },
+    "m_000006f2": {
+      "ret": 69,
+      "out": "The binding handles passed to a remote procedure call do not match.\r\n"
+    },
+    "m_000006f3": {
+      "ret": 61,
+      "out": "The stub is unable to get the remote procedure call handle.\r\n"
+    },
+    "m_000006f4": {
+      "ret": 50,
+      "out": "A null reference pointer was passed to the stub.\r\n"
+    },
+    "m_000006f5": {
+      "ret": 40,
+      "out": "The enumeration value is out of range.\r\n"
+    },
+    "m_000006f6": {
+      "ret": 30,
+      "out": "The byte count is too small.\r\n"
+    },
+    "m_000006f7": {
+      "ret": 29,
+      "out": "The stub received bad data.\r\n"
+    },
+    "m_000006f8": {
+      "ret": 68,
+      "out": "The supplied user buffer is not valid for the requested operation.\r\n"
+    },
+    "m_000006f9": {
+      "ret": 60,
+      "out": "The disk media is not recognized. It may not be formatted.\r\n"
+    },
+    "m_000006fa": {
+      "ret": 47,
+      "out": "The workstation does not have a trust secret.\r\n"
+    },
+    "m_000006fb": {
+      "ret": 111,
+      "out": "The security database on the server does not have a computer account for this workstation trust relationship.\r\n"
+    },
+    "m_000006fc": {
+      "ret": 82,
+      "out": "The trust relationship between the primary domain and the trusted domain failed.\r\n"
+    },
+    "m_000006fd": {
+      "ret": 80,
+      "out": "The trust relationship between this workstation and the primary domain failed.\r\n"
+    },
+    "m_000006fe": {
+      "ret": 27,
+      "out": "The network logon failed.\r\n"
+    },
+    "m_000006ff": {
+      "ret": 65,
+      "out": "A remote procedure call is already in progress for this thread.\r\n"
+    },
+    "m_00000700": {
+      "ret": 78,
+      "out": "An attempt was made to logon, but the network logon service was not started.\r\n"
+    },
+    "m_00000701": {
+      "ret": 33,
+      "out": "The user's account has expired.\r\n"
+    },
+    "m_00000702": {
+      "ret": 50,
+      "out": "The redirector is in use and cannot be unloaded.\r\n"
+    },
+    "m_00000703": {
+      "ret": 52,
+      "out": "The specified printer driver is already installed.\r\n"
+    },
+    "m_00000704": {
+      "ret": 32,
+      "out": "The specified port is unknown.\r\n"
+    },
+    "m_00000705": {
+      "ret": 32,
+      "out": "The printer driver is unknown.\r\n"
+    },
+    "m_00000706": {
+      "ret": 33,
+      "out": "The print processor is unknown.\r\n"
+    },
+    "m_00000707": {
+      "ret": 42,
+      "out": "The specified separator file is invalid.\r\n"
+    },
+    "m_00000708": {
+      "ret": 36,
+      "out": "The specified priority is invalid.\r\n"
+    },
+    "m_00000709": {
+      "ret": 30,
+      "out": "The printer name is invalid.\r\n"
+    },
+    "m_0000070a": {
+      "ret": 29,
+      "out": "The printer already exists.\r\n"
+    },
+    "m_0000070b": {
+      "ret": 33,
+      "out": "The printer command is invalid.\r\n"
+    },
+    "m_0000070c": {
+      "ret": 36,
+      "out": "The specified datatype is invalid.\r\n"
+    },
+    "m_0000070d": {
+      "ret": 39,
+      "out": "The environment specified is invalid.\r\n"
+    },
+    "m_0000070e": {
+      "ret": 29,
+      "out": "There are no more bindings.\r\n"
+    },
+    "m_0000070f": {
+      "ret": 125,
+      "out": "The account used is an interdomain trust account. Use your global user account or local user account to access this server.\r\n"
+    },
+    "m_00000710": {
+      "ret": 115,
+      "out": "The account used is a computer account. Use your global user account or local user account to access this server.\r\n"
+    },
+    "m_00000711": {
+      "ret": 119,
+      "out": "The account used is a server trust account. Use your global user account or local user account to access this server.\r\n"
+    },
+    "m_00000712": {
+      "ret": 115,
+      "out": "The name or security ID (SID) of the domain specified is inconsistent with the trust information for that domain.\r\n"
+    },
+    "m_00000713": {
+      "ret": 46,
+      "out": "The server is in use and cannot be unloaded.\r\n"
+    },
+    "m_00000714": {
+      "ret": 62,
+      "out": "The specified image file did not contain a resource section.\r\n"
+    },
+    "m_00000715": {
+      "ret": 64,
+      "out": "The specified resource type cannot be found in the image file.\r\n"
+    },
+    "m_00000716": {
+      "ret": 64,
+      "out": "The specified resource name cannot be found in the image file.\r\n"
+    },
+    "m_00000717": {
+      "ret": 71,
+      "out": "The specified resource language ID cannot be found in the image file.\r\n"
+    },
+    "m_00000718": {
+      "ret": 56,
+      "out": "Not enough quota is available to process this command.\r\n"
+    },
+    "m_00000719": {
+      "ret": 37,
+      "out": "No interfaces have been registered.\r\n"
+    },
+    "m_0000071a": {
+      "ret": 42,
+      "out": "The remote procedure call was cancelled.\r\n"
+    },
+    "m_0000071b": {
+      "ret": 63,
+      "out": "The binding handle does not contain all required information.\r\n"
+    },
+    "m_0000071c": {
+      "ret": 67,
+      "out": "A communications failure occurred during a remote procedure call.\r\n"
+    },
+    "m_0000071d": {
+      "ret": 54,
+      "out": "The requested authentication level is not supported.\r\n"
+    },
+    "m_0000071e": {
+      "ret": 31,
+      "out": "No principal name registered.\r\n"
+    },
+    "m_0000071f": {
+      "ret": 60,
+      "out": "The error specified is not a valid Windows RPC error code.\r\n"
+    },
+    "m_00000720": {
+      "ret": 64,
+      "out": "A UUID that is valid only on this computer has been allocated.\r\n"
+    },
+    "m_00000721": {
+      "ret": 45,
+      "out": "A security package specific error occurred.\r\n"
+    },
+    "m_00000722": {
+      "ret": 25,
+      "out": "Thread is not canceled.\r\n"
+    },
+    "m_00000723": {
+      "ret": 52,
+      "out": "Invalid operation on the encoding/decoding handle.\r\n"
+    },
+    "m_00000724": {
+      "ret": 50,
+      "out": "Incompatible version of the serializing package.\r\n"
+    },
+    "m_00000725": {
+      "ret": 39,
+      "out": "Incompatible version of the RPC stub.\r\n"
+    },
+    "m_00000726": {
+      "ret": 46,
+      "out": "The RPC pipe object is invalid or corrupted.\r\n"
+    },
+    "m_00000727": {
+      "ret": 59,
+      "out": "An invalid operation was attempted on an RPC pipe object.\r\n"
+    },
+    "m_00000728": {
+      "ret": 31,
+      "out": "Unsupported RPC pipe version.\r\n"
+    },
+    "m_0000076a": {
+      "ret": 33,
+      "out": "The group member was not found.\r\n"
+    },
+    "m_0000076b": {
+      "ret": 58,
+      "out": "The endpoint mapper database entry could not be created.\r\n"
+    },
+    "m_0000076c": {
+      "ret": 64,
+      "out": "The object universal unique identifier (UUID) is the nil UUID.\r\n"
+    },
+    "m_0000076d": {
+      "ret": 32,
+      "out": "The specified time is invalid.\r\n"
+    },
+    "m_0000076e": {
+      "ret": 37,
+      "out": "The specified form name is invalid.\r\n"
+    },
+    "m_0000076f": {
+      "ret": 37,
+      "out": "The specified form size is invalid.\r\n"
+    },
+    "m_00000770": {
+      "ret": 57,
+      "out": "The specified printer handle is already being waited on\r\n"
+    },
+    "m_00000771": {
+      "ret": 41,
+      "out": "The specified printer has been deleted.\r\n"
+    },
+    "m_00000772": {
+      "ret": 38,
+      "out": "The state of the printer is invalid.\r\n"
+    },
+    "m_00000773": {
+      "ret": 56,
+      "out": "The user's password must be changed before signing in.\r\n"
+    },
+    "m_00000774": {
+      "ret": 55,
+      "out": "Could not find the domain controller for this domain.\r\n"
+    },
+    "m_00000775": {
+      "ret": 77,
+      "out": "The referenced account is currently locked out and may not be logged on to.\r\n"
+    },
+    "m_00000776": {
+      "ret": 46,
+      "out": "The object exporter specified was not found.\r\n"
+    },
+    "m_00000777": {
+      "ret": 37,
+      "out": "The object specified was not found.\r\n"
+    },
+    "m_00000778": {
+      "ret": 50,
+      "out": "The object resolver set specified was not found.\r\n"
+    },
+    "m_00000779": {
+      "ret": 53,
+      "out": "Some data remains to be sent in the request buffer.\r\n"
+    },
+    "m_0000077a": {
+      "ret": 52,
+      "out": "Invalid asynchronous remote procedure call handle.\r\n"
+    },
+    "m_0000077b": {
+      "ret": 58,
+      "out": "Invalid asynchronous RPC call handle for this operation.\r\n"
+    },
+    "m_0000077c": {
+      "ret": 46,
+      "out": "The RPC pipe object has already been closed.\r\n"
+    },
+    "m_0000077d": {
+      "ret": 57,
+      "out": "The RPC call completed before all pipes were processed.\r\n"
+    },
+    "m_0000077e": {
+      "ret": 46,
+      "out": "No more data is available from the RPC pipe.\r\n"
+    },
+    "m_0000077f": {
+      "ret": 45,
+      "out": "No site name is available for this machine.\r\n"
+    },
+    "m_00000780": {
+      "ret": 44,
+      "out": "The file cannot be accessed by the system.\r\n"
+    },
+    "m_00000781": {
+      "ret": 56,
+      "out": "The name of the file cannot be resolved by the system.\r\n"
+    },
+    "m_00000782": {
+      "ret": 40,
+      "out": "The entry is not of the expected type.\r\n"
+    },
+    "m_00000783": {
+      "ret": 64,
+      "out": "Not all object UUIDs could be exported to the specified entry.\r\n"
+    },
+    "m_00000784": {
+      "ret": 57,
+      "out": "Interface could not be exported to the specified entry.\r\n"
+    },
+    "m_00000785": {
+      "ret": 49,
+      "out": "The specified profile entry could not be added.\r\n"
+    },
+    "m_00000786": {
+      "ret": 51,
+      "out": "The specified profile element could not be added.\r\n"
+    },
+    "m_00000787": {
+      "ret": 53,
+      "out": "The specified profile element could not be removed.\r\n"
+    },
+    "m_00000788": {
+      "ret": 39,
+      "out": "The group element could not be added.\r\n"
+    },
+    "m_00000789": {
+      "ret": 41,
+      "out": "The group element could not be removed.\r\n"
+    },
+    "m_000008ad": {
+      "ret": 35,
+      "out": "The user name could not be found.\r\n"
+    },
+    "m_000008ca": {
+      "ret": 41,
+      "out": "This network connection does not exist.\r\n"
+    },
+    "m_00002714": {
+      "ret": 74,
+      "out": "A blocking operation was interrupted by a call to WSACancelBlockingCall.\r\n"
+    },
+    "m_00002719": {
+      "ret": 40,
+      "out": "The file handle supplied is not valid.\r\n"
+    },
+    "m_0000271d": {
+      "ret": 86,
+      "out": "An attempt was made to access a socket in a way forbidden by its access permissions.\r\n"
+    },
+    "m_0000271e": {
+      "ret": 99,
+      "out": "The system detected an invalid pointer address in attempting to use a pointer argument in a call.\r\n"
+    },
+    "m_00002726": {
+      "ret": 35,
+      "out": "An invalid argument was supplied.\r\n"
+    },
+    "m_00002728": {
+      "ret": 24,
+      "out": "Too many open sockets.\r\n"
+    },
+    "m_00002741": {
+      "ret": 52,
+      "out": "The requested address is not valid in its context.\r\n"
+    },
+    "m_00002746": {
+      "ret": 64,
+      "out": "An existing connection was forcibly closed by the remote host.\r\n"
+    },
+    "m_0000274d": {
+      "ret": 77,
+      "out": "No connection could be made because the target machine actively refused it.\r\n"
+    },
+    "m_00002af9": {
+      "ret": 24,
+      "out": "No such host is known.\r\n"
+    },
+    "m_00002afa": {
+      "ret": 151,
+      "out": "This is usually a temporary error during hostname resolution and means that the local server did not receive a response from an authoritative server.\r\n"
+    },
+    "m_00002afb": {
+      "ret": 60,
+      "out": "A non-recoverable error occurred during a database lookup.\r\n"
+    },
+    "m_00002afc": {
+      "ret": 75,
+      "out": "The requested name is valid, but no data of the requested type was found.\r\n"
+    },
+    "m_8000000a": {
+      "ret": 69,
+      "out": "The data necessary to complete this operation is not yet available.\r\n"
+    },
+    "m_8000000b": {
+      "ret": 64,
+      "out": "The operation attempted to access data outside the valid range\r\n"
+    },
+    "m_8000000c": {
+      "ret": 101,
+      "out": "A concurrent or interleaved operation changed the state of the object, invalidating this operation.\r\n"
+    },
+    "m_8000000d": {
+      "ret": 40,
+      "out": "An illegal state change was requested.\r\n"
+    },
+    "m_8000000e": {
+      "ret": 44,
+      "out": "A method was called at an unexpected time.\r\n"
+    },
+    "m_80000017": {
+      "ret": 29,
+      "out": "String not null terminated.\r\n"
+    },
+    "m_80000018": {
+      "ret": 43,
+      "out": "A delegate was assigned when not allowed.\r\n"
+    },
+    "m_80000019": {
+      "ret": 46,
+      "out": "An async operation was not properly started.\r\n"
+    },
+    "m_8000001a": {
+      "ret": 60,
+      "out": "The application is exiting and cannot service this request\r\n"
+    },
+    "m_8000001b": {
+      "ret": 65,
+      "out": "The application view is exiting and cannot service this request\r\n"
+    },
+    "m_80004001": {
+      "ret": 17,
+      "out": "Not implemented\r\n"
+    },
+    "m_80004002": {
+      "ret": 29,
+      "out": "No such interface supported\r\n"
+    },
+    "m_80004003": {
+      "ret": 17,
+      "out": "Invalid pointer\r\n"
+    },
+    "m_80004004": {
+      "ret": 19,
+      "out": "Operation aborted\r\n"
+    },
+    "m_80004005": {
+      "ret": 19,
+      "out": "Unspecified error\r\n"
+    },
+    "m_80004006": {
+      "ret": 30,
+      "out": "Thread local storage failure\r\n"
+    },
+    "m_80004007": {
+      "ret": 37,
+      "out": "Get shared memory allocator failure\r\n"
+    },
+    "m_80004008": {
+      "ret": 30,
+      "out": "Get memory allocator failure\r\n"
+    },
+    "m_80004009": {
+      "ret": 34,
+      "out": "Unable to initialize class cache\r\n"
+    },
+    "m_8000400a": {
+      "ret": 35,
+      "out": "Unable to initialize RPC services\r\n"
+    },
+    "m_8000400b": {
+      "ret": 49,
+      "out": "Cannot set thread local storage channel control\r\n"
+    },
+    "m_8000400c": {
+      "ret": 57,
+      "out": "Could not allocate thread local storage channel control\r\n"
+    },
+    "m_8000400d": {
+      "ret": 52,
+      "out": "The user supplied memory allocator is unacceptable\r\n"
+    },
+    "m_8000400e": {
+      "ret": 38,
+      "out": "The OLE service mutex already exists\r\n"
+    },
+    "m_8000400f": {
+      "ret": 45,
+      "out": "The OLE service file mapping already exists\r\n"
+    },
+    "m_80004010": {
+      "ret": 44,
+      "out": "Unable to map view of file for OLE service\r\n"
+    },
+    "m_80004011": {
+      "ret": 42,
+      "out": "Failure attempting to launch OLE service\r\n"
+    },
+    "m_80004012": {
+      "ret": 79,
+      "out": "There was an attempt to call CoInitialize a second time while single threaded\r\n"
+    },
+    "m_80004013": {
+      "ret": 55,
+      "out": "A Remote activation was necessary but was not allowed\r\n"
+    },
+    "m_80004014": {
+      "ret": 76,
+      "out": "A Remote activation was necessary but the server name provided was invalid\r\n"
+    },
+    "m_80004015": {
+      "ret": 75,
+      "out": "The class is configured to run as a security id different from the caller\r\n"
+    },
+    "m_80004016": {
+      "ret": 56,
+      "out": "Use of Ole1 services requiring DDE windows is disabled\r\n"
+    },
+    "m_80004017": {
+      "ret": 79,
+      "out": "A RunAs specification must be <domain name>\\<user name> or simply <user name>\r\n"
+    },
+    "m_80004018": {
+      "ret": 73,
+      "out": "The server process could not be started. The pathname may be incorrect.\r\n"
+    },
+    "m_80004019": {
+      "ret": 115,
+      "out": "The server process could not be started as the configured identity. The pathname may be incorrect or unavailable.\r\n"
+    },
+    "m_8000401a": {
+      "ret": 120,
+      "out": "The server process could not be started because the configured identity is incorrect. Check the username and password.\r\n"
+    },
+    "m_8000401b": {
+      "ret": 50,
+      "out": "The client is not allowed to launch this server.\r\n"
+    },
+    "m_8000401c": {
+      "ret": 57,
+      "out": "The service providing this server could not be started.\r\n"
+    },
+    "m_8000401d": {
+      "ret": 81,
+      "out": "This computer was unable to communicate with the computer providing the server.\r\n"
+    },
+    "m_8000401e": {
+      "ret": 50,
+      "out": "The server did not respond after being launched.\r\n"
+    },
+    "m_8000401f": {
+      "ret": 77,
+      "out": "The registration information for this server is inconsistent or incomplete.\r\n"
+    },
+    "m_80004020": {
+      "ret": 80,
+      "out": "The registration information for this interface is inconsistent or incomplete.\r\n"
+    },
+    "m_80004021": {
+      "ret": 43,
+      "out": "The operation attempted is not supported.\r\n"
+    },
+    "m_80004022": {
+      "ret": 23,
+      "out": "A dll must be loaded.\r\n"
+    },
+    "m_80004023": {
+      "ret": 55,
+      "out": "A Microsoft Software Installer error was encountered.\r\n"
+    },
+    "m_80004024": {
+      "ret": 78,
+      "out": "The specified activation could not occur in the client context as specified.\r\n"
+    },
+    "m_80004025": {
+      "ret": 39,
+      "out": "Activations on the server are paused.\r\n"
+    },
+    "m_80004026": {
+      "ret": 43,
+      "out": "Activations on the server are not paused.\r\n"
+    },
+    "m_80004027": {
+      "ret": 74,
+      "out": "The component or application containing the component has been disabled.\r\n"
+    },
+    "m_80004028": {
+      "ret": 46,
+      "out": "The common language runtime is not available\r\n"
+    },
+    "m_80004029": {
+      "ret": 59,
+      "out": "The thread-pool rejected the submitted asynchronous work.\r\n"
+    },
+    "m_8000402a": {
+      "ret": 74,
+      "out": "The server started, but did not finish initializing in a timely fashion.\r\n"
+    },
+    "m_8000402b": {
+      "ret": 101,
+      "out": "Unable to complete the call since there is no COM+ security context inside IObjectControl.Activate.\r\n"
+    },
+    "m_80004030": {
+      "ret": 47,
+      "out": "The provided tracker configuration is invalid\r\n"
+    },
+    "m_80004031": {
+      "ret": 51,
+      "out": "The provided thread pool configuration is invalid\r\n"
+    },
+    "m_80004032": {
+      "ret": 52,
+      "out": "The provided side-by-side configuration is invalid\r\n"
+    },
+    "m_80004033": {
+      "ret": 84,
+      "out": "The server principal name (SPN) obtained during security negotiation is malformed.\r\n"
+    },
+    "m_8000ffff": {
+      "ret": 22,
+      "out": "Catastrophic failure\r\n"
+    },
+    "m_80010123": {
+      "ret": 35,
+      "out": "Unable to impersonate DCOM client\r\n"
+    },
+    "m_80010124": {
+      "ret": 44,
+      "out": "Unable to obtain server's security context\r\n"
+    },
+    "m_80010125": {
+      "ret": 55,
+      "out": "Unable to open the access token of the current thread\r\n"
+    },
+    "m_80010126": {
+      "ret": 49,
+      "out": "Unable to obtain user info from an access token\r\n"
+    },
+    "m_80010127": {
+      "ret": 100,
+      "out": "The client who called IAccessControl::IsAccessPermitted was not the trustee provided to the method\r\n"
+    },
+    "m_80010128": {
+      "ret": 48,
+      "out": "Unable to obtain the client's security blanket\r\n"
+    },
+    "m_80010129": {
+      "ret": 62,
+      "out": "Unable to set a discretionary ACL into a security descriptor\r\n"
+    },
+    "m_8001012a": {
+      "ret": 50,
+      "out": "The system function, AccessCheck, returned false\r\n"
+    },
+    "m_8001012b": {
+      "ret": 61,
+      "out": "Either NetAccessDel or NetAccessAdd returned an error code.\r\n"
+    },
+    "m_8001012c": {
+      "ret": 125,
+      "out": "One of the trustee strings provided by the user did not conform to the <Domain>\\<Name> syntax and it was not the \"*\" string\r\n"
+    },
+    "m_8001012d": {
+      "ret": 66,
+      "out": "One of the security identifiers provided by the user was invalid\r\n"
+    },
+    "m_8001012e": {
+      "ret": 81,
+      "out": "Unable to convert a wide character trustee string to a multibyte trustee string\r\n"
+    },
+    "m_8001012f": {
+      "ret": 96,
+      "out": "Unable to find a security identifier that corresponds to a trustee string provided by the user\r\n"
+    },
+    "m_80010130": {
+      "ret": 47,
+      "out": "The system function, LookupAccountSID, failed\r\n"
+    },
+    "m_80010131": {
+      "ret": 94,
+      "out": "Unable to find a trustee name that corresponds to a security identifier provided by the user\r\n"
+    },
+    "m_80010132": {
+      "ret": 48,
+      "out": "The system function, LookupAccountName, failed\r\n"
+    },
+    "m_80010133": {
+      "ret": 47,
+      "out": "Unable to set or reset a serialization handle\r\n"
+    },
+    "m_80010134": {
+      "ret": 40,
+      "out": "Unable to obtain the Windows directory\r\n"
+    },
+    "m_80010135": {
+      "ret": 15,
+      "out": "Path too long\r\n"
+    },
+    "m_80010136": {
+      "ret": 28,
+      "out": "Unable to generate a uuid.\r\n"
+    },
+    "m_80010137": {
+      "ret": 23,
+      "out": "Unable to create file\r\n"
+    },
+    "m_80010138": {
+      "ret": 58,
+      "out": "Unable to close a serialization handle or a file handle.\r\n"
+    },
+    "m_80010139": {
+      "ret": 56,
+      "out": "The number of ACEs in an ACL exceeds the system limit.\r\n"
+    },
+    "m_8001013a": {
+      "ret": 92,
+      "out": "Not all the DENY_ACCESS ACEs are arranged in front of the GRANT_ACCESS ACEs in the stream.\r\n"
+    },
+    "m_8001013b": {
+      "ret": 99,
+      "out": "The version of ACL format in the stream is not supported by this implementation of IAccessControl\r\n"
+    },
+    "m_8001013c": {
+      "ret": 55,
+      "out": "Unable to open the access token of the server process\r\n"
+    },
+    "m_8001013d": {
+      "ret": 61,
+      "out": "Unable to decode the ACL in the stream provided by the user\r\n"
+    },
+    "m_8001013f": {
+      "ret": 50,
+      "out": "The COM IAccessControl object is not initialized\r\n"
+    },
+    "m_80010140": {
+      "ret": 31,
+      "out": "Call Cancellation is disabled\r\n"
+    },
+    "m_80040110": {
+      "ret": 64,
+      "out": "Class does not support aggregation (or class object is remote)\r\n"
+    },
+    "m_80040111": {
+      "ret": 44,
+      "out": "ClassFactory cannot supply requested class\r\n"
+    },
+    "m_80040112": {
+      "ret": 31,
+      "out": "Class is not licensed for use\r\n"
+    },
+    "m_80040150": {
+      "ret": 34,
+      "out": "Could not read key from registry\r\n"
+    },
+    "m_80040151": {
+      "ret": 33,
+      "out": "Could not write key to registry\r\n"
+    },
+    "m_80040152": {
+      "ret": 40,
+      "out": "Could not find the key in the registry\r\n"
+    },
+    "m_80040153": {
+      "ret": 28,
+      "out": "Invalid value for registry\r\n"
+    },
+    "m_80040154": {
+      "ret": 22,
+      "out": "Class not registered\r\n"
+    },
+    "m_80040155": {
+      "ret": 26,
+      "out": "Interface not registered\r\n"
+    },
+    "m_80040156": {
+      "ret": 36,
+      "out": "Threading model entry is not valid\r\n"
+    },
+    "m_800401f0": {
+      "ret": 35,
+      "out": "CoInitialize has not been called.\r\n"
+    },
+    "m_800401f1": {
+      "ret": 39,
+      "out": "CoInitialize has already been called.\r\n"
+    },
+    "m_800401f2": {
+      "ret": 38,
+      "out": "Class of object cannot be determined\r\n"
+    },
+    "m_800401f3": {
+      "ret": 22,
+      "out": "Invalid class string\r\n"
+    },
+    "m_800401f4": {
+      "ret": 26,
+      "out": "Invalid interface string\r\n"
+    },
+    "m_800401f5": {
+      "ret": 23,
+      "out": "Application not found\r\n"
+    },
+    "m_800401f6": {
+      "ret": 42,
+      "out": "Application cannot be run more than once\r\n"
+    },
+    "m_800401f7": {
+      "ret": 35,
+      "out": "Some error in application program\r\n"
+    },
+    "m_800401f8": {
+      "ret": 25,
+      "out": "DLL for class not found\r\n"
+    },
+    "m_800401f9": {
+      "ret": 18,
+      "out": "Error in the DLL\r\n"
+    },
+    "m_800401fa": {
+      "ret": 40,
+      "out": "Wrong OS or OS version for application\r\n"
+    },
+    "m_800401fb": {
+      "ret": 26,
+      "out": "Object is not registered\r\n"
+    },
+    "m_800401fc": {
+      "ret": 30,
+      "out": "Object is already registered\r\n"
+    },
+    "m_800401fd": {
+      "ret": 35,
+      "out": "Object is not connected to server\r\n"
+    },
+    "m_800401fe": {
+      "ret": 65,
+      "out": "Application was launched but it didn't register a class factory\r\n"
+    },
+    "m_800401ff": {
+      "ret": 26,
+      "out": "Object has been released\r\n"
+    },
+    "m_8004e021": {
+      "ret": 54,
+      "out": "An unexpected error occurred during COM+ Activation.\r\n"
+    },
+    "m_8004e022": {
+      "ret": 66,
+      "out": "COM+ Activation failed. Check the event log for more information\r\n"
+    },
+    "m_8004e023": {
+      "ret": 65,
+      "out": "COM+ Activation failed due to a catalog or configuration error.\r\n"
+    },
+    "m_8004e024": {
+      "ret": 103,
+      "out": "COM+ activation failed because the activation could not be completed in the specified amount of time.\r\n"
+    },
+    "m_8004e025": {
+      "ret": 109,
+      "out": "COM+ Activation failed because an initialization function failed. Check the event log for more information.\r\n"
+    },
+    "m_8004e028": {
+      "ret": 112,
+      "out": "The components threading model has changed after install into a COM+ Application. Please re-install component.\r\n"
+    },
+    "m_8004e029": {
+      "ret": 57,
+      "out": "IIS intrinsics not available. Start your work with IIS.\r\n"
+    },
+    "m_8004e02a": {
+      "ret": 38,
+      "out": "An attempt to write a cookie failed.\r\n"
+    },
+    "m_8004e02b": {
+      "ret": 67,
+      "out": "An attempt to use a database generated a database specific error.\r\n"
+    },
+    "m_8004e02c": {
+      "ret": 65,
+      "out": "The COM+ component you created must use object pooling to work.\r\n"
+    },
+    "m_8004e02d": {
+      "ret": 80,
+      "out": "The COM+ component you created must use object construction to work correctly.\r\n"
+    },
+    "m_8004e02e": {
+      "ret": 79,
+      "out": "The COM+ component requires synchronization, and it is not configured for it.\r\n"
+    },
+    "m_8004e02f": {
+      "ret": 174,
+      "out": "The TxIsolation Level property for the COM+ component being created is stronger than the TxIsolationLevel for the \"root\" component for the transaction. The creation failed.\r\n"
+    },
+    "m_8004e030": {
+      "ret": 217,
+      "out": "The component attempted to make a cross-context call between invocations of EnterTransactionScopeand ExitTransactionScope. This is not allowed. Cross-context calls cannot be made while inside of a transaction scope.\r\n"
+    },
+    "m_8004e031": {
+      "ret": 133,
+      "out": "The component made a call to EnterTransactionScope, but did not make a corresponding call to ExitTransactionScope before returning.\r\n"
+    },
+    "m_80070005": {
+      "ret": 19,
+      "out": "Access is denied.\r\n"
+    },
+    "m_80070006": {
+      "ret": 24,
+      "out": "The handle is invalid.\r\n"
+    },
+    "m_8007000e": {
+      "ret": 71,
+      "out": "Not enough memory resources are available to complete this operation.\r\n"
+    },
+    "m_80070057": {
+      "ret": 29,
+      "out": "The parameter is incorrect.\r\n"
+    },
+    "m_80080001": {
+      "ret": 41,
+      "out": "Attempt to create a class object failed\r\n"
+    },
+    "m_80080002": {
+      "ret": 35,
+      "out": "OLE service could not bind object\r\n"
+    },
+    "m_80080003": {
+      "ret": 43,
+      "out": "RPC communication failed with OLE service\r\n"
+    },
+    "m_80080004": {
+      "ret": 20,
+      "out": "Bad path to object\r\n"
+    },
+    "m_80080005": {
+      "ret": 25,
+      "out": "Server execution failed\r\n"
+    },
+    "m_80080006": {
+      "ret": 58,
+      "out": "OLE service could not communicate with the object server\r\n"
+    },
+    "m_80080008": {
+      "ret": 56,
+      "out": "Object server is stopping when OLE service contacts it\r\n"
+    },
+    "m_80080015": {
+      "ret": 75,
+      "out": "The activation requires a display name to be present under the CLSID key.\r\n"
+    },
+    "m_80080016": {
+      "ret": 92,
+      "out": "The activation requires that the RunAs value for the application is Activate As Activator.\r\n"
+    },
+    "m_80080017": {
+      "ret": 61,
+      "out": "The class is not configured to support Elevated activation.\r\n"
+    },
+    "m_800b0100": {
+      "ret": 42,
+      "out": "No signature was present in the subject.\r\n"
+    },
+    "m_887a0001": {
+      "ret": 195,
+      "out": "The application made a call that is invalid. Either the parameters of the call or the state of some object was incorrect.\r\nEnable the D3D debug layer in order to see details via debug messages.\r\n"
+    },
+    "m_887a0022": {
+      "ret": 86,
+      "out": "A resource is not available at the time of the call, but may become available later.\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "422945195113f542e0c756eaf16894f5c1635497fcd13f96ec8345bda19bfef7"
+}

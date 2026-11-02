@@ -631,6 +631,106 @@
       "last_error": "unchanged",
       "out": "The parameter is incorrect.\r\n"
     },
+    "probe_sys_path_not_found": {
+      "ret": 44,
+      "last_error": "unchanged",
+      "out": "The system cannot find the path specified.\r\n"
+    },
+    "probe_sys_lock_violation": {
+      "ret": 94,
+      "last_error": "unchanged",
+      "out": "The process cannot access the file because another process has locked a portion of the file.\r\n"
+    },
+    "probe_sys_insufficient_buffer": {
+      "ret": 53,
+      "last_error": "unchanged",
+      "out": "The data area passed to a system call is too small.\r\n"
+    },
+    "probe_sys_proc_not_found": {
+      "ret": 45,
+      "last_error": "unchanged",
+      "out": "The specified procedure could not be found.\r\n"
+    },
+    "probe_sys_dir_not_empty": {
+      "ret": 29,
+      "last_error": "unchanged",
+      "out": "The directory is not empty.\r\n"
+    },
+    "probe_sys_bad_exe_format": {
+      "ret": 38,
+      "last_error": "unchanged",
+      "out": "%1 is not a valid Win32 application.\r\n"
+    },
+    "probe_sys_no_more_items": {
+      "ret": 28,
+      "last_error": "unchanged",
+      "out": "No more data is available.\r\n"
+    },
+    "probe_sys_service_does_not_exist": {
+      "ret": 63,
+      "last_error": "unchanged",
+      "out": "The specified service does not exist as an installed service.\r\n"
+    },
+    "probe_sys_not_found": {
+      "ret": 20,
+      "last_error": "unchanged",
+      "out": "Element not found.\r\n"
+    },
+    "probe_sys_invalid_window_handle": {
+      "ret": 24,
+      "last_error": "unchanged",
+      "out": "Invalid window handle.\r\n"
+    },
+    "probe_sys_timeout": {
+      "ret": 61,
+      "last_error": "unchanged",
+      "out": "This operation returned because the timeout period expired.\r\n"
+    },
+    "probe_sys_rpc_server_unavailable": {
+      "ret": 32,
+      "last_error": "unchanged",
+      "out": "The RPC server is unavailable.\r\n"
+    },
+    "probe_sys_wsaeconnrefused": {
+      "ret": 77,
+      "last_error": "unchanged",
+      "out": "No connection could be made because the target machine actively refused it.\r\n"
+    },
+    "probe_sys_hresult_e_notimpl": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "Not implemented\r\n"
+    },
+    "probe_sys_hresult_e_nointerface": {
+      "ret": 29,
+      "last_error": "unchanged",
+      "out": "No such interface supported\r\n"
+    },
+    "probe_sys_hresult_e_pointer": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "Invalid pointer\r\n"
+    },
+    "probe_sys_hresult_e_unexpected": {
+      "ret": 22,
+      "last_error": "unchanged",
+      "out": "Catastrophic failure\r\n"
+    },
+    "probe_sys_hresult_e_accessdenied": {
+      "ret": 19,
+      "last_error": "unchanged",
+      "out": "Access is denied.\r\n"
+    },
+    "probe_sys_hresult_class_not_reg": {
+      "ret": 22,
+      "last_error": "unchanged",
+      "out": "Class not registered\r\n"
+    },
+    "probe_sys_hresult_co_not_initialized": {
+      "ret": 35,
+      "last_error": "unchanged",
+      "out": "CoInitialize has not been called.\r\n"
+    },
     "sys_buffer_too_small": {
       "ret": 0,
       "last_error": 122
@@ -684,5 +784,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "5918439e1fcc2df3cedb5c6eb2e078bb27c12bbffabc4c81d7b1b66ab30a63a4"
+  "source_sha256": "a8409a65eb67a6ff8ee391de3187b6bd10c81cdd030f49c7f0a74a393d13be05"
 }

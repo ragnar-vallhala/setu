@@ -5,7 +5,8 @@
  * CompareFileTime, FileTimeToDosDateTime / DosDateTimeToFileTime,
  * SystemTimeToTzSpecificLocalTime / TzSpecificLocalTimeToSystemTime with an
  * explicit TIME_ZONE_INFORMATION, a FileTimeToLocalFileTime round trip, and
- * GetDateFormatEx / GetTimeFormatEx with the invariant locale.
+ * GetDateFormatEx / GetTimeFormatEx with the invariant locale, plus the era
+ * name ("gg") in a few named locales.
  *
  * The machine's own time zone is never printed: the local-time APIs are only
  * checked for round trips.
@@ -137,6 +138,19 @@ static void datefmt_case(const char *name, DWORD flags, const wchar_t *fmt, WORD
     wchar_t buf[128];
     int r;
     ORACLE_CALL(r, GetDateFormatEx(LOCALE_NAME_INVARIANT, flags, &st, fmt, buf, 128, NULL));
+    oracle_case(name);
+    o_i64("ret", r);
+    o_lasterr();
+    if (r > 0) o_wstr("out", buf);
+    oracle_case_end();
+}
+
+static void era_case(const char *name, const wchar_t *locale)
+{
+    SYSTEMTIME st = {2024, 2, 4, 29, 13, 5, 9, 7};
+    wchar_t buf[128];
+    int r;
+    ORACLE_CALL(r, GetDateFormatEx(locale, 0, &st, L"gg", buf, 128, NULL));
     oracle_case(name);
     o_i64("ret", r);
     o_lasterr();
@@ -366,6 +380,19 @@ int main(void)
     datefmt_case("probe_date_yyy", 0, L"yyy|yyyyy", 2009, 3, 0, 5);
     datefmt_case("probe_date_y_2024", 0, L"y", 2024, 3, 0, 5);
     datefmt_case("probe_date_g", 0, L"g|ggg", 2024, 2, 4, 29);
+    /* era name of the default (Gregorian) calendar in a few named locales */
+    era_case("probe_era_en_us", L"en-US");
+    era_case("probe_era_en_gb", L"en-GB");
+    era_case("probe_era_en_au", L"en-AU");
+    era_case("probe_era_en_in", L"en-IN");
+    era_case("probe_era_en_ca", L"en-CA");
+    era_case("probe_era_en_nz", L"en-NZ");
+    era_case("probe_era_en_za", L"en-ZA");
+    era_case("probe_era_de_de", L"de-DE");
+    era_case("probe_era_fr_fr", L"fr-FR");
+    era_case("probe_era_es_es", L"es-ES");
+    era_case("probe_era_it_it", L"it-IT");
+    era_case("probe_era_ja_jp", L"ja-JP");
     {
         TIME_ZONE_INFORMATION tz = eastern();
         tz_case("probe_tz_winter_to_local_again", &tz, 1, 2024, 1, 15, 12, 0);
