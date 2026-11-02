@@ -166,6 +166,7 @@ struct fd
 
 static void fd_dump( struct object *obj, int verbose );
 static struct object *fd_get_sync( struct object *obj );
+static int is_dir_empty( int fd );
 static void fd_destroy( struct object *obj );
 
 static const struct object_ops fd_ops =
@@ -246,6 +247,14 @@ struct inode
     struct list         open;       /* list of open file descriptors */
     struct list         locks;      /* list of file locks */
     struct list         closed;     /* list of file descriptors to close at destroy time */
+    struct list         pending;    /* names of the file that are pending deletion */
+};
+
+/* a name of a file that is marked for deletion */
+struct pending_delete
+{
+    struct list         entry;      /* entry in inode pending list */
+    char               *name;       /* Unix name */
 };
 
 static void inode_dump( struct object *obj, int verbose );
@@ -1160,6 +1169,13 @@ static void inode_destroy( struct object *obj )
         free( fd->unix_name );
         free( fd );
     }
+    while ((ptr = list_head( &inode->pending )))
+    {
+        struct pending_delete *pending = LIST_ENTRY( ptr, struct pending_delete, entry );
+        list_remove( ptr );
+        free( pending->name );
+        free( pending );
+    }
     release_object( inode->device );
 }
 
@@ -1189,6 +1205,7 @@ static struct inode *get_inode( dev_t dev, ino_t ino, int unix_fd )
         list_init( &inode->open );
         list_init( &inode->locks );
         list_init( &inode->closed );
+        list_init( &inode->pending );
         list_add_head( &device->inode_hash[hash], &inode->entry );
     }
     else release_object( device );
@@ -1234,6 +1251,79 @@ static void inode_add_closed_fd( struct inode *inode, struct closed_fd *fd )
         free( fd->unix_name );
         free( fd );
     }
+}
+
+
+/* Delete pending state. On Windows the disposition belongs to a name of the
+ * file (a link), not to a handle: once it is set, or once a handle opened with
+ * FILE_DELETE_ON_CLOSE is closed, that name stays in its directory but can't be
+ * opened any more, and it is removed when the last open of the file goes away.
+ * Clearing the disposition through any handle cancels it. */
+
+/* find an inode without creating it */
+static struct inode *find_inode( dev_t dev, ino_t ino )
+{
+    struct device *device;
+    struct inode *inode;
+    unsigned int hash = dev % DEVICE_HASH_SIZE;
+
+    if (!device_hash[hash].next) return NULL;
+    LIST_FOR_EACH_ENTRY( device, &device_hash[hash], struct device, entry )
+    {
+        if (device->dev != dev) continue;
+        LIST_FOR_EACH_ENTRY( inode, &device->inode_hash[ino % INODE_HASH_SIZE], struct inode, entry )
+            if (inode->ino == ino) return inode;
+        break;
+    }
+    return NULL;
+}
+
+static int inode_is_delete_pending( struct inode *inode, const char *name )
+{
+    struct pending_delete *pending;
+
+    if (!name) return 0;
+    LIST_FOR_EACH_ENTRY( pending, &inode->pending, struct pending_delete, entry )
+        if (!strcmp( pending->name, name )) return 1;
+    return 0;
+}
+
+static void inode_set_delete_pending( struct inode *inode, const char *name )
+{
+    struct pending_delete *pending;
+
+    if (!name || inode_is_delete_pending( inode, name )) return;
+    if (!(pending = mem_alloc( sizeof(*pending) ))) return;
+    if (!(pending->name = strdup( name )))
+    {
+        free( pending );
+        return;
+    }
+    list_add_tail( &inode->pending, &pending->entry );
+}
+
+static void inode_clear_delete_pending( struct inode *inode, const char *name )
+{
+    struct pending_delete *pending, *next;
+    struct closed_fd *closed;
+    struct fd *fd_ptr;
+
+    if (!name) return;
+    LIST_FOR_EACH_ENTRY_SAFE( pending, next, &inode->pending, struct pending_delete, entry )
+    {
+        if (strcmp( pending->name, name )) continue;
+        list_remove( &pending->entry );
+        free( pending->name );
+        free( pending );
+    }
+    LIST_FOR_EACH_ENTRY( closed, &inode->closed, struct closed_fd, entry )
+        if (closed->unix_name && !strcmp( closed->unix_name, name ))
+            closed->disp_flags &= ~FILE_DISPOSITION_DELETE;
+    /* handles opened with FILE_DELETE_ON_CLOSE still delete the file when they close */
+    LIST_FOR_EACH_ENTRY( fd_ptr, &inode->open, struct fd, inode_entry )
+        if (fd_ptr->closed && fd_ptr->unix_name && !strcmp( fd_ptr->unix_name, name ) &&
+            !(fd_ptr->options & FILE_DELETE_ON_CLOSE))
+            fd_ptr->closed->disp_flags &= ~FILE_DISPOSITION_DELETE;
 }
 
 
@@ -1624,6 +1714,19 @@ static void fd_destroy( struct object *obj )
     free( fd->nt_name );
     if (fd->inode)
     {
+        /* closing a handle opened with FILE_DELETE_ON_CLOSE (or one whose
+         * disposition is set) makes its name delete pending until the last
+         * open of the file goes away */
+        if ((fd->closed->disp_flags & FILE_DISPOSITION_DELETE) &&
+            !(fd->closed->disp_flags & FILE_DISPOSITION_POSIX_SEMANTICS) &&
+            !list_empty( &fd->inode->open ))
+        {
+            /* a non-empty directory is not deleted */
+            if (fd->unix_fd != -1 && is_dir_empty( fd->unix_fd ) == 0)
+                fd->closed->disp_flags &= ~FILE_DISPOSITION_DELETE;
+            else
+                inode_set_delete_pending( fd->inode, fd->unix_name );
+        }
         inode_add_closed_fd( fd->inode, fd->closed );
         release_object( fd->inode );
     }
@@ -2066,6 +2169,12 @@ struct fd *open_fd( struct fd *root, const char *name, struct unicode_str nt_nam
             set_error( STATUS_FILE_IS_A_DIRECTORY );
             goto error;
         }
+        /* a name that is pending deletion can't be opened again */
+        if (inode_is_delete_pending( inode, fd->unix_name ))
+        {
+            set_error( STATUS_DELETE_PENDING );
+            goto error;
+        }
         if ((err = check_sharing( fd, access, sharing, flags, options )))
         {
             set_error( err );
@@ -2080,8 +2189,6 @@ struct fd *open_fd( struct fd *root, const char *name, struct unicode_str nt_nam
             goto error;
         }
 
-        fd->closed->disp_flags = (options & FILE_DELETE_ON_CLOSE) ?
-            FILE_DISPOSITION_DELETE : 0;
         if (flags & O_TRUNC)
         {
             if (S_ISDIR(st.st_mode))
@@ -2091,6 +2198,8 @@ struct fd *open_fd( struct fd *root, const char *name, struct unicode_str nt_nam
             }
             ftruncate( fd->unix_fd, 0 );
         }
+        fd->closed->disp_flags = (options & FILE_DELETE_ON_CLOSE) ?
+            FILE_DISPOSITION_DELETE : 0;
     }
     else  /* special file */
     {
@@ -2859,6 +2968,14 @@ static void set_fd_disposition( struct fd *fd, unsigned int flags )
     fd->closed->disp_flags =
         (flags & (FILE_DISPOSITION_DELETE | FILE_DISPOSITION_POSIX_SEMANTICS)) |
         ((fd->options & FILE_DELETE_ON_CLOSE) ? FILE_DISPOSITION_DELETE : 0);
+
+    /* setting the disposition makes the name delete pending at once; clearing
+     * it cancels a pending delete requested through any handle */
+    if (!(flags & FILE_DISPOSITION_ON_CLOSE))
+    {
+        if (flags & FILE_DISPOSITION_DELETE) inode_set_delete_pending( fd->inode, fd->unix_name );
+        else inode_clear_delete_pending( fd->inode, fd->unix_name );
+    }
 }
 
 /* set new name for the fd */
@@ -3321,6 +3438,34 @@ DECL_HANDLER(set_fd_disp_info)
         set_fd_disposition( fd, req->flags );
         release_object( fd );
     }
+}
+
+/* check whether a name of a file is pending deletion */
+DECL_HANDLER(get_delete_pending)
+{
+    struct inode *inode;
+    struct fd *fd;
+    char *name, *path;
+
+    reply->pending = 0;
+    if (req->handle)
+    {
+        if (!(fd = get_handle_fd_obj( current->process, req->handle, 0 ))) return;
+        if (fd->inode) reply->pending = inode_is_delete_pending( fd->inode, fd->unix_name );
+        release_object( fd );
+        return;
+    }
+
+    if (!(inode = find_inode( req->device, req->inode )) || list_empty( &inode->pending )) return;
+    if (!(name = mem_alloc( get_req_data_size() + 1 ))) return;
+    memcpy( name, get_req_data(), get_req_data_size() );
+    name[get_req_data_size()] = 0;
+    if ((path = realpath( name, NULL )))
+    {
+        reply->pending = inode_is_delete_pending( inode, path );
+        free( path );
+    }
+    free( name );
 }
 
 /* set fd name information */

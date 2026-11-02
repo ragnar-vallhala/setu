@@ -5699,6 +5699,23 @@ struct set_fd_disp_info_reply
 
 
 
+struct get_delete_pending_request
+{
+    struct request_header __header;
+    obj_handle_t handle;
+    file_pos_t   device;
+    file_pos_t   inode;
+    /* VARARG(name,string); */
+};
+struct get_delete_pending_reply
+{
+    struct reply_header __header;
+    int          pending;
+    char __pad_12[4];
+};
+
+
+
 struct set_fd_name_info_request
 {
     struct request_header __header;
@@ -6545,6 +6562,7 @@ enum request
     REQ_add_fd_completion,
     REQ_set_fd_completion_mode,
     REQ_set_fd_disp_info,
+    REQ_get_delete_pending,
     REQ_set_fd_name_info,
     REQ_set_fd_eof_info,
     REQ_get_window_layered_info,
@@ -6865,6 +6883,7 @@ union generic_request
     struct add_fd_completion_request add_fd_completion_request;
     struct set_fd_completion_mode_request set_fd_completion_mode_request;
     struct set_fd_disp_info_request set_fd_disp_info_request;
+    struct get_delete_pending_request get_delete_pending_request;
     struct set_fd_name_info_request set_fd_name_info_request;
     struct set_fd_eof_info_request set_fd_eof_info_request;
     struct get_window_layered_info_request get_window_layered_info_request;
@@ -7183,6 +7202,7 @@ union generic_reply
     struct add_fd_completion_reply add_fd_completion_reply;
     struct set_fd_completion_mode_reply set_fd_completion_mode_reply;
     struct set_fd_disp_info_reply set_fd_disp_info_reply;
+    struct get_delete_pending_reply get_delete_pending_reply;
     struct set_fd_name_info_reply set_fd_name_info_reply;
     struct set_fd_eof_info_reply set_fd_eof_info_reply;
     struct get_window_layered_info_reply get_window_layered_info_reply;
@@ -7220,6 +7240,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 934
+#define SERVER_PROTOCOL_VERSION 935
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

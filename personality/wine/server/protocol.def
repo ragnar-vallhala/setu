@@ -3992,6 +3992,17 @@ struct handle_info
 @END
 
 
+/* check whether a name of a file is pending deletion */
+@REQ(get_delete_pending)
+    obj_handle_t handle;          /* handle to the file, or 0 to look it up by name */
+    file_pos_t   device;          /* device number of the Unix file (without handle) */
+    file_pos_t   inode;           /* inode number of the Unix file (without handle) */
+    VARARG(name,string);          /* Unix name of the file (without handle) */
+@REPLY
+    int          pending;         /* is the name delete pending? */
+@END
+
+
 /* set fd name information */
 @REQ(set_fd_name_info)
     obj_handle_t handle;          /* handle to a file or directory */

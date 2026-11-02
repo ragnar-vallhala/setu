@@ -3215,6 +3215,19 @@ static void dump_set_fd_disp_info_request( const struct set_fd_disp_info_request
     fprintf( stderr, ", flags=%08x", req->flags );
 }
 
+static void dump_get_delete_pending_request( const struct get_delete_pending_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    dump_uint64( ", device=", &req->device );
+    dump_uint64( ", inode=", &req->inode );
+    dump_varargs_string( ", name=", cur_size );
+}
+
+static void dump_get_delete_pending_reply( const struct get_delete_pending_reply *req )
+{
+    fprintf( stderr, " pending=%d", req->pending );
+}
+
 static void dump_set_fd_name_info_request( const struct set_fd_name_info_request *req )
 {
     fprintf( stderr, " handle=%04x", req->handle );
@@ -3855,6 +3868,7 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_add_fd_completion_request,
     (dump_func)dump_set_fd_completion_mode_request,
     (dump_func)dump_set_fd_disp_info_request,
+    (dump_func)dump_get_delete_pending_request,
     (dump_func)dump_set_fd_name_info_request,
     (dump_func)dump_set_fd_eof_info_request,
     (dump_func)dump_get_window_layered_info_request,
@@ -4172,6 +4186,7 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     NULL,
     NULL,
     NULL,
+    (dump_func)dump_get_delete_pending_reply,
     NULL,
     NULL,
     (dump_func)dump_get_window_layered_info_reply,
@@ -4489,6 +4504,7 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "add_fd_completion",
     "set_fd_completion_mode",
     "set_fd_disp_info",
+    "get_delete_pending",
     "set_fd_name_info",
     "set_fd_eof_info",
     "get_window_layered_info",
@@ -4551,6 +4567,7 @@ static const struct
     { "CONNECTION_REFUSED",          STATUS_CONNECTION_REFUSED },
     { "CONNECTION_RESET",            STATUS_CONNECTION_RESET },
     { "DEBUGGER_INACTIVE",           STATUS_DEBUGGER_INACTIVE },
+    { "DELETE_PENDING",              STATUS_DELETE_PENDING },
     { "DEVICE_BUSY",                 STATUS_DEVICE_BUSY },
     { "DEVICE_NOT_READY",            STATUS_DEVICE_NOT_READY },
     { "DIRECTORY_NOT_EMPTY",         STATUS_DIRECTORY_NOT_EMPTY },
