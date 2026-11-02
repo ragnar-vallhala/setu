@@ -131,6 +131,7 @@
     "kernel32/GetFileAttributesW:directory",
     "kernel32/GetFileAttributesW:directory_trailing_backslash",
     "kernel32/GetFileAttributesW:empty_string",
+    "kernel32/GetFileAttributesW:file_trailing_backslash",
     "kernel32/GetFileAttributesW:missing_file",
     "kernel32/GetFileAttributesW:missing_parent",
     "kernel32/GetFileAttributesW:missing_trailing_backslash",
