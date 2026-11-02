@@ -135,6 +135,7 @@
     "advapi32/RegQueryInfoKeyW:get_zeroonfailure",
     "advapi32/RegQueryInfoKeyW:info_all_null",
     "advapi32/RegQueryInfoKeyW:info_invalid_handle",
+    "advapi32/RegQueryInfoKeyW:info_max_lengths_after_delete",
     "advapi32/RegQueryInfoKeyW:info_set_value_access_only",
     "advapi32/RegQueryInfoKeyW:info_without_query_value_access",
     "advapi32/RegQueryInfoKeyW:mui_bad_flags",

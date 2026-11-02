@@ -90,6 +90,10 @@ struct key
     unsigned int      flags;       /* flags */
     timeout_t         modif;       /* last modification time */
     struct list       notify_list; /* list of notifications */
+    data_size_t       max_subkey;  /* high-water marks of removed or replaced */
+    data_size_t       max_class;   /* subkeys and values: the maximum lengths */
+    data_size_t       max_value;   /* reported for a key never shrink while */
+    data_size_t       max_data;    /* it is loaded */
 };
 
 /* key flags */
@@ -628,6 +632,9 @@ static void key_unlink_name( struct object *obj, struct object_name *name )
 
     for (i = 0; i <= parent->last_subkey; i++) if (parent->subkeys[i] == key) break;
     assert( i <= parent->last_subkey );
+    /* the parent keeps reporting the lengths of removed subkeys */
+    if (name->len > parent->max_subkey) parent->max_subkey = name->len;
+    if (key->classlen > parent->max_class) parent->max_class = key->classlen;
     for ( ; i < parent->last_subkey; i++) parent->subkeys[i] = parent->subkeys[i + 1];
     parent->last_subkey--;
     name->parent = NULL;
@@ -716,6 +723,10 @@ static struct key *create_key_object( struct object *parent, const struct unicod
             key->last_value  = -1;
             key->values      = NULL;
             key->modif       = modif;
+            key->max_subkey  = 0;
+            key->max_class   = 0;
+            key->max_value   = 0;
+            key->max_data    = 0;
             list_init( &key->notify_list );
 
             if (options & REG_OPTION_CREATE_LINK) key->flags |= KEY_SYMLINK;
@@ -913,8 +924,7 @@ static void enum_key( struct key *key, int index, int info_class, struct enum_ke
 {
     int i;
     data_size_t len, namelen, classlen;
-    data_size_t max_subkey = 0, max_class = 0;
-    data_size_t max_value = 0, max_data = 0;
+    data_size_t max_subkey = 0, max_class = 0, max_value = 0, max_data = 0;
     WCHAR *fullname = NULL;
     char *data;
 
@@ -953,6 +963,10 @@ static void enum_key( struct key *key, int index, int info_class, struct enum_ke
         break;
     case KeyFullInformation:
     case KeyCachedInformation:
+        max_subkey = key->max_subkey;
+        max_class  = key->max_class;
+        max_value  = key->max_value;
+        max_data   = key->max_data;
         for (i = 0; i <= key->last_subkey; i++)
         {
             if (key->subkeys[i]->obj.name->len > max_subkey) max_subkey = key->subkeys[i]->obj.name->len;
@@ -1215,7 +1229,11 @@ static void set_value( struct key *key, const struct unicode_str *name,
             return;
         }
     }
-    else free( value->data ); /* already existing, free previous data */
+    else
+    {
+        if (value->len > key->max_data) key->max_data = value->len;
+        free( value->data ); /* already existing, free previous data */
+    }
 
     value->type  = type;
     value->len   = len;
@@ -1325,6 +1343,9 @@ static void delete_value( struct key *key, const struct unicode_str *name )
         return;
     }
     if (debug_level > 1) dump_operation( key, value, "Delete" );
+    /* the key keeps reporting the lengths of deleted values */
+    if (value->namelen > key->max_value) key->max_value = value->namelen;
+    if (value->len > key->max_data) key->max_data = value->len;
     free( value->name );
     free( value->data );
     for (i = index; i < key->last_value; i++) key->values[i] = key->values[i + 1];
