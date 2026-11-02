@@ -4131,6 +4131,28 @@ static int map_to_halfwidth( const USHORT *table, const WCHAR *src, int srclen, 
 }
 
 
+/* LCMAP_TITLECASE: the first letter of each word in upper case, the others
+ * in lower case */
+static int map_to_titlecase( const struct sortguid *sortid, DWORD flags,
+                             const WCHAR *src, int srclen, WCHAR *dst, int dstlen )
+{
+    const USHORT *table = sort.casemap + (flags & LCMAP_LINGUISTIC_CASING ? sortid->casemap : 0);
+    const USHORT *upper = table + 2, *lower = table + 2 + table[1];
+    BOOL in_word = FALSE;
+    int pos;
+
+    for (pos = 0; pos < srclen && pos < dstlen; pos++)
+    {
+        WCHAR ch = src[pos];
+        BOOL alpha = (get_char_type( CT_CTYPE1, ch ) & C1_ALPHA) != 0;
+
+        dst[pos] = casemap( in_word ? lower : upper, ch );
+        in_word = alpha;
+    }
+    return srclen;
+}
+
+
 static int lcmap_string( const struct sortguid *sortid, DWORD flags,
                          const WCHAR *src, int srclen, WCHAR *dst, int dstlen )
 {
@@ -4139,10 +4161,20 @@ static int lcmap_string( const struct sortguid *sortid, DWORD flags,
 
     if (flags & (LCMAP_LOWERCASE | LCMAP_UPPERCASE))
     {
-        if ((flags & LCMAP_TITLECASE) == LCMAP_TITLECASE)  /* FIXME */
+        if ((flags & LCMAP_TITLECASE) == LCMAP_TITLECASE)
         {
-            SetLastError( ERROR_INVALID_FLAGS );
-            return 0;
+            if (flags & ~(LCMAP_TITLECASE | LCMAP_LINGUISTIC_CASING))
+            {
+                SetLastError( ERROR_INVALID_FLAGS );
+                return 0;
+            }
+            ret = map_to_titlecase( sortid, flags, src, srclen, dst, dstlen );
+            if (dstlen && dstlen < ret)
+            {
+                SetLastError( ERROR_INSUFFICIENT_BUFFER );
+                return 0;
+            }
+            return ret;
         }
         case_table = sort.casemap + (flags & LCMAP_LINGUISTIC_CASING ? sortid->casemap : 0);
         case_table = case_table + 2 + (flags & LCMAP_LOWERCASE ? case_table[1] : 0);
