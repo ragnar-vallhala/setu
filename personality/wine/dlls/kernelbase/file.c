@@ -4321,7 +4321,17 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetSystemTimeAdjustment( DWORD adjust, BOOL disabl
  */
 BOOL WINAPI DECLSPEC_HOTPATCH SystemTimeToFileTime( const SYSTEMTIME *systime, FILETIME *ft )
 {
+    WORD year = systime->wYear;
     TIME_FIELDS tf;
+
+    /* February 29 only exists in leap years, and the last year that fits a
+     * FILETIME the API accepts is 30827 */
+    if (year > 30827 || (systime->wMonth == 2 && systime->wDay == 29 &&
+                         (year % 4 || (!(year % 100) && year % 400))))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
 
     tf.Year = systime->wYear;
     tf.Month = systime->wMonth;
