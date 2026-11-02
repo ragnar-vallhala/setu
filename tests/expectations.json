@@ -2046,6 +2046,7 @@
     "ole32/com_basics:clsid_unknown_progid",
     "ole32/com_basics:cocreateguid",
     "ole32/com_basics:cocreateinstance_before_init",
+    "ole32/com_basics:cocreateinstance_null_out",
     "ole32/com_basics:cocreateinstance_unregistered",
     "ole32/com_basics:cogetmalloc_bogus_ctx",
     "ole32/com_basics:cogetmalloc_shared",

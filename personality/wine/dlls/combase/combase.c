@@ -1732,7 +1732,7 @@ HRESULT WINAPI DECLSPEC_HOTPATCH CoCreateInstance(REFCLSID rclsid, IUnknown *out
     TRACE("%s, %p, %#lx, %s, %p.\n", debugstr_guid(rclsid), outer, cls_context, debugstr_guid(riid), obj);
 
     if (!obj)
-        return E_POINTER;
+        return E_INVALIDARG;
 
     hr = CoCreateInstanceEx(rclsid, outer, cls_context, NULL, 1, &multi_qi);
     *obj = multi_qi.pItf;
