@@ -6205,6 +6205,11 @@ ULONG_PTR WINAPI NtUserCallHwndParam( HWND hwnd, DWORD_PTR param, DWORD code )
     }
 
     case NtUserCallHwndParam_GetWindowRelative:
+        if (param > GW_ENABLEDPOPUP)
+        {
+            RtlSetLastWin32Error( ERROR_INVALID_GW_COMMAND );
+            return 0;
+        }
         return HandleToUlong( get_window_relative( hwnd, param ));
 
     case NtUserCallHwndParam_GetWindowThread:
