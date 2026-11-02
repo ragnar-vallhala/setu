@@ -974,6 +974,7 @@ LSTATUS WINAPI RegQueryInfoKeyW( HKEY hkey, LPWSTR class, LPDWORD class_len, LPD
            reserved, subkeys, max_subkey, values, max_value, max_data, security, modif );
 
     if (class && !class_len && is_version_nt()) return ERROR_INVALID_PARAMETER;
+    if (reserved) return ERROR_INVALID_PARAMETER;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
     status = NtQueryKey( hkey, KeyFullInformation, buffer, sizeof(buffer), &total_size );
