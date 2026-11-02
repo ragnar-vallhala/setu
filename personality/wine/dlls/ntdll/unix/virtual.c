@@ -1918,6 +1918,49 @@ static NTSTATUS get_vprot_flags( DWORD protect, unsigned int *vprot, BOOL image 
     return STATUS_SUCCESS;
 }
 
+/* protection bits between PAGE_WRITECOMBINE and the enclave/target flags:
+ * Windows fails them with STATUS_NOT_SUPPORTED */
+#define PAGE_UNSUPPORTED_FLAGS 0x0003f800
+/* enclave and control-flow target flags (PAGE_ENCLAVE_*, PAGE_TARGETS_*) */
+#define PAGE_HIGH_FLAGS        0xf0000000
+
+static BOOL is_exec_protect( ULONG protect )
+{
+    switch (protect & 0xff)
+    {
+    case PAGE_EXECUTE:
+    case PAGE_EXECUTE_READ:
+    case PAGE_EXECUTE_READWRITE:
+    case PAGE_EXECUTE_WRITECOPY:
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* the flags of PAGE_HIGH_FLAGS that a protection value may carry */
+static ULONG valid_high_flags( ULONG protect )
+{
+    /* PAGE_TARGETS_INVALID and PAGE_TARGETS_NO_UPDATE share this value */
+    return is_exec_protect( protect ) ? 0x40000000 : 0;
+}
+
+/***********************************************************************
+ *           check_protect_modifiers
+ *
+ * Check the modifier bits of a protection value: unknown bits and the
+ * combinations that the memory protection constants documentation forbids.
+ */
+static NTSTATUS check_protect_modifiers( ULONG protect, ULONG allowed )
+{
+    if (protect & ~(0xff | PAGE_GUARD | PAGE_NOCACHE | PAGE_WRITECOMBINE | allowed))
+        return STATUS_INVALID_PAGE_PROTECTION;
+    if ((protect & PAGE_NOCACHE) && (protect & (PAGE_GUARD | PAGE_WRITECOMBINE)))
+        return STATUS_INVALID_PAGE_PROTECTION;
+    if ((protect & PAGE_WRITECOMBINE) && (protect & PAGE_GUARD))
+        return STATUS_INVALID_PAGE_PROTECTION;
+    return STATUS_SUCCESS;
+}
+
 
 /***********************************************************************
  *           mprotect_exec
@@ -5099,12 +5142,13 @@ static NTSTATUS allocate_virtual_memory( void **ret, SIZE_T *size_ptr, ULONG typ
 
     if (type & MEM_RESERVE_PLACEHOLDER && (protect != PAGE_NOACCESS)) return STATUS_INVALID_PARAMETER;
     if (!arm64ec_view && (attributes & MEM_EXTENDED_PARAMETER_EC_CODE)) return STATUS_INVALID_PARAMETER;
+    if (protect & PAGE_UNSUPPORTED_FLAGS) return STATUS_NOT_SUPPORTED;
+    if ((status = check_protect_modifiers( protect, valid_high_flags( protect )))) return status;
 
     /* Reserve the memory */
 
     server_enter_uninterrupted_section( &virtual_mutex, &sigset );
 
-    if ((type & MEM_RESERVE) || !base)
     {
         if (!(status = get_vprot_flags( protect, &vprot, FALSE )))
         {
@@ -5474,12 +5518,19 @@ NTSTATUS WINAPI NtProtectVirtualMemory( HANDLE process, PVOID *addr_ptr, SIZE_T 
     BYTE vprot;
     SIZE_T size = *size_ptr;
     LPVOID addr = *addr_ptr;
+    unsigned int vprot32;
     DWORD old;
 
     TRACE("%p %p %08lx %08x\n", process, addr, size, new_prot );
 
     if (!old_prot)
         return STATUS_ACCESS_VIOLATION;
+
+    /* invalid parameters fail before *old_prot is written */
+    if (!size) return STATUS_INVALID_PARAMETER_3;
+    if ((status = check_protect_modifiers( new_prot, PAGE_UNSUPPORTED_FLAGS | PAGE_HIGH_FLAGS )))
+        return status;
+    if ((status = get_vprot_flags( new_prot, &vprot32, FALSE ))) return status;
 
     if (process != NtCurrentProcess())
     {
@@ -5512,7 +5563,11 @@ NTSTATUS WINAPI NtProtectVirtualMemory( HANDLE process, PVOID *addr_ptr, SIZE_T 
 
     server_enter_uninterrupted_section( &virtual_mutex, &sigset );
 
-    if ((view = find_view( base, size )))
+    /* these pass validation but fail without changing anything */
+    if (new_prot & PAGE_UNSUPPORTED_FLAGS) status = STATUS_NOT_SUPPORTED;
+    else if (new_prot & PAGE_HIGH_FLAGS & ~(PAGE_ENCLAVE_UNVALIDATED | valid_high_flags( new_prot )))
+        status = STATUS_INVALID_PAGE_PROTECTION;
+    else if ((view = find_view( base, size )))
     {
         /* Make sure all the pages are committed */
         if (get_committed_size( view, base, size, &vprot, VPROT_COMMITTED ) >= size && (vprot & VPROT_COMMITTED))
@@ -5522,7 +5577,7 @@ NTSTATUS WINAPI NtProtectVirtualMemory( HANDLE process, PVOID *addr_ptr, SIZE_T 
         }
         else status = STATUS_NOT_COMMITTED;
     }
-    else status = STATUS_INVALID_PARAMETER;
+    else status = STATUS_CONFLICTING_ADDRESSES;
 
     if (!status) VIRTUAL_DEBUG_DUMP_VIEW( view );
 
