@@ -1208,6 +1208,7 @@
     "kernel32/file_info_by_handle:rename_to_same_name",
     "kernel32/file_info_by_handle:rename_to_subdir_missing",
     "kernel32/file_info_by_handle:rename_without_delete_access",
+    "kernel32/file_info_by_handle:set_allocation_below_eof",
     "kernel32/file_info_by_handle:set_basic_attrs",
     "kernel32/file_info_by_handle:set_basic_directory_attr",
     "kernel32/file_info_by_handle:set_basic_normal",

@@ -5510,6 +5510,19 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
         else status = STATUS_INFO_LENGTH_MISMATCH;
         break;
 
+    case FileAllocationInformation:
+        if (len >= sizeof(FILE_ALLOCATION_INFORMATION))
+        {
+            if ((status = server_get_unix_fd( handle, FILE_WRITE_DATA, &fd, &needs_close, NULL, NULL )))
+                return io->Status = status;
+            /* The allocation size is how much disk space the file system reserves
+             * for the file. Host file systems manage that themselves, and the end
+             * of file and the data don't change, so there is nothing to do. */
+            if (needs_close) close( fd );
+        }
+        else status = STATUS_INFO_LENGTH_MISMATCH;
+        break;
+
     case FilePipeInformation:
         if (len >= sizeof(FILE_PIPE_INFORMATION))
         {
