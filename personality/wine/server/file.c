@@ -716,3 +716,15 @@ DECL_HANDLER(unlock_file)
         release_object( file );
     }
 }
+
+/* check whether I/O on a region of a file conflicts with a lock */
+DECL_HANDLER(check_file_lock)
+{
+    struct file *file;
+
+    if ((file = get_file_obj( current->process, req->handle, 0 )))
+    {
+        check_fd_lock( file->fd, req->offset, req->count, req->write );
+        release_object( file );
+    }
+}

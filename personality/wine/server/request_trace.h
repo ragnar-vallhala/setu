@@ -752,6 +752,14 @@ static void dump_unlock_file_request( const struct unlock_file_request *req )
     dump_uint64( ", count=", &req->count );
 }
 
+static void dump_check_file_lock_request( const struct check_file_lock_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    dump_uint64( ", offset=", &req->offset );
+    dump_uint64( ", count=", &req->count );
+    fprintf( stderr, ", write=%d", req->write );
+}
+
 static void dump_recv_socket_request( const struct recv_socket_request *req )
 {
     fprintf( stderr, " oob=%d", req->oob );
@@ -3567,6 +3575,7 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_get_volume_info_request,
     (dump_func)dump_lock_file_request,
     (dump_func)dump_unlock_file_request,
+    (dump_func)dump_check_file_lock_request,
     (dump_func)dump_recv_socket_request,
     (dump_func)dump_send_socket_request,
     (dump_func)dump_socket_get_events_request,
@@ -3876,6 +3885,7 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_get_file_info_reply,
     (dump_func)dump_get_volume_info_reply,
     (dump_func)dump_lock_file_reply,
+    NULL,
     NULL,
     (dump_func)dump_recv_socket_reply,
     (dump_func)dump_send_socket_reply,
@@ -4187,6 +4197,7 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "get_volume_info",
     "lock_file",
     "unlock_file",
+    "check_file_lock",
     "recv_socket",
     "send_socket",
     "socket_get_events",
@@ -4570,6 +4581,7 @@ static const struct
     { "PROCESS_IN_JOB",              STATUS_PROCESS_IN_JOB },
     { "PROCESS_IS_TERMINATING",      STATUS_PROCESS_IS_TERMINATING },
     { "PROCESS_NOT_IN_JOB",          STATUS_PROCESS_NOT_IN_JOB },
+    { "RANGE_NOT_LOCKED",            STATUS_RANGE_NOT_LOCKED },
     { "REPARSE_POINT_NOT_RESOLVED",  STATUS_REPARSE_POINT_NOT_RESOLVED },
     { "SECTION_TOO_BIG",             STATUS_SECTION_TOO_BIG },
     { "SEMAPHORE_LIMIT_EXCEEDED",    STATUS_SEMAPHORE_LIMIT_EXCEEDED },

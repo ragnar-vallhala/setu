@@ -1705,6 +1705,15 @@ enum server_fd_type
 @END
 
 
+/* Check whether reading or writing a region of a file conflicts with a lock */
+@REQ(check_file_lock)
+    obj_handle_t handle;        /* handle to the file */
+    file_pos_t   offset;        /* offset of start of the I/O */
+    file_pos_t   count;         /* count of bytes to read or write */
+    int          write;         /* is it a write? */
+@END
+
+
 /* Perform a recv on a socket */
 @REQ(recv_socket)
     int          oob;           /* are we receiving OOB data? */

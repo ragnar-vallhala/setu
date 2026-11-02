@@ -2025,6 +2025,22 @@ struct unlock_file_reply
 
 
 
+struct check_file_lock_request
+{
+    struct request_header __header;
+    obj_handle_t handle;
+    file_pos_t   offset;
+    file_pos_t   count;
+    int          write;
+    char __pad_36[4];
+};
+struct check_file_lock_reply
+{
+    struct reply_header __header;
+};
+
+
+
 struct recv_socket_request
 {
     struct request_header __header;
@@ -6216,6 +6232,7 @@ enum request
     REQ_get_volume_info,
     REQ_lock_file,
     REQ_unlock_file,
+    REQ_check_file_lock,
     REQ_recv_socket,
     REQ_send_socket,
     REQ_socket_get_events,
@@ -6529,6 +6546,7 @@ union generic_request
     struct get_volume_info_request get_volume_info_request;
     struct lock_file_request lock_file_request;
     struct unlock_file_request unlock_file_request;
+    struct check_file_lock_request check_file_lock_request;
     struct recv_socket_request recv_socket_request;
     struct send_socket_request send_socket_request;
     struct socket_get_events_request socket_get_events_request;
@@ -6840,6 +6858,7 @@ union generic_reply
     struct get_volume_info_reply get_volume_info_reply;
     struct lock_file_reply lock_file_reply;
     struct unlock_file_reply unlock_file_reply;
+    struct check_file_lock_reply check_file_lock_reply;
     struct recv_socket_reply recv_socket_reply;
     struct send_socket_reply send_socket_reply;
     struct socket_get_events_reply socket_get_events_reply;
@@ -7093,6 +7112,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 930
+#define SERVER_PROTOCOL_VERSION 931
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

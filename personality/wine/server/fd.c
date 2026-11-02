@@ -1568,6 +1568,28 @@ void unlock_fd( struct fd *fd, file_pos_t start, file_pos_t count )
     set_error( STATUS_RANGE_NOT_LOCKED );
 }
 
+/* check whether reading (or writing) a range through an fd conflicts with a lock */
+/* Windows locks are mandatory: a read is blocked by another fd's exclusive lock,
+ * a write by another fd's lock of either kind and also by the fd's own shared locks */
+void check_fd_lock( struct fd *fd, file_pos_t start, file_pos_t count, int write )
+{
+    struct file_lock *lock;
+    file_pos_t end = start + count;
+
+    if (!fd->inode || !count) return;
+    if (end < start) end = 0;  /* up to the end of the file space */
+
+    LIST_FOR_EACH_ENTRY( lock, &fd->inode->locks, struct file_lock, inode_entry )
+    {
+        if (lock->start == lock->end) continue;  /* zero-byte locks don't cover anything */
+        if (!lock_overlaps( lock, start, end )) continue;
+        if (lock->fd == fd && !(write && lock->shared)) continue;
+        if (lock->fd != fd && !write && lock->shared) continue;
+        set_error( STATUS_FILE_LOCK_CONFLICT );
+        return;
+    }
+}
+
 
 /****************************************************************/
 /* file descriptor functions */

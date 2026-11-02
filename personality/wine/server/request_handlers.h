@@ -62,6 +62,7 @@ DECL_HANDLER(get_file_info);
 DECL_HANDLER(get_volume_info);
 DECL_HANDLER(lock_file);
 DECL_HANDLER(unlock_file);
+DECL_HANDLER(check_file_lock);
 DECL_HANDLER(recv_socket);
 DECL_HANDLER(send_socket);
 DECL_HANDLER(socket_get_events);
@@ -372,6 +373,7 @@ static const req_handler req_handlers[REQ_NB_REQUESTS] =
     (req_handler)req_get_volume_info,
     (req_handler)req_lock_file,
     (req_handler)req_unlock_file,
+    (req_handler)req_check_file_lock,
     (req_handler)req_recv_socket,
     (req_handler)req_send_socket,
     (req_handler)req_socket_get_events,
@@ -1025,6 +1027,11 @@ C_ASSERT( offsetof(struct unlock_file_request, handle) == 12 );
 C_ASSERT( offsetof(struct unlock_file_request, offset) == 16 );
 C_ASSERT( offsetof(struct unlock_file_request, count) == 24 );
 C_ASSERT( sizeof(struct unlock_file_request) == 32 );
+C_ASSERT( offsetof(struct check_file_lock_request, handle) == 12 );
+C_ASSERT( offsetof(struct check_file_lock_request, offset) == 16 );
+C_ASSERT( offsetof(struct check_file_lock_request, count) == 24 );
+C_ASSERT( offsetof(struct check_file_lock_request, write) == 32 );
+C_ASSERT( sizeof(struct check_file_lock_request) == 40 );
 C_ASSERT( offsetof(struct recv_socket_request, oob) == 12 );
 C_ASSERT( offsetof(struct recv_socket_request, async) == 16 );
 C_ASSERT( offsetof(struct recv_socket_request, force_async) == 56 );
