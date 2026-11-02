@@ -2088,6 +2088,32 @@ static inline void get_file_times( const struct stat *st, LARGE_INTEGER *mtime, 
 }
 
 
+/* ask the server whether a file name, or the name a handle was opened
+ * with, is pending deletion */
+static BOOL is_delete_pending( HANDLE handle, const char *unix_name, const struct stat *st )
+{
+    BOOL ret = FALSE;
+
+    if (!S_ISREG(st->st_mode) && !S_ISDIR(st->st_mode)) return FALSE;
+    SERVER_START_REQ( get_delete_pending )
+    {
+        req->handle = wine_server_obj_handle( handle );
+        req->device = st->st_dev;
+        req->inode  = st->st_ino;
+        if (unix_name) wine_server_add_data( req, unix_name, strlen( unix_name ));
+        if (!wine_server_call( req )) ret = reply->pending;
+    }
+    SERVER_END_REQ;
+    return ret;
+}
+
+/* a delete-pending name no longer counts as a link of the file */
+static void fill_delete_pending( HANDLE handle, const struct stat *st, FILE_STANDARD_INFORMATION *info )
+{
+    info->DeletePending = is_delete_pending( handle, NULL, st );
+    if (info->DeletePending && info->NumberOfLinks) info->NumberOfLinks--;
+}
+
 /* fill in the file information that depends on the stat and attribute info */
 static NTSTATUS fill_file_info( const struct stat *st, ULONG attr, void *ptr,
                                 FILE_INFORMATION_CLASS class )
@@ -4751,6 +4777,23 @@ NTSTATUS WINAPI NtCreateFile( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBU
         free( dir_nt_name.Buffer );
     }
 
+    /* creating a name that is pending deletion fails like opening it */
+    if (status == STATUS_OBJECT_NAME_COLLISION)
+    {
+        OBJECT_ATTRIBUTES old_attr = *attr;
+        UNICODE_STRING old_nt_name;
+        char *old_unix_name;
+        struct stat st;
+
+        if (!get_nt_and_unix_names( &old_attr, &old_nt_name, &old_unix_name, FILE_OPEN, FALSE ))
+        {
+            if (!stat( old_unix_name, &st ) && is_delete_pending( 0, old_unix_name, &st ))
+                status = STATUS_DELETE_PENDING;
+            free( old_unix_name );
+            free( old_nt_name.Buffer );
+        }
+    }
+
     if (status == STATUS_BAD_DEVICE_TYPE)
     {
         status = server_open_file_object( handle, access, &new_attr, sharing, options );
@@ -4973,6 +5016,8 @@ NTSTATUS WINAPI NtQueryFullAttributesFile( const OBJECT_ATTRIBUTES *attr,
             status = errno_to_status( errno );
         else if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
             status = STATUS_INVALID_INFO_CLASS;
+        else if (is_delete_pending( 0, unix_name, &st ))
+            status = STATUS_DELETE_PENDING;
         else
             fill_file_info( &st, attributes, info, FileNetworkOpenInformation );
     }
@@ -5002,6 +5047,8 @@ NTSTATUS WINAPI NtQueryAttributesFile( const OBJECT_ATTRIBUTES *attr, FILE_BASIC
             status = errno_to_status( errno );
         else if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
             status = STATUS_INVALID_INFO_CLASS;
+        else if (is_delete_pending( 0, unix_name, &st ))
+            status = STATUS_DELETE_PENDING;
         else
             status = fill_file_info( &st, attributes, info, FileBasicInformation );
     }
@@ -5144,7 +5191,7 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             else
             {
                 fill_file_info( &st, attr, info, class );
-                info->DeletePending = FALSE; /* FIXME */
+                fill_delete_pending( handle, &st, info );
             }
         }
         break;
@@ -5185,7 +5232,7 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
                 LONG name_len = len - FIELD_OFFSET(FILE_ALL_INFORMATION, NameInformation.FileName);
 
                 fill_file_info( &st, attr, info, FileAllInformation );
-                info->StandardInformation.DeletePending = FALSE; /* FIXME */
+                fill_delete_pending( handle, &st, &info->StandardInformation );
                 info->EaInformation.EaSize = 0;
                 info->AccessInformation.AccessFlags = 0;  /* FIXME */
                 info->PositionInformation.CurrentByteOffset.QuadPart = lseek( fd, 0, SEEK_CUR );
