@@ -294,14 +294,18 @@ static UINT WPRINTF_GetLen( WPRINTF_FORMAT *format, WPRINTF_DATA *arg,
     case WPR_HEXA:
     {
         const char *digits = (format->flags & WPRINTF_UPPER_HEX) ? "0123456789ABCDEF" : "0123456789abcdef";
-        ULONGLONG num = arg->int_view;
+        LONGLONG val = arg->int_view;
+        ULONGLONG num;
         int base = format->type == WPR_HEXA ? 16 : 10;
         char buffer[20], *p = buffer, *dst = number;
 
-        if (format->type == WPR_SIGNED && arg->int_view < 0)
+        /* 'h' makes %d and %i print a short; %u and %x ignore it */
+        if (format->type == WPR_SIGNED && (format->flags & WPRINTF_SHORT)) val = (SHORT)val;
+        num = val;
+        if (format->type == WPR_SIGNED && val < 0)
         {
             *dst++ = '-';
-            num = -arg->int_view;
+            num = -val;
         }
         if (format->flags & WPRINTF_INTPTR) num = (UINT_PTR)num;
         else if (!(format->flags & WPRINTF_I64)) num = (UINT)num;
