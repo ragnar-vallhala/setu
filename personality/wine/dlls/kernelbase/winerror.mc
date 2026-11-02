@@ -2933,592 +2933,592 @@ The requested operation completed successfully. The system will be restarted so 
 MessageId=1700
 SymbolicName=RPC_S_INVALID_STRING_BINDING
 Language=ENU
-Invalid string binding.
+The string binding is invalid.
 .
 MessageId=1701
 SymbolicName=RPC_S_WRONG_KIND_OF_BINDING
 Language=ENU
-Wrong kind of binding.
+The binding handle is not the correct type.
 .
 MessageId=1702
 SymbolicName=RPC_S_INVALID_BINDING
 Language=ENU
-Invalid binding.
+The binding handle is invalid.
 .
 MessageId=1703
 SymbolicName=RPC_S_PROTSEQ_NOT_SUPPORTED
 Language=ENU
-RPC protocol sequence not supported.
+The RPC protocol sequence is not supported.
 .
 MessageId=1704
 SymbolicName=RPC_S_INVALID_RPC_PROTSEQ
 Language=ENU
-Invalid RPC protocol sequence.
+The RPC protocol sequence is invalid.
 .
 MessageId=1705
 SymbolicName=RPC_S_INVALID_STRING_UUID
 Language=ENU
-Invalid string UUID.
+The string universal unique identifier (UUID) is invalid.
 .
 MessageId=1706
 SymbolicName=RPC_S_INVALID_ENDPOINT_FORMAT
 Language=ENU
-Invalid endpoint format.
+The endpoint format is invalid.
 .
 MessageId=1707
 SymbolicName=RPC_S_INVALID_NET_ADDR
 Language=ENU
-Invalid network address.
+The network address is invalid.
 .
 MessageId=1708
 SymbolicName=RPC_S_NO_ENDPOINT_FOUND
 Language=ENU
-No endpoint found.
+No endpoint was found.
 .
 MessageId=1709
 SymbolicName=RPC_S_INVALID_TIMEOUT
 Language=ENU
-Invalid timeout value.
+The timeout value is invalid.
 .
 MessageId=1710
 SymbolicName=RPC_S_OBJECT_NOT_FOUND
 Language=ENU
-Object UUID not found.
+The object universal unique identifier (UUID) was not found.
 .
 MessageId=1711
 SymbolicName=RPC_S_ALREADY_REGISTERED
 Language=ENU
-UUID already registered.
+The object universal unique identifier (UUID) has already been registered.
 .
 MessageId=1712
 SymbolicName=RPC_S_TYPE_ALREADY_REGISTERED
 Language=ENU
-UUID type already registered.
+The type universal unique identifier (UUID) has already been registered.
 .
 MessageId=1713
 SymbolicName=RPC_S_ALREADY_LISTENING
 Language=ENU
-Server already listening.
+The RPC server is already listening.
 .
 MessageId=1714
 SymbolicName=RPC_S_NO_PROTSEQS_REGISTERED
 Language=ENU
-No protocol sequences registered.
+No protocol sequences have been registered.
 .
 MessageId=1715
 SymbolicName=RPC_S_NOT_LISTENING
 Language=ENU
-RPC server not listening.
+The RPC server is not listening.
 .
 MessageId=1716
 SymbolicName=RPC_S_UNKNOWN_MGR_TYPE
 Language=ENU
-Unknown manager type.
+The manager type is unknown.
 .
 MessageId=1717
 SymbolicName=RPC_S_UNKNOWN_IF
 Language=ENU
-Unknown interface.
+The interface is unknown.
 .
 MessageId=1718
 SymbolicName=RPC_S_NO_BINDINGS
 Language=ENU
-No bindings.
+There are no bindings.
 .
 MessageId=1719
 SymbolicName=RPC_S_NO_PROTSEQS
 Language=ENU
-No protocol sequences.
+There are no protocol sequences.
 .
 MessageId=1720
 SymbolicName=RPC_S_CANT_CREATE_ENDPOINT
 Language=ENU
-Can't create endpoint.
+The endpoint cannot be created.
 .
 MessageId=1721
 SymbolicName=RPC_S_OUT_OF_RESOURCES
 Language=ENU
-Out of resources.
+Not enough resources are available to complete this operation.
 .
 MessageId=1722
 SymbolicName=RPC_S_SERVER_UNAVAILABLE
 Language=ENU
-RPC server unavailable.
+The RPC server is unavailable.
 .
 MessageId=1723
 SymbolicName=RPC_S_SERVER_TOO_BUSY
 Language=ENU
-RPC server too busy.
+The RPC server is too busy to complete this operation.
 .
 MessageId=1724
 SymbolicName=RPC_S_INVALID_NETWORK_OPTIONS
 Language=ENU
-Invalid network options.
+The network options are invalid.
 .
 MessageId=1725
 SymbolicName=RPC_S_NO_CALL_ACTIVE
 Language=ENU
-No RPC call active.
+There are no remote procedure calls active on this thread.
 .
 MessageId=1726
 SymbolicName=RPC_S_CALL_FAILED
 Language=ENU
-RPC call failed.
+The remote procedure call failed.
 .
 MessageId=1727
 SymbolicName=RPC_S_CALL_FAILED_DNE
 Language=ENU
-RPC call failed and didn't execute.
+The remote procedure call failed and did not execute.
 .
 MessageId=1728
 SymbolicName=RPC_S_PROTOCOL_ERROR
 Language=ENU
-RPC protocol error.
+A remote procedure call (RPC) protocol error occurred.
 .
 MessageId=1730
 SymbolicName=RPC_S_UNSUPPORTED_TRANS_SYN
 Language=ENU
-Unsupported transfer syntax.
+The transfer syntax is not supported by the RPC server.
 .
 MessageId=1732
 SymbolicName=RPC_S_UNSUPPORTED_TYPE
 Language=ENU
-Unsupported type.
+The universal unique identifier (UUID) type is not supported.
 .
 MessageId=1733
 SymbolicName=RPC_S_INVALID_TAG
 Language=ENU
-Invalid tag.
+The tag is invalid.
 .
 MessageId=1734
 SymbolicName=RPC_S_INVALID_BOUND
 Language=ENU
-Invalid array bounds.
+The array bounds are invalid.
 .
 MessageId=1735
 SymbolicName=RPC_S_NO_ENTRY_NAME
 Language=ENU
-No entry name.
+The binding does not contain an entry name.
 .
 MessageId=1736
 SymbolicName=RPC_S_INVALID_NAME_SYNTAX
 Language=ENU
-Invalid name syntax.
+The name syntax is invalid.
 .
 MessageId=1737
 SymbolicName=RPC_S_UNSUPPORTED_NAME_SYNTAX
 Language=ENU
-Unsupported name syntax.
+The name syntax is not supported.
 .
 MessageId=1739
 SymbolicName=RPC_S_UUID_NO_ADDRESS
 Language=ENU
-No network address.
+No network address is available to use to construct a universal unique identifier (UUID).
 .
 MessageId=1740
 SymbolicName=RPC_S_DUPLICATE_ENDPOINT
 Language=ENU
-Duplicate endpoint.
+The endpoint is a duplicate.
 .
 MessageId=1741
 SymbolicName=RPC_S_UNKNOWN_AUTHN_TYPE
 Language=ENU
-Unknown authentication type.
+The authentication type is unknown.
 .
 MessageId=1742
 SymbolicName=RPC_S_MAX_CALLS_TOO_SMALL
 Language=ENU
-Maximum calls too low.
+The maximum number of calls is too small.
 .
 MessageId=1743
 SymbolicName=RPC_S_STRING_TOO_LONG
 Language=ENU
-String too long.
+The string is too long.
 .
 MessageId=1744
 SymbolicName=RPC_S_PROTSEQ_NOT_FOUND
 Language=ENU
-Protocol sequence not found.
+The RPC protocol sequence was not found.
 .
 MessageId=1745
 SymbolicName=RPC_S_PROCNUM_OUT_OF_RANGE
 Language=ENU
-Procedure number out of range.
+The procedure number is out of range.
 .
 MessageId=1746
 SymbolicName=RPC_S_BINDING_HAS_NO_AUTH
 Language=ENU
-Binding has no authentication data.
+The binding does not contain any authentication information.
 .
 MessageId=1747
 SymbolicName=RPC_S_UNKNOWN_AUTHN_SERVICE
 Language=ENU
-Unknown authentication service.
+The authentication service is unknown.
 .
 MessageId=1748
 SymbolicName=RPC_S_UNKNOWN_AUTHN_LEVEL
 Language=ENU
-Unknown authentication level.
+The authentication level is unknown.
 .
 MessageId=1749
 SymbolicName=RPC_S_INVALID_AUTH_IDENTITY
 Language=ENU
-Invalid authentication identity.
+The security context is invalid.
 .
 MessageId=1750
 SymbolicName=RPC_S_UNKNOWN_AUTHZ_SERVICE
 Language=ENU
-Unknown authorization service.
+The authorization service is unknown.
 .
 MessageId=1751
 SymbolicName=EPT_S_INVALID_ENTRY
 Language=ENU
-Invalid entry.
+The entry is invalid.
 .
 MessageId=1752
 SymbolicName=EPT_S_CANT_PERFORM_OP
 Language=ENU
-Can't perform operation.
+The server endpoint cannot perform the operation.
 .
 MessageId=1753
 SymbolicName=EPT_S_NOT_REGISTERED
 Language=ENU
-Endpoints not registered.
+There are no more endpoints available from the endpoint mapper.
 .
 MessageId=1754
 SymbolicName=RPC_S_NOTHING_TO_EXPORT
 Language=ENU
-Nothing to export.
+No interfaces have been exported.
 .
 MessageId=1755
 SymbolicName=RPC_S_INCOMPLETE_NAME
 Language=ENU
-Incomplete name.
+The entry name is incomplete.
 .
 MessageId=1756
 SymbolicName=RPC_S_INVALID_VERS_OPTION
 Language=ENU
-Invalid version option.
+The version option is invalid.
 .
 MessageId=1757
 SymbolicName=RPC_S_NO_MORE_MEMBERS
 Language=ENU
-No more members.
+There are no more members.
 .
 MessageId=1758
 SymbolicName=RPC_S_NOT_ALL_OBJS_UNEXPORTED
 Language=ENU
-Not all objects unexported.
+There is nothing to unexport.
 .
 MessageId=1759
 SymbolicName=RPC_S_INTERFACE_NOT_FOUND
 Language=ENU
-Interface not found.
+The interface was not found.
 .
 MessageId=1760
 SymbolicName=RPC_S_ENTRY_ALREADY_EXISTS
 Language=ENU
-Entry already exists.
+The entry already exists.
 .
 MessageId=1761
 SymbolicName=RPC_S_ENTRY_NOT_FOUND
 Language=ENU
-Entry not found.
+The entry is not found.
 .
 MessageId=1762
 SymbolicName=RPC_S_NAME_SERVICE_UNAVAILABLE
 Language=ENU
-Name service unavailable.
+The name service is unavailable.
 .
 MessageId=1763
 SymbolicName=RPC_S_INVALID_NAF_ID
 Language=ENU
-Invalid network address family.
+The network address family is invalid.
 .
 MessageId=1764
 SymbolicName=RPC_S_CANNOT_SUPPORT
 Language=ENU
-Operation not supported.
+The requested operation is not supported.
 .
 MessageId=1765
 SymbolicName=RPC_S_NO_CONTEXT_AVAILABLE
 Language=ENU
-No security context available.
+No security context is available to allow impersonation.
 .
 MessageId=1766
 SymbolicName=RPC_S_INTERNAL_ERROR
 Language=ENU
-RPCInternal error.
+An internal error occurred in a remote procedure call (RPC).
 .
 MessageId=1767
 SymbolicName=RPC_S_ZERO_DIVIDE
 Language=ENU
-RPC divide-by-zero.
+The RPC server attempted an integer division by zero.
 .
 MessageId=1768
 SymbolicName=RPC_S_ADDRESS_ERROR
 Language=ENU
-Address error.
+An addressing error occurred in the RPC server.
 .
 MessageId=1769
 SymbolicName=RPC_S_FP_DIV_ZERO
 Language=ENU
-Floating-point divide-by-zero.
+A floating-point operation at the RPC server caused a division by zero.
 .
 MessageId=1770
 SymbolicName=RPC_S_FP_UNDERFLOW
 Language=ENU
-Floating-point underflow.
+A floating-point underflow occurred at the RPC server.
 .
 MessageId=1771
 SymbolicName=RPC_S_FP_OVERFLOW
 Language=ENU
-Floating-point overflow.
+A floating-point overflow occurred at the RPC server.
 .
 MessageId=1772
 SymbolicName=RPC_X_NO_MORE_ENTRIES
 Language=ENU
-No more entries.
+The list of RPC servers available for the binding of auto handles has been exhausted.
 .
 MessageId=1773
 SymbolicName=RPC_X_SS_CHAR_TRANS_OPEN_FAIL
 Language=ENU
-Character translation table open failed.
+Unable to open the character translation table file.
 .
 MessageId=1774
 SymbolicName=RPC_X_SS_CHAR_TRANS_SHORT_FILE
 Language=ENU
-Character translation table file too small.
+The file containing the character translation table has fewer than 512 bytes.
 .
 MessageId=1775
 SymbolicName=RPC_X_SS_IN_NULL_CONTEXT
 Language=ENU
-Null context handle.
+A null context handle was passed from the client to the host during a remote procedure call.
 .
 MessageId=1777
 SymbolicName=RPC_X_SS_CONTEXT_DAMAGED
 Language=ENU
-Context handle damaged.
+The context handle changed during a remote procedure call.
 .
 MessageId=1778
 SymbolicName=RPC_X_SS_HANDLES_MISMATCH
 Language=ENU
-Binding handle mismatch.
+The binding handles passed to a remote procedure call do not match.
 .
 MessageId=1779
 SymbolicName=RPC_X_SS_CANNOT_GET_CALL_HANDLE
 Language=ENU
-Cannot get call handle.
+The stub is unable to get the remote procedure call handle.
 .
 MessageId=1780
 SymbolicName=RPC_X_NULL_REF_POINTER
 Language=ENU
-Null reference pointer.
+A null reference pointer was passed to the stub.
 .
 MessageId=1781
 SymbolicName=RPC_X_ENUM_VALUE_OUT_OF_RANGE
 Language=ENU
-Enumeration value out of range.
+The enumeration value is out of range.
 .
 MessageId=1782
 SymbolicName=RPC_X_BYTE_COUNT_TOO_SMALL
 Language=ENU
-Byte count too small.
+The byte count is too small.
 .
 MessageId=1783
 SymbolicName=RPC_X_BAD_STUB_DATA
 Language=ENU
-Bad stub data.
+The stub received bad data.
 .
 MessageId=1784
 SymbolicName=ERROR_INVALID_USER_BUFFER
 Language=ENU
-Invalid user buffer.
+The supplied user buffer is not valid for the requested operation.
 .
 MessageId=1785
 SymbolicName=ERROR_UNRECOGNIZED_MEDIA
 Language=ENU
-Unrecognized media.
+The disk media is not recognized. It may not be formatted.
 .
 MessageId=1786
 SymbolicName=ERROR_NO_TRUST_LSA_SECRET
 Language=ENU
-No trust secret.
+The workstation does not have a trust secret.
 .
 MessageId=1787
 SymbolicName=ERROR_NO_TRUST_SAM_ACCOUNT
 Language=ENU
-No trust SAM account.
+The security database on the server does not have a computer account for this workstation trust relationship.
 .
 MessageId=1788
 SymbolicName=ERROR_TRUSTED_DOMAIN_FAILURE
 Language=ENU
-Trusted domain failure.
+The trust relationship between the primary domain and the trusted domain failed.
 .
 MessageId=1789
 SymbolicName=ERROR_TRUSTED_RELATIONSHIP_FAILURE
 Language=ENU
-Trusted relationship failure.
+The trust relationship between this workstation and the primary domain failed.
 .
 MessageId=1790
 SymbolicName=ERROR_TRUST_FAILURE
 Language=ENU
-Trust logon failure.
+The network logon failed.
 .
 MessageId=1791
 SymbolicName=RPC_S_CALL_IN_PROGRESS
 Language=ENU
-RPC call already in progress.
+A remote procedure call is already in progress for this thread.
 .
 MessageId=1792
 SymbolicName=ERROR_NETLOGON_NOT_STARTED
 Language=ENU
-NETLOGON is not started.
+An attempt was made to logon, but the network logon service was not started.
 .
 MessageId=1793
 SymbolicName=ERROR_ACCOUNT_EXPIRED
 Language=ENU
-Account expired.
+The user's account has expired.
 .
 MessageId=1794
 SymbolicName=ERROR_REDIRECTOR_HAS_OPEN_HANDLES
 Language=ENU
-Redirector has open handles.
+The redirector is in use and cannot be unloaded.
 .
 MessageId=1795
 SymbolicName=ERROR_PRINTER_DRIVER_ALREADY_INSTALLED
 Language=ENU
-Printer driver already installed.
+The specified printer driver is already installed.
 .
 MessageId=1796
 SymbolicName=ERROR_UNKNOWN_PORT
 Language=ENU
-Unknown port.
+The specified port is unknown.
 .
 MessageId=1797
 SymbolicName=ERROR_UNKNOWN_PRINTER_DRIVER
 Language=ENU
-Unknown printer driver.
+The printer driver is unknown.
 .
 MessageId=1798
 SymbolicName=ERROR_UNKNOWN_PRINTPROCESSOR
 Language=ENU
-Unknown print processor.
+The print processor is unknown.
 .
 MessageId=1799
 SymbolicName=ERROR_INVALID_SEPARATOR_FILE
 Language=ENU
-Invalid separator file.
+The specified separator file is invalid.
 .
 MessageId=1800
 SymbolicName=ERROR_INVALID_PRIORITY
 Language=ENU
-Invalid priority.
+The specified priority is invalid.
 .
 MessageId=1801
 SymbolicName=ERROR_INVALID_PRINTER_NAME
 Language=ENU
-Invalid printer name.
+The printer name is invalid.
 .
 MessageId=1802
 SymbolicName=ERROR_PRINTER_ALREADY_EXISTS
 Language=ENU
-Printer already exists.
+The printer already exists.
 .
 MessageId=1803
 SymbolicName=ERROR_INVALID_PRINTER_COMMAND
 Language=ENU
-Invalid printer command.
+The printer command is invalid.
 .
 MessageId=1804
 SymbolicName=ERROR_INVALID_DATATYPE
 Language=ENU
-Invalid data type.
+The specified datatype is invalid.
 .
 MessageId=1805
 SymbolicName=ERROR_INVALID_ENVIRONMENT
 Language=ENU
-Invalid environment.
+The environment specified is invalid.
 .
 MessageId=1806
 SymbolicName=RPC_S_NO_MORE_BINDINGS
 Language=ENU
-No more bindings.
+There are no more bindings.
 .
 MessageId=1807
 SymbolicName=ERROR_NOLOGON_INTERDOMAIN_TRUST_ACCOUNT
 Language=ENU
-Can't log on with inter-domain trust account.
+The account used is an interdomain trust account. Use your global user account or local user account to access this server.
 .
 MessageId=1808
 SymbolicName=ERROR_NOLOGON_WORKSTATION_TRUST_ACCOUNT
 Language=ENU
-Can't log on with workstation trust account.
+The account used is a computer account. Use your global user account or local user account to access this server.
 .
 MessageId=1809
 SymbolicName=ERROR_NOLOGON_SERVER_TRUST_ACCOUNT
 Language=ENU
-Can't log on with server trust account.
+The account used is a server trust account. Use your global user account or local user account to access this server.
 .
 MessageId=1810
 SymbolicName=ERROR_DOMAIN_TRUST_INCONSISTENT
 Language=ENU
-Domain trust information inconsistent.
+The name or security ID (SID) of the domain specified is inconsistent with the trust information for that domain.
 .
 MessageId=1811
 SymbolicName=ERROR_SERVER_HAS_OPEN_HANDLES
 Language=ENU
-Server has open handles.
+The server is in use and cannot be unloaded.
 .
 MessageId=1812
 SymbolicName=ERROR_RESOURCE_DATA_NOT_FOUND
 Language=ENU
-Resource data not found.
+The specified image file did not contain a resource section.
 .
 MessageId=1813
 SymbolicName=ERROR_RESOURCE_TYPE_NOT_FOUND
 Language=ENU
-Resource type not found.
+The specified resource type cannot be found in the image file.
 .
 MessageId=1814
 SymbolicName=ERROR_RESOURCE_NAME_NOT_FOUND
 Language=ENU
-Resource name not found.
+The specified resource name cannot be found in the image file.
 .
 MessageId=1815
 SymbolicName=ERROR_RESOURCE_LANG_NOT_FOUND
 Language=ENU
-Resource language not found.
+The specified resource language ID cannot be found in the image file.
 .
 MessageId=1816
 SymbolicName=ERROR_NOT_ENOUGH_QUOTA
 Language=ENU
-Not enough quota.
+Not enough quota is available to process this command.
 .
 MessageId=1817
 SymbolicName=RPC_S_NO_INTERFACES
 Language=ENU
-No interfaces.
+No interfaces have been registered.
 .
 MessageId=1818
 SymbolicName=RPC_S_CALL_CANCELLED
 Language=ENU
-RPC call canceled.
+The remote procedure call was cancelled.
 .
 MessageId=1819
 SymbolicName=RPC_S_BINDING_INCOMPLETE
 Language=ENU
-Binding incomplete.
+The binding handle does not contain all required information.
 .
 MessageId=1820
 SymbolicName=RPC_S_COMM_FAILURE
 Language=ENU
-RPC comm failure.
+A communications failure occurred during a remote procedure call.
 .
 MessageId=1821
 SymbolicName=RPC_S_UNSUPPORTED_AUTHN_LEVEL
 Language=ENU
-Unsupported authorization level.
+The requested authentication level is not supported.
 .
 MessageId=1822
 SymbolicName=RPC_S_NO_PRINC_NAME
@@ -3528,202 +3528,202 @@ No principal name registered.
 MessageId=1823
 SymbolicName=RPC_S_NOT_RPC_ERROR
 Language=ENU
-Not an RPC error.
+The error specified is not a valid Windows RPC error code.
 .
 MessageId=1824
 SymbolicName=RPC_S_UUID_LOCAL_ONLY
 Language=ENU
-UUID is local only.
+A UUID that is valid only on this computer has been allocated.
 .
 MessageId=1825
 SymbolicName=RPC_S_SEC_PKG_ERROR
 Language=ENU
-Security package error.
+A security package specific error occurred.
 .
 MessageId=1826
 SymbolicName=RPC_S_NOT_CANCELLED
 Language=ENU
-Thread not canceled.
+Thread is not canceled.
 .
 MessageId=1827
 SymbolicName=RPC_X_INVALID_ES_ACTION
 Language=ENU
-Invalid handle operation.
+Invalid operation on the encoding/decoding handle.
 .
 MessageId=1828
 SymbolicName=RPC_X_WRONG_ES_VERSION
 Language=ENU
-Wrong serializing package version.
+Incompatible version of the serializing package.
 .
 MessageId=1829
 SymbolicName=RPC_X_WRONG_STUB_VERSION
 Language=ENU
-Wrong stub version.
+Incompatible version of the RPC stub.
 .
 MessageId=1830
 SymbolicName=RPC_X_INVALID_PIPE_OBJECT
 Language=ENU
-Invalid pipe object.
+The RPC pipe object is invalid or corrupted.
 .
 MessageId=1831
 SymbolicName=RPC_X_WRONG_PIPE_ORDER
 Language=ENU
-Wrong pipe order.
+An invalid operation was attempted on an RPC pipe object.
 .
 MessageId=1832
 SymbolicName=RPC_X_WRONG_PIPE_VERSION
 Language=ENU
-Wrong pipe version.
+Unsupported RPC pipe version.
 .
 MessageId=1898
 SymbolicName=RPC_S_GROUP_MEMBER_NOT_FOUND
 Language=ENU
-Group member not found.
+The group member was not found.
 .
 MessageId=1899
 SymbolicName=EPT_S_CANT_CREATE
 Language=ENU
-Can't create endpoint mapper DB.
+The endpoint mapper database entry could not be created.
 .
 MessageId=1900
 SymbolicName=RPC_S_INVALID_OBJECT
 Language=ENU
-Invalid object.
+The object universal unique identifier (UUID) is the nil UUID.
 .
 MessageId=1901
 SymbolicName=ERROR_INVALID_TIME
 Language=ENU
-Invalid time.
+The specified time is invalid.
 .
 MessageId=1902
 SymbolicName=ERROR_INVALID_FORM_NAME
 Language=ENU
-Invalid form name.
+The specified form name is invalid.
 .
 MessageId=1903
 SymbolicName=ERROR_INVALID_FORM_SIZE
 Language=ENU
-Invalid form size.
+The specified form size is invalid.
 .
 MessageId=1904
 SymbolicName=ERROR_ALREADY_WAITING
 Language=ENU
-Already awaiting printer handle.
+The specified printer handle is already being waited on
 .
 MessageId=1905
 SymbolicName=ERROR_PRINTER_DELETED
 Language=ENU
-Printer deleted.
+The specified printer has been deleted.
 .
 MessageId=1906
 SymbolicName=ERROR_INVALID_PRINTER_STATE
 Language=ENU
-Invalid printer state.
+The state of the printer is invalid.
 .
 MessageId=1907
 SymbolicName=ERROR_PASSWORD_MUST_CHANGE
 Language=ENU
-User must change password.
+The user's password must be changed before signing in.
 .
 MessageId=1908
 SymbolicName=ERROR_DOMAIN_CONTROLLER_NOT_FOUND
 Language=ENU
-Domain controller not found.
+Could not find the domain controller for this domain.
 .
 MessageId=1909
 SymbolicName=ERROR_ACCOUNT_LOCKED_OUT
 Language=ENU
-Account locked out.
+The referenced account is currently locked out and may not be logged on to.
 .
 MessageId=1910
 SymbolicName=OR_INVALID_OXID
 Language=ENU
-Invalid pixel format.
+The object exporter specified was not found.
 .
 MessageId=1911
 SymbolicName=OR_INVALID_OID
 Language=ENU
-Invalid driver.
+The object specified was not found.
 .
 MessageId=1912
 SymbolicName=OR_INVALID_SET
 Language=ENU
-Invalid object resolver set.
+The object resolver set specified was not found.
 .
 MessageId=1913
 SymbolicName=RPC_S_SEND_INCOMPLETE
 Language=ENU
-Incomplete RPC send.
+Some data remains to be sent in the request buffer.
 .
 MessageId=1914
 SymbolicName=RPC_S_INVALID_ASYNC_HANDLE
 Language=ENU
-Invalid asynchronous RPC handle.
+Invalid asynchronous remote procedure call handle.
 .
 MessageId=1915
 SymbolicName=RPC_S_INVALID_ASYNC_CALL
 Language=ENU
-Invalid asynchronous RPC call.
+Invalid asynchronous RPC call handle for this operation.
 .
 MessageId=1916
 SymbolicName=RPC_X_PIPE_CLOSED
 Language=ENU
-RPC pipe closed.
+The RPC pipe object has already been closed.
 .
 MessageId=1917
 SymbolicName=RPC_X_PIPE_DISCIPLINE_ERROR
 Language=ENU
-Discipline error on RPC pipe.
+The RPC call completed before all pipes were processed.
 .
 MessageId=1918
 SymbolicName=RPC_X_PIPE_EMPTY
 Language=ENU
-No data on RPC pipe.
+No more data is available from the RPC pipe.
 .
 MessageId=1919
 SymbolicName=ERROR_NO_SITENAME
 Language=ENU
-No site name available.
+No site name is available for this machine.
 .
 MessageId=1920
 SymbolicName=ERROR_CANT_ACCESS_FILE
 Language=ENU
-The file cannot be accessed.
+The file cannot be accessed by the system.
 .
 MessageId=1921
 SymbolicName=ERROR_CANT_RESOLVE_FILENAME
 Language=ENU
-The filename cannot be resolved.
+The name of the file cannot be resolved by the system.
 .
 MessageId=1922
 SymbolicName=RPC_S_ENTRY_TYPE_MISMATCH
 Language=ENU
-RPC entry type mismatch.
+The entry is not of the expected type.
 .
 MessageId=1923
 SymbolicName=RPC_S_NOT_ALL_OBJS_EXPORTED
 Language=ENU
-Not all objects could be exported.
+Not all object UUIDs could be exported to the specified entry.
 .
 MessageId=1924
 SymbolicName=RPC_S_INTERFACE_NOT_EXPORTED
 Language=ENU
-The interface could not be exported.
+Interface could not be exported to the specified entry.
 .
 MessageId=1925
 SymbolicName=RPC_S_PROFILE_NOT_ADDED
 Language=ENU
-The profile could not be added.
+The specified profile entry could not be added.
 .
 MessageId=1926
 SymbolicName=RPC_S_PRF_ELT_NOT_ADDED
 Language=ENU
-The profile element could not be added.
+The specified profile element could not be added.
 .
 MessageId=1927
 SymbolicName=RPC_S_PRF_ELT_NOT_REMOVED
 Language=ENU
-The profile element could not be removed.
+The specified profile element could not be removed.
 .
 MessageId=1928
 SymbolicName=RPC_S_GRP_ELT_NOT_ADDED
@@ -3738,7 +3738,7 @@ The group element could not be removed.
 MessageId=2221
 SymbolicName=NERR_UserNotFound
 Language=ENU
-The username could not be found.
+The user name could not be found.
 .
 MessageId=2250
 SymbolicName=ERROR_NOT_CONNECTED
