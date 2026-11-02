@@ -4881,6 +4881,10 @@ sub build_locale_data()
         my $ifirstdayofweek = $firstday ? $days{$firstday} : 1;
         my $firstweekofyear = (xml_query( $suppl, "/supplementalData/weekData/minDays[$territory_match]/\@count" ) || 0) == 4 ? 2 : 0;
         my $serastring = loc_query( $loc, "/ldml/dates/calendars/calendar[\@type='gregorian']/eras/eraAbbr/era[\@type='1' and not(\@alt)]" );
+        # Setu: Windows names the era "A.D." instead of CLDR's "AD" in these locales
+        # (observed through GetDateFormatEx "g"/"gg"; the other English locales keep "AD")
+        $serastring = "A.D." if $serastring eq "AD" && grep { $_ eq $sname }
+            ("", "en", "en-029", "en-AU", "en-CA", "en-DG", "en-EE", "en-GB", "en-GE", "en-IN", "en-LT", "en-LV", "en-MY", "en-UA", "en-US");
         my (@sdayname, @sabbrevdayname, @sshortestdayname);
         foreach my $d (sort { $days{$a} <=> $days{$b} } keys %days)
         {
