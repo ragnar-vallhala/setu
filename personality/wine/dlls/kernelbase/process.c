@@ -526,6 +526,12 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR 
 
     if (new_token) FIXME( "No support for returning created process token\n" );
 
+    if (!app_name && !cmd_line)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+
     if (app_name)
     {
         if (!cmd_line || !cmd_line[0]) /* no command-line, create one */

@@ -249,6 +249,7 @@
     "kernel32/CreateProcessW:args_tabs",
     "kernel32/CreateProcessW:args_unicode",
     "kernel32/CreateProcessW:args_unterminated_quote",
+    "kernel32/CreateProcessW:both_null",
     "kernel32/CreateProcessW:child_starts_with_last_error_zero",
     "kernel32/CreateProcessW:cwd_missing",
     "kernel32/CreateProcessW:cwd_set",
