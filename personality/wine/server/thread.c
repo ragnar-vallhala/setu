@@ -1137,6 +1137,17 @@ static int wait_on( const union select_op *select_op, unsigned int count, struct
     return current->wait ? 1 : 0;
 }
 
+/* a wait for all objects may not name the same object twice */
+static int has_duplicate_object( struct object *objects[], unsigned int count )
+{
+    unsigned int i, j;
+
+    for (i = 1; i < count; i++)
+        for (j = 0; j < i; j++)
+            if (objects[i] == objects[j]) return 1;
+    return 0;
+}
+
 static int wait_on_handles( const union select_op *select_op, unsigned int count, const obj_handle_t *handles,
                             int flags, abstime_t when )
 {
@@ -1150,7 +1161,9 @@ static int wait_on_handles( const union select_op *select_op, unsigned int count
         if (!(objects[i] = get_handle_obj( current->process, handles[i], SYNCHRONIZE, NULL )))
             break;
 
-    if (i == count) ret = wait_on( select_op, count, objects, flags, when );
+    if (i == count && select_op->op == SELECT_WAIT_ALL && has_duplicate_object( objects, count ))
+        set_error( STATUS_INVALID_PARAMETER );
+    else if (i == count) ret = wait_on( select_op, count, objects, flags, when );
 
     while (i > 0) release_object( objects[--i] );
     return ret;
