@@ -2306,6 +2306,11 @@ INT WINAPI ExtSelectClipRgn( HDC hdc, HRGN hrgn, INT mode )
 
     if (is_meta_dc( hdc )) return METADC_ExtSelectClipRgn( hdc, hrgn, mode );
     if (!(dc_attr = get_dc_attr( hdc ))) return FALSE;
+    if (mode < RGN_AND || mode > RGN_COPY)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return ERROR;
+    }
     if (dc_attr->emf && !EMFDC_ExtSelectClipRgn( dc_attr, hrgn, mode ))
         return FALSE;
     return NtGdiExtSelectClipRgn( hdc, hrgn, mode );

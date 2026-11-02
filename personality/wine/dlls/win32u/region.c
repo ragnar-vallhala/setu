@@ -849,14 +849,21 @@ DWORD WINAPI NtGdiGetRegionData( HRGN hrgn, DWORD count, RGNDATA *rgndata )
 
     TRACE(" %p count = %d, rgndata = %p\n", hrgn, count, rgndata);
 
-    if(!obj) return 0;
+    if (!obj)
+    {
+        RtlSetLastWin32Error( ERROR_INVALID_HANDLE );
+        return 0;
+    }
 
     size = obj->numRects * sizeof(RECT);
     if (!rgndata || count < FIELD_OFFSET(RGNDATA, Buffer[size]))
     {
         GDI_ReleaseObj( hrgn );
 	if (rgndata) /* buffer is too small, signal it by return 0 */
+        {
+            RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
 	    return 0;
+        }
         /* user requested buffer size with NULL rgndata */
         return FIELD_OFFSET(RGNDATA, Buffer[size]);
     }
@@ -1199,6 +1206,14 @@ INT WINAPI NtGdiCombineRgn( HRGN hDest, HRGN hSrc1, HRGN hSrc2, INT mode )
     INT result = ERROR;
 
     TRACE(" %p,%p -> %p mode=%x\n", hSrc1, hSrc2, hDest, mode );
+
+    if (mode < RGN_AND || mode > RGN_COPY)
+    {
+        if (destObj) GDI_ReleaseObj( hDest );
+        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
+        return ERROR;
+    }
+
     if (destObj)
     {
         WINEREGION *src1Obj = GDI_GetObjPtr( hSrc1, NTGDI_OBJ_REGION );
@@ -1243,6 +1258,7 @@ INT WINAPI NtGdiCombineRgn( HRGN hDest, HRGN hSrc1, HRGN hSrc2, INT mode )
 		    }
 		    GDI_ReleaseObj( hSrc2 );
 		}
+		else RtlSetLastWin32Error( ERROR_INVALID_HANDLE );
 	    }
 	    GDI_ReleaseObj( hSrc1 );
 	}

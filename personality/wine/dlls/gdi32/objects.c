@@ -643,7 +643,7 @@ HBITMAP WINAPI CreateDiscardableBitmap( HDC hdc, INT width, INT height )
  */
 HRGN WINAPI ExtCreateRegion( const XFORM *xform, DWORD count, const RGNDATA *data )
 {
-    if (!data)
+    if (!data || count < sizeof(RGNDATAHEADER))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
@@ -707,6 +707,7 @@ HRGN WINAPI CreateEllipticRgnIndirect( const RECT *rect )
  */
 HRGN WINAPI CreatePolygonRgn( const POINT *points, INT count, INT mode )
 {
+    if (mode != ALTERNATE && mode != WINDING) return 0;
     return CreatePolyPolygonRgn( points, &count, 1, mode );
 }
 

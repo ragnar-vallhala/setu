@@ -225,9 +225,7 @@ static void test_ExtCreateRegion(void)
     /* Cannot be smaller than sizeof(RGNDATAHEADER) */
     SetLastError(0xdeadbeef);
     hrgn = ExtCreateRegion(NULL, sizeof(RGNDATAHEADER) - 1, &rgn.data);
-    todo_wine
     ok(!hrgn, "ExtCreateRegion should fail\n");
-    todo_wine
     ok(GetLastError() == ERROR_INVALID_PARAMETER ||
        broken(GetLastError() == 0xdeadbeef), "0xdeadbeef, got %lu\n", GetLastError());
 
