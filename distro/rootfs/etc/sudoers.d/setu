@@ -1,0 +1,2 @@
+# Dev image: the setu user may sudo without a password.
+setu ALL=(ALL) NOPASSWD:ALL

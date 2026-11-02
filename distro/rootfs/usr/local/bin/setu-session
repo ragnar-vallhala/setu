@@ -1,0 +1,54 @@
+#!/bin/sh
+# setu-session: the one entry point for the Setu desktop session.
+#
+# Runs inside the Wayland compositor (labwc starts it with `-S`, so the
+# compositor exits when this script does). It starts the Setu personality
+# (wineserver) and then the shell. Until shell/ ships setu-shell.exe, it runs
+# Wine's notepad as a placeholder.
+#
+# Overrides (environment):
+#   SETU_PERSONALITY  personality install prefix (default /opt/setu/personality,
+#                     falls back to Debian's wine in /usr/bin)
+#   SETU_SHELL        Windows program to run as the shell
+#                     (default /opt/setu/shell/setu-shell.exe, else notepad)
+#   WINEPREFIX        default ~/.setu/prefix
+
+log() { echo "setu-session: $*"; }
+
+SETU_PERSONALITY=${SETU_PERSONALITY:-/opt/setu/personality}
+if [ -x "$SETU_PERSONALITY/bin/wine" ]; then
+    PATH="$SETU_PERSONALITY/bin:$PATH"
+    log "personality: $SETU_PERSONALITY ($(sed -n 's/^version=//p' "$SETU_PERSONALITY/SETU_BUILD" 2>/dev/null))"
+else
+    log "personality: Debian wine ($(command -v wine))"
+fi
+export PATH
+export WINEPREFIX="${WINEPREFIX:-$HOME/.setu/prefix}"
+export WINEDEBUG="${WINEDEBUG:--all}"
+export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-mscoree,mshtml=}"  # no Mono/Gecko prompts
+mkdir -p "$(dirname "$WINEPREFIX")"
+
+log "WAYLAND_DISPLAY=$WAYLAND_DISPLAY DISPLAY=$DISPLAY WINEPREFIX=$WINEPREFIX"
+
+# Start the personality: make sure the prefix (the C: drive and registry)
+# exists, then keep a wineserver running for the whole session. The image
+# build pre-creates the prefix for the setu user, so this is quick.
+if [ ! -f "$WINEPREFIX/system.reg" ]; then
+    log "creating prefix"
+    wineboot -i
+fi
+wineserver -p
+log "personality up"
+
+SETU_SHELL=${SETU_SHELL:-/opt/setu/shell/setu-shell.exe}
+if [ -f "$SETU_SHELL" ]; then
+    log "starting shell: $SETU_SHELL"
+    wine "$SETU_SHELL"
+else
+    log "starting shell: notepad (placeholder; $SETU_SHELL not found)"
+    wine notepad
+fi
+rc=$?
+log "shell exited ($rc)"
+wineserver -k
+exit $rc

@@ -1,0 +1,4 @@
+# Extra packages for `build-image.sh --wine=debian`: Debian's own Wine
+# instead of the Setu personality build. 64-bit only (no i386 multiarch).
+wine
+wine64
