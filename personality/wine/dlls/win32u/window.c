@@ -6120,7 +6120,8 @@ ULONG_PTR WINAPI NtUserCallHwnd( HWND hwnd, DWORD code )
         return get_server_window_text( hwnd, NULL, 0 );
 
     case NtUserCallHwnd_IsWindow:
-        return is_window( hwnd );
+        /* IsWindow leaves the last error alone */
+        return hwnd && is_valid_entry( hwnd, NTUSER_OBJ_WINDOW );
 
     case NtUserCallHwnd_IsWindowEnabled:
         return is_window_enabled( hwnd );

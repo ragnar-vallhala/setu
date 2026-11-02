@@ -2607,6 +2607,7 @@
     "user32/window_tree:getwindow_child_of_leaf",
     "user32/window_tree:getwindow_enabledpopup_of_popup",
     "user32/window_tree:ischild",
+    "user32/window_tree:iswindow_bad",
     "user32/window_tree:iswindow_null",
     "user32/window_tree:load_user32",
     "user32/window_tree:register_class",
