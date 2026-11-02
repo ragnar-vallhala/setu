@@ -5358,6 +5358,22 @@ static void use_requested_name_case( HANDLE handle, const UNICODE_STRING *nt_nam
 }
 
 
+/* check that a handle was granted some access rights */
+static NTSTATUS check_handle_access( HANDLE handle, ACCESS_MASK access )
+{
+    NTSTATUS status;
+
+    SERVER_START_REQ( get_object_info )
+    {
+        req->handle = wine_server_obj_handle( handle );
+        if (!(status = wine_server_call( req )) && (reply->access & access) != access)
+            status = STATUS_ACCESS_DENIED;
+    }
+    SERVER_END_REQ;
+    return status;
+}
+
+
 /******************************************************************************
  *              NtSetInformationFile   (NTDLL.@)
  */
@@ -5377,9 +5393,22 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             const FILE_BASIC_INFORMATION *info = ptr;
             LARGE_INTEGER mtime, atime;
             char *unix_name;
+            struct stat st;
 
+            /* the fd cache only tracks data access, ask the server */
+            if ((status = check_handle_access( handle, FILE_WRITE_ATTRIBUTES )))
+                return io->Status = status;
             if ((status = server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, NULL )))
                 return io->Status = status;
+
+            /* only a directory can carry FILE_ATTRIBUTE_DIRECTORY */
+            if ((info->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+                !fstat( fd, &st ) && !S_ISDIR( st.st_mode ))
+            {
+                if (needs_close) close( fd );
+                status = STATUS_INVALID_PARAMETER;
+                break;
+            }
 
             if (server_get_unix_name( handle, &unix_name )) unix_name = NULL;
 

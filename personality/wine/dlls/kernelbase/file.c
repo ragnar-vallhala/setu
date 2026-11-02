@@ -3071,7 +3071,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetFileAttributesW( LPCWSTR name, DWORD attributes
     }
 
     InitializeObjectAttributes( &attr, &nt_name, OBJ_CASE_INSENSITIVE, 0, NULL );
-    status = NtOpenFile( &handle, SYNCHRONIZE, &attr, &io, 0,
+    status = NtOpenFile( &handle, SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, &attr, &io, 0,
                          FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT );
     RtlFreeUnicodeString( &nt_name );
 
@@ -3080,7 +3080,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetFileAttributesW( LPCWSTR name, DWORD attributes
         FILE_BASIC_INFORMATION info;
 
         memset( &info, 0, sizeof(info) );
-        info.FileAttributes = attributes | FILE_ATTRIBUTE_NORMAL;  /* make sure it's not zero */
+        /* FILE_ATTRIBUTE_DIRECTORY can't be set: drop it rather than fail */
+        info.FileAttributes = (attributes & ~FILE_ATTRIBUTE_DIRECTORY) | FILE_ATTRIBUTE_NORMAL;  /* make sure it's not zero */
         status = NtSetInformationFile( handle, &io, &info, sizeof(info), FileBasicInformation );
         NtClose( handle );
     }
