@@ -2245,7 +2245,14 @@ DECL_HANDLER(enum_key)
 {
     struct key *key;
 
-    if ((key = get_hkey_obj( req->hkey, req->index == -1 ? 0 : KEY_ENUMERATE_SUB_KEYS )))
+    unsigned int access = KEY_ENUMERATE_SUB_KEYS;
+
+    /* querying the key itself needs KEY_QUERY_VALUE, except for its name */
+    if (req->index == -1)
+        access = (req->info_class == KeyFullInformation || req->info_class == KeyCachedInformation)
+                 ? KEY_QUERY_VALUE : 0;
+
+    if ((key = get_hkey_obj( req->hkey, access )))
     {
         enum_key( key, req->index, req->info_class, reply );
         release_object( key );
