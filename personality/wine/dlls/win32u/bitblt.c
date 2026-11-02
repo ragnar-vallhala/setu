@@ -543,6 +543,18 @@ BOOL WINAPI NtGdiPatBlt( HDC hdc, INT left, INT top, INT width, INT height, DWOR
 
         update_dc( dc );
 
+        /* unlike the blits, a negative extent simply covers [x + width, x) */
+        if (width < 0)
+        {
+            left += width;
+            width = -width;
+        }
+        if (height < 0)
+        {
+            top += height;
+            height = -height;
+        }
+
         dst.log_x      = left;
         dst.log_y      = top;
         dst.log_width  = width;
