@@ -12,6 +12,9 @@
 #   virtio disk serial "setu-target"   the output disk (raw)
 # Output goes to the second serial port; its last line is SETU_BUILD_OK on success.
 set -euo pipefail
+# Work in a private mount namespace: otherwise services that start while the
+# target is mounted (with their own namespaces) keep it busy after umount.
+[ -n "${SETU_UNSHARED:-}" ] || exec env SETU_UNSHARED=1 unshare -m --propagation private bash "$0" "$@"
 . /etc/setu-build.env
 
 log() { echo "[setu-build] $*"; }
@@ -109,7 +112,8 @@ EOF
 log "creating the setu user's prefix"
 chroot $T runuser -u setu -- env HOME=/home/setu WINEPREFIX=/home/setu/.setu/prefix \
     WINEDEBUG=-all WINEDLLOVERRIDES='mscoree,mshtml=' \
-    PATH=/opt/setu/personality/bin:/usr/bin:/bin sh -c 'wineboot -i && wineserver -w' \
+    PATH=/opt/setu/personality/bin:/usr/bin:/bin \
+    sh -c 'mkdir -p /home/setu/.setu && wineboot -i && wineserver -w' \
     || log "warning: prefix creation failed; setu-session will retry on first boot"
 
 # Regenerate SSH host keys on first boot instead of baking them in.
@@ -132,13 +136,14 @@ if [ "$WINE_MODE" = setu ]; then
 fi
 
 log "rootfs size: $(du -sh --exclude=$T/proc --exclude=$T/sys --exclude=$T/dev --exclude=$T/run $T 2>/dev/null | cut -f1)"
+# Stop anything still running inside the chroot (e.g. gpg-agent started by
+# apt), so the target can be unmounted cleanly.
+for p in /proc/[0-9]*; do
+    [ "$(readlink $p/root 2>/dev/null)" = $T ] && { log "killing $(cat $p/comm)"; kill -9 ${p#/proc/}; }
+done
+sleep 1
 sync
-umount -R $T || umount -R -l $T
-udevadm settle
-if grep -q "^$(readlink -f "$ROOT") " /proc/mounts; then
-    log "warning: root still mounted, skipping fsck"; grep /mnt/target /proc/mounts || true
-else
-    e2fsck -f -p "$ROOT" || [ $? -le 1 ]
-fi
+umount -R $T
+e2fsck -f -p "$ROOT" || [ $? -le 1 ]
 log "done"
 echo SETU_BUILD_OK
