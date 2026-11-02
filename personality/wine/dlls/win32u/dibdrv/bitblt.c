@@ -1198,6 +1198,31 @@ static DWORD calc_1d_stretch_params( INT dst_start, INT dst_length, INT dst_vis_
 }
 
 
+/* COLORONCOLOR shrinking keeps, for each destination pixel, the source pixel
+ * under its centre: src = (2 * dst + 1) * src_extent / (2 * dst_extent). */
+static void shrink_centre_sampled( const dib_info *dst_dib, const struct bitblt_coords *dst,
+                                   const dib_info *src_dib, const struct bitblt_coords *src )
+{
+    int x, y, sx, sy;
+    RECT rc;
+
+    for (y = dst->visrect.top; y < dst->visrect.bottom; y++)
+    {
+        sy = src->y + (int)(((LONGLONG)(y - dst->y) * 2 + 1) * src->height / (2 * (LONGLONG)dst->height));
+        if (sy < src->visrect.top || sy >= src->visrect.bottom) continue;
+        rc.top = y - dst->visrect.top;
+        rc.bottom = rc.top + 1;
+        for (x = dst->visrect.left; x < dst->visrect.right; x++)
+        {
+            sx = src->x + (int)(((LONGLONG)(x - dst->x) * 2 + 1) * src->width / (2 * (LONGLONG)dst->width));
+            if (sx < src->visrect.left || sx >= src->visrect.right) continue;
+            rc.left = x - dst->visrect.left;
+            rc.right = rc.left + 1;
+            dst_dib->funcs->solid_rects( dst_dib, 1, &rc, 0, src_dib->funcs->get_pixel( src_dib, sx, sy ) );
+        }
+    }
+}
+
 DWORD stretch_bitmapinfo( const BITMAPINFO *src_info, void *src_bits, struct bitblt_coords *src,
                           const BITMAPINFO *dst_info, void *dst_bits, struct bitblt_coords *dst,
                           INT mode )
@@ -1247,6 +1272,13 @@ DWORD stretch_bitmapinfo( const BITMAPINFO *src_info, void *src_bits, struct bit
 
     get_bounding_rect( &rect, dst_start.x, dst_start.y, dst_end.x - dst_start.x, dst_end.y - dst_start.y );
     intersect_rect( &dst->visrect, &dst->visrect, &rect );
+
+    if (mode == STRETCH_DELETESCANS && (!hstretch || !vstretch) &&
+        dst->width > 0 && dst->height > 0 && src->width > 0 && src->height > 0)
+    {
+        shrink_centre_sampled( &dst_dib, dst, &src_dib, src );
+        goto done;
+    }
 
     dst_start.x -= dst->visrect.left;
     dst_start.y -= dst->visrect.top;
