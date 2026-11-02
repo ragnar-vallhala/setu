@@ -1,0 +1,368 @@
+{
+  "test": "user32/string_apis",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_user32": {
+      "ret": "valid"
+    },
+    "case_ascii": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "HELLO, WORLD 123!",
+      "lower": "hello, world 123!",
+      "upper_raw": "480045004c004c004f002c00200057004f0052004c00440020003100320033002100",
+      "lower_raw": "680065006c006c006f002c00200077006f0072006c00640020003100320033002100"
+    },
+    "case_latin1": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "ÀÉÎÕÜŸÀÉß",
+      "lower": "àéîõüÿàéß",
+      "upper_raw": "c000c900ce00d500dc007801c000c900df00",
+      "lower_raw": "e000e900ee00f500fc00ff00e000e900df00"
+    },
+    "case_greek": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "ΑΒΣςΑΒΣ",
+      "lower": "αβσςαβσ",
+      "upper_raw": "91039203a303c20391039203a303",
+      "lower_raw": "b103b203c303c203b103b203c303"
+    },
+    "case_cyrillic": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "АБЁАБЁ",
+      "lower": "абёабё",
+      "upper_raw": "100411040104100411040104",
+      "lower_raw": "300431045104300431045104"
+    },
+    "case_turkish_i": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "IıIİ",
+      "lower": "iıiİ",
+      "upper_raw": "4900310149003001",
+      "lower_raw": "6900310169003001"
+    },
+    "case_fullwidth": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "ＡＡ",
+      "lower": "ａａ",
+      "upper_raw": "21ff21ff",
+      "lower_raw": "41ff41ff"
+    },
+    "case_titlecase_dz": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "ǄǅǄ",
+      "lower": "ǆǅǆ",
+      "upper_raw": "c401c501c401",
+      "lower_raw": "c601c501c601"
+    },
+    "case_micro_sign": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "µ",
+      "lower": "µ",
+      "upper_raw": "b500",
+      "lower_raw": "b500"
+    },
+    "case_empty": {
+      "upper_ret_is_buf": true,
+      "lower_ret_is_buf": true,
+      "upper": "",
+      "lower": "",
+      "upper_raw": "",
+      "lower_raw": ""
+    },
+    "upper_buff_partial": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "ABCdef"
+    },
+    "upper_buff_through_nul": {
+      "ret": 3,
+      "raw": "410000004300"
+    },
+    "lower_buff_zero": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "out": "ABC"
+    },
+    "char_next_combining": {
+      "offset": 2
+    },
+    "char_next_at_nul": {
+      "offset": 3
+    },
+    "char_prev_combining": {
+      "offset": 2
+    },
+    "char_prev_at_start": {
+      "offset": 0
+    },
+    "char_next_surrogate_pair": {
+      "offset": 1
+    },
+    "char_a": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": true,
+      "to_upper": "0x00000041",
+      "to_lower": "0x00000061"
+    },
+    "char_Z": {
+      "alpha": true,
+      "alnum": true,
+      "upper": true,
+      "lower": false,
+      "to_upper": "0x0000005a",
+      "to_lower": "0x0000007a"
+    },
+    "char_5": {
+      "alpha": false,
+      "alnum": true,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x00000035",
+      "to_lower": "0x00000035"
+    },
+    "char_underscore": {
+      "alpha": false,
+      "alnum": false,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x0000005f",
+      "to_lower": "0x0000005f"
+    },
+    "char_space": {
+      "alpha": false,
+      "alnum": false,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x00000020",
+      "to_lower": "0x00000020"
+    },
+    "char_e_acute": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": true,
+      "to_upper": "0x000000c9",
+      "to_lower": "0x000000e9"
+    },
+    "char_sharp_s": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": true,
+      "to_upper": "0x000000df",
+      "to_lower": "0x000000df"
+    },
+    "char_y_diaeresis": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": true,
+      "to_upper": "0x00000178",
+      "to_lower": "0x000000ff"
+    },
+    "char_dotless_i": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": true,
+      "to_upper": "0x00000131",
+      "to_lower": "0x00000131"
+    },
+    "char_dotted_I": {
+      "alpha": true,
+      "alnum": true,
+      "upper": true,
+      "lower": false,
+      "to_upper": "0x00000130",
+      "to_lower": "0x00000130"
+    },
+    "char_final_sigma": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": true,
+      "to_upper": "0x000003c2",
+      "to_lower": "0x000003c2"
+    },
+    "char_cjk": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x00004e00",
+      "to_lower": "0x00004e00"
+    },
+    "char_arabic_digit": {
+      "alpha": false,
+      "alnum": true,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x00000660",
+      "to_lower": "0x00000660"
+    },
+    "char_superscript_2": {
+      "alpha": false,
+      "alnum": true,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x000000b2",
+      "to_lower": "0x000000b2"
+    },
+    "char_roman_numeral": {
+      "alpha": true,
+      "alnum": true,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x00002160",
+      "to_lower": "0x00002170"
+    },
+    "char_titlecase_Dz": {
+      "alpha": true,
+      "alnum": true,
+      "upper": true,
+      "lower": true,
+      "to_upper": "0x000001c5",
+      "to_lower": "0x000001c5"
+    },
+    "char_combining_acute": {
+      "alpha": false,
+      "alnum": false,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x00000301",
+      "to_lower": "0x00000301"
+    },
+    "char_nul": {
+      "alpha": false,
+      "alnum": false,
+      "upper": false,
+      "lower": false,
+      "to_upper": "0x00000000",
+      "to_lower": "0x00000000"
+    },
+    "w_d": {
+      "ret": 16,
+      "ret_is_len": true,
+      "out": "-5|-5|4294967291"
+    },
+    "w_x": {
+      "ret": 24,
+      "ret_is_len": true,
+      "out": "ff|FF|0xff|0XFF|000000ff"
+    },
+    "w_width_flags": {
+      "ret": 29,
+      "ret_is_len": true,
+      "out": "[   42][42   ][00042][+d][ d]"
+    },
+    "w_long": {
+      "ret": 10,
+      "ret_is_len": true,
+      "out": "-7|7|abc|3"
+    },
+    "w_I64": {
+      "ret": 36,
+      "ret_is_len": true,
+      "out": "-1|18446744073709551615|123456789abc"
+    },
+    "w_strings": {
+      "ret": 30,
+      "ret_is_len": true,
+      "out": "[wide][wide2][narrow][narrow2]"
+    },
+    "w_string_precision": {
+      "ret": 25,
+      "ret_is_len": true,
+      "out": "[abc][        xy][ab    ]"
+    },
+    "w_null_string": {
+      "ret": 2,
+      "ret_is_len": true,
+      "out": "[]"
+    },
+    "w_chars": {
+      "ret": 12,
+      "ret_is_len": true,
+      "out": "[W][n][L][C]"
+    },
+    "w_percent": {
+      "ret": 7,
+      "ret_is_len": true,
+      "out": "100% []"
+    },
+    "w_unsupported_f": {
+      "ret": 6,
+      "ret_is_len": true,
+      "out": "[f][1]"
+    },
+    "w_unsupported_e_p": {
+      "ret": 21,
+      "ret_is_len": true,
+      "out": "[e][0000000000000001]"
+    },
+    "w_star_width": {
+      "ret": 4,
+      "ret_is_len": true,
+      "out": "[*d]"
+    },
+    "w_precision_int": {
+      "ret": 10,
+      "ret_is_len": true,
+      "out": "[00042][0]"
+    },
+    "w_hh_h": {
+      "ret": 20,
+      "ret_is_len": true,
+      "out": "[9029][74565][12345]"
+    },
+    "w_z_and_ll": {
+      "ret": 8,
+      "ret_is_len": true,
+      "out": "[zd][ld]"
+    },
+    "w_limit_1024": {
+      "ret": 1024,
+      "strlen": 1024,
+      "untouched_1025": true
+    },
+    "a_d": {
+      "ret": 19,
+      "ret_is_len": true,
+      "out": "2d357c343239343936373239317c61627c4142"
+    },
+    "a_strings": {
+      "ret": 30,
+      "ret_is_len": true,
+      "out": "5b6e6172726f775d5b6e6172726f77325d5b776964655d5b77696465325d"
+    },
+    "a_non_ascii_wide": {
+      "ret": 4,
+      "ret_is_len": true,
+      "out": "5be93f5d"
+    },
+    "a_chars": {
+      "ret": 9,
+      "ret_is_len": true,
+      "out": "5b615d5be95d5b425d"
+    },
+    "a_width": {
+      "ret": 15,
+      "ret_is_len": true,
+      "out": "5b616220205d5b202061625d5b615d"
+    }
+  },
+  "errors": [],
+  "source_sha256": "697178be41adac28861d2cf753fbbc4f8ec2cbbea5153cf4d6427f518a1c5e7a"
+}

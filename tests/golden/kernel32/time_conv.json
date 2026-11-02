@@ -1,0 +1,499 @@
+{
+  "test": "kernel32/time_conv",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "ft_zero": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "1601-01-01 00:00:00.000 dow1"
+    },
+    "ft_one_tick": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "1601-01-01 00:00:00.000 dow1"
+    },
+    "ft_unix_epoch": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "1970-01-01 00:00:00.000 dow4"
+    },
+    "ft_y2k_plus_ms": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2000-01-01 00:00:00.123 dow6"
+    },
+    "ft_2024_03_01_0800": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-03-01 08:00:00.000 dow5"
+    },
+    "ft_max_int64": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "30828-09-14 02:48:05.477 dow4"
+    },
+    "ft_high_bit": {
+      "ret": false,
+      "last_error": 87
+    },
+    "ft_all_ones": {
+      "ret": false,
+      "last_error": 87
+    },
+    "ft_year_30827_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "30827-12-31 23:59:59.999 dow5"
+    },
+    "ft_year_30828": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "30828-01-01 00:00:00.000 dow6"
+    },
+    "st_epoch_1601": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 0
+    },
+    "st_1600": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_unix_epoch": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 116444736000000000
+    },
+    "st_dow_ignored": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 116444736000000000
+    },
+    "st_dow_out_of_range": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 116444736000000000
+    },
+    "st_leap_day_2024": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 133536384000000000
+    },
+    "st_feb_29_non_leap": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_feb_29_1900": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_feb_29_2000": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 125962560000000000
+    },
+    "st_feb_30": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_apr_31": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_month_0": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_month_13": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_day_0": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_hour_24": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_minute_60": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_second_60": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_ms_999": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 133485408009990000
+    },
+    "st_ms_1000": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_year_30827": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 9223149887999990000
+    },
+    "st_year_30828": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_year_60056": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "st_year_0": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "compare_file_time": {
+      "lt": -1,
+      "gt": 1,
+      "eq": 0,
+      "high_part": 1,
+      "high_bit_unsigned": 1
+    },
+    "dos_1980": {
+      "ret": true,
+      "last_error": "unchanged",
+      "date": "0x00000021",
+      "time": "0x00000000"
+    },
+    "dos_odd_second": {
+      "ret": true,
+      "last_error": "unchanged",
+      "date": "0x00000021",
+      "time": "0x00000001"
+    },
+    "dos_2024_03_01_130509": {
+      "ret": true,
+      "last_error": "unchanged",
+      "date": "0x00005861",
+      "time": "0x0000a8a5"
+    },
+    "dos_before_1980": {
+      "ret": false,
+      "last_error": 87,
+      "date": "0x0000aaaa",
+      "time": "0x0000aaaa"
+    },
+    "dos_2107_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "date": "0x0000ff9f",
+      "time": "0x0000bf7d"
+    },
+    "dos_2108": {
+      "ret": false,
+      "last_error": 87,
+      "date": "0x0000aaaa",
+      "time": "0x0000aaaa"
+    },
+    "dos2ft_1980": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 119600064000000000
+    },
+    "dos2ft_2024_02_29": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 133536855080000000
+    },
+    "dos2ft_month_0": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "dos2ft_month_13": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "dos2ft_day_0": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "dos2ft_feb_31": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "dos2ft_hour_24": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "dos2ft_minute_60": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "dos2ft_seconds_31": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "dos2ft_all_ones": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "tz_winter_to_local": {
+      "ret": true,
+      "last_error": 0,
+      "st": "2024-01-15 07:00:00.000 dow1"
+    },
+    "tz_summer_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-07-15 08:00:00.000 dow1"
+    },
+    "tz_dst_start_utc_0659": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-03-10 01:59:00.000 dow0"
+    },
+    "tz_dst_start_utc_0700": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-03-10 03:00:00.000 dow0"
+    },
+    "tz_dst_end_utc_0559": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-11-03 01:59:00.000 dow0"
+    },
+    "tz_dst_end_utc_0600": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-11-03 01:00:00.000 dow0"
+    },
+    "tz_new_year_crossing": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2023-12-31 21:00:00.000 dow0"
+    },
+    "tz_winter_to_utc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-01-15 12:00:00.000 dow1"
+    },
+    "tz_summer_to_utc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-07-15 12:00:00.000 dow1"
+    },
+    "tz_gap_local_0230": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-03-10 06:30:00.000 dow0"
+    },
+    "tz_overlap_local_0130": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-11-03 05:30:00.000 dow0"
+    },
+    "tz_invalid_input_month_13": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tz_invalid_input_feb_30": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tz_absolute_rule_in_dst": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-06-01 08:00:00.000 dow6"
+    },
+    "tz_absolute_rule_before_dst": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-03-20 07:00:00.000 dow3"
+    },
+    "tz_no_dst_plus_0530": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-07-16 01:30:00.000 dow2"
+    },
+    "tz_no_dst_plus_0530_to_utc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-07-15 20:00:00.000 dow1"
+    },
+    "tz_south_january": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-01-15 11:00:00.000 dow1"
+    },
+    "tz_south_july": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-07-15 10:00:00.000 dow1"
+    },
+    "tz_last_sunday_march_before": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-03-31 01:00:00.000 dow0"
+    },
+    "tz_last_sunday_march_after": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-03-31 03:00:00.000 dow0"
+    },
+    "tz_bad_rule_month_13": {
+      "ret": false,
+      "last_error": 87
+    },
+    "local_round_trip": {
+      "to_local": true,
+      "to_utc": true,
+      "same": true,
+      "whole_quarter_hours": true
+    },
+    "local_all_ones": {
+      "ret": true
+    },
+    "date_default": {
+      "ret": 11,
+      "last_error": 0,
+      "out": "02/29/2024"
+    },
+    "date_long": {
+      "ret": 27,
+      "last_error": "unchanged",
+      "out": "Thursday, 29 February 2024"
+    },
+    "date_custom": {
+      "ret": 37,
+      "last_error": "unchanged",
+      "out": "2024-02-29 Thu Thursday Feb February"
+    },
+    "date_short_forms": {
+      "ret": 15,
+      "last_error": "unchanged",
+      "out": "9 09 5 3 05 03"
+    },
+    "date_quoted": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "Year: 2024 it's"
+    },
+    "date_era": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "A.D. 2024"
+    },
+    "date_wrong_dow_ignored": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "Thursday"
+    },
+    "date_invalid_day": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "date_year_1600": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "date_year_10000": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "10000"
+    },
+    "date_bad_flags": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "date_format_with_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "time_default": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "13:05:09"
+    },
+    "time_custom_24": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "07:05:09"
+    },
+    "time_custom_12": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "1:5:9 PM P"
+    },
+    "time_midnight_12h": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "12 AM"
+    },
+    "time_no_seconds": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "13:05"
+    },
+    "time_no_minutes": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "13"
+    },
+    "time_force_24h": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "13:05:09"
+    },
+    "time_no_marker": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "13:05:09"
+    },
+    "time_hour_24_invalid": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "time_quoted": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "at 09 o'clock"
+    },
+    "date_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "date_size_query": {
+      "ret": 11,
+      "last_error": "unchanged"
+    },
+    "time_invalid_locale": {
+      "ret": 0,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "24349b6295bb57a51e0d6f4fdc5b0293db9860f5561aa03ca391d69ca7529af9"
+}

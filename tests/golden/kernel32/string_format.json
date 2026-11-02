@@ -1,0 +1,645 @@
+{
+  "test": "kernel32/string_format",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "lstrlen": {
+      "w_abc": 3,
+      "w_empty": 0,
+      "w_null": 0,
+      "a_abc": 3,
+      "a_null": 0,
+      "a_utf8_bytes": 5
+    },
+    "lstrlen_bad_pointer": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "lstrcpyn_truncates": {
+      "ret_is_dest": true,
+      "last_error": "unchanged",
+      "out": "abc",
+      "untouched_after": true
+    },
+    "lstrcpyn_short": {
+      "out": "ab",
+      "untouched_after_nul": true
+    },
+    "lstrcpyn_size_1": {
+      "ret_is_dest": true,
+      "first": 0
+    },
+    "lstrcpyn_size_0": {
+      "ret_is_dest": true,
+      "untouched": true
+    },
+    "lstrcpyn_null_src": {
+      "ret_null": true,
+      "last_error": "unchanged"
+    },
+    "lstrcat": {
+      "ret_is_dest": true,
+      "out": "abcd"
+    },
+    "lstrcat_null_src": {
+      "ret_null": true,
+      "last_error": "unchanged",
+      "out": "abcd"
+    },
+    "cmp_equal": {
+      "lstrcmp": "eq",
+      "lstrcmpi": "eq",
+      "ordinal": 2,
+      "ordinal_ic": 2
+    },
+    "cmp_case_only": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "eq",
+      "ordinal": 3,
+      "ordinal_ic": 2
+    },
+    "cmp_a_vs_B": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 3,
+      "ordinal_ic": 1
+    },
+    "cmp_prefix": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 1,
+      "ordinal_ic": 1
+    },
+    "cmp_hyphen_word_sort": {
+      "lstrcmp": "gt",
+      "lstrcmpi": "gt",
+      "ordinal": 1,
+      "ordinal_ic": 1
+    },
+    "cmp_hyphen_vs_letter": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 1,
+      "ordinal_ic": 1
+    },
+    "cmp_apostrophe": {
+      "lstrcmp": "gt",
+      "lstrcmpi": "gt",
+      "ordinal": 1,
+      "ordinal_ic": 1
+    },
+    "cmp_digits_vs_letters": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 1,
+      "ordinal_ic": 1
+    },
+    "cmp_underscore_vs_letter": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 1,
+      "ordinal_ic": 3
+    },
+    "cmp_space_vs_letter": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 1,
+      "ordinal_ic": 1
+    },
+    "cmp_accent": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 3,
+      "ordinal_ic": 3
+    },
+    "cmp_accent_vs_plain": {
+      "lstrcmp": "gt",
+      "lstrcmpi": "gt",
+      "ordinal": 3,
+      "ordinal_ic": 3
+    },
+    "cmp_empty_vs_null": {
+      "lstrcmp": "gt",
+      "lstrcmpi": "gt",
+      "ordinal": 0,
+      "ordinal_ic": 0
+    },
+    "cmp_null_null": {
+      "lstrcmp": "eq",
+      "lstrcmpi": "eq",
+      "ordinal": 0,
+      "ordinal_ic": 0
+    },
+    "cmp_sharp_s": {
+      "lstrcmp": "eq",
+      "lstrcmpi": "eq",
+      "ordinal": 3,
+      "ordinal_ic": 3
+    },
+    "cmp_ligature": {
+      "lstrcmp": "eq",
+      "lstrcmpi": "eq",
+      "ordinal": 3,
+      "ordinal_ic": 3
+    },
+    "cmp_greek_case": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "eq",
+      "ordinal": 3,
+      "ordinal_ic": 2
+    },
+    "cmp_turkish_i": {
+      "lstrcmp": "lt",
+      "lstrcmpi": "lt",
+      "ordinal": 1,
+      "ordinal_ic": 1
+    },
+    "cmp_fullwidth_a": {
+      "lstrcmp": "gt",
+      "lstrcmpi": "gt",
+      "ordinal": 3,
+      "ordinal_ic": 3
+    },
+    "ordinal_counted": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ordinal_null": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "ordinal_embedded_nul": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "csx_ignore_case": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_ignore_nonspace": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_ignore_symbols": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_ignore_width": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_ignore_kanatype": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_stringsort_hyphen": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "csx_digits_as_numbers": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "csx_no_digits_as_numbers": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "csx_counted_with_nul": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_zero_lengths": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_bad_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "csx_null_string": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "csx_linguistic_casing": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "csx_invalid_locale": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "map_upper": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "ABC ÉßΣ",
+      "raw": "4100420043002000c900df00a3030000"
+    },
+    "map_lower": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "abc éİσ",
+      "raw": "6100620063002000e9003001c3030000"
+    },
+    "map_linguistic_upper": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "IŸ",
+      "raw": "490078010000"
+    },
+    "map_fullwidth": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "Ａｂ１　",
+      "raw": "21ff42ff11ff00300000"
+    },
+    "map_halfwidth": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "Ab1 ",
+      "raw": "41006200310020000000"
+    },
+    "map_hiragana": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "あか",
+      "raw": "42304b300000"
+    },
+    "map_katakana": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "アカ",
+      "raw": "a230ab300000"
+    },
+    "map_counted_no_nul": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "ABC",
+      "raw": "410042004300"
+    },
+    "map_upper_and_lower": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "Abc",
+      "raw": "4100620063000000"
+    },
+    "map_no_flags": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "map_zero_length": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "map_size_query": {
+      "ret": 7,
+      "last_error": "unchanged"
+    },
+    "map_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "map_in_place": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "ABC"
+    },
+    "map_sortkey_size": {
+      "ret_positive": true,
+      "last_error": "unchanged"
+    },
+    "map_sortkey_order": {
+      "got": true,
+      "abc_vs_ABC": "lt"
+    },
+    "string_type_ctype1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "c0": "0x00000382",
+      "c1": "0x00000301",
+      "c2": "0x00000284",
+      "c3": "0x00000248",
+      "c4": "0x00000210",
+      "c5": "0x00000268",
+      "c6": "0x00000302",
+      "c7": "0x00000300",
+      "c8": "0x00000204",
+      "c9": "0x00000381",
+      "c10": "0x00000210",
+      "c11": "0x00000220"
+    },
+    "string_type_ctype2": {
+      "ret": true,
+      "c0": 1,
+      "c1": 1,
+      "c2": 3,
+      "c3": 10,
+      "c4": 11,
+      "c5": 9,
+      "c6": 1,
+      "c7": 1,
+      "c8": 6,
+      "c9": 1,
+      "c10": 11,
+      "c11": 0
+    },
+    "string_type_ctype3": {
+      "ret": true,
+      "c0": "0x00008040",
+      "c1": "0x00008040",
+      "c2": "0x00000040",
+      "c3": "0x00000048",
+      "c4": "0x00000448",
+      "c5": "0x00000008",
+      "c6": "0x00008003",
+      "c7": "0x00008100",
+      "c8": "0x00000000",
+      "c9": "0x00008080",
+      "c10": "0x00000048",
+      "c11": "0x00000000"
+    },
+    "string_type_bad_type": {
+      "ret": false,
+      "last_error": 1004
+    },
+    "string_type_zero_length": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fm_plain": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "hello",
+      "terminated": true
+    },
+    "fm_insert_string": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "a XY b",
+      "terminated": true
+    },
+    "fm_insert_order": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "two-one",
+      "terminated": true
+    },
+    "fm_insert_repeat": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "zz",
+      "terminated": true
+    },
+    "fm_printf_d": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "[-42]",
+      "terminated": true
+    },
+    "fm_printf_u": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "[4294967295]",
+      "terminated": true
+    },
+    "fm_printf_x": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "[0000beef]",
+      "terminated": true
+    },
+    "fm_printf_X": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "[BEEF]",
+      "terminated": true
+    },
+    "fm_printf_width": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "[   ab]",
+      "terminated": true
+    },
+    "fm_printf_left": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "[ab   ]",
+      "terminated": true
+    },
+    "fm_printf_c": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "[Q]",
+      "terminated": true
+    },
+    "fm_printf_star_width": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "[    ab]",
+      "terminated": true
+    },
+    "fm_printf_star_then_next": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "[  ab][c]",
+      "terminated": true
+    },
+    "fm_printf_ls": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "[wide]",
+      "terminated": true
+    },
+    "fm_printf_hs": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "[narrow]",
+      "terminated": true
+    },
+    "fm_escapes": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "a%b.c!d\r\n",
+      "terminated": true
+    },
+    "fm_escape_space_tab": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "x y\tz",
+      "terminated": true
+    },
+    "fm_percent_0_stops": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "abc",
+      "terminated": true
+    },
+    "fm_trailing_percent": {
+      "ret": 0,
+      "last_error": 87,
+      "buffer_untouched": false
+    },
+    "fm_percent_unknown_letter": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "aqb",
+      "terminated": true
+    },
+    "fm_crlf_kept": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "a\r\nb\r\nc\r\nd",
+      "terminated": true
+    },
+    "fm_insert_99": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "out": "_",
+      "terminated": true
+    },
+    "fm_insert_100_literal": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "out": "_",
+      "terminated": true
+    },
+    "fm_ignore_inserts": {
+      "ret": 18,
+      "last_error": "unchanged",
+      "out": "a %1 %2!d! %% \r\n b",
+      "terminated": true
+    },
+    "fm_max_width_8": {
+      "ret": 26,
+      "last_error": "unchanged",
+      "out": "one two\r\nthree\r\nfour\r\nfive",
+      "terminated": true
+    },
+    "fm_max_width_mask": {
+      "ret": 15,
+      "last_error": "unchanged",
+      "out": "one two  three ",
+      "terminated": true
+    },
+    "fm_max_width_8_long_word": {
+      "ret": 22,
+      "last_error": "unchanged",
+      "out": "abcdefgh\r\nijklmnop\r\n q",
+      "terminated": true
+    },
+    "fm_buffer_exact": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "hello",
+      "terminated": true
+    },
+    "fm_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122,
+      "buffer_untouched": false
+    },
+    "fm_buffer_zero": {
+      "ret": 0,
+      "last_error": 122,
+      "buffer_untouched": true
+    },
+    "fm_empty_format": {
+      "ret": 0,
+      "last_error": 235,
+      "buffer_untouched": false
+    },
+    "fm_insert_without_args_flag_ok": {
+      "ret": 0,
+      "last_error": 235,
+      "buffer_untouched": false
+    },
+    "fm_allocate_buffer": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "xallocy"
+    },
+    "fm_allocate_buffer_empty": {
+      "ret": 0,
+      "last_error": 235,
+      "out_null": true
+    },
+    "fm_no_source_flag": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "sys_error_success": {
+      "ret": 39,
+      "last_error": "unchanged",
+      "out": "The operation completed successfully.\r\n"
+    },
+    "sys_file_not_found": {
+      "ret": 44,
+      "last_error": "unchanged",
+      "out": "The system cannot find the file specified.\r\n"
+    },
+    "sys_access_denied": {
+      "ret": 19,
+      "last_error": "unchanged",
+      "out": "Access is denied.\r\n"
+    },
+    "sys_invalid_parameter": {
+      "ret": 29,
+      "last_error": "unchanged",
+      "out": "The parameter is incorrect.\r\n"
+    },
+    "sys_sharing_violation": {
+      "ret": 81,
+      "last_error": "unchanged",
+      "out": "The process cannot access the file because it is being used by another process.\r\n"
+    },
+    "sys_already_exists": {
+      "ret": 53,
+      "last_error": "unchanged",
+      "out": "Cannot create a file when that file already exists.\r\n"
+    },
+    "sys_more_data": {
+      "ret": 25,
+      "last_error": "unchanged",
+      "out": "More data is available.\r\n"
+    },
+    "sys_mod_not_found": {
+      "ret": 42,
+      "last_error": "unchanged",
+      "out": "The specified module could not be found.\r\n"
+    },
+    "sys_insert_message_kept": {
+      "ret": 90,
+      "last_error": "unchanged",
+      "out": "The wrong diskette is in the drive.\r\nInsert %2 (Volume Serial Number: %3) into drive %1.\r\n"
+    },
+    "sys_file_not_found_max_width": {
+      "ret": 43,
+      "last_error": "unchanged",
+      "out": "The system cannot find the file specified. "
+    },
+    "sys_missing_id": {
+      "ret": 0,
+      "last_error": 317
+    },
+    "sys_hresult_e_fail": {
+      "ret": 19,
+      "last_error": "unchanged",
+      "out": "Unspecified error\r\n"
+    },
+    "sys_hresult_e_invalidarg": {
+      "ret": 29,
+      "last_error": "unchanged",
+      "out": "The parameter is incorrect.\r\n"
+    },
+    "sys_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "sys_unknown_language": {
+      "ret": 0,
+      "last_error": 15100
+    }
+  },
+  "errors": [],
+  "source_sha256": "f5b5649a018222774a2d537e09bab036bddab8bb1302a4bdd46ed004de0c508f"
+}
