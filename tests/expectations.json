@@ -2272,6 +2272,7 @@
     "user32/messages:postquit_hwnd_filter",
     "user32/messages:postquit_twice_last_wins",
     "user32/messages:postquit_unfiltered",
+    "user32/messages:postthread_bad_tid",
     "user32/messages:postthread_wm_copydata_sync_only",
     "user32/messages:queuestatus_after_post",
     "user32/messages:queuestatus_after_post_again",

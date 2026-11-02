@@ -3611,6 +3611,8 @@ static BOOL put_message_in_queue( const struct send_message_info *info, size_t *
 
 done:
     if (res == STATUS_INVALID_PARAMETER) res = STATUS_NO_LDT;
+    /* thread message to a thread id that doesn't exist */
+    if (res == STATUS_INVALID_CID && !info->hwnd) res = STATUS_NO_LDT;
     if (res) RtlSetLastWin32Error( RtlNtStatusToDosError(res) );
     return !res;
 }
