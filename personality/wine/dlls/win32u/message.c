@@ -960,11 +960,6 @@ static BOOL unpack_message( HWND hwnd, UINT message, WPARAM *wparam, LPARAM *lpa
     /* these contain an HGLOBAL */
     case WM_PAINTCLIPBOARD:
     case WM_SIZECLIPBOARD:
-    /* these contain HICON */
-    case WM_GETICON:
-    case WM_SETICON:
-    case WM_QUERYDRAGICON:
-    case WM_QUERYPARKICON:
     /* these contain pointers */
     case WM_DROPOBJECT:
     case WM_QUERYDROPOBJECT:
@@ -1313,11 +1308,6 @@ static size_t pack_message( HWND hwnd, UINT message, WPARAM wparam, LPARAM lpara
     /* these contain an HGLOBAL */
     case WM_PAINTCLIPBOARD:
     case WM_SIZECLIPBOARD:
-    /* these contain HICON */
-    case WM_GETICON:
-    case WM_SETICON:
-    case WM_QUERYDRAGICON:
-    case WM_QUERYPARKICON:
     /* these contain pointers */
     case WM_DROPOBJECT:
     case WM_QUERYDROPOBJECT:

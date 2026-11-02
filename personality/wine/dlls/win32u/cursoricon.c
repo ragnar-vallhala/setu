@@ -29,6 +29,8 @@
 #endif
 
 #include <assert.h>
+#include "ntstatus.h"
+#define WIN32_NO_STATUS
 #include "ntgdi_private.h"
 #include "ntuser_private.h"
 #include "wine/server.h"
@@ -63,13 +65,197 @@ struct cursoricon_object
 
 static struct list icon_cache = LIST_INIT( icon_cache );
 
+/*
+ * Icons and cursors are public user objects ("User Objects": any process can
+ * use them). Their images live in the owning process, so each static icon
+ * publishes its image to the server (set_icon_data); another process that
+ * gets the handle builds a private copy from it, cached by handle.
+ */
+struct icon_image
+{
+    UINT  is_icon;
+    UINT  width;
+    UINT  height;
+    POINT hotspot;
+    struct { UINT width, height, bpp, size; } bitmap[3]; /* color, alpha, mask */
+    /* followed by the bits of each bitmap (GetBitmapBits format) */
+};
+
+#define MAX_FOREIGN_ICONS 128
+struct foreign_icon
+{
+    struct list entry;
+    HICON       foreign;   /* handle owned by another process */
+    HICON       local;     /* private copy */
+};
+static struct list foreign_icons = LIST_INIT( foreign_icons );
+static UINT foreign_icon_count;
+static pthread_mutex_t foreign_icon_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static BOOL free_icon_handle( HICON handle );
+static BOOL set_cursor_icon_data( HCURSOR cursor, UNICODE_STRING *module, UNICODE_STRING *res_name,
+                                  struct cursoricon_desc *desc, BOOL publish );
+
+static void publish_icon_image( HICON handle, BOOL is_icon, const struct cursoricon_frame *frame )
+{
+    HBITMAP bitmaps[3] = { frame->color, frame->alpha, frame->mask };
+    struct icon_image *image;
+    UINT i, size = sizeof(*image);
+    BITMAP bm;
+    char *ptr;
+
+    /* taskbar sizes; bigger images stay private to keep the server small */
+    if (!frame->width || frame->width > 64 || frame->height > 64) return;
+    if (!(image = calloc( 1, sizeof(*image) ))) return;
+    image->is_icon = is_icon;
+    image->width = frame->width;
+    image->height = frame->height;
+    image->hotspot = frame->hotspot;
+    for (i = 0; i < ARRAY_SIZE(bitmaps); i++)
+    {
+        if (!bitmaps[i] || !NtGdiExtGetObjectW( bitmaps[i], sizeof(bm), &bm )) continue;
+        if (bm.bmPlanes != 1) goto done;
+        image->bitmap[i].width = bm.bmWidth;
+        image->bitmap[i].height = bm.bmHeight;
+        image->bitmap[i].bpp = bm.bmBitsPixel;
+        image->bitmap[i].size = bm.bmWidthBytes * bm.bmHeight;
+        size += image->bitmap[i].size;
+    }
+    if (!(ptr = realloc( image, size ))) goto done;
+    image = (struct icon_image *)ptr;
+    ptr += sizeof(*image);
+    for (i = 0; i < ARRAY_SIZE(bitmaps); i++)
+    {
+        if (!image->bitmap[i].size) continue;
+        if (NtGdiGetBitmapBits( bitmaps[i], image->bitmap[i].size, ptr ) != image->bitmap[i].size) goto done;
+        ptr += image->bitmap[i].size;
+    }
+
+    SERVER_START_REQ( set_icon_data )
+    {
+        req->handle = wine_server_user_handle( handle );
+        wine_server_add_data( req, image, size );
+        wine_server_call( req );
+    }
+    SERVER_END_REQ;
+
+done:
+    free( image );
+}
+
+/* build a private copy of an icon published by another process */
+static HICON create_foreign_icon_copy( HICON foreign )
+{
+    struct icon_image *image;
+    struct cursoricon_frame frame = {0};
+    struct cursoricon_desc desc = {.frames = &frame};
+    HBITMAP bitmaps[3] = {0};
+    UINT i, size = 0, total;
+    HICON local = 0;
+    NTSTATUS status;
+    const char *ptr;
+
+    if (!(image = malloc( 16384 ))) return 0;
+    for (total = 16384;;)
+    {
+        SERVER_START_REQ( get_icon_data )
+        {
+            req->handle = wine_server_user_handle( foreign );
+            wine_server_set_reply( req, image, total );
+            if (!(status = wine_server_call( req ))) size = wine_server_reply_size( reply );
+            else if (status == STATUS_BUFFER_TOO_SMALL) total = reply->total;
+        }
+        SERVER_END_REQ;
+        if (status != STATUS_BUFFER_TOO_SMALL) break;
+        free( image );
+        if (!(image = malloc( total ))) return 0;
+    }
+    if (status || size < sizeof(*image)) goto done;
+
+    ptr = (const char *)(image + 1);
+    for (i = 0; i < ARRAY_SIZE(bitmaps); i++)
+    {
+        if (!image->bitmap[i].size) continue;
+        if (ptr + image->bitmap[i].size > (const char *)image + size) goto done;
+        if (!(bitmaps[i] = NtGdiCreateBitmap( image->bitmap[i].width, image->bitmap[i].height, 1,
+                                              image->bitmap[i].bpp, ptr )))
+            goto done;
+        ptr += image->bitmap[i].size;
+    }
+    if (!bitmaps[2]) goto done;
+
+    frame.width   = image->width;
+    frame.height  = image->height;
+    frame.hotspot = image->hotspot;
+    frame.color   = bitmaps[0];
+    frame.alpha   = bitmaps[1];
+    frame.mask    = bitmaps[2];
+    if ((local = alloc_cursoricon_handle( image->is_icon )) &&
+        set_cursor_icon_data( local, NULL, NULL, &desc, FALSE ))
+    {
+        memset( bitmaps, 0, sizeof(bitmaps) ); /* owned by the icon now */
+    }
+    else if (local)
+    {
+        free_icon_handle( local );
+        local = 0;
+    }
+
+done:
+    for (i = 0; i < ARRAY_SIZE(bitmaps); i++) if (bitmaps[i]) NtGdiDeleteObjectApp( bitmaps[i] );
+    free( image );
+    TRACE( "foreign icon %p -> %p\n", foreign, local );
+    return local;
+}
+
+static HICON get_foreign_icon_copy( HICON foreign )
+{
+    struct foreign_icon *entry;
+    HICON local = 0, evict = 0;
+
+    pthread_mutex_lock( &foreign_icon_lock );
+    LIST_FOR_EACH_ENTRY( entry, &foreign_icons, struct foreign_icon, entry )
+    {
+        if (entry->foreign != foreign) continue;
+        list_remove( &entry->entry );
+        list_add_head( &foreign_icons, &entry->entry );
+        local = entry->local;
+        break;
+    }
+    pthread_mutex_unlock( &foreign_icon_lock );
+    if (local) return local;
+
+    if (!(local = create_foreign_icon_copy( foreign ))) return 0;
+    if (!(entry = malloc( sizeof(*entry) ))) return local; /* leaks the copy, unlikely */
+    entry->foreign = foreign;
+    entry->local = local;
+
+    pthread_mutex_lock( &foreign_icon_lock );
+    list_add_head( &foreign_icons, &entry->entry );
+    if (++foreign_icon_count > MAX_FOREIGN_ICONS)
+    {
+        struct foreign_icon *last = LIST_ENTRY( list_tail( &foreign_icons ), struct foreign_icon, entry );
+        list_remove( &last->entry );
+        foreign_icon_count--;
+        evict = last->local;
+        free( last );
+    }
+    pthread_mutex_unlock( &foreign_icon_lock );
+    if (evict) free_icon_handle( evict );
+    return local;
+}
+
 static struct cursoricon_object *get_icon_ptr( HICON handle )
 {
     struct cursoricon_object *obj = get_user_handle_ptr( handle, NTUSER_OBJ_ICON );
     if (obj == OBJ_OTHER_PROCESS)
     {
-        WARN( "icon handle %p from other process\n", handle );
+        HICON local = get_foreign_icon_copy( handle );
+
         obj = NULL;
+        if (local) obj = get_user_handle_ptr( local, NTUSER_OBJ_ICON );
+        if (obj == OBJ_OTHER_PROCESS) obj = NULL;
+        if (!obj) WARN( "icon handle %p from other process\n", handle );
     }
     return obj;
 }
@@ -248,10 +434,18 @@ BOOL WINAPI NtUserDestroyCursor( HCURSOR cursor, ULONG arg )
 BOOL WINAPI NtUserSetCursorIconData( HCURSOR cursor, UNICODE_STRING *module, UNICODE_STRING *res_name,
                                      struct cursoricon_desc *desc )
 {
+    return set_cursor_icon_data( cursor, module, res_name, desc, TRUE );
+}
+
+static BOOL set_cursor_icon_data( HCURSOR cursor, UNICODE_STRING *module, UNICODE_STRING *res_name,
+                                  struct cursoricon_desc *desc, BOOL publish )
+{
     struct cursoricon_object *obj;
+    struct cursoricon_frame frame0 = {0};
+    BOOL is_icon;
     UINT i, j;
 
-    if (!(obj = get_icon_ptr( cursor ))) return FALSE;
+    if (!(obj = get_user_handle_ptr( cursor, NTUSER_OBJ_ICON )) || obj == OBJ_OTHER_PROCESS) return FALSE;
 
     if (obj->is_ani || obj->frame.width)
     {
@@ -316,7 +510,7 @@ BOOL WINAPI NtUserSetCursorIconData( HCURSOR cursor, UNICODE_STRING *module, UNI
             frame_desc.delay  = desc->frame_rates ? desc->frame_rates[i] : desc->delay;
             frame_desc.frames = &desc->frames[frame_id];
             if (!(obj->ani.frames[i] = alloc_cursoricon_handle( obj->is_icon )) ||
-                !NtUserSetCursorIconData( obj->ani.frames[i], NULL, NULL, &frame_desc ))
+                !set_cursor_icon_data( obj->ani.frames[i], NULL, NULL, &frame_desc, FALSE ))
             {
                 release_user_handle_ptr( obj );
                 return 0;
@@ -342,7 +536,14 @@ BOOL WINAPI NtUserSetCursorIconData( HCURSOR cursor, UNICODE_STRING *module, UNI
         }
     }
 
+    /* an animated cursor shows its first frame in other processes */
+    if (desc->num_steps && desc->num_frames && desc->frame_seq)
+        frame0 = desc->frames[min( desc->frame_seq[0], desc->num_frames - 1 )];
+    else
+        frame0 = desc->frames[0];
+    is_icon = obj->is_icon;
     release_user_handle_ptr( obj );
+    if (publish) publish_icon_image( cursor, is_icon, &frame0 );
     return TRUE;
 }
 

@@ -101,10 +101,21 @@ static const user_entry_t *alloc_user_entry( struct obj_locator locator, unsigne
     return entry;
 }
 
+/* published icon images (set_icon_data), kept as the icon's server object */
+struct icon_data
+{
+    data_size_t size;
+    char        data[1];
+};
+
 static void free_user_entry( user_entry_t *entry )
 {
     user_entry_t *handles = shared_session->user_entries;
     size_t index = entry - handles;
+
+    if (entry->type == NTUSER_OBJ_ICON && server_objects[index] != (void *)-1)
+        free( server_objects[index] );
+    if (entry->type == NTUSER_OBJ_ICON) server_objects[index] = NULL;
 
     WriteRelease64( &entry->uniq, MAKELONG(0, entry->generation) );
     entry->offset = freelist;
@@ -225,6 +236,52 @@ DECL_HANDLER(alloc_user_handle)
     reply->handle = alloc_user_handle( (void *)-1 /* never used */, NULL, req->type );
 }
 
+
+/* publish the image of an icon owned by the current process */
+DECL_HANDLER(set_icon_data)
+{
+    data_size_t size = get_req_data_size();
+    user_entry_t *entry;
+    struct icon_data *data;
+    void *old;
+
+    if (!(entry = handle_to_entry( req->handle )) || entry->type != NTUSER_OBJ_ICON)
+    {
+        set_error( STATUS_INVALID_HANDLE );
+        return;
+    }
+    if (entry->pid != get_process_id( current->process ))
+    {
+        set_error( STATUS_ACCESS_DENIED );
+        return;
+    }
+    if (!(data = mem_alloc( offsetof( struct icon_data, data[size] ) ))) return;
+    data->size = size;
+    memcpy( data->data, get_req_data(), size );
+    old = set_server_object( entry, data );
+    if (old != (void *)-1) free( old );
+}
+
+/* get the published image of an icon */
+DECL_HANDLER(get_icon_data)
+{
+    const user_entry_t *entry;
+    const struct icon_data *data;
+
+    if (!(entry = handle_to_entry( req->handle )) || entry->type != NTUSER_OBJ_ICON)
+    {
+        set_error( STATUS_INVALID_HANDLE );
+        return;
+    }
+    if (!(data = get_server_object( entry )) || data == (void *)-1)
+    {
+        set_error( STATUS_NOT_FOUND );
+        return;
+    }
+    reply->total = data->size;
+    if (data->size > get_reply_max_size()) set_error( STATUS_BUFFER_TOO_SMALL );
+    else set_reply_data( data->data, data->size );
+}
 
 /* free an arbitrary user handle */
 DECL_HANDLER(free_user_handle)

@@ -4045,6 +4045,22 @@ struct handle_info
 @END
 
 
+/* Publish the image of an icon or cursor owned by the current process */
+@REQ(set_icon_data)
+    user_handle_t  handle;        /* icon handle */
+    VARARG(data,bytes);           /* image data, format private to win32u */
+@END
+
+
+/* Get the published image of an icon or cursor, for use by another process */
+@REQ(get_icon_data)
+    user_handle_t  handle;        /* icon handle */
+@REPLY
+    data_size_t    total;         /* total size of the data */
+    VARARG(data,bytes);           /* image data */
+@END
+
+
 /* Set/get the current cursor */
 @REQ(set_cursor)
     unsigned int   flags;         /* flags for fields to set (see below) */
