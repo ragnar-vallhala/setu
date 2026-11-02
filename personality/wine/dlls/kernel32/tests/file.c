@@ -2316,7 +2316,7 @@ static void test_LockFile(void)
     ok( status == STATUS_ACCESS_VIOLATION, "got %#lx.\n", status );
     memset( &iosb, 0xcc, sizeof(iosb) );
     status = NtUnlockFile( handle, &iosb, &count, &offset, NULL );
-    todo_wine_if(NT_ERROR(status)) ok( status == STATUS_RANGE_NOT_LOCKED, "got %#lx.\n", status );
+    ok( status == STATUS_RANGE_NOT_LOCKED, "got %#lx.\n", status );
     ok( iosb.Status == status, "got %lu.\n", iosb.Status);
     ok( !iosb.Information, "got %Iu.\n", iosb.Information);
 
