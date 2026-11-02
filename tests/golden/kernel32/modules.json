@@ -1,0 +1,395 @@
+{
+  "test": "kernel32/modules",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "gmh_null_is_exe": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "gmh_kernel32": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "gmh_kernel32_upper_no_ext": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "gmh_kernel32_same": {
+      "same": true
+    },
+    "gmh_kernel32_trailing_dot": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gmh_kernel32_full_path_style": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gmh_kernel32_wrong_ext": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gmh_kernel32_trailing_space": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gmh_ntdll": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "gmh_missing": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gmh_empty": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gmh_not_loaded_system_dll": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gmhex_from_address_exe": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_exe": true
+    },
+    "gmhex_from_address_kernel32": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_kernel32": true
+    },
+    "gmhex_from_heap_address": {
+      "ret": false,
+      "last_error": 126,
+      "out_null": true
+    },
+    "gmhex_missing": {
+      "ret": false,
+      "last_error": 126,
+      "out_null": true
+    },
+    "gmhex_pin_and_unchanged": {
+      "ret": false,
+      "last_error": 87
+    },
+    "gmhex_null_out": {
+      "ret": false,
+      "last_error": 87
+    },
+    "gmhex_unknown_flag": {
+      "ret": false,
+      "last_error": 87
+    },
+    "gmhex_null_name_is_exe": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_exe": true
+    },
+    "gmfn_exe": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "path": "<self>"
+    },
+    "gmfn_exe_handle": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "path": "<self>"
+    },
+    "gmfn_kernel32": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "path": "<sysdir>\\KERNEL32.DLL"
+    },
+    "gmfn_ntdll": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "path": "<sysdir>\\ntdll.dll"
+    },
+    "gmfn_size_5": {
+      "last_error": 122,
+      "ret": 5,
+      "terminated_at_end": true,
+      "untouched_after": true,
+      "strlen": 4
+    },
+    "gmfn_size_1": {
+      "last_error": 122,
+      "ret": 1,
+      "terminated_at_end": true,
+      "untouched_after": true,
+      "strlen": 0
+    },
+    "gmfn_size_0": {
+      "last_error": 122,
+      "ret": 0,
+      "terminated_at_end": false,
+      "untouched_after": true,
+      "strlen": 0
+    },
+    "gmfn_bogus_module": {
+      "last_error": 126,
+      "ret_is_len": true,
+      "ret": 0
+    },
+    "gmfn_ansi_size_5": {
+      "ret": 5,
+      "last_error": 122,
+      "terminated_at_end": true,
+      "untouched_after": true
+    },
+    "load_missing": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "load_missing_relative_path": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "load_missing_dir": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "load_not_pe": {
+      "ret": "NULL",
+      "last_error": 193
+    },
+    "load_mz_only": {
+      "ret": "NULL",
+      "last_error": 193
+    },
+    "load_empty_file": {
+      "ret": "NULL",
+      "last_error": 193
+    },
+    "load_directory": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "load_empty_name": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "load_bad_chars": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "load_not_pe_as_datafile": {
+      "ret": "NULL",
+      "last_error": 193
+    },
+    "load_not_pe_as_image_resource": {
+      "ret": "NULL",
+      "last_error": 193
+    },
+    "load_empty_as_datafile": {
+      "ret": "NULL",
+      "last_error": 1006
+    },
+    "load_kernel32": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "load_kernel32_same_as_gmh": {
+      "same": true
+    },
+    "load_kernel32_no_ext": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "load_kernel32_trailing_dot": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "load_kernel32_as_datafile": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "datafile_handle_differs_from_module": {
+      "differs": false
+    },
+    "load_kernel32_as_datafile_exclusive": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "load_kernel32_as_image_resource": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "load_search_system32": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "load_search_flags_relative_path": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "load_unknown_flag": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "load_reserved_file_handle": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "load_version_dll": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "gmh_version_after_load": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "load_version_dll_again": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "low_bits": 0
+    },
+    "load_twice_same_handle": {
+      "same": true
+    },
+    "free_version_1": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "gmh_version_after_one_free": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "free_version_2": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "gmh_version_after_last_free": {
+      "ret": "NULL",
+      "last_error": 126
+    },
+    "gpa_exists": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "gpa_wrong_case": {
+      "ret": false,
+      "last_error": 127
+    },
+    "gpa_missing": {
+      "ret": false,
+      "last_error": 127
+    },
+    "gpa_empty_name": {
+      "ret": false,
+      "last_error": 127
+    },
+    "gpa_ordinal_ffff": {
+      "ret": false,
+      "last_error": 182
+    },
+    "gpa_ordinal_0": {
+      "ret": false,
+      "last_error": 87
+    },
+    "gpa_exe_no_exports": {
+      "ret": false,
+      "last_error": 127
+    },
+    "gpa_null_module": {
+      "ret": false,
+      "last_error": 127
+    },
+    "gpa_bogus_module": {
+      "ret": false,
+      "last_error": 126
+    },
+    "gpa_ntdll_function": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "gpa_ntdll_data_export": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "gpa_forwarder_heapalloc": {
+      "resolved": true,
+      "same_as_ntdll": true
+    },
+    "gpa_forwarder_enter_cs": {
+      "resolved": true,
+      "same_as_ntdll": true
+    },
+    "gpa_sleep_lives_in_kernelbase": {
+      "kernelbase_loaded": true,
+      "same": false
+    },
+    "gpa_on_datafile_module": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_dll_directory_default": {
+      "ret": 0,
+      "last_error": 0,
+      "empty_string": true
+    },
+    "set_dll_directory_relative": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_dll_directory_after_set": {
+      "last_error": 0,
+      "ret_is_len": true,
+      "tail": "sub",
+      "absolute": false
+    },
+    "get_dll_directory_small_buffer": {
+      "ret_gt_2": true,
+      "last_error": 0
+    },
+    "set_dll_directory_empty": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_dll_directory_after_empty": {
+      "ret": 0,
+      "last_error": 0,
+      "empty_string": true
+    },
+    "set_dll_directory_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "add_dll_directory_relative": {
+      "ret": false,
+      "last_error": 87
+    },
+    "add_dll_directory_missing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "set_default_dll_directories_zero": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_default_dll_directories_bad": {
+      "ret": false,
+      "last_error": 87
+    },
+    "free_null": {
+      "ret": false,
+      "last_error": 126
+    },
+    "free_bogus": {
+      "ret": false,
+      "last_error": 126
+    }
+  },
+  "errors": [],
+  "source_sha256": "f0fc698b33277a746932e94a8d339e7c11aaa56f79636bc36b1c649addfb88b4"
+}

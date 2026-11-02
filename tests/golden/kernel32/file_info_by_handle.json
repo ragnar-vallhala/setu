@@ -1,0 +1,425 @@
+{
+  "test": "kernel32/file_info_by_handle",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "std_info_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 11,
+      "alloc_ge_eof": true,
+      "links": 1,
+      "delete_pending": 0,
+      "directory": 0
+    },
+    "classic_info_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1
+    },
+    "basic_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "times_nonzero": true
+    },
+    "basic_info_short_buffer": {
+      "ret": false,
+      "last_error": 24
+    },
+    "basic_info_long_buffer": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "name_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "last": "info.txt",
+      "starts_with_backslash": true,
+      "no_drive": true
+    },
+    "name_info_small_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "length_set": true
+    },
+    "name_info_tiny_buffer": {
+      "ret": false,
+      "last_error": 24
+    },
+    "attribute_tag_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "tag": "0x00000000"
+    },
+    "stream_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "first_stream": "::$DATA",
+      "size": 11,
+      "only_one": true
+    },
+    "dir_info_on_file": {
+      "ret": false,
+      "last_error": 87
+    },
+    "invalid_class": {
+      "ret": false,
+      "last_error": 87
+    },
+    "get_set_only_class": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_end_of_file_shrink": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_shrink": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 5,
+      "file.data": "68656c6c6f"
+    },
+    "set_end_of_file_grow": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_grow": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 8,
+      "file.data": "68656c6c6f000000"
+    },
+    "set_end_of_file_negative": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_allocation_below_eof": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_allocation_below_eof": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 8,
+      "file.data": "68656c6c6f000000"
+    },
+    "set_eof_short_buffer": {
+      "ret": false,
+      "last_error": 24
+    },
+    "set_basic_attrs": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "attrs_after_set_basic": {
+      "attrs": "0x00000003"
+    },
+    "set_basic_directory_attr": {
+      "ret": false,
+      "last_error": 87
+    },
+    "attrs_after_set_directory_attr": {
+      "attrs": "0x00000003"
+    },
+    "set_basic_normal": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "attrs_after_set_normal": {
+      "attrs": "0x00000080"
+    },
+    "set_basic_write_time": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "write_time_after_set": {
+      "last_write": 125911584000000000,
+      "attrs": "0x00000080"
+    },
+    "set_standard_info_class": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_invalid_class": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_eof_read_only_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "set_basic_read_only_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "set_disposition_without_delete_access": {
+      "ret": false,
+      "last_error": 5
+    },
+    "rename_to_existing_no_replace": {
+      "ret": false,
+      "last_error": 183
+    },
+    "rename_to_existing_replace": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_rename_replace": {
+      "dir": "info.txt,ren_existing.txt",
+      "target.exists": true,
+      "target.attrs": "0x00000020",
+      "target.size": 3,
+      "target.data": "737263"
+    },
+    "rename_to_new_name": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rename_to_subdir_missing": {
+      "ret": false,
+      "last_error": 3
+    },
+    "rename_to_empty": {
+      "ret": false,
+      "last_error": 123
+    },
+    "rename_to_same_name": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rename_case_only": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_rename_case_only": {
+      "dir": "REN_NEW.txt,info.txt"
+    },
+    "rename_without_delete_access": {
+      "ret": false,
+      "last_error": 5
+    },
+    "hardlink_create": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "hardlink_same_file": {
+      "same": true,
+      "b.exists": true,
+      "b.attrs": "0x00000020",
+      "b.size": 6,
+      "b.data": "6c696e6b6564"
+    },
+    "hardlink_count_2": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 6,
+      "links": 2
+    },
+    "hardlink_std_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 6,
+      "alloc_ge_eof": true,
+      "links": 2,
+      "delete_pending": 0,
+      "directory": 0
+    },
+    "hardlink_write_visible": {
+      "b.exists": true,
+      "b.attrs": "0x00000020",
+      "b.size": 11,
+      "b.data": "6c696e6b65642b6d6f7265"
+    },
+    "hardlink_target_exists": {
+      "ret": false,
+      "last_error": 183
+    },
+    "hardlink_source_missing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "hardlink_to_directory": {
+      "ret": false,
+      "last_error": 5
+    },
+    "hardlink_into_missing_dir": {
+      "ret": false,
+      "last_error": 3
+    },
+    "hardlink_same_name": {
+      "ret": false,
+      "last_error": 183
+    },
+    "hardlink_into_subdir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "hardlink_delete_original": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "hardlink_after_delete": {
+      "b.exists": true,
+      "b.attrs": "0x00000020",
+      "b.size": 11,
+      "b.data": "6c696e6b65642b6d6f7265",
+      "a_exists": false
+    },
+    "hardlink_count_after_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 2
+    },
+    "hardlink_readonly_shared": {
+      "other_link_attrs": "0x00000001"
+    },
+    "doc_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "doc_std_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 0,
+      "alloc_ge_eof": true,
+      "links": 1,
+      "delete_pending": 0,
+      "directory": 0
+    },
+    "doc_open_without_share_delete": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 32
+    },
+    "doc_open_with_share_delete": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "doc_after_first_close": {
+      "exists": false,
+      "last_error": 0
+    },
+    "doc_second_handle_std_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 0,
+      "alloc_ge_eof": true,
+      "links": 0,
+      "delete_pending": 1,
+      "directory": 0
+    },
+    "doc_open_while_delete_pending": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "doc_create_while_delete_pending": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "doc_listing_while_delete_pending": {
+      "attrs_ok": false,
+      "last_error": 5,
+      "find_first_finds_it": true
+    },
+    "doc_after_last_close": {
+      "exists": false
+    },
+    "doc_on_readonly_file": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "doc_without_delete_access_generic_read": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "doc_without_delete_access_result": {
+      "exists": false
+    },
+    "doc_directory": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "doc_nonempty_directory_result": {
+      "exists": true
+    },
+    "disposition_set": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "disposition_std_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 1,
+      "alloc_ge_eof": true,
+      "links": 0,
+      "delete_pending": 1,
+      "directory": 0
+    },
+    "disposition_clear": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "disposition_cleared_std_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 1,
+      "alloc_ge_eof": true,
+      "links": 1,
+      "delete_pending": 0,
+      "directory": 0
+    },
+    "disposition_cleared_file_kept": {
+      "exists": true
+    },
+    "disposition_then_write": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_file_while_pending": {
+      "ret": false,
+      "last_error": 5
+    },
+    "disposition_file_gone": {
+      "exists": false
+    },
+    "disposition_readonly_file": {
+      "ret": false,
+      "last_error": 5
+    },
+    "std_info_event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "std_info_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 0,
+      "alloc_ge_eof": true,
+      "links": 1,
+      "delete_pending": 0,
+      "directory": 1
+    },
+    "classic_info_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010",
+      "size": 0,
+      "links": 1
+    },
+    "dir_enum_restart": {
+      "ret": true,
+      "last_error": "unchanged",
+      "names_in_order": ".,..,link_d.txt"
+    }
+  },
+  "errors": [],
+  "source_sha256": "6d921961443be62891cf00a19447e7c4689d7b521edd61c74e04589ef3a9a522"
+}

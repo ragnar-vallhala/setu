@@ -1,0 +1,360 @@
+{
+  "test": "kernel32/cwd_temp_search",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "getcd_size_query": {
+      "ret_is_len_plus_1": true,
+      "last_error": "unchanged"
+    },
+    "getcd_buffer_len": {
+      "ret_is_len_plus_1": true,
+      "last_error": "unchanged",
+      "buffer_untouched": true
+    },
+    "getcd_buffer_len_plus_1": {
+      "ret_is_len": true,
+      "last_error": "unchanged",
+      "terminated": true
+    },
+    "getcd_buffer_1": {
+      "ret_is_len_plus_1": true,
+      "last_error": "unchanged"
+    },
+    "getcd_no_trailing_backslash": {
+      "ok": true
+    },
+    "setcd_subdir": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_subdir_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_subdir_trailing_slash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_subdir_upper_case": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\SUB"
+    },
+    "setcd_subdir_double_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub\\deeper"
+    },
+    "setcd_forward_slashes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub\\deeper"
+    },
+    "setcd_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>"
+    },
+    "setcd_dotdot_back": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>"
+    },
+    "setcd_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_trailing_space": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_missing": {
+      "ret": false,
+      "last_error": 2,
+      "now": "<cwd>"
+    },
+    "setcd_missing_nested": {
+      "ret": false,
+      "last_error": 3,
+      "now": "<cwd>"
+    },
+    "setcd_file": {
+      "ret": false,
+      "last_error": 267,
+      "now": "<cwd>"
+    },
+    "setcd_file_trailing_backslash": {
+      "ret": false,
+      "last_error": 267,
+      "now": "<cwd>"
+    },
+    "setcd_empty": {
+      "ret": false,
+      "last_error": 123,
+      "now": "<cwd>"
+    },
+    "setcd_wildcard": {
+      "ret": false,
+      "last_error": 123,
+      "now": "<cwd>"
+    },
+    "setcd_bad_char": {
+      "ret": false,
+      "last_error": 123,
+      "now": "<cwd>"
+    },
+    "setcd_nul_device": {
+      "ret": false,
+      "last_error": 267,
+      "now": "<cwd>"
+    },
+    "setcd_component_too_long": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "setcd_long_relative_resolves_short": {
+      "ret": false,
+      "last_error": 206,
+      "now": "<cwd>"
+    },
+    "remove_current_directory": {
+      "ret": false,
+      "last_error": 32
+    },
+    "rename_current_directory": {
+      "ret": false,
+      "last_error": 32
+    },
+    "remove_former_current_directory": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "gtfn_unique_1234": {
+      "ret": "0x00001234",
+      "last_error": "unchanged",
+      "name": ".\\set1234.tmp",
+      "created": false
+    },
+    "gtfn_long_prefix_truncated": {
+      "ret": "0x00000abc",
+      "last_error": "unchanged",
+      "name": ".\\setABC.tmp",
+      "created": false
+    },
+    "gtfn_unique_high_bits": {
+      "ret": "0x00005678",
+      "last_error": "unchanged",
+      "name": ".\\pre5678.tmp",
+      "created": false
+    },
+    "gtfn_unique_ffff": {
+      "ret": "0x0000ffff",
+      "last_error": "unchanged",
+      "name": ".\\preFFFF.tmp",
+      "created": false
+    },
+    "gtfn_empty_prefix": {
+      "ret": "0x00000042",
+      "last_error": "unchanged",
+      "name": ".\\42.tmp",
+      "created": false
+    },
+    "gtfn_null_prefix": {
+      "ret": "0x00000042",
+      "last_error": "unchanged",
+      "name": ".\\42.tmp",
+      "created": false
+    },
+    "gtfn_subdir": {
+      "ret": "0x00000001",
+      "last_error": "unchanged",
+      "name": "sub\\t1.tmp",
+      "created": false
+    },
+    "gtfn_subdir_trailing_backslash": {
+      "ret": "0x00000001",
+      "last_error": "unchanged",
+      "name": "sub\\t1.tmp",
+      "created": false
+    },
+    "gtfn_missing_dir_fixed_unique": {
+      "ret": "0x00000000",
+      "last_error": 267
+    },
+    "gtfn_missing_dir_unique_0": {
+      "ret": "0x00000000",
+      "last_error": 267
+    },
+    "gtfn_empty_path": {
+      "ret": "0x00000007",
+      "last_error": 3,
+      "name": "\\t7.tmp",
+      "created": false
+    },
+    "gtfn_unique_0_creates": {
+      "ret_nonzero": true,
+      "last_error": 0,
+      "created": true,
+      "starts_with_prefix": true,
+      "ends_with_tmp": true,
+      "in_cwd": false,
+      "name_matches_ret_hex": true
+    },
+    "gtfn_fixed_unique_existing_file": {
+      "ret": "0x00000001",
+      "last_error": "unchanged",
+      "name": ".\\pre1.tmp",
+      "created": true
+    },
+    "gettemppath_full": {
+      "ret_is_len": true,
+      "trailing_backslash": true,
+      "last_error": "unchanged"
+    },
+    "gettemppath_buffer_len": {
+      "ret_is_len_plus_1": true,
+      "last_error": "unchanged"
+    },
+    "gettemppath_size_query": {
+      "ret_is_len_plus_1": true,
+      "last_error": "unchanged"
+    },
+    "search_cwd_file": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\a.txt",
+      "file_part": "a.txt"
+    },
+    "search_cwd_file_upper": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\A.TXT",
+      "file_part": "A.TXT"
+    },
+    "search_ext_added": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\a.txt",
+      "file_part": "a.txt"
+    },
+    "search_ext_ignored_when_name_has_one": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\a.txt",
+      "file_part": "a.txt"
+    },
+    "search_ext_without_dot": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "search_no_ext_file": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\noext",
+      "file_part": "noext"
+    },
+    "search_missing": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "search_relative_subpath": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\sub\\b.dat",
+      "file_part": "b.dat"
+    },
+    "search_dot_relative_subpath": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\sub\\b.dat",
+      "file_part": "b.dat"
+    },
+    "search_explicit_path_dot": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\a.txt",
+      "file_part": "a.txt"
+    },
+    "search_explicit_path_sub": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\sub\\b.dat",
+      "file_part": "b.dat"
+    },
+    "search_explicit_path_list": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\sub\\b.dat",
+      "file_part": "b.dat"
+    },
+    "search_explicit_path_not_cwd": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "search_directory_name": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<cwd>\\sub",
+      "file_part": "sub"
+    },
+    "search_buffer_too_small": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_minus_cwd_len": 9,
+      "buffer_untouched": false
+    },
+    "search_buffer_exact_len": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_minus_cwd_len": 9,
+      "buffer_untouched": false
+    },
+    "search_empty_name": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "search_wildcard": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "search_system_dll": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<sysdir>\\kernel32.dll",
+      "file_part": "kernel32.dll"
+    },
+    "search_system_dll_ext": {
+      "ret": "nonzero",
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "found": "<sysdir>\\kernel32.dll",
+      "file_part": "kernel32.dll"
+    },
+    "search_absolute_missing": {
+      "ret": 0,
+      "last_error": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "440de112d2ee20eb7f6fcc4776c638d1b555ba0e64af6526f3c1e6672efcab59"
+}
