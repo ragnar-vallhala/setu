@@ -79,11 +79,13 @@ LPSTR WINAPI PathBuildRootA(LPSTR lpszPath, int drive)
     lpszPath[2] = '\\';
     lpszPath[3] = '\0';
   }
+  else if (lpszPath)
+    *lpszPath = '\0';
   return lpszPath;
 }
 
 /*************************************************************************
- * PathBuildRootW    [SHLWAPI.@]
+ * PathBuildRootW   [SHLWAPI.@]
  *
  * See PathBuildRootA.
  */
@@ -98,6 +100,8 @@ LPWSTR WINAPI PathBuildRootW(LPWSTR lpszPath, int drive)
     lpszPath[2] = '\\';
     lpszPath[3] = '\0';
   }
+  else if (lpszPath)
+    *lpszPath = '\0'; /* an invalid drive number gives an empty string */
   return lpszPath;
 }
 
