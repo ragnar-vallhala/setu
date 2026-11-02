@@ -28,6 +28,8 @@
     "advapi32/RegCreateKeyExW:open_other_case_multi",
     "advapi32/RegEnumKeyExW:enum_key_index_out_of_range",
     "advapi32/RegEnumKeyExW:enum_key_name_buffer_exact_len_no_nul_room",
+    "advapi32/RegEnumKeyExW:enum_keys_order",
+    "advapi32/RegEnumKeyExW:enum_keys_order_punctuation",
     "advapi32/RegEnumKeyExW:query_info",
     "advapi32/RegQueryValueExW:buffer_too_small",
     "advapi32/RegQueryValueExW:buffer_zero",

@@ -298,7 +298,7 @@ static struct key *find_subkey( const struct key *key, const struct unicode_str 
     {
         i = (min + max) / 2;
         len = min( key->subkeys[i]->obj.name->len, name->len );
-        res = memicmp_strW( key->subkeys[i]->obj.name->name, name->str, len );
+        res = memicmp_upcase_strW( key->subkeys[i]->obj.name->name, name->str, len );
         if (!res) res = key->subkeys[i]->obj.name->len - name->len;
         if (!res)
         {

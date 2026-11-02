@@ -59,6 +59,7 @@ static const unsigned char utf8_mask[4] = { 0x7f, 0x1f, 0x0f, 0x07 };
 static const unsigned int utf8_minval[4] = { 0x0, 0x80, 0x800, 0x10000 };
 
 static unsigned short *casemap;
+static unsigned short *upcasemap;
 
 static inline char to_hex( char ch )
 {
@@ -69,6 +70,22 @@ static inline char to_hex( char ch )
 static inline WCHAR to_lower( WCHAR ch )
 {
     return ch + casemap[casemap[casemap[ch >> 8] + ((ch >> 4) & 0x0f)] + (ch & 0x0f)];
+}
+
+static inline WCHAR to_upper( WCHAR ch )
+{
+    return ch + upcasemap[upcasemap[upcasemap[ch >> 8] + ((ch >> 4) & 0x0f)] + (ch & 0x0f)];
+}
+
+/* compare case-insensitively through upper case, which is the order Windows
+ * keeps registry keys in ('_' and '[' sort after the letters) */
+int memicmp_upcase_strW( const WCHAR *str1, const WCHAR *str2, data_size_t len )
+{
+    int ret = 0;
+
+    for (len /= sizeof(WCHAR); len; str1++, str2++, len--)
+        if ((ret = to_upper(*str1) - to_upper(*str2))) break;
+    return ret;
 }
 
 int memicmp_strW( const WCHAR *str1, const WCHAR *str2, data_size_t len )
@@ -355,6 +372,10 @@ struct fd *load_intl_file(void)
     offset = data;
     /* read size of uppercase table */
     if (pread( unix_fd, &data, sizeof(data), offset * 2 ) != sizeof(data) || !data) goto failed;
+    /* read uppercase table */
+    size = data - 1;
+    if (!(upcasemap = malloc( size * 2 ))) goto failed;
+    if (pread( unix_fd, upcasemap, size * 2, (offset + 1) * 2 ) != size * 2) goto failed;
     offset += data;
     /* read size of lowercase table */
     if (pread( unix_fd, &data, sizeof(data), offset * 2 ) != sizeof(data) || !data) goto failed;
