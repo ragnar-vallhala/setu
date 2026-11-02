@@ -548,6 +548,13 @@ ATOM WINAPI NtUserRegisterClassExWOW( const WNDCLASSEXW *wc, UNICODE_STRING *nam
 
     class->local      = !is_builtin && !(wc->style & CS_GLOBALCLASS);
 
+    /* Other non-null values must be set by caller */
+    if (wc->hIcon && !wc->hIconSm)
+        sm_icon = CopyImage( wc->hIcon, IMAGE_ICON,
+                             get_system_metrics( SM_CXSMICON ),
+                             get_system_metrics( SM_CYSMICON ),
+                             LR_COPYFROMRESOURCE );
+
     SERVER_START_REQ( create_class )
     {
         req->local      = class->local;
@@ -558,6 +565,9 @@ ATOM WINAPI NtUserRegisterClassExWOW( const WNDCLASSEXW *wc, UNICODE_STRING *nam
         req->client_ptr = wine_server_client_ptr( class );
         req->atom       = wine_server_add_atom( req, name );
         req->name_offset = version->Length / sizeof(WCHAR);
+        /* the icons are public: other processes read them with GetClassLongPtr */
+        req->icon       = wine_server_user_handle( wc->hIcon );
+        req->icon_sm    = wine_server_user_handle( wc->hIconSm ? wc->hIconSm : sm_icon );
         ret = !wine_server_call_err( req );
         locator = reply->locator;
         atom = reply->atom;
@@ -565,6 +575,7 @@ ATOM WINAPI NtUserRegisterClassExWOW( const WNDCLASSEXW *wc, UNICODE_STRING *nam
     SERVER_END_REQ;
     if (!ret)
     {
+        if (sm_icon) NtUserDestroyCursor( sm_icon, 0 );
         free( class );
         return 0;
     }
@@ -579,16 +590,10 @@ ATOM WINAPI NtUserRegisterClassExWOW( const WNDCLASSEXW *wc, UNICODE_STRING *nam
             wine_server_call( req );
         }
         SERVER_END_REQ;
+        if (sm_icon) NtUserDestroyCursor( sm_icon, 0 );
         free( class );
         return 0;
     }
-
-    /* Other non-null values must be set by caller */
-    if (wc->hIcon && !wc->hIconSm)
-        sm_icon = CopyImage( wc->hIcon, IMAGE_ICON,
-                             get_system_metrics( SM_CXSMICON ),
-                             get_system_metrics( SM_CYSMICON ),
-                             LR_COPYFROMRESOURCE );
 
     user_lock();
     if (class->local) list_add_head( &class_list, &class->entry );
@@ -818,6 +823,16 @@ static BOOL set_server_info( HWND hwnd, INT offset, LONG_PTR newval, UINT size, 
     return ret;
 }
 
+/* store the class icons in the server, where other processes can read them */
+static void publish_class_icons( HWND hwnd, CLASS *class )
+{
+    HICON icon_sm = class->hIconSm ? class->hIconSm : class->hIconSmIntern;
+    ULONG_PTR old;
+
+    set_server_info( hwnd, GCLP_HICON, HandleToUlong( class->hIcon ), sizeof(LONG_PTR), &old );
+    set_server_info( hwnd, GCLP_HICONSM, HandleToUlong( icon_sm ), sizeof(LONG_PTR), &old );
+}
+
 static ULONG_PTR set_class_long_size( HWND hwnd, INT offset, LONG_PTR newval, UINT size, BOOL ansi )
 {
     ULONG_PTR retval = 0;
@@ -877,6 +892,7 @@ static ULONG_PTR set_class_long_size( HWND hwnd, INT offset, LONG_PTR newval, UI
         if (class->hIconSmIntern) NtUserDestroyCursor( class->hIconSmIntern, 0 );
         class->hIcon = (HICON)newval;
         class->hIconSmIntern = small_icon;
+        publish_class_icons( hwnd, class );
         break;
     case GCLP_HICONSM:
         retval = (ULONG_PTR)class->hIconSm;
@@ -907,6 +923,7 @@ static ULONG_PTR set_class_long_size( HWND hwnd, INT offset, LONG_PTR newval, UI
         if (class->hIconSmIntern) NtUserDestroyCursor( class->hIconSmIntern, 0 );
         class->hIconSm = (HICON)newval;
         class->hIconSmIntern = small_icon;
+        publish_class_icons( hwnd, class );
         break;
     case GCL_STYLE:
         if (!set_server_info( hwnd, offset, newval, size, &retval )) break;
@@ -970,6 +987,8 @@ static ULONG_PTR get_class_long_shm( HWND hwnd, INT offset, UINT size, BOOL ansi
         case GCL_CBCLSEXTRA:     ret = class_shm->cls_extra; break;
         case GCL_CBWNDEXTRA:     ret = class_shm->win_extra; break;
         case GCLP_HMODULE:       ret = class_shm->instance; break;
+        case GCLP_HICON:         ret = (ULONG_PTR)wine_server_ptr_handle( class_shm->icon ); break;
+        case GCLP_HICONSM:       ret = (ULONG_PTR)wine_server_ptr_handle( class_shm->icon_sm ); break;
         default:
             valid = offset >= 0 && offset <= (INT)(class_shm->cls_extra - size);
             if (valid) memcpy( &ret, (char *)class_shm->extra + offset, size );
@@ -1010,6 +1029,10 @@ static ULONG_PTR get_class_long_size( HWND hwnd, INT offset, UINT size, BOOL ans
     }
 
     if (!(class = get_class_ptr( hwnd, FALSE ))) return 0;
+
+    /* icons are public user objects: other processes get them from the server */
+    if (class == OBJ_OTHER_PROCESS && (offset == GCLP_HICON || offset == GCLP_HICONSM))
+        return get_class_long_shm( hwnd, offset, size, ansi );
 
     if (class == OBJ_OTHER_PROCESS)
     {

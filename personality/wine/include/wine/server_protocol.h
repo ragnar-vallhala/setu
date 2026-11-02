@@ -1029,6 +1029,8 @@ typedef volatile struct
     unsigned int         cls_extra;
     unsigned int         win_extra;
     mod_handle_t         instance;
+    user_handle_t        icon;
+    user_handle_t        icon_sm;
     data_size_t          name_offset;
     data_size_t          name_len;
     WCHAR                name[MAX_ATOM_LEN];
@@ -4550,6 +4552,8 @@ struct create_class_request
     short int      cls_extra;
     short int      win_extra;
     data_size_t    name_offset;
+    user_handle_t  icon;
+    user_handle_t  icon_sm;
     /* VARARG(name,unicode_str); */
 };
 struct create_class_reply
@@ -7182,6 +7186,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 932
+#define SERVER_PROTOCOL_VERSION 933
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

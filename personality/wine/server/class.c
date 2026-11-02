@@ -75,6 +75,8 @@ static struct window_class *create_class( struct process *process, int local, st
         shared->style        = style;
         shared->win_extra    = win_extra;
         shared->cls_extra    = cls_extra;
+        shared->icon         = 0;
+        shared->icon_sm      = 0;
         memset( (void *)shared->extra, 0, cls_extra );
     }
     SHARED_WRITE_END;
@@ -248,6 +250,12 @@ DECL_HANDLER(create_class)
     }
     class->atom       = atom;
     class->client_ptr = req->client_ptr;
+    SHARED_WRITE_BEGIN( class->shared, class_shm_t )
+    {
+        shared->icon    = req->icon;
+        shared->icon_sm = req->icon_sm;
+    }
+    SHARED_WRITE_END;
     reply->locator   = get_shared_object_locator( class->shared );
     reply->atom      = base_atom;
 }
@@ -310,6 +318,14 @@ DECL_HANDLER(set_class_info)
         case GCLP_HMODULE:
             reply->old_info = shared->instance;
             shared->instance = req->new_info;
+            break;
+        case GCLP_HICON:
+            reply->old_info = shared->icon;
+            shared->icon = req->new_info;
+            break;
+        case GCLP_HICONSM:
+            reply->old_info = shared->icon_sm;
+            shared->icon_sm = req->new_info;
             break;
         default:
             if (req->size > sizeof(req->new_info) || req->offset < 0 ||

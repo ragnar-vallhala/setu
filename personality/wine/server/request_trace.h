@@ -2424,6 +2424,8 @@ static void dump_create_class_request( const struct create_class_request *req )
     fprintf( stderr, ", cls_extra=%d", req->cls_extra );
     fprintf( stderr, ", win_extra=%d", req->win_extra );
     fprintf( stderr, ", name_offset=%u", req->name_offset );
+    fprintf( stderr, ", icon=%08x", req->icon );
+    fprintf( stderr, ", icon_sm=%08x", req->icon_sm );
     dump_varargs_unicode_str( ", name=", cur_size );
 }
 

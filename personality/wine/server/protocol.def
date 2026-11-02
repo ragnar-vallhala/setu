@@ -1045,6 +1045,8 @@ typedef volatile struct
     unsigned int         cls_extra;          /* number of class extra bytes */
     unsigned int         win_extra;          /* number of window extra bytes */
     mod_handle_t         instance;           /* module instance */
+    user_handle_t        icon;               /* class icon (GCLP_HICON) */
+    user_handle_t        icon_sm;            /* class small icon (GCLP_HICONSM) */
     data_size_t          name_offset;        /* offset in WCHAR of the unversioned class name, constant */
     data_size_t          name_len;           /* len in bytes of the class name, constant */
     WCHAR                name[MAX_ATOM_LEN]; /* class name, constant */
@@ -3294,6 +3296,8 @@ enum caret_state
     short int      cls_extra;      /* number of extra class bytes */
     short int      win_extra;      /* number of window extra bytes */
     data_size_t    name_offset;    /* base class name offset for specified atom */
+    user_handle_t  icon;           /* class icon */
+    user_handle_t  icon_sm;        /* class small icon */
     VARARG(name,unicode_str);      /* class name */
 @REPLY
     struct obj_locator locator;    /* locator for the shared class object */
