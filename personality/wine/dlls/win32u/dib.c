@@ -1015,7 +1015,8 @@ static int fill_query_info( BITMAPINFO *info, BITMAPOBJ *bmp )
     else
         info->bmiHeader = header;
 
-    return bmp->dib.dsBm.bmHeight;
+    /* a header query succeeds with 1, whatever the bitmap height */
+    return 1;
 }
 
 /************************************************************************
