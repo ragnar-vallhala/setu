@@ -1309,6 +1309,7 @@
     "kernel32/file_mapping:view_copy_on_readonly_mapping",
     "kernel32/file_mapping:view_execute_on_readonly_mapping",
     "kernel32/file_mapping:view_offset_64k_vq",
+    "kernel32/file_mapping:view_offset_beyond_mapping",
     "kernel32/file_mapping:view_offset_unaligned",
     "kernel32/file_mapping:view_read_contents",
     "kernel32/file_mapping:view_read_on_readonly_mapping",

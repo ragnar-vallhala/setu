@@ -3575,7 +3575,8 @@ static unsigned int virtual_map_section( HANDLE handle, PVOID *addr_ptr, ULONG_P
     }
 
     base = *addr_ptr;
-    if (offset.QuadPart >= full_size) return STATUS_INVALID_PARAMETER;
+    /* a view can't start beyond the end of the section */
+    if (offset.QuadPart >= full_size) return STATUS_INVALID_VIEW_SIZE;
     if (*size_ptr)
     {
         size = *size_ptr;
