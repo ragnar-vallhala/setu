@@ -2248,6 +2248,13 @@ LSTATUS WINAPI RegEnumValueW( HKEY hkey, DWORD index, LPWSTR value, LPDWORD val_
                                       buf_ptr, total_size, &total_size );
     }
 
+    if (status == STATUS_NO_MORE_ENTRIES)
+    {
+        /* past the last value, the type is cleared, and so is the data size
+         * when no data buffer is given */
+        if (type) *type = REG_NONE;
+        if (!data && count) *count = 0;
+    }
     if (status) goto done;
 
     if (info->NameLength/sizeof(WCHAR) >= *val_count)
