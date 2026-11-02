@@ -5251,6 +5251,45 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
 }
 
 
+/* Renaming a file to its own name in a different case changes the case of
+ * the name. The case-insensitive lookup resolved the target to the existing
+ * entry; point it at the spelling that was asked for instead. */
+static void use_requested_name_case( HANDLE handle, const UNICODE_STRING *nt_name, char **unix_name )
+{
+    const WCHAR *last = nt_name->Buffer + nt_name->Length / sizeof(WCHAR);
+    char *src, *src_base, *slash, *name;
+    struct stat st1, st2;
+    ULONG len, prefix;
+    int ret;
+
+    /* only when the target is the source's own directory entry (the paths
+     * may be spelled differently, e.g. through dosdevices) */
+    if (server_get_unix_name( handle, &src )) return;
+    src_base = strrchr( src, '/' );
+    ret = !src_base || strcmp( src_base, strrchr( *unix_name, '/' ) ? strrchr( *unix_name, '/' ) : "" ) ||
+          stat( src, &st1 ) || stat( *unix_name, &st2 ) ||
+          st1.st_dev != st2.st_dev || st1.st_ino != st2.st_ino;
+    free( src );
+    if (ret) return;
+
+    while (last > nt_name->Buffer && last[-1] != '\\') last--;
+    len = nt_name->Buffer + nt_name->Length / sizeof(WCHAR) - last;
+    if (!len || !(slash = strrchr( *unix_name, '/' ))) return;
+    prefix = slash + 1 - *unix_name;
+    if (!(name = malloc( prefix + len * 3 + 1 ))) return;
+    memcpy( name, *unix_name, prefix );
+    ret = ntdll_wcstoumbs( last, len, name + prefix, len * 3, TRUE );
+    if (ret <= 0)
+    {
+        free( name );
+        return;
+    }
+    name[prefix + ret] = 0;
+    free( *unix_name );
+    *unix_name = name;
+}
+
+
 /******************************************************************************
  *              NtSetInformationFile   (NTDLL.@)
  */
@@ -5507,6 +5546,7 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             name_str.MaximumLength = info->FileNameLength + sizeof(WCHAR);
             InitializeObjectAttributes( &attr, &name_str, OBJ_CASE_INSENSITIVE, info->RootDirectory, NULL );
             status = get_nt_and_unix_names( &attr, &nt_name, &unix_name, FILE_OPEN_IF, TRUE );
+            if (status == STATUS_SUCCESS) use_requested_name_case( handle, attr.ObjectName, &unix_name );
             if (status == STATUS_SUCCESS || status == STATUS_NO_SUCH_FILE)
             {
                 SERVER_START_REQ( set_fd_name_info )

@@ -211,6 +211,7 @@
     "kernel32/path_case_insensitivity:long_path_name_restores_case",
     "kernel32/path_case_insensitivity:open_dir_component_other_case",
     "kernel32/path_case_insensitivity:open_lowercase",
-    "kernel32/path_case_insensitivity:open_uppercase"
+    "kernel32/path_case_insensitivity:open_uppercase",
+    "kernel32/path_case_insensitivity:rename_case_only"
   ]
 }
