@@ -414,7 +414,7 @@ NTSTATUS WINAPI RtlExpandEnvironmentStrings( const WCHAR *renv, WCHAR *src, SIZE
             for (len = 1; len < src_len; len++) if (src[len] == '%') break;
             if (len < src_len)
             {
-                if ((var = ENV_FindVariable( env, src + 1, len - 1 )))
+                if (len > 1 && (var = ENV_FindVariable( env, src + 1, len - 1 )))
                 {
                     src += len + 1;  /* Skip the variable name */
                     src_len -= len + 1;
@@ -427,8 +427,9 @@ NTSTATUS WINAPI RtlExpandEnvironmentStrings( const WCHAR *renv, WCHAR *src, SIZE
                 }
                 else
                 {
-                    var = src;  /* Copy original name instead */
-                    len++;
+                    /* Copy the '%' and the name, but not the closing '%':
+                     * it may start the next variable reference. */
+                    var = src;
                     src += len;
                     src_len -= len;
                     copy = len;
