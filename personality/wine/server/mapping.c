@@ -1067,7 +1067,23 @@ static struct mapping *create_mapping( struct object *root, const struct unicode
         const unsigned int sharing = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
         unsigned int mapping_access = FILE_MAPPING_ACCESS;
 
-        if (!(file = get_file_obj( current->process, handle, file_access ))) goto error;
+        if (!(file = get_file_obj( current->process, handle, file_access )))
+        {
+            /* a directory can't back a section */
+            if (get_error() == STATUS_OBJECT_TYPE_MISMATCH)
+            {
+                struct dir *dir;
+
+                clear_error();
+                if ((dir = get_dir_obj( current->process, handle, 0 )))
+                {
+                    release_object( dir );
+                    set_error( STATUS_INVALID_FILE_FOR_SECTION );
+                }
+                else set_error( STATUS_OBJECT_TYPE_MISMATCH );
+            }
+            goto error;
+        }
         fd = get_obj_fd( (struct object *)file );
 
         /* file sharing rules for mappings are different so we use magic the access rights */

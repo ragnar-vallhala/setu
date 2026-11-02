@@ -1256,6 +1256,7 @@
     "kernel32/file_mapping:mapex_busy_address",
     "kernel32/file_mapping:mapex_unaligned_address",
     "kernel32/file_mapping:mapping_on_closed_handle_style_invalid",
+    "kernel32/file_mapping:mapping_on_directory",
     "kernel32/file_mapping:mapping_size_high_nonzero_readonly",
     "kernel32/file_mapping:open_after_all_closed",
     "kernel32/file_mapping:open_existing",
