@@ -2541,6 +2541,9 @@ HRESULT WINAPI PathMatchSpecExW(const WCHAR *path, const WCHAR *mask, DWORD flag
     if (!lstrcmpW(mask, L"*.*"))
         return S_OK; /* Matches every path */
 
+    if (!*mask)
+        return S_OK; /* An empty spec matches every path too */
+
     while (*mask)
     {
         while (*mask == ' ')
