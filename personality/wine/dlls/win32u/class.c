@@ -756,7 +756,14 @@ ATOM WINAPI NtUserRegisterWindowMessage( UNICODE_STRING *name )
         return 0;
     }
 
+    /* an empty name fails without setting an error */
+    if (!name->Length && (ULONG_PTR)name->Buffer >> 16) return 0;
+
     status = is_integral_atom( name->Buffer, name->Length / sizeof(WCHAR), &atom );
+    /* names longer than an atom can hold fail with ERROR_MORE_DATA */
+    if (status == STATUS_INVALID_PARAMETER && (ULONG_PTR)name->Buffer >> 16 &&
+        name->Length / sizeof(WCHAR) > MAX_ATOM_LEN)
+        status = STATUS_BUFFER_OVERFLOW;
     if (status == STATUS_MORE_ENTRIES)
     {
         SERVER_START_REQ( add_user_atom )
