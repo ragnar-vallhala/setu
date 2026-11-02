@@ -3492,7 +3492,7 @@ DECL_HANDLER(set_win_timer)
     {
         if (!(win = get_user_full_handle( req->win )) || !(thread = get_window_thread( win )))
         {
-            set_error( STATUS_INVALID_HANDLE );
+            set_win32_error( ERROR_INVALID_WINDOW_HANDLE );
             return;
         }
         if (thread->process != current->process)
@@ -3556,7 +3556,7 @@ DECL_HANDLER(kill_win_timer)
     {
         if (!(win = get_user_full_handle( req->win )) || !(thread = get_window_thread( win )))
         {
-            set_error( STATUS_INVALID_HANDLE );
+            set_win32_error( ERROR_INVALID_WINDOW_HANDLE );
             return;
         }
         if (thread->process != current->process)
