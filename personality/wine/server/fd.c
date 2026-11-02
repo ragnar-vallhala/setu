@@ -2975,7 +2975,26 @@ static void set_fd_name( struct fd *fd, struct fd *root, const char *nameptr, da
 
     if (rename( fd->unix_name, name ))
     {
-        file_set_error();
+        int err = errno;
+        char *slash;
+
+        /* moving a directory into its own subtree: Windows reports a sharing
+         * violation when the target's parent is the directory itself, else
+         * access denied */
+        if (err == EINVAL && !fstat( fd->unix_fd, &st ) && S_ISDIR( st.st_mode ) &&
+            (slash = strrchr( name, '/' )) && slash != name)
+        {
+            *slash = 0;
+            if (!stat( name, &st2 ) && st2.st_dev == st.st_dev && st2.st_ino == st.st_ino)
+                set_error( STATUS_SHARING_VIOLATION );
+            else
+                set_error( STATUS_ACCESS_DENIED );
+        }
+        else
+        {
+            errno = err;
+            file_set_error();
+        }
         goto failed;
     }
 
