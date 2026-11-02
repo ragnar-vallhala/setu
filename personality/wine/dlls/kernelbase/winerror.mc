@@ -1908,492 +1908,492 @@ This operation is not supported on a computer running Windows Server 2003 for Sm
 MessageId=1300
 SymbolicName=ERROR_NOT_ALL_ASSIGNED
 Language=ENU
-Not all privileges assigned.
+Not all privileges or groups referenced are assigned to the caller.
 .
 MessageId=1301
 SymbolicName=ERROR_SOME_NOT_MAPPED
 Language=ENU
-Some security IDs not mapped.
+Some mapping between account names and security IDs was not done.
 .
 MessageId=1302
 SymbolicName=ERROR_NO_QUOTAS_FOR_ACCOUNT
 Language=ENU
-No quotas for account.
+No system quota limits are specifically set for this account.
 .
 MessageId=1303
 SymbolicName=ERROR_LOCAL_USER_SESSION_KEY
 Language=ENU
-Local user session key.
+No encryption key is available. A well-known encryption key was returned.
 .
 MessageId=1304
 SymbolicName=ERROR_NULL_LM_PASSWORD
 Language=ENU
-Password too complex for LM.
+The password is too complex to be converted to a LAN Manager password. The LAN Manager password returned is a NULL string.
 .
 MessageId=1305
 SymbolicName=ERROR_UNKNOWN_REVISION
 Language=ENU
-Unknown revision.
+The revision level is unknown.
 .
 MessageId=1306
 SymbolicName=ERROR_REVISION_MISMATCH
 Language=ENU
-Incompatible revision levels.
+Indicates two revision levels are incompatible.
 .
 MessageId=1307
 SymbolicName=ERROR_INVALID_OWNER
 Language=ENU
-Invalid owner.
+This security ID may not be assigned as the owner of this object.
 .
 MessageId=1308
 SymbolicName=ERROR_INVALID_PRIMARY_GROUP
 Language=ENU
-Invalid primary group.
+This security ID may not be assigned as the primary group of an object.
 .
 MessageId=1309
 SymbolicName=ERROR_NO_IMPERSONATION_TOKEN
 Language=ENU
-No impersonation token.
+An attempt has been made to operate on an impersonation token by a thread that is not currently impersonating a client.
 .
 MessageId=1310
 SymbolicName=ERROR_CANT_DISABLE_MANDATORY
 Language=ENU
-Can't disable mandatory group.
+The group may not be disabled.
 .
 MessageId=1311
 SymbolicName=ERROR_NO_LOGON_SERVERS
 Language=ENU
-No logon servers available.
+We can't sign you in with this credential because your domain isn't available. Make sure your device is connected to your organization's network and try again. If you previously signed in on this device with another credential, you can sign in with that credential.
 .
 MessageId=1312
 SymbolicName=ERROR_NO_SUCH_LOGON_SESSION
 Language=ENU
-No such logon session.
+A specified logon session does not exist. It may already have been terminated.
 .
 MessageId=1313
 SymbolicName=ERROR_NO_SUCH_PRIVILEGE
 Language=ENU
-No such privilege.
+A specified privilege does not exist.
 .
 MessageId=1314
 SymbolicName=ERROR_PRIVILEGE_NOT_HELD
 Language=ENU
-Privilege not held.
+A required privilege is not held by the client.
 .
 MessageId=1315
 SymbolicName=ERROR_INVALID_ACCOUNT_NAME
 Language=ENU
-Invalid account name.
+The name provided is not a properly formed account name.
 .
 MessageId=1316
 SymbolicName=ERROR_USER_EXISTS
 Language=ENU
-User already exists.
+The specified account already exists.
 .
 MessageId=1317
 SymbolicName=ERROR_NO_SUCH_USER
 Language=ENU
-No such user.
+The specified account does not exist.
 .
 MessageId=1318
 SymbolicName=ERROR_GROUP_EXISTS
 Language=ENU
-Group already exists.
+The specified group already exists.
 .
 MessageId=1319
 SymbolicName=ERROR_NO_SUCH_GROUP
 Language=ENU
-No such group.
+The specified group does not exist.
 .
 MessageId=1320
 SymbolicName=ERROR_MEMBER_IN_GROUP
 Language=ENU
-User already in group.
+Either the specified user account is already a member of the specified group, or the specified group cannot be deleted because it contains a member.
 .
 MessageId=1321
 SymbolicName=ERROR_MEMBER_NOT_IN_GROUP
 Language=ENU
-User not in group.
+The specified user account is not a member of the specified group account.
 .
 MessageId=1322
 SymbolicName=ERROR_LAST_ADMIN
 Language=ENU
-Can't delete last admin user.
+This operation is disallowed as it could result in an administration account being disabled, deleted or unable to logon.
 .
 MessageId=1323
 SymbolicName=ERROR_WRONG_PASSWORD
 Language=ENU
-Wrong password.
+Unable to update the password. The value provided as the current password is incorrect.
 .
 MessageId=1324
 SymbolicName=ERROR_ILL_FORMED_PASSWORD
 Language=ENU
-Ill-formed password.
+Unable to update the password. The value provided for the new password contains values that are not allowed in passwords.
 .
 MessageId=1325
 SymbolicName=ERROR_PASSWORD_RESTRICTION
 Language=ENU
-Password restriction.
+Unable to update the password. The value provided for the new password does not meet the length, complexity, or history requirements of the domain.
 .
 MessageId=1326
 SymbolicName=ERROR_LOGON_FAILURE
 Language=ENU
-Logon failure.
+The user name or password is incorrect.
 .
 MessageId=1327
 SymbolicName=ERROR_ACCOUNT_RESTRICTION
 Language=ENU
-Account restriction.
+Account restrictions are preventing this user from signing in. For example: blank passwords aren't allowed, sign-in times are limited, or a policy restriction has been enforced.
 .
 MessageId=1328
 SymbolicName=ERROR_INVALID_LOGON_HOURS
 Language=ENU
-Invalid logon hours.
+Your account has time restrictions that keep you from signing in right now.
 .
 MessageId=1329
 SymbolicName=ERROR_INVALID_WORKSTATION
 Language=ENU
-Invalid workstation.
+This user isn't allowed to sign in to this computer.
 .
 MessageId=1330
 SymbolicName=ERROR_PASSWORD_EXPIRED
 Language=ENU
-Password expired.
+The password for this account has expired.
 .
 MessageId=1331
 SymbolicName=ERROR_ACCOUNT_DISABLED
 Language=ENU
-Account disabled.
+This user can't sign in because this account is currently disabled.
 .
 MessageId=1332
 SymbolicName=ERROR_NONE_MAPPED
 Language=ENU
-No security ID mapped.
+No mapping between account names and security IDs was done.
 .
 MessageId=1333
 SymbolicName=ERROR_TOO_MANY_LUIDS_REQUESTED
 Language=ENU
-Too many LUIDs requested.
+Too many local user identifiers (LUIDs) were requested at one time.
 .
 MessageId=1334
 SymbolicName=ERROR_LUIDS_EXHAUSTED
 Language=ENU
-LUIDs exhausted.
+No more local user identifiers (LUIDs) are available.
 .
 MessageId=1335
 SymbolicName=ERROR_INVALID_SUB_AUTHORITY
 Language=ENU
-Invalid sub authority.
+The subauthority part of a security ID is invalid for this particular use.
 .
 MessageId=1336
 SymbolicName=ERROR_INVALID_ACL
 Language=ENU
-Invalid ACL.
+The access control list (ACL) structure is invalid.
 .
 MessageId=1337
 SymbolicName=ERROR_INVALID_SID
 Language=ENU
-Invalid SID.
+The security ID structure is invalid.
 .
 MessageId=1338
 SymbolicName=ERROR_INVALID_SECURITY_DESCR
 Language=ENU
-Invalid security descriptor.
+The security descriptor structure is invalid.
 .
 MessageId=1340
 SymbolicName=ERROR_BAD_INHERITANCE_ACL
 Language=ENU
-Bad inherited ACL.
+The inherited access control list (ACL) or access control entry (ACE) could not be built.
 .
 MessageId=1341
 SymbolicName=ERROR_SERVER_DISABLED
 Language=ENU
-Server disabled.
+The server is currently disabled.
 .
 MessageId=1342
 SymbolicName=ERROR_SERVER_NOT_DISABLED
 Language=ENU
-Server not disabled.
+The server is currently enabled.
 .
 MessageId=1343
 SymbolicName=ERROR_INVALID_ID_AUTHORITY
 Language=ENU
-Invalid ID authority.
+The value provided was an invalid value for an identifier authority.
 .
 MessageId=1344
 SymbolicName=ERROR_ALLOTTED_SPACE_EXCEEDED
 Language=ENU
-Allotted space exceeded.
+No more memory is available for security information updates.
 .
 MessageId=1345
 SymbolicName=ERROR_INVALID_GROUP_ATTRIBUTES
 Language=ENU
-Invalid group attributes.
+The specified attributes are invalid, or incompatible with the attributes for the group as a whole.
 .
 MessageId=1346
 SymbolicName=ERROR_BAD_IMPERSONATION_LEVEL
 Language=ENU
-Bad impersonation level.
+Either a required impersonation level was not provided, or the provided impersonation level is invalid.
 .
 MessageId=1347
 SymbolicName=ERROR_CANT_OPEN_ANONYMOUS
 Language=ENU
-Can't open anonymous security token.
+Cannot open an anonymous level security token.
 .
 MessageId=1348
 SymbolicName=ERROR_BAD_VALIDATION_CLASS
 Language=ENU
-Bad validation class.
+The validation information class requested was invalid.
 .
 MessageId=1349
 SymbolicName=ERROR_BAD_TOKEN_TYPE
 Language=ENU
-Bad token type.
+The type of the token is inappropriate for its attempted use.
 .
 MessageId=1350
 SymbolicName=ERROR_NO_SECURITY_ON_OBJECT
 Language=ENU
-No security on object.
+Unable to perform a security operation on an object that has no associated security.
 .
 MessageId=1351
 SymbolicName=ERROR_CANT_ACCESS_DOMAIN_INFO
 Language=ENU
-Can't access domain information.
+Configuration information could not be read from the domain controller, either because the machine is unavailable, or access has been denied.
 .
 MessageId=1352
 SymbolicName=ERROR_INVALID_SERVER_STATE
 Language=ENU
-Invalid server state.
+The security account manager (SAM) or local security authority (LSA) server was in the wrong state to perform the security operation.
 .
 MessageId=1353
 SymbolicName=ERROR_INVALID_DOMAIN_STATE
 Language=ENU
-Invalid domain state.
+The domain was in the wrong state to perform the security operation.
 .
 MessageId=1354
 SymbolicName=ERROR_INVALID_DOMAIN_ROLE
 Language=ENU
-Invalid domain role.
+This operation is only allowed for the Primary Domain Controller of the domain.
 .
 MessageId=1355
 SymbolicName=ERROR_NO_SUCH_DOMAIN
 Language=ENU
-No such domain.
+The specified domain either does not exist or could not be contacted.
 .
 MessageId=1356
 SymbolicName=ERROR_DOMAIN_EXISTS
 Language=ENU
-Domain already exists.
+The specified domain already exists.
 .
 MessageId=1357
 SymbolicName=ERROR_DOMAIN_LIMIT_EXCEEDED
 Language=ENU
-Domain limit exceeded.
+An attempt was made to exceed the limit on the number of domains per server.
 .
 MessageId=1358
 SymbolicName=ERROR_INTERNAL_DB_CORRUPTION
 Language=ENU
-Internal database corruption.
+Unable to complete the requested operation because of either a catastrophic media failure or a data structure corruption on the disk.
 .
 MessageId=1359
 SymbolicName=ERROR_INTERNAL_ERROR
 Language=ENU
-Internal error.
+An internal error occurred.
 .
 MessageId=1360
 SymbolicName=ERROR_GENERIC_NOT_MAPPED
 Language=ENU
-Generic access types not mapped.
+Generic access types were contained in an access mask which should already be mapped to nongeneric types.
 .
 MessageId=1361
 SymbolicName=ERROR_BAD_DESCRIPTOR_FORMAT
 Language=ENU
-Bad descriptor format.
+A security descriptor is not in the right format (absolute or self-relative).
 .
 MessageId=1362
 SymbolicName=ERROR_NOT_LOGON_PROCESS
 Language=ENU
-Not a logon process.
+The requested action is restricted for use by logon processes only. The calling process has not registered as a logon process.
 .
 MessageId=1363
 SymbolicName=ERROR_LOGON_SESSION_EXISTS
 Language=ENU
-Logon session ID exists.
+Cannot start a new logon session with an ID that is already in use.
 .
 MessageId=1364
 SymbolicName=ERROR_NO_SUCH_PACKAGE
 Language=ENU
-Unknown authentication package.
+A specified authentication package is unknown.
 .
 MessageId=1365
 SymbolicName=ERROR_BAD_LOGON_SESSION_STATE
 Language=ENU
-Bad logon session state.
+The logon session is not in a state that is consistent with the requested operation.
 .
 MessageId=1366
 SymbolicName=ERROR_LOGON_SESSION_COLLISION
 Language=ENU
-Logon session ID collision.
+The logon session ID is already in use.
 .
 MessageId=1367
 SymbolicName=ERROR_INVALID_LOGON_TYPE
 Language=ENU
-Invalid logon type.
+A logon request contained an invalid logon type value.
 .
 MessageId=1368
 SymbolicName=ERROR_CANNOT_IMPERSONATE
 Language=ENU
-Cannot impersonate.
+Unable to impersonate using a named pipe until data has been read from that pipe.
 .
 MessageId=1369
 SymbolicName=ERROR_RXACT_INVALID_STATE
 Language=ENU
-Invalid transaction state.
+The transaction state of a registry subtree is incompatible with the requested operation.
 .
 MessageId=1370
 SymbolicName=ERROR_RXACT_COMMIT_FAILURE
 Language=ENU
-Security DB commit failure.
+An internal security database corruption has been encountered.
 .
 MessageId=1371
 SymbolicName=ERROR_SPECIAL_ACCOUNT
 Language=ENU
-Account is built-in.
+Cannot perform this operation on built-in accounts.
 .
 MessageId=1372
 SymbolicName=ERROR_SPECIAL_GROUP
 Language=ENU
-Group is built-in.
+Cannot perform this operation on this built-in special group.
 .
 MessageId=1373
 SymbolicName=ERROR_SPECIAL_USER
 Language=ENU
-User is built-in.
+Cannot perform this operation on this built-in special user.
 .
 MessageId=1374
 SymbolicName=ERROR_MEMBERS_PRIMARY_GROUP
 Language=ENU
-Group is primary for user.
+The user cannot be removed from a group because the group is currently the user's primary group.
 .
 MessageId=1375
 SymbolicName=ERROR_TOKEN_ALREADY_IN_USE
 Language=ENU
-Token already in use.
+The token is already in use as a primary token.
 .
 MessageId=1376
 SymbolicName=ERROR_NO_SUCH_ALIAS
 Language=ENU
-No such local group.
+The specified local group does not exist.
 .
 MessageId=1377
 SymbolicName=ERROR_MEMBER_NOT_IN_ALIAS
 Language=ENU
-User not in local group.
+The specified account name is not a member of the group.
 .
 MessageId=1378
 SymbolicName=ERROR_MEMBER_IN_ALIAS
 Language=ENU
-User already in local group.
+The specified account name is already a member of the group.
 .
 MessageId=1379
 SymbolicName=ERROR_ALIAS_EXISTS
 Language=ENU
-Local group already exists.
+The specified local group already exists.
 .
 MessageId=1380
 SymbolicName=ERROR_LOGON_NOT_GRANTED
 Language=ENU
-Logon type not granted.
+Logon failure: the user has not been granted the requested logon type at this computer.
 .
 MessageId=1381
 SymbolicName=ERROR_TOO_MANY_SECRETS
 Language=ENU
-Too many secrets.
+The maximum number of secrets that may be stored in a single system has been exceeded.
 .
 MessageId=1382
 SymbolicName=ERROR_SECRET_TOO_LONG
 Language=ENU
-Secret too long.
+The length of a secret exceeds the maximum length allowed.
 .
 MessageId=1383
 SymbolicName=ERROR_INTERNAL_DB_ERROR
 Language=ENU
-Internal security DB error.
+The local security authority database contains an internal inconsistency.
 .
 MessageId=1384
 SymbolicName=ERROR_TOO_MANY_CONTEXT_IDS
 Language=ENU
-Too many context IDs.
+During a logon attempt, the user's security context accumulated too many security IDs.
 .
 MessageId=1385
 SymbolicName=ERROR_LOGON_TYPE_NOT_GRANTED
 Language=ENU
-Logon type not granted.
+Logon failure: the user has not been granted the requested logon type at this computer.
 .
 MessageId=1386
 SymbolicName=ERROR_NT_CROSS_ENCRYPTION_REQUIRED
 Language=ENU
-Cross-encrypted NT password required.
+A cross-encrypted password is necessary to change a user password.
 .
 MessageId=1387
 SymbolicName=ERROR_NO_SUCH_MEMBER
 Language=ENU
-No such member.
+A member could not be added to or removed from the local group because the member does not exist.
 .
 MessageId=1388
 SymbolicName=ERROR_INVALID_MEMBER
 Language=ENU
-Invalid member.
+A new member could not be added to a local group because the member has the wrong account type.
 .
 MessageId=1389
 SymbolicName=ERROR_TOO_MANY_SIDS
 Language=ENU
-Too many SIDs.
+Too many security IDs have been specified.
 .
 MessageId=1390
 SymbolicName=ERROR_LM_CROSS_ENCRYPTION_REQUIRED
 Language=ENU
-Cross-encrypted LM password required.
+A cross-encrypted password is necessary to change this user password.
 .
 MessageId=1391
 SymbolicName=ERROR_NO_INHERITANCE
 Language=ENU
-No inheritable components.
+Indicates an ACL contains no inheritable components.
 .
 MessageId=1392
 SymbolicName=ERROR_FILE_CORRUPT
 Language=ENU
-File or directory corrupt.
+The file or directory is corrupted and unreadable.
 .
 MessageId=1393
 SymbolicName=ERROR_DISK_CORRUPT
 Language=ENU
-Disk is corrupt.
+The disk structure is corrupted and unreadable.
 .
 MessageId=1394
 SymbolicName=ERROR_NO_USER_SESSION_KEY
 Language=ENU
-No user session key.
+There is no user session key for the specified logon session.
 .
 MessageId=1395
 SymbolicName=ERROR_LICENSE_QUOTA_EXCEEDED
 Language=ENU
-License quota exceeded.
+The service being accessed is licensed for a particular number of connections. No more connections can be made to the service at this time because there are already as many connections as the service can accept.
 .
 MessageId=1396
 SymbolicName=ERROR_WRONG_TARGET_NAME
 Language=ENU
-Wrong target name.
+The target account name is incorrect.
 .
 MessageId=1397
 SymbolicName=ERROR_MUTUAL_AUTH_FAILED
 Language=ENU
-Mutual authentication failed.
+Mutual Authentication failed. The server's password is out of date at the domain controller.
 .
 MessageId=1398
 SymbolicName=ERROR_TIME_SKEW
 Language=ENU
-Time skew between client and server.
+There is a time and/or date difference between the client and server.
 .
 MessageId=1400
 SymbolicName=ERROR_INVALID_WINDOW_HANDLE
@@ -2423,27 +2423,27 @@ Invalid hook handle.
 MessageId=1405
 SymbolicName=ERROR_INVALID_DWP_HANDLE
 Language=ENU
-Invalid DWP handle.
+Invalid handle to a multiple-window position structure.
 .
 MessageId=1406
 SymbolicName=ERROR_TLW_WITH_WSCHILD
 Language=ENU
-Can't create top-level child window.
+Cannot create a top-level child window.
 .
 MessageId=1407
 SymbolicName=ERROR_CANNOT_FIND_WND_CLASS
 Language=ENU
-Can't find window class.
+Cannot find window class.
 .
 MessageId=1408
 SymbolicName=ERROR_WINDOW_OF_OTHER_THREAD
 Language=ENU
-Window owned by another thread.
+Invalid window; it belongs to other thread.
 .
 MessageId=1409
 SymbolicName=ERROR_HOTKEY_ALREADY_REGISTERED
 Language=ENU
-Hotkey already registered.
+Hot key is already registered.
 .
 MessageId=1410
 SymbolicName=ERROR_CLASS_ALREADY_EXISTS
@@ -2458,7 +2458,7 @@ Class does not exist.
 MessageId=1412
 SymbolicName=ERROR_CLASS_HAS_WINDOWS
 Language=ENU
-Class has open windows.
+Class still has open windows.
 .
 MessageId=1413
 SymbolicName=ERROR_INVALID_INDEX
@@ -2473,32 +2473,32 @@ Invalid icon handle.
 MessageId=1415
 SymbolicName=ERROR_PRIVATE_DIALOG_INDEX
 Language=ENU
-Private dialog index.
+Using private DIALOG window words.
 .
 MessageId=1416
 SymbolicName=ERROR_LISTBOX_ID_NOT_FOUND
 Language=ENU
-List box ID not found.
+The list box identifier was not found.
 .
 MessageId=1417
 SymbolicName=ERROR_NO_WILDCARD_CHARACTERS
 Language=ENU
-No wildcard characters.
+No wildcards were found.
 .
 MessageId=1418
 SymbolicName=ERROR_CLIPBOARD_NOT_OPEN
 Language=ENU
-Clipboard not open.
+Thread does not have a clipboard open.
 .
 MessageId=1419
 SymbolicName=ERROR_HOTKEY_NOT_REGISTERED
 Language=ENU
-Hotkey not registered.
+Hot key is not registered.
 .
 MessageId=1420
 SymbolicName=ERROR_WINDOW_NOT_DIALOG
 Language=ENU
-Not a dialog window.
+The window is not a valid dialog window.
 .
 MessageId=1421
 SymbolicName=ERROR_CONTROL_ID_NOT_FOUND
@@ -2508,82 +2508,82 @@ Control ID not found.
 MessageId=1422
 SymbolicName=ERROR_INVALID_COMBOBOX_MESSAGE
 Language=ENU
-Invalid combo box message.
+Invalid message for a combo box because it does not have an edit control.
 .
 MessageId=1423
 SymbolicName=ERROR_WINDOW_NOT_COMBOBOX
 Language=ENU
-Not a combo box window.
+The window is not a combo box.
 .
 MessageId=1424
 SymbolicName=ERROR_INVALID_EDIT_HEIGHT
 Language=ENU
-Invalid edit height.
+Height must be less than 256.
 .
 MessageId=1425
 SymbolicName=ERROR_DC_NOT_FOUND
 Language=ENU
-DC not found.
+Invalid device context (DC) handle.
 .
 MessageId=1426
 SymbolicName=ERROR_INVALID_HOOK_FILTER
 Language=ENU
-Invalid hook filter.
+Invalid hook procedure type.
 .
 MessageId=1427
 SymbolicName=ERROR_INVALID_FILTER_PROC
 Language=ENU
-Invalid filter procedure.
+Invalid hook procedure.
 .
 MessageId=1428
 SymbolicName=ERROR_HOOK_NEEDS_HMOD
 Language=ENU
-Hook procedure needs module handle.
+Cannot set nonlocal hook without a module handle.
 .
 MessageId=1429
 SymbolicName=ERROR_GLOBAL_ONLY_HOOK
 Language=ENU
-Global-only hook procedure.
+This hook procedure can only be set globally.
 .
 MessageId=1430
 SymbolicName=ERROR_JOURNAL_HOOK_SET
 Language=ENU
-Journal hook already set.
+The journal hook procedure is already installed.
 .
 MessageId=1431
 SymbolicName=ERROR_HOOK_NOT_INSTALLED
 Language=ENU
-Hook procedure not installed.
+The hook procedure is not installed.
 .
 MessageId=1432
 SymbolicName=ERROR_INVALID_LB_MESSAGE
 Language=ENU
-Invalid list box message.
+Invalid message for single-selection list box.
 .
 MessageId=1433
 SymbolicName=ERROR_SETCOUNT_ON_BAD_LB
 Language=ENU
-Invalid LB_SETCOUNT sent.
+LB_SETCOUNT sent to non-lazy list box.
 .
 MessageId=1434
 SymbolicName=ERROR_LB_WITHOUT_TABSTOPS
 Language=ENU
-No tab stops on this list box.
+This list box does not support tab stops.
 .
 MessageId=1435
 SymbolicName=ERROR_DESTROY_OBJECT_OF_OTHER_THREAD
 Language=ENU
-Can't destroy object owned by another thread.
+Cannot destroy object created by another thread.
 .
 MessageId=1436
 SymbolicName=ERROR_CHILD_WINDOW_MENU
 Language=ENU
-Child window menus not allowed.
+Child windows cannot have menus.
 .
 MessageId=1437
 SymbolicName=ERROR_NO_SYSTEM_MENU
 Language=ENU
-Window has no system menu.
+The window does not have a system menu.
 .
 MessageId=1438
 SymbolicName=ERROR_INVALID_MSGBOX_STYLE
@@ -2593,7 +2593,7 @@ Invalid message box style.
 MessageId=1439
 SymbolicName=ERROR_INVALID_SPI_VALUE
 Language=ENU
-Invalid SPI parameter.
+Invalid system-wide (SPI_*) parameter.
 .
 MessageId=1440
 SymbolicName=ERROR_SCREEN_ALREADY_LOCKED
@@ -2603,27 +2603,27 @@ Screen already locked.
 MessageId=1441
 SymbolicName=ERROR_HWNDS_HAVE_DIFF_PARENT
 Language=ENU
-Window handles have different parents.
+All handles to windows in a multiple-window position structure must have the same parent.
 .
 MessageId=1442
 SymbolicName=ERROR_NOT_CHILD_WINDOW
 Language=ENU
-Not a child window.
+The window is not a child window.
 .
 MessageId=1443
 SymbolicName=ERROR_INVALID_GW_COMMAND
 Language=ENU
-Invalid GW command.
+Invalid GW_* command.
 .
 MessageId=1444
 SymbolicName=ERROR_INVALID_THREAD_ID
 Language=ENU
-Invalid thread ID.
+Invalid thread identifier.
 .
 MessageId=1445
 SymbolicName=ERROR_NON_MDICHILD_WINDOW
 Language=ENU
-Not an MDI child window.
+Cannot process a message from a window that is not a multiple document interface (MDI) window.
 .
 MessageId=1446
 SymbolicName=ERROR_POPUP_ALREADY_ACTIVE
@@ -2633,57 +2633,57 @@ Popup menu already active.
 MessageId=1447
 SymbolicName=ERROR_NO_SCROLLBARS
 Language=ENU
-No scrollbars.
+The window does not have scroll bars.
 .
 MessageId=1448
 SymbolicName=ERROR_INVALID_SCROLLBAR_RANGE
 Language=ENU
-Invalid scrollbar range.
+Scroll bar range cannot be greater than MAXLONG.
 .
 MessageId=1449
 SymbolicName=ERROR_INVALID_SHOWWIN_COMMAND
 Language=ENU
-Invalid ShowWin command.
+Cannot show or remove the window in the way specified.
 .
 MessageId=1450
 SymbolicName=ERROR_NO_SYSTEM_RESOURCES
 Language=ENU
-No system resources.
+Insufficient system resources exist to complete the requested service.
 .
 MessageId=1451
 SymbolicName=ERROR_NONPAGED_SYSTEM_RESOURCES
 Language=ENU
-No non-paged system resources.
+Insufficient system resources exist to complete the requested service.
 .
 MessageId=1452
 SymbolicName=ERROR_PAGED_SYSTEM_RESOURCES
 Language=ENU
-No paged system resources.
+Insufficient system resources exist to complete the requested service.
 .
 MessageId=1453
 SymbolicName=ERROR_WORKING_SET_QUOTA
 Language=ENU
-No working set quota.
+Insufficient quota to complete the requested service.
 .
 MessageId=1454
 SymbolicName=ERROR_PAGEFILE_QUOTA
 Language=ENU
-No page file quota.
+Insufficient quota to complete the requested service.
 .
 MessageId=1455
 SymbolicName=ERROR_COMMITMENT_LIMIT
 Language=ENU
-Exceeded commitment limit.
+The paging file is too small for this operation to complete.
 .
 MessageId=1456
 SymbolicName=ERROR_MENU_ITEM_NOT_FOUND
 Language=ENU
-Menu item not found.
+A menu item was not found.
 .
 MessageId=1457
 SymbolicName=ERROR_INVALID_KEYBOARD_HANDLE
 Language=ENU
-Invalid keyboard handle.
+Invalid keyboard layout handle.
 .
 MessageId=1458
 SymbolicName=ERROR_HOOK_TYPE_NOT_ALLOWED
@@ -2693,12 +2693,12 @@ Hook type not allowed.
 MessageId=1459
 SymbolicName=ERROR_REQUIRES_INTERACTIVE_WINDOWSTATION
 Language=ENU
-Interactive window station required.
+This operation requires an interactive window station.
 .
 MessageId=1460
 SymbolicName=ERROR_TIMEOUT
 Language=ENU
-Timeout.
+This operation returned because the timeout period expired.
 .
 MessageId=1461
 SymbolicName=ERROR_INVALID_MONITOR_HANDLE
@@ -2708,57 +2708,57 @@ Invalid monitor handle.
 MessageId=1500
 SymbolicName=ERROR_EVENTLOG_FILE_CORRUPT
 Language=ENU
-Event log file corrupt.
+The event log file is corrupted.
 .
 MessageId=1501
 SymbolicName=ERROR_EVENTLOG_CANT_START
 Language=ENU
-Event log can't start.
+No event log file could be opened, so the event logging service did not start.
 .
 MessageId=1502
 SymbolicName=ERROR_LOG_FILE_FULL
 Language=ENU
-Event log file full.
+The event log file is full.
 .
 MessageId=1503
 SymbolicName=ERROR_EVENTLOG_FILE_CHANGED
 Language=ENU
-Event log file changed.
+The event log file has changed between read operations.
 .
 MessageId=1601
 SymbolicName=ERROR_INSTALL_SERVICE_FAILURE
 Language=ENU
-Installer service failed.
+The Windows Installer Service could not be accessed. This can occur if the Windows Installer is not correctly installed. Contact your support personnel for assistance.
 .
 MessageId=1602
 SymbolicName=ERROR_INSTALL_USEREXIT
 Language=ENU
-Installation aborted by user.
+User cancelled installation.
 .
 MessageId=1603
 SymbolicName=ERROR_INSTALL_FAILURE
 Language=ENU
-Installation failure.
+Fatal error during installation.
 .
 MessageId=1604
 SymbolicName=ERROR_INSTALL_SUSPEND
 Language=ENU
-Installation suspended.
+Installation suspended, incomplete.
 .
 MessageId=1605
 SymbolicName=ERROR_UNKNOWN_PRODUCT
 Language=ENU
-Unknown product.
+This action is only valid for products that are currently installed.
 .
 MessageId=1606
 SymbolicName=ERROR_UNKNOWN_FEATURE
 Language=ENU
-Unknown feature.
+Feature ID not registered.
 .
 MessageId=1607
 SymbolicName=ERROR_UNKNOWN_COMPONENT
 Language=ENU
-Unknown component.
+Component ID not registered.
 .
 MessageId=1608
 SymbolicName=ERROR_UNKNOWN_PROPERTY
@@ -2768,167 +2768,167 @@ Unknown property.
 MessageId=1609
 SymbolicName=ERROR_INVALID_HANDLE_STATE
 Language=ENU
-Invalid handle state.
+Handle is in an invalid state.
 .
 MessageId=1610
 SymbolicName=ERROR_BAD_CONFIGURATION
 Language=ENU
-Bad configuration.
+The configuration data for this product is corrupt. Contact your support personnel.
 .
 MessageId=1611
 SymbolicName=ERROR_INDEX_ABSENT
 Language=ENU
-Index is missing.
+Component qualifier not present.
 .
 MessageId=1612
 SymbolicName=ERROR_INSTALL_SOURCE_ABSENT
 Language=ENU
-Installation source is missing.
+The installation source for this product is not available. Verify that the source exists and that you can access it.
 .
 MessageId=1613
 SymbolicName=ERROR_INSTALL_PACKAGE_VERSION
 Language=ENU
-Wrong installation package version.
+This installation package cannot be installed by the Windows Installer service. You must install a Windows service pack that contains a newer version of the Windows Installer service.
 .
 MessageId=1614
 SymbolicName=ERROR_PRODUCT_UNINSTALLED
 Language=ENU
-Product uninstalled.
+Product is uninstalled.
 .
 MessageId=1615
 SymbolicName=ERROR_BAD_QUERY_SYNTAX
 Language=ENU
-Invalid query syntax.
+SQL query syntax invalid or unsupported.
 .
 MessageId=1616
 SymbolicName=ERROR_INVALID_FIELD
 Language=ENU
-Invalid field.
+Record field does not exist.
 .
 MessageId=1617
 SymbolicName=ERROR_DEVICE_REMOVED
 Language=ENU
-Device removed.
+The device has been removed.
 .
 MessageId=1618
 SymbolicName=ERROR_INSTALL_ALREADY_RUNNING
 Language=ENU
-Installation already running.
+Another installation is already in progress. Complete that installation before proceeding with this install.
 .
 MessageId=1619
 SymbolicName=ERROR_INSTALL_PACKAGE_OPEN_FAILED
 Language=ENU
-Installation package failed to open.
+This installation package could not be opened. Verify that the package exists and that you can access it, or contact the application vendor to verify that this is a valid Windows Installer package.
 .
 MessageId=1620
 SymbolicName=ERROR_INSTALL_PACKAGE_INVALID
 Language=ENU
-Installation package is invalid.
+This installation package could not be opened. Contact the application vendor to verify that this is a valid Windows Installer package.
 .
 MessageId=1621
 SymbolicName=ERROR_INSTALL_UI_FAILURE
 Language=ENU
-Installer user interface failed.
+There was an error starting the Windows Installer service user interface. Contact your support personnel.
 .
 MessageId=1622
 SymbolicName=ERROR_INSTALL_LOG_FAILURE
 Language=ENU
-Failed to open installation log file.
+Error opening installation log file. Verify that the specified log file location exists and that you can write to it.
 .
 MessageId=1623
 SymbolicName=ERROR_INSTALL_LANGUAGE_UNSUPPORTED
 Language=ENU
-Installation language not supported.
+The language of this installation package is not supported by your system.
 .
 MessageId=1624
 SymbolicName=ERROR_INSTALL_TRANSFORM_FAILURE
 Language=ENU
-Installation transform failed to apply.
+Error applying transforms. Verify that the specified transform paths are valid.
 .
 MessageId=1625
 SymbolicName=ERROR_INSTALL_PACKAGE_REJECTED
 Language=ENU
-Installation package rejected.
+This installation is forbidden by system policy. Contact your system administrator.
 .
 MessageId=1626
 SymbolicName=ERROR_FUNCTION_NOT_CALLED
 Language=ENU
-Function could not be called.
+Function could not be executed.
 .
 MessageId=1627
 SymbolicName=ERROR_FUNCTION_FAILED
 Language=ENU
-Function failed.
+Function failed during execution.
 .
 MessageId=1628
 SymbolicName=ERROR_INVALID_TABLE
 Language=ENU
-Invalid table.
+Invalid or unknown table specified.
 .
 MessageId=1629
 SymbolicName=ERROR_DATATYPE_MISMATCH
 Language=ENU
-Data type mismatch.
+Data supplied is of wrong type.
 .
 MessageId=1630
 SymbolicName=ERROR_UNSUPPORTED_TYPE
 Language=ENU
-Unsupported type.
+Data of this type is not supported.
 .
 MessageId=1631
 SymbolicName=ERROR_CREATE_FAILED
 Language=ENU
-Creation failed.
+The Windows Installer service failed to start. Contact your support personnel.
 .
 MessageId=1632
 SymbolicName=ERROR_INSTALL_TEMP_UNWRITABLE
 Language=ENU
-Temporary directory not writable.
+The Temp folder is on a drive that is full or is inaccessible. Free up space on the drive or verify that you have write permission on the Temp folder.
 .
 MessageId=1633
 SymbolicName=ERROR_INSTALL_PLATFORM_UNSUPPORTED
 Language=ENU
-Installation platform not supported.
+This installation package is not supported by this processor type. Contact your product vendor.
 .
 MessageId=1634
 SymbolicName=ERROR_INSTALL_NOTUSED
 Language=ENU
-Installer not used.
+Component not used on this computer.
 .
 MessageId=1635
 SymbolicName=ERROR_PATCH_PACKAGE_OPEN_FAILED
 Language=ENU
-Failed to open the patch package.
+This update package could not be opened. Verify that the update package exists and that you can access it, or contact the application vendor to verify that this is a valid Windows Installer update package.
 .
 MessageId=1636
 SymbolicName=ERROR_PATCH_PACKAGE_INVALID
 Language=ENU
-Invalid patch package.
+This update package could not be opened. Contact the application vendor to verify that this is a valid Windows Installer update package.
 .
 MessageId=1637
 SymbolicName=ERROR_PATCH_PACKAGE_UNSUPPORTED
 Language=ENU
-Unsupported patch package.
+This update package cannot be processed by the Windows Installer service. You must install a Windows service pack that contains a newer version of the Windows Installer service.
 .
 MessageId=1638
 SymbolicName=ERROR_PRODUCT_VERSION
 Language=ENU
-Another version is installed.
+Another version of this product is already installed. Installation of this version cannot continue. To configure or remove the existing version of this product, use Add/Remove Programs on the Control Panel.
 .
 MessageId=1639
 SymbolicName=ERROR_INVALID_COMMAND_LINE
 Language=ENU
-Invalid command line.
+Invalid command line argument. Consult the Windows Installer SDK for detailed command line help.
 .
 MessageId=1640
 SymbolicName=ERROR_INSTALL_REMOTE_DISALLOWED
 Language=ENU
-Remote installation not allowed.
+Only administrators have permission to add, remove, or configure server software during a Terminal services remote session. If you want to install or configure software on the server, contact your network administrator.
 .
 MessageId=1641
 SymbolicName=ERROR_SUCCESS_REBOOT_INITIATED
 Language=ENU
-Reboot initiated after successful install.
+The requested operation completed successfully. The system will be restarted so the changes can take effect.
 .
 MessageId=1700
 SymbolicName=RPC_S_INVALID_STRING_BINDING
