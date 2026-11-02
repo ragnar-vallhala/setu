@@ -1628,6 +1628,43 @@ static struct timer *find_expired_timer( struct msg_queue *queue, user_handle_t 
     return NULL;
 }
 
+/* A timer message that is looked at without being removed turns into a
+ * posted message: it is delivered in order with later posts, survives
+ * KillTimer, and the timer starts its next period. */
+static void post_timer_message( struct msg_queue *queue, struct timer *timer,
+                                const struct get_message_reply *reply )
+{
+    queue_shm_t *queue_shm = queue->shared;
+    unsigned int changed = queue_shm->changed_bits;
+    struct message *msg;
+
+    if (!(msg = mem_alloc( sizeof(*msg) ))) return;
+    msg->type      = MSG_POSTED;
+    msg->win       = reply->win;
+    msg->msg       = reply->msg;
+    msg->wparam    = reply->wparam;
+    msg->lparam    = reply->lparam;
+    msg->x         = reply->x;
+    msg->y         = reply->y;
+    msg->time      = reply->time;
+    msg->result    = NULL;
+    msg->data      = NULL;
+    msg->data_size = 0;
+    msg->unique_id = 0;
+    list_add_tail( &queue->msg_list[POST_MESSAGE], &msg->entry );
+    set_queue_bits( queue, QS_POSTMESSAGE|QS_ALLPOSTMESSAGE );
+
+    /* the caller has already seen this message, so it is not new */
+    SHARED_WRITE_BEGIN( queue_shm, queue_shm_t )
+    {
+        shared->changed_bits &= changed | ~(QS_POSTMESSAGE|QS_ALLPOSTMESSAGE);
+    }
+    SHARED_WRITE_END;
+
+    restart_timer( queue, timer );
+    if (list_empty( &queue->expired_timers )) clear_queue_bits( queue, QS_TIMER );
+}
+
 /* add a timer */
 static struct timer *set_timer( struct msg_queue *queue, unsigned int rate )
 {
@@ -3398,6 +3435,7 @@ DECL_HANDLER(get_message)
         reply->wparam = timer->id;
         reply->lparam = timer->lparam;
         get_message_defaults( queue, &reply->x, &reply->y, &reply->time );
+        if (!(req->flags & PM_REMOVE)) post_timer_message( queue, timer, reply );
         return;
     }
 
