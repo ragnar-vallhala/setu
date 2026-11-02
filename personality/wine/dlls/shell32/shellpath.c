@@ -2940,16 +2940,13 @@ HRESULT WINAPI SHGetFolderPathAndSubDirW(
 
     TRACE("%p,%#x,%p,%#lx,%s,%p\n", hwndOwner, nFolder, hToken, dwFlags, debugstr_w(pszSubPath), pszPath);
 
-    /* Windows always NULL-terminates the resulting path regardless of success
-     * or failure, so do so first
-     */
-    if (pszPath)
-        *pszPath = '\0';
-
+    /* On failure the output buffer is left untouched. Unknown dwFlags bits
+     * are ignored. */
     if (folder >= ARRAY_SIZE(CSIDL_Data))
         return E_INVALIDARG;
-    if ((SHGFP_TYPE_CURRENT != dwFlags) && (SHGFP_TYPE_DEFAULT != dwFlags))
-        return E_INVALIDARG;
+    /* virtual folders have no file system path */
+    if (CSIDL_Data[folder].category == KF_CATEGORY_VIRTUAL)
+        return E_FAIL;
     szTemp[0] = 0;
     type = CSIDL_Data[folder].type;
     switch (type)
