@@ -49,22 +49,31 @@ static DWORD shutdown_priority = 0x280;
 static BOOL find_exe_file( const WCHAR *name, WCHAR *buffer, DWORD buflen )
 {
     WCHAR *load_path;
-    BOOL ret;
+    BOOL ret, unix_app = FALSE;
 
     if (!set_ntstatus( RtlGetExePath( name, &load_path ))) return FALSE;
 
     TRACE( "looking for %s in %s\n", debugstr_w(name), debugstr_w(load_path) );
 
-    ret = (SearchPathW( load_path, name, L".exe", buflen, buffer, NULL ) ||
-           /* not found, try without extension in case it is a Unix app */
-           SearchPathW( load_path, name, NULL, buflen, buffer, NULL ));
+    ret = SearchPathW( load_path, name, L".exe", buflen, buffer, NULL );
+    /* not found, try without extension in case it is a Unix app */
+    if (!ret) unix_app = ret = SearchPathW( load_path, name, NULL, buflen, buffer, NULL );
 
     if (ret)  /* make sure it can be opened, SearchPathW also returns directories */
     {
         HANDLE handle = CreateFileW( buffer, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_DELETE,
                                      NULL, OPEN_EXISTING, 0, 0 );
         if ((ret = (handle != INVALID_HANDLE_VALUE))) CloseHandle( handle );
-        else SetLastError( ERROR_FILE_NOT_FOUND );
+        else
+        {
+            DWORD attr = GetFileAttributesW( buffer );
+
+            /* a directory found under the name the caller gave cannot be started */
+            if (!unix_app && attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY))
+                SetLastError( ERROR_ACCESS_DENIED );
+            else
+                SetLastError( ERROR_FILE_NOT_FOUND );
+        }
     }
     RtlReleasePath( load_path );
     return ret;

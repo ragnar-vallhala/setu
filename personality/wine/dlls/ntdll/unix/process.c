@@ -271,7 +271,8 @@ static unsigned int get_pe_file_info( OBJECT_ATTRIBUTES *attr, UNICODE_STRING *n
     {
         status = open_unix_file( handle, *unix_name, GENERIC_READ, attr, 0,
                                  FILE_SHARE_READ | FILE_SHARE_DELETE,
-                                 FILE_OPEN, FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 );
+                                 FILE_OPEN, FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
+                                 NULL, 0 );
     }
     if (status)
     {
