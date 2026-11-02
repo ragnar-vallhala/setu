@@ -296,7 +296,7 @@ HWND WIN_CreateWindowEx( CREATESTRUCTW *cs, LPCWSTR className, HINSTANCE module,
     if (!NtUserGetClassInfoEx( module, &class, &info, NULL, FALSE ))
     {
         TRACE( "%s %p -> not found\n", debugstr_us(&class), module );
-        SetLastError( ERROR_CLASS_DOES_NOT_EXIST );
+        SetLastError( ERROR_CANNOT_FIND_WND_CLASS );
         return FALSE;
     }
 
