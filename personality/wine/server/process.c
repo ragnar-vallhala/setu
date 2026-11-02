@@ -1523,7 +1523,9 @@ DECL_HANDLER(terminate_process)
     else process = (struct process *)grab_object( current->process );
 
     reply->self = (current->process == process);
-    terminate_process( process, current, req->exit_code );
+    /* a process whose threads have all exited cannot be terminated again */
+    if (!reply->self && !process->running_threads) set_error( STATUS_PROCESS_IS_TERMINATING );
+    else terminate_process( process, current, req->exit_code );
     release_object( process );
 }
 
