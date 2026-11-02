@@ -96,7 +96,9 @@ DWORD WINAPI GetDllDirectoryW( DWORD buf_len, LPWSTR buffer )
     str.MaximumLength = min( buf_len, UNICODE_STRING_MAX_CHARS ) * sizeof(WCHAR);
     status = LdrGetDllDirectory( &str );
     if (status == STATUS_BUFFER_TOO_SMALL) status = STATUS_SUCCESS;
-    if (!set_ntstatus( status )) return 0;
+    /* the last error is cleared on success */
+    SetLastError( RtlNtStatusToDosError( status ));
+    if (status) return 0;
     return str.Length / sizeof(WCHAR);
 }
 
