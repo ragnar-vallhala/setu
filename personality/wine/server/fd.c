@@ -3492,7 +3492,8 @@ DECL_HANDLER(set_fd_name_info)
         if (!root_fd) return;
     }
 
-    if ((fd = get_handle_fd_obj( current->process, req->handle, 0 )))
+    /* renaming needs DELETE access on the handle, creating a link doesn't */
+    if ((fd = get_handle_fd_obj( current->process, req->handle, req->link ? 0 : DELETE )))
     {
         set_fd_name( fd, root_fd, (const char *)get_req_data() + req->namelen,
                      get_req_data_size() - req->namelen, nt_name, req->link, req->flags );
