@@ -95,6 +95,12 @@ int main(void)
     full_case("drive_relative", in);
     swprintf(in, MAX_PATH, L"%lc:", drive);
     full_case("drive_only", in);
+    swprintf(in, MAX_PATH, L"%lc:.", drive);
+    full_case("drive_dot", in);
+    swprintf(in, MAX_PATH, L"%lc:", drive);
+    SetCurrentDirectoryW(root);
+    full_case("drive_only_at_root", in);
+    SetCurrentDirectoryW(cwd);
     swprintf(in, MAX_PATH, L"%lc:\\a\\..\\..\\b", drive);
     full_case("absolute_dotdot_past_root", in);
     swprintf(in, MAX_PATH, L"\\\\?\\%lc:\\a\\..\\b", drive);
@@ -199,6 +205,30 @@ int main(void)
 
         ORACLE_CALL(ret, GetShortPathNameW(L"missing.txt", buf, MAX_PATH));
         oracle_case("short_missing");
+        o_u32("ret", ret);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(ret, GetLongPathNameW(L"nope\\", buf, MAX_PATH));
+        oracle_case("long_missing_trailing_sep");
+        o_u32("ret", ret);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(ret, GetLongPathNameW(L"nope\\a\\b.txt", buf, MAX_PATH));
+        oracle_case("long_missing_deep");
+        o_u32("ret", ret);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(ret, GetLongPathNameW(L"short.txt\\x", buf, MAX_PATH));
+        oracle_case("long_file_as_parent");
+        o_u32("ret", ret);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(ret, GetLongPathNameW(L"nope\\x\\", buf, MAX_PATH));
+        oracle_case("long_missing_parent_trailing_sep");
         o_u32("ret", ret);
         o_lasterr();
         oracle_case_end();

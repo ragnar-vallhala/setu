@@ -112,6 +112,18 @@
       "full": "<cwd>",
       "file_part": "kernel32__GetFullPathNameW"
     },
+    "drive_dot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>",
+      "file_part": "kernel32__GetFullPathNameW"
+    },
+    "drive_only_at_root": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<root>\\",
+      "file_part": null
+    },
     "absolute_dotdot_past_root": {
       "last_error": "unchanged",
       "ret_is_len": true,
@@ -245,8 +257,24 @@
     "short_missing": {
       "ret": 0,
       "last_error": 2
+    },
+    "long_missing_trailing_sep": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "long_missing_deep": {
+      "ret": 0,
+      "last_error": 3
+    },
+    "long_file_as_parent": {
+      "ret": 0,
+      "last_error": 3
+    },
+    "long_missing_parent_trailing_sep": {
+      "ret": 0,
+      "last_error": 3
     }
   },
   "errors": [],
-  "source_sha256": "0662af55883fd6c661705893425247846906168a02c8d885e6d4a46a1878d72a"
+  "source_sha256": "757bd97ea04ce61882c5c72efb484c0fe926fd532f2f3feae21cb0c6c6a7024b"
 }

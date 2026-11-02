@@ -58,6 +58,7 @@ int main(void)
     size_case("size_unchanged_by_seek");
     seek_case("seek_bad_method", 0, 7);
     seek_case("seek_huge", 0x7fffffffffffffffLL, FILE_BEGIN);
+    seek_case("seek_current_after_huge", 0, FILE_CURRENT);
 
     {   /* Read at a position beyond EOF: success, 0 bytes. */
         char buf[8];

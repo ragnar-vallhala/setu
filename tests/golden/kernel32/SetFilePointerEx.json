@@ -59,6 +59,11 @@
       "last_error": "unchanged",
       "new_pos": 9223372036854775807
     },
+    "seek_current_after_huge": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
     "read_beyond_eof": {
       "ret": true,
       "last_error": "unchanged",
@@ -146,5 +151,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "903ea841dacae9243d34cb5cb2b5ec9bea95fc6cc0204538e297067146e30398"
+  "source_sha256": "f7f5f168528b9060c1cd4187bee384cd65ffbb9c28e5398f68b1e8ae9eb729b5"
 }

@@ -187,8 +187,72 @@
       "ret": "valid",
       "last_error": 0,
       "file.exists": false
+    },
+    "create_always_hidden_plain": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000002",
+      "file.size": 6,
+      "file.data": "68696464656e"
+    },
+    "truncate_existing_hidden_plain": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000022",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "open_always_hidden_plain": {
+      "ret": "valid",
+      "last_error": 183,
+      "file.exists": true,
+      "file.attrs": "0x00000022",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_always_hidden_with_hidden": {
+      "ret": "valid",
+      "last_error": 183,
+      "file.exists": true,
+      "file.attrs": "0x00000022",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_always_hs_with_hidden": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000006",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_always_hs_with_hs": {
+      "ret": "valid",
+      "last_error": 183,
+      "file.exists": true,
+      "file.attrs": "0x00000026",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_always_system_plain": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000004",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "create_always_plain_with_hidden": {
+      "ret": "valid",
+      "last_error": 183,
+      "file.exists": true,
+      "file.attrs": "0x00000022",
+      "file.size": 0,
+      "file.data": ""
     }
   },
   "errors": [],
-  "source_sha256": "fa91283b5e5b7dcf400527ff7a44c81ca7240b295b5d55b729bf750c733f53e8"
+  "source_sha256": "0573b47f7224ca9036a46b041d3139e39ceca6885d3eee8ef6aa1e9d5e2dd186"
 }

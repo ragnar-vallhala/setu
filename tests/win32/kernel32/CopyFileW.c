@@ -89,5 +89,28 @@ int main(void)
     COPY_CASE("move_into_own_subdir", MoveFileW(L"dir2", L"dir2\\sub"), L"dir2\\sub");
     COPY_CASE("move_case_only", MoveFileW(L"moved", L"MOVED"), L"MOVED");
 
+    /* Probes: where the pre-set cancel flag is checked, and how far the
+     * "into its own subdirectory" error reaches. */
+    {
+        BOOL cancel = TRUE;
+        COPY_CASE("copyex_pre_cancelled_missing_source",
+                  CopyFileExW(L"missing", L"ex_cancel", NULL, NULL, &cancel, 0), L"ex_cancel");
+        COPY_CASE("copyex_pre_cancelled_existing_dest",
+                  CopyFileExW(L"src", L"other", NULL, NULL, &cancel, 0), L"other");
+        COPY_CASE("copyex_pre_cancelled_fail_if_exists",
+                  CopyFileExW(L"src", L"other", NULL, NULL, &cancel, COPY_FILE_FAIL_IF_EXISTS), L"other");
+    }
+    CreateDirectoryW(L"dir2\\d", NULL);
+    COPY_CASE("move_into_own_nested_subdir", MoveFileW(L"dir2", L"dir2\\d\\sub"), L"dir2\\d\\sub");
+
+    /* Probes: hidden/system destinations. */
+    SetFileAttributesW(L"ro", FILE_ATTRIBUTE_HIDDEN);
+    SetFileAttributesW(L"ro_copy", FILE_ATTRIBUTE_HIDDEN);
+    COPY_CASE("copy_hidden_over_hidden_dest", CopyFileW(L"ro", L"ro_copy", FALSE), L"ro_copy");
+    SetFileAttributesW(L"ro_copy", FILE_ATTRIBUTE_SYSTEM);
+    COPY_CASE("copy_over_system_dest", CopyFileW(L"src", L"ro_copy", FALSE), L"ro_copy");
+    SetFileAttributesW(L"ro_copy", FILE_ATTRIBUTE_NORMAL);
+    SetFileAttributesW(L"ro", FILE_ATTRIBUTE_NORMAL);
+
     return oracle_end();
 }

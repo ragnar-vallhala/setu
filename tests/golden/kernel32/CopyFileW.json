@@ -198,8 +198,50 @@
       "dst.size": 11,
       "dst.data": "736f757263652064617461",
       "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,other,ro,ro_copy,src"
+    },
+    "copyex_pre_cancelled_missing_source": {
+      "ret": false,
+      "last_error": 2,
+      "dst.exists": false,
+      "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,other,ro,ro_copy,src"
+    },
+    "copyex_pre_cancelled_existing_dest": {
+      "ret": false,
+      "last_error": 1235,
+      "dst.exists": false,
+      "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,ro,ro_copy,src"
+    },
+    "copyex_pre_cancelled_fail_if_exists": {
+      "ret": false,
+      "last_error": 1235,
+      "dst.exists": false,
+      "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,ro,ro_copy,src"
+    },
+    "move_into_own_nested_subdir": {
+      "ret": false,
+      "last_error": 5,
+      "dst.exists": false,
+      "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,ro,ro_copy,src"
+    },
+    "copy_hidden_over_hidden_dest": {
+      "ret": true,
+      "last_error": 0,
+      "dst.exists": true,
+      "dst.attrs": "0x00000022",
+      "dst.size": 8,
+      "dst.data": "726561646f6e6c79",
+      "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,ro,ro_copy,src"
+    },
+    "copy_over_system_dest": {
+      "ret": false,
+      "last_error": 5,
+      "dst.exists": true,
+      "dst.attrs": "0x00000004",
+      "dst.size": 8,
+      "dst.data": "726561646f6e6c79",
+      "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,ro,ro_copy,src"
     }
   },
   "errors": [],
-  "source_sha256": "dd7b30f5c5a0500a28213c37dc62659f4789c1bb339c31dd3665cf0a87d02883"
+  "source_sha256": "bba425726c873182b3dd8403b976c4f3f16e053724b10c49d66fec977bba108f"
 }

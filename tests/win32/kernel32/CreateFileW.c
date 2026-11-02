@@ -95,5 +95,25 @@ int main(void)
     /* FILE_FLAG_DELETE_ON_CLOSE removes the file when the last handle closes. */
     create_case("delete_on_close", L"doc.txt", RW | DELETE, 0, CREATE_NEW, FILE_FLAG_DELETE_ON_CLOSE, L"doc.txt");
 
+    /* Overwriting a HIDDEN or SYSTEM file: which dispositions and attribute
+     * combinations are refused. */
+    make_file(L"hid.txt", "hidden");
+    SetFileAttributesW(L"hid.txt", FILE_ATTRIBUTE_HIDDEN);
+    create_case("create_always_hidden_plain", L"hid.txt", RW, 0, CREATE_ALWAYS, 0, L"hid.txt");
+    create_case("truncate_existing_hidden_plain", L"hid.txt", RW, 0, TRUNCATE_EXISTING, 0, L"hid.txt");
+    create_case("open_always_hidden_plain", L"hid.txt", RW, 0, OPEN_ALWAYS, 0, L"hid.txt");
+    create_case("create_always_hidden_with_hidden", L"hid.txt", RW, 0, CREATE_ALWAYS,
+                FILE_ATTRIBUTE_HIDDEN, L"hid.txt");
+    SetFileAttributesW(L"hid.txt", FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM);
+    create_case("create_always_hs_with_hidden", L"hid.txt", RW, 0, CREATE_ALWAYS,
+                FILE_ATTRIBUTE_HIDDEN, L"hid.txt");
+    create_case("create_always_hs_with_hs", L"hid.txt", RW, 0, CREATE_ALWAYS,
+                FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM, L"hid.txt");
+    SetFileAttributesW(L"hid.txt", FILE_ATTRIBUTE_SYSTEM);
+    create_case("create_always_system_plain", L"hid.txt", RW, 0, CREATE_ALWAYS, 0, L"hid.txt");
+    SetFileAttributesW(L"hid.txt", FILE_ATTRIBUTE_NORMAL);
+    create_case("create_always_plain_with_hidden", L"hid.txt", RW, 0, CREATE_ALWAYS,
+                FILE_ATTRIBUTE_HIDDEN, L"hid.txt");
+
     return oracle_end();
 }
