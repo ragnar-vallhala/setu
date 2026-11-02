@@ -1458,8 +1458,10 @@ HANDLE WINAPI DECLSPEC_HOTPATCH CreateNamedPipeW( LPCWSTR name, DWORD open_mode,
     if (instances >= PIPE_UNLIMITED_INSTANCES) instances = ~0U;
 
     time.QuadPart = (ULONGLONG)timeout * -10000;
+    /* the first instance flag makes an existing pipe fail with access denied */
     status = NtCreateNamedPipeFile( &handle, access, &attr, &iosb, sharing,
-                                    FILE_OPEN_IF, options, pipe_type,
+                                    (open_mode & FILE_FLAG_FIRST_PIPE_INSTANCE) ? FILE_CREATE : FILE_OPEN_IF,
+                                    options, pipe_type,
                                     read_mode, non_block, instances, in_buff, out_buff, &time );
     RtlFreeUnicodeString( &nt_name );
     if (!set_ntstatus( status )) return INVALID_HANDLE_VALUE;
