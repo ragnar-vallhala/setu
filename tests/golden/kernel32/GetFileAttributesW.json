@@ -96,8 +96,27 @@
       "ret": true,
       "last_error": "unchanged",
       "get": "0x00000003"
+    },
+    "archive_after_open_for_write_no_write": {
+      "ret": "0x00000080",
+      "last_error": "unchanged"
+    },
+    "set_readonly_hidden": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000003"
+    },
+    "set_hidden_keep_readonly": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000007"
+    },
+    "clear_all_after_readonly": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000080"
     }
   },
   "errors": [],
-  "source_sha256": "023cf9a108977793884d6e7a932f2cec22aa4a44a97357d4251fd7f4c0108ba7"
+  "source_sha256": "c2852e8b72dee9dbdd02d4ef3799d5d1cbd4853ad751255fe5a0257b3cbad423"
 }

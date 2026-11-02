@@ -95,5 +95,17 @@ int main(void)
         SetFileAttributesW(L"t.txt", FILE_ATTRIBUTE_NORMAL);
     }
 
+    {   /* Is ARCHIVE set by opening for write, or only by writing? */
+        SetFileAttributesW(L"f.txt", FILE_ATTRIBUTE_NORMAL);
+        HANDLE w = CreateFileW(L"f.txt", GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+        CloseHandle(w);
+        get_case("archive_after_open_for_write_no_write", L"f.txt");
+    }
+
+    set_then_get("set_readonly_hidden", L"f.txt", FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN);
+    set_then_get("set_hidden_keep_readonly", L"f.txt",
+                 FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM);
+    set_then_get("clear_all_after_readonly", L"f.txt", FILE_ATTRIBUTE_NORMAL);
+
     return oracle_end();
 }
