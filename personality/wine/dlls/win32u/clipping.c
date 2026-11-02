@@ -305,7 +305,12 @@ INT WINAPI NtGdiIntersectClipRect( HDC hdc, INT left, INT top, INT right, INT bo
         ret = NtGdiCombineRgn( dc->hClipRgn, dc->hClipRgn, rgn, RGN_AND );
         NtGdiDeleteObjectApp( rgn );
     }
-    if (ret != ERROR) update_dc_clipping( dc );
+    if (ret != ERROR)
+    {
+        update_dc_clipping( dc );
+        /* Windows reports COMPLEXREGION whatever the shape of the result */
+        ret = COMPLEXREGION;
+    }
     release_dc_ptr( dc );
     return ret;
 }
