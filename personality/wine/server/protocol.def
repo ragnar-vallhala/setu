@@ -3293,8 +3293,8 @@ enum caret_state
     unsigned int   style;          /* class style */
     mod_handle_t   instance;       /* module instance */
     client_ptr_t   client_ptr;     /* pointer to class in client address space */
-    short int      cls_extra;      /* number of extra class bytes */
-    short int      win_extra;      /* number of window extra bytes */
+    int            cls_extra;      /* number of extra class bytes */
+    int            win_extra;      /* number of window extra bytes */
     data_size_t    name_offset;    /* base class name offset for specified atom */
     user_handle_t  icon;           /* class icon */
     user_handle_t  icon_sm;        /* class small icon */

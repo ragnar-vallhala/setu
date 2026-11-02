@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -232,7 +233,7 @@ DECL_HANDLER(create_class)
         release_atom( table, base_atom );
         return;
     }
-    if (req->cls_extra < 0 || req->cls_extra > 4096 || req->win_extra < 0 || req->win_extra > 4096)
+    if (req->cls_extra < 0 || req->cls_extra > 4096 || req->win_extra < 0)
     {
         /* don't allow stupid values here */
         set_error( STATUS_INVALID_PARAMETER );
@@ -304,7 +305,7 @@ DECL_HANDLER(set_class_info)
     case GCLP_HMODULE:
         break;
     case GCL_CBWNDEXTRA:
-        if (req->new_info > 4096)
+        if (req->new_info > INT_MAX)
         {
             set_error( STATUS_INVALID_PARAMETER );
             return;
