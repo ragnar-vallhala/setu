@@ -2442,6 +2442,7 @@
     "user32/window_class:info_own_class_by_atom",
     "user32/window_class:info_own_class_null_hinstance",
     "user32/window_class:info_own_class_other_case",
+    "user32/window_class:info_static_null_hinstance",
     "user32/window_class:load_user32",
     "user32/window_class:register_a_duplicate_of_w",
     "user32/window_class:register_after_unregister",

@@ -1218,7 +1218,7 @@ static const struct builtin_class_descr builtin_classes[] =
         .name = "Static",
         .style = CS_DBLCLKS | CS_PARENTDC,
         .proc = NTUSER_WNDPROC_STATIC,
-        .extra = 2 * sizeof(HANDLE),
+        .extra = 2 * sizeof(LONG),
         .cursor = IDC_ARROW,
     },
 };

@@ -49,9 +49,20 @@ static void STATIC_PaintEtchedfn( HWND hwnd, HDC hdc, HBRUSH hbrush, DWORD style
 
 static COLORREF color_3dshadow, color_3ddkshadow, color_3dhighlight;
 
-/* offsets for GetWindowLong for static private information */
+/* offsets for GetWindowLong for static private information; handles are
+ * stored as their 32 significant bits, so both fit in 8 extra bytes */
 #define HFONT_GWL_OFFSET    0
-#define HICON_GWL_OFFSET    (sizeof(HFONT))
+#define HICON_GWL_OFFSET    (sizeof(LONG))
+
+static HANDLE get_static_handle( HWND hwnd, int offset )
+{
+    return LongToHandle( GetWindowLongW( hwnd, offset ));
+}
+
+static HANDLE set_static_handle( HWND hwnd, int offset, HANDLE handle )
+{
+    return LongToHandle( SetWindowLongW( hwnd, offset, HandleToLong( handle )));
+}
 
 typedef void (*pfPaint)( HWND hwnd, HDC hdc, HBRUSH hbrush, DWORD style );
 
@@ -94,7 +105,7 @@ static HICON STATIC_SetIcon( HWND hwnd, HICON hicon, DWORD style )
         WARN("hicon != 0, but invalid\n");
         return 0;
     }
-    prevIcon = (HICON)SetWindowLongPtrW( hwnd, HICON_GWL_OFFSET, (LONG_PTR)hicon );
+    prevIcon = (HICON)set_static_handle( hwnd, HICON_GWL_OFFSET, (HANDLE)hicon );
     if (hicon && !(style & SS_CENTERIMAGE) && !(style & SS_REALSIZECONTROL))
     {
         /* Windows currently doesn't implement SS_RIGHTJUST */
@@ -127,7 +138,7 @@ static HBITMAP STATIC_SetBitmap( HWND hwnd, HBITMAP hBitmap, DWORD style )
         WARN("hBitmap != 0, but it's not a bitmap\n");
         return 0;
     }
-    hOldBitmap = (HBITMAP)SetWindowLongPtrW( hwnd, HICON_GWL_OFFSET, (LONG_PTR)hBitmap );
+    hOldBitmap = (HBITMAP)set_static_handle( hwnd, HICON_GWL_OFFSET, (HANDLE)hBitmap );
     if (hBitmap && !(style & SS_CENTERIMAGE) && !(style & SS_REALSIZECONTROL))
     {
         BITMAP bm;
@@ -162,7 +173,7 @@ static HENHMETAFILE STATIC_SetEnhMetaFile( HWND hwnd, HENHMETAFILE hEnhMetaFile,
         WARN("hEnhMetaFile != 0, but it's not an enhanced metafile\n");
         return 0;
     }
-    return (HENHMETAFILE)SetWindowLongPtrW( hwnd, HICON_GWL_OFFSET, (LONG_PTR)hEnhMetaFile );
+    return (HENHMETAFILE)set_static_handle( hwnd, HICON_GWL_OFFSET, (HANDLE)hEnhMetaFile );
 }
 
 /***********************************************************************
@@ -188,7 +199,7 @@ static HANDLE STATIC_GetImage( HWND hwnd, WPARAM wParam, DWORD style )
         default:
             return NULL;
     }
-    return (HANDLE)GetWindowLongPtrW( hwnd, HICON_GWL_OFFSET );
+    return get_static_handle( hwnd, HICON_GWL_OFFSET );
 }
 
 /***********************************************************************
@@ -484,7 +495,7 @@ LRESULT StaticWndProc_common( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     case WM_SETFONT:
         if (hasTextStyle( full_style ))
         {
-            SetWindowLongPtrW( hwnd, HFONT_GWL_OFFSET, wParam );
+            set_static_handle( hwnd, HFONT_GWL_OFFSET, (HANDLE)wParam );
             if (LOWORD(lParam))
                 NtUserRedrawWindow( hwnd, NULL, 0, RDW_INVALIDATE | RDW_ERASE |
                                     RDW_UPDATENOW | RDW_ALLCHILDREN );
@@ -492,7 +503,7 @@ LRESULT StaticWndProc_common( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
         break;
 
     case WM_GETFONT:
-        return GetWindowLongPtrW( hwnd, HFONT_GWL_OFFSET );
+        return (LRESULT)get_static_handle( hwnd, HFONT_GWL_OFFSET );
 
     case WM_NCHITTEST:
         if (full_style & SS_NOTIFY)
@@ -574,7 +585,7 @@ static void STATIC_PaintOwnerDrawfn( HWND hwnd, HDC hdc, HBRUSH hbrush, DWORD st
   dis.itemData   = 0;
   GetClientRect( hwnd, &dis.rcItem );
 
-  font = (HFONT)GetWindowLongPtrW( hwnd, HFONT_GWL_OFFSET );
+  font = (HFONT)get_static_handle( hwnd, HFONT_GWL_OFFSET );
   if (font) oldFont = SelectObject( hdc, font );
   SendMessageW( GetParent(hwnd), WM_DRAWITEM, id, (LPARAM)&dis );
   if (font) SelectObject( hdc, oldFont );
@@ -636,7 +647,7 @@ static void STATIC_PaintTextfn( HWND hwnd, HDC hdc, HBRUSH hbrush, DWORD style )
             format |= DT_SINGLELINE | DT_WORD_ELLIPSIS;
     }
 
-    if ((hFont = (HFONT)GetWindowLongPtrW( hwnd, HFONT_GWL_OFFSET )))
+    if ((hFont = (HFONT)get_static_handle( hwnd, HFONT_GWL_OFFSET )))
         hOldFont = SelectObject( hdc, hFont );
 
     if ((style & SS_TYPEMASK) != SS_SIMPLE)
@@ -725,7 +736,7 @@ static void STATIC_PaintIconfn( HWND hwnd, HDC hdc, HBRUSH hbrush, DWORD style )
     SIZE size;
 
     GetClientRect( hwnd, &rc );
-    hIcon = (HICON)GetWindowLongPtrW( hwnd, HICON_GWL_OFFSET );
+    hIcon = (HICON)get_static_handle( hwnd, HICON_GWL_OFFSET );
     if (!hIcon || !get_icon_size( hIcon, &size ))
     {
         FillRect(hdc, &rc, hbrush);
@@ -752,7 +763,7 @@ static void STATIC_PaintBitmapfn(HWND hwnd, HDC hdc, HBRUSH hbrush, DWORD style 
     HDC hMemDC;
     HBITMAP hBitmap, oldbitmap;
 
-    if ((hBitmap = (HBITMAP)GetWindowLongPtrW( hwnd, HICON_GWL_OFFSET ))
+    if ((hBitmap = (HBITMAP)get_static_handle( hwnd, HICON_GWL_OFFSET ))
          && (GetObjectType(hBitmap) == OBJ_BITMAP)
          && (hMemDC = CreateCompatibleDC( hdc )))
     {
@@ -792,7 +803,7 @@ static void STATIC_PaintEnhMetafn(HWND hwnd, HDC hdc, HBRUSH hbrush, DWORD style
     
     GetClientRect(hwnd, &rc);
     FillRect(hdc, &rc, hbrush);
-    if ((hEnhMetaFile = (HENHMETAFILE)GetWindowLongPtrW( hwnd, HICON_GWL_OFFSET )))
+    if ((hEnhMetaFile = (HENHMETAFILE)get_static_handle( hwnd, HICON_GWL_OFFSET )))
     {
         /* The control's current font is not selected into the
            device context! */
