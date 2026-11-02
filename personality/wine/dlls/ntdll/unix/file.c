@@ -1665,6 +1665,17 @@ static int parse_samba_dos_attrib_data( char *data, int len )
 }
 
 
+/* the HIDDEN and SYSTEM attributes explicitly stored on a file (by name) */
+static ULONG get_stored_dos_attributes( const char *path )
+{
+    char data[65];
+    int len = xattr_get( path, SAMBA_XATTR_DOS_ATTRIB, data, sizeof(data) - 1 );
+
+    if (len == -1) return 0;
+    return parse_samba_dos_attrib_data( data, len );
+}
+
+
 /* format the mtime stamp stored in XATTR_NOARCHIVE */
 static void format_noarchive_stamp( const struct stat *st, char *buf, size_t size )
 {
@@ -4753,6 +4764,12 @@ NTSTATUS WINAPI NtCreateFile( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBU
         status = STATUS_SUCCESS;
     }
 
+    /* replacing a HIDDEN or SYSTEM file (CREATE_ALWAYS) needs those attributes in
+     * the request; a plain FILE_OVERWRITE (TRUNCATE_EXISTING) doesn't */
+    if (status == STATUS_SUCCESS && !created && disposition == FILE_OVERWRITE_IF &&
+        (get_stored_dos_attributes( unix_name ) & ~attributes & XATTR_ATTRIBS_MASK))
+        status = STATUS_ACCESS_DENIED;
+
     if (status == STATUS_SUCCESS)
     {
         name_hidden = is_hidden_file( unix_name );
@@ -4782,10 +4799,14 @@ NTSTATUS WINAPI NtCreateFile( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBU
             break;
         }
 
-        if (io->Information == FILE_CREATED &&
-            ((attributes & XATTR_ATTRIBS_MASK) || name_hidden))
+        if ((io->Information == FILE_CREATED && ((attributes & XATTR_ATTRIBS_MASK) || name_hidden)) ||
+            (disposition == FILE_OVERWRITE_IF && io->Information == FILE_OVERWRITTEN &&
+             (attributes & XATTR_ATTRIBS_MASK)))
         {
             int fd, needs_close;
+
+            /* CREATE_ALWAYS over an existing file adds the requested attributes */
+            if (io->Information != FILE_CREATED) attributes |= get_stored_dos_attributes( unix_name );
 
             /* set any DOS extended attributes */
             if (!server_get_unix_fd( *handle, 0, &fd, &needs_close, NULL, NULL ))
