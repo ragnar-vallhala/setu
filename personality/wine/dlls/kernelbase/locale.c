@@ -7987,7 +7987,8 @@ static int get_date_format( const NLS_LOCALE_DATA *locale, DWORD flags, const SY
             break;
 
         case 'y':
-            p += swprintf( p, output + ARRAY_SIZE(output) - p, L"%02u",
+            /* "y" is the year in the century without a leading zero */
+            p += swprintf( p, output + ARRAY_SIZE(output) - p, count == 1 ? L"%u" : L"%02u",
                            (count <= 2) ? time.wYear % 100 : time.wYear );
             break;
 

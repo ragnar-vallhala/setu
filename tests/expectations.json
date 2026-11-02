@@ -1864,6 +1864,7 @@
     "kernel32/time_conv:date_invalid_day",
     "kernel32/time_conv:date_long",
     "kernel32/time_conv:date_quoted",
+    "kernel32/time_conv:date_short_forms",
     "kernel32/time_conv:date_size_query",
     "kernel32/time_conv:date_wrong_dow_ignored",
     "kernel32/time_conv:date_year_10000",
