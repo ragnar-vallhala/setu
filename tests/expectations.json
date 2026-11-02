@@ -1266,6 +1266,7 @@
     "kernel32/file_mapping:open_read_view_write",
     "kernel32/file_mapping:readfile_sees_view_write",
     "kernel32/file_mapping:readonly_handle_bad_protect",
+    "kernel32/file_mapping:readonly_handle_page_execute_read",
     "kernel32/file_mapping:readonly_handle_page_noaccess",
     "kernel32/file_mapping:readonly_handle_page_readwrite",
     "kernel32/file_mapping:readonly_handle_page_writecopy",

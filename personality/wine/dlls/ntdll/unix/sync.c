@@ -3007,6 +3007,10 @@ NTSTATUS WINAPI NtCreateSection( HANDLE *handle, ACCESS_MASK access, const OBJEC
     default:
         return STATUS_INVALID_PAGE_PROTECTION;
     }
+    /* an executable data section needs execute access to the file */
+    if (!(sec_flags & SEC_IMAGE) &&
+        (protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY)))
+        file_access |= FILE_EXECUTE;
 
     if ((ret = alloc_object_attributes( attr, &objattr, &len ))) return ret;
 
