@@ -3201,7 +3201,11 @@ INT WINAPI NtUserInternalGetWindowText( HWND hwnd, WCHAR *text, INT count )
     WND *win;
 
     if (count <= 0) return 0;
-    if (!(win = get_win_ptr( hwnd ))) return 0;
+    if (!(win = get_win_ptr( hwnd )))
+    {
+        RtlSetLastWin32Error( ERROR_INVALID_WINDOW_HANDLE );
+        return 0;
+    }
     if (win == WND_DESKTOP) text[0] = 0;
     else if (win != WND_OTHER_PROCESS)
     {
