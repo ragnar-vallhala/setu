@@ -1341,7 +1341,32 @@ HANDLE WINAPI DECLSPEC_HOTPATCH FindFirstFileExW( LPCWSTR filename, FINDEX_INFO_
     }
     else if (!mask || !*mask)
     {
-        SetLastError( ERROR_FILE_NOT_FOUND );
+        /* The pattern ends in a backslash. A relative pattern is rejected
+         * outright; for an absolute one the error tells whether the
+         * directory exists. */
+        if (RtlDetermineDosPathNameType_U( filename ) == RtlPathTypeRelative)
+            SetLastError( ERROR_INVALID_PARAMETER );
+        else
+        {
+            OBJECT_ATTRIBUTES attr;
+            IO_STATUS_BLOCK io;
+            NTSTATUS status;
+            HANDLE dir;
+
+            InitializeObjectAttributes( &attr, &nt_name, OBJ_CASE_INSENSITIVE, 0, NULL );
+            status = NtOpenFile( &dir, FILE_LIST_DIRECTORY | SYNCHRONIZE, &attr, &io,
+                                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                 FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT );
+            if (!status)
+            {
+                NtClose( dir );
+                SetLastError( ERROR_FILE_NOT_FOUND );
+            }
+            else if (status == STATUS_OBJECT_NAME_NOT_FOUND)
+                SetLastError( ERROR_PATH_NOT_FOUND );
+            else
+                SetLastError( RtlNtStatusToDosError( status ) );
+        }
         goto error;
     }
     else

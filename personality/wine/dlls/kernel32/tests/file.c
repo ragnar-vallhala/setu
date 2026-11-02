@@ -2812,9 +2812,7 @@ static void test_FindFirstFileA(void)
     handle = FindFirstFileA(buffer2, &data);
     err = GetLastError();
     ok ( handle == INVALID_HANDLE_VALUE, "FindFirstFile on %s should fail\n", buffer2 );
-    todo_wine {
-        ok ( err == ERROR_PATH_NOT_FOUND, "Bad Error number %d\n", err );
-    }
+    ok ( err == ERROR_PATH_NOT_FOUND, "Bad Error number %d\n", err );
 
     /* try FindFirstFileA without trailing backslash */
     SetLastError( 0xdeadbeaf );
