@@ -518,8 +518,6 @@ static BOOL copy_file( const WCHAR *source, const WCHAR *dest, COPYFILE2_EXTENDE
     BOOL ret = FALSE;
     char *buffer;
 
-    if (cancel_ptr)
-        FIXME("pfCancel is not supported\n");
     if (progress)
         FIXME("PCOPYFILE2_PROGRESS_ROUTINE is not supported\n");
 
@@ -587,9 +585,20 @@ static BOOL copy_file( const WCHAR *source, const WCHAR *dest, COPYFILE2_EXTENDE
         return FALSE;
     }
 
-    while (ReadFile( h1, buffer, buffer_size, &count, NULL ) && count)
+    for (;;)
     {
         char *p = buffer;
+
+        /* a cancelled copy deletes the destination, even one it overwrote */
+        if (cancel_ptr && *cancel_ptr)
+        {
+            CloseHandle( h2 );
+            h2 = INVALID_HANDLE_VALUE;
+            DeleteFileW( dest );
+            SetLastError( ERROR_REQUEST_ABORTED );
+            goto done;
+        }
+        if (!ReadFile( h1, buffer, buffer_size, &count, NULL ) || !count) break;
         while (count != 0)
         {
             DWORD res;
@@ -602,12 +611,15 @@ static BOOL copy_file( const WCHAR *source, const WCHAR *dest, COPYFILE2_EXTENDE
 done:
     /* Maintain the timestamps of the source file, and its attributes: the
      * copy keeps READONLY, HIDDEN and SYSTEM and is marked for archiving. */
-    info.FileAttributes &= FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM;
-    info.FileAttributes |= FILE_ATTRIBUTE_ARCHIVE;
-    NtSetInformationFile( h2, &io, &info, sizeof(info), FileBasicInformation );
+    if (h2 != INVALID_HANDLE_VALUE)
+    {
+        info.FileAttributes &= FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM;
+        info.FileAttributes |= FILE_ATTRIBUTE_ARCHIVE;
+        NtSetInformationFile( h2, &io, &info, sizeof(info), FileBasicInformation );
+        CloseHandle( h2 );
+    }
     HeapFree( GetProcessHeap(), 0, buffer );
     CloseHandle( h1 );
-    CloseHandle( h2 );
     if (ret) SetLastError( 0 );
     return ret;
 }
@@ -631,14 +643,12 @@ BOOL WINAPI CopyFileExW( const WCHAR *source, const WCHAR *dest, LPPROGRESS_ROUT
 
     if (progress)
         FIXME("LPPROGRESS_ROUTINE is not supported\n");
-    if (cancel_ptr)
-        FIXME("cancel_ptr is not supported\n");
 
     params.dwSize = sizeof(params);
     params.dwCopyFlags = flags;
     params.pProgressRoutine = NULL;
     params.pvCallbackContext = NULL;
-    params.pfCancel = NULL;
+    params.pfCancel = cancel_ptr;
 
     return copy_file( source, dest, &params );
 }
