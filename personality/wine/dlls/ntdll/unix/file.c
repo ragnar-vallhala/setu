@@ -5366,7 +5366,24 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
                 return io->Status = status;
 
             if (lseek( fd, info->CurrentByteOffset.QuadPart, SEEK_SET ) == (off_t)-1)
-                status = errno_to_status( errno );
+            {
+                if (errno == EINVAL && info->CurrentByteOffset.QuadPart >= 0)
+                {
+                    /* Windows accepts any non-negative position, while the host
+                     * file system refuses offsets beyond its maximum file size:
+                     * go to the largest offset the host accepts instead. */
+                    off_t lo = 0, hi = info->CurrentByteOffset.QuadPart, mid;
+
+                    while (hi - lo > 1)
+                    {
+                        mid = lo + (hi - lo) / 2;
+                        if (lseek( fd, mid, SEEK_SET ) != (off_t)-1) lo = mid;
+                        else hi = mid;
+                    }
+                    if (lseek( fd, lo, SEEK_SET ) == (off_t)-1) status = errno_to_status( errno );
+                }
+                else status = errno_to_status( errno );
+            }
 
             if (needs_close) close( fd );
         }

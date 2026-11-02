@@ -576,6 +576,7 @@
     "kernel32/SetFilePointerEx:seek_directory",
     "kernel32/SetFilePointerEx:seek_end_0",
     "kernel32/SetFilePointerEx:seek_end_minus_2",
+    "kernel32/SetFilePointerEx:seek_huge",
     "kernel32/SetFilePointerEx:seek_negative_from_begin",
     "kernel32/SetFilePointerEx:seek_negative_past_start_current",
     "kernel32/SetFilePointerEx:seek_past_eof",
