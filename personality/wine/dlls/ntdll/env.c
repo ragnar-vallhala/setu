@@ -212,7 +212,12 @@ NTSTATUS WINAPI RtlQueryEnvironmentVariable_U(PWSTR env,
             memmove(value->Buffer, var, min(value->Length + sizeof(WCHAR), value->MaximumLength));
             nts = STATUS_SUCCESS;
         }
-        else nts = STATUS_BUFFER_TOO_SMALL;
+        else
+        {
+            /* the value does not fit: only the first character is cleared */
+            if (value->MaximumLength >= sizeof(WCHAR)) value->Buffer[0] = 0;
+            nts = STATUS_BUFFER_TOO_SMALL;
+        }
     }
 
     if (!env) RtlReleasePebLock();
