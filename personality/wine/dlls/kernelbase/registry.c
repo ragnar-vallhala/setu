@@ -980,8 +980,12 @@ LSTATUS WINAPI RegQueryInfoKeyW( HKEY hkey, LPWSTR class, LPDWORD class_len, LPD
     status = NtQueryKey( hkey, KeyFullInformation, buffer, sizeof(buffer), &total_size );
     if (status && status != STATUS_BUFFER_OVERFLOW) goto done;
 
+    /* without a buffer, or with an empty one, the class is not returned and
+     * its length is reported as 0 */
     if (class && class_len && *class_len)
     {
+        DWORD len;
+
         /* retry with a dynamically allocated buffer */
         while (status == STATUS_BUFFER_OVERFLOW)
         {
@@ -994,19 +998,31 @@ LSTATUS WINAPI RegQueryInfoKeyW( HKEY hkey, LPWSTR class, LPDWORD class_len, LPD
 
         if (status) goto done;
 
-        if (class_len && (info->ClassLength/sizeof(WCHAR) + 1 > *class_len))
+        len = info->ClassLength / sizeof(WCHAR);
+        if (len > *class_len)
         {
+            *class_len = len;
+            status = STATUS_BUFFER_OVERFLOW;
+        }
+        else if (len == *class_len)
+        {
+            /* the class fits, but its terminating null does not */
+            *class_len = len - 1;
             status = STATUS_BUFFER_TOO_SMALL;
         }
         else
         {
             memcpy( class, buf_ptr + info->ClassOffset, info->ClassLength );
-            class[info->ClassLength/sizeof(WCHAR)] = 0;
+            class[len] = 0;
+            *class_len = len;
         }
     }
-    else status = STATUS_SUCCESS;
+    else
+    {
+        if (class_len) *class_len = 0;
+        status = STATUS_SUCCESS;
+    }
 
-    if (class_len) *class_len = info->ClassLength / sizeof(WCHAR);
     if (subkeys) *subkeys = info->SubKeys;
     if (max_subkey) *max_subkey = info->MaxNameLen / sizeof(WCHAR);
     if (max_class) *max_class = info->MaxClassLen / sizeof(WCHAR);
@@ -1017,8 +1033,14 @@ LSTATUS WINAPI RegQueryInfoKeyW( HKEY hkey, LPWSTR class, LPDWORD class_len, LPD
 
     if (security)
     {
-        FIXME( "security argument not supported.\n");
-        *security = 0;
+        /* the size of the key's security descriptor; 0 if the handle lacks
+         * READ_CONTROL */
+        ULONG sd_len = 0;
+
+        if (NtQuerySecurityObject( hkey, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                                   DACL_SECURITY_INFORMATION, NULL, 0, &sd_len ) != STATUS_BUFFER_TOO_SMALL)
+            sd_len = 0;
+        *security = sd_len;
     }
 
  done:
