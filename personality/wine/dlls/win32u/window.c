@@ -895,6 +895,10 @@ HWND WINAPI NtUserGetAncestor( HWND hwnd, UINT type )
             ret = parent;
         }
         break;
+
+    default:
+        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
+        break;
     }
     return ret;
 }
