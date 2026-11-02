@@ -2990,7 +2990,20 @@ DWORD WINAPI DECLSPEC_HOTPATCH SearchPathW( LPCWSTR path, LPCWSTR name, LPCWSTR 
     }
 
     if (!ret) SetLastError( ERROR_FILE_NOT_FOUND );
-    else TRACE( "found %s\n", debugstr_w(buffer) );
+    else
+    {
+        /* the buffer needs two characters more than the name and its null;
+         * if it is too small, the required size is returned and the buffer
+         * is set to an empty string */
+        DWORD len = ret < buflen ? ret : ret - 1;
+
+        if (len + 3 > buflen)
+        {
+            if (buflen) buffer[0] = 0;
+            return len + 3;
+        }
+        TRACE( "found %s\n", debugstr_w(buffer) );
+    }
     return ret;
 }
 
