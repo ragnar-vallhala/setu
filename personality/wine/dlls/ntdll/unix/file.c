@@ -4718,6 +4718,22 @@ NTSTATUS WINAPI NtCreateFile( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBU
     else status = get_nt_and_unix_names( &new_attr, &nt_name, &unix_name, disposition,
                                          options & FILE_OPEN_REPARSE_POINT );
 
+    /* creating a non-directory file over an existing directory fails with
+     * STATUS_FILE_IS_A_DIRECTORY, not with a name collision */
+    if (status == STATUS_OBJECT_NAME_COLLISION && (options & FILE_NON_DIRECTORY_FILE))
+    {
+        OBJECT_ATTRIBUTES dir_attr = *attr;
+        UNICODE_STRING dir_nt_name;
+        char *dir_unix_name;
+        struct stat st;
+
+        if (!get_nt_and_unix_names( &dir_attr, &dir_nt_name, &dir_unix_name, FILE_OPEN, FALSE ) &&
+            !stat( dir_unix_name, &st ) && S_ISDIR( st.st_mode ))
+            status = STATUS_FILE_IS_A_DIRECTORY;
+        free( dir_unix_name );
+        free( dir_nt_name.Buffer );
+    }
+
     if (status == STATUS_BAD_DEVICE_TYPE)
     {
         status = server_open_file_object( handle, access, &new_attr, sharing, options );

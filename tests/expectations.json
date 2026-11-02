@@ -82,6 +82,7 @@
     "kernel32/CreateFileW:create_new_exists",
     "kernel32/CreateFileW:create_new_fresh",
     "kernel32/CreateFileW:create_new_missing_dir",
+    "kernel32/CreateFileW:create_new_over_dir",
     "kernel32/CreateFileW:create_new_over_dir_backup_semantics",
     "kernel32/CreateFileW:delete_on_close",
     "kernel32/CreateFileW:empty_path",
