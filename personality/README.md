@@ -128,6 +128,13 @@ Git warns `[attr]generated ... not allowed: personality/wine/.gitattributes`
 on diffs inside `wine/`. That's expected: git only allows attribute macros at
 the top level, so the top-level `.gitattributes` defines that macro instead.
 
+## Not supported: DOS and 16-bit Windows programs
+
+Setu runs 32-bit and 64-bit Windows programs only, like 64-bit Windows.
+Starting a DOS (MZ-only) or Win16 (NE) program fails with
+`ERROR_EXE_MACHINE_TYPE_MISMATCH` (216), and Wine's `winevdm` is not used.
+Users who need such programs can run DOSBox or similar themselves.
+
 ## What will *not* go here
 
 Setu's own MIT/Apache components (registry service, shell, distro tooling).
