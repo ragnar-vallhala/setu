@@ -69,6 +69,10 @@ class WineTarget(Target):
         self.prefix = Path(c["prefix"]) if c["prefix"] else ORACLE_DIR / ".cache" / f"wineprefix-{self.impl}"
         self.fresh_prefix = fresh_prefix
         self.env = dict(os.environ)
+        # Wine copies the Unix environment into the Windows one. Some host
+        # tools set this variable, which drops the current directory from
+        # CreateProcess's search path; the Windows VM does not have it.
+        self.env.pop("NoDefaultCurrentDirectoryInExePath", None)
         self.env.update({
             "WINEPREFIX": str(self.prefix),
             "WINEDEBUG": c["winedebug"],
