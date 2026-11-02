@@ -1141,8 +1141,17 @@ BOOL WINAPI DECLSPEC_HOTPATCH DeleteFileW( LPCWSTR path )
     InitializeObjectAttributes( &attr, &nameW, OBJ_CASE_INSENSITIVE, 0, NULL );
     status = NtCreateFile( &hFile, SYNCHRONIZE | DELETE, &attr, &io, NULL, 0,
                            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, FILE_OPEN,
-                           FILE_DELETE_ON_CLOSE | FILE_NON_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT, NULL, 0 );
-    if (status == STATUS_SUCCESS) status = NtClose(hFile);
+                           FILE_NON_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT, NULL, 0 );
+    if (status == STATUS_SUCCESS)
+    {
+        /* mark the file for deletion through its disposition rather than with
+         * FILE_DELETE_ON_CLOSE: that is where a file that can't be deleted, such
+         * as one with a mapped section, is refused */
+        FILE_DISPOSITION_INFORMATION info = { TRUE };
+
+        status = NtSetInformationFile( hFile, &io, &info, sizeof(info), FileDispositionInformation );
+        NtClose( hFile );
+    }
 
     RtlFreeUnicodeString( &nameW );
     return set_ntstatus( status );
