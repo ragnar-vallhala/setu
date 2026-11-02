@@ -581,8 +581,245 @@
     "mui_null_buffer": {
       "ret": 13,
       "needed": 43690
+    },
+    "probe_class_len_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "class_len": 7,
+      "subkeys": 0,
+      "buf": "###############"
+    },
+    "probe_class_len_5": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "class_len": 7,
+      "subkeys": 0,
+      "buf": "###############"
+    },
+    "probe_class_len_6": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "class_len": 7,
+      "subkeys": 0,
+      "buf": "###############"
+    },
+    "probe_class_len_8": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "class_len": 7,
+      "subkeys": 0,
+      "buf": "MyClass"
+    },
+    "probe_class_null_buffer_len_50": {
+      "ret": 0,
+      "class_len": 0,
+      "subkeys": 0
+    },
+    "probe_class_buffer_len_0": {
+      "ret": 0,
+      "class_len": 0,
+      "buf": "###"
+    },
+    "probe_noclass_buffer_len_0": {
+      "ret": 0,
+      "class_len": 0,
+      "buf": "###"
+    },
+    "probe_noclass_buffer_len_1": {
+      "ret": 0,
+      "class_len": 0,
+      "buf": ""
+    },
+    "probe_sz_term_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 10
+    },
+    "probe_sz_term_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8,
+      "data": "6100620063000000",
+      "byte_after": ""
+    },
+    "probe_sz_term_small": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 10,
+      "byte_after": ""
+    },
+    "probe_sz_no_nul_buf8": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8,
+      "data": "6100620063000000",
+      "byte_after": ""
+    },
+    "probe_sz_no_nul_buf9": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8,
+      "data": "6100620063000000",
+      "byte_after": "cccc"
+    },
+    "probe_sz_no_nul_buf10": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8,
+      "data": "6100620063000000",
+      "byte_after": "cccc"
+    },
+    "probe_sz_odd_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 7
+    },
+    "probe_sz_odd_buf6": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "data": "610062000000",
+      "byte_after": ""
+    },
+    "probe_sz_empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 2,
+      "data": "0000",
+      "byte_after": "cccc"
+    },
+    "probe_sz_empty_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 2
+    },
+    "probe_multi_ok_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 22
+    },
+    "probe_multi_ok_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 18,
+      "data": "6f006e0065000000740077006f0000000000",
+      "byte_after": ""
+    },
+    "probe_multi_no_nul_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 20
+    },
+    "probe_multi_no_nul_buf18": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 18,
+      "data": "6f006e0065000000740077006f0000000000",
+      "byte_after": ""
+    },
+    "probe_multi_single_nul_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 20
+    },
+    "probe_multi_empty_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 4
+    },
+    "probe_expand_noexpand_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 38
+    },
+    "probe_expand_no_nul_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 32
+    },
+    "probe_expand_no_nul_noexpand_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 34
+    },
+    "probe_expand_undefined_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 44
+    },
+    "probe_expand_as_expand_sz_size_query": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 36
+    },
+    "probe_expand_grow_size_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 58
+    },
+    "probe_expand_grow_small": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 58,
+      "byte_after": ""
+    },
+    "probe_expand_grow": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 58,
+      "data": "61002d006d007500630068002d006c006f006e006700650072002d0065007800700061006e00730069006f006e002d0074006500780074000000",
+      "byte_after": "cccc"
+    },
+    "probe_enum_past_end_root": {
+      "ret": 259,
+      "type": 0,
+      "name_len": 10,
+      "data_len": 0
+    },
+    "probe_query_value_access_only": {
+      "ret": 0,
+      "sd_nonzero": false
+    },
+    "probe_read_control_only": {
+      "ret": 5
+    },
+    "probe_mui_empty_sz": {
+      "ret": 13,
+      "last_error": 13
+    },
+    "probe_mui_binary": {
+      "ret": 13,
+      "last_error": "unchanged"
+    },
+    "probe_mui_expand_plain": {
+      "ret": 13,
+      "last_error": 13
     }
   },
   "errors": [],
-  "source_sha256": "d1c533e12d8c177e4b73a48f478cc65098ba27da10124ebe66b30c8196a9bc97"
+  "source_sha256": "875be4cc273bfaeecac3c5c5b1b30fd7ad25e90736580f44db02f23e1815a2c7"
 }

@@ -354,5 +354,30 @@ int main(void)
         oracle_case_end();
     }
 
+    /* ---- probes ---- */
+    dos_case("probe_dos_one_tick", 119600064000000000ULL + 1ULL);
+    dos_case("probe_dos_half_second", 119600064000000000ULL + 5000000ULL);
+    dos_case("probe_dos_59_seconds", 119600064000000000ULL + 590000000ULL);
+    dos_case("probe_dos_2107_last_second", 159992927990000000ULL);
+    dos2ft_case("probe_dos2ft_feb_29_2023", (43 << 9) | (2 << 5) | 29, 0);
+    dos2ft_case("probe_dos2ft_seconds_30", 0x0021, 30);
+    st2ft_case("probe_st_feb_29_2100", 2100, 2, 0, 29, 0, 0, 0, 0);
+    st2ft_case("probe_st_year_30827_jan", 30827, 1, 0, 1, 0, 0, 0, 0);
+    datefmt_case("probe_date_yyy", 0, L"yyy|yyyyy", 2009, 3, 0, 5);
+    datefmt_case("probe_date_y_2024", 0, L"y", 2024, 3, 0, 5);
+    datefmt_case("probe_date_g", 0, L"g|ggg", 2024, 2, 4, 29);
+    {
+        TIME_ZONE_INFORMATION tz = eastern();
+        tz_case("probe_tz_winter_to_local_again", &tz, 1, 2024, 1, 15, 12, 0);
+        TIME_ZONE_INFORMATION bad = tz;
+        bad.StandardDate.wMonth = 13;
+        tz_case("probe_tz_bad_std_month_13", &bad, 1, 2024, 7, 15, 12, 0);
+        tz_case("probe_tz_bad_rule_to_utc", &bad, 0, 2024, 7, 15, 12, 0);
+        bad = tz;
+        bad.DaylightDate.wDay = 6;
+        tz_case("probe_tz_bad_rule_day_6", &bad, 1, 2024, 7, 15, 12, 0);
+    }
+    datefmt_case("probe_date_default_again", 0, NULL, 2024, 2, 4, 29);
+
     return oracle_end();
 }

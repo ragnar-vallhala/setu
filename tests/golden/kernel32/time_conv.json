@@ -492,8 +492,89 @@
     "time_invalid_locale": {
       "ret": 0,
       "last_error": 87
+    },
+    "probe_dos_one_tick": {
+      "ret": true,
+      "last_error": "unchanged",
+      "date": "0x00000021",
+      "time": "0x00000001"
+    },
+    "probe_dos_half_second": {
+      "ret": true,
+      "last_error": "unchanged",
+      "date": "0x00000021",
+      "time": "0x00000001"
+    },
+    "probe_dos_59_seconds": {
+      "ret": true,
+      "last_error": "unchanged",
+      "date": "0x00000021",
+      "time": "0x00000020"
+    },
+    "probe_dos_2107_last_second": {
+      "ret": false,
+      "last_error": 87,
+      "date": "0x0000aaaa",
+      "time": "0x0000aaaa"
+    },
+    "probe_dos2ft_feb_29_2023": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "probe_dos2ft_seconds_30": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "probe_st_feb_29_2100": {
+      "ret": false,
+      "last_error": 87,
+      "ft": 1229782938247303441
+    },
+    "probe_st_year_30827_jan": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ft": 9222834528000000000
+    },
+    "probe_date_yyy": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "2009|2009"
+    },
+    "probe_date_y_2024": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "24"
+    },
+    "probe_date_g": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "A.D.|A.D."
+    },
+    "probe_tz_winter_to_local_again": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st": "2024-01-15 07:00:00.000 dow1"
+    },
+    "probe_tz_bad_std_month_13": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_tz_bad_rule_to_utc": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_tz_bad_rule_day_6": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_date_default_again": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "02/29/2024"
     }
   },
   "errors": [],
-  "source_sha256": "24349b6295bb57a51e0d6f4fdc5b0293db9860f5561aa03ca391d69ca7529af9"
+  "source_sha256": "292f05a4dc6e3ac3adafe2fffb4c208b2d61bf3200509ad9870413d472406d46"
 }

@@ -361,8 +361,62 @@
       "ret": 15,
       "ret_is_len": true,
       "out": "5b616220205d5b202061625d5b615d"
+    },
+    "probe_w_hh": {
+      "ret": 32,
+      "ret_is_len": true,
+      "out": "[hd][hu][hx][9029][74565][12345]"
+    },
+    "probe_w_h_neg": {
+      "ret": 16,
+      "ret_is_len": true,
+      "out": "[-32768][-32768]"
+    },
+    "probe_a_hh": {
+      "ret": 24,
+      "ret_is_len": true,
+      "out": "5b68645d5b393032395d5b37343536355d5b31323334355d"
+    },
+    "probe_w_null_variants": {
+      "ret": 13,
+      "ret_is_len": true,
+      "out": "[][][][     ]"
+    },
+    "probe_a_null": {
+      "ret": 4,
+      "ret_is_len": true,
+      "out": "5b5d5b5d"
+    },
+    "probe_w_limit_1023": {
+      "ret": 1023,
+      "strlen": 1023
+    },
+    "probe_w_limit_exact_1024": {
+      "ret": 1024,
+      "strlen": 1024
+    },
+    "probe_a_limit": {
+      "ret": 1024,
+      "strlen": 1024,
+      "untouched_1025": true
+    },
+    "probe_char_next_two_marks": {
+      "offset": 3
+    },
+    "probe_char_next_leading_mark": {
+      "offset": 1
+    },
+    "probe_char_prev_two_marks": {
+      "offset": 0
+    },
+    "probe_char_next_mark_then_nul": {
+      "offset": 2
+    },
+    "probe_upper_buff_zero": {
+      "ret": 0,
+      "last_error": "unchanged"
     }
   },
   "errors": [],
-  "source_sha256": "697178be41adac28861d2cf753fbbc4f8ec2cbbea5153cf4d6427f518a1c5e7a"
+  "source_sha256": "38ad7bb378c31eb82a6534d4f10ce9b31286fa1561c1bbab66a8a2a05dd6ebfc"
 }

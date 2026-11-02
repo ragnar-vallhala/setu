@@ -638,8 +638,51 @@
     "sys_unknown_language": {
       "ret": 0,
       "last_error": 15100
+    },
+    "probe_fm_100": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "100"
+    },
+    "probe_fm_1000": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "probe_fm_10_bang": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "100"
+    },
+    "probe_fm_9_99": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "9 99"
+    },
+    "probe_string_type_minus_one": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "probe_string_type_bad_type_zero_length": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_string_type_two_types": {
+      "ret": false,
+      "last_error": 1004
+    },
+    "probe_map_upper_lower_mixed": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "Abc Def",
+      "raw": "41006200630020004400650066000000"
+    },
+    "probe_map_upper_lower_counted": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "Abc",
+      "raw": "410062006300"
     }
   },
   "errors": [],
-  "source_sha256": "f5b5649a018222774a2d537e09bab036bddab8bb1302a4bdd46ed004de0c508f"
+  "source_sha256": "5918439e1fcc2df3cedb5c6eb2e078bb27c12bbffabc4c81d7b1b66ab30a63a4"
 }

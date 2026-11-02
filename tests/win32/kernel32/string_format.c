@@ -418,5 +418,51 @@ int main(void)
         oracle_case_end();
     }
 
+    /* ---- probes: three-digit inserts, with distinct arguments ---- */
+    {
+        /* only inserts within the 100 arguments: %101 would read past them */
+        static const wchar_t *fmts[] = {L"%100", L"%1000", L"%10!s!0", L"%9 %99"};
+        static const char *names[] = {"probe_fm_100", "probe_fm_1000", "probe_fm_10_bang", "probe_fm_9_99"};
+        static wchar_t vals[100][4];
+        DWORD_PTR args[100];
+        for (int i = 0; i < 100; i++) {
+            swprintf(vals[i], 4, L"%d", i + 1);
+            args[i] = (DWORD_PTR)vals[i];
+        }
+        for (int i = 0; i < 4; i++) {
+            wchar_t buf[64];
+            DWORD r;
+            wmemset(buf, L'#', 64);
+            ORACLE_CALL(r, FormatMessageW(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, fmts[i], 0, 0,
+                                          buf, 64, (va_list *)args));
+            oracle_case(names[i]);
+            o_u32("ret", r);
+            o_lasterr();
+            if (r && r < 64) o_wstr("out", buf);
+            oracle_case_end();
+        }
+    }
+    {
+        WORD t[4];
+        BOOL ok;
+        ORACLE_CALL(ok, GetStringTypeW(CT_CTYPE1, L"ab", -1, t));
+        oracle_case("probe_string_type_minus_one");
+        o_bool("ret", ok);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(ok, GetStringTypeW(0, L"ab", 0, t));
+        oracle_case("probe_string_type_bad_type_zero_length");
+        o_bool("ret", ok);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(ok, GetStringTypeW(CT_CTYPE1 | CT_CTYPE2, L"ab", 2, t));
+        oracle_case("probe_string_type_two_types");
+        o_bool("ret", ok);
+        o_lasterr();
+        oracle_case_end();
+    }
+    map_case("probe_map_upper_lower_mixed", LCMAP_UPPERCASE | LCMAP_LOWERCASE, L"aBC dEF", -1);
+    map_case("probe_map_upper_lower_counted", LCMAP_UPPERCASE | LCMAP_LOWERCASE, L"abc", 3);
+
     return oracle_end();
 }

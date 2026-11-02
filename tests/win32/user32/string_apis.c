@@ -241,6 +241,71 @@ int main(void)
     WSPA("a_chars", "[%c][%lc][%C]", 'a', L'é', L'B');
     WSPA("a_width", "[%-4s][%4s][%.1s]", "ab", "ab", "ab");
 
+    /* ---- probes ---- */
+    WSPW("probe_w_hh", L"[%hhd][%hhu][%hhx][%hd][%hu][%hx]", 0x12345, 0x12345, 0x12345, -2, -2, -2);
+    WSPW("probe_w_h_neg", L"[%hd][%hi]", 0x18000, 0x18000);
+    WSPA("probe_a_hh", "[%hhd][%hd][%hu][%hx]", 0x12345, 0x12345, 0x12345, 0x12345);
+    WSPW("probe_w_null_variants", L"[%ls][%hs][%S][%5s]", (wchar_t *)NULL, (char *)NULL, (char *)NULL, (wchar_t *)NULL);
+    WSPA("probe_a_null", "[%s][%ls]", (char *)NULL, (wchar_t *)NULL);
+    {
+        wchar_t big[1200];
+        for (int i = 0; i < 1199; i++) big[i] = L'a' + (i % 26);
+        big[1199] = 0;
+        wchar_t b[1100];
+        wmemset(b, L'#', 1100);
+        big[1023] = 0;
+        int r = pwsprintfW(b, L"%s", big);
+        oracle_case("probe_w_limit_1023");
+        o_i64("ret", r);
+        o_u32("strlen", (DWORD)wcsnlen(b, 1100));
+        oracle_case_end();
+        big[1023] = L'x';
+        big[1024] = 0;
+        wmemset(b, L'#', 1100);
+        r = pwsprintfW(b, L"%s", big);
+        oracle_case("probe_w_limit_exact_1024");
+        o_i64("ret", r);
+        o_u32("strlen", (DWORD)wcsnlen(b, 1100));
+        oracle_case_end();
+        char bigA[1200], bA[1100];
+        memset(bigA, 'a', 1199);
+        bigA[1199] = 0;
+        memset(bA, '#', 1100);
+        r = pwsprintfA(bA, "%s", bigA);
+        oracle_case("probe_a_limit");
+        o_i64("ret", r);
+        o_u32("strlen", (DWORD)strnlen(bA, 1100));
+        o_bool("untouched_1025", bA[1025] == '#');
+        oracle_case_end();
+    }
+    {
+        const wchar_t two[] = L"a\x0301" L"\x0302" L"b";
+        const wchar_t lead[] = L"\x0301" L"b";
+        oracle_case("probe_char_next_two_marks");
+        o_i64("offset", pCharNextW(two) - two);
+        oracle_case_end();
+        oracle_case("probe_char_next_leading_mark");
+        o_i64("offset", pCharNextW(lead) - lead);
+        oracle_case_end();
+        oracle_case("probe_char_prev_two_marks");
+        o_i64("offset", pCharPrevW(two, two + 3) - two);
+        oracle_case_end();
+        const wchar_t tail[] = L"a\x0301";
+        oracle_case("probe_char_next_mark_then_nul");
+        o_i64("offset", pCharNextW(tail) - tail);
+        oracle_case_end();
+    }
+    {
+        wchar_t b[8];
+        DWORD r;
+        wcscpy(b, L"ABC");
+        ORACLE_CALL(r, pCharUpperBuffW(b, 0));
+        oracle_case("probe_upper_buff_zero");
+        o_u32("ret", r);
+        o_lasterr();
+        oracle_case_end();
+    }
+
     FreeLibrary(u32);
     return oracle_end();
 }

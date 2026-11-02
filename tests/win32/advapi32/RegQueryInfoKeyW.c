@@ -334,6 +334,148 @@ int main(void)
         }
     }
 
+    /* ---- probes: class buffer sizing, string sizing in RegGetValueW ---- */
+    RegOpenKeyExW(root, L"withclass", 0, KEY_ALL_ACCESS, &k);
+    {
+        static const DWORD sizes[] = {1, 5, 6, 8};
+        for (size_t i = 0; i < sizeof sizes / sizeof sizes[0]; i++) {
+            wchar_t c[16];
+            DWORD n = sizes[i], nsub = 0xAAAA;
+            char nm[64];
+            wmemset(c, L'#', 16);
+            ORACLE_CALL(r, RegQueryInfoKeyW(k, c, &n, NULL, &nsub, NULL, NULL, NULL, NULL, NULL, NULL, NULL));
+            snprintf(nm, sizeof nm, "probe_class_len_%lu", (unsigned long)sizes[i]);
+            oracle_case(nm);
+            o_status("ret", r);
+            o_lasterr();
+            o_u32("class_len", n);
+            o_u32("subkeys", nsub);
+            c[15] = 0;
+            o_wstr("buf", c);
+            oracle_case_end();
+        }
+        DWORD n = 50, nsub = 0xAAAA;
+        ORACLE_CALL(r, RegQueryInfoKeyW(k, NULL, &n, NULL, &nsub, NULL, NULL, NULL, NULL, NULL, NULL, NULL));
+        oracle_case("probe_class_null_buffer_len_50");
+        o_status("ret", r);
+        o_u32("class_len", n);
+        o_u32("subkeys", nsub);
+        oracle_case_end();
+        wchar_t c[4] = {L'#', L'#', L'#', 0};
+        n = 0;
+        ORACLE_CALL(r, RegQueryInfoKeyW(k, c, &n, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL));
+        oracle_case("probe_class_buffer_len_0");
+        o_status("ret", r);
+        o_u32("class_len", n);
+        o_wstr("buf", c);
+        oracle_case_end();
+    }
+    RegCloseKey(k);
+    RegCreateKeyExW(root, L"noclass", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &k, NULL);
+    {
+        wchar_t c[4] = {L'#', L'#', L'#', 0};
+        DWORD n = 0;
+        ORACLE_CALL(r, RegQueryInfoKeyW(k, c, &n, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL));
+        oracle_case("probe_noclass_buffer_len_0");
+        o_status("ret", r);
+        o_u32("class_len", n);
+        o_wstr("buf", c);
+        oracle_case_end();
+        n = 1;
+        ORACLE_CALL(r, RegQueryInfoKeyW(k, c, &n, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL));
+        oracle_case("probe_noclass_buffer_len_1");
+        o_status("ret", r);
+        o_u32("class_len", n);
+        o_wstr("buf", c);
+        oracle_case_end();
+    }
+    RegCloseKey(k);
+    set_raw(root, L"sz_term", REG_SZ, L"abc", 8);
+    getv_case("probe_sz_term_size_query", NULL, L"sz_term", RRF_RT_REG_SZ, 0);
+    getv_case("probe_sz_term_exact", NULL, L"sz_term", RRF_RT_REG_SZ, 8);
+    getv_case("probe_sz_term_small", NULL, L"sz_term", RRF_RT_REG_SZ, 6);
+    getv_case("probe_sz_no_nul_buf8", NULL, L"sz_no_nul", RRF_RT_REG_SZ, 8);
+    getv_case("probe_sz_no_nul_buf9", NULL, L"sz_no_nul", RRF_RT_REG_SZ, 9);
+    getv_case("probe_sz_no_nul_buf10", NULL, L"sz_no_nul", RRF_RT_REG_SZ, 10);
+    getv_case("probe_sz_odd_size_query", NULL, L"sz_odd", RRF_RT_REG_SZ, 0);
+    getv_case("probe_sz_odd_buf6", NULL, L"sz_odd", RRF_RT_REG_SZ, 6);
+    getv_case("probe_sz_empty", NULL, L"empty", RRF_RT_REG_SZ, 64);
+    getv_case("probe_sz_empty_size_query", NULL, L"empty", RRF_RT_REG_SZ, 0);
+    getv_case("probe_multi_ok_size_query", NULL, L"multi_ok", RRF_RT_REG_MULTI_SZ, 0);
+    getv_case("probe_multi_ok_exact", NULL, L"multi_ok", RRF_RT_REG_MULTI_SZ, 18);
+    getv_case("probe_multi_no_nul_size_query", NULL, L"multi_no_nul", RRF_RT_REG_MULTI_SZ, 0);
+    getv_case("probe_multi_no_nul_buf18", NULL, L"multi_no_nul", RRF_RT_REG_MULTI_SZ, 18);
+    getv_case("probe_multi_single_nul_size_query", NULL, L"multi_single_nul", RRF_RT_REG_MULTI_SZ, 0);
+    getv_case("probe_multi_empty_size_query", NULL, L"multi_empty", RRF_RT_REG_MULTI_SZ, 0);
+    getv_case("probe_expand_noexpand_size_query", NULL, L"expand", RRF_RT_REG_EXPAND_SZ | RRF_NOEXPAND, 0);
+    getv_case("probe_expand_no_nul_size_query", NULL, L"expand_no_nul", RRF_RT_REG_SZ, 0);
+    getv_case("probe_expand_no_nul_noexpand_size_query", NULL, L"expand_no_nul", RRF_RT_REG_EXPAND_SZ | RRF_NOEXPAND, 0);
+    getv_case("probe_expand_undefined_size_query", NULL, L"expand_undefined", RRF_RT_REG_SZ, 0);
+    getv_case("probe_expand_as_expand_sz_size_query", NULL, L"expand", RRF_RT_REG_EXPAND_SZ, 0);
+    {
+        static const wchar_t g[] = L"%SETU_ORACLE_X%";
+        set_raw(root, L"expand_grow", REG_EXPAND_SZ, g, sizeof g);
+        SetEnvironmentVariableW(L"SETU_ORACLE_X", L"a-much-longer-expansion-text");
+    }
+    getv_case("probe_expand_grow_size_query", NULL, L"expand_grow", RRF_RT_REG_SZ, 0);
+    getv_case("probe_expand_grow_small", NULL, L"expand_grow", RRF_RT_REG_SZ, 8);
+    getv_case("probe_expand_grow", NULL, L"expand_grow", RRF_RT_REG_SZ, 128);
+    {
+        /* RegEnumValueW past the end with other type and size inputs */
+        DWORD t = 0x1234, nl = 10, dl = 10;
+        wchar_t nm[16];
+        ORACLE_CALL(r, RegEnumValueW(root, 1000, nm, &nl, NULL, &t, NULL, &dl));
+        oracle_case("probe_enum_past_end_root");
+        o_status("ret", r);
+        o_u32("type", t);
+        o_u32("name_len", nl);
+        o_u32("data_len", dl);
+        oracle_case_end();
+    }
+    {
+        DWORD sd = 0xAAAA;
+        HKEY ro;
+        RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\SetuOracle\\advapi32_RegQueryInfoKeyW", 0, KEY_QUERY_VALUE, &ro);
+        ORACLE_CALL(r, RegQueryInfoKeyW(ro, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &sd, NULL));
+        oracle_case("probe_query_value_access_only");
+        o_status("ret", r);
+        o_bool("sd_nonzero", sd != 0 && sd != 0xAAAA);
+        oracle_case_end();
+        RegCloseKey(ro);
+        RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\SetuOracle\\advapi32_RegQueryInfoKeyW", 0, READ_CONTROL, &ro);
+        ORACLE_CALL(r, RegQueryInfoKeyW(ro, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &sd, NULL));
+        oracle_case("probe_read_control_only");
+        o_status("ret", r);
+        oracle_case_end();
+        RegCloseKey(ro);
+    }
+    {
+        /* RegLoadMUIStringW on empty and expand-sz values */
+        LONG (WINAPI *pLoad)(HKEY, LPCWSTR, LPWSTR, DWORD, LPDWORD, DWORD, LPCWSTR) =
+            (LONG (WINAPI *)(HKEY, LPCWSTR, LPWSTR, DWORD, LPDWORD, DWORD, LPCWSTR))(void *)GetProcAddress(
+                GetModuleHandleW(L"advapi32.dll"), "RegLoadMUIStringW");
+        if (pLoad) {
+            wchar_t out[64];
+            DWORD need = 0xAAAA;
+            set_raw(root, L"mui_binary", REG_BINARY, "@x,-1", 5);
+            ORACLE_CALL(r, pLoad(root, L"empty", out, sizeof out, &need, 0, NULL));
+            oracle_case("probe_mui_empty_sz");
+            o_status("ret", r);
+            o_lasterr();
+            oracle_case_end();
+            ORACLE_CALL(r, pLoad(root, L"mui_binary", out, sizeof out, &need, 0, NULL));
+            oracle_case("probe_mui_binary");
+            o_status("ret", r);
+            o_lasterr();
+            oracle_case_end();
+            ORACLE_CALL(r, pLoad(root, L"expand", out, sizeof out, &need, 0, NULL));
+            oracle_case("probe_mui_expand_plain");
+            o_status("ret", r);
+            o_lasterr();
+            oracle_case_end();
+        }
+    }
+
     RegCloseKey(root);
     oracle_reg_cleanup();
     return oracle_end();
