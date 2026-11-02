@@ -448,6 +448,66 @@ int main(void)
     CloseHandle(h);
     SetFileAttributesW(L"rodisp.txt", FILE_ATTRIBUTE_NORMAL);
 
+    /* ---- delete pending: other links and other handles ---- */
+    touch(L"pl_a.txt", "pl");
+    CreateHardLinkW(L"pl_b.txt", L"pl_a.txt", NULL);
+    h = CreateFileW(L"pl_a.txt", GENERIC_READ | DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                    OPEN_EXISTING, 0, NULL);
+    BOOL_CASE("pending_link_set", set_disposition(h, TRUE));
+    std_case("pending_link_std_info", h);
+    h2 = open_case("pending_open_other_link", L"pl_b.txt", GENERIC_READ,
+                   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, OPEN_EXISTING, 0);
+    if (h2 != INVALID_HANDLE_VALUE) CloseHandle(h2);
+    oracle_case("pending_other_link_attrs");
+    {
+        DWORD a;
+        ORACLE_CALL(a, GetFileAttributesW(L"pl_b.txt"));
+        o_bool("attrs_ok", a != INVALID_FILE_ATTRIBUTES);
+        o_lasterr();
+    }
+    oracle_case_end();
+    CloseHandle(h);
+    oracle_case("pending_link_after_close");
+    o_bool("a_exists", GetFileAttributesW(L"pl_a.txt") != INVALID_FILE_ATTRIBUTES);
+    o_bool("b_exists", GetFileAttributesW(L"pl_b.txt") != INVALID_FILE_ATTRIBUTES);
+    oracle_case_end();
+
+    h = mk(L"pc.txt", "pc");
+    h2 = CreateFileW(L"pc.txt", GENERIC_READ | DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                     OPEN_EXISTING, 0, NULL);
+    set_disposition(h, TRUE);
+    std_case("pending_seen_by_other_handle", h2);
+    BOOL_CASE("pending_cleared_by_other_handle", set_disposition(h2, FALSE));
+    std_case("pending_cleared_std_info", h);
+    CloseHandle(h);
+    CloseHandle(h2);
+    oracle_case("pending_cleared_by_other_handle_kept");
+    o_bool("exists", GetFileAttributesW(L"pc.txt") != INVALID_FILE_ATTRIBUTES);
+    oracle_case_end();
+
+    h = mk(L"pd.txt", "pd");
+    set_disposition(h, TRUE);
+    {
+        WIN32_FILE_ATTRIBUTE_DATA fad;
+        ORACLE_CALL(ok, GetFileAttributesExW(L"pd.txt", GetFileExInfoStandard, &fad));
+        oracle_case("pending_attributes_ex");
+        o_bool("ret", ok);
+        o_lasterr();
+        oracle_case_end();
+    }
+    BOOL_CASE("pending_set_attributes", SetFileAttributesW(L"pd.txt", FILE_ATTRIBUTE_HIDDEN));
+    h2 = open_case("pending_open_no_access", L"pd.txt", 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                   OPEN_EXISTING, 0);
+    if (h2 != INVALID_HANDLE_VALUE) CloseHandle(h2);
+    h2 = open_case("pending_create_new", L"pd.txt", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                   CREATE_NEW, 0);
+    if (h2 != INVALID_HANDLE_VALUE) CloseHandle(h2);
+    BOOL_CASE("pending_rename_onto", MoveFileExW(L"pc.txt", L"pd.txt", MOVEFILE_REPLACE_EXISTING));
+    CloseHandle(h);
+    oracle_case("pending_after_close_listing");
+    o_dir_listing("dir", L".", 1);
+    oracle_case_end();
+
     /* ---- non-file handles ---- */
     {
         HANDLE ev = CreateEventW(NULL, TRUE, FALSE, NULL);

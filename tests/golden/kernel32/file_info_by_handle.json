@@ -394,6 +394,79 @@
       "ret": false,
       "last_error": 5
     },
+    "pending_link_set": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "pending_link_std_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 2,
+      "alloc_ge_eof": true,
+      "links": 1,
+      "delete_pending": 1,
+      "directory": 0
+    },
+    "pending_open_other_link": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "pending_other_link_attrs": {
+      "attrs_ok": true,
+      "last_error": "unchanged"
+    },
+    "pending_link_after_close": {
+      "a_exists": false,
+      "b_exists": true
+    },
+    "pending_seen_by_other_handle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 2,
+      "alloc_ge_eof": true,
+      "links": 0,
+      "delete_pending": 1,
+      "directory": 0
+    },
+    "pending_cleared_by_other_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "pending_cleared_std_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "end_of_file": 2,
+      "alloc_ge_eof": true,
+      "links": 1,
+      "delete_pending": 0,
+      "directory": 0
+    },
+    "pending_cleared_by_other_handle_kept": {
+      "exists": true
+    },
+    "pending_attributes_ex": {
+      "ret": false,
+      "last_error": 5
+    },
+    "pending_set_attributes": {
+      "ret": false,
+      "last_error": 5
+    },
+    "pending_open_no_access": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "pending_create_new": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "pending_rename_onto": {
+      "ret": false,
+      "last_error": 5
+    },
+    "pending_after_close_listing": {
+      "dir": "REN_NEW.txt,adir,info.txt,link_b.txt,pc.txt,pl_b.txt,rodisp.txt"
+    },
     "std_info_event_handle": {
       "ret": false,
       "last_error": 6
@@ -421,5 +494,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "6d921961443be62891cf00a19447e7c4689d7b521edd61c74e04589ef3a9a522"
+  "source_sha256": "8bb4ef4131eca7fdcb007ca0a5d6e5d6973a7a2b03f5ccc0d8d3deab1bff1b29"
 }

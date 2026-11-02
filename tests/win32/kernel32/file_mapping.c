@@ -403,5 +403,120 @@ int main(void)
         CloseHandle(d);
     }
 
+    /* ---- which opens a section blocks (no view mapped, file handle closed) ---- */
+    f = mk_file(L"sec.bin", GENERIC_READ | GENERIC_WRITE, 4096, 's');
+    m = CreateFileMappingW(f, NULL, PAGE_READWRITE, 0, 0, NULL);
+    CloseHandle(f);
+    {
+        static const struct { const char *name; DWORD access, disp; } opens[] = {
+            {"section_open_rw", GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING},
+            {"section_truncate_existing", GENERIC_READ | GENERIC_WRITE, TRUNCATE_EXISTING},
+            {"section_truncate_existing_write_only", GENERIC_WRITE, TRUNCATE_EXISTING},
+            {"section_create_always", GENERIC_READ | GENERIC_WRITE, CREATE_ALWAYS},
+            {"section_open_delete", DELETE, OPEN_EXISTING},
+        };
+        for (int i = 0; i < 5; i++) {
+            HANDLE h;
+            ORACLE_CALL(h, CreateFileW(L"sec.bin", opens[i].access, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                       NULL, opens[i].disp, 0, NULL));
+            oracle_case(opens[i].name);
+            o_handle("ret", h);
+            o_lasterr();
+            oracle_case_end();
+            if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        }
+        HANDLE h = CreateFileW(L"sec.bin", DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                               OPEN_EXISTING, 0, NULL);
+        FILE_DISPOSITION_INFO di = {TRUE};
+        BOOL_CASE("section_set_disposition", SetFileInformationByHandle(h, FileDispositionInfo, &di, sizeof di));
+        CloseHandle(h);
+        BOOL_CASE("section_delete_file", DeleteFileW(L"sec.bin"));
+        ORACLE_CALL(h, CreateFileW(L"sec.bin", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                                   TRUNCATE_EXISTING, 0, NULL));
+        oracle_case("section_truncate_after_failed_delete");
+        o_handle("ret", h);
+        o_lasterr();
+        oracle_case_end();
+        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        h = CreateFileW(L"sec.bin", DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+                        FILE_FLAG_DELETE_ON_CLOSE, NULL);
+        oracle_case("section_doc_open");
+        o_handle("ret", h);
+        oracle_case_end();
+        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        oracle_case("section_after_doc_close");
+        o_file_state("file", L"sec.bin");
+        oracle_case_end();
+    }
+    if (m) CloseHandle(m);
+    oracle_case("section_closed_file_state");
+    o_bool("exists", GetFileAttributesW(L"sec.bin") != INVALID_FILE_ATTRIBUTES);
+    oracle_case_end();
+
+    /* ---- TRUNCATE_EXISTING over a section, after different uses of it ---- */
+    for (int variant = 0; variant < 4; variant++) {
+        static const char *const names[] = {"sec_trunc_after_view_written", "sec_trunc_with_view_mapped",
+                                            "sec_trunc_after_file_extended", "sec_trunc_after_flush"};
+        f = mk_file(L"sec2.bin", GENERIC_READ | GENERIC_WRITE, 8192, 't');
+        m = CreateFileMappingW(f, NULL, PAGE_READWRITE, 0, 0, NULL);
+        v = m ? MapViewOfFile(m, FILE_MAP_WRITE, 0, 0, 0) : NULL;
+        if (v) v[0] = 'W';
+        if (variant == 2) {
+            SetFilePointer(f, 20000, NULL, FILE_BEGIN);
+            SetEndOfFile(f);
+        }
+        if (v && variant == 3) FlushViewOfFile(v, 0);
+        if (v && variant != 1) {
+            UnmapViewOfFile(v);
+            v = NULL;
+        }
+        CloseHandle(f);
+        HANDLE h;
+        ORACLE_CALL(h, CreateFileW(L"sec2.bin", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                                   TRUNCATE_EXISTING, 0, NULL));
+        oracle_case(names[variant]);
+        o_handle("ret", h);
+        o_lasterr();
+        oracle_case_end();
+        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        if (v) UnmapViewOfFile(v);
+        if (m) CloseHandle(m);
+        DeleteFileW(L"sec2.bin");
+    }
+
+    /* the same, replaying the rw.bin sequence above step by step */
+    for (int variant = 0; variant < 3; variant++) {
+        static const char *const names[] = {"rw_replay_trunc_no_delete", "rw_replay_trunc_after_delete",
+                                            "rw_replay_no_shrink_trunc_after_delete"};
+        f = mk_file(L"sec3.bin", GENERIC_READ | GENERIC_WRITE, 70000, 'a');
+        m = CreateFileMappingW(f, NULL, PAGE_READWRITE, 0, 0, NULL);
+        v = m ? MapViewOfFile(m, FILE_MAP_WRITE, 0, 0, 0) : NULL;
+        if (v) {
+            memcpy(v, "VIEW", 4);
+            SetFilePointer(f, 8, NULL, FILE_BEGIN);
+            WriteFile(f, "FILE", 4, &got, NULL);
+            FlushViewOfFile(v, 0);
+            if (variant != 2) {
+                SetFilePointer(f, 10, NULL, FILE_BEGIN);
+                SetEndOfFile(f);
+            }
+            SetFilePointer(f, 100000, NULL, FILE_BEGIN);
+            SetEndOfFile(f);
+            UnmapViewOfFile(v);
+        }
+        CloseHandle(f);
+        if (variant != 0) DeleteFileW(L"sec3.bin");
+        HANDLE h;
+        ORACLE_CALL(h, CreateFileW(L"sec3.bin", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                                   TRUNCATE_EXISTING, 0, NULL));
+        oracle_case(names[variant]);
+        o_handle("ret", h);
+        o_lasterr();
+        oracle_case_end();
+        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        if (m) CloseHandle(m);
+        DeleteFileW(L"sec3.bin");
+    }
+
     return oracle_end();
 }

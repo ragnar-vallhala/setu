@@ -341,8 +341,77 @@
     "mapping_on_directory": {
       "ret": "NULL",
       "last_error": 193
+    },
+    "section_open_rw": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "section_truncate_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "section_truncate_existing_write_only": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "section_create_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "section_open_delete": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "section_set_disposition": {
+      "ret": false,
+      "last_error": 5
+    },
+    "section_delete_file": {
+      "ret": false,
+      "last_error": 5
+    },
+    "section_truncate_after_failed_delete": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "section_doc_open": {
+      "ret": "valid"
+    },
+    "section_after_doc_close": {
+      "file.exists": false
+    },
+    "section_closed_file_state": {
+      "exists": false
+    },
+    "sec_trunc_after_view_written": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "sec_trunc_with_view_mapped": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "sec_trunc_after_file_extended": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "sec_trunc_after_flush": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "rw_replay_trunc_no_delete": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "rw_replay_trunc_after_delete": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
+    },
+    "rw_replay_no_shrink_trunc_after_delete": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1224
     }
   },
   "errors": [],
-  "source_sha256": "3c49c527701411407cc44092f412be91ca73e670a93b14891bb06f16e49810a2"
+  "source_sha256": "d83d9f4d0b13cef76a434c80c7f958a2e942d31dbd0b2be9d119ce33e9f577b6"
 }
