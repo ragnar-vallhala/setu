@@ -68,6 +68,8 @@ int main(void)
     create_case("create_empty_subkey", root, L"", 0, KEY_ALL_ACCESS);
     create_case("create_volatile", root, L"Vol", REG_OPTION_VOLATILE, KEY_ALL_ACCESS);
     create_case("create_nonvolatile_under_volatile", root, L"Vol\\Child", 0, KEY_ALL_ACCESS);
+    create_case("create_nonvolatile_under_volatile_deep", root, L"Vol\\A\\B", 0, KEY_ALL_ACCESS);
+    create_case("create_empty_subkey_volatile", root, L"", REG_OPTION_VOLATILE, KEY_ALL_ACCESS);
     create_case("create_invalid_hkey", (HKEY)(ULONG_PTR)0x1234, L"X", 0, KEY_ALL_ACCESS);
     {   /* Key name of exactly 255 and 256 characters (documented limit: 255). */
         wchar_t n255[257], n256[258];

@@ -64,6 +64,18 @@
       "disposition": 2,
       "got_key": false
     },
+    "create_nonvolatile_under_volatile_deep": {
+      "ret": 1021,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": false
+    },
+    "create_empty_subkey_volatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
     "create_invalid_hkey": {
       "ret": 6,
       "last_error": "unchanged",
@@ -136,5 +148,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "e61b061d0c486a6a3cda90d250c05cad926bd10b16156ba5e128c30f3949a7cd"
+  "source_sha256": "f9a58003691487262d79ed01ee30e1b8cffdcfb17ebd7074ef721915806017ff"
 }

@@ -22,6 +22,21 @@
       "count": 6,
       "final_ret": 259
     },
+    "enum_keys_order_punctuation": {
+      "order": "a,Ab,aB1,ecu,Zz,[b,^f,`c,{d,~e,Éclair",
+      "count": 11,
+      "final_ret": 259
+    },
+    "enum_values_order_after_overwrite": {
+      "order": "one,two,three,four",
+      "count": 4,
+      "final_ret": 259
+    },
+    "enum_values_order_after_delete_readd": {
+      "order": "two,three,four,one",
+      "count": 4,
+      "final_ret": 259
+    },
     "enum_key_name_buffer_exact_len_no_nul_room": {
       "ret": 234,
       "last_error": "unchanged",
@@ -33,5 +48,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "3b676dc1815862c7f9b97f665141f5ff74c2d2a6fc97bc822f560d06f839d2b6"
+  "source_sha256": "bfa7aee245036c668d6afc4554c0cab07260d27e87887ad31d85fdb3e1d54839"
 }

@@ -11,6 +11,30 @@
 
 static HKEY root;
 
+/* NtQueryValueKey (documented as ZwQueryValueKey) returns the stored bytes
+ * without any of RegQueryValueExW's string handling. */
+typedef struct { ULONG TitleIndex, Type, DataLength; UCHAR Data[1]; } oracle_kvpi;
+typedef LONG (WINAPI *oracle_ntqvk)(HANDLE, void *, int, void *, ULONG, ULONG *);
+
+static void raw_case(const char *name, const wchar_t *value)
+{
+    oracle_ntqvk q = (oracle_ntqvk)(void *)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtQueryValueKey");
+    struct { USHORT Length, MaximumLength; const wchar_t *Buffer; } us;
+    us.Length = us.MaximumLength = (USHORT)(wcslen(value) * sizeof(wchar_t));
+    us.Buffer = value;
+    union { oracle_kvpi info; unsigned char raw[512]; } buf;
+    ULONG len = 0;
+    LONG st = q(root, &us, 2 /* KeyValuePartialInformation */, &buf, sizeof buf, &len);
+    oracle_case(name);
+    o_hex32("status", (DWORD)st);
+    if (!st) {
+        o_u32("type", buf.info.Type);
+        o_u32("size", buf.info.DataLength);
+        o_bytes("data", buf.info.Data, buf.info.DataLength);
+    }
+    oracle_case_end();
+}
+
 static void set_case(const char *name, HKEY key, const wchar_t *value, DWORD type, const void *data, DWORD size)
 {
     LONG st;
@@ -40,6 +64,8 @@ int main(void)
     set_case("sz_with_nul", root, L"Sz", REG_SZ, sz, sizeof sz);
     set_case("sz_without_nul", root, L"SzNoNul", REG_SZ, sz, sizeof sz - sizeof(wchar_t));
     set_case("sz_odd_size", root, L"SzOdd", REG_SZ, sz, 3);
+    raw_case("sz_odd_size_stored_raw", L"SzOdd");
+    set_case("sz_odd_size_5", root, L"SzOdd5", REG_SZ, sz, 5);
     set_case("sz_zero_size", root, L"SzEmpty", REG_SZ, sz, 0);
     set_case("expand_sz", root, L"Exp", REG_EXPAND_SZ, L"%PATH%", sizeof L"%PATH%");
 

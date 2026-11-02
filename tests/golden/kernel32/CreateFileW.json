@@ -86,6 +86,27 @@
       "file.size": 3,
       "file.data": "616263"
     },
+    "truncate_existing_file_write_data": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 3,
+      "file.data": "616263"
+    },
+    "truncate_existing_file_generic_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 3,
+      "file.data": "616263"
+    },
+    "truncate_existing_missing_readonly_access": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87,
+      "file.exists": false
+    },
     "invalid_disposition_0": {
       "ret": "INVALID_HANDLE_VALUE",
       "last_error": 87,
@@ -105,6 +126,18 @@
       "last_error": 0
     },
     "create_new_over_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000010"
+    },
+    "create_new_over_dir_backup_semantics": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 80,
+      "file.exists": true,
+      "file.attrs": "0x00000010"
+    },
+    "create_always_over_dir": {
       "ret": "INVALID_HANDLE_VALUE",
       "last_error": 5,
       "file.exists": true,
@@ -157,5 +190,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "2bc3867d0ba0edec37fa68e84f0bc55fc34bcc870993935abdc1fcd18a4d9b82"
+  "source_sha256": "fa91283b5e5b7dcf400527ff7a44c81ca7240b295b5d55b729bf750c733f53e8"
 }

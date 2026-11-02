@@ -28,6 +28,20 @@
       "readback_size": 3,
       "readback_data": "680000"
     },
+    "sz_odd_size_stored_raw": {
+      "status": "0x00000000",
+      "type": 1,
+      "size": 3,
+      "data": "680065"
+    },
+    "sz_odd_size_5": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "readback_ret": 0,
+      "readback_type": 1,
+      "readback_size": 5,
+      "readback_data": "6800650000"
+    },
     "sz_zero_size": {
       "ret": 0,
       "last_error": "unchanged",
@@ -165,5 +179,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "d9183b29e0e8fcb510bdb5b80a45fbcf620803a7db3064c45879c4f05f2a7e5f"
+  "source_sha256": "39beaa5f663f3d6ec5853ca3821917a0662fd75fa831a77bc334e2fd9933fd87"
 }

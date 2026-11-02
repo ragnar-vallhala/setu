@@ -44,6 +44,7 @@ int main(void)
     get_case("directory", L"sub");
     get_case("directory_trailing_backslash", L"sub\\");
     get_case("file_trailing_backslash", L"f.txt\\");
+    get_case("missing_trailing_backslash", L"missing.txt\\");
     get_case("missing_file", L"missing.txt");
     get_case("missing_parent", L"nodir\\missing.txt");
     get_case("current_dir_dot", L".");
@@ -62,6 +63,36 @@ int main(void)
         HANDLE c = CreateFileW(L"hid.txt", GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_HIDDEN, NULL);
         CloseHandle(c);
         get_case("created_hidden", L"hid.txt");
+    }
+
+    set_then_get("set_archive", L"f.txt", FILE_ATTRIBUTE_ARCHIVE);
+
+    {   /* Does writing set ARCHIVE again after it was cleared? */
+        SetFileAttributesW(L"f.txt", FILE_ATTRIBUTE_NORMAL);
+        HANDLE w = CreateFileW(L"f.txt", GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+        DWORD n = 0;
+        WriteFile(w, "x", 1, &n, NULL);
+        CloseHandle(w);
+        get_case("archive_after_write", L"f.txt");
+    }
+
+    {   /* Changing only timestamps (FILE_BASIC_INFORMATION with zero attributes)
+         * must not change the attributes. */
+        HANDLE c = CreateFileW(L"t.txt", GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
+        CloseHandle(c);
+        SetFileAttributesW(L"t.txt", FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY);
+        HANDLE t = CreateFileW(L"t.txt", FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                               OPEN_EXISTING, 0, NULL);
+        FILETIME ft = { 0x12345678, 0x01d00000 };
+        BOOL ok;
+        ORACLE_CALL(ok, SetFileTime(t, NULL, NULL, &ft));
+        CloseHandle(t);
+        oracle_case("settime_keeps_attrs");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_hex32("get", GetFileAttributesW(L"t.txt"));
+        oracle_case_end();
+        SetFileAttributesW(L"t.txt", FILE_ATTRIBUTE_NORMAL);
     }
 
     return oracle_end();

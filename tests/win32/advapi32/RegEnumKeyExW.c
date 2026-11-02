@@ -12,6 +12,46 @@
  */
 #include "oracle.h"
 
+static void value_order_case(const char *name, HKEY key)
+{
+    char order[1024] = "";
+    LONG st;
+    DWORD i = 0;
+    for (;; i++) {
+        wchar_t v[64];
+        DWORD n = 64;
+        ORACLE_CALL(st, RegEnumValueW(key, i, v, &n, NULL, NULL, NULL, NULL));
+        if (st) break;
+        if (i) strcat(order, ",");
+        strcat(order, n ? oracle_utf8(v) : "(default)");
+    }
+    oracle_case(name);
+    o_str("order", order);
+    o_u32("count", i);
+    o_status("final_ret", st);
+    oracle_case_end();
+}
+
+static void key_order_case(const char *name, HKEY key)
+{
+    char order[1024] = "";
+    LONG st;
+    DWORD i = 0;
+    for (;; i++) {
+        wchar_t k[64];
+        DWORD n = 64;
+        ORACLE_CALL(st, RegEnumKeyExW(key, i, k, &n, NULL, NULL, NULL, NULL));
+        if (st) break;
+        if (i) strcat(order, ",");
+        strcat(order, oracle_utf8(k));
+    }
+    oracle_case(name);
+    o_str("order", order);
+    o_u32("count", i);
+    o_status("final_ret", st);
+    oracle_case_end();
+}
+
 int main(void)
 {
     oracle_begin("advapi32/RegEnumKeyExW");
@@ -78,6 +118,29 @@ int main(void)
         o_u32("count", i);
         o_status("final_ret", st);
         oracle_case_end();
+    }
+    {   /* Key order around the characters between 'Z' and 'a', and accented letters. */
+        HKEY p;
+        RegCreateKeyExW(root, L"punct", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &p, NULL);
+        static const wchar_t *names[] = {L"a", L"[b", L"`c", L"{d", L"~e", L"Zz", L"^f", L"\u00c9clair", L"ecu", L"Ab", L"aB1"};
+        for (size_t i = 0; i < sizeof names / sizeof *names; i++) {
+            HKEY k;
+            RegCreateKeyExW(p, names[i], 0, NULL, 0, KEY_ALL_ACCESS, NULL, &k, NULL);
+            RegCloseKey(k);
+        }
+        key_order_case("enum_keys_order_punctuation", p);
+
+        /* Value order after overwriting one value, and after deleting and re-adding another. */
+        static const wchar_t *vals2[] = {L"one", L"two", L"three", L"four"};
+        DWORD v = 1;
+        for (size_t i = 0; i < sizeof vals2 / sizeof *vals2; i++)
+            RegSetValueExW(p, vals2[i], 0, REG_DWORD, (const BYTE *)&v, sizeof v);
+        RegSetValueExW(p, L"TWO", 0, REG_DWORD, (const BYTE *)&v, sizeof v);
+        value_order_case("enum_values_order_after_overwrite", p);
+        RegDeleteValueW(p, L"one");
+        RegSetValueExW(p, L"one", 0, REG_DWORD, (const BYTE *)&v, sizeof v);
+        value_order_case("enum_values_order_after_delete_readd", p);
+        RegCloseKey(p);
     }
     {   /* Name buffer too small for "Charlie" (needs 7 chars + NUL). */
         DWORD idx;

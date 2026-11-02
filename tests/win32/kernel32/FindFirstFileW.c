@@ -71,6 +71,18 @@ int main(void)
     enum_case("exact_name", L"e\\beta.log");
     enum_case("dir_itself", L"e");
     enum_case("trailing_backslash", L"e\\");
+    enum_case("trailing_backslash_missing_dir", L"nodir\\");
+    enum_case("trailing_backslash_file", L"e\\beta.log\\");
+    {   /* The same with absolute paths, and the drive root. */
+        wchar_t cwd[MAX_PATH], p[MAX_PATH + 16];
+        GetCurrentDirectoryW(MAX_PATH, cwd);
+        swprintf(p, MAX_PATH + 16, L"%ls\\nodir\\", cwd);
+        enum_case("trailing_backslash_missing_dir_absolute", p);
+        swprintf(p, MAX_PATH + 16, L"%ls\\e\\", cwd);
+        enum_case("trailing_backslash_dir_absolute", p);
+        swprintf(p, MAX_PATH + 16, L"%.3ls", cwd);
+        enum_case("drive_root", p);
+    }
 
     return oracle_end();
 }

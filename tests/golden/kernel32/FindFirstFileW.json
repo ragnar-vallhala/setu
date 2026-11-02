@@ -71,8 +71,28 @@
     "trailing_backslash": {
       "ret": "INVALID_HANDLE_VALUE",
       "last_error": 87
+    },
+    "trailing_backslash_missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "trailing_backslash_file": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "trailing_backslash_missing_dir_absolute": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "trailing_backslash_dir_absolute": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "drive_root": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
     }
   },
   "errors": [],
-  "source_sha256": "a07c8a68746b5f401a8f55823e6947e007267ec077a4e69edb86fbbf73f2fe99"
+  "source_sha256": "438e43da3fbcbca13b015c0594aeb67b98bffafc0e1df12ca32ec99d59848ba5"
 }

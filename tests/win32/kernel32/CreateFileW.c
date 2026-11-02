@@ -54,6 +54,12 @@ int main(void)
     create_case("truncate_existing_missing", L"t2.txt", GENERIC_WRITE, 0, TRUNCATE_EXISTING, 0, L"t2.txt");
     make_file(L"t3.txt", "abc");
     create_case("truncate_existing_readonly_access", L"t3.txt", GENERIC_READ, 0, TRUNCATE_EXISTING, 0, L"t3.txt");
+    /* TRUNCATE_EXISTING needs the GENERIC_WRITE bit itself? */
+    create_case("truncate_existing_file_write_data", L"t3.txt", FILE_WRITE_DATA, 0, TRUNCATE_EXISTING, 0, L"t3.txt");
+    create_case("truncate_existing_file_generic_write", L"t3.txt", FILE_GENERIC_WRITE, 0, TRUNCATE_EXISTING, 0,
+                L"t3.txt");
+    create_case("truncate_existing_missing_readonly_access", L"t4.txt", GENERIC_READ, 0, TRUNCATE_EXISTING, 0,
+                L"t4.txt");
 
     create_case("invalid_disposition_0", L"f.txt", RW, 0, 0, 0, L"f.txt");
     create_case("invalid_disposition_6", L"f.txt", RW, 0, 6, 0, L"f.txt");
@@ -63,6 +69,9 @@ int main(void)
     create_case("open_dir_backup_semantics", L"dir", GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING,
                 FILE_FLAG_BACKUP_SEMANTICS, NULL);
     create_case("create_new_over_dir", L"dir", RW, 0, CREATE_NEW, 0, L"dir");
+    create_case("create_new_over_dir_backup_semantics", L"dir", RW, 0, CREATE_NEW,
+                FILE_FLAG_BACKUP_SEMANTICS, L"dir");
+    create_case("create_always_over_dir", L"dir", RW, 0, CREATE_ALWAYS, 0, L"dir");
 
     create_case("invalid_char_lt", L"a<b.txt", RW, 0, CREATE_ALWAYS, 0, NULL);
     create_case("invalid_char_pipe", L"a|b.txt", RW, 0, CREATE_ALWAYS, 0, NULL);

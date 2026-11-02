@@ -20,6 +20,10 @@
       "ret": "0xffffffff",
       "last_error": 123
     },
+    "missing_trailing_backslash": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
     "missing_file": {
       "ret": "0xffffffff",
       "last_error": 2
@@ -78,8 +82,22 @@
     "created_hidden": {
       "ret": "0x00000022",
       "last_error": "unchanged"
+    },
+    "set_archive": {
+      "set_ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000020"
+    },
+    "archive_after_write": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "settime_keeps_attrs": {
+      "ret": true,
+      "last_error": "unchanged",
+      "get": "0x00000003"
     }
   },
   "errors": [],
-  "source_sha256": "c5cfc268b38b2ecf5b269b89e0ee73e17806a99e61d466ef3fd619a2a1fd988c"
+  "source_sha256": "023cf9a108977793884d6e7a932f2cec22aa4a44a97357d4251fd7f4c0108ba7"
 }
