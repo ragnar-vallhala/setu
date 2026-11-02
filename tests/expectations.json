@@ -2052,6 +2052,7 @@
     "kernel32/threads:resume_current_thread",
     "kernel32/threads:resume_event_handle",
     "kernel32/threads:resume_null",
+    "kernel32/threads:resume_terminated",
     "kernel32/threads:set_priority_14",
     "kernel32/threads:set_priority_3",
     "kernel32/threads:set_priority_6",

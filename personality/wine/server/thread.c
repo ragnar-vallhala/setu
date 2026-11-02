@@ -1939,7 +1939,8 @@ DECL_HANDLER(resume_thread)
 
     if ((thread = get_thread_from_handle( req->handle, THREAD_SUSPEND_RESUME )))
     {
-        reply->count = resume_thread( thread );
+        /* a terminated thread has no suspend count left */
+        if (thread->state != TERMINATED) reply->count = resume_thread( thread );
         release_object( thread );
     }
 }
