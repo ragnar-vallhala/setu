@@ -1590,7 +1590,8 @@ COLORREF dibdrv_SetPixel( PHYSDEV dev, INT x, INT y, COLORREF color )
     pixel = get_pixel_color( dc, &pdev->dib, color, FALSE );
     color = pdev->dib.funcs->pixel_to_colorref( &pdev->dib, pixel );
 
-    if (!get_clipped_rects( &pdev->dib, &rect, pdev->clip, &clipped_rects )) return color;
+    /* a pixel outside the surface or the clip region is an error */
+    if (!get_clipped_rects( &pdev->dib, &rect, pdev->clip, &clipped_rects )) return CLR_INVALID;
     fill_with_pixel( dc, &pdev->dib, pixel, clipped_rects.count, clipped_rects.rects, dc->attr->rop_mode );
     free_clipped_rects( &clipped_rects );
     return color;
