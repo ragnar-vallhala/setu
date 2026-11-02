@@ -310,8 +310,15 @@ BOOL WINAPI FileTimeToDosDateTime( const FILETIME *ft, WORD *fatdate, WORD *fatt
     }
     time.u.LowPart  = ft->dwLowDateTime;
     time.u.HighPart = ft->dwHighDateTime;
+    /* DOS times have a 2 second resolution (20000000 ticks); the time is
+     * rounded up, and must fall within 1980 to 2107 after rounding */
+    if (time.QuadPart >= 0 && time.QuadPart <= MAXLONGLONG - 20000000)
+    {
+        time.QuadPart += 20000000 - 1;
+        time.QuadPart -= time.QuadPart % 20000000;
+    }
     RtlTimeToTimeFields( &time, &fields );
-    if (fields.Year < 1980)
+    if (time.QuadPart < 0 || fields.Year < 1980 || fields.Year > 2107)
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return FALSE;
