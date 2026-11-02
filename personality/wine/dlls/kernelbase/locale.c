@@ -7974,7 +7974,7 @@ static int get_date_format( const NLS_LOCALE_DATA *locale, DWORD flags, const SY
 
     for (p = output; *format; format += count)
     {
-        count = get_pattern_len( format, L"yMd" );
+        count = get_pattern_len( format, L"yMdg" );
 
         switch (*format)
         {
@@ -8000,7 +8000,7 @@ static int get_date_format( const NLS_LOCALE_DATA *locale, DWORD flags, const SY
             val = (count == 3 ? LOCALE_SABBREVMONTHNAME1 : LOCALE_SMONTHNAME1) + time.wMonth - 1;
             if (!genitive)
             {
-                for (i = count; format[i]; i += get_pattern_len( format + i, L"yMd" ))
+                for (i = count; format[i]; i += get_pattern_len( format + i, L"yMdg" ))
                 {
                     if (format[i] != 'd') continue;
                     if (format[i + 1] != 'd' || format[i + 2] != 'd')
