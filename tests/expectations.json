@@ -2430,6 +2430,8 @@
     "user32/window_class:destroy_parent_then_child_gone",
     "user32/window_class:info_after_unregister",
     "user32/window_class:info_bogus_hinstance",
+    "user32/window_class:info_button_after_local_unregister",
+    "user32/window_class:info_button_null_hinstance",
     "user32/window_class:info_button_self_local_override",
     "user32/window_class:info_cbsize_zero",
     "user32/window_class:info_dialog_null_hinstance",

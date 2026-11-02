@@ -1140,7 +1140,7 @@ static const struct builtin_class_descr builtin_classes[] =
         .name = "Button",
         .style = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW | CS_PARENTDC,
         .proc = NTUSER_WNDPROC_BUTTON,
-        .extra = sizeof(UINT) + 2 * sizeof(HANDLE),
+        .extra = sizeof(UINT64), /* holds a pointer to the private data; 8 as on Windows */
         .cursor = IDC_ARROW,
     },
     /* combo  */
