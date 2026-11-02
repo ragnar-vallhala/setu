@@ -7,7 +7,12 @@
 #   1. the taskbar is docked to the bottom of the screen,
 #   2. the launcher opens and lists the built-ins and a Start Menu .lnk,
 #   3. launching Notepad from the launcher adds a taskbar button,
-#   4. the run box starts a program (regedit.exe).
+#   4. the run box starts a program (regedit.exe),
+#   5. taskbar buttons activate, minimize and restore windows,
+#   6. two-process checks (shell/tests/setu-xproc.c): another process sees
+#      the work area the taskbar reserved, maximizes inside it and hides
+#      minimized windows (ARW_HIDE); RegisterShellHookWindow notifications;
+#      icons of another process's window are usable.
 # Screenshots go to build/shell/smoke/*.png; with --update-docs they are
 # also copied to shell/docs/.
 #
@@ -55,6 +60,7 @@ rm -f "$OUT"/*.png "$OUT"/*.txt
 make -s -C "$REPO/shell"
 SHELL_EXE="$REPO/build/shell/setu-shell.exe"
 PROBE_EXE="$REPO/build/shell/setu-probe.exe"
+XPROC_EXE="$REPO/build/shell/setu-xproc.exe"
 
 # --- X server -------------------------------------------------------------
 for n in $(seq 90 140); do
@@ -169,6 +175,18 @@ shot 05-minimized
 click $(task_xy Notepad)
 wait_state '^task=.*Notepad\|active\|' 10 || fail "clicking the minimized Notepad button did not restore it"
 pass "click restores: $(task_line Notepad)"
+
+# --- 6. two-process checks ----------------------------------------------------
+for check in workarea shellhook icons; do
+  if "$WINE" "$XPROC_EXE" "$check" > "$OUT/xproc-$check.txt" 2>&1; then
+    pass "setu-xproc $check: $(grep -c '^ok:' "$OUT/xproc-$check.txt") checks"
+  else
+    sed 's/^/  /' "$OUT/xproc-$check.txt" >&2
+    fail "setu-xproc $check"
+  fi
+done
+grep -q '^shellhook=1' "$STATE" || fail "the shell's RegisterShellHookWindow failed"
+pass "shell: $(grep ^appbar= "$STATE" | tr -d '\r') $(grep ^shellhook= "$STATE" | tr -d '\r') $(grep ^workarea_set= "$STATE" | tr -d '\r')"
 
 PASSED=1
 echo "screenshots: $OUT"

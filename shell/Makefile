@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 #
 # Build the Setu shell with mingw-w64. Output goes to ../build/shell/.
-#   make -C shell            # setu-shell.exe and setu-probe.exe
+#   make -C shell            # setu-shell.exe, setu-probe.exe, setu-xproc.exe
 #   make -C shell clean
 # The toolchain from tools/bootstrap-toolchain.sh is used if it exists.
 
@@ -15,8 +15,9 @@ LDFLAGS := -static-libgcc -s
 # system DLLs only
 SHELL_LIBS := -luser32 -lgdi32 -lshell32 -lole32 -luuid -lkernel32
 PROBE_LIBS := -lshell32 -lole32 -luuid -luser32
+XPROC_LIBS := -luser32 -lgdi32
 
-all: $(OUT)/setu-shell.exe $(OUT)/setu-probe.exe
+all: $(OUT)/setu-shell.exe $(OUT)/setu-probe.exe $(OUT)/setu-xproc.exe
 
 $(OUT)/setu-shell.exe: src/setu-shell.c | $(OUT)
 	$(CC) $(CFLAGS) -mwindows -o $@ $< $(LDFLAGS) $(SHELL_LIBS)
@@ -24,10 +25,13 @@ $(OUT)/setu-shell.exe: src/setu-shell.c | $(OUT)
 $(OUT)/setu-probe.exe: tests/setu-probe.c | $(OUT)
 	$(CC) $(CFLAGS) -mconsole -o $@ $< $(LDFLAGS) $(PROBE_LIBS)
 
+$(OUT)/setu-xproc.exe: tests/setu-xproc.c | $(OUT)
+	$(CC) $(CFLAGS) -mconsole -o $@ $< $(LDFLAGS) $(XPROC_LIBS)
+
 $(OUT):
 	mkdir -p $@
 
 clean:
-	rm -f $(OUT)/setu-shell.exe $(OUT)/setu-probe.exe
+	rm -f $(OUT)/setu-shell.exe $(OUT)/setu-probe.exe $(OUT)/setu-xproc.exe
 
 .PHONY: all clean

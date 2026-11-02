@@ -86,22 +86,33 @@ real clicks on the Notepad button activate, minimize and restore it.
 Clicks are sent with `SendInput` by `shell/tests/setu-probe.exe`.
 Screenshots land in `build/shell/smoke/`.
 
+It then runs `shell/tests/setu-xproc.exe`, which checks personality
+behaviour the shell relies on, each across two processes:
+
+- `workarea`: with the shell's appbar docked, `SPI_GETWORKAREA` and the
+  monitor's `rcWork` exclude the taskbar, a maximized window stays inside it,
+  and with `ARW_HIDE` a minimized window is moved off screen.
+- `shellhook`: `RegisterShellHookWindow` gets `HSHELL_WINDOWCREATED`,
+  `HSHELL_WINDOWACTIVATED` and `HSHELL_WINDOWDESTROYED` for a child process's
+  window.
+- `icons`: the class icons (`GCLP_HICON`, `GCLP_HICONSM`) and `WM_GETICON` icon
+  of a child process's window can be read and drawn (`GetIconInfo`,
+  `DrawIconEx`).
+
 ## Known gaps (personality)
 
-Found while building the shell; the shell works around them:
+Found while building the shell:
 
-- `RegisterShellHookWindow` is a stub (returns FALSE): the shell polls.
-- `ABM_SETPOS` doesn't change the work area, and `SPI_SETWORKAREA` only
-  affects the calling process, so maximized windows of other programs can
-  still cover the taskbar (it stays on top).
-- Window and class icons of other processes can't be drawn (icon handles
-  are per process, `GetClassLongPtr(GCLP_HICON*)` returns 0 across
-  processes): the shell shows the program's file icon instead.
-- `ARW_HIDE` is ignored: minimized windows show as small title bars at the
-  bottom-left of the screen, drawn over the (topmost) taskbar.
 - In the Xvfb virtual desktop, the area uncovered when a window is hidden or
   minimized isn't repainted (stale pixels from the launcher, or black).
   See the screenshots in `docs/`.
+- Only icons of 64x64 or smaller can be drawn by another process; the shell
+  falls back to the program's file icon for larger ones.
+
+Fixed in the personality (checked by `setu-xproc`): the system-wide work area
+(`ABM_SETPOS`, `SPI_SETWORKAREA`), cross-process window and class icons,
+`ARW_HIDE`, and `RegisterShellHookWindow` (the shell still polls as a
+fallback).
 
 ## References
 
