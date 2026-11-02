@@ -295,6 +295,31 @@ DECL_HANDLER(set_class_info)
         return;
     }
 
+    /* validate before starting the shared write: returning from inside
+     * SHARED_WRITE_BEGIN/END would leave the object's sequence open */
+    switch (req->offset)
+    {
+    case GCL_STYLE:
+    case GCL_CBCLSEXTRA:
+    case GCLP_HMODULE:
+        break;
+    case GCL_CBWNDEXTRA:
+        if (req->new_info > 4096)
+        {
+            set_error( STATUS_INVALID_PARAMETER );
+            return;
+        }
+        break;
+    default:
+        if (req->size > sizeof(req->new_info) || req->offset < 0 ||
+            req->offset > class->shared->cls_extra - (int)req->size)
+        {
+            set_win32_error( ERROR_INVALID_INDEX );
+            return;
+        }
+        break;
+    }
+
     SHARED_WRITE_BEGIN( class->shared, class_shm_t )
     {
         switch (req->offset)
@@ -304,11 +329,6 @@ DECL_HANDLER(set_class_info)
             shared->style = req->new_info;
             break;
         case GCL_CBWNDEXTRA:
-            if (req->new_info > 4096)
-            {
-                set_error( STATUS_INVALID_PARAMETER );
-                return;
-            }
             reply->old_info = shared->win_extra;
             shared->win_extra = req->new_info;
             break;
@@ -328,12 +348,6 @@ DECL_HANDLER(set_class_info)
             shared->icon_sm = req->new_info;
             break;
         default:
-            if (req->size > sizeof(req->new_info) || req->offset < 0 ||
-                req->offset > class->shared->cls_extra - (int)req->size)
-            {
-                set_win32_error( ERROR_INVALID_INDEX );
-                return;
-            }
             memcpy( &reply->old_info, (char *)shared->extra + req->offset, req->size );
             memcpy( (char *)shared->extra + req->offset, &req->new_info, req->size );
             break;

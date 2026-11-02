@@ -509,8 +509,63 @@
       "ret_nonzero": false,
       "ret_is_class_atom": false,
       "last_error": 1411
+    },
+    "register_cbwndextra_65536": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "create_cbwndextra_65536": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "classlong_cbwndextra_65536": {
+      "ret": 65536,
+      "last_error": "unchanged"
+    },
+    "register_cbwndextra_1m": {
+      "ret_nonzero": true,
+      "ret_is_class_atom": true,
+      "last_error": "unchanged"
+    },
+    "create_cbwndextra_1m": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "classlong_cbwndextra_1m": {
+      "ret": 1048576,
+      "last_error": "unchanged"
+    },
+    "set_classlong_bad_offset": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "set_classlong_offset_straddles_end": {
+      "ret": 0,
+      "last_error": 1413
+    },
+    "set_classlong_cbwndextra_5000": {
+      "ret": 8,
+      "last_error": "unchanged"
+    },
+    "classlong_cbwndextra_after_set_5000": {
+      "ret": 5000,
+      "last_error": "unchanged"
+    },
+    "set_classlong_style_after_rejections": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "set_classlong_extra_8_after_rejections": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "get_after": 7
+    },
+    "unregister_last": {
+      "ret": true,
+      "last_error": "unchanged"
     }
   },
   "errors": [],
-  "source_sha256": "627b88c5a1a188e035d81659edc0ba65d86d18b92e035f211ed3b3980479eddc"
+  "source_sha256": "2a9d9b47b0c3da19e0fb19a78dd816db5f612d6bbfd2f36cc38fee56e3494ae8"
 }

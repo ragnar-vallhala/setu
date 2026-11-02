@@ -432,11 +432,79 @@ int main(void)
     unreg_case("unregister_after_all_destroyed", L"SetuOracleWC_Main", self);
     info_case("info_after_unregister", self, L"SetuOracleWC_Main", 0);
 
-    /* Not tested: SetClassLongPtrW with an out-of-range extra-bytes offset.
-     * On Setu (Wine 11) the rejected write leaves the class's shared-memory
-     * seqlock open (server/class.c returns inside SHARED_WRITE_BEGIN), and
-     * wineserver aborts on the next write or when the class is freed, which
-     * takes every later test in the run down with it. */
+    /* ---- large window extra bytes ---- */
+    {
+        static const struct { const char *reg, *create, *get; int extra; } big_cases[] = {
+            {"register_cbwndextra_65536", "create_cbwndextra_65536", "classlong_cbwndextra_65536", 65536},
+            {"register_cbwndextra_1m", "create_cbwndextra_1m", "classlong_cbwndextra_1m", 1 << 20},
+        };
+        for (size_t i = 0; i < sizeof big_cases / sizeof big_cases[0]; i++) {
+            WNDCLASSEXW bc = mkclass(L"SetuOracleWC_Huge");
+            bc.cbWndExtra = big_cases[i].extra;
+            reg_case(big_cases[i].reg, &bc);
+            HWND hw = create_case(big_cases[i].create, L"SetuOracleWC_Huge", 0, HWND_MESSAGE);
+            if (hw) {
+                ULONG_PTR v;
+                ORACLE_CALL(v, pGetClassLongPtrW(hw, GCL_CBWNDEXTRA));
+                oracle_case(big_cases[i].get);
+                o_u64("ret", v);
+                o_lasterr();
+                oracle_case_end();
+                pDestroyWindow(hw);
+            }
+            pUnregisterClassW(L"SetuOracleWC_Huge", self);
+        }
+    }
+
+    /* ---- SetClassLongPtrW rejections (last: these once crashed Setu's wineserver) ---- */
+    {
+        WNDCLASSEXW lc = mkclass(L"SetuOracleWC_Last");
+        lc.cbClsExtra = 16;
+        lc.cbWndExtra = 8;
+        pRegisterClassExW(&lc);
+        HWND hl = pCreateWindowExW(0, L"SetuOracleWC_Last", L"l", 0, 0, 0, 1, 1, HWND_MESSAGE, NULL, self, NULL);
+        ULONG_PTR v;
+
+        ORACLE_CALL(v, pSetClassLongPtrW(hl, 4096, 1));
+        oracle_case("set_classlong_bad_offset");
+        o_u64("ret", v);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(v, pSetClassLongPtrW(hl, 12, 1));
+        oracle_case("set_classlong_offset_straddles_end");
+        o_u64("ret", v);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(v, pSetClassLongPtrW(hl, GCL_CBWNDEXTRA, 5000));
+        oracle_case("set_classlong_cbwndextra_5000");
+        o_u64("ret", v);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(v, pGetClassLongPtrW(hl, GCL_CBWNDEXTRA));
+        oracle_case("classlong_cbwndextra_after_set_5000");
+        o_u64("ret", v);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(v, pSetClassLongPtrW(hl, GCL_STYLE, CS_DBLCLKS));
+        oracle_case("set_classlong_style_after_rejections");
+        o_hex32("ret", (DWORD)v);
+        o_lasterr();
+        oracle_case_end();
+
+        ORACLE_CALL(v, pSetClassLongPtrW(hl, 8, 7));
+        oracle_case("set_classlong_extra_8_after_rejections");
+        o_u64("ret", v);
+        o_lasterr();
+        o_u64("get_after", pGetClassLongPtrW(hl, 8));
+        oracle_case_end();
+
+        pDestroyWindow(hl);
+        unreg_case("unregister_last", L"SetuOracleWC_Last", self);
+    }
 
     return oracle_end();
 }
