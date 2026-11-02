@@ -5358,6 +5358,11 @@ static BOOL user_destroy_window( HWND hwnd, BOOL winevent )
 {
     BOOL is_child;
 
+    if (!hwnd || !is_window( hwnd ))
+    {
+        RtlSetLastWin32Error( ERROR_INVALID_WINDOW_HANDLE );
+        return FALSE;
+    }
     if (!(hwnd = is_current_thread_window( hwnd )) || is_desktop_window( hwnd ))
     {
         RtlSetLastWin32Error( ERROR_ACCESS_DENIED );
