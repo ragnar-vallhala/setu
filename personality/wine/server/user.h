@@ -49,6 +49,8 @@ struct winstation
     unsigned int       monitor_count;      /* number of monitors */
     struct monitor_info *monitors;         /* window station monitors */
     unsigned __int64   monitor_serial;     /* winstation monitor update counter */
+    unsigned int       work_area_count;    /* number of work area overrides */
+    struct rectangle  *work_areas;         /* pairs of raw monitor rect, raw work area */
 };
 
 struct key_repeat

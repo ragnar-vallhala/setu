@@ -4032,6 +4032,35 @@ struct set_winstation_monitors_reply
 
 
 
+struct set_winstation_work_area_request
+{
+    struct request_header __header;
+    struct rectangle monitor;
+    struct rectangle work;
+    char __pad_44[4];
+};
+struct set_winstation_work_area_reply
+{
+    struct reply_header __header;
+    unsigned __int64 serial;
+};
+
+
+
+struct get_winstation_work_areas_request
+{
+    struct request_header __header;
+    char __pad_12[4];
+};
+struct get_winstation_work_areas_reply
+{
+    struct reply_header __header;
+    unsigned __int64 serial;
+    /* VARARG(areas,rectangles); */
+};
+
+
+
 struct get_process_winstation_request
 {
     struct request_header __header;
@@ -6352,6 +6381,8 @@ enum request
     REQ_open_winstation,
     REQ_close_winstation,
     REQ_set_winstation_monitors,
+    REQ_set_winstation_work_area,
+    REQ_get_winstation_work_areas,
     REQ_get_process_winstation,
     REQ_set_process_winstation,
     REQ_enum_winstation,
@@ -6666,6 +6697,8 @@ union generic_request
     struct open_winstation_request open_winstation_request;
     struct close_winstation_request close_winstation_request;
     struct set_winstation_monitors_request set_winstation_monitors_request;
+    struct set_winstation_work_area_request set_winstation_work_area_request;
+    struct get_winstation_work_areas_request get_winstation_work_areas_request;
     struct get_process_winstation_request get_process_winstation_request;
     struct set_process_winstation_request set_process_winstation_request;
     struct enum_winstation_request enum_winstation_request;
@@ -6978,6 +7011,8 @@ union generic_reply
     struct open_winstation_reply open_winstation_reply;
     struct close_winstation_reply close_winstation_reply;
     struct set_winstation_monitors_reply set_winstation_monitors_reply;
+    struct set_winstation_work_area_reply set_winstation_work_area_reply;
+    struct get_winstation_work_areas_reply get_winstation_work_areas_reply;
     struct get_process_winstation_reply get_process_winstation_reply;
     struct set_process_winstation_reply set_process_winstation_reply;
     struct enum_winstation_reply enum_winstation_reply;

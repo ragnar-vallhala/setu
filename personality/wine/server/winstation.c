@@ -152,6 +152,8 @@ static struct winstation *create_winstation( struct object *root, const struct u
             winstation->monitors = NULL;
             winstation->monitor_count = 0;
             winstation->monitor_serial = 1;
+            winstation->work_area_count = 0;
+            winstation->work_areas = NULL;
             list_add_tail( &winstation_list, &winstation->entry );
             list_init( &winstation->desktops );
             if (!(winstation->desktop_names = create_namespace( 7 )))
@@ -209,6 +211,7 @@ static void winstation_destroy( struct object *obj )
     if (winstation->atom_table) release_object( winstation->atom_table );
     free( winstation->desktop_names );
     free( winstation->monitors );
+    free( winstation->work_areas );
 }
 
 /* retrieve the process window station, checking the handle access rights */
@@ -644,6 +647,40 @@ DECL_HANDLER(close_winstation)
 }
 
 
+/* propagate the window station monitor update counter to its desktops */
+static void update_desktops_monitor_serial( struct winstation *winstation )
+{
+    struct desktop *desktop;
+
+    LIST_FOR_EACH_ENTRY(desktop, &winstation->desktops, struct desktop, entry)
+    {
+        SHARED_WRITE_BEGIN( desktop->shared, desktop_shm_t )
+        {
+            shared->monitor_serial = winstation->monitor_serial;
+        }
+        SHARED_WRITE_END;
+    }
+}
+
+/* drop the work areas of monitors that are gone or have moved */
+static void prune_work_areas( struct winstation *winstation )
+{
+    struct rectangle *area = winstation->work_areas;
+    unsigned int i = 0, j;
+
+    while (i < winstation->work_area_count)
+    {
+        for (j = 0; j < winstation->monitor_count; j++)
+            if (!memcmp( &winstation->monitors[j].raw, &area[2 * i], sizeof(*area) )) break;
+        if (j < winstation->monitor_count) i++;
+        else
+        {
+            memmove( area + 2 * i, area + 2 * (i + 1), (winstation->work_area_count - i - 1) * 2 * sizeof(*area) );
+            winstation->work_area_count--;
+        }
+    }
+}
+
 /* set the process current window station monitors */
 DECL_HANDLER(set_winstation_monitors)
 {
@@ -675,6 +712,73 @@ DECL_HANDLER(set_winstation_monitors)
     if (size && (winstation->monitors = memdup( get_req_data(), size )))
         winstation->monitor_count = size / sizeof(*winstation->monitors);
 
+    prune_work_areas( winstation );
+
+    reply->serial = winstation->monitor_serial;
+    release_object( winstation );
+}
+
+
+/* set or reset the work area of a window station monitor */
+DECL_HANDLER(set_winstation_work_area)
+{
+    struct winstation *winstation;
+    struct rectangle *area;
+    unsigned int i;
+
+    if (!(winstation = (struct winstation *)get_handle_obj( current->process, current->process->winstation,
+                                                           0, &winstation_ops )))
+        return;
+
+    for (i = 0, area = winstation->work_areas; i < winstation->work_area_count; i++, area += 2)
+        if (!memcmp( &area[0], &req->monitor, sizeof(req->monitor) )) break;
+
+    if (is_rect_empty( &req->work ))
+    {
+        if (i < winstation->work_area_count)
+        {
+            memmove( area, area + 2, (winstation->work_area_count - i - 1) * 2 * sizeof(*area) );
+            winstation->work_area_count--;
+        }
+    }
+    else
+    {
+        if (i == winstation->work_area_count)
+        {
+            if (!(area = realloc( winstation->work_areas, (i + 1) * 2 * sizeof(*area) )))
+            {
+                set_error( STATUS_NO_MEMORY );
+                release_object( winstation );
+                return;
+            }
+            winstation->work_areas = area;
+            winstation->work_area_count++;
+            area += 2 * i;
+            area[0] = req->monitor;
+        }
+        area[1] = req->work;
+    }
+
+    winstation->monitor_serial++;
+    update_desktops_monitor_serial( winstation );
+    reply->serial = winstation->monitor_serial;
+    release_object( winstation );
+}
+
+
+/* get the work area overrides of the process window station */
+DECL_HANDLER(get_winstation_work_areas)
+{
+    struct winstation *winstation;
+    data_size_t size;
+
+    if (!(winstation = (struct winstation *)get_handle_obj( current->process, current->process->winstation,
+                                                           0, &winstation_ops )))
+        return;
+
+    size = winstation->work_area_count * 2 * sizeof(*winstation->work_areas);
+    if (size > get_reply_max_size()) set_error( STATUS_BUFFER_TOO_SMALL );
+    else set_reply_data( winstation->work_areas, size );
     reply->serial = winstation->monitor_serial;
     release_object( winstation );
 }

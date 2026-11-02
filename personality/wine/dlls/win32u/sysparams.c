@@ -154,6 +154,7 @@ struct monitor
     unsigned int id;
     unsigned int output_id;
     RECT rc_work;
+    RECT rc_work_set; /* work area set with SPI_SETWORKAREA (raw coordinates), or empty */
     BOOL is_clone;
     struct edid_monitor_info edid_info;
     BOOL hdr_enabled;
@@ -294,7 +295,6 @@ union sysparam_all_entry
 };
 
 static UINT system_dpi;
-static RECT work_area;
 static DWORD process_layout = ~0u;
 
 static HDC display_dc;
@@ -2383,8 +2383,10 @@ static RECT monitor_get_rect( struct monitor *monitor, UINT dpi, MONITOR_DPI_TYP
 /* display_lock must be held */
 static void monitor_get_info( struct monitor *monitor, MONITORINFO *info, UINT dpi )
 {
+    RECT work = IsRectEmpty( &monitor->rc_work_set ) ? monitor->rc_work : monitor->rc_work_set;
+
     info->rcMonitor = monitor_get_rect( monitor, dpi, MDT_DEFAULT );
-    info->rcWork = map_monitor_rect( monitor, monitor->rc_work, 0, MDT_RAW_DPI, dpi, MDT_DEFAULT );
+    info->rcWork = map_monitor_rect( monitor, work, 0, MDT_RAW_DPI, dpi, MDT_DEFAULT );
     intersect_rect( &info->rcWork, &info->rcWork, &info->rcMonitor );
     info->dwFlags = is_monitor_primary( monitor ) ? MONITORINFOF_PRIMARY : 0;
 
@@ -2806,6 +2808,72 @@ void reset_monitor_update_serial(void)
     pthread_mutex_unlock( &display_lock );
 }
 
+/* display_lock must be held */
+static void update_work_areas(void)
+{
+    struct monitor *monitor;
+    RECT areas[2 * 32];
+    UINT count = 0, i;
+
+    SERVER_START_REQ( get_winstation_work_areas )
+    {
+        wine_server_set_reply( req, areas, sizeof(areas) );
+        if (!wine_server_call( req )) count = wine_server_reply_size( reply ) / sizeof(RECT);
+    }
+    SERVER_END_REQ;
+
+    LIST_FOR_EACH_ENTRY( monitor, &monitors, struct monitor, entry )
+    {
+        RECT rect = monitor_get_rect( monitor, 0, MDT_RAW_DPI );
+
+        SetRectEmpty( &monitor->rc_work_set );
+        for (i = 0; i + 1 < count; i += 2)
+        {
+            if (!EqualRect( &areas[i], &rect )) continue;
+            monitor->rc_work_set = areas[i + 1];
+            TRACE( "monitor %s work area %s\n", wine_dbgstr_rect(&rect), wine_dbgstr_rect(&areas[i + 1]) );
+            break;
+        }
+    }
+}
+
+static BOOL lock_display_devices( BOOL force );
+static void unlock_display_devices(void);
+static struct monitor *get_monitor_from_rect( RECT rect, UINT flags, UINT dpi, MONITOR_DPI_TYPE type );
+
+/* SPI_SETWORKAREA: the work area is a property of the monitor that contains the
+ * rectangle, shared by every process of the window station */
+static BOOL set_work_area( const RECT *rect, UINT dpi )
+{
+    struct monitor *monitor;
+    RECT monitor_rect, work;
+    BOOL ret = FALSE;
+
+    if (!lock_display_devices( FALSE )) return FALSE;
+
+    if ((monitor = get_monitor_from_rect( *rect, MONITOR_DEFAULTTONEAREST, dpi, MDT_DEFAULT )))
+    {
+        monitor_rect = monitor_get_rect( monitor, 0, MDT_RAW_DPI );
+        work = map_monitor_rect( monitor, *rect, dpi, MDT_DEFAULT, 0, MDT_RAW_DPI );
+        if (intersect_rect( &work, &work, &monitor_rect ))
+        {
+            SERVER_START_REQ( set_winstation_work_area )
+            {
+                req->monitor = wine_server_rectangle( monitor_rect );
+                req->work = wine_server_rectangle( work );
+                ret = !wine_server_call_err( req );
+            }
+            SERVER_END_REQ;
+            if (ret) monitor->rc_work_set = work;
+            TRACE( "monitor %s work area %s\n", wine_dbgstr_rect(&monitor_rect), wine_dbgstr_rect(&work) );
+        }
+        else RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
+    }
+
+    unlock_display_devices();
+    return ret;
+}
+
 static BOOL lock_display_devices( BOOL force )
 {
     static const WCHAR wine_service_station_name[] =
@@ -2849,6 +2917,7 @@ static BOOL lock_display_devices( BOOL force )
         ERR( "Failed to read display config.\n" );
         pthread_mutex_unlock( &display_lock );
     }
+    else update_work_areas();
     return ret;
 }
 
@@ -5665,16 +5734,6 @@ static USERPREF_ENTRY( CLIENTAREAANIMATION,      4, 0x02 );
 static USERPREF_ENTRY( CLEARTYPE,                4, 0x10 );
 static USERPREF_ENTRY( SPEECHRECOGNITION,        4, 0x20 );
 
-/* System parameter indexes */
-enum spi_index
-{
-    SPI_SETWORKAREA_IDX,
-    SPI_INDEX_COUNT
-};
-
-/* indicators whether system parameter value is loaded */
-static char spi_loaded[SPI_INDEX_COUNT];
-
 static struct sysparam_rgb_entry system_colors[] =
 {
 #define RGB_ENTRY(name,val,reg) { { get_rgb_entry, set_rgb_entry, init_rgb_entry, COLORS_KEY, reg }, (val) }
@@ -6059,7 +6118,6 @@ BOOL WINAPI NtUserSystemParametersInfo( UINT action, UINT val, void *ptr, UINT w
         break
 
     BOOL ret = user_driver->pSystemParametersInfo( action, val, ptr, winini );
-    unsigned spi_idx = 0;
 
     if (!ret) switch (action)
     {
@@ -6298,42 +6356,29 @@ BOOL WINAPI NtUserSystemParametersInfo( UINT action, UINT val, void *ptr, UINT w
         break;
     }
     case SPI_SETWORKAREA:
-    {
         if (!ptr) return FALSE;
-        spi_idx = SPI_SETWORKAREA_IDX;
-        work_area = *(RECT*)ptr;
-        spi_loaded[spi_idx] = TRUE;
-        ret = TRUE;
+        ret = set_work_area( ptr, get_thread_dpi() );
         break;
-    }
     case SPI_GETWORKAREA:
     {
         MONITORINFO info = {.cbSize = sizeof(info)};
         UINT dpi = get_thread_dpi();
+        struct monitor *monitor;
 
         if (!ptr) return FALSE;
+        if (!lock_display_devices( FALSE )) return FALSE;
 
-        spi_idx = SPI_SETWORKAREA_IDX;
-        if (!spi_loaded[spi_idx])
+        LIST_FOR_EACH_ENTRY( monitor, &monitors, struct monitor, entry )
         {
-            struct monitor *monitor;
-
-            if (!lock_display_devices( FALSE )) return FALSE;
-
-            LIST_FOR_EACH_ENTRY( monitor, &monitors, struct monitor, entry )
-            {
-                if (!is_monitor_primary( monitor )) continue;
-                monitor_get_info( monitor, &info, dpi );
-                work_area = info.rcWork;
-                break;
-            }
-
-            unlock_display_devices();
-            spi_loaded[spi_idx] = TRUE;
+            if (!is_monitor_primary( monitor )) continue;
+            monitor_get_info( monitor, &info, dpi );
+            break;
         }
-        *(RECT *)ptr = work_area;
+
+        unlock_display_devices();
+        *(RECT *)ptr = info.rcWork;
         ret = TRUE;
-        TRACE("work area %s\n", wine_dbgstr_rect( &work_area ));
+        TRACE("work area %s\n", wine_dbgstr_rect( &info.rcWork ));
         break;
     }
 

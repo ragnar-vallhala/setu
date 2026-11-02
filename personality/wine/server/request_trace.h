@@ -2065,6 +2065,27 @@ static void dump_set_winstation_monitors_reply( const struct set_winstation_moni
     dump_uint64( " serial=", &req->serial );
 }
 
+static void dump_set_winstation_work_area_request( const struct set_winstation_work_area_request *req )
+{
+    dump_rectangle( " monitor=", &req->monitor );
+    dump_rectangle( ", work=", &req->work );
+}
+
+static void dump_set_winstation_work_area_reply( const struct set_winstation_work_area_reply *req )
+{
+    dump_uint64( " serial=", &req->serial );
+}
+
+static void dump_get_winstation_work_areas_request( const struct get_winstation_work_areas_request *req )
+{
+}
+
+static void dump_get_winstation_work_areas_reply( const struct get_winstation_work_areas_reply *req )
+{
+    dump_uint64( " serial=", &req->serial );
+    dump_varargs_rectangles( ", areas=", cur_size );
+}
+
 static void dump_get_process_winstation_request( const struct get_process_winstation_request *req )
 {
 }
@@ -3695,6 +3716,8 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_open_winstation_request,
     (dump_func)dump_close_winstation_request,
     (dump_func)dump_set_winstation_monitors_request,
+    (dump_func)dump_set_winstation_work_area_request,
+    (dump_func)dump_get_winstation_work_areas_request,
     (dump_func)dump_get_process_winstation_request,
     (dump_func)dump_set_process_winstation_request,
     (dump_func)dump_enum_winstation_request,
@@ -4006,6 +4029,8 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_open_winstation_reply,
     NULL,
     (dump_func)dump_set_winstation_monitors_reply,
+    (dump_func)dump_set_winstation_work_area_reply,
+    (dump_func)dump_get_winstation_work_areas_reply,
     (dump_func)dump_get_process_winstation_reply,
     NULL,
     (dump_func)dump_enum_winstation_reply,
@@ -4317,6 +4342,8 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "open_winstation",
     "close_winstation",
     "set_winstation_monitors",
+    "set_winstation_work_area",
+    "get_winstation_work_areas",
     "get_process_winstation",
     "set_process_winstation",
     "enum_winstation",

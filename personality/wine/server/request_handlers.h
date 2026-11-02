@@ -182,6 +182,8 @@ DECL_HANDLER(create_winstation);
 DECL_HANDLER(open_winstation);
 DECL_HANDLER(close_winstation);
 DECL_HANDLER(set_winstation_monitors);
+DECL_HANDLER(set_winstation_work_area);
+DECL_HANDLER(get_winstation_work_areas);
 DECL_HANDLER(get_process_winstation);
 DECL_HANDLER(set_process_winstation);
 DECL_HANDLER(enum_winstation);
@@ -493,6 +495,8 @@ static const req_handler req_handlers[REQ_NB_REQUESTS] =
     (req_handler)req_open_winstation,
     (req_handler)req_close_winstation,
     (req_handler)req_set_winstation_monitors,
+    (req_handler)req_set_winstation_work_area,
+    (req_handler)req_get_winstation_work_areas,
     (req_handler)req_get_process_winstation,
     (req_handler)req_set_process_winstation,
     (req_handler)req_enum_winstation,
@@ -1673,6 +1677,14 @@ C_ASSERT( offsetof(struct set_winstation_monitors_request, increment) == 12 );
 C_ASSERT( sizeof(struct set_winstation_monitors_request) == 16 );
 C_ASSERT( offsetof(struct set_winstation_monitors_reply, serial) == 8 );
 C_ASSERT( sizeof(struct set_winstation_monitors_reply) == 16 );
+C_ASSERT( offsetof(struct set_winstation_work_area_request, monitor) == 12 );
+C_ASSERT( offsetof(struct set_winstation_work_area_request, work) == 28 );
+C_ASSERT( sizeof(struct set_winstation_work_area_request) == 48 );
+C_ASSERT( offsetof(struct set_winstation_work_area_reply, serial) == 8 );
+C_ASSERT( sizeof(struct set_winstation_work_area_reply) == 16 );
+C_ASSERT( sizeof(struct get_winstation_work_areas_request) == 16 );
+C_ASSERT( offsetof(struct get_winstation_work_areas_reply, serial) == 8 );
+C_ASSERT( sizeof(struct get_winstation_work_areas_reply) == 16 );
 C_ASSERT( sizeof(struct get_process_winstation_request) == 16 );
 C_ASSERT( offsetof(struct get_process_winstation_reply, handle) == 8 );
 C_ASSERT( sizeof(struct get_process_winstation_reply) == 16 );

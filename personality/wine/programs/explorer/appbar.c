@@ -132,10 +132,63 @@ static void appbar_cliprect( HWND hwnd, RECT *rect )
     }
 }
 
+/* update_work_area: the work area of a monitor is the monitor minus the space
+ * reserved by the appbars on it ("Using Application Desktop Toolbars") */
+static void update_work_area( HMONITOR monitor )
+{
+    MONITORINFO info = {.cbSize = sizeof(info)};
+    struct appbar_data *data;
+    RECT work, current;
+
+    if (!GetMonitorInfoW( monitor, &info )) return;
+    work = info.rcMonitor;
+
+    LIST_FOR_EACH_ENTRY(data, &appbars, struct appbar_data, entry)
+    {
+        if (!data->space_reserved) continue;
+        if (MonitorFromRect( &data->rc, MONITOR_DEFAULTTONEAREST ) != monitor) continue;
+        switch (data->edge)
+        {
+        case ABE_BOTTOM: work.bottom = min( work.bottom, data->rc.top ); break;
+        case ABE_LEFT:   work.left = max( work.left, data->rc.right ); break;
+        case ABE_RIGHT:  work.right = min( work.right, data->rc.left ); break;
+        case ABE_TOP:    work.top = max( work.top, data->rc.bottom ); break;
+        }
+    }
+
+    if (IsRectEmpty( &work )) return;
+    current = info.rcWork;
+    if (EqualRect( &work, &current )) return;
+    TRACE( "work area %s\n", wine_dbgstr_rect( &work ) );
+    SystemParametersInfoW( SPI_SETWORKAREA, 0, &work, SPIF_SENDCHANGE );
+}
+
+/* forget appbars whose window is gone without ABM_REMOVE */
+static void remove_dead_appbars(void)
+{
+    struct appbar_data *data, *next;
+
+    LIST_FOR_EACH_ENTRY_SAFE(data, next, &appbars, struct appbar_data, entry)
+    {
+        if (IsWindow( data->hwnd )) continue;
+        list_remove( &data->entry );
+        if (data->space_reserved)
+        {
+            HMONITOR monitor = MonitorFromRect( &data->rc, MONITOR_DEFAULTTONEAREST );
+            free( data );
+            update_work_area( monitor );
+            send_poschanged( NULL );
+        }
+        else free( data );
+    }
+}
+
 static UINT_PTR handle_appbarmessage(DWORD msg, struct appbar_data_msg *abd)
 {
     struct appbar_data* data;
     HWND hwnd = LongToHandle( abd->hWnd );
+
+    remove_dead_appbars();
 
     switch (msg)
     {
@@ -161,11 +214,14 @@ static UINT_PTR handle_appbarmessage(DWORD msg, struct appbar_data_msg *abd)
     case ABM_REMOVE:
         if ((data = get_appbar(hwnd)))
         {
+            HMONITOR monitor = MonitorFromRect( &data->rc, MONITOR_DEFAULTTONEAREST );
+            BOOL reserved = data->space_reserved;
+
             list_remove(&data->entry);
+            free( data );
+            if (reserved) update_work_area( monitor );
 
             send_poschanged(hwnd);
-
-            free( data );
         }
         else WARN( "removing hwnd %p not on the list\n", hwnd );
         return TRUE;
@@ -181,16 +237,22 @@ static UINT_PTR handle_appbarmessage(DWORD msg, struct appbar_data_msg *abd)
         }
         if ((data = get_appbar(hwnd)))
         {
+            HMONITOR old_monitor = data->space_reserved ? MonitorFromRect( &data->rc, MONITOR_DEFAULTTONEAREST ) : NULL;
+            BOOL changed;
+
             /* calculate acceptable space */
             appbar_cliprect( hwnd, &abd->rc );
 
-            if (!EqualRect(&abd->rc, &data->rc))
-                send_poschanged(hwnd);
+            changed = !EqualRect(&abd->rc, &data->rc) || data->edge != abd->uEdge;
 
-            /* reserve that space for this appbar */
+            /* reserve that space for this appbar, and take it out of the work area */
             data->edge = abd->uEdge;
             data->rc = abd->rc;
             data->space_reserved = TRUE;
+            if (old_monitor) update_work_area( old_monitor );
+            update_work_area( MonitorFromRect( &data->rc, MONITOR_DEFAULTTONEAREST ) );
+
+            if (changed) send_poschanged(hwnd);
         }
         else
         {

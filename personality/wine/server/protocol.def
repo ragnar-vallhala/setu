@@ -2966,6 +2966,23 @@ enum coords_relative
 @END
 
 
+/* Set the work area of a window station monitor (SPI_SETWORKAREA) */
+@REQ(set_winstation_work_area)
+    struct rectangle monitor;     /* monitor rect, raw coordinates */
+    struct rectangle work;        /* work area, raw coordinates; empty to reset */
+@REPLY
+    unsigned __int64 serial;      /* winstation monitor update counter */
+@END
+
+
+/* Get the work areas set on the process current window station */
+@REQ(get_winstation_work_areas)
+@REPLY
+    unsigned __int64 serial;      /* winstation monitor update counter */
+    VARARG(areas,rectangles);     /* pairs of monitor rect and work area, raw coordinates */
+@END
+
+
 /* Get the process current window station */
 @REQ(get_process_winstation)
 @REPLY
