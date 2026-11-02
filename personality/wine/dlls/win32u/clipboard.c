@@ -347,7 +347,21 @@ INT WINAPI NtUserGetPriorityClipboardFormat( UINT *list, INT count )
  */
 INT WINAPI NtUserGetClipboardFormatName( UINT format, WCHAR *buffer, INT maxlen )
 {
-    UNICODE_STRING str = {.Buffer = buffer, .MaximumLength = maxlen};
+    UNICODE_STRING str = {.Buffer = buffer};
+
+    /* predefined formats have no name */
+    if (format < MAXINTATOM || format > 0xffff)
+    {
+        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    /* maxlen counts characters, including the terminator */
+    if (maxlen <= 1)
+    {
+        RtlSetLastWin32Error( ERROR_INSUFFICIENT_BUFFER );
+        return 0;
+    }
+    str.MaximumLength = min( maxlen, MAX_ATOM_LEN + 1 ) * sizeof(WCHAR);
     return NtUserGetAtomName( format, &str );
 }
 
