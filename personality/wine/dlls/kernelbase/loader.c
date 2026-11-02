@@ -173,7 +173,11 @@ static HMODULE load_library( const UNICODE_STRING *libname, DWORD flags )
     }
     else
     {
+        /* entry points run while loading don't change the caller's last error */
+        DWORD err = GetLastError();
+
         status = LdrLoadDll( load_path, flags, libname, &module );
+        if (!status) SetLastError( err );
         if (!set_ntstatus( status ))
         {
             module = 0;
@@ -233,6 +237,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH DisableThreadLibraryCalls( HMODULE module )
  */
 BOOL WINAPI DECLSPEC_HOTPATCH FreeLibrary( HINSTANCE module )
 {
+    NTSTATUS status;
+    DWORD err;
+
     if (!module)
     {
         SetLastError( ERROR_MOD_NOT_FOUND );
@@ -266,7 +273,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH FreeLibrary( HINSTANCE module )
         return UnmapViewOfFile( ptr );
     }
 
-    return set_ntstatus( LdrUnloadDll( module ));
+    /* entry points run while unloading don't change the caller's last error */
+    err = GetLastError();
+    status = LdrUnloadDll( module );
+    if (!status) SetLastError( err );
+    return set_ntstatus( status );
 }
 
 
