@@ -446,7 +446,8 @@ BOOL WINAPI PathFindOnPathW(LPWSTR lpszFile, LPCWSTR *lppszOtherDirs)
  *  Failure: FALSE. lpszPath is undefined.
  *
  * NOTES
- *  If cchMax is given as 0, lpszDest will still be NUL terminated.
+ *  If cchMax is given as 0, PathCompactPathExW fails and leaves lpszDest
+ *  untouched.
  *
  *  The Win32 version of this function contains a bug: When cchMax == 7,
  *  8 bytes will be written to lpszDest. This bug is fixed in the Wine
@@ -498,6 +499,10 @@ BOOL WINAPI PathCompactPathExW(LPWSTR lpszDest, LPCWSTR lpszPath,
     WARN("Invalid lpszDest would crash under Win32!\n");
     return FALSE;
   }
+
+  /* A zero-sized buffer is left untouched */
+  if (!cchMax)
+    return FALSE;
 
   *lpszDest = '\0';
 
