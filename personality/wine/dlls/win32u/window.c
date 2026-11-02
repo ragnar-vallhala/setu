@@ -4486,10 +4486,22 @@ static POINT get_minimized_pos( HWND hwnd, POINT pt )
     MINIMIZEDMETRICS metrics;
     int width, height;
 
+    metrics.cbSize = sizeof(metrics);
+    NtUserSystemParametersInfo( SPI_GETMINIMIZEDMETRICS, sizeof(metrics), &metrics, 0 );
+
     parent = NtUserGetAncestor( hwnd, GA_PARENT );
     if (parent == get_desktop_window())
     {
-        MONITORINFO mon_info = monitor_info_from_window( hwnd, MONITOR_DEFAULTTOPRIMARY );
+        MONITORINFO mon_info;
+
+        /* ARW_HIDE: "Hide minimized windows by moving them off the visible area of
+         * the screen" (MINIMIZEDMETRICS); a taskbar shows them instead. */
+        if (metrics.iArrange & ARW_HIDE)
+        {
+            pt.x = pt.y = -32000;
+            return pt;
+        }
+        mon_info = monitor_info_from_window( hwnd, MONITOR_DEFAULTTOPRIMARY );
         parent_rect = mon_info.rcWork;
     }
     else get_client_rect( parent, &parent_rect, get_thread_dpi() );
@@ -4500,9 +4512,6 @@ static POINT get_minimized_pos( HWND hwnd, POINT pt )
 
     width  = get_system_metrics( SM_CXMINIMIZED );
     height = get_system_metrics( SM_CYMINIMIZED );
-
-    metrics.cbSize = sizeof(metrics);
-    NtUserSystemParametersInfo( SPI_GETMINIMIZEDMETRICS, sizeof(metrics), &metrics, 0 );
 
     /* Check if another icon already occupies this spot */
     /* FIXME: this is completely inefficient */
