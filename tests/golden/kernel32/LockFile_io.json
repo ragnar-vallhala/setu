@@ -1,0 +1,274 @@
+{
+  "test": "kernel32/LockFile_io",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "excl_a_4_8": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_ending_at_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "read_b_starting_after_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "read_b_last_byte": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "read_b_first_byte": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "read_b_zero_len_in_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0
+    },
+    "read_b_covering_lock": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "write_b_ending_at_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 2
+    },
+    "write_b_last_byte": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "read_ptr_b_in_lock": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0,
+      "pos": 5
+    },
+    "write_ptr_b_in_lock": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0,
+      "pos": 5
+    },
+    "read_ptr_b_outside_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "pos": 12
+    },
+    "write_ptr_a_in_own_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 1,
+      "pos": 6
+    },
+    "read_dup_of_a_in_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2
+    },
+    "write_dup_of_a_in_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 1
+    },
+    "unlock_a_4_8": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_after_unlock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "shared_a_20_30": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_in_a_shared": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "write_b_in_a_shared": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "read_a_in_own_shared": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "write_a_in_own_shared": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "write_a_straddling_own_shared": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "shared_b_20_30": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "write_a_in_both_shared": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "unlock_a_20_30": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "write_b_in_own_shared_only": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "write_a_in_b_shared_only": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "read_a_in_b_shared_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2
+    },
+    "unlock_b_20_30": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "write_a_after_shared_gone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 2
+    },
+    "excl_a_30_34": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "shared_a_over_own_excl": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "write_a_excl_and_shared": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "read_a_excl_and_shared": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2
+    },
+    "read_b_excl_and_shared": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "unlock_a_30_34_first": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_after_first_unlock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2
+    },
+    "write_a_after_first_unlock": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "unlock_a_30_34_second": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_after_second_unlock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2
+    },
+    "excl_a_100_110": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_beyond_eof_in_lock": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "read_b_beyond_eof_before_lock": {
+      "ret": false,
+      "last_error": 38,
+      "read": 0
+    },
+    "read_b_from_eof_into_lock": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "write_b_beyond_eof_in_lock": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "write_b_extending_into_lock": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "read_a_beyond_eof_own_lock": {
+      "ret": false,
+      "last_error": 38,
+      "read": 0
+    },
+    "size_after_lock_writes": {
+      "size": 40
+    },
+    "unlock_a_100_110": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "excl_readonly_10_14": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_in_readonly_excl": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "write_b_in_readonly_excl": {
+      "ret": false,
+      "last_error": 33,
+      "written": 0
+    },
+    "read_r_in_own_excl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2
+    },
+    "read_b_after_readonly_closed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "94a35d6821fcc77e479b335fb71194b95d9fd14a6512ceec6272dbf31c75843d"
+}
