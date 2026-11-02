@@ -181,6 +181,11 @@ typedef struct
 
 #define SAMBA_XATTR_DOS_ATTRIB  XATTR_USER_PREFIX "DOSATTRIB"
 #define XATTR_ATTRIBS_MASK      (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)
+/* Present on a file whose ARCHIVE attribute was cleared, alongside
+ * SAMBA_XATTR_DOS_ATTRIB. It holds the file's mtime at that point: any
+ * later modification changes the mtime, which sets ARCHIVE again, as a
+ * write does on Windows. */
+#define XATTR_NOARCHIVE         XATTR_USER_PREFIX "WINENOARCHIVE"
 
 #define XATTR_REPARSE XATTR_USER_PREFIX "WINEREPARSE"
 
@@ -1660,6 +1665,42 @@ static int parse_samba_dos_attrib_data( char *data, int len )
 }
 
 
+/* format the mtime stamp stored in XATTR_NOARCHIVE */
+static void format_noarchive_stamp( const struct stat *st, char *buf, size_t size )
+{
+    unsigned long nsec = 0;
+#ifdef HAVE_STRUCT_STAT_ST_MTIM
+    nsec = st->st_mtim.tv_nsec;
+#elif defined(HAVE_STRUCT_STAT_ST_MTIMESPEC)
+    nsec = st->st_mtimespec.tv_nsec;
+#endif
+    snprintf( buf, size, "%lld.%09lu", (long long)st->st_mtime, nsec );
+}
+
+
+/* ARCHIVE stays clear only while the file is unmodified since it was cleared */
+static BOOL archive_still_cleared( const char *stamp, int len, const struct stat *st )
+{
+    char now[32];
+
+    if (len <= 0) return FALSE;
+    format_noarchive_stamp( st, now, sizeof(now) );
+    return len == strlen( now ) && !memcmp( stamp, now, len );
+}
+
+
+/* a file without any attribute reports FILE_ATTRIBUTE_NORMAL */
+static ULONG apply_noarchive( ULONG attr, const char *stamp, int len, const struct stat *st )
+{
+    if (S_ISREG( st->st_mode ) && archive_still_cleared( stamp, len, st ))
+    {
+        attr &= ~FILE_ATTRIBUTE_ARCHIVE;
+        if (!attr) attr = FILE_ATTRIBUTE_NORMAL;
+    }
+    return attr;
+}
+
+
 static BOOL fd_is_mount_point( int fd, const struct stat *st )
 {
     struct stat parent;
@@ -1703,7 +1744,14 @@ static int fd_get_file_info( HANDLE handle, int fd, unsigned int options,
 
     attr_len = xattr_fget( fd, SAMBA_XATTR_DOS_ATTRIB, attr_data, sizeof(attr_data)-1 );
     if (attr_len != -1)
+    {
         *attr |= parse_samba_dos_attrib_data( attr_data, attr_len );
+        if (S_ISREG( st->st_mode ))
+        {
+            attr_len = xattr_fget( fd, XATTR_NOARCHIVE, attr_data, sizeof(attr_data)-1 );
+            *attr = apply_noarchive( *attr, attr_data, attr_len, st );
+        }
+    }
     else
     {
         if (errno == ENOTSUP) return ret;
@@ -1768,11 +1816,31 @@ static NTSTATUS fd_set_file_info( int fd, UINT attr, BOOL force_set_xattr )
        set the extended attribute, since any of the names could start with a dot */
     force_set_xattr = force_set_xattr || st.st_nlink > 1;
 
+    if (S_ISREG( st.st_mode ))
+    {
+        if (!(attr & FILE_ATTRIBUTE_ARCHIVE))
+        {
+            char stamp[32];
+
+            /* the stamp is only read alongside the DOS attributes xattr */
+            force_set_xattr = TRUE;
+            format_noarchive_stamp( &st, stamp, sizeof(stamp) );
+            if (xattr_fset( fd, XATTR_NOARCHIVE, stamp, strlen( stamp ) ) == -1 && errno != ENOTSUP)
+                WARN( "Failed to set extended attribute " XATTR_NOARCHIVE ". errno %d (%s)\n",
+                      errno, strerror( errno ) );
+        }
+        else xattr_fremove( fd, XATTR_NOARCHIVE );
+    }
+
     if (fd_set_dos_attrib( fd, attr, force_set_xattr ) == -1 && errno != ENOTSUP)
         WARN( "Failed to set extended attribute " SAMBA_XATTR_DOS_ATTRIB ". errno %d (%s)\n",
               errno, strerror( errno ) );
 
     if (fchmod( fd, mode ) == -1) return errno_to_status( errno );
+
+    /* Query the timestamps: on kernels with multigrain timestamps this makes
+     * the next write get a distinct mtime, even within the same clock tick. */
+    fstat( fd, &st );
 
     return STATUS_SUCCESS;
 }
@@ -1828,7 +1896,14 @@ static int get_file_info( const char *path, struct stat *st, ULONG *attr, ULONG 
 
     attr_len = xattr_get( path, SAMBA_XATTR_DOS_ATTRIB, attr_data, sizeof(attr_data)-1 );
     if (attr_len != -1)
+    {
         *attr |= parse_samba_dos_attrib_data( attr_data, attr_len );
+        if (S_ISREG( st->st_mode ))
+        {
+            attr_len = xattr_get( path, XATTR_NOARCHIVE, attr_data, sizeof(attr_data)-1 );
+            *attr = apply_noarchive( *attr, attr_data, attr_len, st );
+        }
+    }
     else
     {
         if (is_hidden_file( path ))
