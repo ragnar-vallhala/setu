@@ -1124,29 +1124,23 @@ static int grow_values( struct key *key )
     return 1;
 }
 
-/* find the named value of a given key and return its index in the array */
+/* find the named value of a given key and return its index in the array;
+ * values are kept (and enumerated) in the order they were created, so a new
+ * value goes at the end */
 static struct key_value *find_value( const struct key *key, const struct unicode_str *name, int *index )
 {
-    int i, min, max, res;
-    data_size_t len;
+    int i;
 
-    min = 0;
-    max = key->last_value;
-    while (min <= max)
+    for (i = 0; i <= key->last_value; i++)
     {
-        i = (min + max) / 2;
-        len = min( key->values[i].namelen, name->len );
-        res = memicmp_strW( key->values[i].name, name->str, len );
-        if (!res) res = key->values[i].namelen - name->len;
-        if (!res)
+        if (key->values[i].namelen == name->len &&
+            !memicmp_upcase_strW( key->values[i].name, name->str, name->len ))
         {
             *index = i;
             return &key->values[i];
         }
-        if (res > 0) max = i - 1;
-        else min = i + 1;
     }
-    *index = min;  /* this is where we should insert it */
+    *index = i;  /* this is where we should insert it */
     return NULL;
 }
 
