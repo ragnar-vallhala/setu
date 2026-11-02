@@ -172,6 +172,7 @@
     "kernel32/invalid_params:close_null",
     "kernel32/invalid_params:close_twice",
     "kernel32/invalid_params:fullpath_buffer_too_small",
+    "kernel32/invalid_params:fullpath_empty",
     "kernel32/invalid_params:getenv_buffer_too_small",
     "kernel32/invalid_params:getenv_case_insensitive",
     "kernel32/invalid_params:getenv_missing",

@@ -2089,6 +2089,11 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFullPathNameA( LPCSTR name, DWORD len, LPSTR b
  */
 DWORD WINAPI DECLSPEC_HOTPATCH GetFullPathNameW( LPCWSTR name, DWORD len, LPWSTR buffer, LPWSTR *lastpart )
 {
+    if (name && !name[0])
+    {
+        SetLastError( ERROR_INVALID_NAME );
+        return 0;
+    }
     return RtlGetFullPathName_U( name, len * sizeof(WCHAR), buffer, lastpart ) / sizeof(WCHAR);
 }
 
