@@ -1273,7 +1273,10 @@ BOOL WINAPI PathAddExtensionA(char *path, const char *ext)
 
     TRACE("%s, %s\n", wine_dbgstr_a(path), wine_dbgstr_a(ext));
 
-    if (!path || !ext || *(PathFindExtensionA(path)))
+    if (!ext)
+        ext = ".exe"; /* a NULL extension means .exe */
+
+    if (!path || *(PathFindExtensionA(path)))
         return FALSE;
 
     len = strlen(path);
@@ -1290,7 +1293,10 @@ BOOL WINAPI PathAddExtensionW(WCHAR *path, const WCHAR *ext)
 
     TRACE("%s, %s\n", wine_dbgstr_w(path), wine_dbgstr_w(ext));
 
-    if (!path || !ext || *(PathFindExtensionW(path)))
+    if (!ext)
+        ext = L".exe"; /* a NULL extension means .exe */
+
+    if (!path || *(PathFindExtensionW(path)))
         return FALSE;
 
     len = lstrlenW(path);
