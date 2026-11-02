@@ -1313,54 +1313,71 @@ BOOL WINAPI PathCanonicalizeW(WCHAR *buffer, const WCHAR *path)
     /* Canonicalize the rest of the path */
     while (*src)
     {
-        if (*src == '.')
+        BOOL seg_start = (src == path || src[-1] == '\\' || src[-1] == ':');
+
+        if (*src == '.' && seg_start && (src[1] == '\\' || !src[1]))
         {
-            if (src[1] == '\\' && (src == path || src[-1] == '\\' || src[-1] == ':'))
+            /* A "." component is dropped; at the end of the path it takes
+             * the preceding \ with it, unless that \ belongs to the root. */
+            if (!src[1])
             {
-                src += 2; /* Skip .\ */
-            }
-            else if (src[1] == '.' && dst != buffer && dst[-1] == '\\')
-            {
-                /* \.. backs up a directory, over the root if it has no \ following X:.
-                 * .. is ignored if it would remove a UNC server name or initial \\
-                 */
-                if (dst != buffer)
-                {
-                    *dst = '\0'; /* Allow PathIsUNCServerShareA test on lpszBuf */
-                    if (dst > buffer + 1 && dst[-1] == '\\' && (dst[-2] != '\\' || dst > buffer + 2))
-                    {
-                        if (dst[-2] == ':' && (dst > buffer + 3 || dst[-3] == ':'))
-                        {
-                            dst -= 2;
-                            while (dst > buffer && *dst != '\\')
-                                dst--;
-                            if (*dst == '\\')
-                                dst++; /* Reset to last '\' */
-                            else
-                                dst = buffer; /* Start path again from new root */
-                        }
-                        else if (dst[-2] != ':' && !PathIsUNCServerShareW(buffer))
-                            dst -= 2;
-                    }
-                    while (dst > buffer && *dst != '\\')
-                        dst--;
-                    if (dst == buffer)
-                    {
-                        *dst++ = '\\';
-                        src++;
-                    }
-                }
-                src += 2; /* Skip .. in src path */
+                if (dst > buffer && dst[-1] == '\\' && dst - 1 != buffer &&
+                    !(dst - 3 == buffer && buffer[1] == ':') &&
+                    !(dst - 2 == buffer && buffer[0] == '\\'))
+                    dst--;
+                src++;
             }
             else
-                *dst++ = *src++;
+                src += 2; /* Skip .\ */
+        }
+        else if (*src == '.' && src[1] == '.' && (src[2] == '\\' || !src[2]) &&
+                 (dst == buffer || dst[-1] == '\\'))
+        {
+            /* \.. backs up a directory, over the root if it has no \ following X:.
+             * Only the initial \\ of a UNC path is kept.
+             */
+            if (dst != buffer)
+            {
+                *dst = '\0';
+                if (dst > buffer + 1 && dst[-1] == '\\' && (dst[-2] != '\\' || dst > buffer + 2))
+                {
+                    if (dst[-2] == ':' && (dst > buffer + 3 || dst[-3] == ':'))
+                    {
+                        dst -= 2;
+                        while (dst > buffer && *dst != '\\')
+                            dst--;
+                        if (*dst == '\\')
+                            dst++; /* Reset to last '\' */
+                        else
+                            dst = buffer; /* Start path again from new root */
+                    }
+                    else if (dst[-2] != ':')
+                        dst -= 2;
+                }
+                while (dst > buffer && *dst != '\\')
+                    dst--;
+            }
+            if (dst == buffer)
+            {
+                /* Backing up past the start of the path leaves a lone \ */
+                *dst++ = '\\';
+                if (src[2])
+                    src++;
+            }
+            src += 2; /* Skip .. in src path */
         }
         else
             *dst++ = *src++;
     }
 
-    /* Append \ to naked drive specs */
+    /* Trailing dots are stripped from the last component */
+    while (dst > buffer && dst[-1] == '.')
+        dst--;
+
+    /* Append \ to naked drive specs, and use \ for an empty result */
     if (dst - buffer == 2 && dst[-1] == ':')
+        *dst++ = '\\';
+    else if (dst == buffer)
         *dst++ = '\\';
     *dst++ = '\0';
     return TRUE;
