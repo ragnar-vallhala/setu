@@ -1,0 +1,230 @@
+{
+  "test": "kernel32/environment",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "set_new": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_exact": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "value": "hello"
+    },
+    "get_other_case": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "value": "hello"
+    },
+    "get_size_exact_len": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "buf_untouched": false,
+      "buf_head": "00002300230023002300230023002300"
+    },
+    "get_size_len_plus_one": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "value": "hello"
+    },
+    "get_null_buffer": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "get_missing": {
+      "ret": 0,
+      "last_error": 203,
+      "value": "###############################################################"
+    },
+    "get_missing_null_buffer": {
+      "ret": 0,
+      "last_error": 203
+    },
+    "set_empty_value": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_empty_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": ""
+    },
+    "get_empty_value_null_buffer": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "set_overwrite": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_after_case_insensitive_overwrite": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "value": "world"
+    },
+    "delete": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_deleted": {
+      "ret": 0,
+      "last_error": 203,
+      "value": "###############################################################"
+    },
+    "delete_missing": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_name_with_equals": {
+      "ret": false,
+      "last_error": 87
+    },
+    "get_name_with_equals": {
+      "ret": 0,
+      "last_error": 203,
+      "value": "###############################################################"
+    },
+    "set_empty_name": {
+      "ret": false,
+      "last_error": 87
+    },
+    "get_empty_name": {
+      "ret": 0,
+      "last_error": 203,
+      "value": "###############################################################"
+    },
+    "set_leading_equals": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_leading_equals": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "value": "h"
+    },
+    "set_value_with_equals": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_value_with_equals": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "value": "a=b"
+    },
+    "set_name_with_space": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_name_with_space": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "value": "sp"
+    },
+    "get_name_with_trailing_space": {
+      "ret": 0,
+      "last_error": 203,
+      "value": "###############################################################"
+    },
+    "expand_simple": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "aexb"
+    },
+    "expand_case_insensitive": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "ex"
+    },
+    "expand_undefined_kept": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "%SETU_UNDEFINED%"
+    },
+    "expand_not_recursive": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "%SETU_X%"
+    },
+    "expand_lone_percent": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "100% sure"
+    },
+    "expand_double_percent": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "%ex%"
+    },
+    "expand_unterminated": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "%SETU_X"
+    },
+    "expand_empty_name": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "a%%b"
+    },
+    "expand_empty_input": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "out": ""
+    },
+    "expand_null_buffer": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "expand_buffer_too_small": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "expand_buffer_exact_no_nul": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "expand_buffer_exact": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "aexb"
+    },
+    "expand_empty_variable": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "[]"
+    },
+    "expand_hidden_variable": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "h"
+    },
+    "block_contains_variable": {
+      "found": 1,
+      "found_other_case": 0
+    },
+    "block_case_insensitively_sorted": {
+      "sorted": false
+    },
+    "free_block": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_environment_strings": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_replace_new": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "value": "1"
+    },
+    "after_replace_old_gone": {
+      "ret": 0,
+      "last_error": 203,
+      "value": "###############################################################"
+    }
+  },
+  "errors": [],
+  "source_sha256": "79bbb510e6ce4ad360ff208f9cee786653ca1b46c91d12ff4a437547e7660c77"
+}

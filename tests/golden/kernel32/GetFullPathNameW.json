@@ -1,0 +1,252 @@
+{
+  "test": "kernel32/GetFullPathNameW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "relative_name": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a.txt",
+      "file_part": "a.txt"
+    },
+    "dot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>",
+      "file_part": "kernel32__GetFullPathNameW"
+    },
+    "dotdot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<parent>",
+      "file_part": "<parent-name>"
+    },
+    "dot_slash_name": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a",
+      "file_part": "a"
+    },
+    "dotdot_name": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<parent>\\x",
+      "file_part": "x"
+    },
+    "collapse_dotdot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\b",
+      "file_part": "b"
+    },
+    "forward_slashes": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a\\b\\c",
+      "file_part": "c"
+    },
+    "double_separator": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a\\b",
+      "file_part": "b"
+    },
+    "trailing_separator": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a\\",
+      "file_part": null
+    },
+    "trailing_dot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a",
+      "file_part": "a"
+    },
+    "trailing_dots_spaces": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a",
+      "file_part": "a"
+    },
+    "trailing_space": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a",
+      "file_part": "a"
+    },
+    "dot_in_middle": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\a\\b",
+      "file_part": "b"
+    },
+    "three_dots": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\",
+      "file_part": null
+    },
+    "dotdot_past_root": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<root>\\x",
+      "file_part": "x"
+    },
+    "rooted": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<root>\\x\\y",
+      "file_part": "y"
+    },
+    "drive_relative": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\x",
+      "file_part": "x"
+    },
+    "drive_only": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>",
+      "file_part": "kernel32__GetFullPathNameW"
+    },
+    "absolute_dotdot_past_root": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<root>\\b",
+      "file_part": "b"
+    },
+    "verbatim_not_normalised": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\?\\@:\\b",
+      "file_part": "b"
+    },
+    "device_path_normalised": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\.\\@:\\b",
+      "file_part": "b"
+    },
+    "unc": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\server\\share\\b",
+      "file_part": "b"
+    },
+    "unc_dotdot_past_share": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\server\\share\\x",
+      "file_part": "x"
+    },
+    "unc_server_only": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\server",
+      "file_part": null
+    },
+    "unc_forward_slashes": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\server\\share\\x",
+      "file_part": "x"
+    },
+    "device_con": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\.\\con",
+      "file_part": null
+    },
+    "device_nul_ext": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "device_com1_upper": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\.\\COM1",
+      "file_part": null
+    },
+    "device_lpt1_in_dir": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\.\\lpt1",
+      "file_part": null
+    },
+    "device_conin": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "\\\\.\\conin$",
+      "file_part": null
+    },
+    "device_like_prefix": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\console",
+      "file_part": "console"
+    },
+    "buffer_too_small": {
+      "ret_is_len_plus_nul": true,
+      "last_error": "unchanged"
+    },
+    "buffer_exactly_len": {
+      "ret_is_len_plus_nul": true,
+      "last_error": "unchanged"
+    },
+    "buffer_len_plus_nul": {
+      "ret_is_len": true,
+      "last_error": "unchanged"
+    },
+    "null_buffer_zero_size": {
+      "ret_is_len_plus_nul": true,
+      "last_error": "unchanged"
+    },
+    "long_existing_relative": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "short.txt"
+    },
+    "long_keeps_input_case": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "short.txt"
+    },
+    "long_missing": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "long_missing_parent": {
+      "ret": 0,
+      "last_error": 3
+    },
+    "long_with_dotdot": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "sub\\..\\short.txt"
+    },
+    "long_buffer_too_small": {
+      "ret": 10,
+      "last_error": "unchanged"
+    },
+    "long_empty": {
+      "ret": 0,
+      "last_error": 3
+    },
+    "short_already_8_3": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "short.txt"
+    },
+    "short_missing": {
+      "ret": 0,
+      "last_error": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "0662af55883fd6c661705893425247846906168a02c8d885e6d4a46a1878d72a"
+}

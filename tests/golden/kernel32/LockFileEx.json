@@ -1,0 +1,144 @@
+{
+  "test": "kernel32/LockFileEx",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "lock_a_0_10": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_b_overlap": {
+      "ret": false,
+      "last_error": 33
+    },
+    "lock_a_same_range_again": {
+      "ret": false,
+      "last_error": 33
+    },
+    "lock_b_adjacent": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_b_in_locked": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "read_b_straddling": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "read_a_own_lock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "write_b_in_locked": {
+      "ret": false,
+      "last_error": 33
+    },
+    "write_a_own_lock": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "read_a_in_b_lock": {
+      "ret": false,
+      "last_error": 33,
+      "read": 0
+    },
+    "unlock_a_partial_range": {
+      "ret": false,
+      "last_error": 158
+    },
+    "unlock_a_not_locked": {
+      "ret": false,
+      "last_error": 158
+    },
+    "unlock_b_others_lock": {
+      "ret": false,
+      "last_error": 158
+    },
+    "unlock_a_exact": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unlock_a_second_lock": {
+      "ret": false,
+      "last_error": 158
+    },
+    "unlock_a_third_time": {
+      "ret": false,
+      "last_error": 158
+    },
+    "read_b_after_unlock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "shared_a": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "shared_b_same_range": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "exclusive_b_over_shared": {
+      "ret": false,
+      "last_error": 33
+    },
+    "read_a_in_shared": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0
+    },
+    "write_a_in_own_shared": {
+      "ret": false,
+      "last_error": 33
+    },
+    "unlockex_a": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unlockex_b": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_beyond_eof": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_zero_length": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_zero_length_again": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unlock_zero_length": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_whole_range": {
+      "ret": false,
+      "last_error": 33
+    },
+    "lock_after_owner_closed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_on_read_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_invalid_handle": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "8c0199b5a1c99b788c27c9d5053178bf28cedf764e56e4ae68952fb039536666"
+}

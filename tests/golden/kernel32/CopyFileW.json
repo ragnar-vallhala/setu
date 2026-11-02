@@ -1,0 +1,205 @@
+{
+  "test": "kernel32/CopyFileW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "copy_new": {
+      "ret": true,
+      "last_error": 0,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dst,other,src"
+    },
+    "copy_fail_if_exists": {
+      "ret": false,
+      "last_error": 80,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "6f6c64",
+      "dir_sorted": "dst,other,src"
+    },
+    "copy_overwrite": {
+      "ret": true,
+      "last_error": 0,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dst,other,src"
+    },
+    "copy_onto_self": {
+      "ret": false,
+      "last_error": 32,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dst,other,src"
+    },
+    "copy_onto_self_other_case": {
+      "ret": false,
+      "last_error": 32,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dst,other,src"
+    },
+    "copy_missing_source": {
+      "ret": false,
+      "last_error": 2,
+      "dst.exists": false,
+      "dir_sorted": "dst,other,src"
+    },
+    "copy_missing_dest_dir": {
+      "ret": false,
+      "last_error": 3,
+      "dst.exists": false,
+      "dir_sorted": "dst,other,src"
+    },
+    "copy_directory_source": {
+      "ret": false,
+      "last_error": 5,
+      "dst.exists": false,
+      "dir_sorted": "dir,dst,other,src"
+    },
+    "copy_onto_directory": {
+      "ret": false,
+      "last_error": 5,
+      "dst.exists": true,
+      "dst.attrs": "0x00000010",
+      "dir_sorted": "dir,dst,other,src"
+    },
+    "copy_into_directory": {
+      "ret": true,
+      "last_error": 0,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dir,dst,other,src"
+    },
+    "copy_readonly_hidden_source": {
+      "ret": true,
+      "last_error": 0,
+      "dst.exists": true,
+      "dst.attrs": "0x00000023",
+      "dst.size": 8,
+      "dst.data": "726561646f6e6c79",
+      "dir_sorted": "dir,dst,other,ro,ro_copy,src"
+    },
+    "copy_over_readonly_dest": {
+      "ret": false,
+      "last_error": 5,
+      "dst.exists": true,
+      "dst.attrs": "0x00000023",
+      "dst.size": 8,
+      "dst.data": "726561646f6e6c79",
+      "dir_sorted": "dir,dst,other,ro,ro_copy,src"
+    },
+    "copy_over_hidden_dest": {
+      "ret": false,
+      "last_error": 5,
+      "dst.exists": true,
+      "dst.attrs": "0x00000002",
+      "dst.size": 8,
+      "dst.data": "726561646f6e6c79",
+      "dir_sorted": "dir,dst,other,ro,ro_copy,src"
+    },
+    "copy_source_locked": {
+      "ret": false,
+      "last_error": 32,
+      "dst.exists": false,
+      "dir_sorted": "dir,dst,other,ro,ro_copy,src"
+    },
+    "copy_dest_locked": {
+      "ret": false,
+      "last_error": 32,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dir_sorted": "dir,dst,other,ro,ro_copy,src"
+    },
+    "copyex_fail_if_exists": {
+      "ret": false,
+      "last_error": 80,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dir,dst,other,ro,ro_copy,src"
+    },
+    "copyex_new": {
+      "ret": true,
+      "last_error": 0,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dir,dst,ex_new,other,ro,ro_copy,src"
+    },
+    "copyex_pre_cancelled": {
+      "ret": false,
+      "last_error": 1235,
+      "dst.exists": false,
+      "dir_sorted": "dir,dst,ex_new,other,ro,ro_copy,src"
+    },
+    "copy_empty_file": {
+      "ret": true,
+      "last_error": 0,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 0,
+      "dst.data": "",
+      "dir_sorted": "dir,dst,empty,empty_copy,ex_new,other,ro,ro_copy,src"
+    },
+    "move_new": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dir,dst,empty,empty_copy,moved,other,ro,ro_copy,src"
+    },
+    "move_onto_existing": {
+      "ret": false,
+      "last_error": 183,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dir,dst,empty,empty_copy,moved,other,ro,ro_copy,src"
+    },
+    "move_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "dir2,dst,empty,empty_copy,moved,other,ro,ro_copy,src"
+    },
+    "move_into_own_subdir": {
+      "ret": false,
+      "last_error": 32,
+      "dst.exists": false,
+      "dir_sorted": "dir2,dst,empty,empty_copy,moved,other,ro,ro_copy,src"
+    },
+    "move_case_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 11,
+      "dst.data": "736f757263652064617461",
+      "dir_sorted": "MOVED,dir2,dst,empty,empty_copy,other,ro,ro_copy,src"
+    }
+  },
+  "errors": [],
+  "source_sha256": "dd7b30f5c5a0500a28213c37dc62659f4789c1bb339c31dd3665cf0a87d02883"
+}

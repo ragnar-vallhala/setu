@@ -1,0 +1,306 @@
+{
+  "test": "kernel32/VirtualAlloc",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "system_info": {
+      "page_size": 4096,
+      "allocation_granularity": 65536
+    },
+    "reserved": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 0,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 65536,
+      "state": "0x00002000",
+      "protect": "0x00000000",
+      "type": "0x00020000"
+    },
+    "commit_middle": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "offset_from_request": 0
+    },
+    "query_before_commit": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 0,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 16384,
+      "state": "0x00002000",
+      "protect": "0x00000000",
+      "type": "0x00020000"
+    },
+    "query_committed": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 16384,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 8192,
+      "state": "0x00001000",
+      "protect": "0x00000004",
+      "type": "0x00020000"
+    },
+    "query_after_commit": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 24576,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 40960,
+      "state": "0x00002000",
+      "protect": "0x00000000",
+      "type": "0x00020000"
+    },
+    "commit_unaligned": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "offset_from_request": -100
+    },
+    "query_unaligned_commit": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 32768,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "protect": "0x00000002",
+      "type": "0x00020000"
+    },
+    "commit_beyond_reservation": {
+      "ret_null": true,
+      "last_error": 487
+    },
+    "commit_bad_protect": {
+      "ret_null": true,
+      "last_error": 50
+    },
+    "commit_zero_protect": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "recommit_committed": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "offset_from_request": 0
+    },
+    "query_after_recommit": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 16384,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "protect": "0x00000002",
+      "type": "0x00020000"
+    },
+    "reserve_inside_reservation": {
+      "ret_null": true,
+      "last_error": 487
+    },
+    "zero_filled": {
+      "zero": true
+    },
+    "protect_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000002"
+    },
+    "query_after_protect": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 16384,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "protect": "0x00000002",
+      "type": "0x00020000"
+    },
+    "protect_back": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000002"
+    },
+    "protect_span_two_regions": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000004"
+    },
+    "protect_reserved_only": {
+      "ret": false,
+      "last_error": 487,
+      "old": "0x00000001"
+    },
+    "protect_guard": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000020"
+    },
+    "query_guard": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 20480,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 4096,
+      "state": "0x00001000",
+      "protect": "0x00000104",
+      "type": "0x00020000"
+    },
+    "protect_noaccess": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000104"
+    },
+    "protect_invalid_value": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "protect_null_size": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0x0000dead"
+    },
+    "decommit_one": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_after_decommit": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 16384,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 4096,
+      "state": "0x00002000",
+      "protect": "0x00000000",
+      "type": "0x00020000"
+    },
+    "decommit_already_decommitted": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "release_with_size": {
+      "ret": false,
+      "last_error": 87
+    },
+    "release_not_base": {
+      "ret": false,
+      "last_error": 487
+    },
+    "free_bad_type": {
+      "ret": false,
+      "last_error": 87
+    },
+    "free_both_flags": {
+      "ret": false,
+      "last_error": 87
+    },
+    "release_base": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_after_release": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 0,
+      "alloc_base_offset": -1,
+      "alloc_protect": "0x00000000",
+      "state": "0x00010000",
+      "protect": "0x00000001",
+      "type": "0x00000000"
+    },
+    "release_twice": {
+      "ret": false,
+      "last_error": 487
+    },
+    "reserve_commit_odd_size": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "query_odd_size": {
+      "ret_is_size": true,
+      "last_error": "unchanged",
+      "base_offset": 0,
+      "alloc_base_offset": 0,
+      "alloc_protect": "0x00000004",
+      "region_size": 8192,
+      "state": "0x00001000",
+      "protect": "0x00000004",
+      "type": "0x00020000"
+    },
+    "zero_size": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "no_type": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "commit_without_address_or_reserve": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "reset_on_null": {
+      "ret_null": true,
+      "last_error": 487
+    },
+    "heap_alloc_zero": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "zero": true
+    },
+    "heap_size_exact": {
+      "size": 100,
+      "last_error": "unchanged"
+    },
+    "heap_realloc_grow_zero": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "keeps_contents": true,
+      "zero_tail": true,
+      "size": 200
+    },
+    "heap_realloc_shrink_in_place": {
+      "same_pointer": true,
+      "last_error": "unchanged",
+      "size": 50
+    },
+    "heap_alloc_zero_bytes": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "size": 0
+    },
+    "heap_free_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "heap_free": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "heap_create_fixed_max": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "heap_alloc_over_fixed_max": {
+      "ret_null": true,
+      "last_error": 8
+    },
+    "heap_destroy": {
+      "ret": true,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4f9bec14e89a8aeeb9b2cd93cfab1e3303178cc4b8dd884bba116cfdfddbabf1"
+}

@@ -1,0 +1,150 @@
+{
+  "test": "kernel32/SetFilePointerEx",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "size_after_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 10
+    },
+    "seek_begin_0": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 0
+    },
+    "seek_current_3": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 3
+    },
+    "seek_end_minus_2": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 8
+    },
+    "seek_end_0": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 10
+    },
+    "seek_negative_from_begin": {
+      "ret": false,
+      "last_error": 131,
+      "new_pos": -12345
+    },
+    "seek_negative_past_start_current": {
+      "ret": false,
+      "last_error": 131,
+      "new_pos": -12345
+    },
+    "seek_past_eof": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 100
+    },
+    "size_unchanged_by_seek": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 10
+    },
+    "seek_bad_method": {
+      "ret": false,
+      "last_error": 87,
+      "new_pos": -12345
+    },
+    "seek_huge": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "read_beyond_eof": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 0
+    },
+    "write_beyond_eof": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 15
+    },
+    "set_end_truncate": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 4
+    },
+    "pos_after_truncate": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 4
+    },
+    "set_end_extend": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 8
+    },
+    "pos_kept_after_truncate_below": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 2
+    },
+    "legacy_seek_ok": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "legacy_seek_negative": {
+      "ret": "0xffffffff",
+      "last_error": 131
+    },
+    "legacy_seek_high_part": {
+      "ret": "0x00000000",
+      "high": 1,
+      "last_error": "unchanged"
+    },
+    "legacy_seek_minus_one_64": {
+      "ret": "0xffffffff",
+      "high": -1,
+      "last_error": 131
+    },
+    "legacy_get_size": {
+      "ret": 2,
+      "high": 0,
+      "last_error": "unchanged"
+    },
+    "set_end_readonly_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "size_of_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 0
+    },
+    "seek_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 5
+    },
+    "append_only_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 4,
+      "file.data": "30314150"
+    },
+    "size_invalid_handle": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "903ea841dacae9243d34cb5cb2b5ec9bea95fc6cc0204538e297067146e30398"
+}

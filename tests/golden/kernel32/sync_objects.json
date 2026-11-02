@@ -1,0 +1,289 @@
+{
+  "test": "kernel32/sync_objects",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "event_create_named": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "event_create_same_name": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "event_second_create_ignores_initial_state": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "event_set": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "event_manual_signalled": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "event_manual_stays_signalled": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "event_reset": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "event_after_reset": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "event_pulse_no_waiters": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "event_after_pulse": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "event_open_existing": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "event_wait_without_synchronize": {
+      "wait": "WAIT_FAILED",
+      "last_error": 5
+    },
+    "event_open_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "event_open_null_name": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "event_open_name_case": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "event_name_with_backslash": {
+      "ret": "NULL",
+      "last_error": 3
+    },
+    "event_local_prefix": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "event_empty_name": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "auto_event_first_wait": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "auto_event_second_wait": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "mutex_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "semaphore_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "open_mutex_on_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "file_mapping_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "event_open_after_last_close": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "mutex_create_owned": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "mutex_recursive_wait": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "mutex_release_1": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mutex_release_2": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mutex_release_not_owner": {
+      "ret": false,
+      "last_error": 288
+    },
+    "mutex_create_existing_owned": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "mutex_release_after_existing_owned": {
+      "ret": false,
+      "last_error": 288
+    },
+    "mutex_release_after_existing_owned_again": {
+      "ret": false,
+      "last_error": 288
+    },
+    "mutex_abandoned": {
+      "wait": "WAIT_ABANDONED_0",
+      "last_error": "unchanged"
+    },
+    "mutex_after_abandoned_wait": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "mutex_release_after_abandoned": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mutex_release_after_abandoned_again": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "release_mutex_on_event": {
+      "ret": false,
+      "last_error": 6
+    },
+    "semaphore_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "semaphore_create_initial_gt_max": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "semaphore_create_max_zero": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "semaphore_create_negative": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "semaphore_release_to_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "prev": 1
+    },
+    "semaphore_release_past_max": {
+      "ret": false,
+      "last_error": 298,
+      "prev": -77
+    },
+    "semaphore_release_zero": {
+      "ret": false,
+      "last_error": 87,
+      "prev": -77
+    },
+    "semaphore_wait_1": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "semaphore_wait_2": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "semaphore_wait_3": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "semaphore_wait_4": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "semaphore_release_after_drain": {
+      "ret": true,
+      "last_error": "unchanged",
+      "prev": 0
+    },
+    "wfmo_any_first_signalled_index": {
+      "wait": "WAIT_OBJECT_1",
+      "last_error": "unchanged"
+    },
+    "wfmo_all_not_all_signalled": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "wfmo_all_signalled": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "wfmo_any_lowest_index": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "wfmo_duplicate_handle_all": {
+      "wait": "WAIT_FAILED",
+      "last_error": 87
+    },
+    "wfmo_duplicate_handle_any": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "wfmo_zero_count": {
+      "wait": "WAIT_FAILED",
+      "last_error": 87
+    },
+    "wfmo_too_many": {
+      "wait": "WAIT_FAILED",
+      "last_error": 87
+    },
+    "wfmo_null_member": {
+      "wait": "WAIT_FAILED",
+      "last_error": 6
+    },
+    "wait_null_handle": {
+      "wait": "WAIT_FAILED",
+      "last_error": 6
+    },
+    "wait_pseudo_thread": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "timer_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "timer_initially_unsignalled": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    },
+    "timer_set_relative": {
+      "ret": true,
+      "last_error": 0
+    },
+    "timer_fires": {
+      "wait": "WAIT_OBJECT_0"
+    },
+    "timer_manual_stays_signalled": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "timer_cancel": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "timer_after_cancel_still_signalled": {
+      "wait": "WAIT_OBJECT_0",
+      "last_error": "unchanged"
+    },
+    "timer_reset_by_set": {
+      "wait": "WAIT_TIMEOUT",
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "fb1961390c9ea906fc2a6eb0ada97d94cad58d246c56030090e1fe4530411856"
+}

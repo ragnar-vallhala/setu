@@ -1,0 +1,193 @@
+{
+  "test": "kernel32/CreateProcessW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exit_zero": {
+      "ret": true,
+      "exit_code": "0x00000000"
+    },
+    "exit_42": {
+      "ret": true,
+      "exit_code": "0x0000002a"
+    },
+    "exit_negative": {
+      "ret": true,
+      "exit_code": "0xffffffff"
+    },
+    "exit_259_still_active_value": {
+      "ret": true,
+      "exit_code": "0x00000103"
+    },
+    "child_starts_with_last_error_zero": {
+      "ret": true,
+      "exit_code": "0x00000000"
+    },
+    "args_simple": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 19,
+      "args.data": "617267633d330a5b615d0a5b625d0a5b635d0a"
+    },
+    "args_quoted_space": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 17,
+      "args.data": "617267633d320a5b6120625d0a5b635d0a"
+    },
+    "args_escaped_quote": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 13,
+      "args.data": "617267633d310a5b6122625d0a"
+    },
+    "args_backslashes_before_quote": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 16,
+      "args.data": "617267633d320a5b615c5d0a5b625d0a"
+    },
+    "args_backslashes_not_before_quote": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 14,
+      "args.data": "617267633d310a5b615c5c625d0a"
+    },
+    "args_odd_backslashes_quote": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 14,
+      "args.data": "617267633d310a5b615c22625d0a"
+    },
+    "args_double_quote_inside": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 13,
+      "args.data": "617267633d310a5b6122625d0a"
+    },
+    "args_empty_quoted": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 14,
+      "args.data": "617267633d320a5b5d0a5b785d0a"
+    },
+    "args_tabs": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 15,
+      "args.data": "617267633d320a5b615d0a5b625d0a"
+    },
+    "args_unterminated_quote": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 13,
+      "args.data": "617267633d310a5b6120625d0a"
+    },
+    "args_unicode": {
+      "ret": true,
+      "args.exists": true,
+      "args.attrs": "0x00000020",
+      "args.size": 24,
+      "args.data": "617267633d320a5bc3a974c3a95d0a5be697a5e69cac5d0a"
+    },
+    "inherit_inheritable_handle": {
+      "ret": true,
+      "exit_code": 1,
+      "parent_sees_set": true
+    },
+    "inherit_disabled": {
+      "ret": true,
+      "child_could_use_handle": false,
+      "parent_sees_set": false
+    },
+    "inherit_non_inheritable_handle": {
+      "ret": true,
+      "child_could_use_handle": false,
+      "parent_sees_set": false
+    },
+    "env_inherited": {
+      "ret": true,
+      "exit_code": 202
+    },
+    "env_replaced": {
+      "ret": true,
+      "exit_code": 200
+    },
+    "cwd_set": {
+      "ret": true,
+      "exit_code": 1
+    },
+    "cwd_missing": {
+      "ret": false,
+      "last_error": 267
+    },
+    "running_exit_code": {
+      "spawned": true,
+      "exit_code": 259
+    },
+    "terminate": {
+      "ret": true,
+      "last_error": "unchanged",
+      "exit_code": 7
+    },
+    "terminate_twice": {
+      "ret": false,
+      "last_error": 5
+    },
+    "suspended": {
+      "ret": true,
+      "not_finished": true,
+      "resume_prev_count": 1,
+      "exit_code": 5
+    },
+    "missing_exe_app_name": {
+      "ret": false,
+      "last_error": 2
+    },
+    "missing_exe_cmdline": {
+      "ret": false,
+      "last_error": 2
+    },
+    "missing_exe_in_missing_dir": {
+      "ret": false,
+      "last_error": 2
+    },
+    "text_file_as_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "empty_file_as_exe": {
+      "ret": false,
+      "last_error": 193
+    },
+    "mz_only_exe": {
+      "ret": false,
+      "last_error": 216
+    },
+    "directory_as_exe": {
+      "ret": false,
+      "last_error": 5
+    },
+    "empty_cmdline": {
+      "ret": false,
+      "last_error": 87
+    },
+    "both_null": {
+      "ret": false,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "20e98cde123771bd7a0aa08d125226a33345f644e01f45992c337b50bb0c770c"
+}

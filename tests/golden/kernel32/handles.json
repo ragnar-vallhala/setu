@@ -1,0 +1,198 @@
+{
+  "test": "kernel32/handles",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "pseudo_handles": {
+      "process_is_minus_1": true,
+      "thread_is_minus_2": true
+    },
+    "info_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000000"
+    },
+    "info_event": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000000"
+    },
+    "info_null": {
+      "ret": false,
+      "last_error": 6
+    },
+    "info_bogus": {
+      "ret": false,
+      "last_error": 6
+    },
+    "info_pseudo_process": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000000"
+    },
+    "set_inherit": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_after_inherit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000001"
+    },
+    "set_protect": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_after_protect": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000003"
+    },
+    "set_unknown_flag": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_after_unknown_flag": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000003"
+    },
+    "set_mask_zero": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_clear_inherit": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_after_clear_inherit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000002"
+    },
+    "dup_same_access": {
+      "ret": true,
+      "last_error": "unchanged",
+      "different_value": true
+    },
+    "info_dup_does_not_copy_flags": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000000"
+    },
+    "compare_dup": {
+      "available": true,
+      "same_object": true,
+      "different_object": false
+    },
+    "close_dup": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "close_dup_twice": {
+      "ret": false,
+      "last_error": 6
+    },
+    "dup_reduced_access_inherit": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_dup_inherit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000001"
+    },
+    "set_event_via_sync_only_dup": {
+      "ret": false,
+      "last_error": 5
+    },
+    "dup_bogus_source": {
+      "ret": false,
+      "last_error": 6
+    },
+    "dup_pseudo_process": {
+      "ret": true,
+      "last_error": "unchanged",
+      "real_handle": true
+    },
+    "type_process_handle": {
+      "type": 0,
+      "last_error": 6
+    },
+    "dup_close_source": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "close_closed_source": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "type_disk_file": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "type_event": {
+      "type": 0,
+      "last_error": 6
+    },
+    "type_null": {
+      "type": 0,
+      "last_error": 6
+    },
+    "type_invalid": {
+      "type": 0,
+      "last_error": 6
+    },
+    "type_pipe": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "open_nul": {
+      "ret": "valid"
+    },
+    "type_nul": {
+      "type": 2,
+      "last_error": "unchanged"
+    },
+    "close_protected": {
+      "ret": false,
+      "last_error": 6
+    },
+    "info_after_close_protected": {
+      "ret": true,
+      "last_error": "unchanged",
+      "flags": "0x00000002"
+    },
+    "close_unprotected": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "close_again": {
+      "ret": false,
+      "last_error": 6
+    },
+    "close_null": {
+      "ret": false,
+      "last_error": 6
+    },
+    "close_bogus": {
+      "ret": false,
+      "last_error": 6
+    },
+    "close_pseudo_process": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "close_pseudo_thread": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "close_event": {
+      "ret": true,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "c21519011d666b52c8fad600a334a18bee045a2b4fec7f3c56156a36896188d4"
+}

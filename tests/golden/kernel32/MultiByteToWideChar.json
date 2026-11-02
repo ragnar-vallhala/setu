@@ -1,0 +1,286 @@
+{
+  "test": "kernel32/MultiByteToWideChar",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "utf8_ascii": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100620063000000"
+    },
+    "utf8_explicit_len_no_nul": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "610062006300"
+    },
+    "utf8_two_byte": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "e9000000"
+    },
+    "utf8_three_byte": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "e5650000"
+    },
+    "utf8_four_byte_surrogates": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "3dd800de0000"
+    },
+    "utf8_invalid_lead": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100fdff7a000000"
+    },
+    "utf8_invalid_lead_strict": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "utf8_truncated_sequence": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "6100fdff0000"
+    },
+    "utf8_overlong": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "fdfffdff0000"
+    },
+    "utf8_overlong_strict": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "utf8_encoded_surrogate": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "fdfffdff0000"
+    },
+    "utf8_above_max": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "fdfffdfffdff0000"
+    },
+    "utf8_lone_continuation": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "fdff0000"
+    },
+    "utf8_bom_kept": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "fffe78000000"
+    },
+    "utf8_embedded_nul": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "610000006200"
+    },
+    "utf8_size_query": {
+      "ret": 4,
+      "last_error": "unchanged"
+    },
+    "utf8_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "utf8_surrogate_pair_split_by_buffer": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "utf8_bad_flag": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100620063000000"
+    },
+    "utf8_zero_length": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_code_page": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "cp1252_high": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "ac207801e900"
+    },
+    "cp1252_undefined_0x81": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "out": "8100"
+    },
+    "cp1252_undefined_strict": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "out": "8100"
+    },
+    "cp437_box": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "542550255725"
+    },
+    "cp437_control_glyphs": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "3a263b26"
+    },
+    "utf7_basic": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "480069002000e90021000000"
+    },
+    "to_utf8_bmp": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "c3a9e697a500"
+    },
+    "to_utf8_surrogate_pair": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "f09f988000"
+    },
+    "to_utf8_lone_high_surrogate": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "61efbfbd7a00"
+    },
+    "to_utf8_lone_low_surrogate_strict": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "to_utf8_default_char_ptr_rejected": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "6100",
+      "used_default": 0
+    },
+    "to_utf8_size_query": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "to_utf8_buffer_splits_char": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "to_1252_unmappable": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "613f6200",
+      "used_default": 1
+    },
+    "to_1252_best_fit": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "4100",
+      "used_default": 0
+    },
+    "to_1252_no_best_fit": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "3f00",
+      "used_default": 1
+    },
+    "to_1252_euro": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "8000",
+      "used_default": 0
+    },
+    "to_437_box": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "c9cd00",
+      "used_default": 0
+    },
+    "to_utf7_basic": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "4869202b414f6b4149512d00"
+    },
+    "ordinal_equal": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ordinal_case_differs": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignore_case": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignore_case_nonascii": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignore_case_greek_sigma": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignore_case_final_sigma": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignore_case_dotless_i": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignore_case_sharp_s": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "ordinal_prefix_shorter": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "ordinal_underscore_vs_letter_ic": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "invariant_equal": {
+      "ret": 2,
+      "last_error": 0
+    },
+    "invariant_case": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "invariant_ignore_case": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "invariant_hyphen_vs_letter": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "invariant_string_sort": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "invariant_digits_as_numbers": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "invariant_ignore_nonspace": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "invariant_accent": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "invariant_ignore_width": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "invariant_bad_flag": {
+      "ret": 0,
+      "last_error": 1004
+    }
+  },
+  "errors": [],
+  "source_sha256": "4a7e927500e05ebc295f4e0d23d592127e7a38876fd365245a90520492b06ab0"
+}

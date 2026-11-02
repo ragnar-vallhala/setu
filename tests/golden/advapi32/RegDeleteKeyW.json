@@ -1,0 +1,238 @@
+{
+  "test": "advapi32/RegDeleteKeyW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "delete_key_with_subkeys": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "delete_missing_key": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "delete_missing_parent": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "delete_empty_subkey_name": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "delete_leaf_other_case": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_leaf_delete": {
+      "open": 0,
+      "subkeys": 0,
+      "values": 1
+    },
+    "delete_value": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "delete_value_again": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "delete_value_other_case": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "delete_default_value": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "delete_default_value_again": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "after_value_deletes": {
+      "open": 0,
+      "subkeys": 1,
+      "values": 0
+    },
+    "delete_key_value": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "delete_key_value_missing_key": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "delete_key_value_missing_value": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "after_delete_key_value": {
+      "open": 0,
+      "subkeys": 0,
+      "values": 1
+    },
+    "delete_open_key": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "set_value_on_deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged"
+    },
+    "query_value_on_deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged"
+    },
+    "create_subkey_under_deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged"
+    },
+    "enum_on_deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged"
+    },
+    "close_deleted_key": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "close_twice": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "delete_tree_subkey": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_delete_tree_subkey": {
+      "open": 0,
+      "subkeys": 1,
+      "values": 1
+    },
+    "delete_tree_null_subkey_keeps_key": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_delete_tree_null": {
+      "open": 0,
+      "subkeys": 0,
+      "values": 0
+    },
+    "delete_tree_missing": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "delete_tree_whole": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_delete_tree_whole": {
+      "open": 2
+    },
+    "delete_key_ex_64": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "delete_key_ex_reserved_nonzero": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "after_reserved_nonzero": {
+      "open": 0,
+      "subkeys": 0,
+      "values": 0
+    },
+    "open_missing": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "open_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged"
+    },
+    "open_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_double_backslash": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_forward_slash_name": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "open_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_bad_root": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "open_null_root": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "open_options_link": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "create_name_299_chars": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "create_name_255_chars": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "create_name_256_chars": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "delete_value_via_readonly_handle": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "set_value_via_readonly_handle": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "delete_subkey_via_readonly_parent": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "rename_available": {
+      "available": true
+    },
+    "rename_key": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_rename_old": {
+      "open": 2
+    },
+    "after_rename_new": {
+      "open": 0,
+      "subkeys": 0,
+      "values": 0
+    },
+    "rename_onto_existing": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "rename_missing": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "rename_with_backslash": {
+      "ret": 87,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "690d70a98c0bd8ea75f3292ad258e0668ea8130ce2cb40298622cd8b6b68b9f8"
+}
