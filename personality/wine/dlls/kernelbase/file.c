@@ -848,6 +848,14 @@ HANDLE WINAPI DECLSPEC_HOTPATCH CreateFileW( LPCWSTR filename, DWORD access, DWO
         return INVALID_HANDLE_VALUE;
     }
 
+    /* TRUNCATE_EXISTING requires the GENERIC_WRITE bit itself; specific
+     * write rights such as FILE_WRITE_DATA are not enough. */
+    if (creation == TRUNCATE_EXISTING && !(access & GENERIC_WRITE))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return INVALID_HANDLE_VALUE;
+    }
+
     if (!RtlDosPathNameToNtPathName_U( filename, &nameW, NULL, NULL ))
     {
         SetLastError( ERROR_PATH_NOT_FOUND );

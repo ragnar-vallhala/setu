@@ -4605,21 +4605,8 @@ static void test_CreateFile(void)
         }
         else
         {
-            /* FIXME: remove the condition below once Wine is fixed */
-            if (td[i].disposition == TRUNCATE_EXISTING && !(td[i].access & GENERIC_WRITE))
-            {
-                todo_wine
-                {
-                ok(hfile == INVALID_HANDLE_VALUE, "%ld: CreateFile should fail\n", i);
-                ok(GetLastError() == td[i].error, "%ld: expected %ld, got %ld\n", i, td[i].error, GetLastError());
-                }
-                CloseHandle(hfile);
-            }
-            else
-            {
             ok(hfile == INVALID_HANDLE_VALUE, "%ld: CreateFile should fail\n", i);
             ok(GetLastError() == td[i].error, "%ld: expected %ld, got %ld\n", i, td[i].error, GetLastError());
-            }
         }
 
         if (td[i].clean_up) DeleteFileA(file_name);
