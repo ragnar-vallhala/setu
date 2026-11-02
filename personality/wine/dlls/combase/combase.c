@@ -2850,7 +2850,16 @@ HRESULT WINAPI DECLSPEC_HOTPATCH CoInitializeEx(void *reserved, DWORD model)
     TRACE("%p, %#lx\n", reserved, model);
 
     if (reserved)
+    {
         WARN("Unexpected reserved argument %p\n", reserved);
+        return E_INVALIDARG;
+    }
+
+    if (model & ~(COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE | COINIT_SPEED_OVER_MEMORY))
+    {
+        WARN("Invalid flags %#lx\n", model);
+        return E_INVALIDARG;
+    }
 
     if (FAILED(hr = com_get_tlsdata(&tlsdata)))
         return hr;

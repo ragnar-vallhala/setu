@@ -513,9 +513,12 @@ DWORD WINAPI CoBuildVersion(void)
 HRESULT WINAPI CoInitialize(LPVOID lpReserved)
 {
   /*
-   * Just delegate to the newer method.
+   * Just delegate to the newer method. CoInitializeEx now rejects a
+   * non-NULL reserved pointer; keep CoInitialize ignoring it as before,
+   * since its behaviour with one has not been checked on Windows.
    */
-  return CoInitializeEx(lpReserved, COINIT_APARTMENTTHREADED);
+  if (lpReserved) WARN("Ignoring reserved argument %p\n", lpReserved);
+  return CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 }
 
 /* open HKCR\\CLSID\\{string form of clsid}\\{keyname} key */
