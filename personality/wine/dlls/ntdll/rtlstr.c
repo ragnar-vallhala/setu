@@ -1713,7 +1713,7 @@ struct format_message_args
     int           last;         /* last used arg */
     ULONG_PTR    *array;        /* args array */
     va_list      *list;         /* args va_list */
-    UINT64        arglist[102]; /* arguments fetched from va_list */
+    UINT64        arglist[1002]; /* arguments fetched from va_list (inserts go up to 999) */
 };
 
 static NTSTATUS add_chars( WCHAR **buffer, WCHAR *end, const WCHAR *str, ULONG len )
@@ -1899,7 +1899,10 @@ NTSTATUS WINAPI RtlFormatMessageEx( const WCHAR *src, ULONG width, BOOLEAN ignor
                 {
                     int nr = *src++ - '0';
 
+                    /* inserts have up to three digits; a fourth is an error */
                     if (*src >= '0' && *src <= '9') nr = nr * 10 + *src++ - '0';
+                    if (*src >= '0' && *src <= '9') nr = nr * 10 + *src++ - '0';
+                    if (*src >= '0' && *src <= '9') return STATUS_INVALID_PARAMETER;
                     status = add_format( &buffer, end, &src, nr, ansi, &args_data );
                     src--;
                     break;
