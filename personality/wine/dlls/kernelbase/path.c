@@ -954,14 +954,28 @@ BOOL WINAPI PathIsUNCA(const char *path)
 {
     TRACE("%s\n", wine_dbgstr_a(path));
 
-    return path && (path[0] == '\\') && (path[1] == '\\');
+    if (!path || path[0] != '\\' || path[1] != '\\')
+        return FALSE;
+
+    /* \\?\ paths are UNC only in the \\?\UNC\ form */
+    if (path[2] == '?' && path[3] == '\\')
+        return !_strnicmp(path + 4, "UNC\\", 4);
+
+    return TRUE;
 }
 
 BOOL WINAPI PathIsUNCW(const WCHAR *path)
 {
     TRACE("%s\n", wine_dbgstr_w(path));
 
-    return path && (path[0] == '\\') && (path[1] == '\\');
+    if (!path || path[0] != '\\' || path[1] != '\\')
+        return FALSE;
+
+    /* \\?\ paths are UNC only in the \\?\UNC\ form */
+    if (path[2] == '?' && path[3] == '\\')
+        return !wcsnicmp(path + 4, L"UNC\\", 4);
+
+    return TRUE;
 }
 
 BOOL WINAPI PathIsRelativeA(const char *path)
@@ -992,6 +1006,13 @@ BOOL WINAPI PathIsUNCServerShareA(const char *path)
 
     if (path && *path++ == '\\' && *path++ == '\\')
     {
+        /* \\?\ paths only name a share in the \\?\UNC\server\share form */
+        if (path[0] == '?' && path[1] == '\\')
+        {
+            if (_strnicmp(path + 2, "UNC\\", 4)) return FALSE;
+            path += 6;
+        }
+
         while (*path)
         {
             if (*path == '\\')
@@ -1016,6 +1037,13 @@ BOOL WINAPI PathIsUNCServerShareW(const WCHAR *path)
 
     if (path && *path++ == '\\' && *path++ == '\\')
     {
+        /* \\?\ paths only name a share in the \\?\UNC\server\share form */
+        if (path[0] == '?' && path[1] == '\\')
+        {
+            if (wcsnicmp(path + 2, L"UNC\\", 4)) return FALSE;
+            path += 6;
+        }
+
         while (*path)
         {
             if (*path == '\\')
@@ -2228,6 +2256,31 @@ WCHAR * WINAPI PathFindNextComponentW(const WCHAR *path)
     return (WCHAR *)path + lstrlenW(path);
 }
 
+/* Skip "server\share\" (each part optional) after the leading \\ of a UNC path. */
+static const char *skip_unc_server_shareA(const char *path)
+{
+    while (*path && *path != '\\') path = CharNextA(path);
+    if (*path == '\\')
+    {
+        path++;
+        while (*path && *path != '\\') path = CharNextA(path);
+        if (*path == '\\') path++;
+    }
+    return path;
+}
+
+static const WCHAR *skip_unc_server_shareW(const WCHAR *path)
+{
+    while (*path && *path != '\\') path++;
+    if (*path == '\\')
+    {
+        path++;
+        while (*path && *path != '\\') path++;
+        if (*path == '\\') path++;
+    }
+    return path;
+}
+
 char * WINAPI PathSkipRootA(const char *path)
 {
     TRACE("%s\n", wine_dbgstr_a(path));
@@ -2237,12 +2290,21 @@ char * WINAPI PathSkipRootA(const char *path)
 
     if (*path == '\\' && path[1] == '\\')
     {
+        if (path[2] == '?' && path[3] == '\\')
+        {
+            /* \\?\UNC\server\share\ or \\?\X:\ */
+            if (!_strnicmp(path + 4, "UNC\\", 4))
+                return (char *)skip_unc_server_shareA(path + 8);
+            if (path[4] && !IsDBCSLeadByte(path[4]) && path[5] == ':')
+                return (char *)path + (path[6] == '\\' ? 7 : 6);
+        }
         /* Network share: skip share server and mount point */
-        path += 2;
-        if ((path = StrChrA(path, '\\')) && (path = StrChrA(path + 1, '\\')))
-            path++;
-        return (char *)path;
+        return (char *)skip_unc_server_shareA(path + 2);
     }
+
+    /* A rooted path without a drive */
+    if (*path == '\\')
+        return (char *)path + 1;
 
     if (IsDBCSLeadByte(*path))
         return NULL;
@@ -2263,12 +2325,21 @@ WCHAR * WINAPI PathSkipRootW(const WCHAR *path)
 
     if (*path == '\\' && path[1] == '\\')
     {
+        if (path[2] == '?' && path[3] == '\\')
+        {
+            /* \\?\UNC\server\share\ or \\?\X:\ */
+            if (!wcsnicmp(path + 4, L"UNC\\", 4))
+                return (WCHAR *)skip_unc_server_shareW(path + 8);
+            if (path[4] && path[5] == ':')
+                return (WCHAR *)path + (path[6] == '\\' ? 7 : 6);
+        }
         /* Network share: skip share server and mount point */
-        path += 2;
-        if ((path = StrChrW(path, '\\')) && (path = StrChrW(path + 1, '\\')))
-            path++;
-        return (WCHAR *)path;
+        return (WCHAR *)skip_unc_server_shareW(path + 2);
     }
+
+    /* A rooted path without a drive */
+    if (*path == '\\')
+        return (WCHAR *)path + 1;
 
     /* Check x:\ */
     if (path[0] && path[1] == ':' && path[2] == '\\')
