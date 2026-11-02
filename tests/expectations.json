@@ -1759,6 +1759,8 @@
     "kernel32/pipes:anon_read_after_writer_closed_empty",
     "kernel32/pipes:anon_read_on_write_end",
     "kernel32/pipes:anon_read_rest",
+    "kernel32/pipes:anon_set_file_pointer",
+    "kernel32/pipes:anon_set_file_pointer_end",
     "kernel32/pipes:anon_set_message_mode",
     "kernel32/pipes:anon_set_nowait",
     "kernel32/pipes:anon_state_after_nowait",

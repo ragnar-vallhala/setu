@@ -5471,7 +5471,18 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             const FILE_POSITION_INFORMATION *info = ptr;
 
             if ((status = server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, NULL )))
+            {
+                FILE_FS_DEVICE_INFORMATION device;
+                IO_STATUS_BLOCK iosb;
+
+                /* pipes have no position to move, but setting one succeeds */
+                if (status == STATUS_BAD_DEVICE_TYPE &&
+                    !NtQueryVolumeInformationFile( handle, &iosb, &device, sizeof(device),
+                                                   FileFsDeviceInformation ) &&
+                    device.DeviceType == FILE_DEVICE_NAMED_PIPE)
+                    status = STATUS_SUCCESS;
                 return io->Status = status;
+            }
 
             if (lseek( fd, info->CurrentByteOffset.QuadPart, SEEK_SET ) == (off_t)-1)
             {
