@@ -2620,6 +2620,14 @@
     "user32/window_tree:setparent_child_to_message",
     "user32/window_tree:setparent_grandchild_to_sibling",
     "user32/window_tree:setparent_messages",
+    "user32/window_tree:setparent_probe_back_from_desktop",
+    "user32/window_tree:setparent_probe_child_to_desktop",
+    "user32/window_tree:setparent_probe_child_to_null",
+    "user32/window_tree:setparent_probe_clipchildren_child_to_null",
+    "user32/window_tree:setparent_probe_desktop_child_to_message",
+    "user32/window_tree:setparent_probe_message_child_to_null",
+    "user32/window_tree:setparent_probe_popup_back_to_null",
+    "user32/window_tree:setparent_to_null",
     "user32/window_tree:setparent_to_own_descendant",
     "user32/window_tree:setparent_to_self"
   ]

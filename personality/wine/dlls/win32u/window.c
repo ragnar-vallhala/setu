@@ -638,6 +638,9 @@ HWND WINAPI NtUserSetParent( HWND hwnd, HWND parent )
     release_win_ptr( win );
     if (!ret) return 0;
 
+    /* windows moved to the desktop become siblings of the top-level windows */
+    if (parent == get_desktop_window()) set_window_style_bits( hwnd, WS_CLIPSIBLINGS, 0 );
+
     get_window_rect_rel( hwnd, COORDS_SCREEN, &new_screen_rect, 0 );
     context = set_thread_dpi_awareness_context( get_window_dpi_awareness_context( hwnd ));
 
