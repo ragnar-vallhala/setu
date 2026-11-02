@@ -3748,67 +3748,67 @@ This network connection does not exist.
 MessageId=10004
 SymbolicName=WSAEINTR
 Language=ENU
-Call interrupted.
+A blocking operation was interrupted by a call to WSACancelBlockingCall.
 .
 MessageId=10009
 SymbolicName=WSAEBADF
 Language=ENU
-Invalid file handle.
+The file handle supplied is not valid.
 .
 MessageId=10013
 SymbolicName=WSAEACCES
 Language=ENU
-Access denied.
+An attempt was made to access a socket in a way forbidden by its access permissions.
 .
 MessageId=10014
 SymbolicName=WSAEFAULT
 Language=ENU
-Invalid pointer address.
+The system detected an invalid pointer address in attempting to use a pointer argument in a call.
 .
 MessageId=10022
 SymbolicName=WSAEINVAL
 Language=ENU
-Invalid argument.
+An invalid argument was supplied.
 .
 MessageId=10024
 SymbolicName=WSAEMFILE
 Language=ENU
-Too many open files.
+Too many open sockets.
 .
 MessageId=10049
 SymbolicName=WSAEADDRNOTAVAIL
 Language=ENU
-Cannot assign requested address.
+The requested address is not valid in its context.
 .
 MessageId=10054
 SymbolicName=WSAECONNRESET
 Language=ENU
-Connection reset by peer.
+An existing connection was forcibly closed by the remote host.
 .
 MessageId=10061
 SymbolicName=WSAECONNREFUSED
 Language=ENU
-Connection refused.
+No connection could be made because the target machine actively refused it.
 .
 MessageId=11001
 SymbolicName=WSAHOST_NOT_FOUND
 Language=ENU
-Host not found.
+No such host is known.
 .
 MessageId=11002
 SymbolicName=WSATRY_AGAIN
 Language=ENU
-Nonauthoritative host not found.
+This is usually a temporary error during hostname resolution and means that the local server did not receive a response from an authoritative server.
 .
 MessageId=11003
 SymbolicName=WSANO_RECOVERY
 Language=ENU
-Nonrecoverable error.
+A non-recoverable error occurred during a database lookup.
 .
 MessageId=11004
 SymbolicName=WSANO_DATA
 Language=ENU
-Name valid, no data record.
+The requested name is valid, but no data of the requested type was found.
 .
 MessageId=0x100
 Severity=CoError
