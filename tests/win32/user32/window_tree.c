@@ -491,5 +491,74 @@ int main(void)
         pDestroyWindow(x);
     }
 
+    /* ---- styles after SetParent to and from the desktop ---- */
+    {
+        HWND p = mk(0, WS_OVERLAPPED, NULL);
+        HWND k1 = mk(0, WS_CHILD, p);
+        HWND k2 = mk(0, WS_CHILD, p);
+        HWND k3 = mk(0, WS_CHILD | WS_CLIPCHILDREN, p);
+        HWND q = mk(0, WS_POPUP, NULL);
+        HWND mm = mk(0, 0, HWND_MESSAGE);
+        HWND k4 = mk(0, WS_CHILD, mm);
+        HWND r;
+
+        ORACLE_CALL(r, pSetParent(k1, NULL));
+        oracle_case("setparent_probe_child_to_null");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(k1, GWL_STYLE));
+        oracle_case_end();
+
+        ORACLE_CALL(r, pSetParent(k2, desktop));
+        oracle_case("setparent_probe_child_to_desktop");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(k2, GWL_STYLE));
+        oracle_case_end();
+
+        ORACLE_CALL(r, pSetParent(k3, NULL));
+        oracle_case("setparent_probe_clipchildren_child_to_null");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(k3, GWL_STYLE));
+        oracle_case_end();
+
+        ORACLE_CALL(r, pSetParent(k4, NULL));
+        oracle_case("setparent_probe_message_child_to_null");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(k4, GWL_STYLE));
+        oracle_case_end();
+
+        ORACLE_CALL(r, pSetParent(k1, p));
+        oracle_case("setparent_probe_back_from_desktop");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(k1, GWL_STYLE));
+        oracle_case_end();
+
+        ORACLE_CALL(r, pSetParent(q, p));
+        oracle_case("setparent_probe_popup_to_window");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(q, GWL_STYLE));
+        oracle_case_end();
+
+        ORACLE_CALL(r, pSetParent(q, NULL));
+        oracle_case("setparent_probe_popup_back_to_null");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(q, GWL_STYLE));
+        oracle_case_end();
+
+        ORACLE_CALL(r, pSetParent(k4, HWND_MESSAGE));
+        oracle_case("setparent_probe_desktop_child_to_message");
+        o_lasterr();
+        o_hex32("style_after", (DWORD)pGetWindowLongPtrW(k4, GWL_STYLE));
+        oracle_case_end();
+        (void)r;
+
+        pDestroyWindow(mm);
+        pDestroyWindow(k4);
+        pDestroyWindow(q);
+        pDestroyWindow(k1);
+        pDestroyWindow(k2);
+        pDestroyWindow(k3);
+        pDestroyWindow(p);
+    }
+
     return oracle_end();
 }

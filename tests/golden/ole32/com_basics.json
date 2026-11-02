@@ -32,6 +32,30 @@
       "hr": "0x00000000",
       "apartment_type": 1
     },
+    "coinit_flags_0x1": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_0x10": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_0x20": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_0x40": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_0x80": {
+      "hr": "0x80070057",
+      "apartment_type": -1
+    },
+    "coinit_flags_all_documented": {
+      "hr": "0x00000000",
+      "apartment_type": 3
+    },
     "apartment_main_still_uninitialised": {
       "hr": "0x800401f0",
       "type": -1,
@@ -246,5 +270,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "73a16a4ffd2d15e45222130f75ef8eff052308202fc3606ddf96df9458e578cf"
+  "source_sha256": "bc815b647e86b67131970b3412405d30a9f0a1a315ef543fd403e9b91431c199"
 }

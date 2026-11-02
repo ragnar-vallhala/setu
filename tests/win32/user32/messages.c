@@ -495,6 +495,37 @@ int main(void)
         pKillTimer(wa, 0);
         drain();
         log_[0] = 0;
+
+        /* Probe: what a PM_NOREMOVE peek does to a due timer. */
+        pSetTimer(wa, 2, 0, NULL);
+        got = 0;
+        for (int i = 0; i < 300 && !got; i++) {
+            if (pPeekMessageW(&msg, wa, WM_TIMER, WM_TIMER, PM_NOREMOVE)) got = 1;
+            else Sleep(10);
+        }
+        oracle_case("timer_probe_peeked");
+        o_bool("got", got);
+        o_hex32("qs_post", pGetQueueStatus(QS_POSTMESSAGE));
+        o_hex32("qs_timer", pGetQueueStatus(QS_TIMER));
+        o_hex32("qs_all", pGetQueueStatus(QS_ALLINPUT));
+        oracle_case_end();
+        pKillTimer(wa, 2);
+        pump(NULL, 0, 0);
+        log_case("timer_probe_killed_after_peek");
+
+        /* Probe: a due timer that was never peeked, then a post. */
+        pSetTimer(wa, 3, 0, NULL);
+        Sleep(200);
+        oracle_case("timer_probe_unpeeked");
+        o_hex32("qs_timer", pGetQueueStatus(QS_TIMER));
+        o_hex32("qs_post", pGetQueueStatus(QS_POSTMESSAGE));
+        oracle_case_end();
+        post(wa, 43, 1);
+        pump(NULL, 0, 0);
+        pKillTimer(wa, 3);
+        log_case("timer_probe_unpeeked_then_post");
+        drain();
+        log_[0] = 0;
     }
 
     /* ---- message sent from another thread is delivered inside PeekMessage ---- */

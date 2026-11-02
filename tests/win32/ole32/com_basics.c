@@ -180,6 +180,12 @@ int main(void)
     flags_case("coinit_flags_sta_0x80", COINIT_APARTMENTTHREADED | 0x80);
     flags_case("coinit_flags_0xffffffff", 0xffffffff);
     flags_case("coinit_flags_speed_over_memory", COINIT_SPEED_OVER_MEMORY);
+    flags_case("coinit_flags_0x1", 0x1);
+    flags_case("coinit_flags_0x10", 0x10);
+    flags_case("coinit_flags_0x20", 0x20);
+    flags_case("coinit_flags_0x40", 0x40);
+    flags_case("coinit_flags_0x80", 0x80);
+    flags_case("coinit_flags_all_documented", COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE | COINIT_SPEED_OVER_MEMORY);
     apt_case("apartment_main_still_uninitialised");
 
     /* ---- initialise STA ---- */

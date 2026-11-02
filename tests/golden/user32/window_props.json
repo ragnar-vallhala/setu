@@ -562,8 +562,68 @@
     "getlong_destroyed": {
       "ret": 0,
       "last_error": 1400
+    },
+    "exstyle_bit_00000002": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000002",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000002"
+    },
+    "exstyle_bit_00000800": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "style": "0x84000000",
+      "exstyle": "0x00000080",
+      "style_requested": "0x80000000",
+      "exstyle_requested": "0x00000800"
+    },
+    "exstyle_bit_00008000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "exstyle_bit_00800000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "exstyle_bit_01000000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "exstyle_bit_04000000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "exstyle_bit_10000000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "exstyle_bit_20000000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "exstyle_bit_40000000": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "exstyle_mdichild_child_of_plain_window": {
+      "ret": "NULL",
+      "last_error": "unchanged"
+    },
+    "exstyle_mdichild_popup_owned": {
+      "ret": "NULL",
+      "last_error": "unchanged"
+    },
+    "exstyle_mdichild_overlapped_no_parent": {
+      "ret": "NULL",
+      "last_error": 1400
+    },
+    "exstyle_mdichild_message_only": {
+      "ret": "NULL",
+      "last_error": 1400
     }
   },
   "errors": [],
-  "source_sha256": "773b9dc915ec2ac390dc8d23cebd2814e8a0af197aad16541301c6416cb83664"
+  "source_sha256": "1b838beb96b63edc74207cbefbce75bc89167fd04c2d95b39f1a4e0318e23e96"
 }

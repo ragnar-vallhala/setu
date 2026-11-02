@@ -423,5 +423,31 @@ int main(void)
     getlong_case("getlong_destroyed", t, GWLP_USERDATA);
     pDestroyWindow(w);
     pDestroyWindow(top);
+    /* ---- which undefined extended-style bits CreateWindowExW rejects ---- */
+    {
+        static const struct { const char *name; DWORD ex; } bits[] = {
+            {"exstyle_bit_00000002", 0x00000002},
+            {"exstyle_bit_00000800", 0x00000800},
+            {"exstyle_bit_00008000", 0x00008000},
+            {"exstyle_bit_00800000", 0x00800000},
+            {"exstyle_bit_01000000", 0x01000000},
+            {"exstyle_bit_04000000", 0x04000000},
+            {"exstyle_bit_10000000", 0x10000000},
+            {"exstyle_bit_20000000", 0x20000000},
+            {"exstyle_bit_40000000", 0x40000000},
+        };
+        for (size_t i = 0; i < sizeof bits / sizeof bits[0]; i++)
+            styles_case(bits[i].name, bits[i].ex, WS_POPUP, NULL);
+    }
+    /* ---- WS_EX_MDICHILD outside an MDI client ---- */
+    {
+        HWND host = mk(0, WS_POPUP, NULL, NULL, L"host");
+        styles_case("exstyle_mdichild_child_of_plain_window", WS_EX_MDICHILD, WS_CHILD, host);
+        styles_case("exstyle_mdichild_popup_owned", WS_EX_MDICHILD, WS_POPUP, host);
+        styles_case("exstyle_mdichild_overlapped_no_parent", WS_EX_MDICHILD, WS_OVERLAPPED, NULL);
+        styles_case("exstyle_mdichild_message_only", WS_EX_MDICHILD, 0, HWND_MESSAGE);
+        pDestroyWindow(host);
+    }
+
     return oracle_end();
 }

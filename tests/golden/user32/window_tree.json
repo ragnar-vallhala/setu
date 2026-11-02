@@ -278,8 +278,40 @@
       "ret": false,
       "last_error": 5,
       "alive_after": true
+    },
+    "setparent_probe_child_to_null": {
+      "last_error": "unchanged",
+      "style_after": "0x44000000"
+    },
+    "setparent_probe_child_to_desktop": {
+      "last_error": "unchanged",
+      "style_after": "0x44000000"
+    },
+    "setparent_probe_clipchildren_child_to_null": {
+      "last_error": "unchanged",
+      "style_after": "0x46000000"
+    },
+    "setparent_probe_message_child_to_null": {
+      "last_error": "unchanged",
+      "style_after": "0x44000000"
+    },
+    "setparent_probe_back_from_desktop": {
+      "last_error": "unchanged",
+      "style_after": "0x44000000"
+    },
+    "setparent_probe_popup_to_window": {
+      "last_error": "unchanged",
+      "style_after": "0x84000000"
+    },
+    "setparent_probe_popup_back_to_null": {
+      "last_error": "unchanged",
+      "style_after": "0x84000000"
+    },
+    "setparent_probe_desktop_child_to_message": {
+      "last_error": "unchanged",
+      "style_after": "0x44000000"
     }
   },
   "errors": [],
-  "source_sha256": "b3141465fcca13ab43c25e768d35fde8ade0caa82451fd97ab363a46cd7d9c08"
+  "source_sha256": "4456ba06e146192d75701eeea62e61a6073c8fe9925ffc08d1d80d41af406131"
 }
