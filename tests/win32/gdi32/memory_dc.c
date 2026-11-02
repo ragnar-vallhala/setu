@@ -78,6 +78,8 @@ DECL(GetDCBrushColor);
 DECL(SetDCBrushColor);
 DECL(GetBitmapBits);
 DECL(SetBkMode);
+DECL(CreateRectRgn);
+DECL(SelectClipRgn);
 
 #define N 4 /* blit tests use 4x4 32bpp DIBs = 64 bytes */
 
@@ -218,6 +220,8 @@ int main(void)
     LOAD(g, GetGraphicsMode);
     LOAD(g, SaveDC);
     LOAD(g, RestoreDC);
+    LOAD(g, CreateRectRgn);
+    LOAD(g, SelectClipRgn);
     LOAD(g, GetDCBrushColor);
     LOAD(g, SetDCBrushColor);
     LOAD(g, GetBitmapBits);
@@ -795,6 +799,256 @@ int main(void)
         o_bool("ret", r);
         o_u32("type_after", pGetObjectType(hdst));
         oracle_case_end();
+    }
+
+    /* ---- probes: deleting objects, selected or not ---- */
+    {
+        BOOL r;
+        HGDIOBJ objs[6];
+        static const char *names[6] = {"del_unselected_solid_brush", "del_unselected_hatch_brush",
+                                       "del_unselected_pen", "del_unselected_bitmap",
+                                       "del_unselected_dib", "del_unselected_region"};
+        DWORD *db;
+        objs[0] = pCreateSolidBrush(RGB(1, 2, 3));
+        objs[1] = pCreateHatchBrush(HS_CROSS, RGB(1, 2, 3));
+        objs[2] = pCreatePen(PS_SOLID, 1, RGB(1, 2, 3));
+        objs[3] = pCreateBitmap(4, 4, 1, 1, NULL);
+        objs[4] = dib32(4, 4, &db);
+        objs[5] = pCreateRectRgn(0, 0, 4, 4);
+        for (int i = 0; i < 6; i++) {
+            ORACLE_CALL(r, pDeleteObject(objs[i]));
+            oracle_case(names[i]);
+            o_bool("ret", r);
+            o_lasterr();
+            o_u32("type_after", pGetObjectType(objs[i]));
+            ORACLE_CALL(r, pDeleteObject(objs[i]));
+            o_bool("second_ret", r);
+            o_u32("second_type_after", pGetObjectType(objs[i]));
+            oracle_case_end();
+        }
+
+        /* objects selected into a DC, deleted, then deselected */
+        HDC d = pCreateCompatibleDC(NULL);
+        HGDIOBJ sel[4];
+        static const char *snames[4] = {"del_selected_solid_brush", "del_selected_pen",
+                                        "del_selected_bitmap", "del_selected_dib"};
+        sel[0] = pCreateSolidBrush(RGB(4, 5, 6));
+        sel[1] = pCreatePen(PS_SOLID, 1, RGB(4, 5, 6));
+        sel[2] = pCreateBitmap(4, 4, 1, 1, NULL);
+        sel[3] = dib32(4, 4, &db);
+        for (int i = 0; i < 4; i++) {
+            HGDIOBJ old = pSelectObject(d, sel[i]);
+            ORACLE_CALL(r, pDeleteObject(sel[i]));
+            oracle_case(snames[i]);
+            o_bool("ret", r);
+            o_lasterr();
+            o_u32("type_after", pGetObjectType(sel[i]));
+            o_bool("still_current", pGetCurrentObject(d, pGetObjectType(old)) == sel[i]);
+            HGDIOBJ back = pSelectObject(d, old);
+            o_bool("deselect_returns_it", back == sel[i]);
+            o_u32("type_after_deselect", pGetObjectType(sel[i]));
+            HGDIOBJ again = pSelectObject(d, sel[i]);
+            o_bool("reselect_ok", again != NULL);
+            if (again) pSelectObject(d, old);
+            ORACLE_CALL(r, pDeleteObject(sel[i]));
+            o_bool("delete_after_deselect_ret", r);
+            o_u32("type_after_second_delete", pGetObjectType(sel[i]));
+            oracle_case_end();
+        }
+        pDeleteDC(d);
+
+        /* deleting the DC an object is selected into */
+        d = pCreateCompatibleDC(NULL);
+        HBRUSH br = pCreateSolidBrush(RGB(7, 8, 9));
+        HBITMAP bm = pCreateBitmap(4, 4, 1, 1, NULL);
+        pSelectObject(d, br);
+        pSelectObject(d, bm);
+        pDeleteObject(br);
+        pDeleteObject(bm);
+        ORACLE_CALL(r, pDeleteDC(d));
+        oracle_case("del_dc_with_deleted_selected_objects");
+        o_bool("ret", r);
+        o_u32("brush_type_after", pGetObjectType(br));
+        o_u32("bitmap_type_after", pGetObjectType(bm));
+        ORACLE_CALL(r, pDeleteObject(bm));
+        o_bool("bitmap_delete_ret", r);
+        o_u32("bitmap_type_after_delete", pGetObjectType(bm));
+        oracle_case_end();
+
+        /* DeleteDC variants */
+        d = pCreateCompatibleDC(NULL);
+        pSaveDC(d);
+        ORACLE_CALL(r, pDeleteDC(d));
+        oracle_case("deletedc_with_saved_state");
+        o_bool("ret", r);
+        o_u32("type_after", pGetObjectType(d));
+        oracle_case_end();
+        ORACLE_CALL(r, pDeleteDC((HDC)(ULONG_PTR)0x12345678));
+        oracle_case("deletedc_bogus");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, pDeleteDC(NULL));
+        oracle_case("deletedc_null");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+    }
+
+    /* ---- probes: SetPixel/PatBlt/RestoreDC/GetDIBits edge cases ---- */
+    {
+        HDC d = pCreateCompatibleDC(NULL);
+        DWORD *db;
+        HBITMAP h = dib32(4, 4, &db);
+        HGDIOBJ old = pSelectObject(d, h);
+        COLORREF c;
+        ORACLE_CALL(c, pSetPixel(d, -1, 0, RGB(1, 1, 1)));
+        oracle_case("setpixel_negative_x");
+        o_hex32("ret", c);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(c, pSetPixel(d, 0, 4, RGB(1, 1, 1)));
+        oracle_case("setpixel_past_bottom");
+        o_hex32("ret", c);
+        o_lasterr();
+        oracle_case_end();
+        HRGN clip = pCreateRectRgn(0, 0, 1, 1);
+        pSelectClipRgn(d, clip);
+        pDeleteObject(clip);
+        ORACLE_CALL(c, pSetPixel(d, 2, 2, RGB(1, 1, 1)));
+        oracle_case("setpixel_clipped_out");
+        o_hex32("ret", c);
+        o_lasterr();
+        o_hex32("raw", db[2 * 4 + 2]);
+        oracle_case_end();
+        pSelectClipRgn(d, NULL);
+        ORACLE_CALL(c, pSetPixel(NULL, 0, 0, RGB(1, 1, 1)));
+        oracle_case("setpixel_null_dc");
+        o_hex32("ret", c);
+        o_lasterr();
+        oracle_case_end();
+
+        static const struct { const char *name; int x, y, w, h; } pb[] = {
+            {"patblt_neg_width", 3, 0, -2, 1},
+            {"patblt_neg_height", 0, 3, 1, -2},
+            {"patblt_neg_width_1", 2, 0, -1, 1},
+            {"patblt_zero_width", 1, 1, 0, 2},
+        };
+        pSelectObject(d, pGetStockObject(BLACK_BRUSH));
+        for (size_t i = 0; i < sizeof pb / sizeof pb[0]; i++) {
+            BOOL r;
+            for (int k = 0; k < 16; k++) db[k] = 0x00ffffff;
+            ORACLE_CALL(r, pPatBlt(d, pb[i].x, pb[i].y, pb[i].w, pb[i].h, PATCOPY));
+            oracle_case(pb[i].name);
+            o_bool("ret", r);
+            o_bytes("dst", db, 64);
+            oracle_case_end();
+        }
+
+        int s = pSaveDC(d);
+        BOOL r;
+        ORACLE_CALL(r, pRestoreDC(d, s + 1));
+        oracle_case("restoredc_one_past");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, pRestoreDC(d, -2));
+        oracle_case("restoredc_minus_too_deep");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, pRestoreDC(d, 0));
+        oracle_case("restoredc_zero_lasterr");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, pRestoreDC(d, s));
+        oracle_case("restoredc_exact");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, pRestoreDC(d, 1));
+        oracle_case("restoredc_nothing_saved");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        pSelectObject(d, old);
+
+        BITMAPINFO bi;
+        int n;
+        memset(&bi, 0, sizeof bi);
+        bi.bmiHeader.biSize = sizeof bi.bmiHeader;
+        ORACLE_CALL(n, pGetDIBits(d, h, 0, 2, NULL, &bi, DIB_RGB_COLORS));
+        oracle_case("getdibits_query_header_2_lines");
+        o_i64("ret", n);
+        o_lasterr();
+        o_u32("bpp", bi.bmiHeader.biBitCount);
+        oracle_case_end();
+        memset(&bi, 0, sizeof bi);
+        bi.bmiHeader.biSize = sizeof bi.bmiHeader;
+        ORACLE_CALL(n, pGetDIBits(d, h, 0, 0, NULL, &bi, DIB_RGB_COLORS));
+        oracle_case("getdibits_query_header_0_lines");
+        o_i64("ret", n);
+        o_lasterr();
+        oracle_case_end();
+        HBITMAP mono = pCreateBitmap(4, 4, 1, 1, NULL);
+        memset(&bi, 0, sizeof bi);
+        bi.bmiHeader.biSize = sizeof bi.bmiHeader;
+        ORACLE_CALL(n, pGetDIBits(d, mono, 0, 4, NULL, &bi, DIB_RGB_COLORS));
+        oracle_case("getdibits_query_header_mono");
+        o_i64("ret", n);
+        o_u32("bpp", bi.bmiHeader.biBitCount);
+        o_u32("sizeimage", bi.bmiHeader.biSizeImage);
+        oracle_case_end();
+        memset(&bi, 0, sizeof bi);
+        bi.bmiHeader.biSize = sizeof bi.bmiHeader;
+        bi.bmiHeader.biWidth = 4;
+        bi.bmiHeader.biHeight = 4;
+        bi.bmiHeader.biPlanes = 1;
+        bi.bmiHeader.biBitCount = 32;
+        ORACLE_CALL(n, pGetDIBits(d, h, 0, 4, NULL, &bi, DIB_RGB_COLORS));
+        oracle_case("getdibits_null_bits_with_bpp");
+        o_i64("ret", n);
+        o_u32("sizeimage", bi.bmiHeader.biSizeImage);
+        oracle_case_end();
+        pDeleteObject(mono);
+        pDeleteDC(d);
+        pDeleteObject(h);
+    }
+
+    /* ---- probes: StretchBlt sampling ---- */
+    {
+        HDC s8 = pCreateCompatibleDC(NULL), d8 = pCreateCompatibleDC(NULL);
+        DWORD *sb, *dbb;
+        HBITMAP hs = dib32(8, 1, &sb), hd = dib32(8, 1, &dbb);
+        pSelectObject(s8, hs);
+        pSelectObject(d8, hd);
+        static const struct { const char *name; int mode, dw, sw; } st[] = {
+            {"stretch_8_to_4_coloroncolor", COLORONCOLOR, 4, 8},
+            {"stretch_8_to_2_coloroncolor", COLORONCOLOR, 2, 8},
+            {"stretch_8_to_3_coloroncolor", COLORONCOLOR, 3, 8},
+            {"stretch_8_to_5_coloroncolor", COLORONCOLOR, 5, 8},
+            {"stretch_3_to_8_coloroncolor", COLORONCOLOR, 8, 3},
+            {"stretch_8_to_4_blackonwhite", BLACKONWHITE, 4, 8},
+            {"stretch_8_to_4_whiteonblack", WHITEONBLACK, 4, 8},
+        };
+        for (size_t i = 0; i < sizeof st / sizeof st[0]; i++) {
+            BOOL r;
+            for (int k = 0; k < 8; k++) {
+                sb[k] = 0x00010101u * (DWORD)(k * 0x11 + 1);
+                dbb[k] = 0x00eeeeee;
+            }
+            pSetStretchBltMode(d8, st[i].mode);
+            ORACLE_CALL(r, pStretchBlt(d8, 0, 0, st[i].dw, 1, s8, 0, 0, st[i].sw, 1, SRCCOPY));
+            oracle_case(st[i].name);
+            o_bool("ret", r);
+            o_bytes("dst", dbb, 32);
+            oracle_case_end();
+        }
+        pDeleteDC(s8);
+        pDeleteDC(d8);
+        pDeleteObject(hs);
+        pDeleteObject(hd);
     }
     return oracle_end();
 }

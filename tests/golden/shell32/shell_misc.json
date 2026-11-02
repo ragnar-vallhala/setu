@@ -299,6 +299,61 @@
       "buf_untouched": true,
       "absolute": false
     },
+    "folder_flags_2": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true
+    },
+    "folder_flags_high_bit": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true
+    },
+    "folder_appdata_bad_flags": {
+      "hr": "0x00000000",
+      "buf_empty": false,
+      "buf_untouched": false,
+      "absolute": true,
+      "ends_with_expected": true
+    },
+    "folder_controls_virtual": {
+      "hr": "0x80004005",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_printers_virtual": {
+      "hr": "0x80004005",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_bitbucket_virtual": {
+      "hr": "0x80004005",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_network_virtual": {
+      "hr": "0x80004005",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_connections_virtual": {
+      "hr": "0x80004005",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
+    "folder_bogus_csidl_0x3c": {
+      "hr": "0x80070057",
+      "buf_empty": false,
+      "buf_untouched": true,
+      "absolute": false
+    },
     "special_system": {
       "ret": true,
       "ends_with_system32": true
@@ -330,8 +385,23 @@
       "hr": "0x80070057",
       "out_null": true,
       "absolute": false
+    },
+    "known_virtual_recycle_bin": {
+      "hr": "0x80004005",
+      "out_null": true,
+      "absolute": false
+    },
+    "known_virtual_network": {
+      "hr": "0x80004005",
+      "out_null": true,
+      "absolute": false
+    },
+    "known_virtual_control_panel": {
+      "hr": "0x80004005",
+      "out_null": true,
+      "absolute": false
     }
   },
   "errors": [],
-  "source_sha256": "61fb5421f47f6df2f4dd86cd24238c8397a6c40c7d090528c4ede192a86c008b"
+  "source_sha256": "ef77b928115ac68979a408c1b868f76d62c29c88b6aebaa1db90900725da9b39"
 }

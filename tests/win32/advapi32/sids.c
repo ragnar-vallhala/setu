@@ -290,5 +290,74 @@ int main(void)
         oracle_case_end();
         if (r) LocalFree(sd);
     }
+
+    /* ---- probes: identifier authority range and number syntax ---- */
+    str2sid("str_authority_2_32", L"S-1-4294967296-1");
+    str2sid("str_authority_2_32_minus_1", L"S-1-4294967295-1");
+    str2sid("str_hex_authority_7_bytes", L"S-1-0x1000000000000-1");
+    str2sid("str_hex_authority_upper_x", L"S-1-0X5-18");
+    str2sid("str_hex_authority_lower_digits", L"S-1-0xabcdef012345-1");
+    str2sid("str_hex_empty", L"S-1-0x-18");
+    str2sid("str_17_subauthorities", L"S-1-5-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17");
+    str2sid("str_leading_space", L" S-1-5-18");
+    str2sid("str_plus_sign", L"S-1-5-+18");
+    str2sid("str_revision_0", L"S-0-5-18");
+    str2sid("str_revision_256", L"S-256-5-18");
+    str2sid("str_alias_trailing", L"WDX");
+
+    /* ---- probes: IsWellKnownSid for domain-relative account SIDs ---- */
+    {
+        static const struct { const char *name; const wchar_t *s; WELL_KNOWN_SID_TYPE t; } iw[] = {
+            {"iswk_admin_domain_3", L"S-1-5-21-1-2-3-500", WinAccountAdministratorSid},
+            {"iswk_admin_domain_1", L"S-1-5-21-1-500", WinAccountAdministratorSid},
+            {"iswk_admin_domain_0", L"S-1-5-21-500", WinAccountAdministratorSid},
+            {"iswk_admin_domain_4", L"S-1-5-21-1-2-3-4-500", WinAccountAdministratorSid},
+            {"iswk_admin_not_21", L"S-1-5-22-1-2-3-500", WinAccountAdministratorSid},
+            {"iswk_admin_authority_1", L"S-1-1-21-1-2-3-500", WinAccountAdministratorSid},
+            {"iswk_admin_wrong_rid", L"S-1-5-21-1-2-3-501", WinAccountAdministratorSid},
+            {"iswk_domain_users", L"S-1-5-21-1-2-3-513", WinAccountDomainUsersSid},
+            {"iswk_world_as_admin", L"S-1-1-0", WinAccountAdministratorSid},
+            {"iswk_builtin_domain", L"S-1-5-32", WinBuiltinDomainSid},
+        };
+        for (size_t i = 0; i < sizeof iw / sizeof iw[0]; i++) {
+            PSID s = NULL;
+            oracle_case(iw[i].name);
+            if (ConvertStringSidToSidW(iw[i].s, &s)) {
+                o_bool("is_well_known", IsWellKnownSid(s, iw[i].t));
+                LocalFree(s);
+            } else {
+                o_str("is_well_known", "parse failed");
+            }
+            oracle_case_end();
+        }
+    }
+
+    /* ---- probes: SDDL ACE syntax, error codes and round trips ---- */
+    sddl("sd_bad_ace_flag", L"D:(A;XX;GA;;;WD)");
+    sddl("sd_five_fields", L"D:(A;;GA;;WD)");
+    sddl("sd_seven_fields", L"D:(A;;GA;;;WD;)");
+    sddl("sd_empty_ace_type", L"D:(;;GA;;;WD)");
+    sddl("sd_lowercase_ace_type", L"D:(a;;GA;;;WD)");
+    sddl("sd_ace_type_prefix", L"D:(AX;;GA;;;WD)");
+    sddl("sd_bad_acl_flag", L"D:Q(A;;GA;;;WD)");
+    sddl("sd_sid_trailing_garbage", L"D:(A;;GA;;;WDX)");
+    sddl("sd_numeric_sid_bad", L"D:(A;;GA;;;S-1-5--18)");
+    sddl("sd_ml_all_rights", L"S:(ML;;NWNRNX;;;LW)");
+    sddl("sd_ml_no_read_up", L"S:(ML;;NR;;;HI)");
+    sddl("sd_ml_hex_mask", L"S:(ML;;0x3;;;ME)");
+    sddl("sd_ml_flags", L"S:(ML;OICI;NW;;;LW)");
+    sddl("sd_null_dacl_protected", L"D:PNO_ACCESS_CONTROL");
+    sddl("sd_null_sacl", L"S:NO_ACCESS_CONTROL");
+    sddl("sd_null_dacl_with_owner", L"O:BAD:NO_ACCESS_CONTROL");
+    sddl("sd_object_ace_upper_guid", L"D:(OA;;CR;00299570-246D-11D0-A768-00AA006E0529;;WD)");
+    sddl("sd_object_ace_inherit_guid", L"D:(OA;CI;RPWP;;bf967aba-0de6-11d0-a285-00aa003049e2;WD)");
+    sddl("sd_object_ace_both_guids",
+         L"D:(OA;;RP;00299570-246d-11d0-a768-00aa006e0529;bf967aba-0de6-11d0-a285-00aa003049e2;WD)");
+    sddl("sd_object_ace_no_guids", L"D:(OA;;CR;;;WD)");
+    sddl("sd_object_ace_bad_guid", L"D:(OA;;CR;not-a-guid;;WD)");
+    sddl("sd_object_ace_braced_guid", L"D:(OA;;CR;{00299570-246d-11d0-a768-00aa006e0529};;WD)");
+    sddl("sd_object_deny", L"D:(OD;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD)");
+    sddl("sd_object_audit", L"S:(OU;SA;CR;00299570-246d-11d0-a768-00aa006e0529;;WD)");
+    sddl("sd_guid_on_plain_ace", L"D:(A;;GA;00299570-246d-11d0-a768-00aa006e0529;;WD)");
     return oracle_end();
 }

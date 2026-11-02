@@ -1028,8 +1028,182 @@
       "p7": -1,
       "p8": 1,
       "p9": 1
+    },
+    "canon_trailing_dots_last": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b"
+    },
+    "canon_trailing_dots_mid": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b..\\c"
+    },
+    "canon_trailing_dot_name": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b"
+    },
+    "canon_trailing_dot_name_mid": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\b.\\c"
+    },
+    "canon_triple_dots_last": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\"
+    },
+    "canon_four_dots": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "C:\\a\\....\\b"
+    },
+    "canon_dot_only_relative": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\"
+    },
+    "canon_dotdot_only_relative": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\"
+    },
+    "canon_unc_past_share": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\\\server\\x"
+    },
+    "canon_unc_server_dotdot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\\\x"
+    },
+    "canon_unc_dotdot_once": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "\\\\server\\share\\x"
+    },
+    "combine_unc_dotdot_one": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "\\\\server\\share\\f"
+    },
+    "combine_unc_dotdot_two": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "\\\\server\\f"
+    },
+    "combine_trailing_dot_one": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\a\\b"
+    },
+    "combine_trailing_dots_mid": {
+      "ret": "buf",
+      "last_error": "unchanged",
+      "out": "C:\\a\\b...\\c"
+    },
+    "find_device_unc": {
+      "ext": 14,
+      "filename": 13,
+      "next_component": 2,
+      "skip_root": 13,
+      "args": 14,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": true,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_device_drive_only": {
+      "ext": 6,
+      "filename": 4,
+      "next_component": 2,
+      "skip_root": 6,
+      "args": 6,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": 2,
+      "is_url": false
+    },
+    "find_unc_dir_deep": {
+      "ext": 10,
+      "filename": 9,
+      "next_component": 2,
+      "skip_root": 7,
+      "args": 10,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": true,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_rooted_deep": {
+      "ext": 6,
+      "filename": 5,
+      "next_component": 1,
+      "skip_root": 1,
+      "args": 6,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": false,
+      "is_unc_server": false,
+      "is_unc_server_share": false,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "find_unc_server_trailing": {
+      "ext": 9,
+      "filename": 2,
+      "next_component": 2,
+      "skip_root": 9,
+      "args": 9,
+      "is_relative": false,
+      "is_root": false,
+      "is_unc": true,
+      "is_unc_server": false,
+      "is_unc_server_share": true,
+      "drive_number": -1,
+      "is_url": false
+    },
+    "match_empty_spec_empty_file": {
+      "ret": true
+    },
+    "match_empty_file_star": {
+      "ret": true
+    },
+    "match_spec_only_semicolon": {
+      "ret": false
+    },
+    "compact_max_2": {
+      "ret": true,
+      "out": "."
+    },
+    "compact_max_0_empty": {
+      "ret": false,
+      "out": "############################################################"
+    },
+    "strcmplogical_leading_zeros": {
+      "p0": 1,
+      "p1": -1,
+      "p2": 1,
+      "p3": -1,
+      "p4": -1,
+      "p5": -1,
+      "p6": 1,
+      "p7": 1,
+      "p8": -1,
+      "p9": 1
     }
   },
   "errors": [],
-  "source_sha256": "fa5944a25d6d72499ba9ba4a7122c0e4ec58da8281dca5ed0145f2f8d352bcf7"
+  "source_sha256": "d354cd73a29f030f608037b55a69c82e4c38a12f5e8b8173c9a84c690228d380"
 }

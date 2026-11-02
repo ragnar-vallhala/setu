@@ -541,8 +541,212 @@
     "deleteobject_selected_dib": {
       "ret": true,
       "type_after": 7
+    },
+    "del_unselected_solid_brush": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 2,
+      "second_ret": false,
+      "second_type_after": 0
+    },
+    "del_unselected_hatch_brush": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 2,
+      "second_ret": false,
+      "second_type_after": 2
+    },
+    "del_unselected_pen": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 1,
+      "second_ret": false,
+      "second_type_after": 1
+    },
+    "del_unselected_bitmap": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 7,
+      "second_ret": false,
+      "second_type_after": 7
+    },
+    "del_unselected_dib": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 7,
+      "second_ret": false,
+      "second_type_after": 7
+    },
+    "del_unselected_region": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 8,
+      "second_ret": true,
+      "second_type_after": 8
+    },
+    "del_selected_solid_brush": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 2,
+      "still_current": true,
+      "deselect_returns_it": true,
+      "type_after_deselect": 2,
+      "reselect_ok": true,
+      "delete_after_deselect_ret": false,
+      "type_after_second_delete": 0
+    },
+    "del_selected_pen": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 1,
+      "still_current": true,
+      "deselect_returns_it": true,
+      "type_after_deselect": 1,
+      "reselect_ok": false,
+      "delete_after_deselect_ret": false,
+      "type_after_second_delete": 1
+    },
+    "del_selected_bitmap": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 7,
+      "still_current": true,
+      "deselect_returns_it": false,
+      "type_after_deselect": 7,
+      "reselect_ok": false,
+      "delete_after_deselect_ret": false,
+      "type_after_second_delete": 7
+    },
+    "del_selected_dib": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type_after": 7,
+      "still_current": true,
+      "deselect_returns_it": false,
+      "type_after_deselect": 7,
+      "reselect_ok": false,
+      "delete_after_deselect_ret": false,
+      "type_after_second_delete": 7
+    },
+    "del_dc_with_deleted_selected_objects": {
+      "ret": true,
+      "brush_type_after": 0,
+      "bitmap_type_after": 7,
+      "bitmap_delete_ret": false,
+      "bitmap_type_after_delete": 7
+    },
+    "deletedc_with_saved_state": {
+      "ret": true,
+      "type_after": 3
+    },
+    "deletedc_bogus": {
+      "ret": false,
+      "last_error": 6
+    },
+    "deletedc_null": {
+      "ret": false,
+      "last_error": 6
+    },
+    "setpixel_negative_x": {
+      "ret": "0xffffffff",
+      "last_error": "unchanged"
+    },
+    "setpixel_past_bottom": {
+      "ret": "0xffffffff",
+      "last_error": "unchanged"
+    },
+    "setpixel_clipped_out": {
+      "ret": "0xffffffff",
+      "last_error": "unchanged",
+      "raw": "0x00000000"
+    },
+    "setpixel_null_dc": {
+      "ret": "0xffffffff",
+      "last_error": 6
+    },
+    "patblt_neg_width": {
+      "ret": true,
+      "dst": "ffffff000000000000000000ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00"
+    },
+    "patblt_neg_height": {
+      "ret": true,
+      "dst": "ffffff00ffffff00ffffff00ffffff0000000000ffffff00ffffff00ffffff0000000000ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00"
+    },
+    "patblt_neg_width_1": {
+      "ret": true,
+      "dst": "ffffff0000000000ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00"
+    },
+    "patblt_zero_width": {
+      "ret": true,
+      "dst": "ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00"
+    },
+    "restoredc_one_past": {
+      "ret": false,
+      "last_error": 87
+    },
+    "restoredc_minus_too_deep": {
+      "ret": false,
+      "last_error": 87
+    },
+    "restoredc_zero_lasterr": {
+      "ret": false,
+      "last_error": 87
+    },
+    "restoredc_exact": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "restoredc_nothing_saved": {
+      "ret": false,
+      "last_error": 87
+    },
+    "getdibits_query_header_2_lines": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "bpp": 32
+    },
+    "getdibits_query_header_0_lines": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "getdibits_query_header_mono": {
+      "ret": 1,
+      "bpp": 1,
+      "sizeimage": 16
+    },
+    "getdibits_null_bits_with_bpp": {
+      "ret": 1,
+      "sizeimage": 64
+    },
+    "stretch_8_to_4_coloroncolor": {
+      "ret": true,
+      "dst": "12121200343434005656560078787800eeeeee00eeeeee00eeeeee00eeeeee00"
+    },
+    "stretch_8_to_2_coloroncolor": {
+      "ret": true,
+      "dst": "2323230067676700eeeeee00eeeeee00eeeeee00eeeeee00eeeeee00eeeeee00"
+    },
+    "stretch_8_to_3_coloroncolor": {
+      "ret": true,
+      "dst": "121212004545450067676700eeeeee00eeeeee00eeeeee00eeeeee00eeeeee00"
+    },
+    "stretch_8_to_5_coloroncolor": {
+      "ret": true,
+      "dst": "0101010023232300454545005656560078787800eeeeee00eeeeee00eeeeee00"
+    },
+    "stretch_3_to_8_coloroncolor": {
+      "ret": true,
+      "dst": "0101010001010100010101001212120012121200232323002323230023232300"
+    },
+    "stretch_8_to_4_blackonwhite": {
+      "ret": true,
+      "dst": "00000000202020004444440060606000eeeeee00eeeeee00eeeeee00eeeeee00"
+    },
+    "stretch_8_to_4_whiteonblack": {
+      "ret": true,
+      "dst": "1313130037373700575757007f7f7f00eeeeee00eeeeee00eeeeee00eeeeee00"
     }
   },
   "errors": [],
-  "source_sha256": "674f029e2d37273b148307cf4db6fb5c01d4f396ef745eb4af8ad5407dd93b9d"
+  "source_sha256": "286035076e91fc46d1bf61518c17d16448259327464370f9a44f81ed52ea4fca"
 }

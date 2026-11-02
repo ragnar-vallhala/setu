@@ -475,5 +475,189 @@ int main(void)
         o_lasterr();
         oracle_case_end();
     }
+
+    /* ---- probes: coordinate limits ---- */
+    {
+        static const struct { const char *name; int l, t, r, b; } lim[] = {
+            {"limit_right_2_27_minus_1", 0, 0, (1 << 27) - 1, 1},
+            {"limit_right_2_27", 0, 0, 1 << 27, 1},
+            {"limit_left_neg_2_27", -(1 << 27), 0, 0, 1},
+            {"limit_left_neg_2_27_plus_1", -(1 << 27) + 1, 0, 0, 1},
+            {"limit_left_neg_2_27_minus_1", -(1 << 27) - 1, 0, 0, 1},
+            {"limit_bottom_2_27_minus_1", 0, 0, 1, (1 << 27) - 1},
+            {"limit_bottom_2_27", 0, 0, 1, 1 << 27},
+            {"limit_top_neg_2_27", 0, -(1 << 27), 1, 0},
+            {"limit_top_neg_2_27_minus_1", 0, -(1 << 27) - 1, 1, 0},
+            {"limit_full_range", -(1 << 27), -(1 << 27), (1 << 27) - 1, (1 << 27) - 1},
+            {"limit_reversed_2_27", 1 << 27, 0, 0, 1},
+            {"limit_empty_beyond", 1 << 28, 0, 1 << 28, 1},
+            {"limit_empty_height_beyond", 0, 1 << 28, 5, 1 << 28},
+        };
+        for (size_t i = 0; i < sizeof lim / sizeof lim[0]; i++) {
+            HRGN h;
+            ORACLE_CALL(h, pCreateRectRgn(lim[i].l, lim[i].t, lim[i].r, lim[i].b));
+            oracle_case(lim[i].name);
+            o_handle("handle", h);
+            o_lasterr();
+            if (h) rgn_fields(h);
+            oracle_case_end();
+            if (h) pDeleteObject(h);
+        }
+        int r;
+        BOOL ok;
+        HRGN o = R(0, 0, 10, 10);
+        ORACLE_CALL(r, pOffsetRgn(o, (1 << 27) - 10, 0));
+        oracle_case("limit_offset_to_edge");
+        o_i64("ret", r);
+        o_lasterr();
+        rgn_fields(o);
+        oracle_case_end();
+        ORACLE_CALL(r, pOffsetRgn(o, 1, 0));
+        oracle_case("limit_offset_past_edge");
+        o_i64("ret", r);
+        o_lasterr();
+        rgn_fields(o);
+        oracle_case_end();
+        ORACLE_CALL(ok, pSetRectRgn(o, 0, 0, 1 << 27, 1));
+        oracle_case("limit_setrectrgn_2_27");
+        o_bool("ret", ok);
+        o_lasterr();
+        rgn_fields(o);
+        oracle_case_end();
+        ORACLE_CALL(ok, pSetRectRgn(o, 0, 0, (1 << 27) - 1, 1));
+        oracle_case("limit_setrectrgn_2_27_minus_1");
+        o_bool("ret", ok);
+        o_lasterr();
+        rgn_fields(o);
+        oracle_case_end();
+        pDeleteObject(o);
+    }
+
+    /* ---- probes: IntersectClipRect return values ---- */
+    {
+        static const struct { const char *name; int clip; RECT c, i; } ic[] = {
+            {"icr_no_clip_inside", 0, {0, 0, 0, 0}, {4, 4, 8, 8}},
+            {"icr_no_clip_past_surface", 0, {0, 0, 0, 0}, {4, 4, 20, 20}},
+            {"icr_no_clip_whole_surface", 0, {0, 0, 0, 0}, {0, 0, 16, 16}},
+            {"icr_clip_inside", 1, {2, 2, 8, 8}, {3, 3, 5, 5}},
+            {"icr_clip_same", 1, {2, 2, 8, 8}, {2, 2, 8, 8}},
+            {"icr_clip_larger", 1, {2, 2, 8, 8}, {0, 0, 10, 10}},
+            {"icr_clip_partial", 1, {2, 2, 8, 8}, {4, 4, 10, 10}},
+            {"icr_clip_disjoint", 1, {2, 2, 8, 8}, {10, 10, 12, 12}},
+        };
+        BITMAPINFO bi;
+        void *bits;
+        memset(&bi, 0, sizeof bi);
+        bi.bmiHeader.biSize = sizeof bi.bmiHeader;
+        bi.bmiHeader.biWidth = 16;
+        bi.bmiHeader.biHeight = 16;
+        bi.bmiHeader.biPlanes = 1;
+        bi.bmiHeader.biBitCount = 32;
+        HBITMAP bm = pCreateDIBSection(NULL, &bi, DIB_RGB_COLORS, &bits, NULL, 0);
+        for (size_t i = 0; i < sizeof ic / sizeof ic[0]; i++) {
+            HDC dc = pCreateCompatibleDC(NULL);
+            HGDIOBJ old = pSelectObject(dc, bm);
+            if (ic[i].clip) {
+                HRGN c = R(ic[i].c.left, ic[i].c.top, ic[i].c.right, ic[i].c.bottom);
+                pSelectClipRgn(dc, c);
+                pDeleteObject(c);
+            }
+            int r;
+            ORACLE_CALL(r, pIntersectClipRect(dc, ic[i].i.left, ic[i].i.top, ic[i].i.right, ic[i].i.bottom));
+            oracle_case(ic[i].name);
+            o_i64("ret", r);
+            clip_fields(dc);
+            oracle_case_end();
+            pSelectObject(dc, old);
+            pDeleteDC(dc);
+        }
+        HDC dc = pCreateCompatibleDC(NULL);
+        int r;
+        ORACLE_CALL(r, pIntersectClipRect(dc, 0, 0, 5, 5));
+        oracle_case("icr_stock_bitmap_dc");
+        o_i64("ret", r);
+        clip_fields(dc);
+        oracle_case_end();
+        pDeleteDC(dc);
+        pDeleteObject(bm);
+    }
+
+    /* ---- probes: what still works on a deleted region ---- */
+    {
+        RECT box;
+        int r;
+        DWORD sz;
+        char b[64];
+        HRGN dead = R(1, 2, 3, 4);
+        pDeleteObject(dead);
+        memset(&box, 0x55, sizeof box);
+        ORACLE_CALL(r, pGetRgnBox(dead, &box));
+        oracle_case("deleted_rect_getrgnbox");
+        o_i64("ret", r);
+        o_lasterr();
+        snprintf(b, sizeof b, "%ld,%ld,%ld,%ld", box.left, box.top, box.right, box.bottom);
+        o_str("box", b);
+        o_u32("object_type", pGetObjectType(dead));
+        oracle_case_end();
+        ORACLE_CALL(r, pPtInRegion(dead, 1, 2));
+        oracle_case("deleted_rect_ptinregion_inside");
+        o_i64("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(sz, pGetRegionData(dead, 0, NULL));
+        oracle_case("deleted_rect_getregiondata");
+        o_u32("ret", sz);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, pOffsetRgn(dead, 10, 10));
+        oracle_case("deleted_rect_offsetrgn");
+        o_i64("ret", r);
+        o_lasterr();
+        memset(&box, 0x55, sizeof box);
+        o_i64("getrgnbox_after", pGetRgnBox(dead, &box));
+        snprintf(b, sizeof b, "%ld,%ld,%ld,%ld", box.left, box.top, box.right, box.bottom);
+        o_str("box_after", b);
+        oracle_case_end();
+        BOOL ok;
+        ORACLE_CALL(ok, pSetRectRgn(dead, 5, 5, 9, 9));
+        oracle_case("deleted_rect_setrectrgn");
+        o_bool("ret", ok);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(ok, pDeleteObject(dead));
+        oracle_case("deleted_rect_delete_again");
+        o_bool("ret", ok);
+        o_lasterr();
+        oracle_case_end();
+
+        HRGN deade = R(0, 0, 0, 0);
+        pDeleteObject(deade);
+        ORACLE_CALL(r, pGetRgnBox(deade, &box));
+        oracle_case("deleted_empty_getrgnbox");
+        o_i64("ret", r);
+        o_lasterr();
+        oracle_case_end();
+
+        HRGN deadc = R(0, 0, 0, 0);
+        pCombineRgn(deadc, R(0, 0, 2, 2), R(4, 4, 6, 6), RGN_OR);
+        pDeleteObject(deadc);
+        ORACLE_CALL(r, pGetRgnBox(deadc, &box));
+        oracle_case("deleted_complex_getrgnbox");
+        o_i64("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, pOffsetRgn(deadc, 1, 1));
+        oracle_case("deleted_complex_offsetrgn");
+        o_i64("ret", r);
+        o_lasterr();
+        oracle_case_end();
+
+        HRGN bogus = (HRGN)(ULONG_PTR)0x12345678;
+        ORACLE_CALL(r, pGetRgnBox(bogus, &box));
+        oracle_case("bogus_handle_getrgnbox");
+        o_i64("ret", r);
+        o_lasterr();
+        oracle_case_end();
+    }
     return oracle_end();
 }

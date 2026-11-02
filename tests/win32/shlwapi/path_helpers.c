@@ -441,5 +441,46 @@ int main(void)
         }
         oracle_case_end();
     }
+
+    /* ---- probes: dots, UNC roots, device prefixes, empty specs, leading zeros ---- */
+    canon("canon_trailing_dots_last", L"C:\\a\\b...");
+    canon("canon_trailing_dots_mid", L"C:\\a\\b..\\c");
+    canon("canon_trailing_dot_name", L"C:\\a\\b.");
+    canon("canon_trailing_dot_name_mid", L"C:\\a\\b.\\c");
+    canon("canon_triple_dots_last", L"C:\\a\\...");
+    canon("canon_four_dots", L"C:\\a\\....\\b");
+    canon("canon_dot_only_relative", L".");
+    canon("canon_dotdot_only_relative", L"..");
+    canon("canon_unc_past_share", L"\\\\server\\share\\a\\..\\..\\x");
+    canon("canon_unc_server_dotdot", L"\\\\server\\..\\x");
+    canon("canon_unc_dotdot_once", L"\\\\server\\share\\a\\..\\x");
+    combine("combine_unc_dotdot_one", L"\\\\server\\share\\a", L"..\\f");
+    combine("combine_unc_dotdot_two", L"\\\\server\\share\\a", L"..\\..\\f");
+    combine("combine_trailing_dot_one", L"C:\\a", L"b.");
+    combine("combine_trailing_dots_mid", L"C:\\a", L"b...\\c");
+    finders("find_device_unc", L"\\\\?\\UNC\\s\\sh\\f");
+    finders("find_device_drive_only", L"\\\\?\\C:");
+    finders("find_unc_dir_deep", L"\\\\s\\sh\\a\\b");
+    finders("find_rooted_deep", L"\\a\\b\\c");
+    finders("find_unc_server_trailing", L"\\\\server\\");
+    match("match_empty_spec_empty_file", L"", L"");
+    match("match_empty_file_star", L"", L"*");
+    match("match_spec_only_semicolon", L"file", L";");
+    compact("compact_max_2", L"C:\\a\\b.txt", 2);
+    compact("compact_max_0_empty", L"", 0);
+    {
+        static const wchar_t *pairs[][2] = {
+            {L"file2", L"file02"}, {L"file002", L"file02"}, {L"file02", L"file002"}, {L"a01b", L"a1c"},
+            {L"a01", L"a1b"},      {L"00", L"0"},           {L"0", L"00"},           {L"a1", L"a01"},
+            {L"x02y", L"x2y"},     {L"x2y", L"x02z"},
+        };
+        oracle_case("strcmplogical_leading_zeros");
+        for (size_t i = 0; i < sizeof pairs / sizeof pairs[0]; i++) {
+            char k[16];
+            snprintf(k, sizeof k, "p%zu", i);
+            o_i64(k, sgn(pStrCmpLogicalW(pairs[i][0], pairs[i][1])));
+        }
+        oracle_case_end();
+    }
     return oracle_end();
 }

@@ -559,8 +559,240 @@
     "ptinregion_deleted": {
       "ret": 0,
       "last_error": "unchanged"
+    },
+    "limit_right_2_27_minus_1": {
+      "handle": "valid",
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,134217727,1",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,134217727,1"
+    },
+    "limit_right_2_27": {
+      "handle": "NULL",
+      "last_error": 87
+    },
+    "limit_left_neg_2_27": {
+      "handle": "valid",
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "-134217728,0,0,1",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "-134217728,0,0,1"
+    },
+    "limit_left_neg_2_27_plus_1": {
+      "handle": "valid",
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "-134217727,0,0,1",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "-134217727,0,0,1"
+    },
+    "limit_left_neg_2_27_minus_1": {
+      "handle": "NULL",
+      "last_error": 87
+    },
+    "limit_bottom_2_27_minus_1": {
+      "handle": "valid",
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,1,134217727",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,1,134217727"
+    },
+    "limit_bottom_2_27": {
+      "handle": "NULL",
+      "last_error": 87
+    },
+    "limit_top_neg_2_27": {
+      "handle": "valid",
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,-134217728,1,0",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,-134217728,1,0"
+    },
+    "limit_top_neg_2_27_minus_1": {
+      "handle": "NULL",
+      "last_error": 87
+    },
+    "limit_full_range": {
+      "handle": "valid",
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "-134217728,-134217728,134217727,134217727",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "-134217728,-134217728,134217727,134217727"
+    },
+    "limit_reversed_2_27": {
+      "handle": "NULL",
+      "last_error": 87
+    },
+    "limit_empty_beyond": {
+      "handle": "NULL",
+      "last_error": 87
+    },
+    "limit_empty_height_beyond": {
+      "handle": "NULL",
+      "last_error": 87
+    },
+    "limit_offset_to_edge": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,10,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,10,10"
+    },
+    "limit_offset_past_edge": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "1,0,11,10",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "1,0,11,10"
+    },
+    "limit_setrectrgn_2_27": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,134217728,1",
+      "data_size": 0
+    },
+    "limit_setrectrgn_2_27_minus_1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 2,
+      "box": "0,0,134217727,1",
+      "data_size": 48,
+      "nCount": 1,
+      "iType": 1,
+      "nRgnSize": 16,
+      "rects": "0,0,134217727,1"
+    },
+    "icr_no_clip_inside": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "4,4,8,8",
+      "getcliprgn": 1
+    },
+    "icr_no_clip_past_surface": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "4,4,16,16",
+      "getcliprgn": 1
+    },
+    "icr_no_clip_whole_surface": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "0,0,16,16",
+      "getcliprgn": 1
+    },
+    "icr_clip_inside": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "3,3,5,5",
+      "getcliprgn": 1
+    },
+    "icr_clip_same": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "2,2,8,8",
+      "getcliprgn": 1
+    },
+    "icr_clip_larger": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "2,2,8,8",
+      "getcliprgn": 1
+    },
+    "icr_clip_partial": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "4,4,8,8",
+      "getcliprgn": 1
+    },
+    "icr_clip_disjoint": {
+      "ret": 3,
+      "clipbox_type": 1,
+      "clipbox": "0,0,0,0",
+      "getcliprgn": 1
+    },
+    "icr_stock_bitmap_dc": {
+      "ret": 3,
+      "clipbox_type": 2,
+      "clipbox": "0,0,1,1",
+      "getcliprgn": 1
+    },
+    "deleted_rect_getrgnbox": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "box": "1,2,3,4",
+      "object_type": 8
+    },
+    "deleted_rect_ptinregion_inside": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "deleted_rect_getregiondata": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "deleted_rect_offsetrgn": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "getrgnbox_after": 0,
+      "box_after": "1431655765,1431655765,1431655765,1431655765"
+    },
+    "deleted_rect_setrectrgn": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "deleted_rect_delete_again": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "deleted_empty_getrgnbox": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "deleted_complex_getrgnbox": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "deleted_complex_offsetrgn": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "bogus_handle_getrgnbox": {
+      "ret": 0,
+      "last_error": "unchanged"
     }
   },
   "errors": [],
-  "source_sha256": "79ed6948e5754cdd9ad6ddced85fda59f999f0b217d8cb0995cd6cf800a4e3c7"
+  "source_sha256": "591fa266faa44f65f288aa15892838add758cce3e0458fadab4c225bafcd8129"
 }

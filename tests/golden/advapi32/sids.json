@@ -602,8 +602,266 @@
     "sd_null_size_out": {
       "ret": true,
       "last_error": 0
+    },
+    "str_authority_2_32": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-0x100000000-1"
+    },
+    "str_authority_2_32_minus_1": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-4294967295-1"
+    },
+    "str_hex_authority_7_bytes": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_hex_authority_upper_x": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-5-18"
+    },
+    "str_hex_authority_lower_digits": {
+      "ret": true,
+      "last_error": 0,
+      "valid": true,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "S-1-0xABCDEF012345-1"
+    },
+    "str_hex_empty": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_17_subauthorities": {
+      "ret": true,
+      "last_error": 0,
+      "valid": false,
+      "length": 76,
+      "subauth_count": 17,
+      "string": "convert failed"
+    },
+    "str_leading_space": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_plus_sign": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_revision_0": {
+      "ret": true,
+      "last_error": 0,
+      "valid": false,
+      "length": 12,
+      "subauth_count": 1,
+      "string": "convert failed"
+    },
+    "str_revision_256": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "str_alias_trailing": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "iswk_admin_domain_3": {
+      "is_well_known": true
+    },
+    "iswk_admin_domain_1": {
+      "is_well_known": false
+    },
+    "iswk_admin_domain_0": {
+      "is_well_known": false
+    },
+    "iswk_admin_domain_4": {
+      "is_well_known": false
+    },
+    "iswk_admin_not_21": {
+      "is_well_known": false
+    },
+    "iswk_admin_authority_1": {
+      "is_well_known": false
+    },
+    "iswk_admin_wrong_rid": {
+      "is_well_known": false
+    },
+    "iswk_domain_users": {
+      "is_well_known": true
+    },
+    "iswk_world_as_admin": {
+      "is_well_known": false
+    },
+    "iswk_builtin_domain": {
+      "is_well_known": true
+    },
+    "sd_bad_ace_flag": {
+      "ret": false,
+      "last_error": 1004
+    },
+    "sd_five_fields": {
+      "ret": false,
+      "last_error": 87
+    },
+    "sd_seven_fields": {
+      "ret": false,
+      "last_error": 87
+    },
+    "sd_empty_ace_type": {
+      "ret": false,
+      "last_error": 1804
+    },
+    "sd_lowercase_ace_type": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008004",
+      "roundtrip": "D:(A;;GA;;;WD)"
+    },
+    "sd_ace_type_prefix": {
+      "ret": false,
+      "last_error": 1336
+    },
+    "sd_bad_acl_flag": {
+      "ret": false,
+      "last_error": 1804
+    },
+    "sd_sid_trailing_garbage": {
+      "ret": false,
+      "last_error": 1336
+    },
+    "sd_numeric_sid_bad": {
+      "ret": false,
+      "last_error": 1337
+    },
+    "sd_ml_all_rights": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008010",
+      "roundtrip": "S:(ML;;NWNRNX;;;LW)"
+    },
+    "sd_ml_no_read_up": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008010",
+      "roundtrip": "S:(ML;;NR;;;HI)"
+    },
+    "sd_ml_hex_mask": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008010",
+      "roundtrip": "S:(ML;;NWNR;;;ME)"
+    },
+    "sd_ml_flags": {
+      "ret": true,
+      "last_error": 0,
+      "length": 48,
+      "getlength": 48,
+      "control": "0x00008010",
+      "roundtrip": "S:(ML;OICI;NW;;;LW)"
+    },
+    "sd_null_dacl_protected": {
+      "ret": true,
+      "last_error": 0,
+      "length": 20,
+      "getlength": 20,
+      "control": "0x00009004",
+      "roundtrip": "D:PNO_ACCESS_CONTROL"
+    },
+    "sd_null_sacl": {
+      "ret": true,
+      "last_error": 0,
+      "length": 20,
+      "getlength": 20,
+      "control": "0x00008010",
+      "roundtrip": "S:NO_ACCESS_CONTROL"
+    },
+    "sd_null_dacl_with_owner": {
+      "ret": true,
+      "last_error": 0,
+      "length": 36,
+      "getlength": 36,
+      "control": "0x00008004",
+      "roundtrip": "O:BAD:NO_ACCESS_CONTROL"
+    },
+    "sd_object_ace_upper_guid": {
+      "ret": true,
+      "last_error": 0,
+      "length": 68,
+      "getlength": 68,
+      "control": "0x00008004",
+      "roundtrip": "D:(OA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD)"
+    },
+    "sd_object_ace_inherit_guid": {
+      "ret": true,
+      "last_error": 0,
+      "length": 68,
+      "getlength": 68,
+      "control": "0x00008004",
+      "roundtrip": "D:(OA;CI;RPWP;;bf967aba-0de6-11d0-a285-00aa003049e2;WD)"
+    },
+    "sd_object_ace_both_guids": {
+      "ret": true,
+      "last_error": 0,
+      "length": 84,
+      "getlength": 84,
+      "control": "0x00008004",
+      "roundtrip": "D:(OA;;RP;00299570-246d-11d0-a768-00aa006e0529;bf967aba-0de6-11d0-a285-00aa003049e2;WD)"
+    },
+    "sd_object_ace_no_guids": {
+      "ret": true,
+      "last_error": 0,
+      "length": 52,
+      "getlength": 52,
+      "control": "0x00008004",
+      "roundtrip": "D:(A;;CR;;;WD)"
+    },
+    "sd_object_ace_bad_guid": {
+      "ret": false,
+      "last_error": 1705
+    },
+    "sd_object_ace_braced_guid": {
+      "ret": false,
+      "last_error": 1705
+    },
+    "sd_object_deny": {
+      "ret": true,
+      "last_error": 0,
+      "length": 68,
+      "getlength": 68,
+      "control": "0x00008004",
+      "roundtrip": "D:(OD;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD)"
+    },
+    "sd_object_audit": {
+      "ret": true,
+      "last_error": 0,
+      "length": 68,
+      "getlength": 68,
+      "control": "0x00008010",
+      "roundtrip": "S:(OU;SA;CR;00299570-246d-11d0-a768-00aa006e0529;;WD)"
+    },
+    "sd_guid_on_plain_ace": {
+      "ret": false,
+      "last_error": 1336
     }
   },
   "errors": [],
-  "source_sha256": "2ab238bf148350c75e6bf94443ec32a5ee8222301400be59aa1cc4b82bd37227"
+  "source_sha256": "5a30a37672b66a3596a73b17937250f6345e52fbd5d7cf1c0f8f0763d24a4c8b"
 }

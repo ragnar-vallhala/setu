@@ -153,6 +153,16 @@ int main(void)
     folder_case("folder_drives_virtual", CSIDL_DRIVES, SHGFP_TYPE_CURRENT, NULL);
     folder_case("folder_bad_flags", CSIDL_WINDOWS, 7, NULL);
     folder_case("folder_negative_csidl", -1, SHGFP_TYPE_CURRENT, NULL);
+    /* probes: other flag values and other virtual (path-less) folders */
+    folder_case("folder_flags_2", CSIDL_WINDOWS, 2, NULL);
+    folder_case("folder_flags_high_bit", CSIDL_WINDOWS, 0x80000000u, NULL);
+    folder_case("folder_appdata_bad_flags", CSIDL_APPDATA, 7, L"\\Roaming");
+    folder_case("folder_controls_virtual", CSIDL_CONTROLS, SHGFP_TYPE_CURRENT, NULL);
+    folder_case("folder_printers_virtual", CSIDL_PRINTERS, SHGFP_TYPE_CURRENT, NULL);
+    folder_case("folder_bitbucket_virtual", CSIDL_BITBUCKET, SHGFP_TYPE_CURRENT, NULL);
+    folder_case("folder_network_virtual", CSIDL_NETWORK, SHGFP_TYPE_CURRENT, NULL);
+    folder_case("folder_connections_virtual", CSIDL_CONNECTIONS, SHGFP_TYPE_CURRENT, NULL);
+    folder_case("folder_bogus_csidl_0x3c", 0x3c, SHGFP_TYPE_CURRENT, NULL);
 
     /* ---- SHGetSpecialFolderPathW ---- */
     {
@@ -180,6 +190,12 @@ int main(void)
         known_case("known_virtual_computer", &FOLDERID_ComputerFolder_, 0);
         known_case("known_bogus_guid", &bogus, 0);
         known_case("known_windows_bogus_flags", &FOLDERID_Windows_, 0x80000000u);
+        static const GUID FOLDERID_RecycleBinFolder_ = {0xB7534046, 0x3ECB, 0x4C18, {0xBE, 0x4E, 0x64, 0xCD, 0x4C, 0xB7, 0xD6, 0xAC}};
+        static const GUID FOLDERID_NetworkFolder_ = {0xD20BEEC4, 0x5CA8, 0x4905, {0xAE, 0x3B, 0xBF, 0x25, 0x1E, 0xA0, 0x9B, 0x53}};
+        static const GUID FOLDERID_ControlPanelFolder_ = {0x82A74AEB, 0xAEB4, 0x465C, {0xA0, 0x14, 0xD0, 0x97, 0xEE, 0x34, 0x6D, 0x63}};
+        known_case("known_virtual_recycle_bin", &FOLDERID_RecycleBinFolder_, 0);
+        known_case("known_virtual_network", &FOLDERID_NetworkFolder_, 0);
+        known_case("known_virtual_control_panel", &FOLDERID_ControlPanelFolder_, 0);
     }
     return oracle_end();
 }
