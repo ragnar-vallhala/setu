@@ -6,8 +6,19 @@
 
 **Status:** Wine **11.0** imported into `wine/` as a squashed git subtree
 (upstream commit `db11d0fe6a16`; Wine's own history stays upstream).
-There are no Setu changes yet: the tree is identical to upstream `wine-11.0`.
-The oracle harness runs this build as the Setu target.
+The oracle harness runs this build as the Setu target. Setu's changes are the
+commits touching `wine/` after the import; each one names the oracle cases
+and documentation that justify it:
+
+```sh
+git log --grep='^Setu-Oracle:' --format='%h %s' -- personality/wine
+```
+
+## On-disk state Setu adds
+
+| Where | What |
+|---|---|
+| xattr `user.WINENOARCHIVE` | Set on a file whose ARCHIVE attribute was cleared, next to Samba's `user.DOSATTRIB`. Holds the file's mtime at that moment; ARCHIVE reads as set again once the mtime changes. On kernels without multigrain timestamps (before Linux 6.13), a write in the same clock tick as the clear can go unnoticed. |
 
 ## Layout
 
