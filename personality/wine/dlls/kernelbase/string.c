@@ -1118,9 +1118,18 @@ LPSTR WINAPI CharNextExA(WORD codepage, const char *ptr, DWORD flags)
     return (LPSTR)(ptr + 1);
 }
 
+/* combining marks belong to the character before them */
+static BOOL is_combining_mark(WCHAR ch)
+{
+    WORD type;
+
+    return ch && GetStringTypeW(CT_CTYPE3, &ch, 1, &type) && (type & C3_NONSPACING);
+}
+
 LPWSTR WINAPI CharNextW(const WCHAR *x)
 {
     if (*x) x++;
+    while (is_combining_mark(*x)) x++;
 
     return (WCHAR *)x;
 }
@@ -1149,8 +1158,10 @@ LPSTR WINAPI CharPrevExA(WORD codepage, const char *start, const char *ptr, DWOR
 
 LPWSTR WINAPI CharPrevW(const WCHAR *start, const WCHAR *x)
 {
-    if (x > start) return (LPWSTR)(x - 1);
-    else return (LPWSTR)x;
+    if (x <= start) return (LPWSTR)x;
+    x--;
+    while (x > start && is_combining_mark(*x)) x--;
+    return (LPWSTR)x;
 }
 
 LPSTR WINAPI CharUpperA(LPSTR str)
