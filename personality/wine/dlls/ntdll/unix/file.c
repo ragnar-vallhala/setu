@@ -1846,6 +1846,23 @@ static NTSTATUS fd_set_file_info( int fd, UINT attr, BOOL force_set_xattr )
 }
 
 
+/* after a timestamp change, keep a cleared ARCHIVE attribute clear */
+static void refresh_noarchive_stamp( int fd )
+{
+    char stamp[32];
+    struct stat st;
+
+    if (xattr_fget( fd, XATTR_NOARCHIVE, stamp, sizeof(stamp) ) == -1) return;
+    if (fstat( fd, &st ) == -1) return;
+    format_noarchive_stamp( &st, stamp, sizeof(stamp) );
+    /* user extended attributes can only change while the file is writable */
+    if (!(st.st_mode & S_IWUSR) && fchmod( fd, st.st_mode | S_IWUSR ) == -1) return;
+    xattr_fset( fd, XATTR_NOARCHIVE, stamp, strlen( stamp ) );
+    if (!(st.st_mode & S_IWUSR)) fchmod( fd, st.st_mode );
+    fstat( fd, &st );  /* see fd_set_file_info */
+}
+
+
 /* get the stat info and file attributes for a file (by name) */
 static int get_file_info( const char *path, struct stat *st, ULONG *attr, ULONG *reparse_tag )
 {
@@ -5241,9 +5258,14 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
             atime.QuadPart = info->LastAccessTime.QuadPart == -1 ? 0 : info->LastAccessTime.QuadPart;
 
             if (atime.QuadPart || mtime.QuadPart)
+            {
                 status = set_file_times( fd, &mtime, &atime );
+                /* changing timestamps is not a modification: keep ARCHIVE clear */
+                if (status == STATUS_SUCCESS) refresh_noarchive_stamp( fd );
+            }
 
-            if (status == STATUS_SUCCESS)
+            /* zero FileAttributes leaves the attributes unchanged */
+            if (status == STATUS_SUCCESS && info->FileAttributes)
                 status = fd_set_file_info( fd, info->FileAttributes,
                                            unix_name && is_hidden_file( unix_name ));
 

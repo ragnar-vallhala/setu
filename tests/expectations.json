@@ -139,6 +139,7 @@
     "kernel32/GetFileAttributesW:set_readonly",
     "kernel32/GetFileAttributesW:set_readonly_hidden",
     "kernel32/GetFileAttributesW:set_zero",
+    "kernel32/GetFileAttributesW:settime_keeps_attrs",
     "kernel32/GetFileAttributesW:wildcard",
     "kernel32/ReadFile:read_4",
     "kernel32/ReadFile:read_at_eof",

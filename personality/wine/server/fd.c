@@ -1982,6 +1982,11 @@ struct fd *open_fd( struct fd *root, const char *name, struct unicode_str nt_nam
             if ((access & FILE_UNIX_WRITE_ACCESS) || (flags & O_CREAT))
                 fd->unix_fd = open( name, O_RDONLY | (flags & ~(O_TRUNC | O_CREAT | O_EXCL)), *mode );
         }
+        /* FILE_WRITE_ATTRIBUTES and FILE_WRITE_EA are allowed on a read-only
+         * file; changing them does not need a writable descriptor */
+        else if (errno == EACCES && rw_mode != O_RDONLY && !(flags & O_TRUNC) &&
+                 !(access & (FILE_WRITE_DATA | FILE_APPEND_DATA)))
+            fd->unix_fd = open( name, O_RDONLY | flags, *mode );
 
         if (fd->unix_fd == -1)
         {
