@@ -2007,6 +2007,7 @@
     "kernel32/threads:description_set_empty",
     "kernel32/threads:description_set_null_handle",
     "kernel32/threads:exit_code_ExitThread",
+    "kernel32/threads:exit_code_after_terminate_exited",
     "kernel32/threads:exit_code_current_thread",
     "kernel32/threads:exit_code_event_handle",
     "kernel32/threads:exit_code_invalid_handle",

@@ -1825,7 +1825,8 @@ DECL_HANDLER(terminate_thread)
 
     if ((thread = get_thread_from_handle( req->handle, THREAD_TERMINATE )))
     {
-        thread->exit_code = req->exit_code;
+        /* an exited thread keeps its exit code */
+        if (thread->state != TERMINATED) thread->exit_code = req->exit_code;
         if (thread != current) kill_thread( thread, 1 );
         else reply->self = 1;
         cancel_terminating_thread_asyncs( thread );
