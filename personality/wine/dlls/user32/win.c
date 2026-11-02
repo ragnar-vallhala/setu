@@ -1122,7 +1122,8 @@ INT WINAPI GetWindowTextW( HWND hwnd, LPWSTR lpString, INT nMaxCount )
 {
     int ret;
 
-    if (!lpString || nMaxCount <= 0) return 0;
+    /* the count is treated as unsigned: a negative count is a huge buffer */
+    if (!lpString || !nMaxCount) return 0;
 
     __TRY
     {
@@ -1130,7 +1131,7 @@ INT WINAPI GetWindowTextW( HWND hwnd, LPWSTR lpString, INT nMaxCount )
 
         if (WIN_IsCurrentProcess( hwnd ))
         {
-            ret = (INT)SendMessageW( hwnd, WM_GETTEXT, nMaxCount, (LPARAM)lpString );
+            ret = (INT)SendMessageW( hwnd, WM_GETTEXT, (UINT)nMaxCount, (LPARAM)lpString );
         }
         else
         {

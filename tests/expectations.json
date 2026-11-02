@@ -2510,6 +2510,7 @@
     "user32/window_props:gettext_buf_2",
     "user32/window_props:gettext_buf_5_short",
     "user32/window_props:gettext_buf_6_exact",
+    "user32/window_props:gettext_buf_negative",
     "user32/window_props:gettext_crlf_tab",
     "user32/window_props:gettext_empty",
     "user32/window_props:gettext_unicode",
