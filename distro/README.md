@@ -12,7 +12,7 @@ the shell. Until `shell/` ships `setu-shell.exe`, the session runs Wine's
 `notepad` as a placeholder.
 
 ```sh
-distro/build-image.sh     # ~12 min; writes build/distro/setu-dev.qcow2 (~4 GB)
+distro/build-image.sh     # ~10 min; writes build/distro/setu-dev.qcow2 (~4 GB)
 distro/run-qemu.sh        # VNC 127.0.0.1:5911, serial log build/distro/run/serial.log
 ```
 
