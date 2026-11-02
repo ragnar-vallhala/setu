@@ -2395,6 +2395,8 @@
     "shlwapi/path_helpers:rel_parent",
     "shlwapi/path_helpers:rel_same",
     "shlwapi/path_helpers:rel_sibling_file",
+    "shlwapi/path_helpers:strcmplogical",
+    "shlwapi/path_helpers:strcmplogical_leading_zeros",
     "user32/clipboard:available_after_close",
     "user32/clipboard:available_while_open",
     "user32/clipboard:close",

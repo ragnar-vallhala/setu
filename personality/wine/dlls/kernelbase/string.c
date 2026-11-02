@@ -1310,7 +1310,7 @@ int WINAPI StrCmpLogicalW(const WCHAR *str, const WCHAR *comp)
             return 1;
         else if (*str >= '0' && *str <= '9')
         {
-            int str_value, comp_value;
+            int str_value, comp_value, str_len, comp_len;
 
             if (*comp < '0' || *comp > '9')
                 return -1;
@@ -1324,9 +1324,13 @@ int WINAPI StrCmpLogicalW(const WCHAR *str, const WCHAR *comp)
             else if (str_value > comp_value)
                 return 1;
 
-            /* Skip */
-            while (*str >= '0' && *str <= '9') str++;
-            while (*comp >= '0' && *comp <= '9') comp++;
+            /* Skip; for equal values the one with more leading zeros sorts first */
+            for (str_len = 0; *str >= '0' && *str <= '9'; str_len++) str++;
+            for (comp_len = 0; *comp >= '0' && *comp <= '9'; comp_len++) comp++;
+            if (str_len > comp_len)
+                return -1;
+            else if (str_len < comp_len)
+                return 1;
         }
         else if (*comp >= '0' && *comp <= '9')
             return 1;
