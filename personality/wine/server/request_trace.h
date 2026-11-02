@@ -2636,6 +2636,23 @@ static void dump_set_desktop_shell_windows_reply( const struct set_desktop_shell
     fprintf( stderr, ", old_taskman_window=%08x", req->old_taskman_window );
 }
 
+static void dump_set_shell_hook_window_request( const struct set_shell_hook_window_request *req )
+{
+    fprintf( stderr, " handle=%08x", req->handle );
+    fprintf( stderr, ", msg=%08x", req->msg );
+}
+
+static void dump_set_shell_hook_window_reply( const struct set_shell_hook_window_reply *req )
+{
+    fprintf( stderr, " ret=%d", req->ret );
+}
+
+static void dump_post_shell_hook_request( const struct post_shell_hook_request *req )
+{
+    fprintf( stderr, " code=%08x", req->code );
+    dump_uint64( ", lparam=", &req->lparam );
+}
+
 static void dump_adjust_token_privileges_request( const struct adjust_token_privileges_request *req )
 {
     fprintf( stderr, " handle=%04x", req->handle );
@@ -3766,6 +3783,8 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_create_token_request,
     (dump_func)dump_open_token_request,
     (dump_func)dump_set_desktop_shell_windows_request,
+    (dump_func)dump_set_shell_hook_window_request,
+    (dump_func)dump_post_shell_hook_request,
     (dump_func)dump_adjust_token_privileges_request,
     (dump_func)dump_get_token_privileges_request,
     (dump_func)dump_check_token_privileges_request,
@@ -4079,6 +4098,8 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_create_token_reply,
     (dump_func)dump_open_token_reply,
     (dump_func)dump_set_desktop_shell_windows_reply,
+    (dump_func)dump_set_shell_hook_window_reply,
+    NULL,
     (dump_func)dump_adjust_token_privileges_reply,
     (dump_func)dump_get_token_privileges_reply,
     (dump_func)dump_check_token_privileges_reply,
@@ -4392,6 +4413,8 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "create_token",
     "open_token",
     "set_desktop_shell_windows",
+    "set_shell_hook_window",
+    "post_shell_hook",
     "adjust_token_privileges",
     "get_token_privileges",
     "check_token_privileges",

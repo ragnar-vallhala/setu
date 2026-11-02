@@ -2126,6 +2126,8 @@ static void set_window_region( struct window *win, struct region *region, int re
 
 
 /* destroy a window */
+static int remove_shell_hook_window( struct desktop *desktop, user_handle_t handle );
+
 void free_window_handle( struct window *win )
 {
     struct window *child, *next;
@@ -2170,6 +2172,7 @@ void free_window_handle( struct window *win )
     if (win == win->desktop->shell_listview) win->desktop->shell_listview = NULL;
     if (win == win->desktop->progman_window) win->desktop->progman_window = NULL;
     if (win == win->desktop->taskman_window) win->desktop->taskman_window = NULL;
+    remove_shell_hook_window( win->desktop, win->handle );
     free_hotkeys( win->desktop, win->handle );
     cleanup_clipboard_window( win->desktop, win->handle );
     destroy_properties( win );
@@ -3183,6 +3186,72 @@ static int get_new_shell_window( struct window **win, user_handle_t handle )
     }
     *win = get_window( handle );
     return (*win != NULL);
+}
+
+/* remove a window from the shell hook windows of its desktop */
+static int remove_shell_hook_window( struct desktop *desktop, user_handle_t handle )
+{
+    unsigned int i;
+
+    for (i = 0; i < desktop->shell_hook_count; i++)
+    {
+        if (desktop->shell_hooks[i] != handle) continue;
+        memmove( desktop->shell_hooks + i, desktop->shell_hooks + i + 1,
+                 (desktop->shell_hook_count - i - 1) * sizeof(*desktop->shell_hooks) );
+        desktop->shell_hook_count--;
+        return 1;
+    }
+    return 0;
+}
+
+/* register or deregister a shell hook window (RegisterShellHookWindow) */
+DECL_HANDLER(set_shell_hook_window)
+{
+    struct window *win = get_window( req->handle );
+    struct desktop *desktop;
+    user_handle_t *hooks;
+
+    if (!win) return;
+    if (is_desktop_window( win ))
+    {
+        set_error( STATUS_INVALID_PARAMETER );
+        return;
+    }
+    desktop = win->desktop;
+
+    if (!req->msg)
+    {
+        reply->ret = remove_shell_hook_window( desktop, win->handle );
+        return;
+    }
+
+    desktop->shell_hook_msg = req->msg;
+    reply->ret = 1;
+    if (remove_shell_hook_window( desktop, win->handle ))
+    {
+        desktop->shell_hooks[desktop->shell_hook_count++] = win->handle;
+        return;
+    }
+    if (!(hooks = realloc( desktop->shell_hooks, (desktop->shell_hook_count + 1) * sizeof(*hooks) )))
+    {
+        set_error( STATUS_NO_MEMORY );
+        reply->ret = 0;
+        return;
+    }
+    desktop->shell_hooks = hooks;
+    desktop->shell_hooks[desktop->shell_hook_count++] = win->handle;
+}
+
+/* post a shell hook notification to the shell hook windows of the current desktop */
+DECL_HANDLER(post_shell_hook)
+{
+    struct desktop *desktop;
+    unsigned int i;
+
+    if (!(desktop = get_thread_desktop( current, 0 ))) return;
+    for (i = 0; i < desktop->shell_hook_count; i++)
+        post_message( desktop->shell_hooks[i], desktop->shell_hook_msg, req->code, req->lparam );
+    release_object( desktop );
 }
 
 /* Set/get the desktop shell windows */

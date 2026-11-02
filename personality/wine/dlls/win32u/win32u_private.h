@@ -97,6 +97,8 @@ extern BOOL get_async_keyboard_state( BYTE state[256] );
 extern BOOL set_capture_window( HWND hwnd, UINT gui_flags, HWND *prev_ret );
 extern BOOL set_foreground_window( HWND hwnd, BOOL mouse, BOOL force );
 extern BOOL set_active_window( HWND hwnd, HWND *prev, BOOL mouse, BOOL focus, DWORD new_active_thread_id );
+extern BOOL set_shell_hook_window( HWND hwnd, UINT msg );
+extern void post_shell_hook( UINT code, HWND hwnd );
 extern BOOL set_ime_composition_rect( HWND hwnd, RECT rect );
 extern void toggle_caret( HWND hwnd );
 extern void update_mouse_tracking_info( HWND hwnd );

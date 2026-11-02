@@ -3485,6 +3485,22 @@ enum caret_state
 #define SET_DESKTOP_PROGMAN_WINDOW  0x02
 #define SET_DESKTOP_TASKMAN_WINDOW  0x04
 
+
+/* Register (msg != 0) or deregister (msg == 0) a shell hook window */
+@REQ(set_shell_hook_window)
+    user_handle_t  handle;              /* window to register */
+    unsigned int   msg;                 /* the "SHELLHOOK" registered message */
+@REPLY
+    int            ret;                 /* TRUE on success; for deregistering, if it was registered */
+@END
+
+
+/* Post a shell hook notification (HSHELL_*) to the shell hook windows of the desktop */
+@REQ(post_shell_hook)
+    unsigned int   code;                /* HSHELL_* code, the message wParam */
+    lparam_t       lparam;              /* the message lParam, usually a window handle */
+@END
+
 /* Adjust the privileges held by a token */
 @REQ(adjust_token_privileges)
     obj_handle_t  handle; /* handle to the token */

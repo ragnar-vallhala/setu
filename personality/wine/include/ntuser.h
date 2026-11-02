@@ -1422,6 +1422,7 @@ enum
     NtUserCallHwndParam_ExposeWindowSurface,
     NtUserCallHwndParam_GetWinMonitorDpi,
     NtUserCallHwndParam_SetRawWindowPos,
+    NtUserCallHwndParam_SetShellHookWindow,
 };
 
 struct get_window_rects_params

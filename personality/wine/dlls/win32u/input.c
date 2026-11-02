@@ -2096,7 +2096,12 @@ BOOL set_active_window( HWND hwnd, HWND *prev, BOOL mouse, BOOL focus, DWORD new
 done:
     if (hwnd)
     {
-        if (hwnd == NtUserGetForegroundWindow()) user_driver->pActivateWindow( hwnd, previous );
+        if (hwnd == NtUserGetForegroundWindow())
+        {
+            user_driver->pActivateWindow( hwnd, previous );
+            if (NtUserGetAncestor( hwnd, GA_PARENT ) == get_desktop_window())
+                post_shell_hook( HSHELL_WINDOWACTIVATED, hwnd );
+        }
         clip_fullscreen_window( hwnd, FALSE );
     }
     return TRUE;

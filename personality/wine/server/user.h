@@ -76,6 +76,9 @@ struct desktop
     struct window       *shell_listview;   /* shell list view window for this desktop */
     struct window       *progman_window;   /* progman window for this desktop */
     struct window       *taskman_window;   /* taskman window for this desktop */
+    user_handle_t       *shell_hooks;      /* windows registered with RegisterShellHookWindow */
+    unsigned int         shell_hook_count; /* number of shell hook windows */
+    unsigned int         shell_hook_msg;   /* message posted to the shell hook windows */
     struct hook_table   *global_hooks;     /* table of global hooks on this desktop */
     struct list          hotkeys;          /* list of registered hotkeys */
     struct list          pointers;         /* list of active pointers */

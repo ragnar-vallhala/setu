@@ -232,6 +232,8 @@ DECL_HANDLER(remove_clipboard_listener);
 DECL_HANDLER(create_token);
 DECL_HANDLER(open_token);
 DECL_HANDLER(set_desktop_shell_windows);
+DECL_HANDLER(set_shell_hook_window);
+DECL_HANDLER(post_shell_hook);
 DECL_HANDLER(adjust_token_privileges);
 DECL_HANDLER(get_token_privileges);
 DECL_HANDLER(check_token_privileges);
@@ -545,6 +547,8 @@ static const req_handler req_handlers[REQ_NB_REQUESTS] =
     (req_handler)req_create_token,
     (req_handler)req_open_token,
     (req_handler)req_set_desktop_shell_windows,
+    (req_handler)req_set_shell_hook_window,
+    (req_handler)req_post_shell_hook,
     (req_handler)req_adjust_token_privileges,
     (req_handler)req_get_token_privileges,
     (req_handler)req_check_token_privileges,
@@ -1965,6 +1969,14 @@ C_ASSERT( offsetof(struct set_desktop_shell_windows_reply, old_shell_listview) =
 C_ASSERT( offsetof(struct set_desktop_shell_windows_reply, old_progman_window) == 16 );
 C_ASSERT( offsetof(struct set_desktop_shell_windows_reply, old_taskman_window) == 20 );
 C_ASSERT( sizeof(struct set_desktop_shell_windows_reply) == 24 );
+C_ASSERT( offsetof(struct set_shell_hook_window_request, handle) == 12 );
+C_ASSERT( offsetof(struct set_shell_hook_window_request, msg) == 16 );
+C_ASSERT( sizeof(struct set_shell_hook_window_request) == 24 );
+C_ASSERT( offsetof(struct set_shell_hook_window_reply, ret) == 8 );
+C_ASSERT( sizeof(struct set_shell_hook_window_reply) == 16 );
+C_ASSERT( offsetof(struct post_shell_hook_request, code) == 12 );
+C_ASSERT( offsetof(struct post_shell_hook_request, lparam) == 16 );
+C_ASSERT( sizeof(struct post_shell_hook_request) == 24 );
 C_ASSERT( offsetof(struct adjust_token_privileges_request, handle) == 12 );
 C_ASSERT( offsetof(struct adjust_token_privileges_request, disable_all) == 16 );
 C_ASSERT( offsetof(struct adjust_token_privileges_request, get_modified_state) == 20 );

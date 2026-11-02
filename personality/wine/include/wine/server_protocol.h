@@ -4853,6 +4853,35 @@ struct set_desktop_shell_windows_reply
 #define SET_DESKTOP_TASKMAN_WINDOW  0x04
 
 
+
+struct set_shell_hook_window_request
+{
+    struct request_header __header;
+    user_handle_t  handle;
+    unsigned int   msg;
+    char __pad_20[4];
+};
+struct set_shell_hook_window_reply
+{
+    struct reply_header __header;
+    int            ret;
+    char __pad_12[4];
+};
+
+
+
+struct post_shell_hook_request
+{
+    struct request_header __header;
+    unsigned int   code;
+    lparam_t       lparam;
+};
+struct post_shell_hook_reply
+{
+    struct reply_header __header;
+};
+
+
 struct adjust_token_privileges_request
 {
     struct request_header __header;
@@ -6431,6 +6460,8 @@ enum request
     REQ_create_token,
     REQ_open_token,
     REQ_set_desktop_shell_windows,
+    REQ_set_shell_hook_window,
+    REQ_post_shell_hook,
     REQ_adjust_token_privileges,
     REQ_get_token_privileges,
     REQ_check_token_privileges,
@@ -6747,6 +6778,8 @@ union generic_request
     struct create_token_request create_token_request;
     struct open_token_request open_token_request;
     struct set_desktop_shell_windows_request set_desktop_shell_windows_request;
+    struct set_shell_hook_window_request set_shell_hook_window_request;
+    struct post_shell_hook_request post_shell_hook_request;
     struct adjust_token_privileges_request adjust_token_privileges_request;
     struct get_token_privileges_request get_token_privileges_request;
     struct check_token_privileges_request check_token_privileges_request;
@@ -7061,6 +7094,8 @@ union generic_reply
     struct create_token_reply create_token_reply;
     struct open_token_reply open_token_reply;
     struct set_desktop_shell_windows_reply set_desktop_shell_windows_reply;
+    struct set_shell_hook_window_reply set_shell_hook_window_reply;
+    struct post_shell_hook_reply post_shell_hook_reply;
     struct adjust_token_privileges_reply adjust_token_privileges_reply;
     struct get_token_privileges_reply get_token_privileges_reply;
     struct check_token_privileges_reply check_token_privileges_reply;
@@ -7147,6 +7182,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 931
+#define SERVER_PROTOCOL_VERSION 932
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

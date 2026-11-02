@@ -4548,6 +4548,43 @@ static POINT get_minimized_pos( HWND hwnd, POINT pt )
 }
 
 /***********************************************************************
+ *           set_shell_hook_window
+ *
+ * RegisterShellHookWindow (msg is the "SHELLHOOK" message) and
+ * DeregisterShellHookWindow (msg is 0).
+ */
+BOOL set_shell_hook_window( HWND hwnd, UINT msg )
+{
+    BOOL ret = FALSE;
+
+    SERVER_START_REQ( set_shell_hook_window )
+    {
+        req->handle = wine_server_user_handle( hwnd );
+        req->msg = msg;
+        if (!wine_server_call_err( req )) ret = reply->ret;
+    }
+    SERVER_END_REQ;
+    return ret;
+}
+
+/***********************************************************************
+ *           post_shell_hook
+ *
+ * Post a shell hook message (HSHELL_*) to the windows registered with
+ * RegisterShellHookWindow on the current desktop.
+ */
+void post_shell_hook( UINT code, HWND hwnd )
+{
+    SERVER_START_REQ( post_shell_hook )
+    {
+        req->code = code;
+        req->lparam = wine_server_user_handle( hwnd );
+        wine_server_call( req );
+    }
+    SERVER_END_REQ;
+}
+
+/***********************************************************************
  *           window_min_maximize
  */
 static UINT window_min_maximize( HWND hwnd, UINT cmd, RECT *rect )
@@ -5332,6 +5369,7 @@ static BOOL user_destroy_window( HWND hwnd, BOOL winevent )
     else if (!get_window_relative( hwnd, GW_OWNER ))
     {
         call_hooks( WH_SHELL, HSHELL_WINDOWDESTROYED, (WPARAM)hwnd, 0, 0 );
+        post_shell_hook( HSHELL_WINDOWDESTROYED, hwnd );
         /* FIXME: clean up palette - see "Internals" p.352 */
     }
 
@@ -5950,7 +5988,10 @@ HWND WINAPI NtUserCreateWindowEx( DWORD ex_style, UNICODE_STRING *class_name,
     /* Call WH_SHELL hook */
 
     if (!(get_window_long( hwnd, GWL_STYLE ) & WS_CHILD) && !get_window_relative( hwnd, GW_OWNER ))
+    {
         call_hooks( WH_SHELL, HSHELL_WINDOWCREATED, (WPARAM)hwnd, 0, 0 );
+        post_shell_hook( HSHELL_WINDOWCREATED, hwnd );
+    }
 
     TRACE( "created window %p\n", hwnd );
     set_thread_dpi_awareness_context( context );
@@ -6212,6 +6253,9 @@ ULONG_PTR WINAPI NtUserCallHwndParam( HWND hwnd, DWORD_PTR param, DWORD code )
         struct set_raw_window_pos_params *params = (void *)param;
         return set_raw_window_pos( hwnd, params->rect, params->flags, params->internal );
     }
+
+    case NtUserCallHwndParam_SetShellHookWindow:
+        return set_shell_hook_window( hwnd, param );
 
     default:
         FIXME( "invalid code %u\n", code );
