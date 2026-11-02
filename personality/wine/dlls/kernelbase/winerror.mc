@@ -23,997 +23,998 @@ FacilityNames=(Trust=0xb:FACILITY_CERT)
 MessageId=0
 SymbolicName=ERROR_SUCCESS
 Language=ENU
-Success.
+The operation completed successfully.
 .
 MessageId=1
 SymbolicName=ERROR_INVALID_FUNCTION
 Language=ENU
-Invalid function.
+Incorrect function.
 .
 MessageId=2
 SymbolicName=ERROR_FILE_NOT_FOUND
 Language=ENU
-File not found.
+The system cannot find the file specified.
 .
 MessageId=3
 SymbolicName=ERROR_PATH_NOT_FOUND
 Language=ENU
-Path not found.
+The system cannot find the path specified.
 .
 MessageId=4
 SymbolicName=ERROR_TOO_MANY_OPEN_FILES
 Language=ENU
-Too many open files.
+The system cannot open the file.
 .
 MessageId=5
 SymbolicName=ERROR_ACCESS_DENIED
 Language=ENU
-Access denied.
+Access is denied.
 .
 MessageId=6
 SymbolicName=ERROR_INVALID_HANDLE
 Language=ENU
-Invalid handle.
+The handle is invalid.
 .
 MessageId=7
 SymbolicName=ERROR_ARENA_TRASHED
 Language=ENU
-Memory trashed.
+The storage control blocks were destroyed.
 .
 MessageId=8
 SymbolicName=ERROR_NOT_ENOUGH_MEMORY
 Language=ENU
-Not enough memory.
+Not enough memory resources are available to process this command.
 .
 MessageId=9
 SymbolicName=ERROR_INVALID_BLOCK
 Language=ENU
-Invalid block.
+The storage control block address is invalid.
 .
 MessageId=10
 SymbolicName=ERROR_BAD_ENVIRONMENT
 Language=ENU
-Bad environment.
+The environment is incorrect.
 .
 MessageId=11
 SymbolicName=ERROR_BAD_FORMAT
 Language=ENU
-Bad format.
+An attempt was made to load a program with an incorrect format.
 .
 MessageId=12
 SymbolicName=ERROR_INVALID_ACCESS
 Language=ENU
-Invalid access.
+The access code is invalid.
 .
 MessageId=13
 SymbolicName=ERROR_INVALID_DATA
 Language=ENU
-Invalid data.
+The data is invalid.
 .
 MessageId=14
 SymbolicName=ERROR_OUTOFMEMORY
 Language=ENU
-Out of memory.
+Not enough memory resources are available to complete this operation.
 .
 MessageId=15
 SymbolicName=ERROR_INVALID_DRIVE
 Language=ENU
-Invalid drive.
+The system cannot find the drive specified.
 .
 MessageId=16
 SymbolicName=ERROR_CURRENT_DIRECTORY
 Language=ENU
-Can't delete current directory.
+The directory cannot be removed.
 .
 MessageId=17
 SymbolicName=ERROR_NOT_SAME_DEVICE
 Language=ENU
-Not same device.
+The system cannot move the file to a different disk drive.
 .
 MessageId=18
 SymbolicName=ERROR_NO_MORE_FILES
 Language=ENU
-No more files.
+There are no more files.
 .
 MessageId=19
 SymbolicName=ERROR_WRITE_PROTECT
 Language=ENU
-Write protected.
+The media is write protected.
 .
 MessageId=20
 SymbolicName=ERROR_BAD_UNIT
 Language=ENU
-Bad unit.
+The system cannot find the device specified.
 .
 MessageId=21
 SymbolicName=ERROR_NOT_READY
 Language=ENU
-Not ready.
+The device is not ready.
 .
 MessageId=22
 SymbolicName=ERROR_BAD_COMMAND
 Language=ENU
-Bad command.
+The device does not recognize the command.
 .
 MessageId=23
 SymbolicName=ERROR_CRC
 Language=ENU
-CRC error.
+Data error (cyclic redundancy check).
 .
 MessageId=24
 SymbolicName=ERROR_BAD_LENGTH
 Language=ENU
-Bad length.
+The program issued a command but the command length is incorrect.
 .
 MessageId=25
 SymbolicName=ERROR_SEEK
 Language=ENU
-Seek error.
+The drive cannot locate a specific area or track on the disk.
 .
 MessageId=26
 SymbolicName=ERROR_NOT_DOS_DISK
 Language=ENU
-Not DOS disk.
+The specified disk or diskette cannot be accessed.
 .
 MessageId=27
 SymbolicName=ERROR_SECTOR_NOT_FOUND
 Language=ENU
-Sector not found.
+The drive cannot find the sector requested.
 .
 MessageId=28
 SymbolicName=ERROR_OUT_OF_PAPER
 Language=ENU
-Out of paper.
+The printer is out of paper.
 .
 MessageId=29
 SymbolicName=ERROR_WRITE_FAULT
 Language=ENU
-Write fault.
+The system cannot write to the specified device.
 .
 MessageId=30
 SymbolicName=ERROR_READ_FAULT
 Language=ENU
-Read fault.
+The system cannot read from the specified device.
 .
 MessageId=31
 SymbolicName=ERROR_GEN_FAILURE
 Language=ENU
-General failure.
+A device attached to the system is not functioning.
 .
 MessageId=32
 SymbolicName=ERROR_SHARING_VIOLATION
 Language=ENU
-Sharing violation.
+The process cannot access the file because it is being used by another process.
 .
 MessageId=33
 SymbolicName=ERROR_LOCK_VIOLATION
 Language=ENU
-Lock violation.
+The process cannot access the file because another process has locked a portion of the file.
 .
 MessageId=34
 SymbolicName=ERROR_WRONG_DISK
 Language=ENU
-Wrong disk.
+The wrong diskette is in the drive.
+Insert %2 (Volume Serial Number: %3) into drive %1.
 .
 MessageId=36
 SymbolicName=ERROR_SHARING_BUFFER_EXCEEDED
 Language=ENU
-Sharing buffer exceeded.
+Too many files opened for sharing.
 .
 MessageId=38
 SymbolicName=ERROR_HANDLE_EOF
 Language=ENU
-End of file.
+Reached the end of the file.
 .
 MessageId=39
 SymbolicName=ERROR_HANDLE_DISK_FULL
 Language=ENU
-Disk full.
+The disk is full.
 .
 MessageId=50
 SymbolicName=ERROR_NOT_SUPPORTED
 Language=ENU
-Request not supported.
+The request is not supported.
 .
 MessageId=51
 SymbolicName=ERROR_REM_NOT_LIST
 Language=ENU
-Remote machine not listening.
+Windows cannot find the network path. Verify that the network path is correct and the destination computer is not busy or turned off. If Windows still cannot find the network path, contact your network administrator.
 .
 MessageId=52
 SymbolicName=ERROR_DUP_NAME
 Language=ENU
-Duplicate network name.
+You were not connected because a duplicate name exists on the network. If joining a domain, go to System in Control Panel to change the computer name and try again. If joining a workgroup, choose another workgroup name.
 .
 MessageId=53
 SymbolicName=ERROR_BAD_NETPATH
 Language=ENU
-Bad network path.
+The network path was not found.
 .
 MessageId=54
 SymbolicName=ERROR_NETWORK_BUSY
 Language=ENU
-Network busy.
+The network is busy.
 .
 MessageId=55
 SymbolicName=ERROR_DEV_NOT_EXIST
 Language=ENU
-Device does not exist.
+The specified network resource or device is no longer available.
 .
 MessageId=56
 SymbolicName=ERROR_TOO_MANY_CMDS
 Language=ENU
-Too many commands.
+The network BIOS command limit has been reached.
 .
 MessageId=57
 SymbolicName=ERROR_ADAP_HDW_ERR
 Language=ENU
-Adapter hardware error.
+A network adapter hardware error occurred.
 .
 MessageId=58
 SymbolicName=ERROR_BAD_NET_RESP
 Language=ENU
-Bad network response.
+The specified server cannot perform the requested operation.
 .
 MessageId=59
 SymbolicName=ERROR_UNEXP_NET_ERR
 Language=ENU
-Unexpected network error.
+An unexpected network error occurred.
 .
 MessageId=60
 SymbolicName=ERROR_BAD_REM_ADAP
 Language=ENU
-Bad remote adapter.
+The remote adapter is not compatible.
 .
 MessageId=61
 SymbolicName=ERROR_PRINTQ_FULL
 Language=ENU
-Print queue full.
+The printer queue is full.
 .
 MessageId=62
 SymbolicName=ERROR_NO_SPOOL_SPACE
 Language=ENU
-No spool space.
+Space to store the file waiting to be printed is not available on the server.
 .
 MessageId=63
 SymbolicName=ERROR_PRINT_CANCELLED
 Language=ENU
-Print canceled.
+Your file waiting to be printed was deleted.
 .
 MessageId=64
 SymbolicName=ERROR_NETNAME_DELETED
 Language=ENU
-Network name deleted.
+The specified network name is no longer available.
 .
 MessageId=65
 SymbolicName=ERROR_NETWORK_ACCESS_DENIED
 Language=ENU
-Network access denied.
+Network access is denied.
 .
 MessageId=66
 SymbolicName=ERROR_BAD_DEV_TYPE
 Language=ENU
-Bad device type.
+The network resource type is not correct.
 .
 MessageId=67
 SymbolicName=ERROR_BAD_NET_NAME
 Language=ENU
-Bad network name.
+The network name cannot be found.
 .
 MessageId=68
 SymbolicName=ERROR_TOO_MANY_NAMES
 Language=ENU
-Too many network names.
+The name limit for the local computer network adapter card was exceeded.
 .
 MessageId=69
 SymbolicName=ERROR_TOO_MANY_SESS
 Language=ENU
-Too many network sessions.
+The network BIOS session limit was exceeded.
 .
 MessageId=70
 SymbolicName=ERROR_SHARING_PAUSED
 Language=ENU
-Sharing paused.
+The remote server has been paused or is in the process of being started.
 .
 MessageId=71
 SymbolicName=ERROR_REQ_NOT_ACCEP
 Language=ENU
-Request not accepted.
+No more connections can be made to this remote computer at this time because there are already as many connections as the computer can accept.
 .
 MessageId=72
 SymbolicName=ERROR_REDIR_PAUSED
 Language=ENU
-Redirector paused.
+The specified printer or disk device has been paused.
 .
 MessageId=80
 SymbolicName=ERROR_FILE_EXISTS
 Language=ENU
-File exists.
+The file exists.
 .
 MessageId=82
 SymbolicName=ERROR_CANNOT_MAKE
 Language=ENU
-Cannot create.
+The directory or file cannot be created.
 .
 MessageId=83
 SymbolicName=ERROR_FAIL_I24
 Language=ENU
-Int24 failure.
+Fail on INT 24.
 .
 MessageId=84
 SymbolicName=ERROR_OUT_OF_STRUCTURES
 Language=ENU
-Out of structures.
+Storage to process this request is not available.
 .
 MessageId=85
 SymbolicName=ERROR_ALREADY_ASSIGNED
 Language=ENU
-Already assigned.
+The local device name is already in use.
 .
 MessageId=86
 SymbolicName=ERROR_INVALID_PASSWORD
 Language=ENU
-Invalid password.
+The specified network password is not correct.
 .
 MessageId=87
 SymbolicName=ERROR_INVALID_PARAMETER
 Language=ENU
-Invalid parameter.
+The parameter is incorrect.
 .
 MessageId=88
 SymbolicName=ERROR_NET_WRITE_FAULT
 Language=ENU
-Net write fault.
+A write fault occurred on the network.
 .
 MessageId=89
 SymbolicName=ERROR_NO_PROC_SLOTS
 Language=ENU
-No process slots.
+The system cannot start another process at this time.
 .
 MessageId=100
 SymbolicName=ERROR_TOO_MANY_SEMAPHORES
 Language=ENU
-Too many semaphores.
+Cannot create another system semaphore.
 .
 MessageId=101
 SymbolicName=ERROR_EXCL_SEM_ALREADY_OWNED
 Language=ENU
-Exclusive semaphore already owned.
+The exclusive semaphore is owned by another process.
 .
 MessageId=102
 SymbolicName=ERROR_SEM_IS_SET
 Language=ENU
-Semaphore is set.
+The semaphore is set and cannot be closed.
 .
 MessageId=103
 SymbolicName=ERROR_TOO_MANY_SEM_REQUESTS
 Language=ENU
-Too many semaphore requests.
+The semaphore cannot be set again.
 .
 MessageId=104
 SymbolicName=ERROR_INVALID_AT_INTERRUPT_TIME
 Language=ENU
-Invalid at interrupt time.
+Cannot request exclusive semaphores at interrupt time.
 .
 MessageId=105
 SymbolicName=ERROR_SEM_OWNER_DIED
 Language=ENU
-Semaphore owner died.
+The previous ownership of this semaphore has ended.
 .
 MessageId=106
 SymbolicName=ERROR_SEM_USER_LIMIT
 Language=ENU
-Semaphore user limit.
+Insert the diskette for drive %1.
 .
 MessageId=107
 SymbolicName=ERROR_DISK_CHANGE
 Language=ENU
-Insert disk for drive %1.
+The program stopped because an alternate diskette was not inserted.
 .
 MessageId=108
 SymbolicName=ERROR_DRIVE_LOCKED
 Language=ENU
-Drive locked.
+The disk is in use or locked by another process.
 .
 MessageId=109
 SymbolicName=ERROR_BROKEN_PIPE
 Language=ENU
-Broken pipe.
+The pipe has been ended.
 .
 MessageId=110
 SymbolicName=ERROR_OPEN_FAILED
 Language=ENU
-Open failed.
+The system cannot open the device or file specified.
 .
 MessageId=111
 SymbolicName=ERROR_BUFFER_OVERFLOW
 Language=ENU
-Buffer overflow.
+The file name is too long.
 .
 MessageId=112
 SymbolicName=ERROR_DISK_FULL
 Language=ENU
-Disk full.
+There is not enough space on the disk.
 .
 MessageId=113
 SymbolicName=ERROR_NO_MORE_SEARCH_HANDLES
 Language=ENU
-No more search handles.
+No more internal file identifiers available.
 .
 MessageId=114
 SymbolicName=ERROR_INVALID_TARGET_HANDLE
 Language=ENU
-Invalid target handle.
+The target internal file identifier is incorrect.
 .
 MessageId=117
 SymbolicName=ERROR_INVALID_CATEGORY
 Language=ENU
-Invalid IOCTL.
+The IOCTL call made by the application program is not correct.
 .
 MessageId=118
 SymbolicName=ERROR_INVALID_VERIFY_SWITCH
 Language=ENU
-Invalid verify switch.
+The verify-on-write switch parameter value is not correct.
 .
 MessageId=119
 SymbolicName=ERROR_BAD_DRIVER_LEVEL
 Language=ENU
-Bad driver level.
+The system does not support the command requested.
 .
 MessageId=120
 SymbolicName=ERROR_CALL_NOT_IMPLEMENTED
 Language=ENU
-Call not implemented.
+This function is not supported on this system.
 .
 MessageId=121
 SymbolicName=ERROR_SEM_TIMEOUT
 Language=ENU
-Semaphore timeout.
+The semaphore timeout period has expired.
 .
 MessageId=122
 SymbolicName=ERROR_INSUFFICIENT_BUFFER
 Language=ENU
-Insufficient buffer.
+The data area passed to a system call is too small.
 .
 MessageId=123
 SymbolicName=ERROR_INVALID_NAME
 Language=ENU
-Invalid name.
+The filename, directory name, or volume label syntax is incorrect.
 .
 MessageId=124
 SymbolicName=ERROR_INVALID_LEVEL
 Language=ENU
-Invalid level.
+The system call level is not correct.
 .
 MessageId=125
 SymbolicName=ERROR_NO_VOLUME_LABEL
 Language=ENU
-No volume label.
+The disk has no volume label.
 .
 MessageId=126
 SymbolicName=ERROR_MOD_NOT_FOUND
 Language=ENU
-Module not found.
+The specified module could not be found.
 .
 MessageId=127
 SymbolicName=ERROR_PROC_NOT_FOUND
 Language=ENU
-Procedure not found.
+The specified procedure could not be found.
 .
 MessageId=128
 SymbolicName=ERROR_WAIT_NO_CHILDREN
 Language=ENU
-No children to wait for.
+There are no child processes to wait for.
 .
 MessageId=129
 SymbolicName=ERROR_CHILD_NOT_COMPLETE
 Language=ENU
-Child process has not completed.
+The %1 application cannot be run in Win32 mode.
 .
 MessageId=130
 SymbolicName=ERROR_DIRECT_ACCESS_HANDLE
 Language=ENU
-Invalid use of direct access handle.
+Attempt to use a file handle to an open disk partition for an operation other than raw disk I/O.
 .
 MessageId=131
 SymbolicName=ERROR_NEGATIVE_SEEK
 Language=ENU
-Negative seek.
+An attempt was made to move the file pointer before the beginning of the file.
 .
 MessageId=132
 SymbolicName=ERROR_SEEK_ON_DEVICE
 Language=ENU
-Seek error.
+The file pointer cannot be set on the specified device or file.
 .
 MessageId=133
 SymbolicName=ERROR_IS_JOIN_TARGET
 Language=ENU
-Drive is a JOIN target.
+A JOIN or SUBST command cannot be used for a drive that contains previously joined drives.
 .
 MessageId=134
 SymbolicName=ERROR_IS_JOINED
 Language=ENU
-Drive is already JOINed.
+An attempt was made to use a JOIN or SUBST command on a drive that has already been joined.
 .
 MessageId=135
 SymbolicName=ERROR_IS_SUBSTED
 Language=ENU
-Drive is already SUBSTed.
+An attempt was made to use a JOIN or SUBST command on a drive that has already been substituted.
 .
 MessageId=136
 SymbolicName=ERROR_NOT_JOINED
 Language=ENU
-Drive is not JOINed.
+The system tried to delete the JOIN of a drive that is not joined.
 .
 MessageId=137
 SymbolicName=ERROR_NOT_SUBSTED
 Language=ENU
-Drive is not SUBSTed.
+The system tried to delete the substitution of a drive that is not substituted.
 .
 MessageId=138
 SymbolicName=ERROR_JOIN_TO_JOIN
 Language=ENU
-Attempt to JOIN onto a JOINed drive.
+The system tried to join a drive to a directory on a joined drive.
 .
 MessageId=139
 SymbolicName=ERROR_SUBST_TO_SUBST
 Language=ENU
-Attempt to SUBST onto a SUBSTed drive.
+The system tried to substitute a drive to a directory on a substituted drive.
 .
 MessageId=140
 SymbolicName=ERROR_JOIN_TO_SUBST
 Language=ENU
-Attempt to JOIN to a SUBSTed drive.
+The system tried to join a drive to a directory on a substituted drive.
 .
 MessageId=141
 SymbolicName=ERROR_SUBST_TO_JOIN
 Language=ENU
-Attempt to SUBST to a JOINed drive.
+The system tried to SUBST a drive to a directory on a joined drive.
 .
 MessageId=142
 SymbolicName=ERROR_BUSY_DRIVE
 Language=ENU
-Drive is busy.
+The system cannot perform a JOIN or SUBST at this time.
 .
 MessageId=143
 SymbolicName=ERROR_SAME_DRIVE
 Language=ENU
-Same drive.
+The system cannot join or substitute a drive to or for a directory on the same drive.
 .
 MessageId=144
 SymbolicName=ERROR_DIR_NOT_ROOT
 Language=ENU
-Not top-level directory.
+The directory is not a subdirectory of the root directory.
 .
 MessageId=145
 SymbolicName=ERROR_DIR_NOT_EMPTY
 Language=ENU
-Directory is not empty.
+The directory is not empty.
 .
 MessageId=146
 SymbolicName=ERROR_IS_SUBST_PATH
 Language=ENU
-Path is in use as a SUBST.
+The path specified is being used in a substitute.
 .
 MessageId=147
 SymbolicName=ERROR_IS_JOIN_PATH
 Language=ENU
-Path is in use as a JOIN.
+Not enough resources are available to process this command.
 .
 MessageId=148
 SymbolicName=ERROR_PATH_BUSY
 Language=ENU
-Path is busy.
+The path specified cannot be used at this time.
 .
 MessageId=149
 SymbolicName=ERROR_IS_SUBST_TARGET
 Language=ENU
-Already a SUBST target.
+An attempt was made to join or substitute a drive for which a directory on the drive is the target of a previous substitute.
 .
 MessageId=150
 SymbolicName=ERROR_SYSTEM_TRACE
 Language=ENU
-System trace not specified or disallowed.
+System trace information was not specified in your CONFIG.SYS file, or tracing is disallowed.
 .
 MessageId=151
 SymbolicName=ERROR_INVALID_EVENT_COUNT
 Language=ENU
-Event count for DosMuxSemWait incorrect.
+The number of specified semaphore events for DosMuxSemWait is not correct.
 .
 MessageId=152
 SymbolicName=ERROR_TOO_MANY_MUXWAITERS
 Language=ENU
-Too many waiters for DosMuxSemWait.
+DosMuxSemWait did not execute; too many semaphores are already set.
 .
 MessageId=153
 SymbolicName=ERROR_INVALID_LIST_FORMAT
 Language=ENU
-DosSemMuxWait list invalid.
+The DosMuxSemWait list is not correct.
 .
 MessageId=154
 SymbolicName=ERROR_LABEL_TOO_LONG
 Language=ENU
-Volume label too long.
+The volume label you entered exceeds the label character limit of the target file system.
 .
 MessageId=155
 SymbolicName=ERROR_TOO_MANY_TCBS
 Language=ENU
-Too many TCBs.
+Cannot create another thread.
 .
 MessageId=156
 SymbolicName=ERROR_SIGNAL_REFUSED
 Language=ENU
-Signal refused.
+The recipient process has refused the signal.
 .
 MessageId=157
 SymbolicName=ERROR_DISCARDED
 Language=ENU
-Segment discarded.
+The segment is already discarded and cannot be locked.
 .
 MessageId=158
 SymbolicName=ERROR_NOT_LOCKED
 Language=ENU
-Segment not locked.
+The segment is already unlocked.
 .
 MessageId=159
 SymbolicName=ERROR_BAD_THREADID_ADDR
 Language=ENU
-Bad thread ID address.
+The address for the thread ID is not correct.
 .
 MessageId=160
 SymbolicName=ERROR_BAD_ARGUMENTS
 Language=ENU
-Bad arguments to DosExecPgm.
+One or more arguments are not correct.
 .
 MessageId=161
 SymbolicName=ERROR_BAD_PATHNAME
 Language=ENU
-Path is invalid.
+The specified path is invalid.
 .
 MessageId=162
 SymbolicName=ERROR_SIGNAL_PENDING
 Language=ENU
-Signal pending.
+A signal is already pending.
 .
 MessageId=164
 SymbolicName=ERROR_MAX_THRDS_REACHED
 Language=ENU
-Max system-wide thread count reached.
+No more threads can be created in the system.
 .
 MessageId=167
 SymbolicName=ERROR_LOCK_FAILED
 Language=ENU
-Lock failed.
+Unable to lock a region of a file.
 .
 MessageId=170
 SymbolicName=ERROR_BUSY
 Language=ENU
-Resource in use.
+The requested resource is in use.
 .
 MessageId=173
 SymbolicName=ERROR_CANCEL_VIOLATION
 Language=ENU
-Cancel violation.
+A lock request was not outstanding for the supplied cancel region.
 .
 MessageId=174
 SymbolicName=ERROR_ATOMIC_LOCKS_NOT_SUPPORTED
 Language=ENU
-Atomic locks not supported.
+The file system does not support atomic changes to the lock type.
 .
 MessageId=180
 SymbolicName=ERROR_INVALID_SEGMENT_NUMBER
 Language=ENU
-Invalid segment number.
+The system detected a segment number that was not correct.
 .
 MessageId=182
 SymbolicName=ERROR_INVALID_ORDINAL
 Language=ENU
-Invalid ordinal for %1.
+The operating system cannot run %1.
 .
 MessageId=183
 SymbolicName=ERROR_ALREADY_EXISTS
 Language=ENU
-File already exists.
+Cannot create a file when that file already exists.
 .
 MessageId=186
 SymbolicName=ERROR_INVALID_FLAG_NUMBER
 Language=ENU
-Invalid flag number.
+The flag passed is not correct.
 .
 MessageId=187
 SymbolicName=ERROR_SEM_NOT_FOUND
 Language=ENU
-Semaphore name not found.
+The specified system semaphore name was not found.
 .
 MessageId=188
 SymbolicName=ERROR_INVALID_STARTING_CODESEG
 Language=ENU
-Invalid starting code segment for %1.
+The operating system cannot run %1.
 .
 MessageId=189
 SymbolicName=ERROR_INVALID_STACKSEG
 Language=ENU
-Invalid starting stack segment for %1.
+The operating system cannot run %1.
 .
 MessageId=190
 SymbolicName=ERROR_INVALID_MODULETYPE
 Language=ENU
-Invalid module type for %1.
+The operating system cannot run %1.
 .
 MessageId=191
 SymbolicName=ERROR_INVALID_EXE_SIGNATURE
 Language=ENU
-Invalid EXE signature in %1.
+Cannot run %1 in Win32 mode.
 .
 MessageId=192
 SymbolicName=ERROR_EXE_MARKED_INVALID
 Language=ENU
-EXE %1 is marked invalid.
+The operating system cannot run %1.
 .
 MessageId=193
 SymbolicName=ERROR_BAD_EXE_FORMAT
 Language=ENU
-Bad EXE format for %1.
+%1 is not a valid Win32 application.
 .
 MessageId=194
 SymbolicName=ERROR_ITERATED_DATA_EXCEEDS_64k
 Language=ENU
-Iterated data exceeds 64k in %1.
+The operating system cannot run %1.
 .
 MessageId=195
 SymbolicName=ERROR_INVALID_MINALLOCSIZE
 Language=ENU
-Invalid MinAllocSize in %1.
+The operating system cannot run %1.
 .
 MessageId=196
 SymbolicName=ERROR_DYNLINK_FROM_INVALID_RING
 Language=ENU
-Dynlink from invalid ring.
+The operating system cannot run this application program.
 .
 MessageId=197
 SymbolicName=ERROR_IOPL_NOT_ENABLED
 Language=ENU
-IOPL not enabled.
+The operating system is not presently configured to run this application.
 .
 MessageId=198
 SymbolicName=ERROR_INVALID_SEGDPL
 Language=ENU
-Invalid SEGDPL in %1.
+The operating system cannot run %1.
 .
 MessageId=199
 SymbolicName=ERROR_AUTODATASEG_EXCEEDS_64k
 Language=ENU
-Auto data segment exceeds 64k.
+The operating system cannot run this application program.
 .
 MessageId=200
 SymbolicName=ERROR_RING2SEG_MUST_BE_MOVABLE
 Language=ENU
-Ring 2 segment must be movable.
+The code segment cannot be greater than or equal to 64K.
 .
 MessageId=201
 SymbolicName=ERROR_RELOC_CHAIN_XEEDS_SEGLIM
 Language=ENU
-Relocation chain exceeds segment limit in %1.
+The operating system cannot run %1.
 .
 MessageId=202
 SymbolicName=ERROR_INFLOOP_IN_RELOC_CHAIN
 Language=ENU
-Infinite loop in relocation chain in %1.
+The operating system cannot run %1.
 .
 MessageId=203
 SymbolicName=ERROR_ENVVAR_NOT_FOUND
 Language=ENU
-Environment variable not found.
+The system could not find the environment option that was entered.
 .
 MessageId=205
 SymbolicName=ERROR_NO_SIGNAL_SENT
 Language=ENU
-No signal sent.
+No process in the command subtree has a signal handler.
 .
 MessageId=206
 SymbolicName=ERROR_FILENAME_EXCED_RANGE
 Language=ENU
-File name is too long.
+The filename or extension is too long.
 .
 MessageId=207
 SymbolicName=ERROR_RING2_STACK_IN_USE
 Language=ENU
-Ring 2 stack in use.
+The ring 2 stack is in use.
 .
 MessageId=208
 SymbolicName=ERROR_META_EXPANSION_TOO_LONG
 Language=ENU
-Error in use of filename wildcards.
+The global filename characters, * or ?, are entered incorrectly or too many global filename characters are specified.
 .
 MessageId=209
 SymbolicName=ERROR_INVALID_SIGNAL_NUMBER
 Language=ENU
-Invalid signal number.
+The signal being posted is not correct.
 .
 MessageId=210
 SymbolicName=ERROR_THREAD_1_INACTIVE
 Language=ENU
-Error setting signal handler.
+The signal handler cannot be set.
 .
 MessageId=212
 SymbolicName=ERROR_LOCKED
 Language=ENU
-Segment locked.
+The segment is locked and cannot be reallocated.
 .
 MessageId=214
 SymbolicName=ERROR_TOO_MANY_MODULES
 Language=ENU
-Too many modules.
+Too many dynamic-link modules are attached to this program or dynamic-link module.
 .
 MessageId=215
 SymbolicName=ERROR_NESTING_NOT_ALLOWED
 Language=ENU
-Nesting LoadModule calls not allowed.
+Cannot nest calls to LoadModule.
 .
 MessageId=216
 SymbolicName=ERROR_EXE_MACHINE_TYPE_MISMATCH
 Language=ENU
-Machine type mismatch.
+This version of %1 is not compatible with the version of Windows you're running. Check your computer's system information and then contact the software publisher.
 .
 MessageId=230
 SymbolicName=ERROR_BAD_PIPE
 Language=ENU
-Bad pipe.
+The pipe state is invalid.
 .
 MessageId=231
 SymbolicName=ERROR_PIPE_BUSY
 Language=ENU
-Pipe busy.
+All pipe instances are busy.
 .
 MessageId=232
 SymbolicName=ERROR_NO_DATA
 Language=ENU
-Pipe closed.
+The pipe is being closed.
 .
 MessageId=233
 SymbolicName=ERROR_PIPE_NOT_CONNECTED
 Language=ENU
-Pipe not connected.
+No process is on the other end of the pipe.
 .
 MessageId=234
 SymbolicName=ERROR_MORE_DATA
 Language=ENU
-More data available.
+More data is available.
 .
 MessageId=240
 SymbolicName=ERROR_VC_DISCONNECTED
 Language=ENU
-Session canceled.
+The session was canceled.
 .
 MessageId=254
 SymbolicName=ERROR_INVALID_EA_NAME
 Language=ENU
-Invalid extended attribute name.
+The specified extended attribute name was invalid.
 .
 MessageId=255
 SymbolicName=ERROR_EA_LIST_INCONSISTENT
 Language=ENU
-Extended attribute list inconsistent.
+The extended attributes are inconsistent.
 .
 MessageId=259
 SymbolicName=ERROR_NO_MORE_ITEMS
 Language=ENU
-No more data available.
+No more data is available.
 .
 MessageId=266
 SymbolicName=ERROR_CANNOT_COPY
 Language=ENU
-Cannot use Copy API.
+The copy functions cannot be used.
 .
 MessageId=267
 SymbolicName=ERROR_DIRECTORY
 Language=ENU
-Directory name invalid.
+The directory name is invalid.
 .
 MessageId=275
 SymbolicName=ERROR_EAS_DIDNT_FIT
 Language=ENU
-Extended attributes didn't fit.
+The extended attributes did not fit in the buffer.
 .
 MessageId=276
 SymbolicName=ERROR_EA_FILE_CORRUPT
 Language=ENU
-Extended attribute file corrupt.
+The extended attribute file on the mounted file system is corrupt.
 .
 MessageId=277
 SymbolicName=ERROR_EA_TABLE_FULL
 Language=ENU
-Extended attribute table full.
+The extended attribute table file is full.
 .
 MessageId=278
 SymbolicName=ERROR_INVALID_EA_HANDLE
 Language=ENU
-Invalid extended attribute handle.
+The specified extended attribute handle is invalid.
 .
 MessageId=282
 SymbolicName=ERROR_EAS_NOT_SUPPORTED
 Language=ENU
-Extended attributes not supported.
+The mounted file system does not support extended attributes.
 .
 MessageId=288
 SymbolicName=ERROR_NOT_OWNER
 Language=ENU
-Mutex not owned by caller.
+Attempt to release mutex not owned by caller.
 .
 MessageId=298
 SymbolicName=ERROR_TOO_MANY_POSTS
 Language=ENU
-Too many posts to semaphore.
+Too many posts were made to a semaphore.
 .
 MessageId=299
 SymbolicName=ERROR_PARTIAL_COPY
 Language=ENU
-Read/WriteProcessMemory partially completed.
+Only part of a ReadProcessMemory or WriteProcessMemory request was completed.
 .
 MessageId=300
 SymbolicName=ERROR_OPLOCK_NOT_GRANTED
 Language=ENU
-The oplock wasn't granted.
+The oplock request is denied.
 .
 MessageId=301
 SymbolicName=ERROR_INVALID_OPLOCK_PROTOCOL
 Language=ENU
-Invalid oplock message received.
+An invalid oplock acknowledgment was received by the system.
 .
 MessageId=317
 SymbolicName=ERROR_MR_MID_NOT_FOUND
 Language=ENU
-Message 0x%1 not found in file %2.
+The system cannot find message text for message number 0x%1 in the message file for %2.
 .
 MessageId=487
 SymbolicName=ERROR_INVALID_ADDRESS
 Language=ENU
-Invalid address.
+Attempt to access invalid address.
 .
 MessageId=534
 SymbolicName=ERROR_ARITHMETIC_OVERFLOW
 Language=ENU
-Arithmetic overflow.
+Arithmetic result exceeded 32 bits.
 .
 MessageId=535
 SymbolicName=ERROR_PIPE_CONNECTED
 Language=ENU
-Pipe connected.
+There is a process on other end of the pipe.
 .
 MessageId=536
 SymbolicName=ERROR_PIPE_LISTENING
 Language=ENU
-Pipe listening.
+Waiting for a process to open the other end of the pipe.
 .
 MessageId=994
 SymbolicName=ERROR_EA_ACCESS_DENIED
 Language=ENU
-Extended attribute access denied.
+Access to the extended attribute was denied.
 .
 MessageId=995
 SymbolicName=ERROR_OPERATION_ABORTED
 Language=ENU
-I/O operation aborted.
+The I/O operation has been aborted because of either a thread exit or an application request.
 .
 MessageId=996
 SymbolicName=ERROR_IO_INCOMPLETE
 Language=ENU
-Overlapped I/O incomplete.
+Overlapped I/O event is not in a signaled state.
 .
 MessageId=997
 SymbolicName=ERROR_IO_PENDING
 Language=ENU
-Overlapped I/O pending.
+Overlapped I/O operation is in progress.
 .
 MessageId=998
 SymbolicName=ERROR_NOACCESS
 Language=ENU
-No access to memory location.
+Invalid access to memory location.
 .
 MessageId=999
 SymbolicName=ERROR_SWAPERROR
 Language=ENU
-Swap error.
+Error performing inpage operation.
 .
 MessageId=1001
 SymbolicName=ERROR_STACK_OVERFLOW
