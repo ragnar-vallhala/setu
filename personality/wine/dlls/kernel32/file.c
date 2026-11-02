@@ -288,7 +288,18 @@ BOOL WINAPI DosDateTimeToFileTime( WORD fatdate, WORD fattime, FILETIME *ft )
     fields.Minute       = (fattime >> 5) & 0x3f;
     fields.Second       = (fattime & 0x1f) * 2;
     fields.Milliseconds = 0;
-    if (!RtlTimeFieldsToTime( &fields, &time )) return FALSE;
+    /* February 29 only exists in leap years */
+    if (fields.Month == 2 && fields.Day == 29 &&
+        (fields.Year % 4 || (!(fields.Year % 100) && fields.Year % 400)))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    if (!RtlTimeFieldsToTime( &fields, &time ))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
     ft->dwLowDateTime  = time.u.LowPart;
     ft->dwHighDateTime = time.u.HighPart;
     return TRUE;
