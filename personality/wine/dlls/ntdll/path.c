@@ -595,11 +595,21 @@ static ULONG get_full_path_helper(LPCWSTR name, LPWSTR buffer, ULONG size, RTL_P
     LPWSTR                      ins_str = NULL;
     LPCWSTR                     ptr;
     const UNICODE_STRING*       cd;
-    WCHAR                       tmp[4];
+    WCHAR                       tmp[4], drive_dot[4];
 
     /* return error if name only consists of spaces */
     for (ptr = name; *ptr; ptr++) if (*ptr != ' ') break;
     if (!*ptr) return 0;
+
+    /* a bare "c:" names the drive's current directory, like "c:." */
+    if (type == RtlPathTypeDriveRelative && !name[2])
+    {
+        drive_dot[0] = name[0];
+        drive_dot[1] = ':';
+        drive_dot[2] = '.';
+        drive_dot[3] = 0;
+        name = drive_dot;
+    }
 
     RtlAcquirePebLock();
 
