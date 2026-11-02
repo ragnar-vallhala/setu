@@ -1085,7 +1085,7 @@ DWORD WINAPI CharLowerBuffA(char *str, DWORD len)
 
 DWORD WINAPI CharLowerBuffW(WCHAR *str, DWORD len)
 {
-    if (!str) return 0; /* YES */
+    if (!str || !len) return 0; /* YES, and the last error is left alone */
     return LCMapStringW(LOCALE_USER_DEFAULT, LCMAP_LOWERCASE, str, len, str, len);
 }
 
@@ -1198,7 +1198,7 @@ DWORD WINAPI CharUpperBuffA(LPSTR str, DWORD len)
 
 DWORD WINAPI CharUpperBuffW(WCHAR *str, DWORD len)
 {
-    if (!str) return 0; /* YES */
+    if (!str || !len) return 0; /* YES, and the last error is left alone */
     return LCMapStringW(LOCALE_USER_DEFAULT, LCMAP_UPPERCASE, str, len, str, len);
 }
 
