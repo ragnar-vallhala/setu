@@ -4263,6 +4263,7 @@ static DWORD get_timezone_id( const TIME_ZONE_INFORMATION *info, LARGE_INTEGER t
 
     /* if year is 0 then date is in day-of-week format, otherwise it's absolute date */
     if (info->StandardDate.wMonth == 0 ||
+        info->StandardDate.wMonth > 12 || info->DaylightDate.wMonth > 12 ||
         (info->StandardDate.wYear == 0 &&
          (info->StandardDate.wDay < 1 || info->StandardDate.wDay > 5 ||
           info->DaylightDate.wDay < 1 || info->DaylightDate.wDay > 5)))
