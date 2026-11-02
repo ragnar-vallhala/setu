@@ -18,7 +18,7 @@
 
 LanguageNames=(ENU=0x409:winerr)
 SeverityNames=(CoError=0x2:STATUS_SEVERITY_COERROR)
-FacilityNames=(Trust=0xb:FACILITY_CERT)
+FacilityNames=(Trust=0xb:FACILITY_CERT Rpc=0x1:FACILITY_RPC Itf=0x4:FACILITY_ITF Windows=0x8:FACILITY_WINDOWS)
 
 MessageId=0
 SymbolicName=ERROR_SUCCESS
@@ -3815,33 +3815,986 @@ Severity=CoError
 Facility=Trust
 SymbolicName=TRUST_E_NOSIGNATURE
 Language=ENU
-No Signature found in file.
+No signature was present in the subject.
 .
 MessageId=0x4001
 Severity=CoError
 Facility=Null
 SymbolicName=E_NOTIMPL
 Language=ENU
-Not implemented.
+Not implemented
 .
 MessageId=0x1
 Severity=CoError
 Facility=Dxgi
 SymbolicName=DXGI_ERROR_INVALID_CALL
 Language=ENU
-Invalid call.
+The application made a call that is invalid. Either the parameters of the call or the state of some object was incorrect.
+Enable the D3D debug layer in order to see details via debug messages.
 .
 MessageId=0x22
 Severity=CoError
 Facility=Dxgi
 SymbolicName=DXGI_ERROR_NOT_CURRENTLY_AVAILABLE
 Language=ENU
-Resource is not currently available.
+A resource is not available at the time of the call, but may become available later.
 .
 MessageId=0x4005
 Severity=CoError
 Facility=Null
 SymbolicName=E_FAIL
 Language=ENU
-Call failed.
+Unspecified error
+.
+MessageId=0xa
+Severity=CoError
+Facility=Null
+SymbolicName=E_PENDING
+Language=ENU
+The data necessary to complete this operation is not yet available.
+.
+MessageId=0xb
+Severity=CoError
+Facility=Null
+SymbolicName=E_BOUNDS
+Language=ENU
+The operation attempted to access data outside the valid range
+.
+MessageId=0xc
+Severity=CoError
+Facility=Null
+SymbolicName=E_CHANGED_STATE
+Language=ENU
+A concurrent or interleaved operation changed the state of the object, invalidating this operation.
+.
+MessageId=0xd
+Severity=CoError
+Facility=Null
+SymbolicName=E_ILLEGAL_STATE_CHANGE
+Language=ENU
+An illegal state change was requested.
+.
+MessageId=0xe
+Severity=CoError
+Facility=Null
+SymbolicName=E_ILLEGAL_METHOD_CALL
+Language=ENU
+A method was called at an unexpected time.
+.
+MessageId=0x17
+Severity=CoError
+Facility=Null
+SymbolicName=E_STRING_NOT_NULL_TERMINATED
+Language=ENU
+String not null terminated.
+.
+MessageId=0x18
+Severity=CoError
+Facility=Null
+SymbolicName=E_ILLEGAL_DELEGATE_ASSIGNMENT
+Language=ENU
+A delegate was assigned when not allowed.
+.
+MessageId=0x19
+Severity=CoError
+Facility=Null
+SymbolicName=E_ASYNC_OPERATION_NOT_STARTED
+Language=ENU
+An async operation was not properly started.
+.
+MessageId=0x1a
+Severity=CoError
+Facility=Null
+SymbolicName=E_APPLICATION_EXITING
+Language=ENU
+The application is exiting and cannot service this request
+.
+MessageId=0x1b
+Severity=CoError
+Facility=Null
+SymbolicName=E_APPLICATION_VIEW_EXITING
+Language=ENU
+The application view is exiting and cannot service this request
+.
+MessageId=0x4002
+Severity=CoError
+Facility=Null
+SymbolicName=E_NOINTERFACE
+Language=ENU
+No such interface supported
+.
+MessageId=0x4003
+Severity=CoError
+Facility=Null
+SymbolicName=E_POINTER
+Language=ENU
+Invalid pointer
+.
+MessageId=0x4004
+Severity=CoError
+Facility=Null
+SymbolicName=E_ABORT
+Language=ENU
+Operation aborted
+.
+MessageId=0x4006
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_TLS
+Language=ENU
+Thread local storage failure
+.
+MessageId=0x4007
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_SHARED_ALLOCATOR
+Language=ENU
+Get shared memory allocator failure
+.
+MessageId=0x4008
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_MEMORY_ALLOCATOR
+Language=ENU
+Get memory allocator failure
+.
+MessageId=0x4009
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_CLASS_CACHE
+Language=ENU
+Unable to initialize class cache
+.
+MessageId=0x400a
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_RPC_CHANNEL
+Language=ENU
+Unable to initialize RPC services
+.
+MessageId=0x400b
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_TLS_SET_CHANNEL_CONTROL
+Language=ENU
+Cannot set thread local storage channel control
+.
+MessageId=0x400c
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_TLS_CHANNEL_CONTROL
+Language=ENU
+Could not allocate thread local storage channel control
+.
+MessageId=0x400d
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_UNACCEPTED_USER_ALLOCATOR
+Language=ENU
+The user supplied memory allocator is unacceptable
+.
+MessageId=0x400e
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_SCM_MUTEX_EXISTS
+Language=ENU
+The OLE service mutex already exists
+.
+MessageId=0x400f
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_SCM_FILE_MAPPING_EXISTS
+Language=ENU
+The OLE service file mapping already exists
+.
+MessageId=0x4010
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_SCM_MAP_VIEW_OF_FILE
+Language=ENU
+Unable to map view of file for OLE service
+.
+MessageId=0x4011
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_SCM_EXEC_FAILURE
+Language=ENU
+Failure attempting to launch OLE service
+.
+MessageId=0x4012
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_INIT_ONLY_SINGLE_THREADED
+Language=ENU
+There was an attempt to call CoInitialize a second time while single threaded
+.
+MessageId=0x4013
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_CANT_REMOTE
+Language=ENU
+A Remote activation was necessary but was not allowed
+.
+MessageId=0x4014
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_BAD_SERVER_NAME
+Language=ENU
+A Remote activation was necessary but the server name provided was invalid
+.
+MessageId=0x4015
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_WRONG_SERVER_IDENTITY
+Language=ENU
+The class is configured to run as a security id different from the caller
+.
+MessageId=0x4016
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_OLE1DDE_DISABLED
+Language=ENU
+Use of Ole1 services requiring DDE windows is disabled
+.
+MessageId=0x4017
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_RUNAS_SYNTAX
+Language=ENU
+A RunAs specification must be <domain name>\<user name> or simply <user name>
+.
+MessageId=0x4018
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_CREATEPROCESS_FAILURE
+Language=ENU
+The server process could not be started. The pathname may be incorrect.
+.
+MessageId=0x4019
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_RUNAS_CREATEPROCESS_FAILURE
+Language=ENU
+The server process could not be started as the configured identity. The pathname may be incorrect or unavailable.
+.
+MessageId=0x401a
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_RUNAS_LOGON_FAILURE
+Language=ENU
+The server process could not be started because the configured identity is incorrect. Check the username and password.
+.
+MessageId=0x401b
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_LAUNCH_PERMSSION_DENIED
+Language=ENU
+The client is not allowed to launch this server.
+.
+MessageId=0x401c
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_START_SERVICE_FAILURE
+Language=ENU
+The service providing this server could not be started.
+.
+MessageId=0x401d
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_REMOTE_COMMUNICATION_FAILURE
+Language=ENU
+This computer was unable to communicate with the computer providing the server.
+.
+MessageId=0x401e
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_SERVER_START_TIMEOUT
+Language=ENU
+The server did not respond after being launched.
+.
+MessageId=0x401f
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_CLSREG_INCONSISTENT
+Language=ENU
+The registration information for this server is inconsistent or incomplete.
+.
+MessageId=0x4020
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_IIDREG_INCONSISTENT
+Language=ENU
+The registration information for this interface is inconsistent or incomplete.
+.
+MessageId=0x4021
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_NOT_SUPPORTED
+Language=ENU
+The operation attempted is not supported.
+.
+MessageId=0x4022
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_RELOAD_DLL
+Language=ENU
+A dll must be loaded.
+.
+MessageId=0x4023
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_MSI_ERROR
+Language=ENU
+A Microsoft Software Installer error was encountered.
+.
+MessageId=0x4024
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_ATTEMPT_TO_CREATE_OUTSIDE_CLIENT_CONTEXT
+Language=ENU
+The specified activation could not occur in the client context as specified.
+.
+MessageId=0x4025
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_SERVER_PAUSED
+Language=ENU
+Activations on the server are paused.
+.
+MessageId=0x4026
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_SERVER_NOT_PAUSED
+Language=ENU
+Activations on the server are not paused.
+.
+MessageId=0x4027
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_CLASS_DISABLED
+Language=ENU
+The component or application containing the component has been disabled.
+.
+MessageId=0x4028
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_CLRNOTAVAILABLE
+Language=ENU
+The common language runtime is not available
+.
+MessageId=0x4029
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_ASYNC_WORK_REJECTED
+Language=ENU
+The thread-pool rejected the submitted asynchronous work.
+.
+MessageId=0x402a
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_SERVER_INIT_TIMEOUT
+Language=ENU
+The server started, but did not finish initializing in a timely fashion.
+.
+MessageId=0x402b
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_NO_SECCTX_IN_ACTIVATE
+Language=ENU
+Unable to complete the call since there is no COM+ security context inside IObjectControl.Activate.
+.
+MessageId=0x4030
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_TRACKER_CONFIG
+Language=ENU
+The provided tracker configuration is invalid
+.
+MessageId=0x4031
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_THREADPOOL_CONFIG
+Language=ENU
+The provided thread pool configuration is invalid
+.
+MessageId=0x4032
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_SXS_CONFIG
+Language=ENU
+The provided side-by-side configuration is invalid
+.
+MessageId=0x4033
+Severity=CoError
+Facility=Null
+SymbolicName=CO_E_MALFORMED_SPN
+Language=ENU
+The server principal name (SPN) obtained during security negotiation is malformed.
+.
+MessageId=0xffff
+Severity=CoError
+Facility=Null
+SymbolicName=E_UNEXPECTED
+Language=ENU
+Catastrophic failure
+.
+MessageId=0x123
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOIMPERSONATE
+Language=ENU
+Unable to impersonate DCOM client
+.
+MessageId=0x124
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOGETSECCTX
+Language=ENU
+Unable to obtain server's security context
+.
+MessageId=0x125
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOOPENTHREADTOKEN
+Language=ENU
+Unable to open the access token of the current thread
+.
+MessageId=0x126
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOGETTOKENINFO
+Language=ENU
+Unable to obtain user info from an access token
+.
+MessageId=0x127
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_TRUSTEEDOESNTMATCHCLIENT
+Language=ENU
+The client who called IAccessControl::IsAccessPermitted was not the trustee provided to the method
+.
+MessageId=0x128
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOQUERYCLIENTBLANKET
+Language=ENU
+Unable to obtain the client's security blanket
+.
+MessageId=0x129
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOSETDACL
+Language=ENU
+Unable to set a discretionary ACL into a security descriptor
+.
+MessageId=0x12a
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_ACCESSCHECKFAILED
+Language=ENU
+The system function, AccessCheck, returned false
+.
+MessageId=0x12b
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_NETACCESSAPIFAILED
+Language=ENU
+Either NetAccessDel or NetAccessAdd returned an error code.
+.
+MessageId=0x12c
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_WRONGTRUSTEENAMESYNTAX
+Language=ENU
+One of the trustee strings provided by the user did not conform to the <Domain>\<Name> syntax and it was not the "*" string
+.
+MessageId=0x12d
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_INVALIDSID
+Language=ENU
+One of the security identifiers provided by the user was invalid
+.
+MessageId=0x12e
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_CONVERSIONFAILED
+Language=ENU
+Unable to convert a wide character trustee string to a multibyte trustee string
+.
+MessageId=0x12f
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_NOMATCHINGSIDFOUND
+Language=ENU
+Unable to find a security identifier that corresponds to a trustee string provided by the user
+.
+MessageId=0x130
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_LOOKUPACCSIDFAILED
+Language=ENU
+The system function, LookupAccountSID, failed
+.
+MessageId=0x131
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_NOMATCHINGNAMEFOUND
+Language=ENU
+Unable to find a trustee name that corresponds to a security identifier provided by the user
+.
+MessageId=0x132
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_LOOKUPACCNAMEFAILED
+Language=ENU
+The system function, LookupAccountName, failed
+.
+MessageId=0x133
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_SETSERLHNDLFAILED
+Language=ENU
+Unable to set or reset a serialization handle
+.
+MessageId=0x134
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOGETWINDIR
+Language=ENU
+Unable to obtain the Windows directory
+.
+MessageId=0x135
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_PATHTOOLONG
+Language=ENU
+Path too long
+.
+MessageId=0x136
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOGENUUID
+Language=ENU
+Unable to generate a uuid.
+.
+MessageId=0x137
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOCREATEFILE
+Language=ENU
+Unable to create file
+.
+MessageId=0x138
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOCLOSEHANDLE
+Language=ENU
+Unable to close a serialization handle or a file handle.
+.
+MessageId=0x139
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_EXCEEDSYSACLLIMIT
+Language=ENU
+The number of ACEs in an ACL exceeds the system limit.
+.
+MessageId=0x13a
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_ACESINWRONGORDER
+Language=ENU
+Not all the DENY_ACCESS ACEs are arranged in front of the GRANT_ACCESS ACEs in the stream.
+.
+MessageId=0x13b
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_INCOMPATIBLESTREAMVERSION
+Language=ENU
+The version of ACL format in the stream is not supported by this implementation of IAccessControl
+.
+MessageId=0x13c
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_FAILEDTOOPENPROCESSTOKEN
+Language=ENU
+Unable to open the access token of the server process
+.
+MessageId=0x13d
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_DECODEFAILED
+Language=ENU
+Unable to decode the ACL in the stream provided by the user
+.
+MessageId=0x13f
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_ACNOTINITIALIZED
+Language=ENU
+The COM IAccessControl object is not initialized
+.
+MessageId=0x140
+Severity=CoError
+Facility=Rpc
+SymbolicName=CO_E_CANCEL_DISABLED
+Language=ENU
+Call Cancellation is disabled
+.
+MessageId=0x110
+Severity=CoError
+Facility=Itf
+SymbolicName=CLASS_E_NOAGGREGATION
+Language=ENU
+Class does not support aggregation (or class object is remote)
+.
+MessageId=0x111
+Severity=CoError
+Facility=Itf
+SymbolicName=CLASS_E_CLASSNOTAVAILABLE
+Language=ENU
+ClassFactory cannot supply requested class
+.
+MessageId=0x112
+Severity=CoError
+Facility=Itf
+SymbolicName=CLASS_E_NOTLICENSED
+Language=ENU
+Class is not licensed for use
+.
+MessageId=0x150
+Severity=CoError
+Facility=Itf
+SymbolicName=REGDB_E_READREGDB
+Language=ENU
+Could not read key from registry
+.
+MessageId=0x151
+Severity=CoError
+Facility=Itf
+SymbolicName=REGDB_E_WRITEREGDB
+Language=ENU
+Could not write key to registry
+.
+MessageId=0x152
+Severity=CoError
+Facility=Itf
+SymbolicName=REGDB_E_KEYMISSING
+Language=ENU
+Could not find the key in the registry
+.
+MessageId=0x153
+Severity=CoError
+Facility=Itf
+SymbolicName=REGDB_E_INVALIDVALUE
+Language=ENU
+Invalid value for registry
+.
+MessageId=0x154
+Severity=CoError
+Facility=Itf
+SymbolicName=REGDB_E_CLASSNOTREG
+Language=ENU
+Class not registered
+.
+MessageId=0x155
+Severity=CoError
+Facility=Itf
+SymbolicName=REGDB_E_IIDNOTREG
+Language=ENU
+Interface not registered
+.
+MessageId=0x156
+Severity=CoError
+Facility=Itf
+SymbolicName=REGDB_E_BADTHREADINGMODEL
+Language=ENU
+Threading model entry is not valid
+.
+MessageId=0x1f0
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_NOTINITIALIZED
+Language=ENU
+CoInitialize has not been called.
+.
+MessageId=0x1f1
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ALREADYINITIALIZED
+Language=ENU
+CoInitialize has already been called.
+.
+MessageId=0x1f2
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_CANTDETERMINECLASS
+Language=ENU
+Class of object cannot be determined
+.
+MessageId=0x1f3
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_CLASSSTRING
+Language=ENU
+Invalid class string
+.
+MessageId=0x1f4
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_IIDSTRING
+Language=ENU
+Invalid interface string
+.
+MessageId=0x1f5
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_APPNOTFOUND
+Language=ENU
+Application not found
+.
+MessageId=0x1f6
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_APPSINGLEUSE
+Language=ENU
+Application cannot be run more than once
+.
+MessageId=0x1f7
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ERRORINAPP
+Language=ENU
+Some error in application program
+.
+MessageId=0x1f8
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_DLLNOTFOUND
+Language=ENU
+DLL for class not found
+.
+MessageId=0x1f9
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ERRORINDLL
+Language=ENU
+Error in the DLL
+.
+MessageId=0x1fa
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_WRONGOSFORAPP
+Language=ENU
+Wrong OS or OS version for application
+.
+MessageId=0x1fb
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_OBJNOTREG
+Language=ENU
+Object is not registered
+.
+MessageId=0x1fc
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_OBJISREG
+Language=ENU
+Object is already registered
+.
+MessageId=0x1fd
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_OBJNOTCONNECTED
+Language=ENU
+Object is not connected to server
+.
+MessageId=0x1fe
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_APPDIDNTREG
+Language=ENU
+Application was launched but it didn't register a class factory
+.
+MessageId=0x1ff
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_RELEASED
+Language=ENU
+Object has been released
+.
+MessageId=0xe021
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ACTIVATIONFAILED
+Language=ENU
+An unexpected error occurred during COM+ Activation.
+.
+MessageId=0xe022
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ACTIVATIONFAILED_EVENTLOGGED
+Language=ENU
+COM+ Activation failed. Check the event log for more information
+.
+MessageId=0xe023
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ACTIVATIONFAILED_CATALOGERROR
+Language=ENU
+COM+ Activation failed due to a catalog or configuration error.
+.
+MessageId=0xe024
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ACTIVATIONFAILED_TIMEOUT
+Language=ENU
+COM+ activation failed because the activation could not be completed in the specified amount of time.
+.
+MessageId=0xe025
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_INITIALIZATIONFAILED
+Language=ENU
+COM+ Activation failed because an initialization function failed. Check the event log for more information.
+.
+MessageId=0xe028
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_THREADINGMODEL_CHANGED
+Language=ENU
+The components threading model has changed after install into a COM+ Application. Please re-install component.
+.
+MessageId=0xe029
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_NOIISINTRINSICS
+Language=ENU
+IIS intrinsics not available. Start your work with IIS.
+.
+MessageId=0xe02a
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_NOCOOKIES
+Language=ENU
+An attempt to write a cookie failed.
+.
+MessageId=0xe02b
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_DBERROR
+Language=ENU
+An attempt to use a database generated a database specific error.
+.
+MessageId=0xe02c
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_NOTPOOLED
+Language=ENU
+The COM+ component you created must use object pooling to work.
+.
+MessageId=0xe02d
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_NOTCONSTRUCTED
+Language=ENU
+The COM+ component you created must use object construction to work correctly.
+.
+MessageId=0xe02e
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_NOSYNCHRONIZATION
+Language=ENU
+The COM+ component requires synchronization, and it is not configured for it.
+.
+MessageId=0xe02f
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_ISOLEVELMISMATCH
+Language=ENU
+The TxIsolation Level property for the COM+ component being created is stronger than the TxIsolationLevel for the "root" component for the transaction. The creation failed.
+.
+MessageId=0xe030
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_CALL_OUT_OF_TX_SCOPE_NOT_ALLOWED
+Language=ENU
+The component attempted to make a cross-context call between invocations of EnterTransactionScopeand ExitTransactionScope. This is not allowed. Cross-context calls cannot be made while inside of a transaction scope.
+.
+MessageId=0xe031
+Severity=CoError
+Facility=Itf
+SymbolicName=CO_E_EXIT_TRANSACTION_SCOPE_NOT_CALLED
+Language=ENU
+The component made a call to EnterTransactionScope, but did not make a corresponding call to ExitTransactionScope before returning.
+.
+MessageId=0x1
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_CLASS_CREATE_FAILED
+Language=ENU
+Attempt to create a class object failed
+.
+MessageId=0x2
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_SCM_ERROR
+Language=ENU
+OLE service could not bind object
+.
+MessageId=0x3
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_SCM_RPC_FAILURE
+Language=ENU
+RPC communication failed with OLE service
+.
+MessageId=0x4
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_BAD_PATH
+Language=ENU
+Bad path to object
+.
+MessageId=0x5
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_SERVER_EXEC_FAILURE
+Language=ENU
+Server execution failed
+.
+MessageId=0x6
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_OBJSRV_RPC_FAILURE
+Language=ENU
+OLE service could not communicate with the object server
+.
+MessageId=0x8
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_SERVER_STOPPING
+Language=ENU
+Object server is stopping when OLE service contacts it
+.
+MessageId=0x15
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_MISSING_DISPLAYNAME
+Language=ENU
+The activation requires a display name to be present under the CLSID key.
+.
+MessageId=0x16
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_RUNAS_VALUE_MUST_BE_AAA
+Language=ENU
+The activation requires that the RunAs value for the application is Activate As Activator.
+.
+MessageId=0x17
+Severity=CoError
+Facility=Windows
+SymbolicName=CO_E_ELEVATION_DISABLED
+Language=ENU
+The class is not configured to support Elevated activation.
 .
