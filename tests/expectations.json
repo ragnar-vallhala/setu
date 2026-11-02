@@ -1550,6 +1550,7 @@
     "kernel32/modules:add_dll_directory_relative",
     "kernel32/modules:datafile_handle_differs_from_module",
     "kernel32/modules:free_bogus",
+    "kernel32/modules:free_null",
     "kernel32/modules:free_version_1",
     "kernel32/modules:get_dll_directory_after_empty",
     "kernel32/modules:get_dll_directory_after_set",

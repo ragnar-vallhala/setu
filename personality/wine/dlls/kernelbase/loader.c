@@ -235,7 +235,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH FreeLibrary( HINSTANCE module )
 {
     if (!module)
     {
-        SetLastError( ERROR_INVALID_HANDLE );
+        SetLastError( ERROR_MOD_NOT_FOUND );
         return FALSE;
     }
 
