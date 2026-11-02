@@ -4413,17 +4413,19 @@ UINT_PTR WINAPI NtUserSetSystemTimer( HWND hwnd, UINT_PTR id, UINT timeout )
  */
 BOOL WINAPI NtUserKillTimer( HWND hwnd, UINT_PTR id )
 {
-    BOOL ret;
+    NTSTATUS status;
 
     SERVER_START_REQ( kill_win_timer )
     {
         req->win = wine_server_user_handle( hwnd );
         req->msg = WM_TIMER;
         req->id  = id;
-        ret = !wine_server_call_err( req );
+        status = wine_server_call( req );
     }
     SERVER_END_REQ;
-    return ret;
+    /* no such timer: fail without setting an error */
+    if (status && status != STATUS_INVALID_PARAMETER) set_ntstatus( status );
+    return !status;
 }
 
 /***********************************************************************
