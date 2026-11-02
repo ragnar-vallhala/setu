@@ -363,37 +363,6 @@ static NTSTATUS create_nt_process( HANDLE token, HANDLE debug, SECURITY_ATTRIBUT
 
 
 /***********************************************************************
- *           create_vdm_process
- */
-static NTSTATUS create_vdm_process( HANDLE token, HANDLE debug, SECURITY_ATTRIBUTES *psa,
-                                    SECURITY_ATTRIBUTES *tsa, DWORD flags,
-                                    RTL_USER_PROCESS_PARAMETERS *params,
-                                    RTL_USER_PROCESS_INFORMATION *info )
-{
-    const WCHAR *winevdm = (is_win64 || is_wow64 ?
-                            L"C:\\windows\\syswow64\\winevdm.exe" :
-                            L"C:\\windows\\system32\\winevdm.exe");
-    WCHAR *newcmdline;
-    NTSTATUS status;
-    UINT len;
-
-    len = (lstrlenW(params->ImagePathName.Buffer) + lstrlenW(params->CommandLine.Buffer) +
-           lstrlenW(winevdm) + 16);
-
-    if (!(newcmdline = RtlAllocateHeap( GetProcessHeap(), 0, len * sizeof(WCHAR) )))
-        return STATUS_NO_MEMORY;
-
-    swprintf( newcmdline, len, L"%s --app-name \"%s\" %s",
-              winevdm, params->ImagePathName.Buffer, params->CommandLine.Buffer );
-    RtlInitUnicodeString( &params->ImagePathName, winevdm );
-    RtlInitUnicodeString( &params->CommandLine, newcmdline );
-    status = create_nt_process( token, debug, psa, tsa, flags, params, info, 0, 0, NULL, NULL );
-    HeapFree( GetProcessHeap(), 0, newcmdline );
-    return status;
-}
-
-
-/***********************************************************************
  *           create_cmd_process
  */
 static NTSTATUS create_cmd_process( HANDLE token, HANDLE debug, SECURITY_ATTRIBUTES *psa,
@@ -527,6 +496,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR 
     HANDLE parent = 0, debug = 0;
     ULONG nt_flags = 0;
     USHORT machine = 0;
+    BOOL dos_binary = FALSE;
     NTSTATUS status;
 
     /* Process the AppName and/or CmdLine to get module name and path */
@@ -665,18 +635,19 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR 
     case STATUS_INVALID_IMAGE_WIN_16:
     case STATUS_INVALID_IMAGE_NE_FORMAT:
     case STATUS_INVALID_IMAGE_PROTECT:
-        TRACE( "starting %s as Win16/DOS binary\n", debugstr_w(app_name) );
-        status = create_vdm_process( token, debug, process_attr, thread_attr,
-                                     nt_flags, params, &rtl_info );
+        /* an MZ file without a PE header is a DOS or Win16 program, which
+         * 64-bit Windows cannot run */
+        TRACE( "%s is a Win16/DOS binary\n", debugstr_w(app_name) );
+        dos_binary = TRUE;
         break;
     case STATUS_INVALID_IMAGE_NOT_MZ:
-        /* check for .com or .bat extension */
+        /* check for .exe, .com, .pif or .bat extension */
         if (!(p = wcsrchr( app_name, '.' ))) break;
-        if (!wcsicmp( p, L".com" ) || !wcsicmp( p, L".pif" ))
+        if (!wcsicmp( p, L".exe" ) || !wcsicmp( p, L".com" ) || !wcsicmp( p, L".pif" ))
         {
-            TRACE( "starting %s as DOS binary\n", debugstr_w(app_name) );
-            status = create_vdm_process( token, debug, process_attr, thread_attr,
-                                         nt_flags, params, &rtl_info );
+            /* any other content is taken for a DOS program */
+            TRACE( "%s is taken for a DOS binary\n", debugstr_w(app_name) );
+            dos_binary = TRUE;
         }
         else if (!wcsicmp( p, L".bat" ) || !wcsicmp( p, L".cmd" ))
         {
@@ -700,6 +671,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR 
  done:
     RtlDestroyProcessParameters( params );
     if (tidy_cmdline != cmd_line) HeapFree( GetProcessHeap(), 0, tidy_cmdline );
+    if (dos_binary)
+    {
+        SetLastError( ERROR_EXE_MACHINE_TYPE_MISMATCH );
+        return FALSE;
+    }
     return set_ntstatus( status );
 }
 
