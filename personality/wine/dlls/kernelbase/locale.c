@@ -4772,7 +4772,11 @@ INT WINAPI CompareStringEx( const WCHAR *locale, DWORD flags, const WCHAR *str1,
 
     if (version) FIXME( "unexpected version parameter\n" );
     if (reserved) FIXME( "unexpected reserved value\n" );
-    if (handle) FIXME( "unexpected handle\n" );
+    if (handle)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
 
     if (flags & ~supported_flags)
     {
@@ -4921,7 +4925,7 @@ INT WINAPI DECLSPEC_HOTPATCH CompareStringOrdinal( const WCHAR *str1, INT len1,
 {
     int ret;
 
-    if (!str1 || !str2)
+    if (!str1 || !str2 || len1 < -1 || len2 < -1 || (ignore_case != TRUE && ignore_case != FALSE))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
