@@ -4496,6 +4496,9 @@ void virtual_init_user_shared_data(void)
     data->NXSupportPolicy       = NX_SUPPORT_POLICY_OPTIN;
     data->ActiveProcessorCount  = peb->NumberOfProcessors;
     data->ActiveGroupCount      = 1;
+    /* Range of image machine types the system runs natively. */
+    data->ImageNumberLow        = native_machine;
+    data->ImageNumberHigh       = native_machine;
 
     switch (native_machine)
     {
