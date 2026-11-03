@@ -50,6 +50,10 @@ int main(void)
 {
     oracle_begin("kernel32/CompareStringEx");
 
+    /* Windows loads its tables on first use and may reset the last error then;
+     * one call up front keeps that process-history detail out of the cases. */
+    CompareStringEx(L"en-US", 0, L"a", -1, L"b", -1, NULL, NULL, 0);
+
     /* Plain linguistic order in en-US. */
     cs2("en_lower_vs_upper", L"en-US", 0, L"a", L"A");
     cs2("en_a_vs_B", L"en-US", 0, L"a", L"B");

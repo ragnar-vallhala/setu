@@ -169,6 +169,11 @@ int main(void)
     {
         NLSVERSIONINFOEX v;
         BOOL r;
+        /* Windows loads its tables on first use and may reset the last error then;
+         * one call up front keeps that process-history detail out of the cases. */
+        memset(&v, 0, sizeof v);
+        v.dwNLSVersionInfoSize = sizeof v;
+        GetNLSVersionEx(COMPARE_STRING, L"en-US", &v);
         memset(&v, 0, sizeof v);
         v.dwNLSVersionInfoSize = sizeof v;
         ORACLE_CALL(r, GetNLSVersionEx(COMPARE_STRING, L"en-US", &v));

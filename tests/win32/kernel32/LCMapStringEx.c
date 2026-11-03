@@ -79,6 +79,13 @@ int main(void)
 {
     oracle_begin("kernel32/LCMapStringEx");
 
+    /* Windows loads its tables on first use and may reset the last error then;
+     * one call up front keeps that process-history detail out of the cases. */
+    {
+        wchar_t warm[8];
+        LCMapStringEx(L"tr-TR", LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, L"i", -1, warm, 8, NULL, NULL, 0);
+    }
+
     /* Casing. */
     map("tr_upper_i", L"tr-TR", LCMAP_UPPERCASE, L"i\x0131", -1, 64);
     map("tr_upper_i_linguistic", L"tr-TR", LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, L"i\x0131", -1, 64);
@@ -194,10 +201,12 @@ int main(void)
         r4 = LCMapStringEx(L"en-US", LCMAP_HASH | NORM_IGNORECASE, L"Hello", -1, (LPWSTR)&h4, sizeof h4, NULL, NULL, 0);
         r5 = LCMapStringEx(L"en-US", LCMAP_HASH | NORM_IGNORECASE, L"hELLO", -1, (LPWSTR)&h5, sizeof h5, NULL, NULL, 0);
         oracle_case("hash_relations");
-        o_i64("ret", r1);
+        /* The hash values themselves are internal to Windows; only print how
+         * they relate to each other and to the return value. */
         oracle_last_error = e1;
         o_lasterr();
-        o_bool("all_ok", r1 > 0 && r2 > 0 && r3 > 0 && r4 > 0 && r5 > 0);
+        o_bool("all_nonzero", r1 && r2 && r3 && r4 && r5);
+        o_bool("ret_is_hash", (DWORD)r1 == h1 && (DWORD)r3 == h3 && (DWORD)r5 == h5);
         o_bool("same_input_same_hash", h1 == h2);
         o_bool("different_input_differs", h1 != h3);
         o_bool("ignorecase_equal", h4 == h5);

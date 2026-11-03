@@ -12,7 +12,7 @@
     },
     "tr_upper_i_linguistic": {
       "ret": 3,
-      "last_error": 0,
+      "last_error": "unchanged",
       "out": "300149000000",
       "str": "İI"
     },
@@ -333,14 +333,14 @@
       "agree": true
     },
     "hash_relations": {
-      "ret": -1622640206,
       "last_error": "unchanged",
-      "all_ok": false,
+      "all_nonzero": true,
+      "ret_is_hash": true,
       "same_input_same_hash": true,
       "different_input_differs": true,
       "ignorecase_equal": true
     }
   },
   "errors": [],
-  "source_sha256": "6dee2576e3a909812d4d2ba000c6e81f93d33afccc407e7d32891cc0579651d4"
+  "source_sha256": "cd8e499482fa1b0e0fda94ebac8bbc271e846c4ad7a674e108715cab8d9a8ced"
 }

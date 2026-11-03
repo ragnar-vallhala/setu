@@ -6,7 +6,7 @@
   "cases": {
     "cp1252": {
       "ret": true,
-      "last_error": 0,
+      "last_error": "unchanged",
       "max_char_size": 1,
       "default_char": "3f00",
       "lead_bytes": "",
@@ -353,5 +353,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "a3666a479d327e701c8a96079998939bccdbdbcef3abee268dc8f1ce739d9464"
+  "source_sha256": "ddb29d0c121c9dfa329b9106f634adf5dc2bea23366819897b044f7b5ecc4f43"
 }

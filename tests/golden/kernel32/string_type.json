@@ -192,7 +192,7 @@
     },
     "nls_version_en_us": {
       "ret": true,
-      "last_error": 0,
+      "last_error": "unchanged",
       "version_nonzero": true,
       "defined_version_nonzero": true,
       "effective_id": "0x00000409"
@@ -231,5 +231,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "443b2ccf18e71e3b0440785027b0bcf934cb471479876d883ad1d2dd313a98f4"
+  "source_sha256": "4a990931b81519ef0ad5abd64c6921322462f820771b2a187ddb4f83c796021b"
 }

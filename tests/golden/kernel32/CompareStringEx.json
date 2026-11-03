@@ -7,7 +7,7 @@
     "en_lower_vs_upper": {
       "ab": 1,
       "ba": 3,
-      "last_error": 0
+      "last_error": "unchanged"
     },
     "en_a_vs_B": {
       "ab": 1,
@@ -309,5 +309,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "e8ca1513a1ff0b6ed0f9af77d9b9ac5be8ddce8f07a17198a40ee4208adac104"
+  "source_sha256": "74454b1aed6a9fe909a0411601df5c774d0853a1f6b4402863852cf2b4018bbe"
 }

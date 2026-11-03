@@ -79,6 +79,13 @@ int main(void)
 {
     oracle_begin("kernel32/code_pages");
 
+    /* Windows loads its tables on first use and may reset the last error then;
+     * one call up front keeps that process-history detail out of the cases. */
+    {
+        CPINFOEXW warm;
+        GetCPInfoExW(1252, 0, &warm);
+    }
+
     cpinfo("cp1252", 1252);
     cpinfo("cp1250", 1250);
     cpinfo("cp1251", 1251);
