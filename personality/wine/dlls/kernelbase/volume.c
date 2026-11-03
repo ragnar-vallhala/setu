@@ -369,18 +369,95 @@ err_ret:
 /***********************************************************************
  *           DefineDosDeviceW       (kernelbase.@)
  */
-BOOL WINAPI DECLSPEC_HOTPATCH DefineDosDeviceW( DWORD flags, const WCHAR *device, const WCHAR *target )
+/* read the whole target of a DOS device link; stacked definitions are
+ * separated (and then terminated) by nulls; returns the length in chars */
+static NTSTATUS read_dos_device_link( const WCHAR *device, WCHAR **target, ULONG *len )
 {
-    WCHAR *link_name;
-    UNICODE_STRING nt_name, nt_target;
     OBJECT_ATTRIBUTES attr;
+    UNICODE_STRING nameW, targetW;
+    NTSTATUS status;
+    HANDLE handle;
+    WCHAR *name;
+    ULONG size = 0;
+
+    *target = NULL;
+    if (!(name = HeapAlloc( GetProcessHeap(), 0, sizeof(L"\\DosDevices\\") + lstrlenW(device) * sizeof(WCHAR) )))
+        return STATUS_NO_MEMORY;
+    lstrcpyW( name, L"\\DosDevices\\" );
+    lstrcatW( name, device );
+    RtlInitUnicodeString( &nameW, name );
+    InitializeObjectAttributes( &attr, &nameW, OBJ_CASE_INSENSITIVE, 0, NULL );
+    status = NtOpenSymbolicLinkObject( &handle, SYMBOLIC_LINK_QUERY, &attr );
+    HeapFree( GetProcessHeap(), 0, name );
+    if (status) return status;
+
+    targetW.Buffer = NULL;
+    targetW.Length = targetW.MaximumLength = 0;
+    status = NtQuerySymbolicLinkObject( handle, &targetW, &size );
+    if (status == STATUS_BUFFER_TOO_SMALL)
+    {
+        if (!(targetW.Buffer = HeapAlloc( GetProcessHeap(), 0, size + sizeof(WCHAR) ))) status = STATUS_NO_MEMORY;
+        else
+        {
+            targetW.MaximumLength = size;
+            status = NtQuerySymbolicLinkObject( handle, &targetW, NULL );
+        }
+    }
+    NtClose( handle );
+    if (status)
+    {
+        HeapFree( GetProcessHeap(), 0, targetW.Buffer );
+        return status;
+    }
+    if (!targetW.Buffer && !(targetW.Buffer = HeapAlloc( GetProcessHeap(), 0, sizeof(WCHAR) )))
+        return STATUS_NO_MEMORY;
+    *len = targetW.Length / sizeof(WCHAR);
+    targetW.Buffer[*len] = 0;
+    *target = targetW.Buffer;
+    return STATUS_SUCCESS;
+}
+
+/* replace (or with a NULL target, delete) a DOS device link */
+static NTSTATUS write_dos_device_link( OBJECT_ATTRIBUTES *attr, const WCHAR *target, ULONG len )
+{
+    UNICODE_STRING targetW;
     NTSTATUS status;
     HANDLE handle;
 
+    if (!(status = NtOpenSymbolicLinkObject( &handle, DELETE, attr )))
+    {
+        NtMakeTemporaryObject( handle );
+        NtClose( handle );
+    }
+    else if (status != STATUS_OBJECT_NAME_NOT_FOUND) return status;
+    if (!target) return STATUS_SUCCESS;
+
+    targetW.Buffer = (WCHAR *)target;
+    targetW.Length = targetW.MaximumLength = len * sizeof(WCHAR);
+    if (!(status = NtCreateSymbolicLinkObject( &handle, SYMBOLIC_LINK_ALL_ACCESS, attr, &targetW )))
+        NtClose( handle );
+    return status;
+}
+
+/***********************************************************************
+ *           DefineDosDeviceW       (kernelbase.@)
+ *
+ * A new definition of an existing name is pushed on top of the old ones;
+ * removing one pops it (or the one that matches the target).
+ */
+BOOL WINAPI DECLSPEC_HOTPATCH DefineDosDeviceW( DWORD flags, const WCHAR *device, const WCHAR *target )
+{
+    WCHAR *link_name, *old = NULL, *stack = NULL;
+    UNICODE_STRING nt_name, nt_target;
+    OBJECT_ATTRIBUTES attr;
+    NTSTATUS status;
+    ULONG old_len = 0;
+    BOOL free_target = FALSE;
+
     TRACE("%#lx, %s, %s\n", flags, debugstr_w(device), debugstr_w(target));
 
-    if (flags & ~(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION))
-        FIXME("Ignoring flags %#lx.\n", flags & ~(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION));
+    if (flags & ~(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE))
+        FIXME("Ignoring flags %#lx.\n", flags & ~(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE));
 
     if (!(link_name = HeapAlloc( GetProcessHeap(), 0, sizeof(L"\\DosDevices\\") + lstrlenW(device) * sizeof(WCHAR) )))
     {
@@ -392,13 +469,37 @@ BOOL WINAPI DECLSPEC_HOTPATCH DefineDosDeviceW( DWORD flags, const WCHAR *device
     lstrcatW( link_name, device );
     RtlInitUnicodeString( &nt_name, link_name );
     InitializeObjectAttributes( &attr, &nt_name, OBJ_CASE_INSENSITIVE | OBJ_PERMANENT, 0, NULL );
+
+    status = read_dos_device_link( device, &old, &old_len );
+    if (status == STATUS_OBJECT_NAME_NOT_FOUND) status = STATUS_SUCCESS;
+    if (status) goto done;
+
     if (flags & DDD_REMOVE_DEFINITION)
     {
-        if (!(status = NtOpenSymbolicLinkObject( &handle, DELETE, &attr )))
+        ULONG pos = 0, entry_len, match_len = target ? lstrlenW( target ) : 0;
+
+        if (!old) goto done;  /* nothing to remove */
+        /* find the entry to remove: the top one, or the first that matches */
+        for (;;)
         {
-            status = NtMakeTemporaryObject( handle );
-            NtClose( handle );
+            if (pos >= old_len)
+            {
+                status = STATUS_OBJECT_NAME_NOT_FOUND;
+                goto done;
+            }
+            entry_len = wcsnlen( old + pos, old_len - pos );
+            if (!target) break;
+            if (flags & DDD_EXACT_MATCH_ON_REMOVE)
+            {
+                if (entry_len == match_len && !wcsnicmp( old + pos, target, match_len )) break;
+            }
+            else if (entry_len >= match_len && !wcsnicmp( old + pos, target, match_len )) break;
+            pos += entry_len + 1;
         }
+        if (pos + entry_len < old_len) entry_len++;  /* and its null */
+        memmove( old + pos, old + pos + entry_len, (old_len - pos - entry_len) * sizeof(WCHAR) );
+        old_len -= entry_len;
+        status = write_dos_device_link( &attr, (old_len && old[0]) ? old : NULL, old_len );
         goto done;
     }
 
@@ -406,13 +507,34 @@ BOOL WINAPI DECLSPEC_HOTPATCH DefineDosDeviceW( DWORD flags, const WCHAR *device
     {
         status = RtlDosPathNameToNtPathName_U_WithStatus( target, &nt_target, NULL, NULL );
         if (status) goto done;
+        free_target = TRUE;
     }
     else
         RtlInitUnicodeString( &nt_target, target );
 
-    if (!(status = NtCreateSymbolicLinkObject( &handle, SYMBOLIC_LINK_ALL_ACCESS, &attr, &nt_target )))
-        NtClose( handle );
- done:
+    if (old)
+    {
+        ULONG len = nt_target.Length / sizeof(WCHAR);
+        BOOL old_terminated = old_len && !old[old_len - 1];
+
+        if (!(stack = HeapAlloc( GetProcessHeap(), 0, (len + 1 + old_len + 1) * sizeof(WCHAR) )))
+        {
+            status = STATUS_NO_MEMORY;
+            goto done;
+        }
+        memcpy( stack, nt_target.Buffer, len * sizeof(WCHAR) );
+        stack[len++] = 0;
+        memcpy( stack + len, old, old_len * sizeof(WCHAR) );
+        len += old_len;
+        if (!old_terminated) stack[len++] = 0;
+        status = write_dos_device_link( &attr, stack, len );
+    }
+    else status = write_dos_device_link( &attr, nt_target.Buffer, nt_target.Length / sizeof(WCHAR) );
+
+done:
+    if (free_target) RtlFreeUnicodeString( &nt_target );
+    HeapFree( GetProcessHeap(), 0, stack );
+    HeapFree( GetProcessHeap(), 0, old );
     HeapFree( GetProcessHeap(), 0, link_name );
     return set_ntstatus( status );
 }
@@ -436,8 +558,9 @@ DWORD WINAPI QueryDosDeviceW( LPCWSTR devname, LPWSTR target, DWORD bufsize )
     if (devname)
     {
         WCHAR name[8];
-        WCHAR *buffer;
-        DWORD dosdev, ret = 0;
+        WCHAR *buffer, *p;
+        DWORD dosdev;
+        ULONG len;
 
         if ((dosdev = RtlIsDosDeviceName_U( devname )))
         {
@@ -446,19 +569,48 @@ DWORD WINAPI QueryDosDeviceW( LPCWSTR devname, LPWSTR target, DWORD bufsize )
             devname = name;
         }
 
-        if (!(buffer = HeapAlloc( GetProcessHeap(), 0, sizeof(L"\\DosDevices\\") + lstrlenW(devname)*sizeof(WCHAR) )))
+        /* "" names the directory of links, "C:\" the root of a device: neither is a link */
+        if (!devname[0])
         {
-            SetLastError( ERROR_OUTOFMEMORY );
+            SetLastError( ERROR_INVALID_HANDLE );
             return 0;
         }
-        lstrcpyW( buffer, L"\\DosDevices\\" );
-        lstrcatW( buffer, devname );
-        status = read_nt_symlink( buffer, target, bufsize );
-        HeapFree( GetProcessHeap(), 0, buffer );
+        if ((p = wcschr( devname, '\\' )))
+        {
+            WCHAR *prefix = HeapAlloc( GetProcessHeap(), 0, (p - devname + 1) * sizeof(WCHAR) );
+
+            if (!prefix)
+            {
+                SetLastError( ERROR_OUTOFMEMORY );
+                return 0;
+            }
+            memcpy( prefix, devname, (p - devname) * sizeof(WCHAR) );
+            prefix[p - devname] = 0;
+            status = read_dos_device_link( prefix, &buffer, &len );
+            HeapFree( GetProcessHeap(), 0, prefix );
+            if (!status)
+            {
+                HeapFree( GetProcessHeap(), 0, buffer );
+                status = STATUS_OBJECT_TYPE_MISMATCH;
+            }
+            else if (status == STATUS_OBJECT_NAME_NOT_FOUND) status = STATUS_OBJECT_PATH_NOT_FOUND;
+            set_ntstatus( status );
+            return 0;
+        }
+
+        status = read_dos_device_link( devname, &buffer, &len );
         if (!set_ntstatus( status )) return 0;
-        ret = lstrlenW( target ) + 1;
-        if (ret < bufsize) target[ret++] = 0;  /* add an extra null */
-        return ret;
+        if (len + 2 > bufsize)
+        {
+            HeapFree( GetProcessHeap(), 0, buffer );
+            SetLastError( ERROR_INSUFFICIENT_BUFFER );
+            return 0;
+        }
+        memcpy( target, buffer, len * sizeof(WCHAR) );
+        target[len++] = 0;
+        target[len++] = 0;  /* add an extra null */
+        HeapFree( GetProcessHeap(), 0, buffer );
+        return len;
     }
     else  /* return a list of all devices */
     {
