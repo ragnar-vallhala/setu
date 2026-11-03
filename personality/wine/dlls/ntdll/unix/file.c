@@ -1810,9 +1810,23 @@ static int fd_set_dos_attrib( int fd, UINT attr, BOOL force_set )
 }
 
 
+/* whether an extended attribute already has the given value (NULL: is absent) */
+static BOOL xattr_fis( int fd, const char *name, const char *value )
+{
+    char data[65];
+    int len = xattr_fget( fd, name, data, sizeof(data) - 1 );
+
+    if (!value) return len == -1;
+    return len == strlen( value ) && !memcmp( data, value, len );
+}
+
+
 /* set the stat info and file attributes for a file (by file descriptor) */
 static NTSTATUS fd_set_file_info( int fd, UINT attr, BOOL force_set_xattr )
 {
+    char stamp[32], dos_data[11];
+    BOOL set_stamp, set_dos;
+    UINT dos_attr;
     struct stat st;
     mode_t mode;
 
@@ -1831,37 +1845,59 @@ static NTSTATUS fd_set_file_info( int fd, UINT attr, BOOL force_set_xattr )
         mode |= (0600 | ((st.st_mode & 044) >> 1)) & (~start_umask);
     }
 
-    /* Linux only lets user extended attributes change while the file is
-     * writable, so set them before clearing the write bits (and make a
-     * read-only file briefly writable to change them). */
-    if (!(st.st_mode & S_IWUSR) && fchmod( fd, st.st_mode | S_IWUSR ) == -1)
-        return errno_to_status( errno );
-
     /* if the file has multiple names, we can't be sure that it is safe to not
        set the extended attribute, since any of the names could start with a dot */
     force_set_xattr = force_set_xattr || st.st_nlink > 1;
 
+    /* work out the extended attributes first: setting attributes that are
+     * already set changes nothing, and must not look like a change (to
+     * change notifications, for instance) */
+    set_stamp = FALSE;
     if (S_ISREG( st.st_mode ))
     {
         if (!(attr & FILE_ATTRIBUTE_ARCHIVE))
         {
-            char stamp[32];
-
             /* the stamp is only read alongside the DOS attributes xattr */
             force_set_xattr = TRUE;
             format_noarchive_stamp( &st, stamp, sizeof(stamp) );
-            if (xattr_fset( fd, XATTR_NOARCHIVE, stamp, strlen( stamp ) ) == -1 && errno != ENOTSUP)
-                WARN( "Failed to set extended attribute " XATTR_NOARCHIVE ". errno %d (%s)\n",
-                      errno, strerror( errno ) );
+            set_stamp = !xattr_fis( fd, XATTR_NOARCHIVE, stamp );
         }
-        else xattr_fremove( fd, XATTR_NOARCHIVE );
+        else set_stamp = !xattr_fis( fd, XATTR_NOARCHIVE, NULL );
     }
+    dos_attr = attr & (S_ISDIR( st.st_mode ) ? XATTR_DIR_STORED_MASK : XATTR_STORED_MASK);
+    if (force_set_xattr || dos_attr)
+    {
+        snprintf( dos_data, sizeof(dos_data), "0x%x", dos_attr );
+        set_dos = !xattr_fis( fd, SAMBA_XATTR_DOS_ATTRIB, dos_data );
+    }
+    else set_dos = !xattr_fis( fd, SAMBA_XATTR_DOS_ATTRIB, NULL );
 
-    if (fd_set_dos_attrib( fd, attr, force_set_xattr ) == -1 && errno != ENOTSUP)
-        WARN( "Failed to set extended attribute " SAMBA_XATTR_DOS_ATTRIB ". errno %d (%s)\n",
-              errno, strerror( errno ) );
+    if (set_stamp || set_dos)
+    {
+        /* Linux only lets user extended attributes change while the file is
+         * writable, so set them before clearing the write bits (and make a
+         * read-only file briefly writable to change them). */
+        if (!(st.st_mode & S_IWUSR) && fchmod( fd, st.st_mode | S_IWUSR ) == -1)
+            return errno_to_status( errno );
 
-    if (fchmod( fd, mode ) == -1) return errno_to_status( errno );
+        if (set_stamp)
+        {
+            if (!(attr & FILE_ATTRIBUTE_ARCHIVE))
+            {
+                if (xattr_fset( fd, XATTR_NOARCHIVE, stamp, strlen( stamp ) ) == -1 && errno != ENOTSUP)
+                    WARN( "Failed to set extended attribute " XATTR_NOARCHIVE ". errno %d (%s)\n",
+                          errno, strerror( errno ) );
+            }
+            else xattr_fremove( fd, XATTR_NOARCHIVE );
+        }
+
+        if (set_dos && fd_set_dos_attrib( fd, attr, force_set_xattr ) == -1 && errno != ENOTSUP)
+            WARN( "Failed to set extended attribute " SAMBA_XATTR_DOS_ATTRIB ". errno %d (%s)\n",
+                  errno, strerror( errno ) );
+
+        if (fchmod( fd, mode ) == -1) return errno_to_status( errno );
+    }
+    else if (mode != st.st_mode && fchmod( fd, mode ) == -1) return errno_to_status( errno );
 
     /* Query the timestamps: on kernels with multigrain timestamps this makes
      * the next write get a distinct mtime, even within the same clock tick. */
