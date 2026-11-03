@@ -17,13 +17,14 @@ that match real Windows, not in features that seem to work.
 
 **Exit criteria**
 
-1. **100 kernel32 oracle tests passing** on Setu (golden files from Windows 11
+1. ✅ **100 kernel32 oracle tests passing** on Setu (golden files from Windows 11
    23H2 or later, recorded by the harness, ratcheted in CI). Coverage:
    files and directories, `FindFirstFile*`, paths (`GetFullPathNameW`,
    long/short names, `\\?\`), handles, `GetLastError` semantics, environment,
    processes (`CreateProcessW` exit codes and inheritance), sync primitives.
-   Status 2026-11-03: 75 of 106 kernel32 tests pass every case (goldens are
-   still from the interim Windows 10 22H2 VM).
+   Done 2026-11-03 against the interim Windows 10 22H2 oracle: 102 of 122
+   kernel32 tests pass every case (7,769 cases ratcheted). Re-recording the
+   goldens on Windows 11 is still open (see above).
 2. ✅ **The Wine fork exists:** `personality/wine` imported from Wine 11.0,
    builds in CI (cached by source tree), and replaces stock Wine as the Setu
    target in the harness. Done 2026-10-31.
