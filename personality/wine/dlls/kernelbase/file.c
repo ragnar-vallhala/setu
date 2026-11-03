@@ -975,8 +975,11 @@ HANDLE WINAPI DECLSPEC_HOTPATCH CreateFileW( LPCWSTR filename, DWORD access, DWO
          */
         if (status == STATUS_OBJECT_NAME_COLLISION)
             SetLastError( ERROR_FILE_EXISTS );
+        /* a directory gives ERROR_PATH_NOT_FOUND when the caller's name ends in a
+         * separator ("dir\", ".\"); one that only resolves to "dir\" ("...", ". ")
+         * gives ERROR_ACCESS_DENIED like "dir" */
         else if (status == STATUS_FILE_IS_A_DIRECTORY &&
-                 nameW.Buffer[nameW.Length / sizeof(WCHAR) - 1] == '\\')
+                 (filename[wcslen(filename) - 1] == '\\' || filename[wcslen(filename) - 1] == '/'))
             SetLastError( ERROR_PATH_NOT_FOUND );
         else
             SetLastError( RtlNtStatusToDosError(status) );
