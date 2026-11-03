@@ -1167,6 +1167,9 @@ UINT WINAPI DECLSPEC_HOTPATCH SetErrorMode( UINT mode )
 {
     UINT old = GetErrorMode();
 
+    /* once set, SEM_NOALIGNMENTFAULTEXCEPT can't be cleared */
+    mode |= old & SEM_NOALIGNMENTFAULTEXCEPT;
+
     NtSetInformationProcess( GetCurrentProcess(), ProcessDefaultHardErrorMode,
                              &mode, sizeof(mode) );
     return old;

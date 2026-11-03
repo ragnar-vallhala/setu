@@ -2713,6 +2713,7 @@
     "kernel32/environment:set_overwrite",
     "kernel32/environment:set_value_with_equals",
     "kernel32/error_mode:child_default_error_mode",
+    "kernel32/error_mode:clear_after_alignment",
     "kernel32/error_mode:initial",
     "kernel32/error_mode:new_thread_mode",
     "kernel32/error_mode:set_all_documented",
