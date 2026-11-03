@@ -2245,6 +2245,7 @@ static const CPTABLEINFO *get_codepage_table( UINT codepage )
 {
     static const CPTABLEINFO utf7_cpinfo = { CP_UTF7, 5, '?', 0xfffd, '?', '?' };
     static const CPTABLEINFO utf8_cpinfo = { CP_UTF8, 4, '?', 0xfffd, '?', '?' };
+    static const CPTABLEINFO gb18030_cpinfo = { 54936, 4, '?', '?', '?', '?' };
     unsigned int i;
     USHORT *ptr;
     SIZE_T size;
@@ -2266,6 +2267,7 @@ static const CPTABLEINFO *get_codepage_table( UINT codepage )
     if (codepage == oem_cpinfo.CodePage) return &oem_cpinfo;
     if (codepage == CP_UTF8) return &utf8_cpinfo;
     if (codepage == CP_UTF7) return &utf7_cpinfo;
+    if (codepage == 54936) return &gb18030_cpinfo;
 
     RtlEnterCriticalSection( &locale_section );
 
@@ -2954,6 +2956,255 @@ static int wcstombs_utf8( DWORD flags, const WCHAR *src, int srclen, char *dst, 
     }
     else if (!set_ntstatus( status )) reslen = 0;
     return reslen;
+}
+
+
+/* GB18030 (code page 54936).
+ *
+ * One-byte codes are ASCII. Two-byte codes are those of the GBK table (code
+ * page 936) that round-trip, except for 81 codes that GB18030-2000 assigns
+ * to standard characters instead of the private use area. Every other BMP
+ * code point gets a four-byte code, in code point order; supplementary
+ * characters get four-byte codes from 0x90308130 up. */
+
+static const struct { USHORT mb; WCHAR wc; } gb18030_two_byte_changes[] =
+{
+    { 0xa2e3, 0x20ac }, { 0xa8bf, 0x01f9 }, { 0xa989, 0x303e }, { 0xa98a, 0x2ff0 }, { 0xa98b, 0x2ff1 },
+    { 0xa98c, 0x2ff2 }, { 0xa98d, 0x2ff3 }, { 0xa98e, 0x2ff4 }, { 0xa98f, 0x2ff5 }, { 0xa990, 0x2ff6 },
+    { 0xa991, 0x2ff7 }, { 0xa992, 0x2ff8 }, { 0xa993, 0x2ff9 }, { 0xa994, 0x2ffa }, { 0xa995, 0x2ffb },
+    { 0xfe50, 0x2e81 }, { 0xfe54, 0x2e84 }, { 0xfe55, 0x3473 }, { 0xfe56, 0x3447 }, { 0xfe57, 0x2e88 },
+    { 0xfe58, 0x2e8b }, { 0xfe5a, 0x359e }, { 0xfe5b, 0x361a }, { 0xfe5c, 0x360e }, { 0xfe5d, 0x2e8c },
+    { 0xfe5e, 0x2e97 }, { 0xfe5f, 0x396e }, { 0xfe60, 0x3918 }, { 0xfe62, 0x39cf }, { 0xfe63, 0x39df },
+    { 0xfe64, 0x3a73 }, { 0xfe65, 0x39d0 }, { 0xfe68, 0x3b4e }, { 0xfe69, 0x3c6e }, { 0xfe6a, 0x3ce0 },
+    { 0xfe6b, 0x2ea7 }, { 0xfe6e, 0x2eaa }, { 0xfe6f, 0x4056 }, { 0xfe70, 0x415f }, { 0xfe71, 0x2eae },
+    { 0xfe72, 0x4337 }, { 0xfe73, 0x2eb3 }, { 0xfe74, 0x2eb6 }, { 0xfe75, 0x2eb7 }, { 0xfe77, 0x43b1 },
+    { 0xfe78, 0x43ac }, { 0xfe79, 0x2ebb }, { 0xfe7a, 0x43dd }, { 0xfe7b, 0x44d6 }, { 0xfe7c, 0x4661 },
+    { 0xfe7d, 0x464c }, { 0xfe80, 0x4723 }, { 0xfe81, 0x4729 }, { 0xfe82, 0x477c }, { 0xfe83, 0x478d },
+    { 0xfe84, 0x2eca }, { 0xfe85, 0x4947 }, { 0xfe86, 0x497a }, { 0xfe87, 0x497d }, { 0xfe88, 0x4982 },
+    { 0xfe89, 0x4983 }, { 0xfe8a, 0x4985 }, { 0xfe8b, 0x4986 }, { 0xfe8c, 0x499f }, { 0xfe8d, 0x499b },
+    { 0xfe8e, 0x49b7 }, { 0xfe8f, 0x49b6 }, { 0xfe92, 0x4ca3 }, { 0xfe93, 0x4c9f }, { 0xfe94, 0x4ca0 },
+    { 0xfe95, 0x4ca1 }, { 0xfe96, 0x4c77 }, { 0xfe97, 0x4ca2 }, { 0xfe98, 0x4d13 }, { 0xfe99, 0x4d14 },
+    { 0xfe9a, 0x4d15 }, { 0xfe9b, 0x4d16 }, { 0xfe9c, 0x4d17 }, { 0xfe9d, 0x4d18 }, { 0xfe9e, 0x4d19 },
+    { 0xfe9f, 0x4dae },
+};
+
+#define GB18030_BMP_FOUR_BYTE 39420      /* number of BMP code points with four-byte codes */
+#define GB18030_SUPPLEMENTARY 189000     /* linear index of 0x90308130 */
+
+struct gb18030_tables
+{
+    USHORT wc_to_mb[0x10000];             /* two-byte code, or 0 */
+    USHORT wc_to_four[0x10000];           /* linear four-byte index, or 0xffff */
+    WCHAR  mb_to_wc[0x10000];             /* two-byte code -> char, 0 if invalid */
+    WCHAR  four_to_wc[GB18030_BMP_FOUR_BYTE];
+};
+
+static struct gb18030_tables *gb18030;
+
+static const struct gb18030_tables *get_gb18030_tables(void)
+{
+    const CPTABLEINFO *gbk;
+    struct gb18030_tables *tables;
+    unsigned int lead, trail, i, n;
+
+    if (gb18030) return gb18030;
+    if (!(gbk = get_codepage_table( 936 )) || !gbk->DBCSOffsets) return NULL;
+    if (!(tables = RtlAllocateHeap( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*tables) ))) return NULL;
+
+    for (lead = 0x81; lead <= 0xfe; lead++)
+    {
+        USHORT off = gbk->DBCSOffsets[lead];
+        if (!off) continue;
+        for (trail = 0x40; trail <= 0xfe; trail++)
+        {
+            WCHAR wc;
+            if (trail == 0x7f) continue;
+            wc = gbk->DBCSOffsets[off + trail];
+            if (gbk->WideCharTable && ((const USHORT *)gbk->WideCharTable)[wc] == (lead << 8 | trail) &&
+                wc >= 0x80 && wc != gbk->UniDefaultChar)
+            {
+                tables->mb_to_wc[lead << 8 | trail] = wc;
+                tables->wc_to_mb[wc] = lead << 8 | trail;
+            }
+        }
+    }
+    for (i = 0; i < ARRAY_SIZE(gb18030_two_byte_changes); i++)
+    {
+        USHORT mb = gb18030_two_byte_changes[i].mb;
+        WCHAR wc = gb18030_two_byte_changes[i].wc;
+        if (tables->mb_to_wc[mb]) tables->wc_to_mb[tables->mb_to_wc[mb]] = 0;
+        tables->mb_to_wc[mb] = wc;
+        tables->wc_to_mb[wc] = mb;
+    }
+    for (i = 0; i < 0x80; i++) tables->wc_to_four[i] = 0xffff;
+    for (i = 0x80, n = 0; i < 0x10000; i++)
+    {
+        if (tables->wc_to_mb[i] || (i >= 0xd800 && i <= 0xdfff) || n >= GB18030_BMP_FOUR_BYTE)
+        {
+            tables->wc_to_four[i] = 0xffff;
+            continue;
+        }
+        tables->wc_to_four[i] = n;
+        tables->four_to_wc[n++] = i;
+    }
+
+    if (InterlockedCompareExchangePointer( (void **)&gb18030, tables, NULL ))
+        RtlFreeHeap( GetProcessHeap(), 0, tables );
+    return gb18030;
+}
+
+/* length of the sequence at src, or 0 if it is not valid; *ch gets the code point */
+static int gb18030_decode( const struct gb18030_tables *tables, const unsigned char *src, int srclen,
+                           unsigned int *ch )
+{
+    unsigned int index;
+
+    if (src[0] < 0x80)
+    {
+        *ch = src[0];
+        return 1;
+    }
+    if (src[0] == 0x80 || src[0] == 0xff || srclen < 2) return 0;
+    if (src[1] >= 0x30 && src[1] <= 0x39)
+    {
+        if (srclen < 4 || src[2] < 0x81 || src[2] > 0xfe || src[3] < 0x30 || src[3] > 0x39) return 0;
+        index = (((src[0] - 0x81) * 10 + (src[1] - 0x30)) * 126 + (src[2] - 0x81)) * 10 + (src[3] - 0x30);
+        if (index < GB18030_BMP_FOUR_BYTE) *ch = tables->four_to_wc[index];
+        else if (index >= GB18030_SUPPLEMENTARY && index - GB18030_SUPPLEMENTARY < 0x100000)
+            *ch = 0x10000 + index - GB18030_SUPPLEMENTARY;
+        else
+        {
+            *ch = 0;
+            return -4;
+        }
+        return 4;
+    }
+    if (src[1] < 0x40 || src[1] == 0x7f || src[1] == 0xff) return 0;
+    if (!(*ch = tables->mb_to_wc[src[0] << 8 | src[1]])) return -2;
+    return 2;
+}
+
+static int mbstowcs_gb18030( DWORD flags, const char *src, int srclen, WCHAR *dst, int dstlen )
+{
+    const struct gb18030_tables *tables = get_gb18030_tables();
+    const unsigned char *str = (const unsigned char *)src;
+    int len, pos = 0;
+    unsigned int ch;
+
+    if (!tables)
+    {
+        SetLastError( ERROR_NOT_ENOUGH_MEMORY );
+        return 0;
+    }
+    while (srclen)
+    {
+        WCHAR out[2];
+        int count = 1;
+
+        len = gb18030_decode( tables, str, srclen, &ch );
+        if (len <= 0)
+        {
+            if (flags & MB_ERR_INVALID_CHARS)
+            {
+                SetLastError( ERROR_NO_UNICODE_TRANSLATION );
+                return 0;
+            }
+            /* an unassigned but well-formed sequence counts as one character,
+             * otherwise only the bad lead byte is replaced */
+            len = len ? -len : 1;
+            out[0] = '?';
+        }
+        else if (ch >= 0x10000)
+        {
+            out[0] = 0xd800 | ((ch - 0x10000) >> 10);
+            out[1] = 0xdc00 | (ch & 0x3ff);
+            count = 2;
+        }
+        else out[0] = ch;
+
+        if (dstlen)
+        {
+            if (pos + count > dstlen)
+            {
+                SetLastError( ERROR_INSUFFICIENT_BUFFER );
+                return 0;
+            }
+            memcpy( dst + pos, out, count * sizeof(WCHAR) );
+        }
+        pos += count;
+        str += len;
+        srclen -= len;
+    }
+    return pos;
+}
+
+static int wcstombs_gb18030( DWORD flags, const WCHAR *src, int srclen, char *dst, int dstlen,
+                             const char *defchar, BOOL *used )
+{
+    const struct gb18030_tables *tables = get_gb18030_tables();
+    int i, pos = 0;
+
+    if (!tables)
+    {
+        SetLastError( ERROR_NOT_ENOUGH_MEMORY );
+        return 0;
+    }
+    if (used) *used = FALSE;
+    for (i = 0; i < srclen; i++)
+    {
+        unsigned char out[4];
+        unsigned int ch = src[i], index;
+        int count;
+
+        if (ch < 0x80)
+        {
+            out[0] = ch;
+            count = 1;
+        }
+        else if (IS_HIGH_SURROGATE( ch ) && i + 1 < srclen && IS_LOW_SURROGATE( src[i + 1] ))
+        {
+            index = GB18030_SUPPLEMENTARY + ((ch & 0x3ff) << 10 | (src[++i] & 0x3ff));
+            goto four_bytes;
+        }
+        else if (tables->wc_to_mb[ch])
+        {
+            out[0] = tables->wc_to_mb[ch] >> 8;
+            out[1] = tables->wc_to_mb[ch] & 0xff;
+            count = 2;
+        }
+        else if ((index = tables->wc_to_four[ch]) != 0xffff)
+        {
+        four_bytes:
+            out[3] = 0x30 + index % 10;
+            out[2] = 0x81 + index / 10 % 126;
+            out[1] = 0x30 + index / 1260 % 10;
+            out[0] = 0x81 + index / 12600;
+            count = 4;
+        }
+        else  /* lone surrogate */
+        {
+            if (flags & WC_ERR_INVALID_CHARS)
+            {
+                SetLastError( ERROR_NO_UNICODE_TRANSLATION );
+                return 0;
+            }
+            out[0] = defchar ? *defchar : '?';
+            count = 1;
+            if (used) *used = TRUE;
+        }
+
+        if (dstlen)
+        {
+            if (pos + count > dstlen)
+            {
+                SetLastError( ERROR_INSUFFICIENT_BUFFER );
+                return 0;
+            }
+            memcpy( dst + pos, out, count );
+        }
+        pos += count;
+    }
+    return pos;
 }
 
 
@@ -7415,6 +7666,8 @@ INT WINAPI DECLSPEC_HOTPATCH MultiByteToWideChar( UINT codepage, DWORD flags, co
         }
         if (info->CodePage == CP_UTF8)
             ret = mbstowcs_utf8( flags, src, srclen, dst, dstlen );
+        else if (info->CodePage == 54936)
+            ret = mbstowcs_gb18030( flags, src, srclen, dst, dstlen );
         else
             ret = mbstowcs_codepage( info, flags, src, srclen, dst, dstlen );
         break;
@@ -7823,13 +8076,15 @@ INT WINAPI DECLSPEC_HOTPATCH WideCharToMultiByte( UINT codepage, DWORD flags, LP
         /* the composite flags only go with WC_COMPOSITECHECK, and
          * WC_ERR_INVALID_CHARS only with UTF-8 */
         if (((flags & (WC_DISCARDNS | WC_SEPCHARS | WC_DEFAULTCHAR)) && !(flags & WC_COMPOSITECHECK)) ||
-            ((flags & WC_ERR_INVALID_CHARS) && info->CodePage != CP_UTF8))
+            ((flags & WC_ERR_INVALID_CHARS) && info->CodePage != CP_UTF8 && info->CodePage != 54936))
         {
             SetLastError( ERROR_INVALID_FLAGS );
             return 0;
         }
         if (info->CodePage == CP_UTF8)
             ret = wcstombs_utf8( flags, src, srclen, dst, dstlen, defchar, used );
+        else if (info->CodePage == 54936)
+            ret = wcstombs_gb18030( flags, src, srclen, dst, dstlen, defchar, used );
         else
             ret = wcstombs_codepage( info, flags, src, srclen, dst, dstlen, defchar, used );
         break;
