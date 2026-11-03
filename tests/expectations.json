@@ -1291,6 +1291,7 @@
     "kernel32/GetFileType:nul_in_subdir",
     "kernel32/GetFileType:nul_with_extension",
     "kernel32/GetFileType:null_handle",
+    "kernel32/GetFileType:pagefile_section",
     "kernel32/GetFileType:registry_key",
     "kernel32/GetFileType:token",
     "kernel32/GetFinalPathNameByHandleW:after_rename",

@@ -7433,6 +7433,19 @@ NTSTATUS WINAPI NtFlushBuffersFile( HANDLE handle, IO_STATUS_BLOCK *io )
 }
 
 
+/* whether a handle is a section (file mapping) rather than a file */
+static BOOL is_section_handle( HANDLE handle )
+{
+    static const WCHAR sectionW[] = {'S','e','c','t','i','o','n'};
+    char buffer[sizeof(OBJECT_TYPE_INFORMATION) + 64 * sizeof(WCHAR)];
+    OBJECT_TYPE_INFORMATION *type_info = (OBJECT_TYPE_INFORMATION *)buffer;
+
+    return !NtQueryObject( handle, ObjectTypeInformation, type_info, sizeof(buffer), NULL ) &&
+           type_info->TypeName.Length == sizeof(sectionW) &&
+           !memcmp( type_info->TypeName.Buffer, sectionW, sizeof(sectionW) );
+}
+
+
 /******************************************************************************
  *              NtFlushBuffersFileEx   (NTDLL.@)
  */
@@ -7451,16 +7464,7 @@ NTSTATUS WINAPI NtFlushBuffersFileEx( HANDLE handle, ULONG flags, void *params, 
     if (!io || !virtual_check_buffer_for_write( io, sizeof(*io) )) return STATUS_ACCESS_VIOLATION;
 
     /* a section handle gives access to the file it maps, but isn't a file */
-    {
-        static const WCHAR sectionW[] = {'S','e','c','t','i','o','n'};
-        char buffer[sizeof(OBJECT_TYPE_INFORMATION) + 64 * sizeof(WCHAR)];
-        OBJECT_TYPE_INFORMATION *type_info = (OBJECT_TYPE_INFORMATION *)buffer;
-
-        if (!NtQueryObject( handle, ObjectTypeInformation, type_info, sizeof(buffer), NULL ) &&
-            type_info->TypeName.Length == sizeof(sectionW) &&
-            !memcmp( type_info->TypeName.Buffer, sectionW, sizeof(sectionW) ))
-            return STATUS_OBJECT_TYPE_MISMATCH;
-    }
+    if (is_section_handle( handle )) return STATUS_OBJECT_TYPE_MISMATCH;
 
     /* the NUL device can't flush, but still checks for write access first */
     if (!server_get_unix_fd( handle, 0, &fd, &needs_close, &type, NULL ))
@@ -8026,10 +8030,17 @@ NTSTATUS WINAPI NtQueryVolumeInformationFile( HANDLE handle, IO_STATUS_BLOCK *io
                                               void *buffer, ULONG length,
                                               FS_INFORMATION_CLASS info_class )
 {
+    enum server_fd_type type;
     int fd, needs_close;
     unsigned int status;
 
-    status = server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, NULL );
+    status = server_get_unix_fd( handle, 0, &fd, &needs_close, &type, NULL );
+    /* a section is backed by a file, but it isn't a file object */
+    if (!status && type == FD_TYPE_FILE && is_section_handle( handle ))
+    {
+        if (needs_close) close( fd );
+        return io->Status = STATUS_OBJECT_TYPE_MISMATCH;
+    }
     if (status == STATUS_BAD_DEVICE_TYPE)
     {
         struct async_irp *async;
