@@ -361,6 +361,7 @@ err_ret:
     HeapFree( GetProcessHeap(), 0, input );
     HeapFree( GetProcessHeap(), 0, output );
     CloseHandle( mgr );
+    if (ret) SetLastError( ERROR_MORE_DATA );  /* as on Windows */
     return ret;
 }
 
@@ -901,6 +902,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetVolumePathNameW( const WCHAR *path, WCHAR *volu
         return FALSE;
     }
 
+    if (path && !path[0])
+    {
+        SetLastError( ERROR_INVALID_NAME );
+        return FALSE;
+    }
     if (!volume_path || !length || !RtlDosPathNameToNtPathName_U( path, &nt_name, NULL, NULL ))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
@@ -972,6 +978,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetVolumePathNameW( const WCHAR *path, WCHAR *volu
             TRACE("%s -> %s\n", debugstr_w(path), debugstr_w(volume_path));
 
             RtlFreeUnicodeString( &nt_name );
+            SetLastError( ERROR_MORE_DATA );  /* as on Windows */
             return TRUE;
         }
     }
@@ -983,6 +990,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetVolumePathNameW( const WCHAR *path, WCHAR *volu
         TRACE("%s -> %s\n", debugstr_w(path), debugstr_w(volume_path));
 
         RtlFreeUnicodeString( &nt_name );
+        SetLastError( ERROR_MORE_DATA );  /* as on Windows */
         return TRUE;
     }
 

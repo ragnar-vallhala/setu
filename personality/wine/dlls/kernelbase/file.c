@@ -1993,7 +1993,10 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
     /* Get information required for VOLUME_NAME_NONE, VOLUME_NAME_GUID and VOLUME_NAME_NT */
     if (flags == VOLUME_NAME_NONE || flags == VOLUME_NAME_GUID || flags == VOLUME_NAME_NT)
     {
+        DWORD err = GetLastError();
+
         if (!GetVolumePathNameW( info->Name.Buffer, drive_part, MAX_PATH )) goto done;
+        SetLastError( err );  /* it sets ERROR_MORE_DATA on success */
         drive_part_len = lstrlenW(drive_part);
         if (!drive_part_len || drive_part_len > lstrlenW(info->Name.Buffer) ||
             drive_part[drive_part_len-1] != '\\' ||
@@ -2018,7 +2021,10 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
         WCHAR volume_prefix[51];
 
         /* GetVolumeNameForVolumeMountPointW sets error code on failure */
+        DWORD err = GetLastError();
+
         if (!GetVolumeNameForVolumeMountPointW( drive_part, volume_prefix, 50 )) goto done;
+        SetLastError( err );  /* it sets ERROR_MORE_DATA on success */
         ptr = info->Name.Buffer + drive_part_len;
         result = lstrlenW(volume_prefix) + lstrlenW(ptr);
         if (result < count)
