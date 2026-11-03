@@ -5853,7 +5853,13 @@ sub dump_timezones($@)
         # output registry keys
 
         my $std_name = $name eq "UTC" ? "Coordinated Universal Time" : $name;
+        # Setu: Windows names Moscow time "Russia TZ 2" (kernel32/time_zones)
+        $std_name = "Russia TZ 2 Standard Time" if $name eq "Russian Standard Time";
         my $dlt_name = $std_name =~ s/Standard Time/Daylight Time/r;
+        # Setu: Windows' standard information for Morocco is tzdata's 2026
+        # Ramadan change, so its dynamic data is taken to end there
+        # (kernel32/time_zones:zone_morocco)
+        my $tzi_year = $name eq "Morocco Standard Time" ? 2026 : $LAST_YEAR;
         my $res_idx = hex( substr( Digest::SHA::sha1_hex($name), -3, 3 )) << 4;
         $res_idx += 16 while exists $res_indices{$res_idx};
         $res_indices{$res_idx} = 1;
@@ -5864,16 +5870,20 @@ sub dump_timezones($@)
         add_registry_string_value( $zonekey, $name, "MUI_Std", sprintf( "\@tzres.dll,-%u", $res_idx ));
         add_registry_string_value( $zonekey, $name, "MUI_Dlt", sprintf( "\@tzres.dll,-%u", $res_idx + 1 ));
         add_registry_string_value( $zonekey, $name, "MUI_Display", sprintf( "\@tzres.dll,-%u", $res_idx + 2 ));
-        add_registry_binary_value( $zonekey, $name, "TZI", $info[$LAST_YEAR] );
+        add_registry_binary_value( $zonekey, $name, "TZI", $info[$tzi_year] );
 
         printf OUTPUT "%7d \"#msgctxt#maximum 31 characters#%s\"\n", $res_idx, $std_name;
         printf OUTPUT "%7d \"#msgctxt#maximum 31 characters#%s\"\n", $res_idx + 1, $dlt_name;
         printf OUTPUT "%7d \"%s\"\n", $res_idx + 2, $display;
 
-        my $first_year = $FIRST_YEAR;
-        my $last_year = $LAST_YEAR;
-        $last_year-- while $last_year > $FIRST_YEAR && $info[$last_year] eq $info[$last_year - 1];
-        $first_year++ while $first_year < $last_year && $info[$first_year] eq $info[$last_year];
+        # Setu: Windows' dynamic data starts in 2006 at the earliest, with the
+        # last year of the rule in force before the first change after that
+        # (kernel32/time_zones). Its Sydney table leaves out the 2006 one-year
+        # exception for the Commonwealth Games that tzdata has.
+        my $first_year = $name eq "AUS Eastern Standard Time" ? 2007 : 2006;
+        my $last_year = $tzi_year;
+        $last_year-- while $last_year > $first_year && $info[$last_year] eq $info[$last_year - 1];
+        $first_year++ while $first_year < $last_year && $info[$first_year] eq $info[$first_year + 1];
 
         next if $last_year <= $first_year;
 
