@@ -695,7 +695,19 @@ NTSTATUS WINAPI RtlVerifyVersionInfo( const RTL_OSVERSIONINFOEXW *info,
     ver.dwOSVersionInfoSize = sizeof(ver);
     if ((status = RtlGetVersion( &ver )) != STATUS_SUCCESS) return status;
 
-    if(!(dwTypeMask && dwlConditionMask)) return STATUS_INVALID_PARAMETER;
+    if (!dwTypeMask) return STATUS_INVALID_PARAMETER;
+
+    /* VerSetConditionMask always sets the top bit. Without it, the
+     * conditions are ignored and every value must be equal. */
+    if (!(dwlConditionMask >> 63))
+    {
+        int i;
+        DWORDLONG suite = dwlConditionMask & ((DWORDLONG)7 << 6*3);
+        dwlConditionMask = 0;
+        for (i = 0; i < 8; i++)
+            if (i != 6) dwlConditionMask |= (DWORDLONG)VER_EQUAL << i*3;
+        dwlConditionMask |= suite;
+    }
 
     if(dwTypeMask & VER_PRODUCT_TYPE)
     {
@@ -775,14 +787,14 @@ NTSTATUS WINAPI RtlVerifyVersionInfo( const RTL_OSVERSIONINFOEXW *info,
  */
 ULONGLONG WINAPI VerSetConditionMask( ULONGLONG condition_mask, DWORD type_mask, BYTE condition )
 {
+    int bit;
+
+    /* With no type the result is 0, whatever the input mask. */
+    if (!type_mask) return 0;
     condition &= 0x07;
-    if (type_mask & VER_PRODUCT_TYPE) condition_mask |= condition << 7*3;
-    else if (type_mask & VER_SUITENAME) condition_mask |= condition << 6*3;
-    else if (type_mask & VER_SERVICEPACKMAJOR) condition_mask |= condition << 5*3;
-    else if (type_mask & VER_SERVICEPACKMINOR) condition_mask |= condition << 4*3;
-    else if (type_mask & VER_PLATFORMID) condition_mask |= condition << 3*3;
-    else if (type_mask & VER_BUILDNUMBER) condition_mask |= condition << 2*3;
-    else if (type_mask & VER_MAJORVERSION) condition_mask |= condition << 1*3;
-    else if (type_mask & VER_MINORVERSION) condition_mask |= condition << 0*3;
-    return condition_mask;
+    /* The highest type bit selects the 3-bit slot; bit 63 marks the mask
+     * as built by this function. */
+    for (bit = 31; !(type_mask & (1u << bit)); bit--) ;
+    if (bit * 3 < 63) condition_mask |= (ULONGLONG)condition << bit * 3;
+    return condition_mask | (1ull << 63);
 }

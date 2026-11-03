@@ -129,10 +129,24 @@ BOOL WINAPI VerifyVersionInfoW( LPOSVERSIONINFOEXW info, DWORD dwTypeMask,
     ver.dwOSVersionInfoSize = sizeof(ver);
     if (!GetVersionExW((OSVERSIONINFOW*)&ver)) return FALSE;
 
-    if (!dwTypeMask || !dwlConditionMask)
+    if (!dwTypeMask)
     {
         SetLastError(ERROR_BAD_ARGUMENTS);
         return FALSE;
+    }
+
+    /* VerSetConditionMask always sets the top bit. Without it, the
+     * conditions are ignored and every value must be equal (the suite
+     * condition is still taken from the mask). */
+    if (!(dwlConditionMask >> 63))
+    {
+        DWORDLONG suite = dwlConditionMask & ((DWORDLONG)7 << 6*3);
+        int i;
+
+        dwlConditionMask = 0;
+        for (i = 0; i < 8; i++)
+            if (i != 6) dwlConditionMask |= (DWORDLONG)VER_EQUAL << i*3;
+        dwlConditionMask |= suite;
     }
 
     if (dwTypeMask & VER_PRODUCT_TYPE)
