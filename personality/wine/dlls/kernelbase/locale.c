@@ -3440,12 +3440,19 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
 {
     const USHORT *table = info->WideCharTable;
     WCHAR wch, defchar_value;
-    unsigned int composed;
+    unsigned int composed, extra = 0;
     unsigned short res;
-    BOOL tmp;
+    BOOL tmp, def_lead = FALSE;
     int i;
 
-    if (!defchar[1]) defchar_value = (unsigned char)defchar[0];
+    if (defchar != (const char *)&info->DefaultChar)
+    {
+        /* Windows only uses the first byte of a caller's default character. A
+         * lead byte is written alone but still counted as a two-byte character. */
+        defchar_value = (unsigned char)defchar[0];
+        def_lead = info->DBCSOffsets[defchar_value] != 0;
+    }
+    else if (!defchar[1]) defchar_value = (unsigned char)defchar[0];
     else defchar_value = ((unsigned char)defchar[0] << 8) | (unsigned char)defchar[1];
 
     if (!used) used = &tmp;  /* avoid checking on every char */
@@ -3476,7 +3483,7 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
                 /* no mapping for the composed char, check the other flags */
                 if (flags & WC_DEFAULTCHAR) /* use the default char instead */
                 {
-                    if (defchar_value & 0xff00) i++;
+                    if ((defchar_value & 0xff00) || def_lead) i++;
                     *used = TRUE;
                     src++;  /* skip the non-spacing char */
                     srclen--;
@@ -3495,6 +3502,7 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
             {
                 res = defchar_value;
                 *used = TRUE;
+                if (def_lead) i++;
             }
             if (res & 0xff00) i++;
         }
@@ -3521,6 +3529,7 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
             {
                 res = defchar_value;
                 *used = TRUE;
+                if (def_lead) extra++;
                 src++;  /* skip the non-spacing char */
                 srclen--;
                 goto output_char;
@@ -3538,6 +3547,7 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
         {
             res = defchar_value;
             *used = TRUE;
+            if (def_lead) extra++;
         }
 
     output_char:
@@ -3554,7 +3564,7 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
         SetLastError( ERROR_INSUFFICIENT_BUFFER );
         return 0;
     }
-    return dstlen - i;
+    return dstlen - i + extra;
 }
 
 
