@@ -11,7 +11,8 @@ build ──▶ windows (golden) ──▶ setu ──▶ report
 
 ```sh
 python3 oracle/run.py build                       # compile tests/win32/**/*.c
-python3 oracle/run.py windows                     # VM: revert, run, write tests/golden/
+python3 oracle/run.py windows -t kernel32/X       # VM pool: run twice from 'clean', write tests/golden/
+python3 oracle/run.py windows --verify            # re-run on Windows, diff against tests/golden/, write nothing
 python3 oracle/run.py setu report                 # run on Setu (Wine), diff, report
 python3 oracle/run.py all                         # all of the above
 python3 oracle/run.py ci                          # build + setu (x2) + report --check-expectations
@@ -86,8 +87,9 @@ records the exit code.
   `FindFirstFileW` and `RegEnumKeyExW`). For state snapshots, use the sorted
   helpers (`o_dir_listing(..., 1)`).
 * Avoid inputs that the docs say are undefined behaviour (most NULL out-pointers).
-* The harness can verify determinism: `--repeat 2` runs every test twice and
-  refuses to write a golden file for a test whose output changes.
+* The harness checks determinism: `windows` runs every test twice and
+  refuses to write a golden file for a test whose output changes (see
+  [Recording on Windows](#recording-on-windows)).
 
 ### Helpers (`tests/win32/include/oracle.h`)
 
@@ -128,12 +130,118 @@ python3 oracle/run.py setu report --update-expectations
 
 and commit the updated file together with the fix.
 
+## Recording on Windows
+
+```sh
+python3 oracle/run.py windows -t kernel32/MyTest       # record (or re-record) golden files
+python3 oracle/run.py windows --verify                 # re-check every committed golden file
+python3 oracle/run.py windows --verify --vm setu-oracle-2   # ... on one particular VM
+oracle/vm/vmctl.sh pool                                # which VMs exist, which are busy
+```
+
+Don't wrap these in `flock`: the harness takes the VM locks itself (see
+[The VM pool](#the-vm-pool)).
+
+### Each golden is recorded twice (flake detection)
+
+`windows` runs every test twice (`--repeat N` for more; fewer than 2 is
+refused) and compares the runs with the same rules as the report. If any
+case differs, the golden file is **not** written, the run exits 1, and the
+differences are listed per case:
+
+```
+  windows[setu-oracle]: kernel32/Foo     12 cases  PROBLEM  (14.0s)
+      ! nondeterministic: run 2 differed from run 1
+      ~ case tick_delta: value: run 1 15 · run 2 16
+windows: REFUSED 1 nondeterministic: kernel32/Foo
+```
+
+The two runs follow each other on the same machine with no revert in
+between (each in a fresh working directory). So run 2 also differs when
+run 1 left something behind that changes the output, for example a file
+outside the working directory or a registry key that isn't cleaned up. The
+Setu side runs tests the same way in CI (`ci` = `--repeat 2`, no reset), so
+such a test would be flaky there too. Fix the test, not the harness.
+
+`windows --verify` re-runs tests (twice each, by default) and compares the
+result with the committed golden file instead of writing one. It writes
+nothing and exits 1 if any test differs from its golden file, or is flaky.
+Use it to:
+
+* re-check old golden files for flakiness, e.g. after a VM change or before
+  trusting a new VM (`--vm NAME`);
+* see what a re-recording would change before running `windows`.
+
+It also tells you when a golden file is STALE (the test changed since).
+
+### Snapshot revert per test
+
+Before **each test**, the harness reverts the VM to its `clean` live
+snapshot (`loadvm clean` on the QEMU monitor, which restores RAM, disk,
+firmware variables and TPM), waits until SSH answers, and copies in only
+that test's program. Whatever a test leaves behind (files anywhere, registry
+keys, services, running processes, changed settings) is gone before the
+next test starts, so tests can't affect each other and their order doesn't
+matter.
+
+Cost (measured on the Windows 10 VM, 4 GiB RAM, with other VMs and builds
+on the host): a revert takes 10–16 s, about 15 s on average over the
+47-test suite: 13 s for `loadvm` (reading the 2.5 GiB RAM image back) plus
+under 2 s until SSH answers. So a test
+costs about that much more than its own run time. `--revert-once` reverts only
+once per VM at the start (the old behaviour: much faster for a big run,
+but tests share the machine); `--no-revert` doesn't revert at all (for
+debugging). `revert_each_test = false` in `oracle/config.toml` makes
+`--revert-once` the default.
+
+### The VM pool
+
+There can be several identical Windows VMs. `windows` (and `--verify`)
+spreads the selected tests over all running VMs at once: one worker per
+VM takes tests from a shared queue.
+
+* **Discovery.** The VMs are `oracle/vm/state` (`setu-oracle`, SSH port
+  2222) and every `oracle/vm/state-<N>` directory (`setu-oracle-<N>`, port
+  2221+N) whose QEMU is running. Each state directory has a `vm.json`
+  (`name`, `ssh_port`, optional `extra_locks`). To list VMs explicitly
+  instead, put `[[windows.vms]]` tables in `oracle/config.toml` (see
+  `oracle/config.example.toml`). `--vm NAME` restricts a run to some VMs.
+* **One lock per VM.** A worker uses a VM only while it holds that VM's
+  lock file (`<state>/oracle.lock`) and its `extra_locks`, all with
+  `flock(2)`. A busy VM is skipped, and the worker waits for it, while the
+  other VMs work. In per-test revert mode, a worker releases its VM after
+  every test and takes it again, so a short run by someone else gets a turn
+  during a long one.
+* **Old style still works.** `flock <file> oracle/run.py windows`, where
+  `<file>` is listed in the first VM's `extra_locks`, holds the first VM:
+  older harness versions only know that VM, and a pool-aware harness sees
+  it as busy and uses the other VMs. A pool-aware harness started *inside*
+  such a `flock` therefore never uses the first VM: just drop the `flock`.
+* **Golden files don't depend on the VM.** Every VM is a clone of the same
+  `clean` snapshot (`vmctl.sh --vm N clone`, see
+  [oracle/vm/README.md](../oracle/vm/README.md#more-vms)). Before a new VM
+  is trusted, `windows --verify --vm <new>` must report every golden as
+  `same`.
+
+Speed-up, measured with `windows --verify` over the 47-test suite (two
+runs per test, revert before each test): 814 s on one VM, 380 s on two
+(23 + 24 tests), about 2.1×. Both VMs agreed with every committed golden
+file. Each extra VM needs 4 GiB of host RAM and about 8 GiB of disk.
+
+To run something else on a VM while holding its lock (for example a manual
+`vmctl.sh revert`):
+
+```sh
+cd oracle && python3 -m setu_oracle.pool locked --vm setu-oracle-2 -- vm/vmctl.sh --vm 2 revert
+```
+
 ## Targets
 
-* **Windows** (`oracle/setu_oracle/targets.py: WindowsTarget`): OpenSSH into
-  the VM (default shell `cmd.exe`), revert via the QEMU monitor (`loadvm
-  clean`), copy every `.exe` in one `scp`, run each in
-  `C:\setu-oracle\work\<test>`. See [oracle/vm/README.md](../oracle/vm/README.md).
+* **Windows** (`oracle/setu_oracle/targets.py: WindowsTarget`, one per VM of
+  the pool in `pool.py`): OpenSSH into the VM (default shell `cmd.exe`),
+  revert via the QEMU monitor (`loadvm clean`) before each test, copy the
+  test's `.exe`, run it in `C:\setu-oracle\work\<test>`. See
+  [oracle/vm/README.md](../oracle/vm/README.md).
 * **Setu** (`WineTarget`): the Wine fork in `personality/wine`, built by
   `tools/build-personality.sh` into `build/personality/install`. Without
   that build, the harness falls back to stock Wine from PATH

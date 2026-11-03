@@ -69,12 +69,87 @@ oracle/vm/vmctl.sh stop             # ACPI shutdown (the 'clean' snapshot is kep
 ```
 
 Other commands: `status`, `ssh [cmd]`, `revert [name]`, `snapshot [name]`,
-`snapshots`, `monitor "<HMP command>"`, `kill`.
+`snapshots`, `monitor "<HMP command>"`, `kill`, `pool` (all VMs and whether
+each is busy).
 
 The harness's revert sends `loadvm clean` to the QEMU monitor socket,
-continues the VM if needed, and waits until SSH answers. A revert takes a few
-seconds, which is much faster than a reboot. To revert before *every* test,
-not just once per run, set `revert_each_test = true` in `oracle/config.toml`.
+continues the VM if needed, and waits until SSH answers. It does this before
+*every* test (about 10–15 s each, much faster than a reboot); `--revert-once`
+reverts only once per run. See docs/ORACLE.md, "Recording on Windows".
+
+Other people may be running tests on a VM. Anything that changes a running
+VM by hand (`revert`, `snapshot`, `monitor`, `stop`, `kill`) should hold the
+VM's harness lock:
+
+```sh
+cd oracle && python3 -m setu_oracle.pool locked --vm setu-oracle -- vm/vmctl.sh revert
+```
+
+## More VMs
+
+The harness runs tests on every running VM at once (docs/ORACLE.md, "The VM
+pool"). VM *N* (N ≥ 2) is a clone of VM 1's `clean` snapshot, with its state
+in `oracle/vm/state-N/`, SSH on `127.0.0.1:2221+N` and VNC on
+`127.0.0.1:5910+N`. Every `vmctl.sh` command takes `--vm N`.
+
+```sh
+# Copy VM 1's 'clean' snapshot. VM 1 keeps running; --dir puts the files on
+# another filesystem (state-N becomes a symlink to it).
+oracle/vm/vmctl.sh --vm 2 clone --dir ~/.local/share/setu-oracle/state-2
+
+# Resume the copy from the snapshot (no boot), then check it before trusting it.
+oracle/vm/vmctl.sh --vm 2 start --loadvm clean
+python3 oracle/run.py build windows --verify --vm setu-oracle-2
+```
+
+How `clone` stays safe for a VM 1 that others are using: it sends VM 1 no
+monitor command, never pauses or reverts it, and only *reads* its image
+files, while holding VM 1's harness lock (so no test run or `savevm` changes
+them meanwhile).
+
+* The disk is copied with `qemu-img convert -U -l snapshot.name=clean`,
+  which reads only the clusters of the `clean` snapshot. qcow2 never
+  rewrites a cluster that a snapshot still references, so they are a fixed
+  image even while VM 1 runs. The copy is zstd-compressed and gets its own
+  internal `clean` snapshot.
+* `vars.qcow2` (firmware variables, and the snapshot's RAM image) is copied
+  whole, checked with `qemu-img check`, and its active layer reset to
+  `clean` offline. The TPM state, SSH key and `known_hosts` are copied too.
+
+The result is the very same machine state as VM 1 after a revert: same
+RAM, disk, firmware variables and TPM. Starting it with `--loadvm clean`
+means Windows never boots on the copy; it resumes where VM 1's snapshot
+was taken.
+
+Resources per extra VM: 4 GiB of host RAM (`SETU_VM_RAM`), and on disk
+about 7.6 GiB (5.1 GiB compressed disk copy of a 10.8 GiB snapshot, plus
+the 2.5 GiB RAM image), growing slowly as tests write to it. Copying took
+about 5 minutes, during which VM 1's lock is held (its users wait).
+
+**Windows licensing.** Each VM is a separate installation of Windows that
+needs its own license. The Windows license terms allow one instance of the
+software on one device, "whether that device is physical or virtual", and
+require a separate license for each additional virtual device
+([Windows 10 retail license terms](https://www.microsoft.com/content/dam/microsoft/usetm/documents/windows/10/retail-packaged/UseTerms_Retail_Windows_10_English.pdf),
+"Use in a virtualized environment"). Cloning doesn't change that. The
+oracle VMs aren't activated: the unattended install uses a public KMS
+client setup key, which selects the edition but doesn't activate, and
+`slmgr.vbs /dli` in the guest reports "License Status: Notification".
+In that state Windows keeps reminding you to activate. That hasn't
+affected any test so far, and the goldens are identical across clones. Licensing the VMs properly is the
+owner's responsibility. Don't try to work around activation.
+
+Clones share the machine identity of VM 1 (computer name, machine SID).
+That only matters on a shared network or a domain. Each oracle VM has its
+own private user-mode network (only SSH is forwarded, on the host's
+loopback), so the clones never see each other. Microsoft's supported way to
+deploy one image to many machines is Sysprep
+(https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep--generalize--a-windows-installation);
+it's not used here, because the clones must stay bit-for-bit identical to
+VM 1 for the golden files to match.
+
+To remove VM *N*: `vmctl.sh --vm N kill`, then delete `oracle/vm/state-N`
+(and its `--dir` target).
 
 **Important:** a live snapshot can only be loaded into a QEMU started with the
 same device configuration. Always start the VM with `vmctl.sh start`. If you
