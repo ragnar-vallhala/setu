@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT OR Apache-2.0
 #
-# vmctl.sh: manage the Windows 11 oracle VM (QEMU/KVM, UEFI + Secure Boot,
-# software TPM 2.0, SSH on 127.0.0.1:2222). All state lives in oracle/vm/state/.
+# vmctl.sh: manage the Windows oracle VMs (QEMU/KVM, UEFI + Secure Boot,
+# software TPM 2.0, SSH on 127.0.0.1:2222). All state of the first VM lives in
+# oracle/vm/state/; VM N (N >= 2, a clone of the first) lives in
+# oracle/vm/state-N/ and listens on SSH port 2221+N. Select it with --vm N.
+#
+#   vmctl.sh [--vm N] COMMAND ...    (default N=1, also $SETU_VM)
 #
 #   vmctl.sh create --iso Win11.iso [--gui]  build disk + seed media, start unattended install
-#   vmctl.sh start [--gui]            boot the installed VM (headless by default; VNC on 127.0.0.1:5901)
+#   vmctl.sh --vm N clone [--dir DIR] copy VM 1's 'clean' snapshot into VM N (VM 1 keeps running)
+#   vmctl.sh start [--gui] [--loadvm NAME]  boot the VM, or resume it from a live snapshot
+#                                     (headless by default; VNC on 127.0.0.1:5901, VM N: 5910+N)
 #   vmctl.sh wait-ssh [SECONDS]       wait until the guest's sshd answers
 #   vmctl.sh provision [--settle N]   wait for SSH, let the guest settle, then take the 'clean' snapshot
 #   vmctl.sh snapshot [NAME]          live snapshot (RAM + disk), default NAME=clean
@@ -15,14 +21,37 @@
 #   vmctl.sh monitor "HMP COMMAND"    raw QEMU monitor command
 #   vmctl.sh screenshot [FILE.png]    capture the VM display (handy for headless installs)
 #   vmctl.sh status | stop | kill
+#   vmctl.sh pool                     list the VMs and whether each is free (harness locks)
+#
+# Commands that change a running VM (revert, snapshot, stop, kill, monitor) do
+# not take the harness's lock: run them as
+#   python3 -m setu_oracle.pool locked --vm NAME -- oracle/vm/vmctl.sh ...
+# (from oracle/) when other people may be using that VM.
 #
 # Environment overrides: SETU_VM_RAM (default 4G), SETU_VM_CPUS (4), SETU_VM_DISK (64G),
-# SETU_VM_SSH_PORT (2222), SETU_VM_VNC (1 -> :5901), OVMF_CODE / OVMF_VARS (firmware paths).
+# SETU_VM_SSH_PORT (2221+N), SETU_VM_VNC (1, or 10+N for N >= 2: VNC :5900+that), OVMF_CODE / OVMF_VARS (firmware paths).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ORACLE="$(dirname "$HERE")"
-STATE="$HERE/state"
+
+VM_N="${SETU_VM:-1}"
+if [ "${1:-}" = --vm ]; then VM_N="${2:?--vm needs a number}"; shift 2; fi
+[[ "$VM_N" =~ ^[1-9][0-9]?$ ]] || { echo "vmctl: --vm wants a number 1-99" >&2; exit 2; }
+
+# The VMs exist once per machine. In a git worktree without its own state,
+# use the main checkout's (the oracle harness does the same).
+VMDIR="$HERE"
+if [ ! -d "$HERE/state" ]; then
+  common="$(git -C "$HERE" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+  [ -n "$common" ] && [ -d "$(dirname "$common")/oracle/vm/state" ] && VMDIR="$(dirname "$common")/oracle/vm"
+fi
+if [ "$VM_N" = 1 ]; then
+  STATE="$VMDIR/state"; NAME="setu-oracle"
+else
+  STATE="$VMDIR/state-$VM_N"; NAME="setu-oracle-$VM_N"
+fi
+SRC_STATE="$VMDIR/state"   # what `clone` copies from
 DISK="$STATE/disk.qcow2"
 VARS="$STATE/vars.qcow2"
 TPMDIR="$STATE/tpm"
@@ -35,8 +64,10 @@ SEED="$STATE/seed.iso"
 RAM="${SETU_VM_RAM:-4G}"
 CPUS="${SETU_VM_CPUS:-4}"
 DISK_SIZE="${SETU_VM_DISK:-64G}"
-SSH_PORT="${SETU_VM_SSH_PORT:-2222}"
-VNC="${SETU_VM_VNC:-1}"
+json_port() { [ -f "$STATE/vm.json" ] && python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("ssh_port",""))' "$STATE/vm.json" || true; }
+SSH_PORT="${SETU_VM_SSH_PORT:-$(json_port)}"
+SSH_PORT="${SSH_PORT:-$((2221 + VM_N))}"
+VNC="${SETU_VM_VNC:-$(( VM_N == 1 ? 1 : 10 + VM_N ))}"
 USER_NAME="setu"
 
 die() { echo "vmctl: $*" >&2; exit 1; }
@@ -84,14 +115,14 @@ start_tpm() {
 }
 
 # $1 = "install" (attach installer ISO + seed) or "run"; $2 = "gui" or "headless"
-launch() {
-  local mode="$1" ui="$2"
+launch() {  # $3 = live snapshot to resume from (optional)
+  local mode="$1" ui="$2" loadvm="${3:-}"
   running && die "VM already running (pid $(cat "$PIDF"))"
   [ -f "$DISK" ] || die "no disk at $DISK. Run: vmctl.sh create --iso <Win11.iso>"
   start_tpm
   rm -f "$MON"
   local args=(
-    -name setu-oracle,process=setu-oracle
+    -name "$NAME,process=$NAME"
     -machine q35,smm=on,accel=kvm -cpu host -smp "$CPUS" -m "$RAM"
     -global ICH9-LPC.disable_s3=1
     -global driver=cfi.pflash01,property=secure,value=on
@@ -127,9 +158,19 @@ launch() {
     args+=(-display none -vga std -vnc 127.0.0.1:"$VNC")
     log "display: VNC on 127.0.0.1:$((5900 + VNC))"
   fi
+  # Resume from a live snapshot instead of booting (how a clone first starts).
+  [ -n "$loadvm" ] && args+=(-loadvm "$loadvm")
   qemu-system-x86_64 "${args[@]}"
   for _ in $(seq 50); do [ -S "$MON" ] && break; sleep 0.1; done
+  write_vm_json
   log "VM started (pid $(cat "$PIDF")), monitor $MON, ssh 127.0.0.1:$SSH_PORT"
+}
+
+# oracle/run.py finds the VMs through their state directories; vm.json tells
+# it the name and SSH port. An existing file is kept (it may list extra_locks).
+write_vm_json() {
+  [ -f "$STATE/vm.json" ] && return
+  printf '{\n  "name": "%s",\n  "ssh_port": %s\n}\n' "$NAME" "$SSH_PORT" > "$STATE/vm.json"
 }
 
 ssh_base() {
@@ -220,6 +261,69 @@ cmd_snapshot() {
   log "snapshot '$name' saved"
 }
 
+# Make VM N (N >= 2) from VM 1's 'clean' live snapshot without stopping,
+# pausing or reverting VM 1, and without sending it any monitor command:
+#  * the disk: `qemu-img convert -U -l snapshot.name=clean` reads only the
+#    snapshot's clusters. qcow2 never rewrites a cluster that a snapshot
+#    still references (writes to it are copied elsewhere), so these are a
+#    fixed image even while VM 1 runs. Stored zstd-compressed, as a new
+#    image with its own internal 'clean' snapshot.
+#  * firmware variables + RAM state: vars.qcow2 holds the snapshot's VM state
+#    (the RAM image saved by `savevm`). It is copied whole, checked with
+#    `qemu-img check`, and its active layer is reset to 'clean' offline.
+#  * TPM state, SSH key and known_hosts are copied.
+# Everything happens while VM 1's harness locks are held, so no oracle run
+# (and no `savevm`) can change VM 1's image in the meantime.
+cmd_clone() {
+  local dir=""
+  [ "${1:-}" = --dir ] && { dir="$2"; shift 2; }
+  [ "$VM_N" != 1 ] || die "clone makes VM N >= 2 from VM 1, e.g. vmctl.sh --vm 2 clone"
+  { [ -e "$STATE" ] || [ -L "$STATE" ]; } && die "$STATE already exists. To start over: vmctl.sh --vm $VM_N kill, then remove $STATE (and its --dir target)"
+  local f
+  for f in disk.qcow2 vars.qcow2 id_ed25519 id_ed25519.pub; do [ -f "$SRC_STATE/$f" ] || die "missing $SRC_STATE/$f"; done
+  qemu-img snapshot -U -l "$SRC_STATE/disk.qcow2" | awk '{print $2}' | grep -qx clean \
+    || die "VM 1 has no 'clean' snapshot"
+  local need
+  need=$(qemu-img measure -U -l snapshot.name=clean -O qcow2 "$SRC_STATE/disk.qcow2" | awk '/^required size/{print $3}')
+  need=$(( (need + $(stat -c %s "$SRC_STATE/vars.qcow2")) / 1024 / 1024 / 1024 + 1 ))
+  if [ -n "$dir" ]; then
+    mkdir -p "$dir"
+    [ -z "$(ls -A "$dir")" ] || die "$dir is not empty"
+    ln -s "$(realpath "$dir")" "$STATE"
+  else
+    mkdir -p "$STATE"
+  fi
+  local avail; avail=$(df -Pk "$STATE/" | awk 'NR==2{print int($4/1024/1024)}')
+  if (( avail < need + 2 )); then
+    rm -f "$STATE" 2>/dev/null || rmdir "$STATE"
+    die "need ~${need} GiB (at most; the disk copy is compressed) + 2 GiB spare under $STATE, have ${avail} GiB. Use --dir on a bigger filesystem."
+  fi
+  log "copying VM 1's 'clean' snapshot into $STATE (VM 1 keeps running; waiting for its harness lock) ..."
+  PYTHONPATH="$ORACLE" python3 -m setu_oracle.pool locked --vm setu-oracle -- "$0" --vm "$VM_N" _clone-copy
+  log "done. Next: vmctl.sh --vm $VM_N start --loadvm clean"
+  log "then check it: python3 oracle/run.py windows --verify --vm $NAME"
+}
+
+cmd_clone_copy() {  # internal: runs while VM 1's harness locks are held
+  local t0=$SECONDS rc=0
+  log "disk: converting snapshot 'clean' (zstd-compressed) ..."
+  qemu-img convert -U -p -f qcow2 -l snapshot.name=clean -O qcow2 -c -o compression_type=zstd \
+    "$SRC_STATE/disk.qcow2" "$STATE/disk.qcow2"
+  qemu-img snapshot -c clean "$STATE/disk.qcow2"
+  log "firmware variables + RAM state ..."
+  cp --sparse=always "$SRC_STATE/vars.qcow2" "$STATE/vars.qcow2"
+  qemu-img check -r leaks "$STATE/vars.qcow2" || rc=$?
+  (( rc == 0 || rc == 3 )) || die "the copied vars.qcow2 fails qemu-img check ($rc); not using it"
+  qemu-img snapshot -a clean "$STATE/vars.qcow2"
+  qemu-img check "$STATE/vars.qcow2" >/dev/null || die "vars.qcow2 inconsistent after reverting it to 'clean'"
+  qemu-img check "$STATE/disk.qcow2" >/dev/null || die "disk.qcow2 copy fails qemu-img check"
+  cp -a "$SRC_STATE/tpm" "$STATE/tpm"
+  cp -a "$SRC_STATE/id_ed25519" "$SRC_STATE/id_ed25519.pub" "$STATE/"
+  [ -f "$SRC_STATE/known_hosts" ] && cp -a "$SRC_STATE/known_hosts" "$STATE/"
+  write_vm_json
+  log "copied in $((SECONDS - t0))s: $(du -sh --apparent-size "$STATE/disk.qcow2" | cut -f1) disk (apparent), $(du -sh "$STATE/vars.qcow2" | cut -f1) vars"
+}
+
 cmd_revert() {
   local name="${1:-clean}"
   running || die "VM is not running"
@@ -230,7 +334,19 @@ cmd_revert() {
 
 case "${1:-}" in
   create) shift; cmd_create "$@" ;;
-  start) shift; check_host; launch run "$([ "${1:-}" = --gui ] && echo gui || echo headless)" ;;
+  start)
+    shift; ui=headless; snap=""
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --gui) ui=gui; shift ;;
+        --loadvm) snap="${2:?--loadvm needs a snapshot name}"; shift 2 ;;
+        *) die "unknown option $1" ;;
+      esac
+    done
+    check_host; launch run "$ui" "$snap" ;;
+  clone) shift; cmd_clone "$@" ;;
+  _clone-copy) cmd_clone_copy ;;
+  pool) PYTHONPATH="$ORACLE" python3 -m setu_oracle.pool list ;;
   wait-ssh) shift; wait_ssh "${1:-1800}" ;;
   provision) shift; cmd_provision "$@" ;;
   snapshot) shift; cmd_snapshot "${1:-clean}" ;;
@@ -248,5 +364,5 @@ case "${1:-}" in
     if running; then hmp "quit" >/dev/null 2>&1 || kill "$(cat "$PIDF")"; fi
     pkill -f "swtpm.*$STATE/swtpm.sock" 2>/dev/null || true
     rm -f "$PIDF" "$MON"; log "stopped" ;;
-  *) sed -n '3,21p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

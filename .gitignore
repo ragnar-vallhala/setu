@@ -5,6 +5,7 @@
 /oracle/config.toml
 /oracle/.cache/
 /oracle/vm/state/
+/oracle/vm/state-*
 
 # VM images and installer media: never commit these
 *.qcow2
