@@ -81,6 +81,11 @@ class WineTarget(Target):
         # goes through Wine's null graphics driver instead (see prepare()).
         for var in ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"):
             self.env.pop(var, None)
+        # The harness's own settings (SETU_IMPL, ...) are not part of the
+        # environment a test program sees on Windows; tests that list SETU*
+        # variables would otherwise differ between a developer machine and CI.
+        for var in [v for v in self.env if v.upper().startswith("SETU")]:
+            del self.env[var]
         self.env.update({
             "WINEPREFIX": str(self.prefix),
             "WINEDEBUG": c["winedebug"],
