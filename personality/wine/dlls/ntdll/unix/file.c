@@ -270,14 +270,6 @@ static const BOOL is_case_sensitive = FALSE;
 static pthread_mutex_t dir_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mnt_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-/* check if a given Unicode char is OK in a DOS short name */
-static inline BOOL is_invalid_dos_char( WCHAR ch )
-{
-    static const WCHAR invalid_chars[] = { INVALID_DOS_CHARS,'~','.',0 };
-    if (ch > 0x7f) return TRUE;
-    return wcschr( invalid_chars, ch ) != NULL;
-}
-
 /* check if the device can be a mounted volume */
 static inline BOOL is_valid_mounted_device( const struct stat *st )
 {
@@ -1388,71 +1380,6 @@ static BOOL is_hidden_file( const char *name )
 
 
 /***********************************************************************
- *           hash_short_file_name
- *
- * Transform a Unix file name into a hashed DOS name. If the name is not a valid
- * DOS name, it is replaced by a hashed version that fits in 8.3 format.
- * 'buffer' must be at least 12 characters long.
- * Returns length of short name in bytes; short name is NOT null-terminated.
- */
-static ULONG hash_short_file_name( const WCHAR *name, int length, LPWSTR buffer )
-{
-    static const char hash_chars[32] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345";
-
-    LPCWSTR p, ext, end = name + length;
-    LPWSTR dst;
-    unsigned short hash;
-    int i;
-
-    /* Compute the hash code of the file name */
-    /* If you know something about hash functions, feel free to */
-    /* insert a better algorithm here... */
-    if (!is_case_sensitive)
-    {
-        for (p = name, hash = 0xbeef; p < end - 1; p++)
-            hash = (hash<<3) ^ (hash>>5) ^ towlower(*p) ^ (towlower(p[1]) << 8);
-        hash = (hash<<3) ^ (hash>>5) ^ towlower(*p); /* Last character */
-    }
-    else
-    {
-        for (p = name, hash = 0xbeef; p < end - 1; p++)
-            hash = (hash << 3) ^ (hash >> 5) ^ *p ^ (p[1] << 8);
-        hash = (hash << 3) ^ (hash >> 5) ^ *p;  /* Last character */
-    }
-
-    /* Find last dot for start of the extension */
-    p = name;
-    while (*p == '.') ++p;
-    for (p = p + 1, ext = NULL; p < end - 1; p++) if (*p == '.') ext = p;
-
-    /* Copy first 4 chars, replacing invalid chars with '_' */
-    for (i = 4, p = name, dst = buffer; i > 0; p++)
-    {
-        if (p == end || p == ext) break;
-        if (*p == '.') continue;
-        *dst++ = is_invalid_dos_char(*p) ? '_' : *p;
-        i--;
-    }
-    /* Pad to 5 chars with '~' */
-    while (i-- >= 0) *dst++ = '~';
-
-    /* Insert hash code converted to 3 ASCII chars */
-    *dst++ = hash_chars[(hash >> 10) & 0x1f];
-    *dst++ = hash_chars[(hash >> 5) & 0x1f];
-    *dst++ = hash_chars[hash & 0x1f];
-
-    /* Copy the first 3 chars of the extension (if any) */
-    if (ext)
-    {
-        *dst++ = '.';
-        for (i = 3, ext++; (i > 0) && ext < end; i--, ext++)
-            *dst++ = is_invalid_dos_char(*ext) ? '_' : *ext;
-    }
-    return dst - buffer;
-}
-
-
-/***********************************************************************
  *           match_filename_part
  *
  * Recursive helper for match_filename().
@@ -1598,12 +1525,368 @@ static BOOLEAN is_legal_8dot3_name( const WCHAR *name, int len )
 
 
 /***********************************************************************
+ * Windows-style short names
+ *
+ * A long name that doesn't fit 8.3 gets a short name made of up to six
+ * characters of the name (upper case, without spaces, periods and non-ASCII
+ * characters, with the other characters that short names can't hold replaced
+ * by '_'), a "~N" tail and up to three characters of the extension. N is the
+ * lowest number from 1 to 4 that no other name in the directory takes for the
+ * same prefix and extension, older names first. When that leaves fewer than
+ * three characters, or past four names, the prefix is up to two characters
+ * and four hex digits of a hash of the long name.
+ *
+ * Short names are not stored, so they are worked out from the whole
+ * directory whenever they are needed: names created earlier (birth time,
+ * then inode number) get the lower numbers.
+ */
+
+#define SHORT_NAME_TAILS 4
+
+struct short_name_entry
+{
+    const WCHAR *name;           /* long name */
+    int          len;
+    const char  *unix_name;      /* directory entry */
+    WCHAR        key[11];        /* prefix, then extension */
+    int          base_len;       /* length of the prefix in key */
+    int          key_len;
+    int          slot;           /* tail number taken by a name that is itself 8.3 */
+    BOOL         needs;          /* needs a generated short name */
+    BOOL         have_order;
+    ULONGLONG    order;          /* creation order */
+    ULONGLONG    ino;
+    WCHAR        short_name[13];
+    int          short_len;
+};
+
+static WCHAR short_name_char( WCHAR ch )
+{
+    static const WCHAR invalid_chars[] = { INVALID_NT_CHARS,'+','=',',',';','[',']',0 };
+
+    if (wcschr( invalid_chars, ch )) return '_';
+    return towupper( ch );
+}
+
+/* the prefix and extension a short name is made from */
+static void short_name_key( struct short_name_entry *entry )
+{
+    const WCHAR *p, *ext = NULL, *name = entry->name, *end = entry->name + entry->len;
+    int n = 0;
+
+    p = name;
+    while (p < end && *p == '.') p++;
+    for (; p < end; p++) if (*p == '.') ext = p;
+    if (ext == end - 1) ext = NULL;  /* a trailing period is not an extension */
+
+    for (p = name; p < (ext ? ext : end) && n < 6; p++)
+    {
+        if (*p == '.' || *p == ' ' || *p > 0x7f) continue;
+        entry->key[n++] = short_name_char( *p );
+    }
+    entry->base_len = n;
+    if (ext)
+    {
+        int ext_len = 0;
+        for (p = ext + 1; p < end && ext_len < 3; p++)
+        {
+            if (*p == '.' || *p == ' ' || *p > 0x7f) continue;
+            entry->key[n++] = short_name_char( *p );
+            ext_len++;
+        }
+    }
+    entry->key_len = n;
+}
+
+/* a name that is itself 8.3 and looks like a generated short name takes its number */
+static void short_name_literal_slot( struct short_name_entry *entry )
+{
+    const WCHAR *name = entry->name, *tilde = NULL;
+    int i, len = entry->len, n = 0;
+
+    entry->slot = 0;
+    for (i = 0; i < len && name[i] != '.'; i++) if (name[i] == '~') tilde = name + i;
+    if (!tilde || tilde == name || tilde - name > 6) return;
+    if (tilde + 2 != name + i || tilde[1] < '1' || tilde[1] > '9') return;
+    for (i = 0; name + i < tilde; i++) entry->key[n++] = towupper( name[i] );
+    entry->base_len = n;
+    if (tilde + 2 < name + len)
+        for (i = (tilde + 3) - name; i < len; i++) entry->key[n++] = towupper( name[i] );
+    entry->key_len = n;
+    entry->slot = tilde[1] - '0';
+}
+
+static void short_name_get_order( int dir_fd, struct short_name_entry *entry )
+{
+    struct stat st;
+
+    if (entry->have_order) return;
+    entry->have_order = TRUE;
+    entry->order = entry->ino = 0;
+    if (fstatat( dir_fd, entry->unix_name, &st, 0 )) return;
+    entry->ino = st.st_ino;
+#if defined(__linux__) && defined(STATX_BTIME)
+    {
+        struct statx stx;
+        if (!statx( dir_fd, entry->unix_name, 0, STATX_BTIME, &stx ) && (stx.stx_mask & STATX_BTIME))
+        {
+            entry->order = (ULONGLONG)stx.stx_btime.tv_sec * 1000000000 + stx.stx_btime.tv_nsec;
+            return;
+        }
+    }
+#endif
+    entry->order = (ULONGLONG)st.st_ctime * 1000000000;
+}
+
+static int short_name_key_compare( const struct short_name_entry *a, const struct short_name_entry *b )
+{
+    if (a->base_len != b->base_len) return a->base_len - b->base_len;
+    if (a->key_len != b->key_len) return a->key_len - b->key_len;
+    return memcmp( a->key, b->key, a->key_len * sizeof(WCHAR) );
+}
+
+static int short_name_compare( const void *pa, const void *pb )
+{
+    const struct short_name_entry *a = *(struct short_name_entry * const *)pa;
+    const struct short_name_entry *b = *(struct short_name_entry * const *)pb;
+    int ret = short_name_key_compare( a, b );
+
+    if (ret) return ret;
+    if (a->needs != b->needs) return a->needs ? 1 : -1;  /* literal names first */
+    if (a->order != b->order) return a->order < b->order ? -1 : 1;
+    if (a->ino != b->ino) return a->ino < b->ino ? -1 : 1;
+    return 0;
+}
+
+/* slot 0 is the hashed form */
+static void short_name_format( struct short_name_entry *entry, int slot, int hash_tail )
+{
+    WCHAR *dst = entry->short_name;
+    int i, base_len = entry->base_len;
+
+    if (!slot)
+    {
+        static const char hex[] = "0123456789ABCDEF";
+        unsigned short hash = 0xbeef;
+        const WCHAR *p;
+
+        for (p = entry->name; p < entry->name + entry->len; p++)
+            hash = (hash << 3) ^ (hash >> 5) ^ towupper( *p ) ^ (towupper( p[1] ) << 8);
+        if (base_len > 2) base_len = 2;
+        memcpy( dst, entry->key, base_len * sizeof(WCHAR) );
+        dst += base_len;
+        for (i = 12; i >= 0; i -= 4) *dst++ = hex[(hash >> i) & 0xf];
+        slot = hash_tail;
+    }
+    else
+    {
+        memcpy( dst, entry->key, base_len * sizeof(WCHAR) );
+        dst += base_len;
+    }
+    *dst++ = '~';
+    *dst++ = '0' + slot;
+    if (entry->key_len > entry->base_len)
+    {
+        *dst++ = '.';
+        for (i = entry->base_len; i < entry->key_len; i++) *dst++ = entry->key[i];
+    }
+    entry->short_len = dst - entry->short_name;
+}
+
+/* a hashed short name takes the next tail number if another name has it already */
+static void short_name_unique_hash( struct short_name_entry **entries, unsigned int count,
+                                    struct short_name_entry *entry )
+{
+    unsigned int i, tail = 1;
+
+    for (i = 0; i < count && tail < 10; i++)
+    {
+        const struct short_name_entry *other = entries[i];
+
+        if (other == entry) continue;
+        if (other->needs ? other->short_len != entry->short_len ||
+                           memcmp( other->short_name, entry->short_name, entry->short_len * sizeof(WCHAR) )
+                         : other->len != entry->short_len ||
+                           wcsnicmp( other->name, entry->short_name, entry->short_len ))
+            continue;
+        short_name_format( entry, 0, ++tail );
+        i = -1;  /* check again */
+    }
+}
+
+/* work out the short names of all the entries of a directory */
+static void generate_short_names( int dir_fd, struct short_name_entry *entries, unsigned int count )
+{
+    struct short_name_entry **sorted;
+    unsigned int i, j, k, n = 0;
+
+    for (i = 0; i < count; i++)
+    {
+        struct short_name_entry *entry = &entries[i];
+
+        entry->short_len = 0;
+        entry->have_order = FALSE;
+        entry->order = entry->ino = 0;
+        entry->needs = !is_legal_8dot3_name( entry->name, entry->len );
+        if (entry->needs) short_name_key( entry );
+        else short_name_literal_slot( entry );
+        if (entry->needs || entry->slot) n++;
+    }
+    if (!n) return;
+
+    if (!(sorted = malloc( n * sizeof(*sorted) )))
+    {
+        for (i = 0; i < count; i++)
+            if (entries[i].needs) short_name_format( &entries[i], entries[i].base_len < 3 ? 0 : 1, 1 );
+        return;
+    }
+    for (i = j = 0; i < count; i++)
+        if (entries[i].needs || entries[i].slot) sorted[j++] = &entries[i];
+
+    /* the creation order only matters within a group of the same prefix */
+    qsort( sorted, n, sizeof(*sorted), short_name_compare );
+    for (i = 0; i < n; i = j)
+    {
+        for (j = i + 1; j < n && !short_name_key_compare( sorted[i], sorted[j] ); j++);
+        if (j - i > 1)
+        {
+            for (k = i; k < j; k++) if (sorted[k]->needs) short_name_get_order( dir_fd, sorted[k] );
+            qsort( sorted + i, j - i, sizeof(*sorted), short_name_compare );
+        }
+    }
+
+    for (i = 0; i < n; i = j)
+    {
+        unsigned int taken = 0, slot;
+
+        for (j = i; j < n && !short_name_key_compare( sorted[i], sorted[j] ); j++)
+        {
+            if (!sorted[j]->needs)
+            {
+                taken |= 1u << sorted[j]->slot;
+                continue;
+            }
+            if (sorted[j]->base_len < 3) slot = 0;
+            else
+            {
+                for (slot = 1; slot <= SHORT_NAME_TAILS; slot++) if (!(taken & (1u << slot))) break;
+                if (slot <= SHORT_NAME_TAILS) taken |= 1u << slot;
+                else slot = 0;
+            }
+            short_name_format( sorted[j], slot, 1 );
+            if (!slot) short_name_unique_hash( sorted, n, sorted[j] );
+        }
+    }
+    free( sorted );
+}
+
+/* growable list of directory entries for generate_short_names */
+struct short_name_list
+{
+    struct short_name_entry *entries;
+    unsigned int             count;
+    unsigned int             size;
+};
+
+static BOOL short_name_list_add( struct short_name_list *list, const char *unix_name )
+{
+    struct short_name_entry *entry;
+    WCHAR *nameW;
+    char *nameA;
+    int len;
+
+    if (list->count == list->size)
+    {
+        unsigned int new_size = max( 64, list->size * 2 );
+        if (!(entry = realloc( list->entries, new_size * sizeof(*entry) ))) return FALSE;
+        list->entries = entry;
+        list->size = new_size;
+    }
+    if (!(nameW = malloc( (MAX_DIR_ENTRY_LEN + 1) * sizeof(WCHAR) ))) return FALSE;
+    len = ntdll_umbstowcs( unix_name, strlen(unix_name), nameW, MAX_DIR_ENTRY_LEN );
+    if (len > 0 && nameW[len - 1] == '?') len--;
+    if (!(nameA = strdup( unix_name )))
+    {
+        free( nameW );
+        return FALSE;
+    }
+    entry = &list->entries[list->count++];
+    memset( entry, 0, sizeof(*entry) );
+    entry->name = nameW;
+    entry->len = len;
+    entry->unix_name = nameA;
+    return TRUE;
+}
+
+static void short_name_list_free( struct short_name_list *list )
+{
+    unsigned int i;
+
+    for (i = 0; i < list->count; i++)
+    {
+        free( (WCHAR *)list->entries[i].name );
+        free( (char *)list->entries[i].unix_name );
+    }
+    free( list->entries );
+}
+
+/* read a whole directory and work out its short names */
+static BOOL read_short_names( int dir_fd, struct short_name_list *list )
+{
+    struct dirent *de;
+    DIR *dir;
+    int fd;
+
+    memset( list, 0, sizeof(*list) );
+    if ((fd = openat( dir_fd, ".", O_RDONLY | O_DIRECTORY )) == -1) return FALSE;
+    if (!(dir = fdopendir( fd )))
+    {
+        close( fd );
+        return FALSE;
+    }
+    while ((de = readdir( dir )))
+    {
+        if (!strcmp( de->d_name, "." ) || !strcmp( de->d_name, ".." )) continue;
+        if (!short_name_list_add( list, de->d_name ))
+        {
+            closedir( dir );
+            short_name_list_free( list );
+            return FALSE;
+        }
+    }
+    closedir( dir );
+    generate_short_names( dir_fd, list->entries, list->count );
+    return TRUE;
+}
+
+/* the short name of one entry of a directory; returns its length */
+static int get_entry_short_name( int dir_fd, const char *unix_name, WCHAR *buffer )
+{
+    struct short_name_list list;
+    unsigned int i;
+    int ret = 0;
+
+    if (!read_short_names( dir_fd, &list )) return 0;
+    for (i = 0; i < list.count; i++)
+    {
+        if (strcmp( list.entries[i].unix_name, unix_name )) continue;
+        ret = list.entries[i].short_len;
+        memcpy( buffer, list.entries[i].short_name, ret * sizeof(WCHAR) );
+        break;
+    }
+    short_name_list_free( &list );
+    return ret;
+}
+
+
+/***********************************************************************
  *           append_entry
  *
  * Add a file to the directory data if it matches the mask.
  */
 static BOOL append_entry( struct dir_data *data, const char *long_name,
-                          const char *short_name, const UNICODE_STRING *mask )
+                          const char *short_name, const WCHAR *gen_short_name, int gen_short_len,
+                          const UNICODE_STRING *mask )
 {
     int long_len, short_len;
     WCHAR long_nameW[MAX_DIR_ENTRY_LEN + 1];
@@ -1619,11 +1902,10 @@ static BOOL append_entry( struct dir_data *data, const char *long_name,
         short_len = ntdll_umbstowcs( short_name, strlen(short_name),
                                      short_nameW, ARRAY_SIZE( short_nameW ) - 1 );
     }
-    else  /* generate a short name if necessary */
+    else  /* the short name worked out for the directory, if any */
     {
-        short_len = 0;
-        if (!is_legal_8dot3_name( long_nameW, long_len ))
-            short_len = hash_short_file_name( long_nameW, long_len, short_nameW );
+        short_len = min( gen_short_len, ARRAY_SIZE( short_nameW ) - 1 );
+        if (short_len) memcpy( short_nameW, gen_short_name, short_len * sizeof(WCHAR) );
     }
     short_nameW[short_len] = 0;
     wcsupr( short_nameW );
@@ -2798,8 +3080,8 @@ static NTSTATUS read_directory_data_vfat( struct dir_data *data, int fd, const U
         de[0].d_reclen = 0;
     }
 
-    if (!append_entry( data, ".", NULL, mask )) goto done;
-    if (!append_entry( data, "..", NULL, mask )) goto done;
+    if (!append_entry( data, ".", NULL, NULL, 0, mask )) goto done;
+    if (!append_entry( data, "..", NULL, NULL, 0, mask )) goto done;
 
     while (de[0].d_reclen)
     {
@@ -2815,7 +3097,7 @@ static NTSTATUS read_directory_data_vfat( struct dir_data *data, int fd, const U
                 long_name = de[0].d_name;
                 short_name = NULL;
             }
-            if (!append_entry( data, long_name, short_name, mask )) goto done;
+            if (!append_entry( data, long_name, short_name, NULL, 0, mask )) goto done;
         }
         if (ioctl( fd, VFAT_IOCTL_READDIR_BOTH, (long)de ) == -1) break;
     }
@@ -2864,7 +3146,7 @@ static NTSTATUS read_directory_data_getattrlist( struct dir_data *data, const ch
 
     TRACE( "found %s\n", debugstr_a(buffer.name) );
 
-    if (!append_entry( data, buffer.name, NULL, NULL )) return STATUS_NO_MEMORY;
+    if (!append_entry( data, buffer.name, NULL, NULL, 0, NULL )) return STATUS_NO_MEMORY;
 
     return STATUS_SUCCESS;
 }
@@ -2879,6 +3161,8 @@ static NTSTATUS read_directory_data_getattrlist( struct dir_data *data, const ch
  */
 static NTSTATUS read_directory_data_stat( struct dir_data *data, const char *unix_name )
 {
+    WCHAR short_name[13];
+    int short_len = 0;
     struct stat st;
 
     /* if the file system is not case sensitive we can't find the actual name through stat() */
@@ -2887,7 +3171,15 @@ static NTSTATUS read_directory_data_stat( struct dir_data *data, const char *uni
 
     TRACE( "found %s\n", debugstr_a(unix_name) );
 
-    if (!append_entry( data, unix_name, NULL, NULL )) return STATUS_NO_MEMORY;
+    if (!strchr( unix_name, '/' ))
+    {
+        WCHAR nameW[MAX_DIR_ENTRY_LEN + 1];
+        int len = ntdll_umbstowcs( unix_name, strlen(unix_name), nameW, MAX_DIR_ENTRY_LEN );
+
+        if (len > 0 && !is_legal_8dot3_name( nameW, len ))
+            short_len = get_entry_short_name( AT_FDCWD, unix_name, short_name );
+    }
+    if (!append_entry( data, unix_name, NULL, short_name, short_len, NULL )) return STATUS_NO_MEMORY;
 
     return STATUS_SUCCESS;
 }
@@ -2900,23 +3192,26 @@ static NTSTATUS read_directory_data_stat( struct dir_data *data, const char *uni
  */
 static NTSTATUS read_directory_data_readdir( struct dir_data *data, const UNICODE_STRING *mask )
 {
-    struct dirent *de;
+    struct short_name_list list;
+    unsigned int i;
     NTSTATUS status = STATUS_NO_MEMORY;
-    DIR *dir = opendir( "." );
 
-    if (!dir) return STATUS_NO_SUCH_FILE;
+    /* short names depend on the other names in the directory */
+    if (!read_short_names( AT_FDCWD, &list ))
+        return errno == ENOMEM ? STATUS_NO_MEMORY : STATUS_NO_SUCH_FILE;
 
-    if (!append_entry( data, ".", NULL, mask )) goto done;
-    if (!append_entry( data, "..", NULL, mask )) goto done;
-    while ((de = readdir( dir )))
+    if (!append_entry( data, ".", NULL, NULL, 0, mask )) goto done;
+    if (!append_entry( data, "..", NULL, NULL, 0, mask )) goto done;
+    for (i = 0; i < list.count; i++)
     {
-        if (!strcmp( de->d_name, "." ) || !strcmp( de->d_name, ".." )) continue;
-        if (!append_entry( data, de->d_name, NULL, mask )) goto done;
+        const struct short_name_entry *entry = &list.entries[i];
+        if (!append_entry( data, entry->unix_name, NULL, entry->short_name, entry->short_len, mask ))
+            goto done;
     }
     status = STATUS_SUCCESS;
 
 done:
-    closedir( dir );
+    short_name_list_free( &list );
     return status;
 }
 
@@ -3211,11 +3506,11 @@ static NTSTATUS find_file_in_dir( int root_fd, char *unix_name, int pos, const W
                                   BOOLEAN check_case )
 {
     WCHAR buffer[MAX_DIR_ENTRY_LEN];
-    BOOLEAN is_name_8_dot_3;
+    BOOLEAN is_name_8_dot_3, is_short_name;
     DIR *dir;
     struct dirent *de;
     struct stat st;
-    int fd, ret;
+    int fd, ret, i = 0;
 
     /* try a shortcut for this directory */
 
@@ -3234,8 +3529,11 @@ static NTSTATUS find_file_in_dir( int root_fd, char *unix_name, int pos, const W
     /* check if it fits in 8.3 so that we don't look for short names if we won't need them */
 
     is_name_8_dot_3 = is_legal_8dot3_name( name, length );
+    /* only generated short names have a '~' */
+    if (is_name_8_dot_3) for (i = 0; i < length; i++) if (name[i] == '~') break;
+    is_short_name = is_name_8_dot_3 && i < length;
 #ifndef VFAT_IOCTL_READDIR_BOTH
-    is_name_8_dot_3 = is_name_8_dot_3 && length >= 8 && name[4] == '~';
+    is_name_8_dot_3 = is_short_name;
 #endif
 
     if (!is_name_8_dot_3 && !get_dir_case_sensitivity( root_fd, unix_name )) goto not_found;
@@ -3308,18 +3606,25 @@ static NTSTATUS find_file_in_dir( int root_fd, char *unix_name, int pos, const W
             return STATUS_SUCCESS;
         }
 
-        if (!is_name_8_dot_3) continue;
+    }
 
-        if (!is_legal_8dot3_name( buffer, ret ))
+    if (is_short_name)
+    {
+        /* short names are worked out from the whole directory */
+        struct short_name_list list;
+
+        if (read_short_names( dirfd( dir ), &list ))
         {
-            WCHAR short_nameW[12];
-            ret = hash_short_file_name( buffer, ret, short_nameW );
-            if (ret == length && !wcsnicmp( short_nameW, name, length ))
+            for (i = 0; i < list.count; i++)
             {
-                strcpy( unix_name + pos, de->d_name );
+                const struct short_name_entry *entry = &list.entries[i];
+                if (entry->short_len != length || wcsnicmp( entry->short_name, name, length )) continue;
+                strcpy( unix_name + pos, entry->unix_name );
+                short_name_list_free( &list );
                 closedir( dir );
                 return STATUS_SUCCESS;
             }
+            short_name_list_free( &list );
         }
     }
     closedir( dir );
