@@ -204,8 +204,11 @@ static DWORD first_call_child(const char *which)
     DYNAMIC_TIME_ZONE_INFORMATION dtz;
     SYSTEMTIME in = {2024, 1, 0, 15, 12, 0, 0, 0}, out;
     FILETIME f = ft_of(133537536000000000ULL), f2;
+    DYNAMIC_TIME_ZONE_INFORMATION pacific = {0};
     wchar_t buf[128];
     void (*target)(void) = NULL;
+
+    wcscpy(pacific.TimeZoneKeyName, L"Pacific Standard Time");
 
     bad = tz;
     bad.DaylightDate.wMonth = 13;
@@ -317,6 +320,100 @@ static DWORD first_call_child(const char *which)
         LocaleNameToLCID(L"en-US", 0);
         return GetLastError();
     }
+    else if (!strcmp(which, "date_nouser_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetDateFormatEx(L"en-US", LOCALE_NOUSEROVERRIDE | DATE_SHORTDATE, &probe_st, NULL, buf, 128, NULL);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "date_invariant_nouser_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetDateFormatEx(LOCALE_NAME_INVARIANT, LOCALE_NOUSEROVERRIDE, &probe_st, NULL, buf, 128, NULL);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "date_shortdate_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetDateFormatEx(L"en-US", DATE_SHORTDATE, &probe_st, NULL, buf, 128, NULL);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "date_after_nouser")) {
+        GetDateFormatEx(L"en-US", LOCALE_NOUSEROVERRIDE | DATE_SHORTDATE, &probe_st, NULL, buf, 128, NULL);
+        target = probe_date;
+    }
+    else if (!strcmp(which, "time_nouser_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetTimeFormatEx(L"en-US", LOCALE_NOUSEROVERRIDE, &probe_st, NULL, buf, 128);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "locale_info_ex_nouser_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetLocaleInfoEx(L"en-US", LOCALE_SSHORTDATE | LOCALE_NOUSEROVERRIDE, buf, 128);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "locale_info_ex_user_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetLocaleInfoEx(L"en-US", LOCALE_SSHORTDATE, buf, 128);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "tz_year_key_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetTimeZoneInformationForYear(2006, &pacific, &tz);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "tz_year_null_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetTimeZoneInformationForYear(2006, NULL, &tz);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "tz_after_year_key")) { GetTimeZoneInformationForYear(2006, &pacific, &bad); target = probe_tz; }
+    else if (!strcmp(which, "date_after_year_key")) { GetTimeZoneInformationForYear(2006, &pacific, &bad); target = probe_date; }
+    else if (!strcmp(which, "tz_year_twice") || !strcmp(which, "tz_year_after_enum") ||
+             !strcmp(which, "tz_year_after_years") || !strcmp(which, "tz_year_after_bad_key") ||
+             !strcmp(which, "tz_year_bad_key_first") || !strcmp(which, "tz_year_after_null_year") ||
+             !strcmp(which, "tz_year_after_enum_all") || !strcmp(which, "tz_year_after_enum_to_key") ||
+             !strcmp(which, "tz_year_after_other_key") || !strcmp(which, "tz_year_after_full_years") ||
+             !strcmp(which, "tz_year_full_first")) {
+        HMODULE adv = LoadLibraryW(L"advapi32.dll");
+        DWORD (WINAPI *pEnum)(DWORD, DYNAMIC_TIME_ZONE_INFORMATION *) =
+            (void *)GetProcAddress(adv, "EnumDynamicTimeZoneInformation");
+        DWORD (WINAPI *pYears)(DYNAMIC_TIME_ZONE_INFORMATION *, DWORD *, DWORD *) =
+            (void *)GetProcAddress(adv, "GetDynamicTimeZoneInformationEffectiveYears");
+        DYNAMIC_TIME_ZONE_INFORMATION nokey = {0};
+        DWORD y1, y2;
+        wcscpy(nokey.TimeZoneKeyName, L"No Such Zone");
+        if (!strcmp(which, "tz_year_twice")) GetTimeZoneInformationForYear(2006, &pacific, &bad);
+        if (!strcmp(which, "tz_year_after_enum") && pEnum) pEnum(0, &dtz);
+        if (!strcmp(which, "tz_year_after_years") && pYears) pYears(&pacific, &y1, &y2);
+        if (!strcmp(which, "tz_year_after_bad_key")) GetTimeZoneInformationForYear(2006, &nokey, &bad);
+        if (!strcmp(which, "tz_year_after_null_year")) GetTimeZoneInformationForYear(2006, NULL, &bad);
+        if (!strcmp(which, "tz_year_after_enum_all") && pEnum) {
+            for (DWORD i = 0; i < 1000 && !pEnum(i, &dtz); i++) ;
+        }
+        if ((!strcmp(which, "tz_year_after_enum_to_key") || !strcmp(which, "tz_year_after_full_years") ||
+             !strcmp(which, "tz_year_full_first")) && pEnum) {
+            for (DWORD i = 0; i < 1000 && !pEnum(i, &dtz); i++)
+                if (!wcscmp(dtz.TimeZoneKeyName, L"Pacific Standard Time")) break;
+            if (strcmp(which, "tz_year_after_enum_to_key")) {
+                /* the full description of the zone instead of just its key */
+                pacific = dtz;
+                if (!strcmp(which, "tz_year_after_full_years") && pYears) pYears(&pacific, &y1, &y2);
+            }
+        }
+        if (!strcmp(which, "tz_year_after_other_key")) {
+            DYNAMIC_TIME_ZONE_INFORMATION other = {0};
+            wcscpy(other.TimeZoneKeyName, L"Russian Standard Time");
+            GetTimeZoneInformationForYear(2006, &other, &bad);
+        }
+        SetLastError(ORACLE_SENTINEL);
+        if (!strcmp(which, "tz_year_bad_key_first")) GetTimeZoneInformationForYear(2006, &nokey, &tz);
+        else GetTimeZoneInformationForYear(2024, &pacific, &tz);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "tz_year_key_after_get_tzi")) {
+        GetTimeZoneInformation(&bad);
+        SetLastError(ORACLE_SENTINEL);
+        GetTimeZoneInformationForYear(2006, &pacific, &tz);
+        return GetLastError();
+    }
     else if (!strcmp(which, "locale_info_ex_first")) {
         SetLastError(ORACLE_SENTINEL);
         GetLocaleInfoEx(LOCALE_NAME_INVARIANT, LOCALE_SNAME, buf, 128);
@@ -338,6 +435,12 @@ static const char *const first_call_probes[] = {
     "date_en_us_first", "date_custom_first", "date_user_default_first", "time_first", "cmp", "cmp_after_date",
     "cmp_after_lcid_cmp", "cmp_after_ordinal", "cmp_after_name_to_lcid", "cmp_lcid_first", "cmp_en_us_first",
     "cmp_ignore_case_first", "lcmap_first", "name_to_lcid_first", "locale_info_ex_first",
+    "date_nouser_first", "date_invariant_nouser_first", "date_shortdate_first", "date_after_nouser",
+    "time_nouser_first", "locale_info_ex_nouser_first", "locale_info_ex_user_first", "tz_year_key_first",
+    "tz_year_null_first", "tz_after_year_key", "date_after_year_key", "tz_year_key_after_get_tzi",
+    "tz_year_twice", "tz_year_after_enum", "tz_year_after_years", "tz_year_after_bad_key",
+    "tz_year_bad_key_first", "tz_year_after_null_year", "tz_year_after_enum_all", "tz_year_after_enum_to_key",
+    "tz_year_after_other_key", "tz_year_after_full_years", "tz_year_full_first",
 };
 
 static void first_call_cases(void)

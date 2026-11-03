@@ -750,8 +750,77 @@
     },
     "probe_first_call_locale_info_ex_first": {
       "last_error": 0
+    },
+    "probe_first_call_date_nouser_first": {
+      "last_error": "unchanged"
+    },
+    "probe_first_call_date_invariant_nouser_first": {
+      "last_error": "unchanged"
+    },
+    "probe_first_call_date_shortdate_first": {
+      "last_error": 0
+    },
+    "probe_first_call_date_after_nouser": {
+      "last_error": 0
+    },
+    "probe_first_call_time_nouser_first": {
+      "last_error": 0
+    },
+    "probe_first_call_locale_info_ex_nouser_first": {
+      "last_error": "unchanged"
+    },
+    "probe_first_call_locale_info_ex_user_first": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_key_first": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_null_first": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_after_year_key": {
+      "last_error": 0
+    },
+    "probe_first_call_date_after_year_key": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_key_after_get_tzi": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_twice": {
+      "last_error": "unchanged"
+    },
+    "probe_first_call_tz_year_after_enum": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_after_years": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_after_bad_key": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_bad_key_first": {
+      "last_error": 2
+    },
+    "probe_first_call_tz_year_after_null_year": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_after_enum_all": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_after_enum_to_key": {
+      "last_error": "unchanged"
+    },
+    "probe_first_call_tz_year_after_other_key": {
+      "last_error": 0
+    },
+    "probe_first_call_tz_year_after_full_years": {
+      "last_error": "unchanged"
+    },
+    "probe_first_call_tz_year_full_first": {
+      "last_error": "unchanged"
     }
   },
   "errors": [],
-  "source_sha256": "d44c13f0b2946c072efd0c248e0ffe0beda8539ddf53243ccafc98e06c4bd2de"
+  "source_sha256": "7e58d085b78af48ac114f81dba0ccb4acef3339c1c692881f8499b7ceb5f886c"
 }
