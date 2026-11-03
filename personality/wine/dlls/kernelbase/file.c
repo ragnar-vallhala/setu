@@ -2696,6 +2696,10 @@ BOOL WINAPI MoveFileExW( const WCHAR *source, const WCHAR *dest, DWORD flag )
 }
 
 
+#ifndef MOVEFILE_CREATE_HARDLINK
+#define MOVEFILE_CREATE_HARDLINK 0x10
+#endif
+
 /**************************************************************************
  *	MoveFileWithProgressW   (kernelbase.@)
  */
@@ -2713,9 +2717,20 @@ BOOL WINAPI DECLSPEC_HOTPATCH MoveFileWithProgressW( const WCHAR *source, const 
 
     TRACE( "(%s,%s,%p,%p,%04lx)\n", debugstr_w(source), debugstr_w(dest), progress, param, flag );
 
+    /* a delayed move can't be a copy */
+    if ((flag & MOVEFILE_DELAY_UNTIL_REBOOT) && (flag & MOVEFILE_COPY_ALLOWED))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
     if (flag & MOVEFILE_DELAY_UNTIL_REBOOT) return add_boot_rename_entry( source, dest, flag );
 
-    if (!dest) return DeleteFileW( source );
+    /* only a delayed move deletes the source when there is no destination */
+    if (!dest)
+    {
+        SetLastError( ERROR_PATH_NOT_FOUND );
+        return FALSE;
+    }
 
     /* check if we are allowed to rename the source */
 
@@ -2737,6 +2752,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH MoveFileWithProgressW( const WCHAR *source, const 
         goto error;
     }
 
+    /* a trailing backslash after the new name is ignored */
+    while (nt_name.Length > 7 * sizeof(WCHAR) && nt_name.Buffer[nt_name.Length / sizeof(WCHAR) - 1] == '\\' &&
+           nt_name.Buffer[nt_name.Length / sizeof(WCHAR) - 2] != '\\')
+        nt_name.Length -= sizeof(WCHAR);
+
     size = offsetof( FILE_RENAME_INFORMATION, FileName ) + nt_name.Length;
     if (!(rename_info = HeapAlloc( GetProcessHeap(), 0, size ))) goto error;
 
@@ -2745,7 +2765,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH MoveFileWithProgressW( const WCHAR *source, const 
     rename_info->FileNameLength = nt_name.Length;
     memcpy( rename_info->FileName, nt_name.Buffer, nt_name.Length );
     RtlFreeUnicodeString( &nt_name );
-    status = NtSetInformationFile( source_handle, &io, rename_info, size, FileRenameInformation );
+    /* FILE_LINK_INFORMATION has the same layout */
+    status = NtSetInformationFile( source_handle, &io, rename_info, size,
+                                   (flag & MOVEFILE_CREATE_HARDLINK) ? FileLinkInformation : FileRenameInformation );
     HeapFree( GetProcessHeap(), 0, rename_info );
     if (status == STATUS_NOT_SAME_DEVICE && (flag & MOVEFILE_COPY_ALLOWED))
     {
