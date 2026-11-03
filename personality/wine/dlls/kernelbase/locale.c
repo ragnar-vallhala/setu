@@ -90,82 +90,82 @@ static struct registry_entry entry_syearmonth         = { L"sYearMonth" };
 
 static const struct { UINT cp; const WCHAR *name; } codepage_names[] =
 {
-    { 37,    L"IBM EBCDIC US Canada" },
-    { 424,   L"IBM EBCDIC Hebrew" },
-    { 437,   L"OEM United States" },
-    { 500,   L"IBM EBCDIC International" },
-    { 708,   L"Arabic ASMO" },
-    { 720,   L"Arabic (Transparent ASMO)" },
-    { 737,   L"OEM Greek 437G" },
-    { 775,   L"OEM Baltic" },
-    { 850,   L"OEM Multilingual Latin 1" },
-    { 852,   L"OEM Slovak Latin 2" },
-    { 855,   L"OEM Cyrillic" },
-    { 856,   L"Hebrew PC" },
-    { 857,   L"OEM Turkish" },
-    { 860,   L"OEM Portuguese" },
-    { 861,   L"OEM Icelandic" },
-    { 862,   L"OEM Hebrew" },
-    { 863,   L"OEM Canadian French" },
-    { 864,   L"OEM Arabic" },
-    { 865,   L"OEM Nordic" },
-    { 866,   L"OEM Russian" },
-    { 869,   L"OEM Greek" },
-    { 874,   L"ANSI/OEM Thai" },
-    { 875,   L"IBM EBCDIC Greek" },
-    { 878,   L"Russian KOI8" },
-    { 932,   L"ANSI/OEM Japanese Shift-JIS" },
-    { 936,   L"ANSI/OEM Simplified Chinese GBK" },
-    { 949,   L"ANSI/OEM Korean Unified Hangul" },
-    { 950,   L"ANSI/OEM Traditional Chinese Big5" },
-    { 1006,  L"IBM Arabic" },
-    { 1026,  L"IBM EBCDIC Latin 5 Turkish" },
-    { 1250,  L"ANSI Eastern Europe" },
-    { 1251,  L"ANSI Cyrillic" },
-    { 1252,  L"ANSI Latin 1" },
-    { 1253,  L"ANSI Greek" },
-    { 1254,  L"ANSI Turkish" },
-    { 1255,  L"ANSI Hebrew" },
-    { 1256,  L"ANSI Arabic" },
-    { 1257,  L"ANSI Baltic" },
-    { 1258,  L"ANSI/OEM Viet Nam" },
-    { 1361,  L"Korean Johab" },
-    { 10000, L"Mac Roman" },
-    { 10001, L"Mac Japanese" },
-    { 10002, L"Mac Traditional Chinese" },
-    { 10003, L"Mac Korean" },
-    { 10004, L"Mac Arabic" },
-    { 10005, L"Mac Hebrew" },
-    { 10006, L"Mac Greek" },
-    { 10007, L"Mac Cyrillic" },
-    { 10008, L"Mac Simplified Chinese" },
-    { 10010, L"Mac Romanian" },
-    { 10017, L"Mac Ukrainian" },
-    { 10021, L"Mac Thai" },
-    { 10029, L"Mac Latin 2" },
-    { 10079, L"Mac Icelandic" },
-    { 10081, L"Mac Turkish" },
-    { 10082, L"Mac Croatian" },
-    { 20127, L"US-ASCII (7bit)" },
-    { 20866, L"Russian KOI8" },
-    { 20932, L"EUC-JP" },
-    { 20949, L"Korean Wansung" },
-    { 21866, L"Ukrainian KOI8" },
-    { 28591, L"ISO 8859-1 Latin 1" },
-    { 28592, L"ISO 8859-2 Latin 2 (East European)" },
-    { 28593, L"ISO 8859-3 Latin 3 (South European)" },
-    { 28594, L"ISO 8859-4 Latin 4 (Baltic old)" },
-    { 28595, L"ISO 8859-5 Cyrillic" },
-    { 28596, L"ISO 8859-6 Arabic" },
-    { 28597, L"ISO 8859-7 Greek" },
-    { 28598, L"ISO 8859-8 Hebrew" },
-    { 28599, L"ISO 8859-9 Latin 5 (Turkish)" },
-    { 28600, L"ISO 8859-10 Latin 6 (Nordic)" },
-    { 28601, L"ISO 8859-11 Latin (Thai)" },
-    { 28603, L"ISO 8859-13 Latin 7 (Baltic)" },
-    { 28604, L"ISO 8859-14 Latin 8 (Celtic)" },
-    { 28605, L"ISO 8859-15 Latin 9 (Euro)" },
-    { 28606, L"ISO 8859-16 Latin 10 (Balkan)" },
+    { 37,    L"37    (IBM EBCDIC US Canada)" },
+    { 424,   L"424   (IBM EBCDIC Hebrew)" },
+    { 437,   L"437   (OEM - United States)" },
+    { 500,   L"500   (IBM EBCDIC International)" },
+    { 708,   L"708   (Arabic ASMO)" },
+    { 720,   L"720   (Arabic (Transparent ASMO))" },
+    { 737,   L"737   (OEM - Greek 437G)" },
+    { 775,   L"775   (OEM - Baltic)" },
+    { 850,   L"850   (OEM - Multilingual Latin I)" },
+    { 852,   L"852   (OEM - Slovak Latin 2)" },
+    { 855,   L"855   (OEM - Cyrillic)" },
+    { 856,   L"856   (Hebrew PC)" },
+    { 857,   L"857   (OEM - Turkish)" },
+    { 860,   L"860   (OEM - Portuguese)" },
+    { 861,   L"861   (OEM - Icelandic)" },
+    { 862,   L"862   (OEM - Hebrew)" },
+    { 863,   L"863   (OEM - Canadian French)" },
+    { 864,   L"864   (OEM - Arabic)" },
+    { 865,   L"865   (OEM - Nordic)" },
+    { 866,   L"866   (OEM - Russian)" },
+    { 869,   L"869   (OEM - Greek)" },
+    { 874,   L"874   (ANSI/OEM - Thai)" },
+    { 875,   L"875   (IBM EBCDIC Greek)" },
+    { 878,   L"878   (Russian KOI8)" },
+    { 932,   L"932   (ANSI/OEM - Japanese Shift-JIS)" },
+    { 936,   L"936   (ANSI/OEM - Simplified Chinese GBK)" },
+    { 949,   L"949   (ANSI/OEM - Korean)" },
+    { 950,   L"950   (ANSI/OEM - Traditional Chinese Big5)" },
+    { 1006,  L"1006  (IBM Arabic)" },
+    { 1026,  L"1026  (IBM EBCDIC Latin 5 Turkish)" },
+    { 1250,  L"1250  (ANSI - Central Europe)" },
+    { 1251,  L"1251  (ANSI - Cyrillic)" },
+    { 1252,  L"1252  (ANSI - Latin I)" },
+    { 1253,  L"1253  (ANSI - Greek)" },
+    { 1254,  L"1254  (ANSI - Turkish)" },
+    { 1255,  L"1255  (ANSI - Hebrew)" },
+    { 1256,  L"1256  (ANSI - Arabic)" },
+    { 1257,  L"1257  (ANSI - Baltic)" },
+    { 1258,  L"1258  (ANSI/OEM - Viet Nam)" },
+    { 1361,  L"1361  (Korean Johab)" },
+    { 10000, L"10000 (MAC - Roman)" },
+    { 10001, L"10001 (MAC - Japanese)" },
+    { 10002, L"10002 (MAC - Traditional Chinese)" },
+    { 10003, L"10003 (MAC - Korean)" },
+    { 10004, L"10004 (MAC - Arabic)" },
+    { 10005, L"10005 (MAC - Hebrew)" },
+    { 10006, L"10006 (MAC - Greek)" },
+    { 10007, L"10007 (MAC - Cyrillic)" },
+    { 10008, L"10008 (MAC - Simplified Chinese)" },
+    { 10010, L"10010 (MAC - Romanian)" },
+    { 10017, L"10017 (MAC - Ukrainian)" },
+    { 10021, L"10021 (MAC - Thai)" },
+    { 10029, L"10029 (MAC - Latin 2)" },
+    { 10079, L"10079 (MAC - Icelandic)" },
+    { 10081, L"10081 (MAC - Turkish)" },
+    { 10082, L"10082 (MAC - Croatian)" },
+    { 20127, L"20127 (US-ASCII)" },
+    { 20866, L"20866 (Russian KOI8)" },
+    { 20932, L"20932 (EUC-JP)" },
+    { 20949, L"20949 (Korean Wansung)" },
+    { 21866, L"21866 (Ukrainian KOI8)" },
+    { 28591, L"28591 (ISO 8859-1 Latin I)" },
+    { 28592, L"28592 (ISO 8859-2 Latin 2 (East European))" },
+    { 28593, L"28593 (ISO 8859-3 Latin 3 (South European))" },
+    { 28594, L"28594 (ISO 8859-4 Latin 4 (Baltic old))" },
+    { 28595, L"28595 (ISO 8859-5 Cyrillic)" },
+    { 28596, L"28596 (ISO 8859-6 Arabic)" },
+    { 28597, L"28597 (ISO 8859-7 Greek)" },
+    { 28598, L"28598 (ISO 8859-8 Hebrew)" },
+    { 28599, L"28599 (ISO 8859-9 Latin 5 (Turkish))" },
+    { 28600, L"28600 (ISO 8859-10 Latin 6 (Nordic))" },
+    { 28601, L"28601 (ISO 8859-11 Latin (Thai))" },
+    { 28603, L"28603 (ISO 8859-13 Latin 7 (Baltic))" },
+    { 28604, L"28604 (ISO 8859-14 Latin 8 (Celtic))" },
+    { 28605, L"28605 (ISO 8859-15 Latin 9 (Euro))" },
+    { 28606, L"28606 (ISO 8859-16 Latin 10 (Balkan))" },
     { 65000, L"65000 (UTF-7)" },
     { 65001, L"65001 (UTF-8)" }
 };
@@ -4604,16 +4604,39 @@ BOOL WINAPI DECLSPEC_HOTPATCH Internal_EnumLanguageGroupLocales( LANGGROUPLOCALE
 }
 
 
+static BOOL call_codepage_proc( CODEPAGE_ENUMPROCW proc, const WCHAR *name, BOOL unicode )
+{
+    char nameA[10];
+
+    if (unicode) return proc( (WCHAR *)name );
+    WideCharToMultiByte( CP_ACP, 0, name, -1, nameA, sizeof(nameA), NULL, NULL );
+    return ((CODEPAGE_ENUMPROCA)proc)( nameA );
+}
+
+
 /***********************************************************************
  *	Internal_EnumSystemCodePages   (kernelbase.@)
  */
 BOOL WINAPI DECLSPEC_HOTPATCH Internal_EnumSystemCodePages( CODEPAGE_ENUMPROCW proc, DWORD flags,
                                                             BOOL unicode )
 {
+    static const WCHAR *unicode_cps[] = { L"65000", L"65001" };
     WCHAR name[10];
     DWORD name_len, type, index = 0;
+    BOOL seen[ARRAY_SIZE(unicode_cps)] = { FALSE }, more = TRUE;
     HKEY key;
+    UINT i;
 
+    if (!proc)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    if (flags != CP_INSTALLED && flags != CP_SUPPORTED)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return FALSE;
+    }
     if (RegOpenKeyExW( nls_key, L"Codepage", 0, KEY_READ, &key )) return FALSE;
 
     for (;;)
@@ -4622,15 +4645,14 @@ BOOL WINAPI DECLSPEC_HOTPATCH Internal_EnumSystemCodePages( CODEPAGE_ENUMPROCW p
         if (RegEnumValueW( key, index++, name, &name_len, NULL, &type, NULL, NULL )) break;
         if (type != REG_SZ) continue;
         if (!wcstoul( name, NULL, 10 )) continue;
-        if (!unicode)
-        {
-            char nameA[10];
-            WideCharToMultiByte( CP_ACP, 0, name, -1, nameA, sizeof(nameA), NULL, NULL );
-            if (!((CODEPAGE_ENUMPROCA)proc)( nameA )) break;
-        }
-        else if (!proc( name )) break;
+        for (i = 0; i < ARRAY_SIZE(unicode_cps); i++) if (!wcscmp( name, unicode_cps[i] )) seen[i] = TRUE;
+        if (!(more = call_codepage_proc( proc, name, unicode ))) break;
     }
     RegCloseKey( key );
+
+    /* the Unicode code pages are always there even though the registry doesn't list them */
+    for (i = 0; more && i < ARRAY_SIZE(unicode_cps); i++)
+        if (!seen[i]) more = call_codepage_proc( proc, unicode_cps[i], unicode );
     return TRUE;
 }
 
@@ -5681,6 +5703,11 @@ BOOL WINAPI GetCPInfoExW( UINT codepage, DWORD flags, CPINFOEXW *cpinfo )
     const CPTABLEINFO *table;
     int min, max, pos;
 
+    if (flags)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return FALSE;
+    }
     if (!cpinfo || !(table = get_codepage_table( codepage )))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
@@ -6933,7 +6960,13 @@ BOOL WINAPI DECLSPEC_HOTPATCH IsValidCodePage( UINT codepage )
     case CP_THREAD_ACP:
         return FALSE;
     default:
-        return get_codepage_table( codepage ) != NULL;
+    {
+        DWORD err = GetLastError();
+        BOOL ret = get_codepage_table( codepage ) != NULL;
+
+        SetLastError( err );
+        return ret;
+    }
     }
 }
 
