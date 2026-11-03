@@ -2354,6 +2354,19 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetLongPathNameW( LPCWSTR shortpath, LPWSTR longp
         }
         return tmplen + 1;
     }
+    else
+    {
+        /* a path too long for a DOS path (MAX_PATH) is a missing path */
+        UNICODE_STRING nt_name;
+        NTSTATUS status = RtlDosPathNameToNtPathName_U_WithStatus( shortpath, &nt_name, NULL, NULL );
+
+        if (status == STATUS_OBJECT_PATH_NOT_FOUND)
+        {
+            SetLastError( ERROR_PATH_NOT_FOUND );
+            return 0;
+        }
+        if (!status) RtlFreeUnicodeString( &nt_name );
+    }
 
     /* check for drive letter */
     if (shortpath[sp] != '/' && shortpath[sp] && shortpath[sp + 1] == ':' )
