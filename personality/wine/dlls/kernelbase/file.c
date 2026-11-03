@@ -82,8 +82,10 @@ static const WCHAR *get_machine_wow64_dir( WORD machine )
     switch (machine)
     {
     case IMAGE_FILE_MACHINE_TARGET_HOST: return system_dir;
-    case IMAGE_FILE_MACHINE_I386:        return L"C:\\windows\\syswow64";
-    case IMAGE_FILE_MACHINE_ARMNT:       return L"C:\\windows\\sysarm32";
+    case IMAGE_FILE_MACHINE_I386:        return L"C:\\windows\\SysWOW64";
+    case IMAGE_FILE_MACHINE_ARMNT:       return L"C:\\windows\\SysArm32";
+    case IMAGE_FILE_MACHINE_AMD64:       return L"C:\\windows\\SysX8664";
+    case IMAGE_FILE_MACHINE_ARM64:       return L"C:\\windows\\SysArm64";
     default: return NULL;
     }
 }
@@ -2594,7 +2596,12 @@ UINT WINAPI DECLSPEC_HOTPATCH GetSystemWow64Directory2W( LPWSTR path, UINT count
 {
     const WCHAR *dir = get_machine_wow64_dir( machine );
 
-    return dir ? copy_filename( dir, path, count ) : 0;
+    if (!dir)
+    {
+        SetLastError( ERROR_BAD_ARGUMENTS );
+        return 0;
+    }
+    return copy_filename( dir, path, count );
 }
 
 
