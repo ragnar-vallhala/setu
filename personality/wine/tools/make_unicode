@@ -1738,7 +1738,7 @@ my @geoids =
  { id => 118, name => "IT" },     # Italy
  { id => 119, name => "CI" },     # Côte d'Ivoire
  { id => 121, name => "IQ" },     # Iraq
- { id => 122, name => "JP" },     # Japan
+ { id => 122, name => "JP", scurrency => "\x{00a5}" },  # Japan (Setu: Windows uses U+00A5, CLDR the fullwidth U+FFE5)
  { id => 124, name => "JM" },     # Jamaica
  { id => 125, name => "SJ" },     # Jan Mayen
  { id => 126, name => "JO" },     # Jordan
@@ -4872,6 +4872,12 @@ sub build_locale_data()
                              loc_query( $loc, "/ldml/numbers/currencyFormats[\@numberSystem='latn']/currencyFormatLength[not(\@type)]/currencyFormat[\@type='standard']/pattern[not(\@alt)]" );
         my $smongrouping = format_to_grouping( $currencyformat );
         my ($icurrency, $inegcurr) = parse_currency_format( $sname, $currencyformat );
+        # Setu: Windows' negative currency format follows CLDR's standard
+        # pattern, usually with a minus sign, rather than the accounting one
+        # with parentheses, except in en-US and the invariant locale where it
+        # is "($1.1)" (kernel32/number_format, kernel32/GetLocaleInfoEx)
+        ($icurrency, $inegcurr) = parse_currency_format( $sname, loc_query( $loc, "/ldml/numbers/currencyFormats[\@numberSystem='latn']/currencyFormatLength[not(\@type)]/currencyFormat[\@type='standard']/pattern[not(\@alt)]" ))
+            if $sname ne "en-US" && $sname ne "";
         my ($ipospercent, $inegpercent) = parse_percent_format( $percentformat );
         my $native_numbering = loc_query( $loc, "/ldml/numbers/otherNumberingSystems/native" );
         my @snativedigits = split //, (locale_entry( $loc, "nativedigits", "" ) || xml_query( $numbers, "/supplementalData/numberingSystems/numberingSystem[\@id='$native_numbering']/\@digits" ));
