@@ -680,7 +680,7 @@
 @ stdcall -import GetEnvironmentVariableW(wstr ptr long)
 # @ stub GetEraNameCountedString
 @ stdcall -import GetErrorMode()
-@ stdcall GetExitCodeProcess(long ptr)
+@ stdcall -import GetExitCodeProcess(long ptr)
 @ stdcall -import GetExitCodeThread(long ptr)
 @ stdcall GetExpandedNameA(str ptr)
 @ stdcall GetExpandedNameW(wstr ptr)

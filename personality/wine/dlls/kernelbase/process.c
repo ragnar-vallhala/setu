@@ -814,6 +814,17 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetExitCodeProcess( HANDLE process, LPDWORD exit_c
 
     status = NtQueryInformationProcess( process, ProcessBasicInformation, &pbi, sizeof(pbi), NULL );
     if (!status && exit_code) *exit_code = pbi.ExitStatus;
+    if (status == STATUS_OBJECT_TYPE_MISMATCH)
+    {
+        EVENT_BASIC_INFORMATION event;
+
+        /* Windows succeeds with exit code 0 for an event handle that the
+         * caller may query, but still reports ERROR_INVALID_HANDLE */
+        set_ntstatus( status );
+        if (NtQueryEvent( process, EventBasicInformation, &event, sizeof(event), NULL )) return FALSE;
+        if (exit_code) *exit_code = 0;
+        return TRUE;
+    }
     return set_ntstatus( status );
 }
 

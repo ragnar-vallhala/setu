@@ -197,30 +197,6 @@ void WINAPI ExitProcess( DWORD status )
 
 #endif
 
-/***********************************************************************
- * GetExitCodeProcess           [KERNEL32.@]
- *
- * Gets termination status of specified process.
- *
- * PARAMS
- *   hProcess   [in]  Handle to the process.
- *   lpExitCode [out] Address to receive termination status.
- *
- * RETURNS
- *   Success: TRUE
- *   Failure: FALSE
- */
-BOOL WINAPI GetExitCodeProcess( HANDLE hProcess, LPDWORD lpExitCode )
-{
-    PROCESS_BASIC_INFORMATION pbi;
-
-    if (!set_ntstatus( NtQueryInformationProcess( hProcess, ProcessBasicInformation, &pbi, sizeof(pbi), NULL )))
-        return FALSE;
-    if (lpExitCode) *lpExitCode = pbi.ExitStatus;
-    return TRUE;
-}
-
-
 /**************************************************************************
  *           FatalExit   (KERNEL32.@)
  */
