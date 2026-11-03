@@ -6537,6 +6537,7 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetTimeZoneInformation( TIME_ZONE_INFORMATION *in
     DWORD ret = GetDynamicTimeZoneInformation( &tzinfo );
 
     memcpy( info, &tzinfo, sizeof(*info) );
+    if (ret != TIME_ZONE_ID_INVALID) SetLastError( 0 );  /* Windows clears the error on success */
     return ret;
 }
 
@@ -7633,6 +7634,48 @@ BOOL WINAPI DECLSPEC_HOTPATCH TzSpecificLocalTimeToSystemTime( const TIME_ZONE_I
         return FALSE;
     }
     return FileTimeToSystemTime( (FILETIME *)&ft, system );
+}
+
+
+/***********************************************************************
+ *	SystemTimeToTzSpecificLocalTimeEx   (kernelbase.@)
+ *
+ * Uses the rules of the given zone for the year of the time converted.
+ */
+BOOL WINAPI DECLSPEC_HOTPATCH SystemTimeToTzSpecificLocalTimeEx( const DYNAMIC_TIME_ZONE_INFORMATION *info,
+                                                                 const SYSTEMTIME *system,
+                                                                 SYSTEMTIME *local )
+{
+    TIME_ZONE_INFORMATION tzinfo;
+
+    if (!system || !local)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    if (!GetTimeZoneInformationForYear( system->wYear, (DYNAMIC_TIME_ZONE_INFORMATION *)info, &tzinfo ))
+        return FALSE;
+    return SystemTimeToTzSpecificLocalTime( &tzinfo, system, local );
+}
+
+
+/***********************************************************************
+ *	TzSpecificLocalTimeToSystemTimeEx   (kernelbase.@)
+ */
+BOOL WINAPI DECLSPEC_HOTPATCH TzSpecificLocalTimeToSystemTimeEx( const DYNAMIC_TIME_ZONE_INFORMATION *info,
+                                                                 const SYSTEMTIME *local,
+                                                                 SYSTEMTIME *system )
+{
+    TIME_ZONE_INFORMATION tzinfo;
+
+    if (!system || !local)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    if (!GetTimeZoneInformationForYear( local->wYear, (DYNAMIC_TIME_ZONE_INFORMATION *)info, &tzinfo ))
+        return FALSE;
+    return TzSpecificLocalTimeToSystemTime( &tzinfo, local, system );
 }
 
 
