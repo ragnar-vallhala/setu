@@ -290,7 +290,24 @@ class WindowsTarget(Target):
             subprocess.run(self.c["revert_command"], shell=True, check=True)
         t1 = time.time()
         self.wait_ready()
+        self._sync_clock()
         self.revert_times.append((t1 - t0, time.time() - t1))
+
+    def _sync_clock(self) -> None:
+        """Set the guest clock to the host's UTC time.
+
+        A restored snapshot keeps the time it was saved at, and Windows later
+        corrects it in one jump, which can land in the middle of a test (and
+        makes 'how long ago' checks differ between two runs). Setting it now,
+        before any test program starts, avoids the jump."""
+        if self.c["revert"] == "none":
+            return
+        now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        r = self.ssh("powershell -NoProfile -NonInteractive -Command "
+                     f"\"Set-Date -Date ([DateTime]::Parse('{now}')) | Out-Null\"", timeout=60)
+        if r.returncode != 0:
+            print(f"windows: warning: could not set the guest clock: "
+                  f"{r.stderr.decode(errors='replace').strip()}")
 
     def _upload(self, tests: list[Test]) -> None:
         """Fresh C:\\setu-oracle\\{bin,work} holding the given test programs."""
