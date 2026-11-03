@@ -5598,6 +5598,12 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
         {
             FILE_IO_COMPLETION_NOTIFICATION_INFORMATION *info = ptr;
 
+            if (info->Flags & ~(FILE_SKIP_COMPLETION_PORT_ON_SUCCESS | FILE_SKIP_SET_EVENT_ON_HANDLE |
+                                FILE_SKIP_SET_USER_EVENT_ON_FAST_IO))
+            {
+                status = STATUS_INVALID_PARAMETER;
+                break;
+            }
             if (info->Flags & FILE_SKIP_SET_USER_EVENT_ON_FAST_IO)
                 FIXME( "FILE_SKIP_SET_USER_EVENT_ON_FAST_IO not supported\n" );
 
