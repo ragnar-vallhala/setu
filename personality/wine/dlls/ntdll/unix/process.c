@@ -1081,6 +1081,41 @@ void fill_vm_counters( VM_COUNTERS_EX *pvmi, int unix_pid )
         ret = STATUS_INVALID_INFO_CLASS; \
         break
 
+/* Count the open handles of a process from the system process list. */
+static NTSTATUS get_process_handle_count( process_id_t pid, ULONG *count )
+{
+    SYSTEM_PROCESS_INFORMATION *spi;
+    ULONG size = 0x10000, ret_size;
+    NTSTATUS status;
+    char *buf;
+
+    for (;;)
+    {
+        if (!(buf = malloc( size ))) return STATUS_NO_MEMORY;
+        status = NtQuerySystemInformation( SystemProcessInformation, buf, size, &ret_size );
+        if (status != STATUS_INFO_LENGTH_MISMATCH) break;
+        free( buf );
+        size = ret_size > size * 2 ? ret_size : size * 2;
+    }
+    if (!status)
+    {
+        status = STATUS_INVALID_HANDLE;
+        for (spi = (SYSTEM_PROCESS_INFORMATION *)buf;;
+             spi = (SYSTEM_PROCESS_INFORMATION *)((char *)spi + spi->NextEntryOffset))
+        {
+            if (HandleToULong( spi->UniqueProcessId ) == pid)
+            {
+                *count = spi->HandleCount;
+                status = STATUS_SUCCESS;
+                break;
+            }
+            if (!spi->NextEntryOffset) break;
+        }
+    }
+    free( buf );
+    return status;
+}
+
 /**********************************************************************
  *           NtQueryInformationProcess  (NTDLL.@)
  */
@@ -1372,9 +1407,21 @@ NTSTATUS WINAPI NtQueryInformationProcess( HANDLE handle, PROCESSINFOCLASS class
             else if (!handle) ret = STATUS_INVALID_HANDLE;
             else
             {
-                FIXME( "ProcessHandleCount (%p,%p,0x%08x,%p) stub\n", handle, info, size, ret_len );
-                memset(info, 0, 4);
-                len = 4;
+                process_id_t pid = 0;
+
+                SERVER_START_REQ(get_process_info)
+                {
+                    req->handle = wine_server_obj_handle( handle );
+                    if (!(ret = wine_server_call( req ))) pid = reply->pid;
+                }
+                SERVER_END_REQ;
+                if (!ret)
+                {
+                    ULONG count = 0;
+                    ret = get_process_handle_count( pid, &count );
+                    memcpy( info, &count, 4 );
+                    len = 4;
+                }
             }
             if (size > 4) ret = STATUS_INFO_LENGTH_MISMATCH;
         }

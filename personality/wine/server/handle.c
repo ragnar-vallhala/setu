@@ -663,8 +663,14 @@ obj_handle_t open_object( struct process *process, obj_handle_t parent, unsigned
 /* return the size of the handle table of a given process */
 unsigned int get_handle_table_count( struct process *process )
 {
-    if (!process->handles) return 0;
-    return process->handles->count;
+    struct handle_table *table = process->handles;
+    unsigned int count = 0;
+    int i;
+
+    /* count the handles in use, not the allocated table size */
+    if (!table) return 0;
+    for (i = 0; i <= table->last; i++) if (table->entries[i].ptr) count++;
+    return count;
 }
 
 /* close a handle */
