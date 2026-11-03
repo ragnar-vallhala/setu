@@ -86,8 +86,11 @@ int main(void)
     q(NULL);
     full_case("other_drive_no_var", L"Q:foo");
     full_case("other_drive_only_no_var", L"Q:");
+    full_case("other_drive_no_var_lowercase_letter", L"q:foo");
+    env_case("other_drive_no_var_not_created", L"=Q:");
     q(L"Q:\\qdir\\sub");
     full_case("other_drive_var", L"Q:foo");
+    env_case("other_drive_var_missing_drive_kept", L"=Q:");
     full_case("other_drive_var_lowercase_letter", L"q:foo");
     full_case("other_drive_var_dotdot", L"Q:..\\x");
     full_case("other_drive_var_dotdot_past_root", L"Q:..\\..\\..\\x");
@@ -227,12 +230,25 @@ int main(void)
         full_case("mapped_drive_var_existing_dir_only", L"Q:");
         q(L"Q:\\sub\\deeper\\");
         full_case("mapped_drive_var_trailing_sep", L"Q:foo");
+        full_case("mapped_drive_var_trailing_sep_dir_only", L"Q:");
+        full_case("mapped_drive_var_trailing_sep_dotdot", L"Q:..\\x");
+        q(L"Q:\\sub\\\\deeper");
+        full_case("mapped_drive_var_double_sep_inside", L"Q:foo");
+        full_case("mapped_drive_absolute_double_sep", L"Q:\\sub\\\\deeper\\x");
+        q(L"q:\\sub");
+        full_case("mapped_drive_var_lowercase_value", L"Q:foo");
+        full_case("mapped_drive_lowercase_input_lowercase_value", L"q:foo");
+        q(NULL);
+        full_case("mapped_drive_no_var_lowercase_letter", L"q:foo");
+        env_case("mapped_drive_no_var_not_created", L"=Q:");
         q(L"Q:\\nodir");
         full_case("mapped_drive_var_missing_dir", L"Q:foo");
+        env_case("mapped_drive_var_missing_dir_kept", L"=Q:");
         q(L"R:\\sub");
         full_case("mapped_drive_var_other_letter", L"Q:foo");
         q(L"sub");
         full_case("mapped_drive_var_relative_value", L"Q:foo");
+        env_case("mapped_drive_var_relative_value_kept", L"=Q:");
         q(L"Q:\\sub");
         {
             HANDLE h;
@@ -258,6 +274,7 @@ int main(void)
             SetEnvironmentVariableW(var, NULL);
             swprintf(in, MAX_PATH, L"%lsfoo", drv);
             full_case("after_switch_old_drive_no_var", in);
+            env_case("after_switch_c_var_after_full", var);
             SetCurrentDirectoryW(cwd);
             env_case("after_switch_back_q_var", L"=Q:");
             env_case("after_switch_back_c_var", var);
