@@ -6791,6 +6791,20 @@ NTSTATUS WINAPI NtResetWriteWatch( HANDLE process, PVOID base, SIZE_T size )
  *             NtReadVirtualMemory   (NTDLL.@)
  *             ZwReadVirtualMemory   (NTDLL.@)
  */
+static BOOL self_range_has_guard( const void *addr, SIZE_T size )
+{
+    char *page = ROUND_ADDR( addr, page_mask );
+    char *end = (char *)addr + size;
+    sigset_t sigset;
+    BOOL ret = FALSE;
+
+    server_enter_uninterrupted_section( &virtual_mutex, &sigset );
+    for (; page < end; page += page_size)
+        if (get_page_vprot( page ) & VPROT_GUARD) { ret = TRUE; break; }
+    server_leave_uninterrupted_section( &virtual_mutex, &sigset );
+    return ret;
+}
+
 NTSTATUS WINAPI NtReadVirtualMemory( HANDLE process, const void *addr, void *buffer,
                                      SIZE_T size, SIZE_T *bytes_read )
 {
@@ -6799,6 +6813,19 @@ NTSTATUS WINAPI NtReadVirtualMemory( HANDLE process, const void *addr, void *buf
     if (!virtual_check_buffer_for_write( buffer, size ))
     {
         status = STATUS_ACCESS_VIOLATION;
+        size = 0;
+    }
+    else if (process == GetCurrentProcess() && size &&
+             ((ULONG_PTR)addr + size < (ULONG_PTR)addr || (char *)addr + size > (char *)user_space_limit))
+    {
+        /* A range reaching beyond user space is an access violation. */
+        status = STATUS_ACCESS_VIOLATION;
+        size = 0;
+    }
+    else if (process == GetCurrentProcess() && self_range_has_guard( addr, size ))
+    {
+        /* Guard pages fail the copy without losing their guard status. */
+        status = STATUS_PARTIAL_COPY;
         size = 0;
     }
     else if (process == GetCurrentProcess())

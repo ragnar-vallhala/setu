@@ -367,7 +367,8 @@ static int read_process_memory_vm( struct thread *thread, client_ptr_t ptr, data
         return -1;
     }
     if (len == size) return 1;
-    set_error( len >= 0 ? STATUS_PARTIAL_COPY : STATUS_ACCESS_DENIED );
+    /* Windows reports a partial copy for unmapped or inaccessible memory. */
+    set_error( len >= 0 || errno == EFAULT ? STATUS_PARTIAL_COPY : STATUS_ACCESS_DENIED );
     return 0;
 }
 #else
@@ -477,7 +478,12 @@ int read_process_memory( struct process *process, client_ptr_t ptr, data_size_t 
     struct thread *thread = get_ptrace_thread( process );
     int ret;
 
-    if (!thread) return 0;
+    if (!thread)
+    {
+        /* Reading from a process that has exited is a partial copy. */
+        if (get_error() == STATUS_PROCESS_IS_TERMINATING) set_error( STATUS_PARTIAL_COPY );
+        return 0;
+    }
 
     if ((unsigned long)ptr != ptr)
     {
