@@ -115,7 +115,8 @@ ULONG WINAPI RtlIsDosDeviceName_U( PCWSTR dos_name )
         return MAKELONG( 3 * sizeof(WCHAR), (start - dos_name) * sizeof(WCHAR) );
     case 4:
         if (wcsnicmp( start, comW, 3 ) && wcsnicmp( start, lptW, 3 )) break;
-        if (*end <= '0' || *end > '9') break;
+        /* COM1-9 and LPT1-9, and the superscript digits 1-3 too */
+        if ((*end <= '0' || *end > '9') && *end != 0x00b9 && *end != 0x00b2 && *end != 0x00b3) break;
         return MAKELONG( 4 * sizeof(WCHAR), (start - dos_name) * sizeof(WCHAR) );
     case 6:
         if (wcsnicmp( start, coninW, ARRAY_SIZE(coninW) )) break;
