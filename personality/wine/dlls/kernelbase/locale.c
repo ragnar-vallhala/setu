@@ -7758,6 +7758,11 @@ static int get_number_format( const NLS_LOCALE_DATA *locale, DWORD flags, const 
     int ret = 0;
     BOOL negative = (*value == '-');
 
+    if (flags & ~(LOCALE_NOUSEROVERRIDE | LOCALE_USE_CP_ACP))
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
     flags &= LOCALE_NOUSEROVERRIDE;
 
     if (!format)
@@ -7785,7 +7790,9 @@ static int get_number_format( const NLS_LOCALE_DATA *locale, DWORD flags, const 
         digits = format->NumDigits;
         lzero = format->LeadingZero;
         order = format->NegativeOrder;
-        if (!decimal_sep || !thousand_sep)
+        /* separators are at most 3 characters and there are at most 9 digits */
+        if (!decimal_sep || !thousand_sep || wcslen( decimal_sep ) > 3 || wcslen( thousand_sep ) > 3 ||
+            digits > 9)
         {
             SetLastError( ERROR_INVALID_PARAMETER );
             return 0;
@@ -7804,6 +7811,8 @@ static int get_number_format( const NLS_LOCALE_DATA *locale, DWORD flags, const 
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
     }
+    /* a value that rounds to zero is not negative */
+    if (negative && !wcspbrk( num, L"123456789" )) negative = FALSE;
 
     if (negative)
     {
@@ -7852,6 +7861,11 @@ static int get_currency_format( const NLS_LOCALE_DATA *locale, DWORD flags, cons
     int ret = 0;
     BOOL negative = (*value == '-');
 
+    if (flags & ~(LOCALE_NOUSEROVERRIDE | LOCALE_USE_CP_ACP))
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
     flags &= LOCALE_NOUSEROVERRIDE;
 
     if (!format)
@@ -7884,7 +7898,8 @@ static int get_currency_format( const NLS_LOCALE_DATA *locale, DWORD flags, cons
         lzero = format->LeadingZero;
         pos_order = format->PositiveOrder;
         neg_order = format->NegativeOrder;
-        if (!decimal_sep || !thousand_sep || !symbol)
+        if (!decimal_sep || !thousand_sep || !symbol || wcslen( decimal_sep ) > 3 ||
+            wcslen( thousand_sep ) > 3 || digits > 9)
         {
             SetLastError( ERROR_INVALID_PARAMETER );
             return 0;
@@ -7903,6 +7918,8 @@ static int get_currency_format( const NLS_LOCALE_DATA *locale, DWORD flags, cons
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
     }
+    /* a value that rounds to zero is not negative */
+    if (negative && !wcspbrk( num, L"123456789" )) negative = FALSE;
 
     if (negative)
     {
