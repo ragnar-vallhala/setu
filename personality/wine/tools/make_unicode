@@ -36,6 +36,8 @@ my %data_files =
                 sha  => "2066d1909b2ea93916ce092da1c0ee4808ea3ef8407c94b4f14f5b7eb263d28e" },
  unihan    => { url  => "https://www.unicode.org/Public/$UNIVERSION/ucd/Unihan.zip", name => "Unihan-$UNIVERSION.zip",
                 sha  => "f7a48b2b545acfaa77b2d607ae28747404ce02baefee16396c5d2d7a8ef34b5e" },
+ proplist51 => { url => "https://www.unicode.org/Public/5.1.0/ucd/PropList.txt", name => "PropList-5.1.0.txt",
+                sha  => "d4a63f2aa019bf7ae09c25dad7ba1d9dbad183519390142e140736b0d86a117f" },
  idna      => { url  => "https://www.unicode.org/Public/$UNIVERSION/idna/IdnaMappingTable.txt", name => "IdnaMappingTable-$UNIVERSION.txt",
                 sha  => "87f05505dc026fdb2bff16132bdc68a8014675836882a9a2b1844540ad3be382" },
  cldr      => { url  => "https://github.com/unicode-org/cldr/archive/refs/tags/release-$CLDRVERSION.zip",
@@ -2183,6 +2185,17 @@ sub remove_linguistic_mappings($$)
 sub load_data()
 {
     my $start;
+    my %diacritic51;
+
+    # Setu: the Diacritic property as of Unicode 5.1
+    my $PROPLIST = open_data_file( "proplist51", undef );
+    while (<$PROPLIST>)
+    {
+        s/\#.*//;
+        next unless /^([0-9a-fA-F]+)(?:\.\.([0-9a-fA-F]+))?\s*;\s*Diacritic\s*$/;
+        $diacritic51{$_} = 1 foreach (hex $1 .. hex( $2 || $1 ));
+    }
+    close $PROPLIST;
 
     # now build mappings from the decomposition field of the Unicode database
 
@@ -2229,6 +2242,9 @@ sub load_data()
 
         $category_table[$src] |= $ctype{"nonspacing"}    if $bidi eq "NSM";
         $category_table[$src] |= $ctype{"diacritic"}     if $name =~ /^(COMBINING)|(MODIFIER LETTER)\W/;
+        # Setu: Windows also marks the marks and modifiers that Unicode 5.1 gives
+        # the Diacritic property (Arabic harakat, Hebrew points, Indic viramas...)
+        $category_table[$src] |= $ctype{"diacritic"}     if $diacritic51{$src} && $cat =~ /^(Mn|Mc|Me|Lm|Sk)$/;
         $category_table[$src] |= $ctype{"vowelmark"}     if $name =~ /\sVOWEL/ || $oldname =~ /\sVOWEL/;
         $category_table[$src] |= $ctype{"halfwidth"}     if $name =~ /^HALFWIDTH\s/;
         $category_table[$src] |= $ctype{"fullwidth"}     if $name =~ /^FULLWIDTH\s/;
