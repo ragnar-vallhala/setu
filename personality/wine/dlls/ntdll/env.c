@@ -301,6 +301,7 @@ NTSTATUS WINAPI RtlSetEnvironmentVariable(PWSTR* penv, PUNICODE_STRING name,
     INT varlen, len, old_size;
     LPWSTR      p, env;
     NTSTATUS    nts = STATUS_SUCCESS;
+    BOOL        found = FALSE;
 
     TRACE("(%p, %s, %s)\n", penv, debugstr_us(name), debugstr_us(value));
 
@@ -321,18 +322,27 @@ NTSTATUS WINAPI RtlSetEnvironmentVariable(PWSTR* penv, PUNICODE_STRING name,
 
     old_size = get_env_length( env );
 
-    /* Find a place to insert the string */
+    /* Find the variable, or the place to insert it: the block is kept sorted
+     * by name (case-insensitive), a new name goes before the first greater one */
     for (p = env; *p; p += varlen + 1)
     {
+        const WCHAR *eq = wcschr( p + 1, '=' );
+        int cmp;
+
         varlen = wcslen(p);
-        if (varlen > len && p[len] == '=' &&
-            !RtlCompareUnicodeStrings( name->Buffer, len, p, len, TRUE )) break;
+        cmp = RtlCompareUnicodeStrings( name->Buffer, len, p, eq ? eq - p : varlen, TRUE );
+        if (!cmp)
+        {
+            found = TRUE;
+            break;
+        }
+        if (cmp < 0) break;
     }
-    if (!value && !*p) goto done;  /* Value to remove doesn't exist */
+    if (!value && !found) goto done;  /* Value to remove doesn't exist */
 
     /* Realloc the buffer */
     len = value ? len + value->Length / sizeof(WCHAR) + 2 : 0;
-    if (*p) len -= wcslen(p) + 1;  /* The name already exists */
+    if (found) len -= wcslen(p) + 1;  /* The name already exists */
 
     if (len < 0)
     {
