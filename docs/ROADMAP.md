@@ -22,14 +22,18 @@ that match real Windows, not in features that seem to work.
    files and directories, `FindFirstFile*`, paths (`GetFullPathNameW`,
    long/short names, `\\?\`), handles, `GetLastError` semantics, environment,
    processes (`CreateProcessW` exit codes and inheritance), sync primitives.
+   Status 2026-11-03: 75 of 106 kernel32 tests pass every case (goldens are
+   still from the interim Windows 10 22H2 VM).
 2. ✅ **The Wine fork exists:** `personality/wine` imported from Wine 11.0,
    builds in CI (cached by source tree), and replaces stock Wine as the Setu
    target in the harness. Done 2026-10-31.
-3. **Shell boots in a VM:** a Debian-based dev image (`distro/`) boots in QEMU
+3. ✅ **Shell boots in a VM:** a Debian-based dev image (`distro/`) boots in QEMU
    to a Wayland session running the Setu shell stub (taskbar + launcher). From
-   there it can launch `notepad.exe` and one third-party `.msi`.
-4. Oracle infrastructure: snapshot revert per test, run in parallel on 2+ VMs,
-   flake detection (each golden recorded twice and compared).
+   there it can launch `notepad.exe` and one third-party `.msi`. Done
+   2026-11-03: 7-Zip 26.05's `.msi` installs and runs (`distro/tests/msi-smoke.sh`).
+4. ✅ Oracle infrastructure: snapshot revert per test, run in parallel on 2+ VMs,
+   flake detection (each golden recorded twice and compared). Done 2026-11-03
+   (`oracle/run.py windows` VM pool, `--verify`).
 
 ## Milestone 2: System services
 
