@@ -1177,6 +1177,7 @@
     "kernel32/GetFileType:null_handle",
     "kernel32/GetFileType:registry_key",
     "kernel32/GetFileType:token",
+    "kernel32/GetFinalPathNameByHandleW:after_rename",
     "kernel32/GetFinalPathNameByHandleW:ansi_none",
     "kernel32/GetFinalPathNameByHandleW:buffer_len_exact_no_nul_room",
     "kernel32/GetFinalPathNameByHandleW:cwd_shapes",

@@ -3304,10 +3304,17 @@ DECL_HANDLER(get_handle_unix_name)
     {
         if (fd->unix_name)
         {
-            data_size_t name_len = strlen( fd->unix_name );
+            /* a file renamed through another handle has a new name */
+            char *name = dup_fd_reopen_name( fd );
+            const char *unix_name = fd->unix_name;
+            data_size_t name_len;
+
+            if (name && strncmp( name, "/proc/", 6 )) unix_name = name;
+            name_len = strlen( unix_name );
             reply->name_len = name_len;
-            if (name_len <= get_reply_max_size()) set_reply_data( fd->unix_name, name_len );
+            if (name_len <= get_reply_max_size()) set_reply_data( unix_name, name_len );
             else set_error( STATUS_BUFFER_OVERFLOW );
+            free( name );
         }
         else set_error( STATUS_OBJECT_TYPE_MISMATCH );
         release_object( fd );
