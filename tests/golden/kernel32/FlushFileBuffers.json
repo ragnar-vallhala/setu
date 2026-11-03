@@ -128,9 +128,9 @@
       "ret": false,
       "last_error": 6
     },
-    "duplicated_with_write": {
+    "duplicate_read_handle_for_write": {
       "ret": false,
-      "last_error": 6
+      "last_error": 5
     },
     "file_content": {
       "f.exists": true,
@@ -141,5 +141,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "5d5700d965c0058617297da9a13e4f27e62fbc2a53cfd14a640eefa5a46fcf2c"
+  "source_sha256": "4df14c3ec44bf695d7ee0dd41323dbed33c48156670aab4690c9f836f3097457"
 }

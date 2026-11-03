@@ -105,10 +105,17 @@ int main(void)
 
     {
         HANDLE h = CreateFileW(L"f.txt", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-        HANDLE d;
-        DuplicateHandle(GetCurrentProcess(), h, GetCurrentProcess(), &d, GENERIC_WRITE, FALSE, 0);
-        flush_case("duplicated_with_write", d);
-        CloseHandle(d);
+        HANDLE d = NULL;
+        BOOL dup;
+        ORACLE_CALL(dup, DuplicateHandle(GetCurrentProcess(), h, GetCurrentProcess(), &d, GENERIC_WRITE, FALSE, 0));
+        oracle_case("duplicate_read_handle_for_write");
+        o_bool("ret", dup);
+        o_lasterr();
+        oracle_case_end();
+        if (dup) {
+            flush_case("duplicated_with_write", d);
+            CloseHandle(d);
+        }
         CloseHandle(h);
     }
 
