@@ -812,6 +812,8 @@ NTSTATUS WINAPI RtlSleepConditionVariableSRW( RTL_CONDITION_VARIABLE *variable, 
     int value = *(int *)&variable->Ptr;
     NTSTATUS status;
 
+    if (flags & ~RTL_CONDITION_VARIABLE_LOCKMODE_SHARED) return STATUS_INVALID_PARAMETER;
+
     if (flags & RTL_CONDITION_VARIABLE_LOCKMODE_SHARED)
         RtlReleaseSRWLockShared( lock );
     else

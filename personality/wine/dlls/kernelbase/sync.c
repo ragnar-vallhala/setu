@@ -1193,8 +1193,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH SleepConditionVariableCS( CONDITION_VARIABLE *vari
                                                         CRITICAL_SECTION *crit, DWORD timeout )
 {
     LARGE_INTEGER time;
+    NTSTATUS status = RtlSleepConditionVariableCS( variable, crit, get_nt_timeout( &time, timeout ));
 
-    return set_ntstatus( RtlSleepConditionVariableCS( variable, crit, get_nt_timeout( &time, timeout )));
+    /* A successful wake clears the last error as well. */
+    SetLastError( RtlNtStatusToDosError( status ));
+    return !status;
 }
 
 
@@ -1205,9 +1208,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH SleepConditionVariableSRW( RTL_CONDITION_VARIABLE 
                                                          RTL_SRWLOCK *lock, DWORD timeout, ULONG flags )
 {
     LARGE_INTEGER time;
+    NTSTATUS status = RtlSleepConditionVariableSRW( variable, lock, get_nt_timeout( &time, timeout ), flags );
 
-    return set_ntstatus( RtlSleepConditionVariableSRW( variable, lock,
-                                                       get_nt_timeout( &time, timeout ), flags ));
+    /* A successful wake clears the last error as well. */
+    SetLastError( RtlNtStatusToDosError( status ));
+    return !status;
 }
 
 
