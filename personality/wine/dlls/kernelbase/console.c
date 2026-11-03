@@ -396,7 +396,14 @@ BOOL WINAPI DECLSPEC_HOTPATCH AttachConsole( DWORD pid )
         else ret = FALSE;
     }
 
-    if (!ret) FreeConsole();
+    if (!ret)
+    {
+        DWORD err = GetLastError();
+
+        FreeConsole();
+        /* a process that doesn't exist is a bad parameter */
+        SetLastError( err == ERROR_INVALID_HANDLE && pid != ATTACH_PARENT_PROCESS ? ERROR_INVALID_PARAMETER : err );
+    }
     RtlLeaveCriticalSection( &console_section );
     return ret;
 }
@@ -505,7 +512,11 @@ error:
  */
 BOOL WINAPI AllocConsole(void)
 {
-    return alloc_console( FALSE );
+    BOOL ret = alloc_console( FALSE );
+
+    /* Windows leaves ERROR_SEM_NOT_FOUND behind when it creates a console */
+    if (ret) SetLastError( ERROR_SEM_NOT_FOUND );
+    return ret;
 }
 
 
@@ -675,7 +686,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH FillConsoleOutputCharacterW( HANDLE handle, WCHAR 
  */
 BOOL WINAPI DECLSPEC_HOTPATCH FreeConsole(void)
 {
+    BOOL had_console;
+
     RtlEnterCriticalSection( &console_section );
+
+    had_console = RtlGetCurrentPeb()->ProcessParameters->ConsoleHandle != NULL;
 
     if (RtlGetCurrentPeb()->ProcessParameters->ConsoleHandle != CONSOLE_HANDLE_SHELL_NO_WINDOW)
     {
@@ -692,6 +707,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH FreeConsole(void)
     console_flags = 0;
 
     RtlLeaveCriticalSection( &console_section );
+    /* Windows leaves ERROR_INVALID_HANDLE behind when it detaches a console */
+    if (had_console) SetLastError( ERROR_INVALID_HANDLE );
     return TRUE;
 }
 
@@ -2170,7 +2187,20 @@ BOOL WINAPI DECLSPEC_HOTPATCH WriteConsoleW( HANDLE handle, const void *buffer, 
 
     ret = console_ioctl( handle, IOCTL_CONDRV_WRITE_CONSOLE, (void *)buffer,
                          length * sizeof(WCHAR), NULL, 0, NULL );
-    if (written) *written = ret ? length : 0;
+    if (ret)
+    {
+        if (written) *written = length;
+    }
+    else if (GetLastError() == ERROR_INVALID_HANDLE)
+    {
+        FILE_FS_DEVICE_INFORMATION info;
+        IO_STATUS_BLOCK io;
+
+        /* pipes and the null device reject the request itself; 'written' is left alone */
+        if (!NtQueryVolumeInformationFile( handle, &io, &info, sizeof(info), FileFsDeviceInformation ) &&
+            (info.DeviceType == FILE_DEVICE_NAMED_PIPE || info.DeviceType == FILE_DEVICE_NULL))
+            SetLastError( ERROR_INVALID_FUNCTION );
+    }
     return ret;
 }
 

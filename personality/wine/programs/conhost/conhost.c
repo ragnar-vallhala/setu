@@ -2585,6 +2585,11 @@ static NTSTATUS screen_buffer_ioctl( struct screen_buffer *screen_buffer, unsign
 
     case IOCTL_CONDRV_SET_MODE:
         if (in_size != sizeof(unsigned int) || *out_size) return STATUS_INVALID_PARAMETER;
+        /* only the documented output mode bits are accepted */
+        if (*(unsigned int *)in_data & ~(ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT |
+                                         ENABLE_VIRTUAL_TERMINAL_PROCESSING |
+                                         DISABLE_NEWLINE_AUTO_RETURN | ENABLE_LVB_GRID_WORLDWIDE))
+            return STATUS_INVALID_PARAMETER;
         screen_buffer->mode = *(unsigned int *)in_data;
         TRACE( "set %x mode\n", screen_buffer->mode );
         return STATUS_SUCCESS;
