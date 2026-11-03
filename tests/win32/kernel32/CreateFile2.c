@@ -112,6 +112,33 @@ int main(void)
     cf2_case("open_dir_no_flags", L"d", GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, NULL, NULL);
     p = params(FILE_ATTRIBUTE_DIRECTORY, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS, 0);
     cf2_case("create_dir_style", L"newdir", GENERIC_READ, 0, CREATE_NEW, &p, L"newdir");
+    /* Probes around create_dir_style: which part of the combination fails. */
+    cf2_case("create_dir_style_rw", L"newdir_rw", RW, 0, CREATE_NEW, &p, L"newdir_rw");
+    cf2_case("create_dir_style_open_always", L"newdir_oa", GENERIC_READ, 0, OPEN_ALWAYS, &p, L"newdir_oa");
+    p = params(FILE_ATTRIBUTE_DIRECTORY, FILE_FLAG_BACKUP_SEMANTICS, 0);
+    cf2_case("dir_attr_backup_only", L"newdir_b", GENERIC_READ, 0, CREATE_NEW, &p, L"newdir_b");
+    p = params(FILE_ATTRIBUTE_DIRECTORY, FILE_FLAG_POSIX_SEMANTICS, 0);
+    cf2_case("dir_attr_posix_only", L"newdir_p", GENERIC_READ, 0, CREATE_NEW, &p, L"newdir_p");
+    p = params(0, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS, 0);
+    cf2_case("backup_posix_no_dir_attr", L"newdir_n", GENERIC_READ, 0, CREATE_NEW, &p, L"newdir_n");
+    p = params(FILE_ATTRIBUTE_HIDDEN, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS, 0);
+    cf2_case("backup_posix_hidden_attr", L"newdir_h", GENERIC_READ, 0, CREATE_NEW, &p, L"newdir_h");
+    p = params(0, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS | FILE_ATTRIBUTE_DIRECTORY, 0);
+    cf2_case("dir_bit_in_flag_field", L"newdir_f", GENERIC_READ, 0, CREATE_NEW, &p, L"newdir_f");
+    p = params(FILE_ATTRIBUTE_DIRECTORY, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS, 0);
+    cf2_case("dir_style_existing_dir", L"d", GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &p, NULL);
+    {
+        HANDLE h;
+        ORACLE_CALL(h, CreateFileW(L"cfwdir", GENERIC_READ, 0, NULL, CREATE_NEW,
+                                   FILE_ATTRIBUTE_DIRECTORY | FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS,
+                                   NULL));
+        oracle_case("createfilew_dir_style");
+        o_handle("ret", h);
+        o_lasterr();
+        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        o_file_state("file", L"cfwdir");
+        oracle_case_end();
+    }
 
     {
         HANDLE ex = CreateFileW(L"a.txt", GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);

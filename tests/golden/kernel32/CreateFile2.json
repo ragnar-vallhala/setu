@@ -214,6 +214,69 @@
       "last_error": 87,
       "file.exists": false
     },
+    "create_dir_style_rw": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87,
+      "file.exists": false
+    },
+    "create_dir_style_open_always": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "dir_attr_backup_only": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "dir_attr_posix_only": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "backup_posix_no_dir_attr": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "backup_posix_hidden_attr": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000022",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "dir_bit_in_flag_field": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "dir_style_existing_dir": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "createfilew_dir_style": {
+      "ret": "valid",
+      "last_error": 0,
+      "file.exists": true,
+      "file.attrs": "0x00000010"
+    },
     "sharing_violation": {
       "ret": "INVALID_HANDLE_VALUE",
       "last_error": 32
@@ -235,9 +298,9 @@
       "last_error": 3
     },
     "final_listing": {
-      "root": "a.txt,af.txt,b.txt,bogus.txt,d,dirattr.txt,fa.txt,h.txt,n.txt,o.txt,posix.txt,q.txt,q2.txt,q3.txt,r.txt,s2.txt,t.txt,tmp.txt"
+      "root": "a.txt,af.txt,b.txt,bogus.txt,cfwdir,d,dirattr.txt,fa.txt,h.txt,n.txt,newdir_b,newdir_f,newdir_h,newdir_n,newdir_oa,newdir_p,o.txt,posix.txt,q.txt,q2.txt,q3.txt,r.txt,s2.txt,t.txt,tmp.txt"
     }
   },
   "errors": [],
-  "source_sha256": "fc5b2d7bcc9fe189ab6d164e384817b71412eb1049bafd7043c750bf2474a3cd"
+  "source_sha256": "45345bcb18aee354874c786bbd7c62f68259607b14ccde86c7e488e8ddee229a"
 }
