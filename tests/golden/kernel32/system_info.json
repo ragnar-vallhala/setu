@@ -1,0 +1,185 @@
+{
+  "test": "kernel32/system_info",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "system_info": {
+      "last_error": "unchanged",
+      "arch": 9,
+      "reserved": 0,
+      "page_size": 4096,
+      "granularity": 65536,
+      "min_app_low": "0x00010000",
+      "max_app": 140737488289791,
+      "processor_type": 8664,
+      "cpus_nonzero": true,
+      "mask_matches_count": true,
+      "level_nonzero": true
+    },
+    "native_system_info_equals_system_info": {
+      "last_error": "unchanged",
+      "equal": true
+    },
+    "processor_counts": {
+      "active_all_eq_sysinfo": true,
+      "group0_eq_sysinfo": true,
+      "max_ge_active": true,
+      "active_groups": 1,
+      "max_groups": 1,
+      "current_in_range": true
+    },
+    "active_count_bad_group": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "active_count_all_last_error": {
+      "nonzero": true,
+      "last_error": 122
+    },
+    "max_count_bad_group": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "active_group_count_last_error": {
+      "ret": 1,
+      "last_error": 122
+    },
+    "memstatusex_bad_length": {
+      "ret": false,
+      "last_error": 87
+    },
+    "memstatusex_long_length": {
+      "ret": false,
+      "last_error": 87
+    },
+    "memstatusex": {
+      "ret": true,
+      "last_error": "unchanged",
+      "length_after": 64,
+      "load_le_100": true,
+      "avail_phys_le_total": true,
+      "total_phys_nonzero": true,
+      "avail_pagefile_le_total": true,
+      "avail_virtual_le_total": true,
+      "total_virtual_matches_app_range": true,
+      "avail_extended": 0
+    },
+    "memstatusex_reserve_lowers_avail_virtual": {
+      "lowered_by_at_least_64mb": true
+    },
+    "memstatus_legacy": {
+      "last_error": "unchanged",
+      "length_after": 56,
+      "load_le_100": true,
+      "avail_phys_le_total": true,
+      "total_virtual_matches_ex": true
+    },
+    "physically_installed": {
+      "present": true,
+      "ret": true,
+      "ge_total_phys": true
+    },
+    "physically_installed_null": {
+      "ret": false,
+      "last_error": 87
+    },
+    "lpi_query_size": {
+      "ret": false,
+      "last_error": 122,
+      "len_multiple_of_entry": true,
+      "len_nonzero": true
+    },
+    "lpi_too_small": {
+      "ret": false,
+      "last_error": 122,
+      "len_reported_full": true
+    },
+    "lpi_full": {
+      "ret": true,
+      "last_error": "unchanged",
+      "has_core": true,
+      "core_logical_eq_cpus": true,
+      "core_masks_disjoint": true,
+      "core_union_eq_active_mask": true,
+      "has_package": true,
+      "has_numa": true,
+      "has_l1": true,
+      "bad_cache_entries": 0
+    },
+    "lpix_core_query_size": {
+      "ret": false,
+      "last_error": 122,
+      "len_nonzero": true
+    },
+    "lpix_core": {
+      "ret": true,
+      "last_error": "unchanged",
+      "entries_nonzero": true,
+      "wrong_relationship": 0,
+      "bad_size": false,
+      "logical_eq_cpus": true
+    },
+    "lpix_group_query_size": {
+      "ret": false,
+      "last_error": 122
+    },
+    "lpix_group": {
+      "ret": true,
+      "one_entry": true,
+      "active_groups": 1,
+      "group0_active_eq_cpus": true,
+      "group0_mask_eq_sysinfo": true
+    },
+    "lpix_bad_relationship": {
+      "ret": false,
+      "last_error": 31
+    },
+    "probe_lpix_relationship_5": {
+      "ret": false,
+      "last_error": 31,
+      "len_nonzero": false
+    },
+    "probe_lpix_relationship_6": {
+      "ret": false,
+      "last_error": 31,
+      "len_nonzero": false
+    },
+    "probe_lpix_relationship_7": {
+      "ret": false,
+      "last_error": 31,
+      "len_nonzero": false
+    },
+    "probe_lpix_relationship_8": {
+      "ret": false,
+      "last_error": 31,
+      "len_nonzero": false
+    },
+    "iswow64": {
+      "ret": true,
+      "last_error": "unchanged",
+      "wow64": 0
+    },
+    "iswow64_2": {
+      "present": true,
+      "ret": true,
+      "process_machine": "0x00000000",
+      "native_machine": "0x00008664"
+    },
+    "large_page_minimum": {
+      "bytes": 2097152
+    },
+    "processor_features": {
+      "sse2": true,
+      "sse": true,
+      "rdtsc": true,
+      "cmpxchg_double": true,
+      "nx": true,
+      "fp_errata": false,
+      "feature_63": false,
+      "feature_200": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "1e8f9eb5842f3d8aa3df85fde0caf420e3d8203eae82ca8c300be4cdf2060541"
+}
