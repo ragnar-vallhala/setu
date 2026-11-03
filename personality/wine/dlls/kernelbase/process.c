@@ -168,8 +168,8 @@ static RTL_USER_PROCESS_PARAMETERS *create_process_params( const WCHAR *filename
     WCHAR imagepath[MAX_PATH];
     WCHAR *envW = env;
 
-    if (!GetLongPathNameW( filename, imagepath, MAX_PATH )) lstrcpynW( imagepath, filename, MAX_PATH );
-    if (!GetFullPathNameW( imagepath, MAX_PATH, imagepath, NULL )) lstrcpynW( imagepath, filename, MAX_PATH );
+    /* the image path keeps the caller's spelling: case and short names are not expanded */
+    if (!GetFullPathNameW( filename, MAX_PATH, imagepath, NULL )) lstrcpynW( imagepath, filename, MAX_PATH );
 
     if (env && !(flags & CREATE_UNICODE_ENVIRONMENT))  /* convert environment to unicode */
     {
