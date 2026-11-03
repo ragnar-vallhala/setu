@@ -63,7 +63,21 @@ static BOOL find_exe_file( const WCHAR *name, WCHAR *buffer, DWORD buflen )
     {
         HANDLE handle = CreateFileW( buffer, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_DELETE,
                                      NULL, OPEN_EXISTING, 0, 0 );
-        if ((ret = (handle != INVALID_HANDLE_VALUE))) CloseHandle( handle );
+        if ((ret = (handle != INVALID_HANDLE_VALUE)))
+        {
+            /* Windows only tries the name with ".exe" appended: the fallback
+             * without it is for Unix programs, not for Windows executables */
+            char magic[2];
+            DWORD count;
+
+            if (unix_app && ReadFile( handle, magic, sizeof(magic), &count, NULL ) &&
+                count == sizeof(magic) && magic[0] == 'M' && magic[1] == 'Z')
+            {
+                ret = FALSE;
+                SetLastError( ERROR_FILE_NOT_FOUND );
+            }
+            CloseHandle( handle );
+        }
         else
         {
             DWORD attr = GetFileAttributesW( buffer );
