@@ -1214,7 +1214,23 @@ DECL_HANDLER(read_directory_changes)
 
     dir = get_dir_obj( current->process, req->async.handle, 0 );
     if (!dir)
+    {
+        /* a handle to a file rather than a directory is an invalid parameter */
+        if (get_error() == STATUS_OBJECT_TYPE_MISMATCH)
+        {
+            struct object *obj = get_handle_obj( current->process, req->async.handle, 0, NULL );
+            struct fd *fd = obj ? get_obj_fd( obj ) : NULL;
+
+            if (fd)
+            {
+                set_error( STATUS_INVALID_PARAMETER );
+                release_object( fd );
+            }
+            else set_error( STATUS_OBJECT_TYPE_MISMATCH );
+            if (obj) release_object( obj );
+        }
         return;
+    }
 
     /* requests don't timeout */
     if (!(async = create_async( dir->fd, current, &req->async, NULL ))) goto end;
