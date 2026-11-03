@@ -1444,6 +1444,7 @@
     "kernel32/ReOpenFile:invalid_handle",
     "kernel32/ReOpenFile:null_handle",
     "kernel32/ReOpenFile:orig_exclusive_reopen_read",
+    "kernel32/ReOpenFile:orig_renamed",
     "kernel32/ReOpenFile:orig_share_read_reopen_write",
     "kernel32/ReOpenFile:security_flags",
     "kernel32/ReOpenFile:share_none_conflicts_with_orig",

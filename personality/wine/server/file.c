@@ -564,7 +564,7 @@ static struct object *file_open_file( struct object *obj, unsigned int access,
 
     assert( obj->ops == &file_ops );
 
-    if ((unix_name = dup_fd_name( file->fd, "" )))
+    if ((unix_name = dup_fd_reopen_name( file->fd )))
     {
         get_nt_name( file->fd, &nt_name );
         new_file = create_file( NULL, unix_name, strlen(unix_name), nt_name, access,

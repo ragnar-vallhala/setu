@@ -2006,6 +2006,31 @@ char *dup_fd_name( struct fd *root, const char *name )
     return ret;
 }
 
+/* the name to open the file of an fd again: its own name, unless the file
+ * has been renamed or deleted since */
+char *dup_fd_reopen_name( struct fd *fd )
+{
+    char proc[32], *ret;
+    struct stat st;
+    ssize_t len;
+
+    if (!fd->unix_name) return NULL;
+    if (fd->unix_fd == -1 || !fd->inode ||
+        (!stat( fd->unix_name, &st ) && st.st_dev == fd->inode->device->dev && st.st_ino == fd->inode->ino))
+        return strdup( fd->unix_name );
+
+    snprintf( proc, sizeof(proc), "/proc/self/fd/%d", fd->unix_fd );
+    if (!(ret = malloc( PATH_MAX ))) return NULL;
+    len = readlink( proc, ret, PATH_MAX - 1 );
+    if (len > 0 && ret[0] == '/' && (len < 10 || memcmp( ret + len - 10, " (deleted)", 10 )))
+    {
+        ret[len] = 0;  /* where the file is now */
+        return ret;
+    }
+    strcpy( ret, proc );  /* the file has no name left */
+    return ret;
+}
+
 static WCHAR *dup_nt_name( struct fd *root, struct unicode_str name, data_size_t *len )
 {
     WCHAR *ptr, *ret;

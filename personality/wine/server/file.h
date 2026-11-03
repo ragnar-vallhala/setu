@@ -107,6 +107,7 @@ extern void check_fd_lock( struct fd *fd, file_pos_t offset, file_pos_t count, i
 extern void allow_fd_caching( struct fd *fd );
 extern void set_fd_signaled( struct fd *fd, int signaled );
 extern char *dup_fd_name( struct fd *root, const char *name ) __WINE_DEALLOC(free) __WINE_MALLOC;
+extern char *dup_fd_reopen_name( struct fd *fd ) __WINE_DEALLOC(free) __WINE_MALLOC;
 extern void get_nt_name( struct fd *fd, struct unicode_str *name );
 
 extern struct object *default_fd_get_sync( struct object *obj );
