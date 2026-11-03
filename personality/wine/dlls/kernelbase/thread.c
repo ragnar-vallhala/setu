@@ -761,7 +761,7 @@ DWORD WINAPI DECLSPEC_HOTPATCH TlsAlloc(void)
                 index += TLS_MINIMUM_AVAILABLE;
             }
         }
-        else SetLastError( ERROR_NO_MORE_ITEMS );
+        else SetLastError( ERROR_NOT_ENOUGH_MEMORY );  /* what Windows reports when out of indexes */
     }
     RtlReleasePebLock();
     return index;
