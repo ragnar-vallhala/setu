@@ -959,6 +959,7 @@
     "kernel32/FlushFileBuffers:delete_on_close",
     "kernel32/FlushFileBuffers:directory_read",
     "kernel32/FlushFileBuffers:directory_write",
+    "kernel32/FlushFileBuffers:duplicate_read_handle_for_write",
     "kernel32/FlushFileBuffers:event_handle",
     "kernel32/FlushFileBuffers:file_append_data",
     "kernel32/FlushFileBuffers:file_content",

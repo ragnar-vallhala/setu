@@ -600,6 +600,13 @@ obj_handle_t duplicate_handle( struct process *src, obj_handle_t src_handle, str
     /* asking for the more access rights than src_access? */
     if (access & ~src_access)
     {
+        /* the access of a file object is decided when the file is opened */
+        if (obj->ops->type == &file_type)
+        {
+            set_error( STATUS_ACCESS_DENIED );
+            release_object( obj );
+            return 0;
+        }
         if ((current->token && !check_object_access( current->token, obj, &access )) ||
             !check_object_access( dst->token, obj, &access ))
         {
