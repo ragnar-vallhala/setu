@@ -2179,7 +2179,8 @@ DECL_HANDLER(queue_apc)
         break;
     case APC_DUP_HANDLE:
         process = get_process_from_handle( req->handle, PROCESS_DUP_HANDLE );
-        if (process && process != current->process)
+        /* a NULL destination only closes the source handle */
+        if (process && process != current->process && apc->call.dup_handle.dst_process)
         {
             /* duplicate the destination process handle into the target process */
             obj_handle_t handle = duplicate_handle( current->process, apc->call.dup_handle.dst_process,

@@ -576,7 +576,13 @@ obj_handle_t duplicate_handle( struct process *src, obj_handle_t src_handle, str
     obj_handle_t res;
     struct handle_entry *entry;
     unsigned int src_access, src_flags;
-    struct object *obj = get_handle_obj( src, src_handle, 0, NULL );
+    struct object *obj;
+
+    /* the current process pseudo-handle names the source process itself */
+    if (src != current->process && (src_handle == 0xffffffff || src_handle == 0x7fffffff))
+        obj = grab_object( src );
+    else
+        obj = get_handle_obj( src, src_handle, 0, NULL );
 
     if (!obj) return 0;
     if ((entry = get_handle( src, src_handle )))
@@ -699,6 +705,10 @@ DECL_HANDLER(dup_handle)
             reply->handle = duplicate_handle( src, req->src_handle, NULL,
                                               req->access, req->attributes, req->options );
         }
+        else if (!req->dst_process && (req->options & DUPLICATE_CLOSE_SOURCE))
+        {
+            /* no target: just close the source handle */
+        }
         else if ((dst = get_process_from_handle( req->dst_process, PROCESS_DUP_HANDLE )))
         {
             reply->handle = duplicate_handle( src, req->src_handle, dst,
@@ -707,7 +717,10 @@ DECL_HANDLER(dup_handle)
         }
         /* close the handle no matter what happened */
         if ((req->options & DUPLICATE_CLOSE_SOURCE) && (src != dst || req->src_handle != reply->handle))
-            close_handle( src, req->src_handle );
+        {
+            unsigned int err = close_handle( src, req->src_handle );
+            if (!dst && !req->dst_process) set_error( err );
+        }
         release_object( src );
     }
 }

@@ -765,7 +765,15 @@ unsigned int server_select( const union select_op *select_op, data_size_t size, 
             SERVER_END_REQ;
 
             if (ret != STATUS_KERNEL_APC) break;
-            invoke_system_apc( &reply_data.call, &result, FALSE );
+            if (reply_data.call.type == APC_DUP_HANDLE && reply_data.call.dup_handle.src_handle == apc_handle)
+            {
+                /* The handle named by the caller was closed and its value now
+                 * belongs to the APC object itself; it is not the caller's to touch. */
+                memset( &result, 0, sizeof(result) );
+                result.type = APC_DUP_HANDLE;
+                result.dup_handle.status = STATUS_INVALID_HANDLE;
+            }
+            else invoke_system_apc( &reply_data.call, &result, FALSE );
 
             /* don't signal multiple times */
             if (size >= sizeof(select_op->signal_and_wait) && select_op->op == SELECT_SIGNAL_AND_WAIT)
@@ -1850,7 +1858,7 @@ NTSTATUS WINAPI NtDuplicateObject( HANDLE source_process, HANDLE source, HANDLE 
         ret = server_queue_process_apc( source_process, &call, &result );
         if (ret != STATUS_SUCCESS) return ret;
 
-        if (!result.dup_handle.status)
+        if (!result.dup_handle.status && dest)
             *dest = wine_server_ptr_handle( result.dup_handle.handle );
         return result.dup_handle.status;
     }
