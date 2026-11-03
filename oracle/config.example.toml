@@ -31,5 +31,25 @@ revert = "loadvm"       # "loadvm" | "command" | "none"
 snapshot = "clean"
 monitor = "oracle/vm/state/monitor.sock"
 revert_command = ""     # used when revert = "command", e.g. a virsh snapshot-revert line
-revert_each_test = false
+revert_each_test = true # revert before every test (false = once per run, like --revert-once)
 ssh_ready_timeout = 180
+lock_wait = 7200        # give up when no VM of the pool is free for this long (seconds)
+
+# The VM pool. Leave it out to use the VMs that vmctl.sh made (oracle/vm/state
+# and oracle/vm/state-N, see docs/ORACLE.md "The VM pool"). Setting
+# host/port/monitor above without any [[windows.vms]] means a single VM.
+# Each [[windows.vms]] table overrides [windows] keys for one VM, plus
+# `name`, `lock` (default: oracle.lock next to the monitor socket) and
+# `extra_locks` (more files to flock while using the VM).
+#
+# [[windows.vms]]
+# name = "setu-oracle"
+# port = 2222
+# monitor = "oracle/vm/state/monitor.sock"
+# extra_locks = ["/path/to/old/vm.lock"]
+#
+# [[windows.vms]]
+# name = "setu-oracle-2"
+# port = 2223
+# monitor = "oracle/vm/state-2/monitor.sock"
+# known_hosts = "oracle/vm/state-2/known_hosts"

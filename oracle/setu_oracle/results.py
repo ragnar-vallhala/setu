@@ -69,5 +69,36 @@ def comparable(res: dict) -> dict:
     return {"exit_code": res["exit_code"], "complete": res["complete"], "cases": res["cases"]}
 
 
+def _j(v) -> str:
+    return v if v == "<absent>" else json.dumps(v, ensure_ascii=False)
+
+
+def differences(a: dict, b: dict, la: str = "run 1", lb: str = "run 2", limit: int = 20) -> list[str]:
+    """Human-readable list of what differs between two results' comparable parts.
+
+    Used for flake detection (two Windows runs of one test) and by
+    `windows --verify` (a fresh Windows run against the committed golden).
+    """
+    out: list[str] = []
+    for key in ("exit_code", "complete"):
+        if a.get(key) != b.get(key):
+            out.append(f"{key}: {la} {_j(a.get(key))} · {lb} {_j(b.get(key))}")
+    ca, cb = a.get("cases", {}), b.get("cases", {})
+    for name in list(ca) + [n for n in cb if n not in ca]:
+        if name not in cb:
+            out.append(f"case {name}: only in {la}")
+        elif name not in ca:
+            out.append(f"case {name}: only in {lb}")
+        elif ca[name] != cb[name]:
+            x, y = ca[name], cb[name]
+            for f in list(x) + [k for k in y if k not in x]:
+                vx, vy = x.get(f, "<absent>"), y.get(f, "<absent>")
+                if vx != vy:
+                    out.append(f"case {name}: {f}: {la} {_j(vx)} · {lb} {_j(vy)}")
+    if len(out) > limit:
+        out = out[:limit] + [f"... and {len(out) - limit} more differences"]
+    return out
+
+
 def dump(obj: dict) -> str:
     return json.dumps(obj, indent=2, ensure_ascii=False) + "\n"

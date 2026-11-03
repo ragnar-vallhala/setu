@@ -75,8 +75,19 @@ DEFAULTS: dict = {
         "snapshot": "clean",
         "monitor": str(VM_STATE / "monitor.sock"),
         "revert_command": "",
-        "revert_each_test": False,
+        # Revert before every test run (each repeat included), so a test that
+        # leaves files, registry keys or processes behind can't affect the
+        # next one. `--revert-once` turns it off for one invocation.
+        "revert_each_test": True,
         "ssh_ready_timeout": 180,
+        # The VM pool (see setu_oracle/pool.py). Empty = discover the VMs
+        # from oracle/vm/state and oracle/vm/state-*/ (vmctl.sh --vm N).
+        # Each entry is a table that overrides keys of [windows] for one VM:
+        #   name, host, port, monitor, identity, known_hosts, snapshot,
+        #   lock (lock file path), extra_locks (more lock files to hold).
+        "vms": [],
+        # Give up if no VM of the pool is free after this many seconds.
+        "lock_wait": 7200,
     },
 }
 
@@ -95,6 +106,7 @@ def _merge(base: dict, over: dict) -> dict:
 class Config:
     data: dict
     path: Path | None
+    user: dict | None = None  # the config file's own content, before defaults
 
     def __getitem__(self, section: str) -> dict:
         return self.data[section]
@@ -104,9 +116,11 @@ def load(path: str | None = None) -> Config:
     p = Path(path) if path else ORACLE_DIR / "config.toml"
     data = DEFAULTS
     used = None
+    user: dict = {}
     if p.exists():
         with open(p, "rb") as f:
-            data = _merge(DEFAULTS, tomllib.load(f))
+            user = tomllib.load(f)
+        data = _merge(DEFAULTS, user)
         used = p
     elif path:
         raise SystemExit(f"config file not found: {p}")
@@ -131,4 +145,10 @@ def load(path: str | None = None) -> Config:
             data[section][key] = str(REPO / v)
         elif v:
             data[section][key] = os.path.expanduser(v)
-    return Config(data, used)
+    return Config(data, used, user)
+
+
+def repo_path(v: str) -> str:
+    """A config path: ~ expanded, relative paths taken from the repository root."""
+    v = os.path.expanduser(v)
+    return v if os.path.isabs(v) else str(REPO / v)

@@ -3,8 +3,8 @@
 
 * WineTarget    - the Setu side: the personality built from personality/wine
                   (tools/build-personality.sh), or stock Wine as a fallback.
-* WindowsTarget - a real Windows 11 VM reached over SSH, reverted to a clean
-                  snapshot before each run. Produces golden files.
+* WindowsTarget - a real Windows VM of the pool, reached over SSH, reverted to
+                  a clean snapshot before each test. Produces golden files.
 """
 from __future__ import annotations
 
@@ -25,6 +25,9 @@ class Target:
     name = "?"
 
     def prepare(self, tests: list[Test]) -> None: ...
+
+    def start_test(self, test: Test) -> None:
+        """Called once before a test's (possibly repeated) runs."""
 
     def run(self, test: Test) -> RawRun:
         raise NotImplementedError
@@ -183,21 +186,35 @@ class WineTarget(Target):
 
 
 class WindowsTarget(Target):
-    """Runs tests on a Windows VM over OpenSSH.
+    """Runs tests on one Windows VM of the pool over OpenSSH.
 
     The guest's default SSH shell is cmd.exe, and Win32-OpenSSH runs each command
     as `cmd.exe /c "<command>"`. So commands are plain cmd syntax: don't add
     another `cmd /c` prefix, or the nested cmd sees a stray trailing quote.
+
+    With `revert_each_test` (the default), every test starts from the clean
+    snapshot: start_test() reverts and copies that one program in. Its
+    repeated runs then follow back to back, so the second run also shows
+    whether the first one left state behind that changes its output (the
+    Setu side repeats tests the same way, without a reset). Otherwise
+    prepare() reverts once and copies every program, and all tests share
+    the machine.
     """
 
     name = "windows"
 
-    def __init__(self, cfg: Config, revert: bool = True):
-        c = self.c = cfg["windows"]
+    def __init__(self, cfg: Config, revert: bool = True, settings: dict | None = None,
+                 vm_name: str = "setu-oracle", revert_each_test: bool | None = None):
+        c = self.c = settings or cfg["windows"]
+        self.vm_name = vm_name
         self.timeout = cfg["run"]["timeout"]
         self.revert_enabled = revert and c["revert"] != "none"
+        each = c["revert_each_test"] if revert_each_test is None else revert_each_test
+        self.per_test = self.revert_enabled and each
         self.dest = f"{c['user']}@{c['host']}"
         self.rdir = c["remote_dir"].rstrip("\\")
+        self.staging = BUILD_DIR / f"stage-windows-{vm_name}"
+        self.revert_times: list[tuple[float, float]] = []  # (loadvm s, until SSH answers s)
         ctl = BUILD_DIR / "ssh-ctl"
         # A Unix socket path is limited to 108 bytes and %C adds 40: deep
         # checkouts (e.g. git worktrees) use a short private directory instead.
@@ -232,6 +249,10 @@ class WindowsTarget(Target):
         if r.returncode != 0:
             raise RuntimeError(f"scp failed: {r.stderr.decode(errors='replace')}")
 
+    def _close_master(self) -> None:
+        subprocess.run(["ssh", *self.common, "-p", str(self.c["port"]), "-O", "exit", self.dest],
+                       capture_output=True)
+
     def wait_ready(self) -> None:
         deadline = time.time() + self.c["ssh_ready_timeout"]
         last = ""
@@ -243,15 +264,15 @@ class WindowsTarget(Target):
                 last = r.stderr.decode(errors="replace").strip()
             except subprocess.TimeoutExpired:
                 last = "timeout"
-            time.sleep(3)
+            time.sleep(0.5)
         raise SystemExit(f"windows: SSH not reachable at {self.dest}:{self.c['port']} ({last}).\n"
                          "  Is the VM running? Try: oracle/vm/vmctl.sh status")
 
     def revert(self) -> None:
         mode = self.c["revert"]
         # Close any multiplexed SSH connection first: it won't survive the revert.
-        subprocess.run(["ssh", *self.common, "-p", str(self.c["port"]), "-O", "exit", self.dest],
-                       capture_output=True)
+        self._close_master()
+        t0 = time.time()
         if mode == "loadvm":
             if not os.path.exists(self.c["monitor"]):
                 raise SystemExit(f"windows: QEMU monitor socket {self.c['monitor']} not found. "
@@ -264,34 +285,43 @@ class WindowsTarget(Target):
                 hmp.command(self.c["monitor"], "cont")
         elif mode == "command":
             subprocess.run(self.c["revert_command"], shell=True, check=True)
+        t1 = time.time()
         self.wait_ready()
+        self.revert_times.append((t1 - t0, time.time() - t1))
 
-    # -- target API
-    def prepare(self, tests: list[Test]) -> None:
-        if self.revert_enabled:
-            print(f"windows: reverting VM to snapshot '{self.c['snapshot']}' ...")
-            self.revert()
-        else:
-            self.wait_ready()
+    def _upload(self, tests: list[Test]) -> None:
+        """Fresh C:\\setu-oracle\\{bin,work} holding the given test programs."""
         rd = self.rdir
         self.ssh(f"if exist {rd} rmdir /s /q {rd}", timeout=120)
         self.ssh(f"mkdir {rd}\\bin && mkdir {rd}\\work", check=True)
-        staging = BUILD_DIR / "stage-windows"
-        if staging.exists():
-            shutil.rmtree(staging)
-        staging.mkdir(parents=True)
-        files = []
+        self.scp([self.staging / f"{t.flat}.exe" for t in tests], rd.replace("\\", "/") + "/bin/")
+
+    # -- target API
+    def prepare(self, tests: list[Test]) -> None:
+        if self.staging.exists():
+            shutil.rmtree(self.staging)
+        self.staging.mkdir(parents=True)
         for t in tests:
-            dst = staging / f"{t.flat}.exe"
-            shutil.copy2(t.exe, dst)
-            files.append(dst)
-        print(f"windows: copying {len(files)} test programs to {rd}\\bin")
-        self.scp(files, rd.replace("\\", "/") + "/bin/")
+            if t.exe.exists():
+                shutil.copy2(t.exe, self.staging / f"{t.flat}.exe")
+        if self.per_test:
+            return  # run() reverts and uploads per test
+        if self.revert_enabled:
+            print(f"windows[{self.vm_name}]: reverting VM to snapshot '{self.c['snapshot']}' ...")
+            self.revert()
+        else:
+            self.wait_ready()
+        present = [t for t in tests if t.exe.exists()]
+        print(f"windows[{self.vm_name}]: copying {len(present)} test programs to {self.rdir}\\bin")
+        if present:
+            self._upload(present)
+
+    def start_test(self, test: Test) -> None:
+        if self.per_test:
+            self.revert()
+            self._upload([test])
 
     def run(self, test: Test) -> RawRun:
-        if self.revert_enabled and self.c["revert_each_test"]:
-            self.revert()
-            self.prepare_single(test)
         rd, f = self.rdir, test.flat
         w = f"{rd}\\work\\{f}"
         # Fresh, empty working directory for every run (repeats included).
@@ -303,18 +333,10 @@ class WindowsTarget(Target):
             self.ssh(f"taskkill /f /im {f}.exe", timeout=30)
             return RawRun(e.stdout or b"", e.stderr or b"", None, f"timeout after {self.timeout}s")
 
-    def prepare_single(self, test: Test) -> None:
-        rd = self.rdir
-        self.ssh(f"if not exist {rd}\\bin mkdir {rd}\\bin", timeout=60)
-        self.ssh(f"if not exist {rd}\\work mkdir {rd}\\work", timeout=60)
-        dst = BUILD_DIR / "stage-windows" / f"{test.flat}.exe"
-        self.scp([dst], rd.replace("\\", "/") + "/bin/")
-
     def describe(self) -> dict:
         r = self.ssh("ver", timeout=30)
         ver = r.stdout.decode(errors="replace").strip()
         return {"target": "windows", "version": ver}
 
     def finish(self) -> None:
-        subprocess.run(["ssh", *self.common, "-p", str(self.c["port"]), "-O", "exit", self.dest],
-                       capture_output=True)
+        self._close_master()
