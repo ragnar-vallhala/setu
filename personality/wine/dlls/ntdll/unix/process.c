@@ -1179,6 +1179,8 @@ NTSTATUS WINAPI NtQueryInformationProcess( HANDLE handle, PROCESSINFOCLASS class
                     }
                     SERVER_END_REQ;
 
+                    /* nothing is written for a handle that isn't a process */
+                    if (ret) return ret;
                     memcpy( info, &pbi, sizeof(PROCESS_BASIC_INFORMATION) );
                     len = sizeof(PROCESS_BASIC_INFORMATION);
                 }
