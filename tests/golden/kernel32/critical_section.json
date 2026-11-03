@@ -1,0 +1,224 @@
+{
+  "test": "kernel32/critical_section",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "init_state": {
+      "recursion": 0,
+      "owner_is_me": false,
+      "owner_zero": true
+    },
+    "try_enter_free": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_try_enter": {
+      "recursion": 1,
+      "owner_is_me": true,
+      "owner_zero": false
+    },
+    "try_enter_recursive": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_try_enter_recursive": {
+      "recursion": 2,
+      "owner_is_me": true,
+      "owner_zero": false
+    },
+    "after_enter_third": {
+      "recursion": 3,
+      "owner_is_me": true,
+      "owner_zero": false
+    },
+    "try_enter_other_thread_while_owned": {
+      "got": 0
+    },
+    "leave_keeps_last_error": {
+      "last_error": "unchanged"
+    },
+    "after_leave_one": {
+      "recursion": 2,
+      "owner_is_me": true,
+      "owner_zero": false
+    },
+    "after_leave_two": {
+      "recursion": 1,
+      "owner_is_me": true,
+      "owner_zero": false
+    },
+    "try_enter_other_thread_still_owned": {
+      "got": 0
+    },
+    "after_leave_all": {
+      "recursion": 0,
+      "owner_is_me": false,
+      "owner_zero": true
+    },
+    "try_enter_other_thread_after_leave": {
+      "got": 1
+    },
+    "after_other_thread_entered_and_left": {
+      "recursion": 0,
+      "owner_is_me": false,
+      "owner_zero": true
+    },
+    "enter_blocks_until_leave": {
+      "not_entered_while_owned": true,
+      "thread_result": 1,
+      "entered_after_leave": true
+    },
+    "after_blocking_handoff": {
+      "recursion": 0,
+      "owner_is_me": false,
+      "owner_zero": true
+    },
+    "orphaned_try_enter": {
+      "ret": false,
+      "last_error": "unchanged",
+      "recursion": 1,
+      "owner_is_me": false,
+      "owner_zero": false
+    },
+    "init_spin_4000": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_spin_returns_previous": {
+      "prev_is_4000_or_0": true,
+      "prev_is_4000": true,
+      "last_error": "unchanged"
+    },
+    "set_spin_again": {
+      "prev_is_100": true,
+      "last_error": "unchanged"
+    },
+    "spin_cs_try_enter": {
+      "ret": true
+    },
+    "init_spin_high_bit": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "init_spin_high_bit_stored": {
+      "prev_is_0x400": true,
+      "prev_is_0x80000400": false,
+      "prev_is_0": false
+    },
+    "init_ex_no_flags": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "init_ex_spin_stored": {
+      "prev_is_1000": true,
+      "prev_is_0": false
+    },
+    "init_ex_no_debug_info": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "init_ex_no_debug_info_usable": {
+      "try": true,
+      "recursion": 1
+    },
+    "init_ex_low_flag_bit": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "init_ex_spin_with_flag_bits": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_init_ex_spin_00ffffff": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x00ffffff"
+    },
+    "probe_init_ex_spin_80000000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_init_ex_spin_10000000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_init_ex_flag_80000000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_init_ex_flag_10000000": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x000007d0"
+    },
+    "probe_init_ex_flag_00ffffff": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x000007d0"
+    },
+    "probe_init_ex_flag_02000000": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x000007d0"
+    },
+    "probe_init_ex_flag_04000000": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x00000000"
+    },
+    "probe_init_ex_flag_08000000": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x000007d0"
+    },
+    "probe_init_ex_flag_20000000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_init_ex_flag_40000000": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_init_spin_01000400": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x00000400"
+    },
+    "probe_init_spin_ffffffff": {
+      "ret": true,
+      "last_error": "unchanged",
+      "spin_stored": "0x00ffffff"
+    },
+    "probe_set_spin_high_bits": {
+      "prev": "0x000007d0",
+      "stored": "0x00000123"
+    },
+    "delete_keeps_last_error": {
+      "last_error": "unchanged"
+    },
+    "reinit_state": {
+      "recursion": 0,
+      "owner_is_me": false,
+      "owner_zero": true
+    },
+    "reinit_try_enter": {
+      "ret": true
+    },
+    "recursion_1000": {
+      "recursion": 1000,
+      "owner_is_me": true,
+      "owner_zero": false
+    },
+    "recursion_back_to_1": {
+      "recursion": 1,
+      "owner_is_me": true,
+      "owner_zero": false
+    },
+    "recursion_released_other_thread": {
+      "got": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "1f9c8a637f92642dadab02f86109e0a4318a6cb0fab718a0bdc201b96ff6eb16"
+}
