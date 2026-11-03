@@ -3977,6 +3977,12 @@ NTSTATUS WINAPI NtQuerySystemInformationEx( SYSTEM_INFORMATION_CLASS class,
         }
 
         relation = *(DWORD *)query;
+        /* Windows 10 19045 knows relationships up to RelationGroup only. */
+        if (relation > RelationGroup && relation != RelationAll)
+        {
+            ret = STATUS_UNSUCCESSFUL;
+            break;
+        }
         len = 0;
         p = logical_proc_info_ex;
         while ((char *)p != (char *)logical_proc_info_ex + logical_proc_info_ex_size)

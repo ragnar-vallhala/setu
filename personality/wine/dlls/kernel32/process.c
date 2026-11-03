@@ -655,6 +655,8 @@ DWORD WINAPI GetActiveProcessorCount(WORD group)
     {
         if (group < info->Group.ActiveGroupCount)
             cpus = info->Group.GroupInfo[group].ActiveProcessorCount;
+        else
+            SetLastError( ERROR_INVALID_PARAMETER );
     }
 
     HeapFree(GetProcessHeap(), 0, info);
@@ -682,6 +684,8 @@ DWORD WINAPI GetMaximumProcessorCount(WORD group)
     {
         if (group < info->Group.MaximumGroupCount)
             cpus = info->Group.GroupInfo[group].MaximumProcessorCount;
+        else
+            SetLastError( ERROR_INVALID_PARAMETER );
     }
 
     HeapFree(GetProcessHeap(), 0, info);
