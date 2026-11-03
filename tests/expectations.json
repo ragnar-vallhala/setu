@@ -1050,6 +1050,7 @@
     "kernel32/GetFileInformationByHandle:hardlink_one",
     "kernel32/GetFileInformationByHandle:hardlink_two_via_original",
     "kernel32/GetFileInformationByHandle:invalid_handle_value",
+    "kernel32/GetFileInformationByHandle:nul_device",
     "kernel32/GetFileInformationByHandle:null_handle",
     "kernel32/GetFileInformationByHandle:other_file_empty",
     "kernel32/GetFileInformationByHandle:renamed_keeps_index",

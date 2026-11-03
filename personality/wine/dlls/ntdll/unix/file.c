@@ -5191,6 +5191,8 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
     case FileBasicInformation:
         if (fd_get_file_info( handle, fd, options, &st, &attr, NULL ) == -1)
             status = errno_to_status( errno );
+        else if (S_ISCHR(st.st_mode))
+            status = STATUS_INVALID_DEVICE_REQUEST;  /* the NUL device has no file information */
         else if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
             status = STATUS_INVALID_INFO_CLASS;
         else
@@ -5326,6 +5328,8 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
     case FileStatInformation:
         if (fd_get_file_info( handle, fd, options, &st, &attr, &reparse_tag ) == -1)
             status = errno_to_status( errno );
+        else if (S_ISCHR(st.st_mode))
+            status = STATUS_INVALID_DEVICE_REQUEST;  /* the NUL device has no file information */
         else if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
             status = STATUS_INVALID_INFO_CLASS;
         else
@@ -5446,6 +5450,14 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
                 return io->Status = status;
             if ((status = server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, NULL )))
                 return io->Status = status;
+
+            /* the NUL device has no attributes or times to set */
+            if (!fstat( fd, &st ) && S_ISCHR( st.st_mode ))
+            {
+                if (needs_close) close( fd );
+                status = STATUS_INVALID_DEVICE_REQUEST;
+                break;
+            }
 
             /* only a directory can carry FILE_ATTRIBUTE_DIRECTORY */
             if ((info->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
