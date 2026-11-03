@@ -180,7 +180,19 @@ typedef struct
 #endif
 
 #define SAMBA_XATTR_DOS_ATTRIB  XATTR_USER_PREFIX "DOSATTRIB"
+#ifndef FILE_ATTRIBUTE_PINNED
+#define FILE_ATTRIBUTE_PINNED   0x00080000
+#define FILE_ATTRIBUTE_UNPINNED 0x00100000
+#endif
 #define XATTR_ATTRIBS_MASK      (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)
+/* the attributes kept in SAMBA_XATTR_DOS_ATTRIB; a file's READONLY and
+ * ARCHIVE attributes come from its mode and XATTR_NOARCHIVE instead, a
+ * directory keeps them here */
+#define XATTR_STORED_MASK       (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_TEMPORARY | \
+                                 FILE_ATTRIBUTE_OFFLINE | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED | \
+                                 FILE_ATTRIBUTE_NO_SCRUB_DATA | FILE_ATTRIBUTE_PINNED | FILE_ATTRIBUTE_UNPINNED)
+#define XATTR_DIR_STORED_MASK   ((XATTR_STORED_MASK & ~FILE_ATTRIBUTE_TEMPORARY) | \
+                                 FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_ARCHIVE)
 /* Present on a file whose ARCHIVE attribute was cleared, alongside
  * SAMBA_XATTR_DOS_ATTRIB. It holds the file's mtime at that point: any
  * later modification changes the mtime, which sets ARCHIVE again, as a
@@ -1645,7 +1657,7 @@ static inline ULONG get_file_attributes( const struct stat *st )
 
 
 /* decode the xattr-stored DOS attributes */
-static int parse_samba_dos_attrib_data( char *data, int len )
+static int parse_samba_dos_attrib_data( char *data, int len, BOOL is_dir )
 {
     char *end;
     int val;
@@ -1654,7 +1666,7 @@ static int parse_samba_dos_attrib_data( char *data, int len )
     {
         data[len] = 0;
         val = strtol( data, &end, 16 );
-        if (!*end) return val & XATTR_ATTRIBS_MASK;
+        if (!*end) return val & (is_dir ? XATTR_DIR_STORED_MASK : XATTR_STORED_MASK);
     }
     else
     {
@@ -1672,7 +1684,7 @@ static ULONG get_stored_dos_attributes( const char *path )
     int len = xattr_get( path, SAMBA_XATTR_DOS_ATTRIB, data, sizeof(data) - 1 );
 
     if (len == -1) return 0;
-    return parse_samba_dos_attrib_data( data, len );
+    return parse_samba_dos_attrib_data( data, len, FALSE );
 }
 
 
@@ -1756,7 +1768,7 @@ static int fd_get_file_info( HANDLE handle, int fd, unsigned int options,
     attr_len = xattr_fget( fd, SAMBA_XATTR_DOS_ATTRIB, attr_data, sizeof(attr_data)-1 );
     if (attr_len != -1)
     {
-        *attr |= parse_samba_dos_attrib_data( attr_data, attr_len );
+        *attr |= parse_samba_dos_attrib_data( attr_data, attr_len, S_ISDIR( st->st_mode ));
         if (S_ISREG( st->st_mode ))
         {
             attr_len = xattr_fget( fd, XATTR_NOARCHIVE, attr_data, sizeof(attr_data)-1 );
@@ -1781,8 +1793,10 @@ static int fd_get_file_info( HANDLE handle, int fd, unsigned int options,
 
 static int fd_set_dos_attrib( int fd, UINT attr, BOOL force_set )
 {
-    /* we only store the HIDDEN and SYSTEM attributes */
-    attr &= XATTR_ATTRIBS_MASK;
+    struct stat st;
+
+    if (!fstat( fd, &st ) && S_ISDIR( st.st_mode )) attr &= XATTR_DIR_STORED_MASK;
+    else attr &= XATTR_STORED_MASK;
     if (force_set || attr != 0)
     {
         /* encode the attributes in Samba 3 ASCII format. Samba 4 has extended
@@ -1803,13 +1817,13 @@ static NTSTATUS fd_set_file_info( int fd, UINT attr, BOOL force_set_xattr )
     mode_t mode;
 
     if (fstat( fd, &st ) == -1) return errno_to_status( errno );
+    /* a directory can't be temporary */
+    if (S_ISDIR( st.st_mode ) && (attr & FILE_ATTRIBUTE_TEMPORARY)) return STATUS_INVALID_PARAMETER;
     mode = st.st_mode;
+    /* a directory only records READONLY, its contents stay writable */
     if (attr & FILE_ATTRIBUTE_READONLY)
     {
-        if (S_ISDIR( st.st_mode))
-            WARN("FILE_ATTRIBUTE_READONLY ignored for directory.\n");
-        else
-            mode &= ~0222; /* clear write permission bits */
+        if (!S_ISDIR( st.st_mode )) mode &= ~0222; /* clear write permission bits */
     }
     else
     {
@@ -1925,7 +1939,7 @@ static int get_file_info( const char *path, struct stat *st, ULONG *attr, ULONG 
     attr_len = xattr_get( path, SAMBA_XATTR_DOS_ATTRIB, attr_data, sizeof(attr_data)-1 );
     if (attr_len != -1)
     {
-        *attr |= parse_samba_dos_attrib_data( attr_data, attr_len );
+        *attr |= parse_samba_dos_attrib_data( attr_data, attr_len, S_ISDIR( st->st_mode ));
         if (S_ISREG( st->st_mode ))
         {
             attr_len = xattr_get( path, XATTR_NOARCHIVE, attr_data, sizeof(attr_data)-1 );
@@ -4842,9 +4856,9 @@ NTSTATUS WINAPI NtCreateFile( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBU
             break;
         }
 
-        if ((io->Information == FILE_CREATED && ((attributes & XATTR_ATTRIBS_MASK) || name_hidden)) ||
+        if ((io->Information == FILE_CREATED && ((attributes & XATTR_STORED_MASK) || name_hidden)) ||
             (disposition == FILE_OVERWRITE_IF && io->Information == FILE_OVERWRITTEN &&
-             (attributes & XATTR_ATTRIBS_MASK)))
+             (attributes & XATTR_STORED_MASK)))
         {
             int fd, needs_close;
 
