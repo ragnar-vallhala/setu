@@ -1346,7 +1346,7 @@ void WINAPI DECLSPEC_HOTPATCH GetStartupInfoW( STARTUPINFOW *info )
     params = RtlGetCurrentPeb()->ProcessParameters;
 
     info->cb              = sizeof(*info);
-    info->lpReserved      = NULL;
+    info->lpReserved      = params->ShellInfo.Buffer;  /* non-NULL on Windows, usually empty */
     info->lpDesktop       = params->Desktop.Buffer;
     info->lpTitle         = params->WindowTitle.Buffer;
     info->dwX             = params->dwX;

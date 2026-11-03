@@ -94,7 +94,7 @@ static void copy_startup_info(void)
     rupp = NtCurrentTeb()->Peb->ProcessParameters;
 
     startup_infoA.cb                   = sizeof(startup_infoA);
-    startup_infoA.lpReserved           = NULL;
+    startup_infoA.lpReserved = !RtlUnicodeStringToAnsiString( &ansi, &rupp->ShellInfo, TRUE ) ? ansi.Buffer : NULL;
     startup_infoA.lpDesktop = !RtlUnicodeStringToAnsiString( &ansi, &rupp->Desktop, TRUE ) ? ansi.Buffer : NULL;
     startup_infoA.lpTitle = !RtlUnicodeStringToAnsiString( &ansi, &rupp->WindowTitle, TRUE ) ? ansi.Buffer : NULL;
     startup_infoA.dwX                  = rupp->dwX;
