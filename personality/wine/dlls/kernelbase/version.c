@@ -1509,6 +1509,7 @@ BOOL WINAPI GetVersionExA( OSVERSIONINFOA *info )
         vex->wServicePackMinor = infoW.wServicePackMinor;
         vex->wSuiteMask        = infoW.wSuiteMask;
         vex->wProductType      = infoW.wProductType;
+        vex->wReserved         = 0;
     }
     return TRUE;
 }
@@ -1525,6 +1526,7 @@ BOOL WINAPI GetVersionExW( OSVERSIONINFOW *info )
         info->dwOSVersionInfoSize != sizeof(OSVERSIONINFOEXW))
     {
         WARN( "wrong OSVERSIONINFO size from app (got: %ld)\n", info->dwOSVersionInfoSize );
+        SetLastError( ERROR_INSUFFICIENT_BUFFER );
         return FALSE;
     }
 
@@ -1543,6 +1545,7 @@ BOOL WINAPI GetVersionExW( OSVERSIONINFOW *info )
         vex->wServicePackMinor = current_version.wServicePackMinor;
         vex->wSuiteMask        = current_version.wSuiteMask;
         vex->wProductType      = current_version.wProductType;
+        vex->wReserved         = 0;
     }
     return TRUE;
 }
