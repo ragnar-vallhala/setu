@@ -244,6 +244,94 @@
       "out": "810023",
       "used_default": 1
     },
+    "probe_dbcs_default_two": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "8181002323",
+      "used_default": 1
+    },
+    "probe_dbcs_default_mixed": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "61816288ea630023",
+      "used_default": 1
+    },
+    "probe_dbcs_default_counted": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "816223",
+      "used_default": 1
+    },
+    "probe_dbcs_default_size_query": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "used_default": 1
+    },
+    "probe_dbcs_default_exact_buffer": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "816223",
+      "used_default": 1
+    },
+    "probe_dbcs_default_short_buffer": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "816223",
+      "used_default": 1
+    },
+    "probe_dbcs_default_best_fit_on": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "81650023",
+      "used_default": 1
+    },
+    "probe_dbcs_default_used_null": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "810023"
+    },
+    "probe_dbcs_default_lead_only": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "810023",
+      "used_default": 1
+    },
+    "probe_dbcs_default_single_byte": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "2a00",
+      "used_default": 1
+    },
+    "probe_dbcs_default_kana_byte": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "b100",
+      "used_default": 1
+    },
+    "probe_dbcs_default_936": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "a1620023",
+      "used_default": 1
+    },
+    "probe_dbcs_default_949": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "a1620023",
+      "used_default": 1
+    },
+    "probe_dbcs_default_950": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "a1620023",
+      "used_default": 1
+    },
+    "probe_dbcs_default_1252_lead": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "816200",
+      "used_default": 1
+    },
     "size_query": {
       "ret": 6,
       "last_error": "unchanged"
@@ -283,5 +371,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "589a19577a7f6384a2095ca426a49b176d339f6a5fe69db571845eb38122f728"
+  "source_sha256": "c376bda54c080063320aca7a7cf51463fc213ccfc52624c64955fa3295a790f9"
 }

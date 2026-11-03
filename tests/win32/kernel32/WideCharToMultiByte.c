@@ -90,6 +90,22 @@ int main(void)
     w2m("cp949_hangul", 949, 0, L"\xd55c\xae00", NOLEN, NULL, 1, 64);
     w2m("cp950_hanzi", 950, 0, L"\x4e2d\x6587", NOLEN, NULL, 1, 64);
     w2m("cp932_default_char_dbcs", 932, WC_NO_BEST_FIT_CHARS, L"\x0100", NOLEN, "\x81\x48", 1, 64);
+    /* Probes for the double-byte default character rule. */
+    w2m("probe_dbcs_default_two", 932, WC_NO_BEST_FIT_CHARS, L"\x0100\x0101", NOLEN, "\x81\x48", 1, 64);
+    w2m("probe_dbcs_default_mixed", 932, WC_NO_BEST_FIT_CHARS, L"a\x0100" L"b\x4e00" L"c", NOLEN, "\x81\x48", 1, 64);
+    w2m("probe_dbcs_default_counted", 932, WC_NO_BEST_FIT_CHARS, L"\x0100" L"b", 2, "\x81\x48", 1, 64);
+    w2m("probe_dbcs_default_size_query", 932, WC_NO_BEST_FIT_CHARS, L"\x0100\x0101" L"b", NOLEN, "\x81\x48", 1, 0);
+    w2m("probe_dbcs_default_exact_buffer", 932, WC_NO_BEST_FIT_CHARS, L"\x0100" L"b", 2, "\x81\x48", 1, 3);
+    w2m("probe_dbcs_default_short_buffer", 932, WC_NO_BEST_FIT_CHARS, L"\x0100" L"b", 2, "\x81\x48", 1, 2);
+    w2m("probe_dbcs_default_best_fit_on", 932, 0, L"\x0100\x00e9", NOLEN, "\x81\x48", 1, 64);
+    w2m("probe_dbcs_default_used_null", 932, WC_NO_BEST_FIT_CHARS, L"\x0100", NOLEN, "\x81\x48", 0, 64);
+    w2m("probe_dbcs_default_lead_only", 932, WC_NO_BEST_FIT_CHARS, L"\x0100", NOLEN, "\x81", 1, 64);
+    w2m("probe_dbcs_default_single_byte", 932, WC_NO_BEST_FIT_CHARS, L"\x0100", NOLEN, "*", 1, 64);
+    w2m("probe_dbcs_default_kana_byte", 932, WC_NO_BEST_FIT_CHARS, L"\x0100", NOLEN, "\xb1\x48", 1, 64);
+    w2m("probe_dbcs_default_936", 936, WC_NO_BEST_FIT_CHARS, L"\x0100" L"b", NOLEN, "\xa1\xa1", 1, 64);
+    w2m("probe_dbcs_default_949", 949, WC_NO_BEST_FIT_CHARS, L"\x0100" L"b", NOLEN, "\xa1\xa1", 1, 64);
+    w2m("probe_dbcs_default_950", 950, WC_NO_BEST_FIT_CHARS, L"\x0100" L"b", NOLEN, "\xa1\x40", 1, 64);
+    w2m("probe_dbcs_default_1252_lead", 1252, WC_NO_BEST_FIT_CHARS, L"\x4e00" L"b", NOLEN, "\x81\x48", 1, 64);
 
     /* Buffers and invalid parameters. */
     w2m("size_query", 1252, 0, L"hello", NOLEN, NULL, 0, 0);
