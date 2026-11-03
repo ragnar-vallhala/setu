@@ -1,0 +1,124 @@
+{
+  "test": "kernel32/handle_inheritance",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "inherit_true": {
+      "spawned": true,
+      "child": "0x00000007",
+      "ev1_set": true,
+      "ev2_set": false
+    },
+    "inherit_false": {
+      "spawned": true,
+      "child": "0x00000000",
+      "ev1_set": false,
+      "ev2_set": false
+    },
+    "attr_list_size_query": {
+      "ret": false,
+      "last_error": 122,
+      "size_nonzero": true
+    },
+    "attr_handle_list_update": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "handle_list_only_listed_inherited": {
+      "spawned": true,
+      "child": "0x00000070",
+      "ev1_set": false,
+      "ev2_set": true
+    },
+    "handle_list_with_inherit_false": {
+      "spawned": false,
+      "error": 87
+    },
+    "handle_list_non_inheritable": {
+      "spawned": false,
+      "error": 87
+    },
+    "attr_handle_list_odd_size": {
+      "ret": false,
+      "last_error": 24
+    },
+    "attr_unknown_attribute": {
+      "ret": false,
+      "last_error": 50
+    },
+    "attr_bad_flags": {
+      "ret": false,
+      "last_error": 87
+    },
+    "dup_into_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dup_into_child_used": {
+      "spawned": true,
+      "child": "0x00000007",
+      "ev1_set": true
+    },
+    "dup_child_pseudo_process_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "child_pseudo_handle_is_child": {
+      "pid_is_child": true
+    },
+    "dup_back_from_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dup_back_is_same_event": {
+      "same": true
+    },
+    "close_in_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dup_closed_child_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "close_in_child_twice": {
+      "ret": false,
+      "last_error": 6
+    },
+    "dup_into_child_null_target_ptr": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dup_into_without_dup_access": {
+      "ret": false,
+      "last_error": 5
+    },
+    "dup_out_of_without_dup_access": {
+      "ret": false,
+      "last_error": 5
+    },
+    "dup_into_with_dup_access_only": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dup_child_pseudo_thread_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dup_into_exited_child": {
+      "ret": false,
+      "last_error": 5
+    },
+    "dup_own_pseudo_process_into_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "child_sees_parent_process_handle": {
+      "spawned": true,
+      "child": "0x00000001"
+    }
+  },
+  "errors": [],
+  "source_sha256": "2495243cb5146c9ae5ae26154fb2fe8851e120c827e4dc658e6a1d6555c9c366"
+}
