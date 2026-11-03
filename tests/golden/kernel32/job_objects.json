@@ -1,0 +1,221 @@
+{
+  "test": "kernel32/job_objects",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_named": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_named_again": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "open_named": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "event_with_job_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "accounting_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len": 48,
+      "total": 0,
+      "active": 0,
+      "terminated": 0
+    },
+    "self_in_new_job": {
+      "ret": true,
+      "last_error": "unchanged",
+      "in_job": 0
+    },
+    "query_extended_limits_default": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len": 144,
+      "flags": "0x00000000",
+      "active_limit": 0,
+      "process_mem": 0
+    },
+    "query_extended_limits_short": {
+      "ret": false,
+      "last_error": 24
+    },
+    "query_accounting_short": {
+      "ret": false,
+      "last_error": 24
+    },
+    "query_bad_class": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_unknown_limit_flag": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_kill_on_close_basic_class": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_extended_short": {
+      "ret": false,
+      "last_error": 24
+    },
+    "set_kill_on_close": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_after_kill_on_close": {
+      "flags": "0x00002000"
+    },
+    "child_not_in_job": {
+      "ret": true,
+      "last_error": "unchanged",
+      "in_job": 0
+    },
+    "assign_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "child_in_job": {
+      "ret": true,
+      "last_error": "unchanged",
+      "in_job": 1
+    },
+    "child_in_any_job_after_assign": {
+      "ret": true,
+      "last_error": "unchanged",
+      "in_job": 1
+    },
+    "assign_child_twice": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "accounting_one": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len": 48,
+      "total": 1,
+      "active": 1,
+      "terminated": 0
+    },
+    "process_id_list": {
+      "ret": true,
+      "last_error": "unchanged",
+      "assigned": 1,
+      "in_list": 1,
+      "pid_matches": true,
+      "len": 16
+    },
+    "process_id_list_header_only": {
+      "ret": false,
+      "last_error": 24,
+      "assigned": 0,
+      "in_list": 0
+    },
+    "assign_child_second_job": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "child_in_second_job": {
+      "ret": true,
+      "last_error": "unchanged",
+      "in_job": 1
+    },
+    "terminate_job": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "child_exit_after_terminate_job": {
+      "code": 119
+    },
+    "accounting_after_terminate": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len": 48,
+      "total": 1,
+      "active": 0,
+      "terminated": 0
+    },
+    "assign_exited_process": {
+      "ret": false,
+      "last_error": 5
+    },
+    "child_exit_normal_in_job": {
+      "code": 5
+    },
+    "accounting_after_normal_exit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len": 48,
+      "total": 2,
+      "active": 0,
+      "terminated": 0
+    },
+    "kill_on_close_exit_code": {
+      "code": 0
+    },
+    "set_active_limit_1": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "active_limit_first": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "active_limit_second": {
+      "ret": false,
+      "last_error": 1816
+    },
+    "accounting_active_limit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len": 48,
+      "total": 1,
+      "active": 1,
+      "terminated": 0
+    },
+    "active_limit_second_state": {
+      "exited": false
+    },
+    "active_limit_first_killed_on_close": {
+      "code": 0
+    },
+    "associate_port": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "port_messages": {
+      "messages": "6(pid),7(pid),4"
+    },
+    "associate_port_again": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_die_on_unhandled_breakaway": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_die_on_unhandled_breakaway": {
+      "flags": "0x00001c00"
+    },
+    "terminate_null_job": {
+      "ret": false,
+      "last_error": 6
+    },
+    "assign_null_process": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "023037bcae7ba8da7c53ecad0f7953df3a613d4a9c8b31d8bb26b22252984f77"
+}
