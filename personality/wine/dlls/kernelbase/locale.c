@@ -4514,7 +4514,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH Internal_EnumDateFormats( DATEFMT_ENUMPROCW proc,
         pos = locale->syearmonth;
         break;
     default:
-        SetLastError( ERROR_INVALID_PARAMETER );
+        SetLastError( ERROR_INVALID_FLAGS );
         return FALSE;
     }
 
@@ -4743,8 +4743,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH Internal_EnumTimeFormats( TIMEFMT_ENUMPROCW proc,
         pos = locale->sshorttime;
         break;
     default:
-        FIXME( "Unknown time format %lx\n", flags );
-        SetLastError( ERROR_INVALID_PARAMETER );
+        SetLastError( ERROR_INVALID_FLAGS );
         return FALSE;
     }
 
@@ -8338,6 +8337,16 @@ static int get_date_format( const NLS_LOCALE_DATA *locale, DWORD flags, const SY
     WCHAR *p, fmt[80], output[256];
     SYSTEMTIME time;
     int ret, val, count, i;
+    WCHAR mark = 0;
+
+    /* each field is preceded by a direction mark when a reading order is requested */
+    if ((flags & DATE_LTRREADING) && (flags & DATE_RTLREADING))
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
+    if (flags & DATE_LTRREADING) mark = 0x200e;
+    if (flags & DATE_RTLREADING) mark = 0x200f;
 
     if (!format)
     {
@@ -8382,6 +8391,7 @@ static int get_date_format( const NLS_LOCALE_DATA *locale, DWORD flags, const SY
     for (p = output; *format; format += count)
     {
         count = get_pattern_len( format, L"yMdg" );
+        if (mark && (*format == 'y' || *format == 'M' || *format == 'd')) *p++ = mark;
 
         switch (*format)
         {
