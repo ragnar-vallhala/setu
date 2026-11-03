@@ -1888,6 +1888,27 @@ static void refresh_noarchive_stamp( int fd )
 }
 
 
+/* renaming a file sets its ARCHIVE attribute again */
+static void set_archive_after_rename( HANDLE handle )
+{
+    int fd, needs_close;
+    struct stat st;
+
+    if (server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, NULL )) return;
+    if (!fstat( fd, &st ) && S_ISREG( st.st_mode ) &&
+        xattr_fget( fd, XATTR_NOARCHIVE, NULL, 0 ) != -1)
+    {
+        /* user extended attributes can only change while the file is writable */
+        if ((st.st_mode & S_IWUSR) || !fchmod( fd, st.st_mode | S_IWUSR ))
+        {
+            xattr_fremove( fd, XATTR_NOARCHIVE );
+            if (!(st.st_mode & S_IWUSR)) fchmod( fd, st.st_mode );
+        }
+    }
+    if (needs_close) close( fd );
+}
+
+
 /* get the stat info and file attributes for a file (by name) */
 static int get_file_info( const char *path, struct stat *st, ULONG *attr, ULONG *reparse_tag )
 {
@@ -5763,6 +5784,7 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
                     status = wine_server_call( req );
                 }
                 SERVER_END_REQ;
+                if (status == STATUS_SUCCESS) set_archive_after_rename( handle );
 
             }
             free( unix_name );

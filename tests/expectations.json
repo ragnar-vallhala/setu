@@ -1307,6 +1307,7 @@
     "kernel32/MoveFileExW:missing_dest_dir",
     "kernel32/MoveFileExW:missing_source",
     "kernel32/MoveFileExW:missing_source_replace",
+    "kernel32/MoveFileExW:move_readonly_source",
     "kernel32/MoveFileExW:onto_existing_no_flag",
     "kernel32/MoveFileExW:onto_existing_replace",
     "kernel32/MoveFileExW:rename_plain",
