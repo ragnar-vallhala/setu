@@ -674,6 +674,13 @@ HANDLE WINAPI CreateMailslotW( LPCWSTR lpName, DWORD nMaxMessageSize,
     TRACE("%s %ld %ld %p\n", debugstr_w(lpName),
           nMaxMessageSize, lReadTimeout, sa);
 
+    /* mailslots can only be created locally, as \\.\mailslot\<name> */
+    if (!lpName || wcsnicmp( lpName, L"\\\\.\\mailslot\\", 13 ) || !lpName[13])
+    {
+        SetLastError( ERROR_INVALID_NAME );
+        return INVALID_HANDLE_VALUE;
+    }
+
     if (!RtlDosPathNameToNtPathName_U( lpName, &nameW, NULL, NULL ))
     {
         SetLastError( ERROR_PATH_NOT_FOUND );

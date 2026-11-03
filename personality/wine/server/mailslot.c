@@ -41,6 +41,7 @@
 #define WIN32_NO_STATUS
 #include "windef.h"
 #include "winternl.h"
+#include "winioctl.h"
 
 #include "file.h"
 #include "handle.h"
@@ -62,6 +63,7 @@ struct mailslot
     struct list         writers;
     struct list         messages;
     struct async_queue  read_q;
+    int                 closed;      /* the last server handle is closed */
 };
 
 /* mailslot functions */
@@ -72,6 +74,7 @@ static WCHAR *mailslot_get_full_name( struct object *obj, data_size_t max, data_
 static int mailslot_link_name( struct object *obj, struct object_name *name, struct object *parent );
 static struct object *mailslot_open_file( struct object *obj, unsigned int access,
                                           unsigned int sharing, unsigned int options );
+static int mailslot_close_handle( struct object *obj, struct process *process, obj_handle_t handle );
 static void mailslot_destroy( struct object * );
 
 static const struct object_ops mailslot_ops =
@@ -95,7 +98,7 @@ static const struct object_ops mailslot_ops =
     default_unlink_name,       /* unlink_name */
     mailslot_open_file,        /* open_file */
     no_kernel_obj_list,        /* get_kernel_obj_list */
-    no_close_handle,           /* close_handle */
+    mailslot_close_handle,     /* close_handle */
     mailslot_destroy           /* destroy */
 };
 
@@ -103,6 +106,8 @@ static enum server_fd_type mailslot_get_fd_type( struct fd *fd );
 static void mailslot_read( struct fd *fd, struct async *async, file_pos_t pos );
 static void mailslot_write( struct fd *fd, struct async *async, file_pos_t pos );
 static void mailslot_get_file_info( struct fd *fd, obj_handle_t handle, unsigned int info_class );
+
+static void mailslot_get_volume_info( struct fd *fd, struct async *async, unsigned int info_class );
 
 static const struct fd_ops mailslot_fd_ops =
 {
@@ -113,7 +118,7 @@ static const struct fd_ops mailslot_fd_ops =
     mailslot_write,             /* write */
     no_fd_flush,                /* flush */
     mailslot_get_file_info,     /* get_file_info */
-    no_fd_get_volume_info,      /* get_volume_info */
+    mailslot_get_volume_info,   /* get_volume_info */
     default_fd_ioctl,           /* ioctl */
     default_fd_cancel_async,    /* cancel_async */
     no_fd_queue_async,          /* queue_async */
@@ -164,6 +169,7 @@ static const struct object_ops mail_writer_ops =
 static enum server_fd_type mail_writer_get_fd_type( struct fd *fd );
 static void mail_writer_read( struct fd *fd, struct async *async, file_pos_t pos );
 static void mail_writer_write( struct fd *fd, struct async *async, file_pos_t pos );
+static void mail_writer_get_file_info( struct fd *fd, obj_handle_t handle, unsigned int info_class );
 
 static const struct fd_ops mail_writer_fd_ops =
 {
@@ -173,8 +179,8 @@ static const struct fd_ops mail_writer_fd_ops =
     mail_writer_read,            /* read */
     mail_writer_write,           /* write */
     no_fd_flush,                 /* flush */
-    default_fd_get_file_info,    /* get_file_info */
-    no_fd_get_volume_info,       /* get_volume_info */
+    mail_writer_get_file_info,   /* get_file_info */
+    mailslot_get_volume_info,    /* get_volume_info */
     default_fd_ioctl,            /* ioctl */
     default_fd_cancel_async,     /* cancel_async */
     default_fd_queue_async,      /* queue_async */
@@ -356,6 +362,28 @@ static void mailslot_write( struct fd *fd, struct async *async, file_pos_t pos )
     set_error( STATUS_INVALID_PARAMETER );
 }
 
+static void get_mailslot_query_info( struct mailslot *mailslot )
+{
+    FILE_MAILSLOT_QUERY_INFORMATION *info;
+    struct mailslot_message *message;
+
+    if (get_reply_max_size() < sizeof(*info))
+    {
+        set_error( STATUS_INFO_LENGTH_MISMATCH );
+        return;
+    }
+
+    if (!(info = set_reply_data_size( sizeof(*info) ))) return;
+    info->MaximumMessageSize = mailslot->max_msgsize;
+    info->MailslotQuota = 0;
+    info->MessagesAvailable = list_count( &mailslot->messages );
+    if ((message = get_first_message( mailslot )))
+        info->NextMessageSize = message->iosb->in_size;
+    else
+        info->NextMessageSize = MAILSLOT_NO_MESSAGE;
+    info->ReadTimeout.QuadPart = mailslot->read_timeout;
+}
+
 static void mailslot_get_file_info( struct fd *fd, obj_handle_t handle, unsigned int info_class )
 {
     struct mailslot *mailslot = get_fd_user( fd );
@@ -363,31 +391,26 @@ static void mailslot_get_file_info( struct fd *fd, obj_handle_t handle, unsigned
     switch (info_class)
     {
     case FileMailslotQueryInformation:
-        {
-            FILE_MAILSLOT_QUERY_INFORMATION *info;
-            struct mailslot_message *message;
-
-            if (get_reply_max_size() < sizeof(*info))
-            {
-                set_error( STATUS_INFO_LENGTH_MISMATCH );
-                return;
-            }
-
-            if (!(info = set_reply_data_size( sizeof(*info) ))) return;
-            info->MaximumMessageSize = mailslot->max_msgsize;
-            info->MailslotQuota = 0;
-            info->MessagesAvailable = list_count( &mailslot->messages );
-            if ((message = get_first_message( mailslot )))
-                info->NextMessageSize = message->iosb->in_size;
-            else
-                info->NextMessageSize = MAILSLOT_NO_MESSAGE;
-            info->ReadTimeout.QuadPart = mailslot->read_timeout;
-            break;
-        }
+        get_mailslot_query_info( mailslot );
+        break;
 
     default:
         default_fd_get_file_info( fd, handle, info_class );
     }
+}
+
+static int mailslot_close_handle( struct object *obj, struct process *process, obj_handle_t handle )
+{
+    struct mailslot *mailslot = (struct mailslot *)obj;
+
+    /* once the last server handle is gone, clients can no longer write and
+     * the name can be used again, even while clients are still open */
+    if (obj->handle_count == 1)
+    {
+        mailslot->closed = 1;
+        unlink_named_object( obj );
+    }
+    return 1;
 }
 
 static struct fd *mailslot_get_fd( struct object *obj )
@@ -430,27 +453,7 @@ static struct object *mailslot_open_file( struct object *obj, unsigned int acces
     struct mailslot *mailslot = (struct mailslot *)obj;
     struct mail_writer *writer;
 
-    if (!(sharing & FILE_SHARE_READ))
-    {
-        set_error( STATUS_SHARING_VIOLATION );
-        return NULL;
-    }
-
-    if (!list_empty( &mailslot->writers ))
-    {
-        /* Readers and writers cannot be mixed.
-         * If there's more than one writer, all writers must open with FILE_SHARE_WRITE
-         */
-        writer = LIST_ENTRY( list_head(&mailslot->writers), struct mail_writer, entry );
-
-        if (((access & (GENERIC_WRITE|FILE_WRITE_DATA)) || (writer->access & FILE_WRITE_DATA)) &&
-           !((sharing & FILE_SHARE_WRITE) && (writer->sharing & FILE_SHARE_WRITE)))
-        {
-            set_error( STATUS_SHARING_VIOLATION );
-            return NULL;
-        }
-    }
-
+    /* Windows opens any number of clients whatever their sharing mode */
     if (!(writer = alloc_object( &mail_writer_ops )))
         return NULL;
     grab_object( mailslot );
@@ -576,6 +579,7 @@ static struct mailslot *create_mailslot( struct object *root,
     mailslot->fd = NULL;
     mailslot->max_msgsize = max_msgsize;
     mailslot->read_timeout = read_timeout;
+    mailslot->closed = 0;
     list_init( &mailslot->writers );
     list_init( &mailslot->messages );
     init_async_queue( &mailslot->read_q );
@@ -618,14 +622,39 @@ static void mail_writer_write( struct fd *fd, struct async *async, file_pos_t po
 {
     struct mail_writer *writer = get_fd_user( fd );
     struct mailslot_message *message;
-    data_size_t size;
+    struct iosb *iosb = async_get_iosb( async );
+    data_size_t size = iosb->in_size;
 
-    if (!(message = mem_alloc( sizeof(*message) ))) return;
-    message->iosb = async_get_iosb( async );
-    size = message->iosb->in_size;
+    if (writer->mailslot->closed)
+    {
+        release_object( iosb );
+        set_error( STATUS_END_OF_FILE );
+        return;
+    }
+    if (writer->mailslot->max_msgsize && size > writer->mailslot->max_msgsize)
+    {
+        release_object( iosb );
+        set_error( STATUS_INVALID_PARAMETER );
+        return;
+    }
+    if (!(message = mem_alloc( sizeof(*message) )))
+    {
+        release_object( iosb );
+        return;
+    }
+    message->iosb = iosb;
     list_add_tail( &writer->mailslot->messages, &message->entry );
     reselect_mailslot( writer->mailslot );
     async_request_complete( async, STATUS_SUCCESS, size, 0, NULL );
+}
+
+static void mail_writer_get_file_info( struct fd *fd, obj_handle_t handle, unsigned int info_class )
+{
+    struct mail_writer *writer = get_fd_user( fd );
+
+    /* clients see the information of the mailslot they write to */
+    if (info_class == FileMailslotQueryInformation) get_mailslot_query_info( writer->mailslot );
+    else default_fd_get_file_info( fd, handle, info_class );
 }
 
 static struct fd *mail_writer_get_fd( struct object *obj )
@@ -638,12 +667,6 @@ static unsigned int mail_writer_map_access( struct object *obj, unsigned int acc
 {
     /* mailslot writers can only get write access */
     return default_map_access( obj, access ) & FILE_GENERIC_WRITE;
-}
-
-static struct mailslot *get_mailslot_obj( struct process *process, obj_handle_t handle,
-                                          unsigned int access )
-{
-    return (struct mailslot *)get_handle_obj( process, handle, access, &mailslot_ops );
 }
 
 
@@ -689,14 +712,41 @@ DECL_HANDLER(create_mailslot)
 /* set mailslot information */
 DECL_HANDLER(set_mailslot_info)
 {
-    struct mailslot *mailslot = get_mailslot_obj( current->process, req->handle, 0 );
+    struct object *obj = get_handle_obj( current->process, req->handle, 0, NULL );
+    struct mailslot *mailslot;
 
-    if (mailslot)
+    if (!obj) return;
+    /* only the server end has settings; clients get STATUS_INVALID_PARAMETER */
+    if (obj->ops != &mailslot_ops)
     {
-        if (req->flags & MAILSLOT_SET_READ_TIMEOUT)
-            mailslot->read_timeout = req->read_timeout;
-        reply->max_msgsize = mailslot->max_msgsize;
-        reply->read_timeout = mailslot->read_timeout;
-        release_object( mailslot );
+        set_error( obj->ops == &mail_writer_ops ? STATUS_INVALID_PARAMETER : STATUS_OBJECT_TYPE_MISMATCH );
+        release_object( obj );
+        return;
+    }
+    mailslot = (struct mailslot *)obj;
+    if (req->flags & MAILSLOT_SET_READ_TIMEOUT)
+        mailslot->read_timeout = req->read_timeout;
+    reply->max_msgsize = mailslot->max_msgsize;
+    reply->read_timeout = mailslot->read_timeout;
+    release_object( mailslot );
+}
+
+/* both ends of a mailslot are mailslot devices */
+static void mailslot_get_volume_info( struct fd *fd, struct async *async, unsigned int info_class )
+{
+    switch (info_class)
+    {
+    case FileFsDeviceInformation:
+        {
+            static const FILE_FS_DEVICE_INFORMATION device_info = { FILE_DEVICE_MAILSLOT, 0 };
+
+            if (get_reply_max_size() >= sizeof(device_info))
+                set_reply_data( &device_info, sizeof(device_info) );
+            else
+                set_error( STATUS_BUFFER_TOO_SMALL );
+            break;
+        }
+    default:
+        set_error( STATUS_NOT_IMPLEMENTED );
     }
 }
