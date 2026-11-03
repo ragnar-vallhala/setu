@@ -910,6 +910,7 @@
     "kernel32/FindFirstFileW:trailing_backslash_missing_dir_absolute",
     "kernel32/FindFirstFileW:txt_case_insensitive_ext",
     "kernel32/FlushFileBuffers:after_write",
+    "kernel32/FlushFileBuffers:anon_pipe_read_end",
     "kernel32/FlushFileBuffers:anon_pipe_write_empty",
     "kernel32/FlushFileBuffers:anon_pipe_write_reader_closed",
     "kernel32/FlushFileBuffers:closed_handle",

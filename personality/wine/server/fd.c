@@ -3200,6 +3200,14 @@ DECL_HANDLER(flush)
 
     if (!fd) return;
 
+    /* flushing needs write access, as for files */
+    if (!(get_handle_access( current->process, req->async.handle ) & (FILE_WRITE_DATA | FILE_APPEND_DATA)))
+    {
+        set_error( STATUS_ACCESS_DENIED );
+        release_object( fd );
+        return;
+    }
+
     if ((async = create_request_async( fd, fd->comp_flags, &req->async, 0 )))
     {
         fd->fd_ops->flush( fd, async );
