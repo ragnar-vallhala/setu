@@ -5405,6 +5405,7 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
     unsigned int reparse_tag;
     unsigned int options;
     unsigned int status;
+    enum server_fd_type type;
 
     TRACE( "(%p,%p,%p,0x%08x,0x%08x)\n", handle, io, ptr, len, class);
 
@@ -5419,7 +5420,7 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
     if (len < info_sizes[class])
         return io->Status = STATUS_INFO_LENGTH_MISMATCH;
 
-    if ((status = server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, &options )))
+    if ((status = server_get_unix_fd( handle, 0, &fd, &needs_close, &type, &options )))
     {
         if (status != STATUS_BAD_DEVICE_TYPE) return io->Status = status;
         return server_get_file_info( handle, io, ptr, len, class );
@@ -5527,7 +5528,9 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
         }
         break;
     case FileAttributeTagInformation:
-        if (fd_get_file_info( handle, fd, options, &st, &attr, &reparse_tag ) == -1)
+        /* a device such as NUL has no attributes or reparse tag */
+        if (type == FD_TYPE_DEVICE) status = STATUS_INVALID_PARAMETER;
+        else if (fd_get_file_info( handle, fd, options, &st, &attr, &reparse_tag ) == -1)
             status = errno_to_status( errno );
         else
         {

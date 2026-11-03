@@ -2606,6 +2606,7 @@
     "kernel32/delete_remove_edge:mkdir_inside_pending_dir",
     "kernel32/delete_remove_edge:mkdir_over_pending_dir",
     "kernel32/delete_remove_edge:open_while_delete_pending",
+    "kernel32/delete_remove_edge:probe_nul_attribute_tag_info",
     "kernel32/delete_remove_edge:rmdir_after_clearing_readonly",
     "kernel32/delete_remove_edge:rmdir_case_insensitive",
     "kernel32/delete_remove_edge:rmdir_dot",
