@@ -2627,6 +2627,149 @@ static unsigned int server_get_unix_name( HANDLE handle, char **unix_name )
     return ret;
 }
 
+/* the NT name a handle was opened with, as the server keeps it */
+static WCHAR *server_get_opened_name( HANDLE handle, ULONG *len )
+{
+    data_size_t size = 1024;
+    unsigned int status;
+    WCHAR *name;
+
+    for (;;)
+    {
+        if (!(name = malloc( size + sizeof(WCHAR) ))) return NULL;
+        SERVER_START_REQ( get_object_name )
+        {
+            req->handle = wine_server_obj_handle( handle );
+            wine_server_set_reply( req, name, size );
+            status = wine_server_call( req );
+            if (!status) size = wine_server_reply_size( reply );
+            else if (status == STATUS_BUFFER_OVERFLOW) size = reply->total;
+        }
+        SERVER_END_REQ;
+        if (!status && size) break;
+        free( name );
+        if (status != STATUS_BUFFER_OVERFLOW) return NULL;
+    }
+    *len = size / sizeof(WCHAR);
+    name[*len] = 0;
+    return name;
+}
+
+/* split a path into its components; returns the number of components */
+static unsigned int split_path( const WCHAR *path, ULONG len, const WCHAR **comps, ULONG *lens,
+                                unsigned int max, WCHAR sep )
+{
+    unsigned int n = 0;
+    ULONG i = 0, start;
+
+    while (i < len)
+    {
+        while (i < len && path[i] == sep) i++;
+        if (i == len) break;
+        start = i;
+        while (i < len && path[i] != sep) i++;
+        if (n == max) return max + 1;
+        comps[n] = path + start;
+        lens[n++] = i - start;
+    }
+    return n;
+}
+
+/***********************************************************************
+ *           get_opened_file_name
+ *
+ * A file opened through short names keeps those short names in its name, in
+ * their stored upper case; its other components are named as on disk. If the
+ * file was renamed since, the name is the name on disk.
+ * Returns a new name, or NULL to keep the name on disk.
+ */
+static WCHAR *get_opened_file_name( HANDLE handle, const WCHAR *disk, ULONG disk_len, ULONG *ret_len )
+{
+    enum { MAX_COMPS = 128 };
+    const WCHAR *dcomp[MAX_COMPS], *ocomp[MAX_COMPS];
+    ULONG dlen[MAX_COMPS], olen[MAX_COMPS], opened_len, i;
+    WCHAR (*short_names)[13] = NULL, *opened, *ret = NULL, *p;
+    int short_lens[MAX_COMPS];
+    unsigned int nd, no, k;
+    char *unix_name = NULL;
+    BOOL found = FALSE;
+
+    if (!(opened = server_get_opened_name( handle, &opened_len ))) return NULL;
+    for (i = 0; i < opened_len; i++) if (opened[i] == '~') break;
+    if (i == opened_len) goto done;
+
+    nd = split_path( disk, disk_len, dcomp, dlen, MAX_COMPS, '\\' );
+    no = split_path( opened, opened_len, ocomp, olen, MAX_COMPS, '\\' );
+    if (nd != no || nd > MAX_COMPS || nd < 2) goto done;
+    if (server_get_unix_name( handle, &unix_name )) goto done;
+    if (!(short_names = malloc( nd * sizeof(*short_names) ))) goto done;
+
+    /* compare from the last component; the unix name has the same ones at its end */
+    for (k = nd; k-- > 2;)
+    {
+        char *end = unix_name + strlen( unix_name ), *comp, *entry, *dir;
+        unsigned int d = nd - 1 - k;
+        int dir_fd;
+
+        short_lens[k] = 0;
+        if (olen[k] == dlen[k] && !wcsnicmp( ocomp[k], dcomp[k], dlen[k] )) continue;
+        /* find component k of the unix name, and its parent directory */
+        for (;;)
+        {
+            comp = end;
+            while (comp > unix_name && comp[-1] != '/') comp--;
+            if (comp == unix_name || comp == end) goto done;
+            if (!d--) break;
+            end = comp - 1;
+        }
+        if (!(entry = strndup( comp, end - comp ))) goto done;
+        if (!(dir = strndup( unix_name, comp - unix_name )))
+        {
+            free( entry );
+            goto done;
+        }
+        dir_fd = open( dir, O_RDONLY | O_DIRECTORY );
+        free( dir );
+        if (dir_fd != -1)
+        {
+            short_lens[k] = get_entry_short_name( dir_fd, entry, short_names[k] );
+            close( dir_fd );
+        }
+        free( entry );
+        if (!short_lens[k] || short_lens[k] != olen[k] || wcsnicmp( short_names[k], ocomp[k], olen[k] ))
+            goto done;  /* not a short name of it: renamed, or another alias */
+        found = TRUE;
+    }
+    if (!found) goto done;
+
+    if (!(ret = malloc( (disk_len + 1) * sizeof(WCHAR) ))) goto done;
+    p = ret;
+    memcpy( p, disk, (dcomp[2] - disk) * sizeof(WCHAR) );
+    p += dcomp[2] - disk;
+    for (k = 2; k < nd; k++)
+    {
+        if (k > 2) *p++ = '\\';
+        if (short_lens[k])
+        {
+            memcpy( p, short_names[k], short_lens[k] * sizeof(WCHAR) );
+            p += short_lens[k];
+        }
+        else
+        {
+            memcpy( p, dcomp[k], dlen[k] * sizeof(WCHAR) );
+            p += dlen[k];
+        }
+    }
+    *p = 0;
+    *ret_len = p - ret;
+
+done:
+    free( short_names );
+    free( unix_name );
+    free( opened );
+    return ret;
+}
+
 static NTSTATUS server_get_name_info( HANDLE handle, FILE_NAME_INFORMATION *info, LONG *name_len )
 {
     data_size_t size = 1024;
@@ -2640,6 +2783,14 @@ static NTSTATUS server_get_name_info( HANDLE handle, FILE_NAME_INFORMATION *info
         {
             const WCHAR *ptr = name->Name.Buffer;
             const WCHAR *end = ptr + name->Name.Length / sizeof(WCHAR);
+            ULONG opened_len;
+            WCHAR *opened = get_opened_file_name( handle, ptr, end - ptr, &opened_len );
+
+            if (opened)
+            {
+                ptr = opened;
+                end = ptr + opened_len;
+            }
 
             /* Skip the volume mount point. */
             while (ptr != end && *ptr == '\\') ++ptr;
@@ -2652,6 +2803,7 @@ static NTSTATUS server_get_name_info( HANDLE handle, FILE_NAME_INFORMATION *info
             else if (!info->FileNameLength) status = STATUS_INVALID_INFO_CLASS;
             else *name_len = info->FileNameLength;
             if (info->FileNameLength) memcpy( info->FileName, ptr, *name_len );
+            free( opened );
             free( name );
         }
         else

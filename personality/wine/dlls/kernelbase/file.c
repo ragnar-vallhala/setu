@@ -2046,7 +2046,7 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
     NTSTATUS status;
     DWORD result = 0;
     ULONG buffer_size;
-    WCHAR *ptr;
+    WCHAR *ptr, *opened = NULL;
 
     TRACE( "(%p,%p,%ld,%lx)\n", file, path, count, flags );
 
@@ -2111,11 +2111,34 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
     for (ULONG i = 0; i < info->Name.Length / sizeof(WCHAR); i++)
         if (info->Name.Buffer[i] == '/') info->Name.Buffer[i] = '\\';
 
-    /* FILE_NAME_OPENED is not supported yet, and would require Wineserver changes */
+    /* the opened name keeps the short names the file was opened with; it is
+     * the file name information, on the same volume */
     if (flags & FILE_NAME_OPENED)
     {
-        FIXME("FILE_NAME_OPENED not supported\n");
+        FILE_NAME_INFORMATION *name_info;
+        ULONG size = sizeof(*name_info) + MAX_PATH * sizeof(WCHAR);
+        IO_STATUS_BLOCK io;
+
         flags &= ~FILE_NAME_OPENED;
+        while ((name_info = HeapAlloc( GetProcessHeap(), 0, size )))
+        {
+            status = NtQueryInformationFile( file, &io, name_info, size, FileNameInformation );
+            if (status != STATUS_BUFFER_OVERFLOW) break;
+            size = sizeof(*name_info) + name_info->FileNameLength;
+            HeapFree( GetProcessHeap(), 0, name_info );
+        }
+        if (name_info && !status && info->Name.Length >= 2 * sizeof(WCHAR) && info->Name.Buffer[1] == ':' &&
+            (opened = HeapAlloc( GetProcessHeap(), 0, 2 * sizeof(WCHAR) + name_info->FileNameLength + sizeof(WCHAR) )))
+        {
+            opened[0] = info->Name.Buffer[0];
+            opened[1] = ':';
+            memcpy( opened + 2, name_info->FileName, name_info->FileNameLength );
+            opened[2 + name_info->FileNameLength / sizeof(WCHAR)] = 0;
+            for (ptr = opened; *ptr; ptr++) if (*ptr == '/') *ptr = '\\';
+            info->Name.Buffer = opened;
+            info->Name.Length = 2 * sizeof(WCHAR) + name_info->FileNameLength;
+        }
+        HeapFree( GetProcessHeap(), 0, name_info );
     }
 
     /* Get information required for VOLUME_NAME_NONE, VOLUME_NAME_GUID and VOLUME_NAME_NT */
@@ -2209,6 +2232,7 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
     }
 
  done:
+    HeapFree( GetProcessHeap(), 0, opened );
     if ((WCHAR *)info != buffer) HeapFree( GetProcessHeap(), 0, info );
     return result;
 }

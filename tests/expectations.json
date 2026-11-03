@@ -1315,6 +1315,7 @@
     "kernel32/GetFinalPathNameByHandleW:nested_other_case",
     "kernel32/GetFinalPathNameByHandleW:nul_device",
     "kernel32/GetFinalPathNameByHandleW:null_handle",
+    "kernel32/GetFinalPathNameByHandleW:opened_by_short_name",
     "kernel32/GetFinalPathNameByHandleW:size_query_null_buffer",
     "kernel32/GetFinalPathNameByHandleW:size_query_relationship",
     "kernel32/GetFinalPathNameByHandleW:volume_root",
