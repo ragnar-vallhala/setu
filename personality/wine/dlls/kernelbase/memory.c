@@ -1396,6 +1396,13 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetPhysicallyInstalledSystemMemory( ULONGLONG *mem
 }
 
 
+/* Address space not yet reserved: the total minus the process's virtual size. */
+static ULONGLONG avail_virtual( ULONGLONG total, const VM_COUNTERS_EX *vmc )
+{
+    ULONGLONG used = vmc->VirtualSize ? vmc->VirtualSize : vmc->WorkingSetSize;
+    return used < total ? total - used : 0;
+}
+
 /***********************************************************************
  *             GlobalMemoryStatusEx   (kernelbase.@)
  */
@@ -1417,6 +1424,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH GlobalMemoryStatusEx( MEMORYSTATUSEX *status )
     {
 	*status = cached_status;
 	RtlLeaveCriticalSection(&memstatus_section);
+	/* The address space is per process and changes with every reservation. */
+	if (!NtQueryInformationProcess( GetCurrentProcess(), ProcessVmCounters, &vmc, sizeof(vmc), NULL ))
+	    status->ullAvailVirtual = avail_virtual( status->ullTotalVirtual, &vmc );
 	return TRUE;
     }
 
@@ -1437,7 +1447,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH GlobalMemoryStatusEx( MEMORYSTATUSEX *status )
     status->ullTotalPageFile = perf_info.TotalCommitLimit;
     status->ullAvailPageFile = status->ullTotalPageFile - perf_info.TotalCommittedPages;
     status->ullTotalVirtual  = (ULONG_PTR)basic_info.HighestUserAddress - (ULONG_PTR)basic_info.LowestUserAddress + 1;
-    status->ullAvailVirtual  = status->ullTotalVirtual - (ULONGLONG)vmc.WorkingSetSize /* approximate */;
+    status->ullAvailVirtual  = avail_virtual( status->ullTotalVirtual, &vmc );
     status->ullAvailExtendedVirtual = 0;
 
     status->ullTotalPhys     *= basic_info.PageSize;
