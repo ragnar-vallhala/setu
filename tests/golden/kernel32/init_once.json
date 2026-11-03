@@ -1,0 +1,409 @@
+{
+  "test": "kernel32/init_once",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "initialize_zeroes": {
+      "word_zero": true,
+      "reserved_bits": 2
+    },
+    "exec_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "callback_calls": 1,
+      "param_passed": true,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false,
+      "ctx_is_0x1233": false
+    },
+    "exec_second_no_callback": {
+      "ret": true,
+      "last_error": "unchanged",
+      "callback_calls": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false,
+      "ctx_is_0x1233": false
+    },
+    "exec_third_null_ctx": {
+      "ret": true,
+      "last_error": "unchanged",
+      "callback_calls": 0
+    },
+    "begin_after_exec": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false
+    },
+    "begin_check_only_after_exec": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false
+    },
+    "exec_callback_fails": {
+      "ret": false,
+      "last_error": "unchanged",
+      "callback_calls": 1,
+      "param_passed": true,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false,
+      "ctx_is_0x1233": false
+    },
+    "exec_callback_fails_sets_error": {
+      "ret": false,
+      "last_error": 5,
+      "callback_calls": 1,
+      "param_passed": true,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false,
+      "ctx_is_0x1233": false
+    },
+    "exec_after_failures_runs_again": {
+      "ret": true,
+      "last_error": "unchanged",
+      "callback_calls": 1,
+      "param_passed": true,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false,
+      "ctx_is_0x1233": false
+    },
+    "exec_after_success": {
+      "ret": true,
+      "last_error": "unchanged",
+      "callback_calls": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false,
+      "ctx_is_0x1233": false
+    },
+    "exec_ctx_low_bits_child": {
+      "child_exit": "0xc00000f1"
+    },
+    "exec_ctx_null": {
+      "ret": true,
+      "last_error": "unchanged",
+      "callback_calls": 1,
+      "param_passed": true,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": false,
+      "ctx_null": true,
+      "ctx_is_0x1233": false
+    },
+    "exec_ctx_null_again": {
+      "ret": true,
+      "last_error": "unchanged",
+      "callback_calls": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": false,
+      "ctx_null": true,
+      "ctx_is_0x1233": false
+    },
+    "exec_success_callback_sets_error": {
+      "ret": true,
+      "last_error": 2,
+      "callback_calls": 1,
+      "param_passed": true,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false,
+      "ctx_is_0x1233": false
+    },
+    "check_only_uninitialised": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_sync_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "check_only_while_pending": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_async_while_sync_pending": {
+      "ret": false,
+      "last_error": 87,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_async_flag_on_sync": {
+      "ret": false,
+      "last_error": 87
+    },
+    "complete_ctx_low_bits": {
+      "ret": false,
+      "last_error": 87
+    },
+    "complete_sync": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "begin_after_complete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false
+    },
+    "complete_twice": {
+      "ret": false,
+      "last_error": 31
+    },
+    "check_only_after_complete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false
+    },
+    "begin_sync_for_failure": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_init_failed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "begin_after_init_failed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_init_failed_with_ctx": {
+      "ret": false,
+      "last_error": 87
+    },
+    "check_only_after_failed_with_ctx": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_init_failed_not_pending": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "complete_not_begun": {
+      "ret": false,
+      "last_error": 31
+    },
+    "begin_after_complete_not_begun": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_async_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_async_second": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_sync_while_async_pending": {
+      "ret": false,
+      "last_error": 87,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "check_only_while_async_pending": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_sync_flag_on_async": {
+      "ret": false,
+      "last_error": 87
+    },
+    "complete_async": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "complete_async_second": {
+      "ret": false,
+      "last_error": 31
+    },
+    "begin_async_after_complete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false
+    },
+    "check_only_after_async_complete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 0,
+      "ctx_untouched": false,
+      "ctx_is_0x1230": true,
+      "ctx_null": false
+    },
+    "begin_async_for_failure": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_async_init_failed": {
+      "ret": false,
+      "last_error": 87
+    },
+    "begin_after_async_failed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_check_only_and_async": {
+      "ret": false,
+      "last_error": 87,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "check_only_after_check_only_and_async": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_unknown_flag": {
+      "ret": false,
+      "last_error": 87,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "check_only_after_unknown_flag": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_init_failed_flag": {
+      "ret": false,
+      "last_error": 87,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "check_only_after_init_failed_flag": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_sync_for_invalid_complete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_unknown_flag": {
+      "ret": false,
+      "last_error": 87
+    },
+    "check_only_after_complete_unknown_flag": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "begin_sync_for_check_only_complete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "pending": 1,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "complete_check_only_flag": {
+      "ret": false,
+      "last_error": 87
+    },
+    "check_only_after_complete_check_only_flag": {
+      "ret": false,
+      "last_error": 31,
+      "pending": 85,
+      "ctx_untouched": true,
+      "ctx_is_0x1230": false,
+      "ctx_null": false
+    },
+    "exec_four_threads": {
+      "callback_calls": 1,
+      "all_saw_ctx": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "3d235c85281e9a8befbb37fb9e96343514ed96458a50ceab423e66e15fa37439"
+}
