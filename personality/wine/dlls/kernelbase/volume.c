@@ -1278,6 +1278,13 @@ BOOL WINAPI GetVolumeInformationByHandleW( HANDLE handle, WCHAR *label, DWORD la
 
         if (fsname)
         {
+            /* a buffer too small for the name itself overflows the query;
+             * one with no room only for the terminator is a bad length */
+            if (fsname_len < info->FileSystemNameLength / sizeof(WCHAR))
+            {
+                SetLastError( ERROR_MORE_DATA );
+                return FALSE;
+            }
             if (fsname_len < info->FileSystemNameLength / sizeof(WCHAR) + 1)
             {
                 SetLastError( ERROR_BAD_LENGTH );

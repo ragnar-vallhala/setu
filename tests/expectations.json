@@ -1182,6 +1182,8 @@
     "kernel32/GetVolumeInformationW:drive_no_backslash",
     "kernel32/GetVolumeInformationW:empty",
     "kernel32/GetVolumeInformationW:fs_buffer_0",
+    "kernel32/GetVolumeInformationW:fs_buffer_4",
+    "kernel32/GetVolumeInformationW:fs_buffer_5",
     "kernel32/GetVolumeInformationW:missing_dir",
     "kernel32/GetVolumeInformationW:relative_file",
     "kernel32/GetVolumeInformationW:relative_subdir",
