@@ -979,7 +979,10 @@ NTSTATUS WINAPI RtlUpdateTimer(HANDLE TimerQueue, HANDLE Timer,
                                DWORD DueTime, DWORD Period)
 {
     struct queue_timer *t = Timer;
-    struct timer_queue *q = t->q;
+    struct timer_queue *q;
+
+    if (!t) return STATUS_INVALID_PARAMETER;
+    q = t->q;
 
     RtlEnterCriticalSection(&q->cs);
     /* Can't change a timer if it was once-only or destroyed.  */

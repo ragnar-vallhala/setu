@@ -994,7 +994,12 @@ BOOL WINAPI DECLSPEC_HOTPATCH ChangeTimerQueueTimer( HANDLE queue, HANDLE timer,
  */
 BOOL WINAPI DECLSPEC_HOTPATCH DeleteTimerQueueEx( HANDLE queue, HANDLE event )
 {
-    return set_ntstatus( RtlDeleteTimerQueueEx( queue, event ));
+    NTSTATUS status = RtlDeleteTimerQueueEx( queue, event );
+
+    /* Since Vista the deletion is reported as successful even when it
+     * completes asynchronously. */
+    if (status == STATUS_PENDING) status = STATUS_SUCCESS;
+    return set_ntstatus( status );
 }
 
 
