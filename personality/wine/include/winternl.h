@@ -203,6 +203,8 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS
 
 /* value for Flags field (FIXME: not the correct name) */
 #define PROCESS_PARAMS_FLAG_NORMALIZED 1
+/* Wine-internal: the new process starts with error mode 0 (CREATE_DEFAULT_ERROR_MODE) */
+#define PROCESS_PARAMS_FLAG_DEFAULT_ERROR_MODE 0x80000000
 
 typedef struct _PEB_LDR_DATA
 {

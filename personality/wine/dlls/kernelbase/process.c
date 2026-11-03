@@ -194,6 +194,8 @@ static RTL_USER_PROCESS_PARAMETERS *create_process_params( const WCHAR *filename
     }
     RtlFreeUnicodeString( &newdirW );
 
+    if (flags & CREATE_DEFAULT_ERROR_MODE) params->Flags |= PROCESS_PARAMS_FLAG_DEFAULT_ERROR_MODE;
+
     if (!(flags & CREATE_NEW_PROCESS_GROUP))
         params->ProcessGroupId = NtCurrentTeb()->Peb->ProcessParameters->ProcessGroupId;
     else if (!(flags & CREATE_NEW_CONSOLE))
@@ -529,7 +531,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR 
     /* Warn if unsupported features are used */
 
     if (flags & (IDLE_PRIORITY_CLASS | HIGH_PRIORITY_CLASS | REALTIME_PRIORITY_CLASS |
-                 CREATE_DEFAULT_ERROR_MODE | PROFILE_USER | PROFILE_KERNEL | PROFILE_SERVER))
+                 PROFILE_USER | PROFILE_KERNEL | PROFILE_SERVER))
         WARN( "(%s,...): ignoring some flags in %lx\n", debugstr_w(app_name), flags );
 
     if (cur_dir)

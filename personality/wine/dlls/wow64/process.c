@@ -80,6 +80,7 @@ static RTL_USER_PROCESS_PARAMETERS *process_params_32to64( RTL_USER_PROCESS_PARA
                                       PROCESS_PARAMS_FLAG_NORMALIZED ))
         return NULL;
 
+    ret->Flags                |= params32->Flags & PROCESS_PARAMS_FLAG_DEFAULT_ERROR_MODE;
     ret->DebugFlags            = params32->DebugFlags;
     ret->ConsoleHandle         = LongToHandle( params32->ConsoleHandle );
     ret->ConsoleFlags          = params32->ConsoleFlags;

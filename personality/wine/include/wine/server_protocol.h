@@ -225,6 +225,7 @@ struct startup_info_data
     unsigned int flags;
     unsigned int show;
     process_id_t process_group_id;
+    unsigned int error_mode;
     data_size_t  curdir_len;
     data_size_t  dllpath_len;
     data_size_t  imagepath_len;
@@ -7259,6 +7260,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 938
+#define SERVER_PROTOCOL_VERSION 939
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

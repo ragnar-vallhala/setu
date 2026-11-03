@@ -76,7 +76,7 @@ WINE_DEFAULT_DEBUG_CHANNEL(process);
 
 static ULONG execute_flags = MEM_EXECUTE_OPTION_DISABLE;
 
-static UINT process_error_mode;
+UINT process_error_mode;
 
 static char **build_argv( const UNICODE_STRING *cmdline, int reserved )
 {
@@ -779,6 +779,9 @@ NTSTATUS WINAPI NtCreateUserProcess( HANDLE *process_handle_ptr, HANDLE *thread_
     }
     if (!(startup_info = create_startup_info( attr.ObjectName, process_flags, params, &pe_info, &startup_info_size )))
         goto done;
+    /* the child inherits the error mode unless CREATE_DEFAULT_ERROR_MODE was given */
+    if (!(params->Flags & PROCESS_PARAMS_FLAG_DEFAULT_ERROR_MODE))
+        ((struct startup_info_data *)startup_info)->error_mode = process_error_mode;
     env_size = get_env_size( params, &winedebug );
 
     if ((status = alloc_object_attributes( process_attr, &objattr, &attr_len ))) goto done;

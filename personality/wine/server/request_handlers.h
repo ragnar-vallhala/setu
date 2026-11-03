@@ -677,7 +677,7 @@ C_ASSERT( sizeof(struct process_info) == 40 );
 C_ASSERT( sizeof(struct property_data) == 16 );
 C_ASSERT( sizeof(struct rawinput_device) == 12 );
 C_ASSERT( sizeof(struct rectangle) == 16 );
-C_ASSERT( sizeof(struct startup_info_data) == 96 );
+C_ASSERT( sizeof(struct startup_info_data) == 100 );
 C_ASSERT( sizeof(struct thread_info) == 40 );
 C_ASSERT( sizeof(struct user_apc) == 40 );
 C_ASSERT( sizeof(thread_id_t) == 4 );

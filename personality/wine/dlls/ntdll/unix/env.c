@@ -2070,6 +2070,7 @@ void init_startup_info(void)
     params->dwFlags         = info->flags;
     params->wShowWindow     = info->show;
     params->ProcessGroupId  = info->process_group_id;
+    process_error_mode      = info->error_mode;
 
     src = (WCHAR *)(info + 1);
     dst = (WCHAR *)(params + 1);
