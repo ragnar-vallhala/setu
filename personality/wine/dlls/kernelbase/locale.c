@@ -3032,6 +3032,15 @@ static inline int is_valid_dbcs_mapping( const CPTABLEINFO *info, DWORD flags, u
 }
 
 
+/* WC_COMPOSITECHECK: a character followed by a nonspacing mark is a composite,
+ * whether or not a precomposed form exists; *composed is 0 when it doesn't */
+static BOOL is_composite( WCHAR ch1, WCHAR ch2, unsigned int *composed )
+{
+    *composed = compose_chars( ch1, ch2 );
+    return *composed || (get_char_type( CT_CTYPE3, ch2 ) & C3_NONSPACING);
+}
+
+
 static int wcstombs_sbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR *src, unsigned int srclen,
                                char *dst, unsigned int dstlen, const char *defchar, BOOL *used )
 {
@@ -3050,10 +3059,10 @@ static int wcstombs_sbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
         for (i = 0; srclen; i++, src++, srclen--)
         {
             wch = *src;
-            if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && (composed = compose_chars( src[0], src[1] )))
+            if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && is_composite( src[0], src[1], &composed ))
             {
                 /* now check if we can use the composed char */
-                if (is_valid_sbcs_mapping( info, flags, composed ))
+                if (composed && is_valid_sbcs_mapping( info, flags, composed ))
                 {
                     /* we have a good mapping, use it */
                     src++;
@@ -3083,10 +3092,10 @@ static int wcstombs_sbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
     for (i = dstlen; srclen && i; dst++, i--, src++, srclen--)
     {
         wch = *src;
-        if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && (composed = compose_chars( src[0], src[1] )))
+        if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && is_composite( src[0], src[1], &composed ))
         {
             /* now check if we can use the composed char */
-            if (is_valid_sbcs_mapping( info, flags, composed ))
+            if (composed && is_valid_sbcs_mapping( info, flags, composed ))
             {
                 /* we have a good mapping, use it */
                 *dst = table[composed];
@@ -3153,10 +3162,10 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
         for (i = 0; srclen; srclen--, src++, i++)
         {
             wch = *src;
-            if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && (composed = compose_chars( src[0], src[1] )))
+            if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && is_composite( src[0], src[1], &composed ))
             {
                 /* now check if we can use the composed char */
-                if (is_valid_dbcs_mapping( info, flags, composed ))
+                if (composed && is_valid_dbcs_mapping( info, flags, composed ))
                 {
                     /* we have a good mapping for the composed char, use it */
                     res = table[composed];
@@ -3197,10 +3206,10 @@ static int wcstombs_dbcs_slow( const CPTABLEINFO *info, DWORD flags, const WCHAR
     for (i = dstlen; srclen && i; i--, srclen--, src++)
     {
         wch = *src;
-        if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && (composed = compose_chars( src[0], src[1] )))
+        if ((flags & WC_COMPOSITECHECK) && (srclen > 1) && is_composite( src[0], src[1], &composed ))
         {
             /* now check if we can use the composed char */
-            if (is_valid_dbcs_mapping( info, flags, composed ))
+            if (composed && is_valid_dbcs_mapping( info, flags, composed ))
             {
                 /* we have a good mapping for the composed char, use it */
                 res = table[composed];
@@ -7462,7 +7471,7 @@ INT WINAPI DECLSPEC_HOTPATCH WideCharToMultiByte( UINT codepage, DWORD flags, LP
     const CPTABLEINFO *info;
     int ret;
 
-    if (!src || !srclen || (!dst && dstlen) || dstlen < 0)
+    if (!src || !srclen || (!dst && dstlen) || dstlen < 0 || (dst && (const void *)src == (const void *)dst))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
@@ -7489,6 +7498,14 @@ INT WINAPI DECLSPEC_HOTPATCH WideCharToMultiByte( UINT codepage, DWORD flags, LP
         }
         if (flags & ~(WC_DISCARDNS | WC_SEPCHARS | WC_DEFAULTCHAR | WC_ERR_INVALID_CHARS |
                       WC_COMPOSITECHECK | WC_NO_BEST_FIT_CHARS))
+        {
+            SetLastError( ERROR_INVALID_FLAGS );
+            return 0;
+        }
+        /* the composite flags only go with WC_COMPOSITECHECK, and
+         * WC_ERR_INVALID_CHARS only with UTF-8 */
+        if (((flags & (WC_DISCARDNS | WC_SEPCHARS | WC_DEFAULTCHAR)) && !(flags & WC_COMPOSITECHECK)) ||
+            ((flags & WC_ERR_INVALID_CHARS) && info->CodePage != CP_UTF8))
         {
             SetLastError( ERROR_INVALID_FLAGS );
             return 0;
