@@ -267,17 +267,80 @@ NTSTATUS WINAPI RtlGetSystemPreferredUILanguages( DWORD flags, ULONG unknown, UL
 }
 
 
+/* the thread's preferred UI languages, kept in TEB->PreferredLanguages as locale names */
+struct thread_ui_languages
+{
+    ULONG count;
+    WCHAR names[1];  /* double null-terminated list */
+};
+
 /**************************************************************************
  *      RtlGetThreadPreferredUILanguages   (NTDLL.@)
  */
 NTSTATUS WINAPI RtlGetThreadPreferredUILanguages( DWORD flags, ULONG *count, WCHAR *buffer, ULONG *size )
 {
-    LANGID ui_language;
+    const struct thread_ui_languages *langs = NtCurrentTeb()->PreferredLanguages;
+    WCHAR list[LOCALE_NAME_MAX_LENGTH * 8], *p = list;
+    const WCHAR *name;
+    ULONG len;
 
-    FIXME( "%08lx, %p, %p %p\n", flags, count, buffer, size );
+    TRACE( "%08lx, %p, %p %p\n", flags, count, buffer, size );
 
-    NtQueryDefaultUILanguage( &ui_language );
-    return get_dummy_preferred_ui_language( flags, ui_language, count, buffer, size );
+    if ((flags & MUI_LANGUAGE_NAME) && (flags & MUI_LANGUAGE_ID)) return STATUS_INVALID_PARAMETER;
+    if (!count || !size || (*size && !buffer)) return STATUS_INVALID_PARAMETER;
+
+    if (!langs || !langs->count)
+    {
+        LANGID ui_language;
+
+        if (flags & MUI_THREAD_LANGUAGES)
+        {
+            /* only the thread's own languages, and there are none */
+            if (buffer)
+            {
+                if (*size < 2)
+                {
+                    *size = 2;
+                    return STATUS_BUFFER_TOO_SMALL;
+                }
+                buffer[0] = buffer[1] = 0;
+            }
+            *count = 0;
+            *size = 2;
+            return STATUS_SUCCESS;
+        }
+        NtQueryDefaultUILanguage( &ui_language );
+        return get_dummy_preferred_ui_language( flags, ui_language, count, buffer, size );
+    }
+
+    for (name = langs->names; *name; name += wcslen( name ) + 1)
+    {
+        if (flags & MUI_LANGUAGE_ID)
+        {
+            LCID lcid = 0;
+            RtlLocaleNameToLcid( name, &lcid, 0 );
+            p += swprintf( p, 5, L"%04X", LANGIDFROMLCID( lcid ) ) + 1;
+        }
+        else
+        {
+            wcscpy( p, name );
+            p += wcslen( name ) + 1;
+        }
+    }
+    *p++ = 0;
+    len = p - list;
+    *count = langs->count;  /* reported even when the buffer is too small */
+    if (buffer)
+    {
+        if (*size < len)
+        {
+            *size = len;
+            return STATUS_BUFFER_TOO_SMALL;
+        }
+        memcpy( buffer, list, len * sizeof(WCHAR) );
+    }
+    *size = len;
+    return STATUS_SUCCESS;
 }
 
 
@@ -313,7 +376,50 @@ NTSTATUS WINAPI RtlSetProcessPreferredUILanguages( DWORD flags, PCZZWSTR buffer,
  */
 NTSTATUS WINAPI RtlSetThreadPreferredUILanguages( DWORD flags, PCZZWSTR buffer, ULONG *count )
 {
-    FIXME( "%lu, %p, %p\n", flags, buffer, count );
+    struct thread_ui_languages *langs = NULL;
+    WCHAR names[LOCALE_NAME_MAX_LENGTH * 8], *p = names;
+    UNICODE_STRING str;
+    const WCHAR *src;
+    ULONG n = 0;
+
+    TRACE( "%08lx, %p, %p\n", flags, buffer, count );
+
+    if ((flags & MUI_LANGUAGE_NAME) && (flags & MUI_LANGUAGE_ID)) return STATUS_INVALID_PARAMETER;
+
+    if (buffer && *buffer)
+    {
+        if (!(flags & (MUI_LANGUAGE_NAME | MUI_LANGUAGE_ID))) return STATUS_INVALID_PARAMETER;
+        for (src = buffer; *src; src += wcslen( src ) + 1)
+        {
+            LCID lcid;
+
+            if (flags & MUI_LANGUAGE_ID)
+            {
+                WCHAR *end;
+                lcid = wcstoul( src, &end, 16 );
+                if (*end || !lcid) return STATUS_UNSUCCESSFUL;
+            }
+            else if (RtlLocaleNameToLcid( src, &lcid, 0 )) return STATUS_UNSUCCESSFUL;
+
+            /* keep the canonical name of each language */
+            str.Buffer = p;
+            str.MaximumLength = (names + ARRAY_SIZE(names) - 1 - p) * sizeof(WCHAR);
+            if (str.MaximumLength < LOCALE_NAME_MAX_LENGTH * sizeof(WCHAR)) return STATUS_INVALID_PARAMETER;
+            if (RtlLcidToLocaleName( lcid, &str, 0, FALSE )) return STATUS_UNSUCCESSFUL;
+            p += str.Length / sizeof(WCHAR) + 1;
+            n++;
+        }
+        *p++ = 0;
+        if (!(langs = RtlAllocateHeap( GetProcessHeap(), 0,
+                                       offsetof( struct thread_ui_languages, names[p - names] ))))
+            return STATUS_NO_MEMORY;
+        langs->count = n;
+        memcpy( langs->names, names, (p - names) * sizeof(WCHAR) );
+    }
+
+    RtlFreeHeap( GetProcessHeap(), 0, NtCurrentTeb()->PreferredLanguages );
+    NtCurrentTeb()->PreferredLanguages = langs;
+    if (langs && count) *count = n;
     return STATUS_SUCCESS;
 }
 

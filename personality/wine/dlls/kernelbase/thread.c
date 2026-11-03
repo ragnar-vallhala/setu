@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <limits.h>
+#include <stdlib.h>
 
 #include "ntstatus.h"
 #define WIN32_NO_STATUS
@@ -387,9 +388,14 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetThreadTimes( HANDLE thread, LPFILETIME creation
  */
 LANGID WINAPI DECLSPEC_HOTPATCH GetThreadUILanguage(void)
 {
+    WCHAR buffer[64];
+    ULONG count = 0, size = ARRAY_SIZE(buffer);
     LANGID lang;
 
-    FIXME(": stub, returning default language.\n");
+    /* the first of the thread's preferred languages, if it has any */
+    if (!RtlGetThreadPreferredUILanguages( MUI_LANGUAGE_ID | MUI_THREAD_LANGUAGES, &count, buffer, &size ) &&
+        count)
+        return wcstoul( buffer, NULL, 16 );
     NtQueryDefaultUILanguage( &lang );
     return lang;
 }
@@ -598,7 +604,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetThreadIdealProcessorEx( HANDLE thread, PROCESSO
  */
 BOOL WINAPI DECLSPEC_HOTPATCH SetThreadLocale( LCID lcid )
 {
-    lcid = ConvertDefaultLocale( lcid );
+    /* only the default constants are converted; other values are kept as given */
+    if (!lcid || lcid == LOCALE_USER_DEFAULT || lcid == LOCALE_SYSTEM_DEFAULT || lcid == LOCALE_NEUTRAL)
+        lcid = ConvertDefaultLocale( lcid );
     if (lcid != GetThreadLocale())
     {
         if (!IsValidLocale( lcid, LCID_SUPPORTED ))
@@ -671,9 +679,26 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetThreadStackGuarantee( ULONG *size )
  */
 LANGID WINAPI DECLSPEC_HOTPATCH SetThreadUILanguage( LANGID langid )
 {
-    TRACE( "(0x%04x) stub - returning success\n", langid );
+    WCHAR list[6];
+    ULONG count;
 
-    if (!langid) langid = GetThreadUILanguage();
+    TRACE( "(0x%04x)\n", langid );
+
+    if (!langid)
+    {
+        SetLastError( 0 );
+        return GetThreadUILanguage();
+    }
+    /* the language becomes the thread's preferred UI language */
+    swprintf( list, ARRAY_SIZE(list) - 1, L"%04X", langid );
+    list[5] = 0;
+    if (!IsValidLocale( MAKELCID( langid, SORT_DEFAULT ), LCID_SUPPORTED ) ||
+        RtlSetThreadPreferredUILanguages( MUI_LANGUAGE_ID, list, &count ))
+    {
+        SetLastError( ERROR_FILE_NOT_FOUND );
+        return GetThreadUILanguage();
+    }
+    SetLastError( 0 );
     return langid;
 }
 

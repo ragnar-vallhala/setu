@@ -5020,8 +5020,10 @@ INT WINAPI DECLSPEC_HOTPATCH CompareStringOrdinal( const WCHAR *str1, INT len1,
  */
 LCID WINAPI DECLSPEC_HOTPATCH ConvertDefaultLocale( LCID lcid )
 {
+    WORD sort = SORTIDFROMLCID( lcid );
     const NLS_LOCALE_DATA *locale = NlsValidateLocale( &lcid, 0 );
-    if (locale) lcid = locale->ilanguage;
+    /* an explicit sort order is kept */
+    if (locale) lcid = MAKELCID( locale->ilanguage, sort );
     return lcid;
 }
 
