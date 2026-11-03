@@ -3985,6 +3985,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH RemoveDirectoryW( LPCWSTR path )
 
     TRACE( "%s\n", debugstr_w(path) );
 
+    if (path && !path[0])
+    {
+        SetLastError( ERROR_PATH_NOT_FOUND );
+        return FALSE;
+    }
     status = RtlDosPathNameToNtPathName_U_WithStatus( path, &nt_name, NULL, NULL );
     if (!set_ntstatus( status )) return FALSE;
 
@@ -3998,6 +4003,24 @@ BOOL WINAPI DECLSPEC_HOTPATCH RemoveDirectoryW( LPCWSTR path )
     {
         status = set_posix_delete( handle );
         NtClose( handle );
+    }
+    else if (status == STATUS_OBJECT_NAME_INVALID)
+    {
+        /* a file name followed by a separator isn't a directory */
+        size_t len = wcslen( path );
+        WCHAR *name;
+        DWORD attrs;
+
+        if (len > 1 && (path[len - 1] == '\\' || path[len - 1] == '/') &&
+            (name = HeapAlloc( GetProcessHeap(), 0, len * sizeof(WCHAR) )))
+        {
+            memcpy( name, path, (len - 1) * sizeof(WCHAR) );
+            name[len - 1] = 0;
+            attrs = GetFileAttributesW( name );
+            HeapFree( GetProcessHeap(), 0, name );
+            if (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY))
+                status = STATUS_NOT_A_DIRECTORY;
+        }
     }
     return set_ntstatus( status );
 }
