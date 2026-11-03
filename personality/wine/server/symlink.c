@@ -113,8 +113,10 @@ static struct object *symlink_lookup_name( struct object *obj, struct unicode_st
 
     if (!symlink->len) return get_root_directory();
 
+    /* a DOS device can hold several targets separated by nulls; the first one is used */
     target_str.str = symlink->target;
-    target_str.len = symlink->len;
+    for (target_str.len = 0; target_str.len < symlink->len; target_str.len += sizeof(WCHAR))
+        if (!symlink->target[target_str.len / sizeof(WCHAR)]) break;
     if ((target = lookup_named_object( NULL, &target_str, attr, &name_left )))
     {
         if (name_left.len)
