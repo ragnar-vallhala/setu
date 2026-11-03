@@ -5478,9 +5478,17 @@ static const WCHAR *get_message( DWORD flags, const void *src, UINT id, UINT lan
             HMODULE module = (HMODULE)src;
             if (!module) module = GetModuleHandleW( 0 );
             status = RtlFindMessage( module, RT_MESSAGETABLE, lang, id, &entry );
+            /* the system is only searched when the module has a table without the message */
+            if (status && status != STATUS_MESSAGE_NOT_FOUND) flags &= ~FORMAT_MESSAGE_FROM_SYSTEM;
         }
         if (status && (flags & FORMAT_MESSAGE_FROM_SYSTEM))
         {
+            /* only the English system messages are installed */
+            if (lang && PRIMARYLANGID(lang) != LANG_NEUTRAL && PRIMARYLANGID(lang) != LANG_ENGLISH)
+            {
+                SetLastError( ERROR_MUI_FILE_NOT_FOUND );
+                return NULL;
+            }
             /* Fold win32 hresult to its embedded error code. */
             if (HRESULT_SEVERITY(id) == SEVERITY_ERROR && HRESULT_FACILITY(id) == FACILITY_WIN32)
                 id = HRESULT_CODE( id );

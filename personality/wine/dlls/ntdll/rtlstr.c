@@ -1875,7 +1875,8 @@ NTSTATUS WINAPI RtlFormatMessageEx( const WCHAR *src, ULONG width, BOOLEAN ignor
             case 0:
                 return STATUS_INVALID_PARAMETER;
             case 't':
-                if (!width)
+                /* with FORMAT_MESSAGE_MAX_WIDTH_MASK there are no lines to break */
+                if (!width || width == ~0u)
                 {
                     status = add_chars( &buffer, end, &tabW, 1 );
                     break;

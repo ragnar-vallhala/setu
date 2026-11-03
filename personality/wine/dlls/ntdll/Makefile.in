@@ -26,6 +26,7 @@ SOURCES = \
 	locale.c \
 	math.c \
 	misc.c \
+	ntstatus.mc \
 	path.c \
 	printf.c \
 	process.c \
