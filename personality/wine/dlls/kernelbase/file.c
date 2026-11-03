@@ -1188,6 +1188,16 @@ BOOL WINAPI DECLSPEC_HOTPATCH DeleteFileA( LPCSTR path )
 }
 
 
+/* Names that aren't files or directories, such as the NUL device, have no
+ * attribute tag; deleting or renaming them fails there. */
+static NTSTATUS check_attribute_tag( HANDLE handle )
+{
+    FILE_ATTRIBUTE_TAG_INFORMATION info;
+    IO_STATUS_BLOCK io;
+
+    return NtQueryInformationFile( handle, &io, &info, sizeof(info), FileAttributeTagInformation );
+}
+
 /* Mark an open file for deletion. As on Windows, the name goes away as soon as
  * the handle is closed, even while other handles to the file remain open. */
 static NTSTATUS set_posix_delete( HANDLE handle )
@@ -1232,7 +1242,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH DeleteFileW( LPCWSTR path )
         /* mark the file for deletion through its disposition rather than with
          * FILE_DELETE_ON_CLOSE: that is where a file that can't be deleted, such
          * as one with a mapped section, is refused */
-        status = set_posix_delete( hFile );
+        if (!(status = check_attribute_tag( hFile ))) status = set_posix_delete( hFile );
         NtClose( hFile );
     }
 
@@ -2868,6 +2878,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH MoveFileWithProgressW( const WCHAR *source, const 
                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                          FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT );
     RtlFreeUnicodeString( &nt_name );
+    if (!status) status = check_attribute_tag( source_handle );
     if (!set_ntstatus( status )) goto error;
 
     if (!RtlDosPathNameToNtPathName_U( dest, &nt_name, NULL, NULL ))
@@ -4059,7 +4070,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH RemoveDirectoryW( LPCWSTR path )
 
     if (!status)
     {
-        status = set_posix_delete( handle );
+        if (!(status = check_attribute_tag( handle ))) status = set_posix_delete( handle );
         NtClose( handle );
     }
     else if (status == STATUS_OBJECT_NAME_INVALID)
