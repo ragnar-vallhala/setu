@@ -417,15 +417,15 @@ ULONG WINAPI RtlDosSearchPath_U(LPCWSTR paths, LPCWSTR search, LPCWSTR ext,
  * Helper for RtlGetFullPathName_UEx.
  * Get rid of . and .. components in the path.
  */
-static inline void collapse_path( WCHAR *path, UINT mark )
+static inline void collapse_path( WCHAR *path, UINT mark, UINT dup_mark )
 {
     WCHAR *p, *next;
 
     /* convert every / into a \ */
     for (p = path; *p; p++) if (*p == '/') *p = '\\';
 
-    /* collapse duplicate backslashes */
-    next = path + max( 1, mark );
+    /* collapse duplicate backslashes (only from dup_mark on, if it is past mark) */
+    next = path + max( 1, max( mark, dup_mark ) );
     for (p = next; *p; p++) if (*p != '\\' || next[-1] != '\\') *next++ = *p;
     *next = 0;
 
@@ -584,6 +584,37 @@ static BOOL get_unix_full_path( LPCWSTR name, LPWSTR buffer, ULONG size, ULONG *
 
 
 /******************************************************************
+ *		drive_dir_var_valid
+ *
+ * Is the value of a "=X:" variable an absolute path that names an existing
+ * directory? The value is checked as it is, without normalising it.
+ */
+static BOOL drive_dir_var_valid( const UNICODE_STRING *val )
+{
+    static const WCHAR prefixW[] = {'\\','?','?','\\'};
+    WCHAR path[4 + MAX_PATH];
+    UNICODE_STRING nt;
+    OBJECT_ATTRIBUTES attr;
+    FILE_BASIC_INFORMATION info;
+    ULONG i, len = val->Length / sizeof(WCHAR);
+
+    if (len < 3 || len >= MAX_PATH) return FALSE;
+    if (!((val->Buffer[0] | 0x20) >= 'a' && (val->Buffer[0] | 0x20) <= 'z')) return FALSE;
+    if (val->Buffer[1] != ':' || val->Buffer[2] != '\\') return FALSE;
+    for (i = 2; i < len; i++)
+    {
+        if (val->Buffer[i] == '/') return FALSE;
+        if (val->Buffer[i] == '\\' && i + 1 < len && val->Buffer[i + 1] == '\\') return FALSE;
+    }
+    memcpy( path, prefixW, sizeof(prefixW) );
+    memcpy( path + 4, val->Buffer, len * sizeof(WCHAR) );
+    nt.Buffer = path;
+    nt.Length = nt.MaximumLength = (4 + len) * sizeof(WCHAR);
+    InitializeObjectAttributes( &attr, &nt, OBJ_CASE_INSENSITIVE, 0, NULL );
+    return !NtQueryAttributesFile( &attr, &info ) && (info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+/******************************************************************
  *		get_full_path_helper
  *
  * Helper for RtlGetFullPathName_UEx.
@@ -591,7 +622,7 @@ static BOOL get_unix_full_path( LPCWSTR name, LPWSTR buffer, ULONG size, ULONG *
  */
 static ULONG get_full_path_helper(LPCWSTR name, LPWSTR buffer, ULONG size, RTL_PATH_TYPE type)
 {
-    ULONG                       reqsize = 0, mark = 0, dep = 0, deplen;
+    ULONG                       reqsize = 0, mark = 0, dep = 0, deplen, dup_mark = 0;
     LPWSTR                      ins_str = NULL;
     LPCWSTR                     ptr;
     const UNICODE_STRING*       cd;
@@ -646,6 +677,7 @@ static ULONG get_full_path_helper(LPCWSTR name, LPWSTR buffer, ULONG size, RTL_P
         if (wcsnicmp( name, cd->Buffer, 2 ))
         {
             UNICODE_STRING      var, val;
+            NTSTATUS            status;
 
             tmp[0] = '=';
             tmp[1] = name[0];
@@ -658,28 +690,41 @@ static ULONG get_full_path_helper(LPCWSTR name, LPWSTR buffer, ULONG size, RTL_P
             val.MaximumLength = size;
             val.Buffer = RtlAllocateHeap(GetProcessHeap(), 0, size);
 
-            switch (RtlQueryEnvironmentVariable_U(NULL, &var, &val))
+            status = RtlQueryEnvironmentVariable_U( NULL, &var, &val );
+            /* The "=X:" value is used only when it is an absolute path naming an
+             * existing directory; otherwise it is treated as missing. */
+            if (status == STATUS_SUCCESS && !drive_dir_var_valid( &val )) status = STATUS_VARIABLE_NOT_FOUND;
+
+            switch (status)
             {
             case STATUS_SUCCESS:
-                /* FIXME: Win2k seems to check that the environment variable actually points 
-                 * to an existing directory. If not, root of the drive is used
-                 * (this seems also to be the only spot in RtlGetFullPathName that the 
-                 * existence of a part of a path is checked)
-                 */
-                /* fall through */
             case STATUS_BUFFER_TOO_SMALL:
+                /* the value is used as it is: a trailing '\\' in it is not merged
+                 * with the one appended here */
                 reqsize = val.Length + sizeof(WCHAR); /* append trailing '\\' */
                 val.Buffer[val.Length / sizeof(WCHAR)] = '\\';
                 ins_str = val.Buffer;
+                dup_mark = reqsize / sizeof(WCHAR);
                 break;
             case STATUS_VARIABLE_NOT_FOUND:
-                reqsize = 3 * sizeof(WCHAR);
-                tmp[0] = name[0];
-                tmp[1] = ':';
-                tmp[2] = '\\';
-                ins_str = tmp;
+            {
+                /* the root of the drive is used, and stored in "=X:" */
+                WCHAR rootW[4];
+                UNICODE_STRING root;
+
                 RtlFreeHeap(GetProcessHeap(), 0, val.Buffer);
+                rootW[0] = (name[0] >= 'a' && name[0] <= 'z') ? name[0] - 'a' + 'A' : name[0];
+                rootW[1] = ':';
+                rootW[2] = '\\';
+                rootW[3] = 0;
+                RtlInitUnicodeString( &root, rootW );
+                tmp[1] = rootW[0];  /* var is "=X:" */
+                RtlSetEnvironmentVariable( NULL, &var, &root );
+                memcpy( tmp, rootW, 3 * sizeof(WCHAR) );
+                reqsize = 3 * sizeof(WCHAR);
+                ins_str = tmp;
                 break;
+            }
             default:
                 ERR("Unsupported status code\n");
                 RtlFreeHeap(GetProcessHeap(), 0, val.Buffer);
@@ -751,7 +796,7 @@ static ULONG get_full_path_helper(LPCWSTR name, LPWSTR buffer, ULONG size, RTL_P
     if (ins_str != tmp && ins_str != cd->Buffer)
         RtlFreeHeap(GetProcessHeap(), 0, ins_str);
 
-    collapse_path( buffer, mark );
+    collapse_path( buffer, mark, dup_mark );
     reqsize = wcslen(buffer) * sizeof(WCHAR);
 
 done:
