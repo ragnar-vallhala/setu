@@ -1170,6 +1170,22 @@ BOOL WINAPI DECLSPEC_HOTPATCH DeleteFileA( LPCSTR path )
 }
 
 
+/* Mark an open file for deletion. As on Windows, the name goes away as soon as
+ * the handle is closed, even while other handles to the file remain open. */
+static NTSTATUS set_posix_delete( HANDLE handle )
+{
+    FILE_DISPOSITION_INFORMATION_EX info = { FILE_DISPOSITION_DELETE | FILE_DISPOSITION_POSIX_SEMANTICS };
+    FILE_DISPOSITION_INFORMATION old_info = { TRUE };
+    IO_STATUS_BLOCK io;
+    NTSTATUS status;
+
+    status = NtSetInformationFile( handle, &io, &info, sizeof(info), FileDispositionInformationEx );
+    if (status == STATUS_INVALID_INFO_CLASS || status == STATUS_NOT_SUPPORTED)
+        status = NtSetInformationFile( handle, &io, &old_info, sizeof(old_info), FileDispositionInformation );
+    return status;
+}
+
+
 /***********************************************************************
  *	DeleteFileW   (kernelbase.@)
  */
@@ -1198,9 +1214,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH DeleteFileW( LPCWSTR path )
         /* mark the file for deletion through its disposition rather than with
          * FILE_DELETE_ON_CLOSE: that is where a file that can't be deleted, such
          * as one with a mapped section, is refused */
-        FILE_DISPOSITION_INFORMATION info = { TRUE };
-
-        status = NtSetInformationFile( hFile, &io, &info, sizeof(info), FileDispositionInformation );
+        status = set_posix_delete( hFile );
         NtClose( hFile );
     }
 
@@ -3982,8 +3996,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH RemoveDirectoryW( LPCWSTR path )
 
     if (!status)
     {
-        FILE_DISPOSITION_INFORMATION info = { TRUE };
-        status = NtSetInformationFile( handle, &io, &info, sizeof(info), FileDispositionInformation );
+        status = set_posix_delete( handle );
         NtClose( handle );
     }
     return set_ntstatus( status );
