@@ -2545,8 +2545,22 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetShortPathNameW( LPCWSTR longpath, LPWSTR short
             }
         }
 
-        /* Check if the file exists and use the existing short file name */
-        handle = FindFirstFileW( tmpshortpath, &wfd );
+        /* Check if the file exists and use the existing short file name; look it up
+         * by the caller's path, not by the short names of the directories before it */
+        {
+            WCHAR *lookup = HeapAlloc( GetProcessHeap(), 0, (lp + tmplen + 1) * sizeof(WCHAR) );
+
+            if (!lookup)
+            {
+                HeapFree( GetProcessHeap(), 0, tmpshortpath );
+                SetLastError( ERROR_OUTOFMEMORY );
+                return 0;
+            }
+            memcpy( lookup, longpath, (lp + tmplen) * sizeof(WCHAR) );
+            lookup[lp + tmplen] = 0;
+            handle = FindFirstFileW( lookup, &wfd );
+            HeapFree( GetProcessHeap(), 0, lookup );
+        }
         if (handle == INVALID_HANDLE_VALUE)
         {
             /* a missing directory before the last component is a missing path */
