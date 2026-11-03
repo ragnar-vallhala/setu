@@ -2246,6 +2246,9 @@ static const CPTABLEINFO *get_codepage_table( UINT codepage )
     static const CPTABLEINFO utf7_cpinfo = { CP_UTF7, 5, '?', 0xfffd, '?', '?' };
     static const CPTABLEINFO utf8_cpinfo = { CP_UTF8, 4, '?', 0xfffd, '?', '?' };
     static const CPTABLEINFO gb18030_cpinfo = { 54936, 4, '?', '?', '?', '?' };
+    static const CPTABLEINFO iso2022jp_cpinfo[3] = { { 50220, 5, '?', '?', '?', '?' },
+                                                     { 50221, 5, '?', '?', '?', '?' },
+                                                     { 50222, 5, '?', '?', '?', '?' } };
     unsigned int i;
     USHORT *ptr;
     SIZE_T size;
@@ -2268,6 +2271,7 @@ static const CPTABLEINFO *get_codepage_table( UINT codepage )
     if (codepage == CP_UTF8) return &utf8_cpinfo;
     if (codepage == CP_UTF7) return &utf7_cpinfo;
     if (codepage == 54936) return &gb18030_cpinfo;
+    if (codepage >= 50220 && codepage <= 50222) return &iso2022jp_cpinfo[codepage - 50220];
 
     RtlEnterCriticalSection( &locale_section );
 
@@ -3191,6 +3195,359 @@ static int wcstombs_gb18030( DWORD flags, const WCHAR *src, int srclen, char *ds
             out[0] = defchar ? *defchar : '?';
             count = 1;
             if (used) *used = TRUE;
+        }
+
+        if (dstlen)
+        {
+            if (pos + count > dstlen)
+            {
+                SetLastError( ERROR_INSUFFICIENT_BUFFER );
+                return 0;
+            }
+            memcpy( dst + pos, out, count );
+        }
+        pos += count;
+    }
+    return pos;
+}
+
+
+/* ISO-2022-JP (code pages 50220, 50221 and 50222), RFC 1468 plus the JIS X 0212
+ * (ESC $ ( D) and JIS X 0201 katakana (ESC ( I, or SO after ESC ( J) designations.
+ *
+ * JIS X 0208 and JIS X 0212 come from the EUC-JP table (code page 20932, built
+ * from the Unicode consortium's JIS0208.TXT and JIS0212.TXT), except that
+ * JIS X 0212 0x2271 (NUMERO SIGN) is not used. Characters that only code page
+ * 932 has are reached through it: NEC row 13 becomes JIS X 0208 row 0x2d, and
+ * the IBM extension (Shift-JIS 0xfa40-0xfc4b) is numbered in Shift-JIS order
+ * from JIS X 0212 0x7321 on, 94 per row, leaving out the cells whose character
+ * JIS X 0208 or JIS X 0212 already has (counting U+FFE2 and U+FFE4 as the
+ * fullwidth forms of JIS X 0208 0x224c and JIS X 0212 0x2243). */
+
+#define JIS_X0212_FLAG 0x8000
+#define JIS_IBM_SLOTS  (2 * 94)
+
+struct iso2022jp_tables
+{
+    USHORT wc_to_jis[0x10000];       /* JIS code, JIS_X0212_FLAG for JIS X 0212, 0 if none */
+    WCHAR  ibm_slot_to_wc[JIS_IBM_SLOTS];
+    const CPTABLEINFO *eucjp;
+    const CPTABLEINFO *sjis;
+};
+
+static struct iso2022jp_tables *iso2022jp;
+
+/* halfwidth katakana U+FF61..U+FF9F as fullwidth characters (Unicode <narrow>
+ * decompositions, with the spacing sound marks, which JIS X 0208 has) */
+static const WCHAR halfwidth_kana_to_full[] =
+{
+    0x3002, 0x300c, 0x300d, 0x3001, 0x30fb, 0x30f2, 0x30a1, 0x30a3, 0x30a5, 0x30a7, 0x30a9, 0x30e3,
+    0x30e5, 0x30e7, 0x30c3, 0x30fc, 0x30a2, 0x30a4, 0x30a6, 0x30a8, 0x30aa, 0x30ab, 0x30ad, 0x30af,
+    0x30b1, 0x30b3, 0x30b5, 0x30b7, 0x30b9, 0x30bb, 0x30bd, 0x30bf, 0x30c1, 0x30c4, 0x30c6, 0x30c8,
+    0x30ca, 0x30cb, 0x30cc, 0x30cd, 0x30ce, 0x30cf, 0x30d2, 0x30d5, 0x30d8, 0x30db, 0x30de, 0x30df,
+    0x30e0, 0x30e1, 0x30e2, 0x30e4, 0x30e6, 0x30e8, 0x30e9, 0x30ea, 0x30eb, 0x30ec, 0x30ed, 0x30ef,
+    0x30f3, 0x309b, 0x309c,
+};
+
+/* character of a code page 932 double-byte code, or 0 if it does not round-trip */
+static WCHAR sjis_char( const CPTABLEINFO *sjis, USHORT code )
+{
+    USHORT off = sjis->DBCSOffsets[code >> 8];
+    WCHAR wc;
+
+    if (!off) return 0;
+    wc = sjis->DBCSOffsets[off + (code & 0xff)];
+    if (wc == sjis->UniDefaultChar || ((const USHORT *)sjis->WideCharTable)[wc] != code) return 0;
+    return wc;
+}
+
+static USHORT jis_to_sjis( USHORT jis )
+{
+    unsigned int row = (jis >> 8) - 0x21, col = (jis & 0xff) - 0x21;
+    unsigned int lead = (row >> 1) + (row < 62 ? 0x81 : 0xc1);
+    unsigned int trail = (row & 1) ? col + 0x9f : col + (col < 0x3f ? 0x40 : 0x41);
+    return lead << 8 | trail;
+}
+
+static USHORT sjis_to_jis( USHORT sjis )
+{
+    unsigned int lead = sjis >> 8, trail = sjis & 0xff;
+    unsigned int row = ((lead >= 0xe0 ? lead - 0xc1 : lead - 0x81) << 1);
+
+    if (trail >= 0x9f) return (row + 1 + 0x21) << 8 | (trail - 0x9f + 0x21);
+    return (row + 0x21) << 8 | ((trail > 0x7f ? trail - 1 : trail) - 0x40 + 0x21);
+}
+
+static const struct iso2022jp_tables *get_iso2022jp_tables(void)
+{
+    struct iso2022jp_tables *tables;
+    const CPTABLEINFO *eucjp, *sjis;
+    const USHORT *euc_wctable;
+    unsigned int lead, trail, n;
+    WCHAR wc;
+
+    if (iso2022jp) return iso2022jp;
+    if (!(eucjp = get_codepage_table( 20932 )) || !eucjp->DBCSOffsets) return NULL;
+    if (!(sjis = get_codepage_table( 932 )) || !sjis->DBCSOffsets) return NULL;
+    if (!(tables = RtlAllocateHeap( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*tables) ))) return NULL;
+    tables->eucjp = eucjp;
+    tables->sjis = sjis;
+    euc_wctable = eucjp->WideCharTable;
+
+    /* JIS X 0208 first, then JIS X 0212 */
+    for (n = 0; n < 2; n++)
+    {
+        for (lead = 0xa1; lead <= 0xfe; lead++)
+        {
+            USHORT off = eucjp->DBCSOffsets[lead];
+            if (!off) continue;
+            for (trail = n ? 0x21 : 0xa1; trail <= (n ? 0x7e : 0xfe); trail++)
+            {
+                USHORT jis = (lead & 0x7f) << 8 | (trail & 0x7f);
+                wc = eucjp->DBCSOffsets[off + trail];
+                if (wc < 0x80 || wc == eucjp->UniDefaultChar || euc_wctable[wc] != (lead << 8 | trail)) continue;
+                if (n && jis == 0x2271) continue;
+                if (!tables->wc_to_jis[wc]) tables->wc_to_jis[wc] = jis | (n ? JIS_X0212_FLAG : 0);
+            }
+        }
+    }
+
+    /* NEC row 13 of code page 932 */
+    for (trail = 0x40; trail <= 0x9e; trail++)
+    {
+        if (trail == 0x7f || !(wc = sjis_char( sjis, 0x8700 | trail ))) continue;
+        if (!tables->wc_to_jis[wc]) tables->wc_to_jis[wc] = sjis_to_jis( 0x8700 | trail );
+    }
+
+    /* IBM extension of code page 932 */
+    for (lead = 0xfa, n = 0; lead <= 0xfc && n < JIS_IBM_SLOTS; lead++)
+    {
+        for (trail = 0x40; trail <= 0xfc && n < JIS_IBM_SLOTS; trail++)
+        {
+            USHORT code = lead << 8 | trail, jis, off = sjis->DBCSOffsets[lead];
+
+            if (trail == 0x7f || code > 0xfc4b || !off) continue;
+            wc = sjis->DBCSOffsets[off + trail];
+            if (wc == sjis->UniDefaultChar) continue;
+            if (wc == 0xffe2 || wc == 0xffe4) continue;
+            if (tables->wc_to_jis[wc] && (tables->wc_to_jis[wc] & 0x7f00) != 0x2d00) continue;
+            jis = (0x73 + n / 94) << 8 | (0x21 + n % 94);
+            if (sjis_char( sjis, code ) == wc)
+            {
+                tables->ibm_slot_to_wc[n] = wc;
+                if (!tables->wc_to_jis[wc]) tables->wc_to_jis[wc] = jis | JIS_X0212_FLAG;
+            }
+            n++;
+        }
+    }
+
+    if (InterlockedCompareExchangePointer( (void **)&iso2022jp, tables, NULL ))
+        RtlFreeHeap( GetProcessHeap(), 0, tables );
+    return iso2022jp;
+}
+
+enum iso2022jp_mode { JIS_ASCII, JIS_ROMAN, JIS_KANA, JIS_X0208, JIS_X0212 };
+
+/* decode one JIS X 0208 or JIS X 0212 pair; returns the number of chars */
+static int iso2022jp_decode_pair( const struct iso2022jp_tables *tables, enum iso2022jp_mode mode,
+                                  unsigned char b1, unsigned char b2, WCHAR *out )
+{
+    USHORT jis = (b1 & 0x7f) << 8 | (b2 & 0x7f);
+    unsigned char bytes[2];
+    WCHAR wc;
+
+    if (mode == JIS_X0208)
+    {
+        if ((jis >> 8) == 0x2d && (jis & 0xff) >= 0x21 && (jis & 0xff) <= 0x7e &&
+            (wc = sjis_char( tables->sjis, jis_to_sjis( jis ))))
+        {
+            out[0] = wc;
+            return 1;
+        }
+        bytes[0] = b1 | 0x80;
+        bytes[1] = b2 | 0x80;
+    }
+    else
+    {
+        if ((jis >> 8) >= 0x73 && (jis >> 8) <= 0x74 && (jis & 0xff) >= 0x21 && (jis & 0xff) <= 0x7e)
+        {
+            wc = tables->ibm_slot_to_wc[((jis >> 8) - 0x73) * 94 + (jis & 0xff) - 0x21];
+            out[0] = wc ? wc : tables->eucjp->UniDefaultChar;
+            return 1;
+        }
+        if (jis == 0x2271)
+        {
+            out[0] = tables->eucjp->UniDefaultChar;
+            return 1;
+        }
+        bytes[0] = b1 | 0x80;
+        bytes[1] = b2 & 0x7f;
+    }
+    return mbstowcs_dbcs( tables->eucjp, bytes, 2, out, 2 );
+}
+
+static int mbstowcs_iso2022jp( DWORD flags, const char *src, int srclen, WCHAR *dst, int dstlen )
+{
+    static const struct { char seq[4]; enum iso2022jp_mode mode; } escapes[] =
+    {
+        { "(B", JIS_ASCII }, { "(J", JIS_ROMAN }, { "(I", JIS_KANA },
+        { "$@", JIS_X0208 }, { "$B", JIS_X0208 }, { "$(D", JIS_X0212 },
+    };
+    const struct iso2022jp_tables *tables;
+    const unsigned char *str = (const unsigned char *)src;
+    enum iso2022jp_mode mode = JIS_ASCII;
+    BOOL shift_enabled = FALSE, shifted = FALSE;
+    unsigned int i;
+    int pos = 0;
+
+    if (flags)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
+    if (!(tables = get_iso2022jp_tables()))
+    {
+        SetLastError( ERROR_NOT_ENOUGH_MEMORY );
+        return 0;
+    }
+    while (srclen)
+    {
+        WCHAR out[2];
+        int count = 1, len = 1;
+        unsigned char b = str[0];
+
+        if (b == 0x1b)
+        {
+            for (i = 0; i < ARRAY_SIZE(escapes); i++)
+            {
+                int n = strlen( escapes[i].seq );
+                if (srclen > n && !memcmp( str + 1, escapes[i].seq, n )) break;
+            }
+            if (i < ARRAY_SIZE(escapes))
+            {
+                mode = escapes[i].mode;
+                if (mode == JIS_ROMAN) shift_enabled = TRUE;
+                shifted = FALSE;
+                len = 1 + strlen( escapes[i].seq );
+                count = 0;
+            }
+            else out[0] = b;
+        }
+        else if (b == 0x0e)  /* SO */
+        {
+            if (shift_enabled) shifted = TRUE;
+            count = 0;
+        }
+        else if (b == 0x0f && (shifted || mode == JIS_X0208 || mode == JIS_X0212))  /* SI */
+        {
+            shifted = FALSE;
+            count = 0;
+        }
+        else if (shifted || mode == JIS_KANA)
+        {
+            if (b < 0x20) out[0] = b;
+            else if ((b & 0x7f) >= 0x21 && (b & 0x7f) <= 0x5f) out[0] = 0xff40 + (b & 0x7f);
+            else out[0] = tables->eucjp->UniDefaultChar;
+        }
+        else if ((mode == JIS_X0208 || mode == JIS_X0212) && srclen > 1 && str[1] != 0x1b)
+        {
+            count = iso2022jp_decode_pair( tables, mode, str[0], str[1], out );
+            len = 2;
+        }
+        else out[0] = b;
+
+        if (dstlen && count)
+        {
+            if (pos + count > dstlen)
+            {
+                SetLastError( ERROR_INSUFFICIENT_BUFFER );
+                return 0;
+            }
+            memcpy( dst + pos, out, count * sizeof(WCHAR) );
+        }
+        pos += count;
+        str += len;
+        srclen -= len;
+    }
+    return pos;
+}
+
+static int wcstombs_iso2022jp( UINT codepage, DWORD flags, const WCHAR *src, int srclen, char *dst,
+                               int dstlen, const char *defchar, BOOL *used )
+{
+    static const char esc_ascii[] = "\x1b(B", esc_x0208[] = "\x1b$B", esc_x0212[] = "\x1b$(D";
+    static const char esc_kana[] = "\x1b(I", esc_roman[] = "\x1b(J";
+    const struct iso2022jp_tables *tables;
+    enum iso2022jp_mode mode = JIS_ASCII;
+    BOOL kana_designated = FALSE;
+    int pos = 0, i;
+
+    if (flags)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
+    if (defchar || used)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    if (!(tables = get_iso2022jp_tables()))
+    {
+        SetLastError( ERROR_NOT_ENOUGH_MEMORY );
+        return 0;
+    }
+    for (i = 0; i <= srclen; i++)
+    {
+        char out[8];
+        int count = 0;
+        WCHAR wc = i < srclen ? src[i] : 0;
+        USHORT jis = 0;
+        enum iso2022jp_mode new_mode = JIS_ASCII;
+
+        if (i == srclen)  /* back to ASCII at the end */
+        {
+            if (mode == JIS_ASCII) break;
+        }
+        else if (wc >= 0xff61 && wc <= 0xff9f && codepage != 50220)
+        {
+            new_mode = JIS_KANA;
+            jis = wc - 0xff40;
+        }
+        else if (wc >= 0x80)
+        {
+            if (wc >= 0xff61 && wc <= 0xff9f) wc = halfwidth_kana_to_full[wc - 0xff61];
+            if ((jis = tables->wc_to_jis[wc]))
+                new_mode = (jis & JIS_X0212_FLAG) ? JIS_X0212 : JIS_X0208;
+            else
+                wc = '?';
+        }
+
+        if (new_mode != mode)
+        {
+            const char *seq = esc_ascii;
+            if (new_mode == JIS_X0208) seq = esc_x0208;
+            else if (new_mode == JIS_X0212) seq = esc_x0212;
+            else if (new_mode == JIS_KANA && codepage == 50221) seq = esc_kana;
+            else if (new_mode == JIS_KANA)
+            {
+                seq = kana_designated ? "" : esc_roman;
+                kana_designated = TRUE;
+            }
+            count = strlen( seq );
+            memcpy( out, seq, count );
+            if (new_mode == JIS_KANA && codepage == 50222) out[count++] = 0x0e;  /* SO */
+            mode = new_mode;
+        }
+        if (i < srclen)
+        {
+            if (mode == JIS_ASCII) out[count++] = wc;
+            else if (mode == JIS_KANA) out[count++] = jis;
+            else
+            {
+                out[count++] = (jis >> 8) & 0x7f;
+                out[count++] = jis & 0x7f;
+            }
         }
 
         if (dstlen)
@@ -7684,6 +8041,11 @@ INT WINAPI DECLSPEC_HOTPATCH MultiByteToWideChar( UINT codepage, DWORD flags, co
             SetLastError( ERROR_INVALID_PARAMETER );
             return 0;
         }
+        if (info->CodePage >= 50220 && info->CodePage <= 50222)
+        {
+            ret = mbstowcs_iso2022jp( flags, src, srclen, dst, dstlen );
+            break;
+        }
         if (flags & ~(MB_PRECOMPOSED | MB_COMPOSITE | MB_USEGLYPHCHARS | MB_ERR_INVALID_CHARS))
         {
             SetLastError( ERROR_INVALID_FLAGS );
@@ -8091,6 +8453,11 @@ INT WINAPI DECLSPEC_HOTPATCH WideCharToMultiByte( UINT codepage, DWORD flags, LP
         {
             SetLastError( ERROR_INVALID_PARAMETER );
             return 0;
+        }
+        if (info->CodePage >= 50220 && info->CodePage <= 50222)
+        {
+            ret = wcstombs_iso2022jp( info->CodePage, flags, src, srclen, dst, dstlen, defchar, used );
+            break;
         }
         if (flags & ~(WC_DISCARDNS | WC_SEPCHARS | WC_DEFAULTCHAR | WC_ERR_INVALID_CHARS |
                       WC_COMPOSITECHECK | WC_NO_BEST_FIT_CHARS))
