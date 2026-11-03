@@ -352,7 +352,7 @@ BOOL locale_to_sname(const char *locale, unsigned short *codepage, BOOL *sname_m
     region = strchr(locale, '_');
 
     if(!locale[0] || (cp == locale && !region)) {
-        GetUserDefaultLocaleName(sname, LOCALE_NAME_MAX_LENGTH);
+        LCIDToLocaleName(LOCALE_USER_DEFAULT, sname, LOCALE_NAME_MAX_LENGTH, 0);
     } else {
         char search_language_buf[MAX_ELEM_LEN] = { 0 }, search_country_buf[MAX_ELEM_LEN] = { 0 };
         locale_search_t search;
