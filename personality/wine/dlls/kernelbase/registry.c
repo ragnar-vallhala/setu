@@ -2862,8 +2862,10 @@ static int reg_mui_cache_get(const WCHAR *file_name, UINT index, WCHAR **buffer)
 
     LIST_FOR_EACH_ENTRY(ent, &reg_mui_cache, struct mui_cache_entry, entry)
     {
+        /* file names compare without linguistic sorting, which would count
+         * as the process's first use of the sorting data */
         if (ent->index == index && ent->locale == GetThreadLocale() &&
-            !lstrcmpiW(ent->file_name, file_name))
+            !wcsicmp(ent->file_name, file_name))
             goto found;
     }
     return 0;

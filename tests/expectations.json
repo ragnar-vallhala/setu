@@ -5873,6 +5873,7 @@
     "kernel32/time_conv:probe_first_call_tz_bad_rule_first",
     "kernel32/time_conv:probe_first_call_tz_null_tz_first",
     "kernel32/time_conv:probe_first_call_tz_to_utc_first",
+    "kernel32/time_conv:probe_first_call_tz_year_twice",
     "kernel32/time_conv:probe_st_feb_29_2100",
     "kernel32/time_conv:probe_st_year_30827_jan",
     "kernel32/time_conv:probe_tz_bad_rule_day_6",
