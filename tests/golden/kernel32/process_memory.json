@@ -1,0 +1,220 @@
+{
+  "test": "kernel32/process_memory",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "self_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 32,
+      "data": "setu-process-memory-marker"
+    },
+    "self_read_null_count": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "self_read_zero_bytes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 0
+    },
+    "self_read_null_address": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "self_read_null_address_zero_bytes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 0
+    },
+    "self_read_kernel_address": {
+      "ret": false,
+      "last_error": 998
+    },
+    "self_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 4
+    },
+    "self_write_visible": {
+      "data": "SETU-process-memory-marker"
+    },
+    "self_write_read_only_section": {
+      "ret": false,
+      "last_error": 998,
+      "bytes": 21845
+    },
+    "self_write_read_only_section_result": {
+      "data": "read-only-data!"
+    },
+    "self_read_into_noaccess_page": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "self_read_starting_in_noaccess_page": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "self_write_into_noaccess_page": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 16
+    },
+    "self_write_into_noaccess_page_effect": {
+      "first_part_written": true
+    },
+    "self_write_readonly_page": {
+      "ret": false,
+      "last_error": 998,
+      "bytes": 21845
+    },
+    "self_write_readonly_page_effect": {
+      "written": false,
+      "protect_after": "0x00000002"
+    },
+    "self_write_execute_read_page": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 2
+    },
+    "self_write_execute_read_page_effect": {
+      "written": true,
+      "protect_after": "0x00000020"
+    },
+    "self_read_guard_page": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "guard_page_after_read": {
+      "protect_after": "0x00000104"
+    },
+    "self_read_released": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "child_read_global": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 32,
+      "data": "setu-process-memory-marker"
+    },
+    "child_write_global": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 5
+    },
+    "child_read_back": {
+      "data": "CHILDprocess-memory-marker",
+      "parent_unchanged": "SETU-process-memory-marker"
+    },
+    "child_write_read_only_section": {
+      "ret": false,
+      "last_error": 998,
+      "bytes": 21845
+    },
+    "child_read_only_section_after_write": {
+      "data": "read-only-data!"
+    },
+    "child_virtual_alloc": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "child_write_allocated": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 8
+    },
+    "child_virtual_protect": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000004"
+    },
+    "child_read_into_noaccess": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "child_virtual_query": {
+      "ret_full": true,
+      "last_error": "unchanged",
+      "state": "0x00001000",
+      "protect": "0x00000004",
+      "region": 4096
+    },
+    "child_read_unmapped": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "child_read_vm_read_handle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 8
+    },
+    "child_read_vm_write_handle": {
+      "ret": false,
+      "last_error": 5,
+      "bytes": 0
+    },
+    "child_write_vm_read_handle": {
+      "ret": false,
+      "last_error": 5,
+      "bytes": 21845
+    },
+    "child_write_vm_write_only_handle": {
+      "ret": false,
+      "last_error": 5,
+      "bytes": 21845
+    },
+    "child_write_vm_write_operation_handle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 1
+    },
+    "child_read_query_limited_handle": {
+      "ret": false,
+      "last_error": 5,
+      "bytes": 0
+    },
+    "child_virtual_query_query_limited_handle": {
+      "ret": 48,
+      "last_error": "unchanged"
+    },
+    "child_virtual_query_vm_read_handle": {
+      "ret": 0,
+      "last_error": 5
+    },
+    "child_virtual_alloc_vm_write_handle": {
+      "ret_null": true,
+      "last_error": 5
+    },
+    "child_read_after_exit": {
+      "ret": false,
+      "last_error": 299,
+      "bytes": 0
+    },
+    "child_write_after_exit": {
+      "ret": false,
+      "last_error": 5,
+      "bytes": 21845
+    },
+    "read_null_handle": {
+      "ret": false,
+      "last_error": 6,
+      "bytes": 0
+    },
+    "read_event_handle": {
+      "ret": false,
+      "last_error": 6,
+      "bytes": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "aced334fc5f1e8a3fc6b47c70e4dc7e47314b728b5f6a0cec9eabc85ec680aa8"
+}
