@@ -3193,6 +3193,27 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetFileInformationByHandle( HANDLE file, BY_HANDLE
     NTSTATUS status;
 
     status = NtQueryInformationFile( file, &io, &stat_info, sizeof(stat_info), FileStatInformation );
+    if (status == STATUS_NOT_IMPLEMENTED || status == STATUS_INVALID_DEVICE_REQUEST)
+    {
+        /* pipes only answer the basic, standard and internal classes */
+        FILE_BASIC_INFORMATION basic;
+        FILE_STANDARD_INFORMATION std;
+        FILE_INTERNAL_INFORMATION internal;
+
+        if (!(status = NtQueryInformationFile( file, &io, &basic, sizeof(basic), FileBasicInformation )) &&
+            !(status = NtQueryInformationFile( file, &io, &std, sizeof(std), FileStandardInformation )) &&
+            !(status = NtQueryInformationFile( file, &io, &internal, sizeof(internal), FileInternalInformation )))
+        {
+            memset( &stat_info, 0, sizeof(stat_info) );
+            stat_info.FileId         = internal.IndexNumber;
+            stat_info.CreationTime   = basic.CreationTime;
+            stat_info.LastAccessTime = basic.LastAccessTime;
+            stat_info.LastWriteTime  = basic.LastWriteTime;
+            stat_info.FileAttributes = basic.FileAttributes;
+            stat_info.EndOfFile      = std.EndOfFile;
+            stat_info.NumberOfLinks  = std.NumberOfLinks;
+        }
+    }
     if (!set_ntstatus( status )) return FALSE;
 
     info->dwFileAttributes                = stat_info.FileAttributes;
