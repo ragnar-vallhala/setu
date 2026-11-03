@@ -3568,6 +3568,7 @@
     "kernel32/modules:gmfn_exe",
     "kernel32/modules:gmfn_exe_handle",
     "kernel32/modules:gmfn_kernel32",
+    "kernel32/modules:gmfn_kernelbase",
     "kernel32/modules:gmfn_mixed_case_name",
     "kernel32/modules:gmfn_ntdll",
     "kernel32/modules:gmfn_size_0",
