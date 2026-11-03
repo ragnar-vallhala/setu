@@ -1,0 +1,300 @@
+{
+  "test": "kernel32/global_local",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "fixed_alloc": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "fixed_handle_is_pointer": {
+      "handle_eq_pointer": true,
+      "lock_eq_handle": true
+    },
+    "fixed_flags_after_lock": {
+      "flags": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "fixed_unlock": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "fixed_unlock_again": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "fixed_size": {
+      "size": 10,
+      "last_error": "unchanged"
+    },
+    "fixed_free": {
+      "ret_null": true,
+      "last_error": "unchanged"
+    },
+    "moveable_alloc": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "moveable_flags_new": {
+      "flags": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "moveable_lock": {
+      "ret_null": false,
+      "pointer_ne_handle": true,
+      "last_error": "unchanged",
+      "zeroinit": true
+    },
+    "moveable_flags_locked_once": {
+      "flags": "0x00000001",
+      "last_error": "unchanged"
+    },
+    "moveable_lock_twice_same_pointer": {
+      "same": true
+    },
+    "moveable_flags_locked_twice": {
+      "flags": "0x00000002",
+      "last_error": "unchanged"
+    },
+    "moveable_global_handle_from_pointer": {
+      "handle_matches": true
+    },
+    "moveable_size": {
+      "size": 40,
+      "last_error": "unchanged"
+    },
+    "moveable_unlock_1": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "moveable_unlock_2": {
+      "ret": false,
+      "last_error": 0
+    },
+    "moveable_unlock_not_locked": {
+      "ret": false,
+      "last_error": 158
+    },
+    "moveable_flags_after_unlocks": {
+      "flags": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "moveable_realloc_grow": {
+      "ret_null": false,
+      "same_handle": true,
+      "last_error": "unchanged",
+      "size": 4000
+    },
+    "modify_discardable": {
+      "ret_null": false,
+      "same_handle": true,
+      "last_error": "unchanged"
+    },
+    "flags_after_modify_discardable": {
+      "flags": "0x00000100",
+      "last_error": "unchanged"
+    },
+    "discard": {
+      "ret_null": false,
+      "same_handle": true,
+      "last_error": "unchanged"
+    },
+    "flags_after_discard": {
+      "flags": "0x00004100",
+      "last_error": "unchanged"
+    },
+    "size_after_discard": {
+      "size": 0,
+      "last_error": "unchanged"
+    },
+    "lock_discarded": {
+      "ret_null": true,
+      "last_error": 157
+    },
+    "realloc_discarded": {
+      "ret_null": false,
+      "same_handle": true,
+      "last_error": "unchanged"
+    },
+    "flags_after_realloc_discarded": {
+      "flags": "0x00000100",
+      "last_error": "unchanged"
+    },
+    "size_after_realloc_discarded": {
+      "size": 64,
+      "last_error": "unchanged"
+    },
+    "moveable_zero_size": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "moveable_zero_flags": {
+      "flags": "0x00004000",
+      "last_error": "unchanged"
+    },
+    "moveable_zero_size_query": {
+      "size": 0,
+      "last_error": "unchanged"
+    },
+    "moveable_zero_lock": {
+      "ret_null": true,
+      "last_error": 157
+    },
+    "moveable_zero_free": {
+      "ret_null": true,
+      "last_error": "unchanged"
+    },
+    "fixed_zero_size": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "fixed_zero_size_query": {
+      "size": 1,
+      "last_error": "unchanged"
+    },
+    "free_locked_moveable": {
+      "ret_null": true,
+      "returns_handle": false,
+      "last_error": "unchanged"
+    },
+    "fixed_realloc_grow_moveable_flag": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "size": 1048576,
+      "still_fixed": true
+    },
+    "fixed_modify_to_moveable": {
+      "ret_null": false,
+      "same": false,
+      "last_error": "unchanged"
+    },
+    "flags_after_modify_to_moveable": {
+      "flags": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "local_moveable_alloc": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "local_flags_new": {
+      "flags": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "local_lock_twice": {
+      "same_pointer": true,
+      "pointer_ne_handle": true,
+      "local_handle_matches": true
+    },
+    "local_flags_locked_twice": {
+      "flags": "0x00000002",
+      "last_error": "unchanged"
+    },
+    "local_size": {
+      "size": 24,
+      "last_error": "unchanged"
+    },
+    "local_unlock_1": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "local_unlock_2": {
+      "ret": false,
+      "last_error": 0
+    },
+    "local_unlock_not_locked": {
+      "ret": false,
+      "last_error": 158
+    },
+    "local_realloc_grow": {
+      "ret_null": false,
+      "same_handle": true,
+      "last_error": "unchanged",
+      "size": 100
+    },
+    "local_free": {
+      "ret_null": true,
+      "last_error": "unchanged"
+    },
+    "local_fixed_alloc": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "local_fixed_flags": {
+      "flags": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "local_fixed_unlock": {
+      "ret": false,
+      "last_error": 158
+    },
+    "local_fixed_handle_is_pointer": {
+      "handle_eq_pointer": true
+    },
+    "local_discardable_alloc": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "local_discardable_flags": {
+      "flags": "0x00000f00",
+      "last_error": "unchanged"
+    },
+    "local_discard": {
+      "ret_null": false,
+      "same_handle": true,
+      "last_error": "unchanged"
+    },
+    "local_flags_after_discard": {
+      "flags": "0x00004f00",
+      "last_error": "unchanged"
+    },
+    "global_handle_heap_pointer": {
+      "returns_pointer": true,
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "global_size_heap_pointer": {
+      "size": 32,
+      "last_error": "unchanged"
+    },
+    "lock_null": {
+      "ret_null": true,
+      "last_error": 6
+    },
+    "unlock_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "size_null": {
+      "size": 0,
+      "last_error": 6
+    },
+    "flags_null": {
+      "flags": "0x00008000",
+      "last_error": 6
+    },
+    "free_null": {
+      "ret_null": true,
+      "last_error": "unchanged"
+    },
+    "local_free_null": {
+      "ret_null": true,
+      "last_error": "unchanged"
+    },
+    "flags_freed_handle": {
+      "flags": "0x00008000",
+      "last_error": 6
+    },
+    "size_freed_handle": {
+      "size": 0,
+      "last_error": 6
+    },
+    "free_freed_handle": {
+      "ret_null": false,
+      "returns_handle": true,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "4eaa0ad19068cfd369e770d8fe351c3341751cd362067fa696b82b9ba1c42936"
+}
