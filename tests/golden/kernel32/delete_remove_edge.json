@@ -265,8 +265,60 @@
     },
     "final_listing": {
       "root": "e,f,hf,keep,o.txt,od"
+    },
+    "probe_delete_device_nul_dotdot": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_delete_device_nul_ext": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_rmdir_device_nul": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_open_nul_delete_access": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "probe_nul_disposition_info": {
+      "ret": false,
+      "last_error": 1
+    },
+    "probe_nul_disposition_info_ex": {
+      "ret": false,
+      "last_error": 1
+    },
+    "probe_nul_basic_info_set": {
+      "ret": false,
+      "last_error": 5
+    },
+    "probe_nul_attribute_tag_info": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_open_nul_reparse_point": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "probe_open_nul_backup_reparse_point": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "probe_open_nul_delete_on_close": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "probe_move_from_nul": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_set_attributes_nul": {
+      "ret": false,
+      "last_error": 1
     }
   },
   "errors": [],
-  "source_sha256": "ad20b5e48a9966a53bf7ef0b08f29290d3a4bae0fb9c6200e21ccd1f52047e92"
+  "source_sha256": "19015fc168e7a06577912329058df050403822973a1267ec92c5890788bbeb58"
 }

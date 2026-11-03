@@ -194,5 +194,79 @@ int main(void)
     o_dir_listing("root", L".", 1);
     oracle_case_end();
 
+    /* Probes: the NUL device and delete requests. */
+    del("probe_delete_device_nul_dotdot", L"\\\\.\\NUL", NULL);
+    del("probe_delete_device_nul_ext", L"nul.txt", NULL);
+    rmd("probe_rmdir_device_nul", L"nul", NULL);
+    {
+        HANDLE n;
+        BOOL r;
+        ORACLE_CALL(n, CreateFileW(L"nul", DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                                   OPEN_EXISTING, 0, NULL));
+        oracle_case("probe_open_nul_delete_access");
+        o_handle("ret", n);
+        o_lasterr();
+        oracle_case_end();
+        if (n != INVALID_HANDLE_VALUE) {
+            FILE_DISPOSITION_INFO di = { TRUE };
+            ORACLE_CALL(r, SetFileInformationByHandle(n, FileDispositionInfo, &di, sizeof di));
+            oracle_case("probe_nul_disposition_info");
+            o_bool("ret", r);
+            o_lasterr();
+            oracle_case_end();
+            DWORD flags = 0x1 | 0x2; /* FILE_DISPOSITION_FLAG_DELETE | POSIX_SEMANTICS */
+            ORACLE_CALL(r, SetFileInformationByHandle(n, (FILE_INFO_BY_HANDLE_CLASS)21, &flags, sizeof flags));
+            oracle_case("probe_nul_disposition_info_ex");
+            o_bool("ret", r);
+            o_lasterr();
+            oracle_case_end();
+            FILE_BASIC_INFO bi;
+            memset(&bi, 0, sizeof bi);
+            ORACLE_CALL(r, SetFileInformationByHandle(n, FileBasicInfo, &bi, sizeof bi));
+            oracle_case("probe_nul_basic_info_set");
+            o_bool("ret", r);
+            o_lasterr();
+            oracle_case_end();
+            FILE_ATTRIBUTE_TAG_INFO ti;
+            ORACLE_CALL(r, GetFileInformationByHandleEx(n, FileAttributeTagInfo, &ti, sizeof ti));
+            oracle_case("probe_nul_attribute_tag_info");
+            o_bool("ret", r);
+            o_lasterr();
+            oracle_case_end();
+            CloseHandle(n);
+        }
+        ORACLE_CALL(n, CreateFileW(L"nul", DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                                   OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, NULL));
+        oracle_case("probe_open_nul_reparse_point");
+        o_handle("ret", n);
+        o_lasterr();
+        oracle_case_end();
+        if (n != INVALID_HANDLE_VALUE) CloseHandle(n);
+        ORACLE_CALL(n, CreateFileW(L"nul", DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                                   OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL));
+        oracle_case("probe_open_nul_backup_reparse_point");
+        o_handle("ret", n);
+        o_lasterr();
+        oracle_case_end();
+        if (n != INVALID_HANDLE_VALUE) CloseHandle(n);
+        ORACLE_CALL(n, CreateFileW(L"nul", DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                                   OPEN_EXISTING, FILE_FLAG_DELETE_ON_CLOSE, NULL));
+        oracle_case("probe_open_nul_delete_on_close");
+        o_handle("ret", n);
+        o_lasterr();
+        oracle_case_end();
+        if (n != INVALID_HANDLE_VALUE) CloseHandle(n);
+        ORACLE_CALL(r, MoveFileW(L"nul", L"moved_nul.txt"));
+        oracle_case("probe_move_from_nul");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+        ORACLE_CALL(r, SetFileAttributesW(L"nul", FILE_ATTRIBUTE_HIDDEN));
+        oracle_case("probe_set_attributes_nul");
+        o_bool("ret", r);
+        o_lasterr();
+        oracle_case_end();
+    }
+
     return oracle_end();
 }
