@@ -3687,6 +3687,7 @@ HANDLE WINAPI DECLSPEC_HOTPATCH ReOpenFile( HANDLE handle, DWORD access, DWORD s
                            NULL, 0 );
     if (!set_ntstatus( status ))
         return INVALID_HANDLE_VALUE;
+    SetLastError( ERROR_SUCCESS );
     return file;
 }
 
