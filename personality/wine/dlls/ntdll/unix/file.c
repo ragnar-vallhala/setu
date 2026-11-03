@@ -5541,6 +5541,24 @@ static NTSTATUS check_handle_access( HANDLE handle, ACCESS_MASK access )
 }
 
 
+/* a read-only directory can't be deleted; the server only knows the
+ * permissions of regular files */
+static NTSTATUS check_delete_readonly_dir( HANDLE handle )
+{
+    unsigned int options;
+    int fd, needs_close;
+    struct stat st;
+    ULONG attr;
+    NTSTATUS status = STATUS_SUCCESS;
+
+    if (server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, &options )) return STATUS_SUCCESS;
+    if (fd_get_file_info( handle, fd, options, &st, &attr, NULL ) != -1 &&
+        S_ISDIR( st.st_mode ) && (attr & FILE_ATTRIBUTE_READONLY))
+        status = STATUS_CANNOT_DELETE;
+    if (needs_close) close( fd );
+    return status;
+}
+
 /******************************************************************************
  *              NtSetInformationFile   (NTDLL.@)
  */
@@ -5812,6 +5830,7 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
         {
             FILE_DISPOSITION_INFORMATION *info = ptr;
 
+            if (info->DoDeleteFile && (status = check_delete_readonly_dir( handle ))) break;
             SERVER_START_REQ( set_fd_disp_info )
             {
                 req->handle   = wine_server_obj_handle( handle );
@@ -5830,6 +5849,9 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
 
             if (info->Flags & FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK)
                 FIXME( "FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK not supported\n" );
+            if ((info->Flags & FILE_DISPOSITION_DELETE) &&
+                !(info->Flags & FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE) &&
+                (status = check_delete_readonly_dir( handle ))) break;
 
             SERVER_START_REQ( set_fd_disp_info )
             {
