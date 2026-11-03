@@ -1,0 +1,209 @@
+{
+  "test": "kernel32/version_info",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "get_version": {
+      "major": 6,
+      "minor": 2,
+      "build": 9200,
+      "high_bit": false,
+      "last_error": "unchanged"
+    },
+    "get_version_ex_w": {
+      "ret": true,
+      "last_error": "unchanged",
+      "major": 6,
+      "minor": 2,
+      "build": 9200,
+      "platform": 2,
+      "csd": "",
+      "size_after": 276
+    },
+    "get_version_ex_w_ex_struct": {
+      "ret": true,
+      "last_error": "unchanged",
+      "major": 6,
+      "minor": 2,
+      "build": 9200,
+      "sp_major": 0,
+      "sp_minor": 0,
+      "reserved": 0,
+      "product_type_workstation": true
+    },
+    "get_version_ex_w_bad_size": {
+      "ret": false,
+      "last_error": 122
+    },
+    "get_version_ex_w_size_plus_4": {
+      "ret": false,
+      "last_error": 122
+    },
+    "get_version_ex_w_size_0": {
+      "ret": false,
+      "last_error": 122
+    },
+    "get_version_ex_a": {
+      "ret": true,
+      "last_error": "unchanged",
+      "major": 6,
+      "minor": 2,
+      "build": 9200,
+      "csd": ""
+    },
+    "get_version_ex_a_w_size": {
+      "ret": false,
+      "last_error": 122
+    },
+    "rtl_get_version": {
+      "status": "0x00000000",
+      "major": 10,
+      "minor": 0,
+      "build": 19045,
+      "platform": 2,
+      "csd": "",
+      "sp_major": 0,
+      "product_type_workstation": true
+    },
+    "rtl_get_version_bad_size": {
+      "status": "0x00000000"
+    },
+    "kuser_shared_data": {
+      "nt_major": 10,
+      "nt_minor": 0,
+      "nt_build": 19045,
+      "product_type_workstation": 1,
+      "product_type_valid": true,
+      "image_number_low": 34404,
+      "image_number_high": 34404
+    },
+    "ver_set_condition_mask": {
+      "major_ge": 9223372036854775832,
+      "minor_eq": 9223372036854775809,
+      "build_lt": 9223372036854776064,
+      "platform_eq": 9223372036854776320,
+      "sp_major_ge": 9223372036854874112,
+      "suite_and": 9223372036856348672,
+      "product_eq": 9223372036856872960,
+      "two_bits_last_wins": 9223372036854775840,
+      "op_zero": 9223372036854775808,
+      "mask_zero": 0,
+      "combine": 9223372036854775829,
+      "op_8": 9223372036854775808
+    },
+    "probe_ver_set_condition_mask": {
+      "input_kept_op_zero": 9223372036854780468,
+      "input_kept_op_8": 9223372036854780468,
+      "input_kept_op_9": 9223372036854780476,
+      "input_kept_op_eq": 9223372036854780476,
+      "mask_zero_op_zero": 0,
+      "unknown_type_bit": 9223372036871557684,
+      "high_input_mask_zero": 0,
+      "sp_minor_eq": 9223372036854779904,
+      "replace_existing_slot": 9223372036854775848
+    },
+    "verify_major_ge_6": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_major_ge_10": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "verify_major_eq_6": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_major_minor_ge_6_2": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_major_minor_ge_6_3": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "verify_major_minor_eq_6_2": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_major_lt_7": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_major_gt_5": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_build_ge_9200": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_build_ge_19045": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "verify_build_le_19045": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_minor_only_eq_0": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "verify_mask_zero": {
+      "ret": false,
+      "last_error": 160
+    },
+    "verify_condition_zero": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "probe_verify_condition_zero_major_7": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "probe_verify_raw_ge_no_high_bit_major_7": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "probe_verify_raw_less_no_high_bit_major_7": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "probe_verify_only_high_bit_major_7": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "probe_verify_condition_in_minor_slot_major_7": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "probe_verify_minor_without_condition": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "verify_platform_nt": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_sp_ge_0": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_sp_ge_1": {
+      "ret": false,
+      "last_error": 1150
+    },
+    "verify_product_workstation": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_major_less_minor_equal": {
+      "ret": true,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "cc8c3a45d54538b055ecd681195a89325f8b510af701bd280be619de4e2857b9"
+}
