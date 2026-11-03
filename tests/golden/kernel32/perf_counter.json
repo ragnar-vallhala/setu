@@ -1,0 +1,107 @@
+{
+  "test": "kernel32/perf_counter",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "frequency": {
+      "ret": true,
+      "last_error": "unchanged",
+      "positive": true,
+      "ge_1mhz": true
+    },
+    "frequency_stable": {
+      "same": true
+    },
+    "counter": {
+      "ret": true,
+      "last_error": "unchanged",
+      "positive": true
+    },
+    "counter_monotonic_100000": {
+      "monotonic": true
+    },
+    "tick_count": {
+      "last_error": "unchanged",
+      "t64_positive": true,
+      "t32_close_to_low_t64": true
+    },
+    "tick64_monotonic": {
+      "monotonic": true
+    },
+    "unbiased_interrupt_time": {
+      "ret": true,
+      "last_error": "unchanged",
+      "positive": true
+    },
+    "unbiased_interrupt_time_monotonic": {
+      "monotonic": true
+    },
+    "interrupt_time_exports": {
+      "QueryInterruptTime": true,
+      "QueryInterruptTimePrecise": true,
+      "k32_QueryInterruptTime": false
+    },
+    "interrupt_time_relations": {
+      "precise_ge_coarse_minus_20ms": true,
+      "interrupt_ge_unbiased": true
+    },
+    "sleep_200": {
+      "last_error": "unchanged",
+      "qpc_ge_150ms": true,
+      "qpc_lt_5s": true,
+      "tick_agrees_within_50ms": true,
+      "unbiased_agrees_within_50ms": true
+    },
+    "sleep_0": {
+      "last_error": "unchanged"
+    },
+    "sleepex_0_not_alertable": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "sleepex_0_alertable_no_apc": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "sleepex_0_not_alertable_apc_queued": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "sleepex_0_alertable_apc_queued": {
+      "ret": 192,
+      "last_error": "unchanged"
+    },
+    "sleepex_long_alertable_apc_returns_early": {
+      "ret": 192,
+      "last_error": "unchanged",
+      "under_1s": true
+    },
+    "sleepex_1_alertable_after_drain": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "switch_to_thread_last_error": {
+      "last_error": "unchanged"
+    },
+    "sleep_0_x1000_fast": {
+      "under_2s": true
+    },
+    "sleep_1_x20_waits": {
+      "at_least_10ms": true,
+      "under_2s": true
+    },
+    "system_time_adjustment": {
+      "ret": true,
+      "last_error": "unchanged",
+      "increment_nonzero": true,
+      "increment_le_1s": true,
+      "disabled_is_bool": true
+    },
+    "precise_vs_coarse_system_time": {
+      "within_1s": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "745c47563bba9fb004a891de8108226b538db88e683721b2acf4a5619680207f"
+}
