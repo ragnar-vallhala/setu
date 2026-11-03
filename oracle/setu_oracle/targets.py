@@ -87,7 +87,10 @@ class WineTarget(Target):
             # No Mono/Gecko install prompts, no desktop menu entries.
             "WINEDLLOVERRIDES": "mscoree,mshtml=;winemenubuilder.exe=d",
         })
-        self.workroot = BUILD_DIR / "work" / "setu"
+        # Same place as on the Windows VM (C:\setu-oracle\work\<test>): the
+        # whole of C: is one host filesystem, so the cwd and its drive root
+        # are one volume, as on Windows. Z: (the host's /) usually is not.
+        self.workroot = self.prefix / "drive_c" / "setu-oracle" / "work"
 
     @staticmethod
     def _resolve(configured: str, candidates: list[str], required: str | None) -> list[str] | None:

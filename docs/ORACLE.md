@@ -247,7 +247,10 @@ cd oracle && python3 -m setu_oracle.pool locked --vm setu-oracle-2 -- vm/vmctl.s
   that build, the harness falls back to stock Wine from PATH
   (`--setu-impl personality|stock` forces one). Each implementation gets its
   own prefix (`oracle/.cache/wineprefix-<impl>`), and each test runs in a fresh
-  `build/work/setu/<test>`.
+  `<prefix>/drive_c/setu-oracle/work/<test>`, which the test sees as
+  `C:\setu-oracle\work\<test>`, the same path as on the Windows VM. C: is
+  one host filesystem, so the cwd and its drive root are one volume, as on
+  Windows; Z: (the host's `/`) usually spans several mounts.
   The Setu side is headless: the harness drops `DISPLAY`, `WAYLAND_DISPLAY`
   and `XAUTHORITY` from the environment and selects Wine's null graphics
   driver in the prefix (`HKCU\Software\Wine\Drivers` `Graphics=null`,
