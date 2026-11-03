@@ -1,0 +1,98 @@
+{
+  "test": "kernel32/timer_queue",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_queue": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "create_one_shot": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "one_shot_fired": {
+      "signalled": true,
+      "calls": 1,
+      "param": true,
+      "timer_or_wait_fired": true,
+      "other_thread": true,
+      "delete_ret": true
+    },
+    "create_periodic": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "periodic_delete_blocking": {
+      "reached_3": true,
+      "ret": true,
+      "last_error": "unchanged",
+      "no_calls_after_delete": true
+    },
+    "delete_with_event": {
+      "ret_or_pending": true,
+      "event_signalled": true
+    },
+    "change_to_now": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "changed_timer_fired": {
+      "signalled": true
+    },
+    "change_after_one_shot_fired": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_pending_long": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "default_queue_timer_thread": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "default_queue_fired": {
+      "signalled": true,
+      "delete_ret": true
+    },
+    "execute_only_once_with_period": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "execute_only_once_calls": {
+      "repeated": true
+    },
+    "delete_null_timer": {
+      "ret": false,
+      "last_error": 87
+    },
+    "change_null_timer": {
+      "ret": false,
+      "last_error": 87
+    },
+    "delete_queue_with_pending_timer": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "deleted_queue_timer_never_ran": {
+      "calls": 0
+    },
+    "delete_null_queue": {
+      "ret": false,
+      "last_error": 6
+    },
+    "delete_queue_with_event": {
+      "ret": true,
+      "error": 0,
+      "event_signalled": true
+    },
+    "delete_queue_legacy": {
+      "ret": true,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "83195fbc152541a8c6c5fede5ab6ec0c617807a16f00b686d99e52f71a3398d7"
+}
