@@ -8300,6 +8300,37 @@ NTSTATUS WINAPI NtQueryObject( HANDLE handle, OBJECT_INFORMATION_CLASS info_clas
     case ObjectNameInformation:
     {
         OBJECT_NAME_INFORMATION *p = ptr;
+        char *unix_name;
+        WCHAR *nt_name;
+
+        /* the name of a file is its current name on disk, whatever name it
+         * was opened with: in its stored case, long, and after renames */
+        if (!server_get_unix_name( handle, &unix_name ))
+        {
+            NTSTATUS ret = unix_to_nt_file_name( unix_name, &nt_name, FILE_OPEN );
+
+            free( unix_name );
+            if (!ret && nt_name[0] == '\\' && nt_name[1] == '?' && nt_name[2] == '?' &&
+                nt_name[3] == '\\' && nt_name[4] && nt_name[5] == ':')
+            {
+                ULONG res = wcslen( nt_name ) * sizeof(WCHAR);
+
+                if (used_len) *used_len = sizeof(*p) + res + sizeof(WCHAR);
+                if (len < sizeof(*p)) status = STATUS_INFO_LENGTH_MISMATCH;
+                else if (len < sizeof(*p) + res + sizeof(WCHAR)) status = STATUS_BUFFER_OVERFLOW;
+                else
+                {
+                    p->Name.Buffer = (WCHAR *)(p + 1);
+                    p->Name.Length = res;
+                    p->Name.MaximumLength = res + sizeof(WCHAR);
+                    memcpy( p->Name.Buffer, nt_name, res + sizeof(WCHAR) );
+                    status = STATUS_SUCCESS;
+                }
+                free( nt_name );
+                break;
+            }
+            free( nt_name );
+        }
 
         SERVER_START_REQ( get_object_name )
         {
