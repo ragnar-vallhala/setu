@@ -3685,6 +3685,10 @@ static void output_import_lib( struct makefile *make, unsigned int arch )
     output_filenames( target_flags[hybrid_arch ? hybrid_arch : arch] );
     if (make->is_win16) output_filename( "-m16" );
     if (hybrid_arch) output_filenames( hybrid_target_flags[hybrid_arch] );
+    /* importers name the dll by the file name it declares for itself */
+    for (unsigned int i = 0; i < make->extradllflags.count; i++)
+        if (!strncmp( make->extradllflags.str[i], "-Wb,-F,", 7 ))
+            output_filename( strmake( "--filename=%s", make->extradllflags.str[i] + 7 ));
     output_filename( "--export" );
     output_filename( spec_file );
     output_filenames_obj_dir( make, make->implib_files[arch] );
