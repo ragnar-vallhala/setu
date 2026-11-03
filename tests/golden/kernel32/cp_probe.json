@@ -223,8 +223,208 @@
       "ret": 5,
       "err": 0,
       "out": "1b0024005a0061006200"
+    },
+    "jis_50220_kana_then_ascii": {
+      "size": 21,
+      "ret": 21,
+      "err": 0,
+      "out": "1b244225221b28425a1b24422522242225221b2842"
+    },
+    "jis_50220_voiced_kana": {
+      "size": 18,
+      "ret": 18,
+      "err": 0,
+      "out": "1b2442252b212b254f212c2123212c1b2842"
+    },
+    "jis_50221_kana_then_ascii": {
+      "size": 24,
+      "ret": 24,
+      "err": 0,
+      "out": "1b2849311b28425a1b2849311b244224221b2849311b2842"
+    },
+    "jis_50221_voiced_kana": {
+      "size": 12,
+      "ret": 12,
+      "err": 0,
+      "out": "1b2849365e4a5f215f1b2842"
+    },
+    "jis_50222_kana_then_ascii": {
+      "size": 21,
+      "ret": 21,
+      "err": 0,
+      "out": "1b284a0e311b28425a0e311b244224220e311b2842"
+    },
+    "jis_50222_voiced_kana": {
+      "size": 13,
+      "ret": 13,
+      "err": 0,
+      "out": "1b284a0e365e4a5f215f1b2842"
+    },
+    "jis_ibm_ext_rows": {
+      "size": 16,
+      "ret": 16,
+      "err": 0,
+      "out": "1b242844732a74257428742c1b28423f"
+    },
+    "jis_pua": {
+      "size": 16,
+      "ret": 16,
+      "err": 0,
+      "out": "1b244275211b24284475217e7e1b2842"
+    },
+    "jis_ibm_ext_symbols": {
+      "size": 31,
+      "ret": 31,
+      "err": 0,
+      "out": "1b242844733573361b24422d6a2d642d351b24284422431b244222621b2842"
+    },
+    "jis_ibm_ext_kanji": {
+      "size": 13,
+      "ret": 13,
+      "err": 0,
+      "out": "1b242844733a7424737e1b2842"
+    },
+    "jis_decode_ibm_ext_cells": {
+      "ret": 11,
+      "err": 0,
+      "out": "fb30fb3007ff02fffb30fb30dcf929fa3b97d19efb30"
+    },
+    "jis_wave_dash_family": {
+      "size": 46,
+      "ret": 46,
+      "err": 0,
+      "out": "1b244221411b28423f1b244221421b28423f1b2442215d1b28423f1b244221711b28423f1b2442224c21401b2842"
+    },
+    "jis_x0212_then_x0208": {
+      "size": 21,
+      "ret": 21,
+      "err": 0,
+      "out": "1b2428442b311b244224221b2428442b311b284261"
+    },
+    "jis_decode_kana_esc_i": {
+      "ret": 1,
+      "err": 0,
+      "out": "71ff"
+    },
+    "jis_decode_kana_so": {
+      "ret": 2,
+      "err": 0,
+      "out": "31000f00"
+    },
+    "jis_decode_kana_so_roman": {
+      "ret": 2,
+      "err": 0,
+      "out": "71ff5a00"
+    },
+    "jis_decode_kana_so_no_si": {
+      "ret": 2,
+      "err": 0,
+      "out": "31006100"
+    },
+    "jis_decode_kana_8bit": {
+      "ret": 4,
+      "err": 0,
+      "out": "6100b100df006200"
+    },
+    "jis_decode_roman": {
+      "ret": 3,
+      "err": 0,
+      "out": "5c007e006100"
+    },
+    "jis_decode_old_jis": {
+      "ret": 1,
+      "err": 0,
+      "out": "4230"
+    },
+    "jis_decode_ibm_ext": {
+      "ret": 2,
+      "err": 0,
+      "out": "70217921"
+    },
+    "jis_decode_nec_row13": {
+      "ret": 1,
+      "err": 0,
+      "out": "6024"
+    },
+    "jis_decode_pua_rows": {
+      "ret": 2,
+      "err": 0,
+      "out": "00e0ace3"
+    },
+    "jis_decode_unassigned": {
+      "ret": 1,
+      "err": 0,
+      "out": "fb30"
+    },
+    "jis_decode_odd_byte": {
+      "ret": 2,
+      "err": 0,
+      "out": "42302400"
+    },
+    "jis_decode_ctrl_in_dbcs": {
+      "ret": 2,
+      "err": 0,
+      "out": "fb304230"
+    },
+    "jis_decode_high_in_dbcs": {
+      "ret": 1,
+      "err": 0,
+      "out": "4230"
+    },
+    "jis_decode_kana_esc_i_range": {
+      "ret": 6,
+      "err": 0,
+      "out": "fb3061ff9ffffb30fb3071ff"
+    },
+    "jis_decode_ctrl_lead_in_dbcs": {
+      "ret": 3,
+      "err": 0,
+      "out": "8a00fb302200"
+    },
+    "jis_decode_space_in_dbcs": {
+      "ret": 3,
+      "err": 0,
+      "out": "f0f8fb302200"
+    },
+    "jis_decode_so_in_dbcs": {
+      "ret": 1,
+      "err": 0,
+      "out": "4230"
+    },
+    "jis_decode_slot_24": {
+      "ret": 2,
+      "err": 0,
+      "out": "fb30bb70"
+    },
+    "jis_decode_x0212_numero": {
+      "ret": 1,
+      "err": 0,
+      "out": "fb30"
+    },
+    "jis_numero": {
+      "size": 8,
+      "ret": 8,
+      "err": 0,
+      "out": "1b24422d621b2842"
+    },
+    "jis_decode_bad_flags": {
+      "ret": 0,
+      "err": 1004
+    },
+    "jis_encode_bad_flags": {
+      "ret": 0,
+      "err": 1004
+    },
+    "jis_encode_defchar": {
+      "ret": 0,
+      "err": 87,
+      "used": true
+    },
+    "jis_encode_small_buffer": {
+      "ret": 0,
+      "err": 122
     }
   },
   "errors": [],
-  "source_sha256": "4d834618e90ee35a2db9a9e5035975706b69e57a4f486e88ccc72eef5a1d809a"
+  "source_sha256": "7d5beb5b3a0c62d4ba6ffe0b0d1281554725e08313eab78349dfe1300c2f0151"
 }

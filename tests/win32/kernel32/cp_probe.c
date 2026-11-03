@@ -120,6 +120,9 @@ static void wc_case(const char *name, UINT cp, const WCHAR *in, int len)
     oracle_case_end();
 }
 
+/* 50220 decode of a string literal, without its terminating NUL */
+#define MB_LIT(name, lit) mb_case(name, 50220, 0, lit, (int)sizeof(lit) - 1)
+
 int main(void)
 {
     oracle_begin("kernel32/cp_probe");
@@ -156,5 +159,68 @@ int main(void)
     }
     mb_case("jis_decode_jisx0212", 50220, 0, "\x1b$(D\x22\x2f\x1b(B", 9);
     mb_case("jis_decode_bad_escape", 50220, 0, "\x1b$Zab", 5);
+
+    /* ISO-2022-JP rules not settled by the samples above */
+    for (UINT cp = 50220; cp <= 50222; cp++) {
+        char n[64];
+        snprintf(n, sizeof n, "jis_%u_kana_then_ascii", cp);
+        wc_case(n, cp, L"\xff71Z\xff71\x3042\xff71", 5);
+        snprintf(n, sizeof n, "jis_%u_voiced_kana", cp);
+        wc_case(n, cp, L"\xff76\xff9e\xff8a\xff9f\xff61\xff9f", 6);
+    }
+    wc_case("jis_ibm_ext_rows", 50220, L"\x2179\xfa2a\x999e\x9ed1\xffe4", 5);
+    wc_case("jis_pua", 50220, L"\xe000\xe3ac\xe757", 3);
+    wc_case("jis_ibm_ext_symbols", 50220, L"\xff07\xff02\x3231\x2121\x2160\xa6\x2252", 7);
+    wc_case("jis_ibm_ext_kanji", 50220, L"\x70bb\x9751\xf9dc", 3);
+    MB_LIT("jis_decode_ibm_ext_cells", "\x1b$(Ds+s4s5s6s7s8s~t!t\"t,t-\x1b(B");
+    wc_case("jis_wave_dash_family", 50220, L"\x301c\xff5e\x2016\x2225\x2212\xff0d\xa2\xffe0\xac\xff3c", 10);
+    wc_case("jis_x0212_then_x0208", 50220, L"\xe9\x3042\xe9" L"a", 4);
+    MB_LIT("jis_decode_kana_esc_i", "\x1b(I1");
+    MB_LIT("jis_decode_kana_so", "\x0e\x31\x0f");
+    MB_LIT("jis_decode_kana_so_roman", "\x1b(J\x0e\x31\x0fZ");
+    MB_LIT("jis_decode_kana_so_no_si", "\x0e\x31\x1b(Ba");
+    MB_LIT("jis_decode_kana_8bit", "a\xb1\xdf" "b");
+    MB_LIT("jis_decode_roman", "\x1b(J\x5c\x7e" "a");
+    MB_LIT("jis_decode_old_jis", "\x1b$@$\"\x1b(B");
+    MB_LIT("jis_decode_ibm_ext", "\x1b$(Ds!s*\x1b(B");
+    MB_LIT("jis_decode_nec_row13", "\x1b$B-!\x1b(B");
+    MB_LIT("jis_decode_pua_rows", "\x1b$Bu!\x1b$(Du!\x1b(B");
+    MB_LIT("jis_decode_unassigned", "\x1b$B\x22\x2f\x1b(B");
+    MB_LIT("jis_decode_odd_byte", "\x1b$B$\"$");
+    MB_LIT("jis_decode_ctrl_in_dbcs", "\x1b$B$\n$\"");
+    MB_LIT("jis_decode_high_in_dbcs", "\x1b$B\xa4\xa2");
+    MB_LIT("jis_decode_kana_esc_i_range", "\x1b(I\x20\x21\x5f\x60\x7e\xb1");
+    MB_LIT("jis_decode_ctrl_lead_in_dbcs", "\x1b$B\n$\"");
+    MB_LIT("jis_decode_space_in_dbcs", "\x1b$B $\"");
+    MB_LIT("jis_decode_so_in_dbcs", "\x1b$B\x0e$\"\x0f");
+    MB_LIT("jis_decode_slot_24", "\x1b$(Ds9s:\x1b(B");
+    MB_LIT("jis_decode_x0212_numero", "\x1b$(D\x22\x71\x1b(B");
+    wc_case("jis_numero", 50220, L"\x2116", 1);
+    mb_case("jis_decode_bad_flags", 50220, MB_ERR_INVALID_CHARS, "abc", 3);
+    {
+        char out[16];
+        int r;
+        SetLastError(0);
+        r = WideCharToMultiByte(50220, WC_NO_BEST_FIT_CHARS, L"abc", 3, out, sizeof out, NULL, NULL);
+        oracle_case("jis_encode_bad_flags");
+        o_i64("ret", r);
+        o_u32("err", GetLastError());
+        oracle_case_end();
+        BOOL used = TRUE;
+        SetLastError(0);
+        r = WideCharToMultiByte(50220, 0, L"a\xe9\x0100", 3, out, sizeof out, "*", &used);
+        oracle_case("jis_encode_defchar");
+        o_i64("ret", r);
+        o_u32("err", GetLastError());
+        o_bool("used", used);
+        if (r > 0) o_bytes("out", out, r);
+        oracle_case_end();
+        SetLastError(0);
+        r = WideCharToMultiByte(50220, 0, L"\x3042\x3044", 2, out, 5, NULL, NULL);
+        oracle_case("jis_encode_small_buffer");
+        o_i64("ret", r);
+        o_u32("err", GetLastError());
+        oracle_case_end();
+    }
     return oracle_end();
 }
