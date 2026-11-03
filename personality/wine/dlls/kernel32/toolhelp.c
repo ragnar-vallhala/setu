@@ -79,6 +79,7 @@ static BOOL fetch_module( DWORD process, DWORD flags, LDR_DATA_TABLE_ENTRY **ldr
 
     *num = 0;
 
+    if (sizeof(void *) == 4 && (flags & TH32CS_SNAPMODULE32)) flags |= TH32CS_SNAPMODULE;
     if (!(flags & TH32CS_SNAPMODULE)) return TRUE;
 
     if (process)
@@ -170,6 +171,26 @@ static void fill_module( struct snapshot* snap, ULONG* offset, ULONG process,
     *offset += num * sizeof(MODULEENTRY32W);
 }
 
+/* processes Windows always lists, which the process list doesn't have here */
+static const struct { DWORD pid; const WCHAR *name; } system_processes[] =
+{
+    { 0, L"[System Process]" },
+    { 4, L"System" },
+};
+
+static BOOL has_process( SYSTEM_PROCESS_INFORMATION *spi, DWORD pid )
+{
+    ULONG poff = 0;
+
+    if (!spi) return FALSE;
+    do
+    {
+        spi = (SYSTEM_PROCESS_INFORMATION *)((char *)spi + poff);
+        if (HandleToUlong( spi->UniqueProcessId ) == pid) return TRUE;
+    } while ((poff = spi->NextEntryOffset));
+    return FALSE;
+}
+
 static BOOL fetch_process_thread( DWORD flags, SYSTEM_PROCESS_INFORMATION** pspi,
                                   ULONG* num_pcs, ULONG* num_thd)
 {
@@ -196,6 +217,12 @@ static BOOL fetch_process_thread( DWORD flags, SYSTEM_PROCESS_INFORMATION** pspi
                 if (flags & TH32CS_SNAPPROCESS) (*num_pcs)++;
                 if (flags & TH32CS_SNAPTHREAD) *num_thd += spi->dwThreadCount;
             } while ((offset = spi->NextEntryOffset));
+            if (flags & TH32CS_SNAPPROCESS)
+            {
+                ULONG i;
+                for (i = 0; i < ARRAY_SIZE(system_processes); i++)
+                    if (!has_process( *pspi, system_processes[i].pid )) (*num_pcs)++;
+            }
             return TRUE;
         case STATUS_INFO_LENGTH_MISMATCH:
             *pspi = HeapReAlloc( GetProcessHeap(), 0, *pspi, size *= 2 );
@@ -211,7 +238,7 @@ static void fill_process( struct snapshot* snap, ULONG* offset,
                           SYSTEM_PROCESS_INFORMATION* spi, ULONG num )
 {
     PROCESSENTRY32W*            pcs_entry;
-    ULONG                       poff = 0;
+    ULONG                       poff = 0, i;
     SIZE_T                      l;
 
     snap->process_count = num;
@@ -220,6 +247,19 @@ static void fill_process( struct snapshot* snap, ULONG* offset,
     snap->process_offset = *offset;
 
     pcs_entry = (PROCESSENTRY32W*)&snap->data[*offset];
+
+    for (i = 0; i < ARRAY_SIZE(system_processes); i++)
+    {
+        if (has_process( spi, system_processes[i].pid )) continue;
+        memset( pcs_entry, 0, sizeof(*pcs_entry) );
+        pcs_entry->dwSize = sizeof(PROCESSENTRY32W);
+        pcs_entry->th32ProcessID = system_processes[i].pid;
+        pcs_entry->cntThreads = 1;
+        lstrcpyW( pcs_entry->szExeFile, system_processes[i].name );
+        pcs_entry++;
+        num--;
+    }
+    if (!num) goto done;
 
     do
     {
@@ -240,7 +280,8 @@ static void fill_process( struct snapshot* snap, ULONG* offset,
         pcs_entry++;
     } while ((poff = spi->NextEntryOffset));
 
-    *offset += num * sizeof(PROCESSENTRY32W);
+done:
+    *offset += snap->process_count * sizeof(PROCESSENTRY32W);
 }
 
 static void fill_thread( struct snapshot* snap, ULONG* offset, LPVOID info, ULONG num )
@@ -289,14 +330,9 @@ HANDLE WINAPI CreateToolhelp32Snapshot( DWORD flags, DWORD process )
     LDR_DATA_TABLE_ENTRY *mod = NULL;
     ULONG               num_pcs, num_thd, num_mod;
     HANDLE              hSnapShot = 0;
+    DWORD               err = GetLastError();
 
     TRACE("%lx,%lx\n", flags, process );
-    if (!(flags & (TH32CS_SNAPPROCESS|TH32CS_SNAPTHREAD|TH32CS_SNAPMODULE)))
-    {
-        FIXME("flags %lx not implemented\n", flags );
-        SetLastError( ERROR_CALL_NOT_IMPLEMENTED );
-        return INVALID_HANDLE_VALUE;
-    }
 
     if (fetch_module( process, flags, &mod, &num_mod ) &&
         fetch_process_thread( flags, &spi, &num_pcs, &num_thd ))
@@ -338,6 +374,7 @@ HANDLE WINAPI CreateToolhelp32Snapshot( DWORD flags, DWORD process )
     HeapFree( GetProcessHeap(), 0, spi );
 
     if (!hSnapShot) return INVALID_HANDLE_VALUE;
+    SetLastError( err );
     return hSnapShot;
 }
 
@@ -401,9 +438,9 @@ static BOOL process_next( HANDLE hSnapShot, LPPROCESSENTRY32W lppe,
     BOOL                ret = FALSE;
     DWORD               sz = unicode ? sizeof(PROCESSENTRY32W) : sizeof(PROCESSENTRY32);
 
-    if (lppe->dwSize < sz)
+    if (lppe->dwSize != sz)
     {
-        SetLastError( ERROR_INSUFFICIENT_BUFFER );
+        SetLastError( ERROR_BAD_LENGTH );
         WARN("Result buffer too small (%ld)\n", lppe->dwSize);
         return FALSE;
     }
@@ -493,7 +530,7 @@ static BOOL module_nextW( HANDLE hSnapShot, LPMODULEENTRY32W lpme, BOOL first )
 
     if (lpme->dwSize < sizeof (MODULEENTRY32W))
     {
-        SetLastError( ERROR_INSUFFICIENT_BUFFER );
+        SetLastError( ERROR_BAD_LENGTH );
         WARN("Result buffer too small (was: %ld)\n", lpme->dwSize);
         return FALSE;
     }
@@ -545,7 +582,7 @@ static BOOL module_nextA( HANDLE handle, LPMODULEENTRY32 lpme, BOOL first )
 
     if (lpme->dwSize < sizeof(MODULEENTRY32))
     {
-        SetLastError( ERROR_INSUFFICIENT_BUFFER );
+        SetLastError( ERROR_BAD_LENGTH );
         WARN("Result buffer too small (was: %ld)\n", lpme->dwSize);
         return FALSE;
     }
@@ -607,11 +644,11 @@ BOOL WINAPI Toolhelp32ReadProcessMemory(DWORD pid, const void* base,
     HANDLE h;
     BOOL   ret = FALSE;
 
-    h = (pid) ? OpenProcess(PROCESS_VM_READ, FALSE, pid) : GetCurrentProcess();
+    h = OpenProcess(PROCESS_VM_READ, FALSE, pid);
     if (h != NULL)
     {
         ret = ReadProcessMemory(h, base, buf, len, r);
-        if (pid) CloseHandle(h);
+        CloseHandle(h);
     }
     return ret;
 }
