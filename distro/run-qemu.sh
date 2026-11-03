@@ -10,9 +10,12 @@
 #   --image FILE     disk image (default: build/distro/setu-dev.qcow2)
 #   --vnc N          VNC display number (default: 11, i.e. port 5911)
 #   --ssh-port N     host port forwarded to guest SSH (default: 2223)
-#   --serial FILE    serial log (default: build/distro/run/serial.log)
+#   --serial FILE    serial log (default: RUN_DIR/serial.log)
+#   --run-dir DIR    monitor socket, pid file, UEFI vars and serial log
+#                    (default: build/distro/run); use another one to run a
+#                    second VM next to the first
 #   --snapshot       discard all disk writes on exit
-#   --daemonize      return once QEMU is running (pid in build/distro/run/qemu.pid)
+#   --daemonize      return once QEMU is running (pid in RUN_DIR/qemu.pid)
 #   --cpus N, --mem MB   (default: 4, 4096)
 #   -h, --help
 set -euo pipefail
@@ -23,7 +26,8 @@ RUN=$REPO/build/distro/run
 IMAGE=$REPO/build/distro/setu-dev.qcow2
 VNC=11
 SSH_PORT=2223
-SERIAL=$RUN/serial.log
+SERIAL=
+DAEMONIZE=0
 CPUS=4
 MEM=4096
 EXTRA=()
@@ -35,8 +39,9 @@ while [ $# -gt 0 ]; do
         --vnc) VNC=$2; shift ;;
         --ssh-port) SSH_PORT=$2; shift ;;
         --serial) SERIAL=$2; shift ;;
+        --run-dir) RUN=$(realpath -m "$2"); shift ;;
         --snapshot) EXTRA+=(-snapshot) ;;
-        --daemonize) EXTRA+=(-daemonize -pidfile "$RUN/qemu.pid") ;;
+        --daemonize) DAEMONIZE=1 ;;
         --cpus) CPUS=$2; shift ;;
         --mem) MEM=$2; shift ;;
         -h|--help) usage; exit 0 ;;
@@ -45,6 +50,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+[ -n "$SERIAL" ] || SERIAL=$RUN/serial.log
+[ "$DAEMONIZE" = 0 ] || EXTRA+=(-daemonize -pidfile "$RUN/qemu.pid")
 [ -f "$IMAGE" ] || { echo "no image at $IMAGE; run distro/build-image.sh" >&2; exit 1; }
 [ "$VNC" != 1 ] || { echo "VNC :1 (5901) belongs to the oracle Windows VM" >&2; exit 1; }
 mkdir -p "$RUN" "$(dirname "$SERIAL")"

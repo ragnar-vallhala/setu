@@ -8,7 +8,8 @@
 #   /etc/setu-build.env      SUITE MIRROR WINE_MODE IMAGE_HOSTNAME HAVE_SHELL
 #   9p tag "distro"          the repo's distro/ directory (read-only)
 #   9p tag "personality"     build/personality/install (read-only, WINE_MODE=setu)
-#   9p tag "shell"           directory with setu-shell.exe (HAVE_SHELL=1)
+#   9p tag "shell"           directory with setu-shell.exe and, if built,
+#                            setu-probe.exe (HAVE_SHELL=1)
 #   virtio disk serial "setu-target"   the output disk (raw)
 # Output goes to the second serial port; its last line is SETU_BUILD_OK on success.
 set -euo pipefail
@@ -93,6 +94,10 @@ if [ "${HAVE_SHELL:-0}" = 1 ]; then
     mount_9p shell /mnt/shell
     mkdir -p $T/opt/setu/shell
     cp --no-preserve=ownership /mnt/shell/setu-shell.exe $T/opt/setu/shell/
+    # the test helper next to it, if it was built (distro/tests use it)
+    if [ -f /mnt/shell/setu-probe.exe ]; then
+        cp --no-preserve=ownership /mnt/shell/setu-probe.exe $T/opt/setu/shell/
+    fi
     umount /mnt/shell
 fi
 
