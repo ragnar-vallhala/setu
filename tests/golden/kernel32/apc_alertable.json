@@ -1,0 +1,151 @@
+{
+  "test": "kernel32/apc_alertable",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "queue_to_self": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "wfso_ex_not_alertable_pending_apc": {
+      "ret": "WAIT_TIMEOUT",
+      "last_error": "unchanged",
+      "log": ""
+    },
+    "wfso_ex_alertable_timeout_0_runs_apc": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "a"
+    },
+    "wfso_ex_alertable_nothing_pending": {
+      "ret": "WAIT_TIMEOUT",
+      "last_error": "unchanged",
+      "log": ""
+    },
+    "wfso_ex_signalled_object_with_apc": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "b"
+    },
+    "wfso_ex_infinite_returns_for_apc": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "c"
+    },
+    "wfmo_ex_any_with_apc": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "d"
+    },
+    "wfmo_ex_any_after_apc": {
+      "ret": "WAIT_OBJECT_0+1",
+      "last_error": "unchanged",
+      "log": ""
+    },
+    "wfmo_ex_all_timeout_0_with_apc": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "e"
+    },
+    "wfmo_ex_all_not_alertable": {
+      "ret": "WAIT_TIMEOUT",
+      "last_error": "unchanged",
+      "log": ""
+    },
+    "sleepex_drains_f": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "f"
+    },
+    "signal_and_wait_alertable_apc": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "g"
+    },
+    "signal_and_wait_signalled_before_apc": {
+      "sem_count_before_release": 1
+    },
+    "signal_and_wait_set_event": {
+      "ret": "WAIT_OBJECT_0",
+      "last_error": "unchanged",
+      "log": ""
+    },
+    "signal_and_wait_event_as_signal": {
+      "ret": "WAIT_OBJECT_0",
+      "last_error": "unchanged",
+      "log": ""
+    },
+    "signal_and_wait_thread_as_signal": {
+      "ret": "WAIT_FAILED",
+      "last_error": 6,
+      "log": ""
+    },
+    "signal_and_wait_unowned_mutex": {
+      "ret": "WAIT_FAILED",
+      "last_error": 288,
+      "log": ""
+    },
+    "apc_requeues_two": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "rxy"
+    },
+    "apc_requeue_leftovers": {
+      "ret": "WAIT_OBJECT_0",
+      "last_error": "unchanged",
+      "log": ""
+    },
+    "nested_alertable_wait_in_apc": {
+      "ret": "WAIT_IO_COMPLETION",
+      "nested_ret": "WAIT_IO_COMPLETION",
+      "log": "wzn/"
+    },
+    "other_thread_alertable": {
+      "log": "pq",
+      "ran_on_worker": true,
+      "last_wait_was_stop": true
+    },
+    "queue_to_exited_thread": {
+      "ret": false,
+      "last_error": 31
+    },
+    "queue_to_never_alertable_thread": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "never_alertable_apc_discarded": {
+      "log": "Y"
+    },
+    "queue_without_set_context_access": {
+      "ret": false,
+      "last_error": 5
+    },
+    "queue_with_set_context_only": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_context_only_apc_runs": {
+      "ret": "WAIT_IO_COMPLETION",
+      "last_error": "unchanged",
+      "log": "YS"
+    },
+    "queue_null_thread": {
+      "ret": false,
+      "last_error": 6
+    },
+    "queue_to_event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "queue_to_process_pseudo_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "queue_user_apc2_export": {
+      "present": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "0513ef73a7107ae88497b76f216484216ade2e16ba03c460603dcf22ec000827"
+}
