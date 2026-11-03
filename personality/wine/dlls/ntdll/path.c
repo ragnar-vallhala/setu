@@ -170,6 +170,37 @@ static BOOL is_valid_directory(LPCWSTR path)
  * FIXME:
  *      + fill the cd structure
  */
+/******************************************************************
+ *		dos_path_too_long
+ *
+ * A process that is not long path aware cannot use a DOS path (other than
+ * \\?\ and \\.\ ones) of MAX_PATH characters or more. What counts is the
+ * path as written joined to the current directory, before "." and ".."
+ * are removed, or the full path if that is longer.
+ */
+static BOOL dos_path_too_long( const WCHAR *dos_path, ULONG full_len )
+{
+    ULONG len = wcslen( dos_path );
+
+    switch (RtlDetermineDosPathNameType_U( dos_path ))
+    {
+    case RtlPathTypeRelative:
+        RtlAcquirePebLock();
+        len += NtCurrentTeb()->Peb->ProcessParameters->CurrentDirectory.DosPath.Length / sizeof(WCHAR);
+        RtlReleasePebLock();
+        break;
+    case RtlPathTypeRooted:
+        len += 2;  /* drive letter and colon */
+        break;
+    case RtlPathTypeDriveAbsolute:
+    case RtlPathTypeDriveRelative:
+        break;
+    default:
+        return FALSE;
+    }
+    return max( len, full_len ) >= MAX_PATH;
+}
+
 NTSTATUS WINAPI RtlDosPathNameToNtPathName_U_WithStatus(const WCHAR *dos_path, UNICODE_STRING *ntpath,
     WCHAR **file_part, CURDIR *cd)
 {
@@ -246,6 +277,11 @@ NTSTATUS WINAPI RtlDosPathNameToNtPathName_U_WithStatus(const WCHAR *dos_path, U
         {
             if (!(ptr = RtlAllocateHeap(GetProcessHeap(), 0, sz))) return STATUS_NO_MEMORY;
             sz = RtlGetFullPathName_U(dos_path, sz, ptr, file_part);
+        }
+        if (dos_path_too_long( dos_path, sz / sizeof(WCHAR) ))
+        {
+            nts = STATUS_OBJECT_PATH_NOT_FOUND;
+            goto out;
         }
     }
     sz += (1 /* NUL */ + 4 /* unc\ */ + 4 /* \??\ */) * sizeof(WCHAR);
