@@ -1132,6 +1132,11 @@ LPVOID WINAPI DECLSPEC_HOTPATCH CreateFiberEx( SIZE_T stack_commit, SIZE_T stack
     struct fiber_data *fiber;
     INITIAL_TEB stack;
 
+    if (flags & ~FIBER_FLAG_FLOAT_SWITCH)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return NULL;
+    }
     if (!(fiber = HeapAlloc( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*fiber) )))
     {
         SetLastError( ERROR_NOT_ENOUGH_MEMORY );
@@ -1165,12 +1170,14 @@ BOOL WINAPI DECLSPEC_HOTPATCH ConvertFiberToThread(void)
 {
     struct fiber_data *fiber = NtCurrentTeb()->Tib.FiberData;
 
-    if (fiber)
+    if (!fiber)
     {
-        relocate_thread_actctx_stack( &NtCurrentTeb()->ActivationContextStack );
-        NtCurrentTeb()->Tib.FiberData = NULL;
-        HeapFree( GetProcessHeap(), 0, fiber );
+        SetLastError( ERROR_ALREADY_THREAD );
+        return FALSE;
     }
+    relocate_thread_actctx_stack( &NtCurrentTeb()->ActivationContextStack );
+    NtCurrentTeb()->Tib.FiberData = NULL;
+    HeapFree( GetProcessHeap(), 0, fiber );
     return TRUE;
 }
 
@@ -1191,6 +1198,11 @@ LPVOID WINAPI DECLSPEC_HOTPATCH ConvertThreadToFiberEx( LPVOID param, DWORD flag
 {
     struct fiber_data *fiber;
 
+    if (flags & ~FIBER_FLAG_FLOAT_SWITCH)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return NULL;
+    }
     if (NtCurrentTeb()->Tib.FiberData)
     {
         SetLastError( ERROR_ALREADY_FIBER );
