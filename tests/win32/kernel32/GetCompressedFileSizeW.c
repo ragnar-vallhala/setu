@@ -120,6 +120,71 @@ int main(void)
         cfs_case("sparse_with_64k_data", L"sparse.bin", 1);
     }
 
+    /* Probes: when data written into a sparse file is counted. */
+    {
+        static char blk[65536];
+        memset(blk, 'w', sizeof blk);
+        DWORD ret = 0, w;
+        LARGE_INTEGER li;
+        HANDLE h = CreateFileW(L"sp_flush.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        DeviceIoControl(h, FSCTL_SET_SPARSE, NULL, 0, NULL, 0, &ret, NULL);
+        li.QuadPart = 64LL << 20;
+        SetFilePointerEx(h, li, NULL, FILE_BEGIN);
+        SetEndOfFile(h);
+        li.QuadPart = 32LL << 20;
+        SetFilePointerEx(h, li, NULL, FILE_BEGIN);
+        WriteFile(h, blk, sizeof blk, &w, NULL);
+        cfs_case("probe_sparse_inside_open", L"sp_flush.bin", 1);
+        FlushFileBuffers(h);
+        cfs_case("probe_sparse_inside_flushed", L"sp_flush.bin", 1);
+        CloseHandle(h);
+        cfs_case("probe_sparse_inside_closed", L"sp_flush.bin", 1);
+
+        h = CreateFileW(L"sp_ext.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        DeviceIoControl(h, FSCTL_SET_SPARSE, NULL, 0, NULL, 0, &ret, NULL);
+        li.QuadPart = 1LL << 20;
+        SetFilePointerEx(h, li, NULL, FILE_BEGIN);
+        WriteFile(h, blk, 4096, &w, NULL);
+        cfs_case("probe_sparse_extending_4k_open", L"sp_ext.bin", 1);
+        CloseHandle(h);
+        cfs_case("probe_sparse_extending_4k_closed", L"sp_ext.bin", 1);
+
+        h = CreateFileW(L"sp_start.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        DeviceIoControl(h, FSCTL_SET_SPARSE, NULL, 0, NULL, 0, &ret, NULL);
+        WriteFile(h, blk, sizeof blk, &w, NULL);
+        li.QuadPart = 64LL << 20;
+        SetFilePointerEx(h, li, NULL, FILE_BEGIN);
+        SetEndOfFile(h);
+        CloseHandle(h);
+        cfs_case("probe_sparse_data_then_extend", L"sp_start.bin", 1);
+
+        h = CreateFileW(L"sp_small.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        DeviceIoControl(h, FSCTL_SET_SPARSE, NULL, 0, NULL, 0, &ret, NULL);
+        WriteFile(h, blk, 5, &w, NULL);
+        CloseHandle(h);
+        cfs_case("probe_sparse_5_bytes", L"sp_small.bin", 1);
+
+        h = CreateFileW(L"sp_mid.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        DeviceIoControl(h, FSCTL_SET_SPARSE, NULL, 0, NULL, 0, &ret, NULL);
+        li.QuadPart = 1LL << 20;
+        SetFilePointerEx(h, li, NULL, FILE_BEGIN);
+        SetEndOfFile(h);
+        li.QuadPart = 4096;
+        SetFilePointerEx(h, li, NULL, FILE_BEGIN);
+        WriteFile(h, blk, 4096, &w, NULL);
+        CloseHandle(h);
+        cfs_case("probe_sparse_inside_4k_at_4k", L"sp_mid.bin", 1);
+
+        h = CreateFileW(L"sp_mid2.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        WriteFile(h, blk, sizeof blk, &w, NULL);
+        li.QuadPart = 1LL << 20;
+        SetFilePointerEx(h, li, NULL, FILE_BEGIN);
+        SetEndOfFile(h);
+        DeviceIoControl(h, FSCTL_SET_SPARSE, NULL, 0, NULL, 0, &ret, NULL);
+        CloseHandle(h);
+        cfs_case("probe_sparse_set_after_data", L"sp_mid2.bin", 1);
+    }
+
     /* Over 4 GiB (sparse so no disk is used): the high DWORD is used. */
     {
         HANDLE h = CreateFileW(L"huge.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);

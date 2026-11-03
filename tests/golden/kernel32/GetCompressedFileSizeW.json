@@ -129,6 +129,51 @@
       "high": "0x00000000",
       "last_error": "unchanged"
     },
+    "probe_sparse_inside_open": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_inside_flushed": {
+      "low": 65536,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_inside_closed": {
+      "low": 65536,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_extending_4k_open": {
+      "low": 65536,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_extending_4k_closed": {
+      "low": 65536,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_data_then_extend": {
+      "low": 65536,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_5_bytes": {
+      "low": 5,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_inside_4k_at_4k": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_sparse_set_after_data": {
+      "low": 1048576,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
     "sparse_tail_past_4gib": {
       "low": 131072,
       "high": "0x00000000",
@@ -145,5 +190,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "3f90fd4bdf5caeac7d4d7ca41aba56301365f0836ac63ec1877634758d785d34"
+  "source_sha256": "1d0a97016ff48193308dfe032ccf7628fe73a78db49f6b5d870bc3e363bd8103"
 }
