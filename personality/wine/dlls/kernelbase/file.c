@@ -3419,6 +3419,10 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFileType( HANDLE file )
         return FILE_TYPE_CHAR;
     case FILE_DEVICE_NAMED_PIPE:
         return FILE_TYPE_PIPE;
+    case FILE_DEVICE_MAILSLOT:
+        /* a mailslot has no file type, but that is not an error */
+        SetLastError( NO_ERROR );
+        return FILE_TYPE_UNKNOWN;
     default:
         return FILE_TYPE_DISK;
     }
