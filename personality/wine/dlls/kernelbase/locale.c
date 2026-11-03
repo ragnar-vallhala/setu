@@ -6868,6 +6868,8 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetTimeZoneInformation( TIME_ZONE_INFORMATION *in
 }
 
 
+static WCHAR loaded_tz_key[128];
+
 /***********************************************************************
  *	GetTimeZoneInformationForYear   (kernelbase.@)
  */
@@ -6940,6 +6942,18 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetTimeZoneInformationForYear( USHORT year,
 done:
     RegCloseKey( key );
     if (ret) SetLastError( ret );
+    else
+    {
+        /* Windows keeps the last zone it read; reading a different one
+         * sets the last error to 0 */
+        RtlEnterCriticalSection( &tzname_section );
+        if (wcscmp( loaded_tz_key, dynamic->TimeZoneKeyName ))
+        {
+            lstrcpynW( loaded_tz_key, dynamic->TimeZoneKeyName, ARRAY_SIZE(loaded_tz_key) );
+            SetLastError( ERROR_SUCCESS );
+        }
+        RtlLeaveCriticalSection( &tzname_section );
+    }
     return !ret;
 }
 
