@@ -6442,7 +6442,13 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetStringTypeA( LCID locale, DWORD type, const cha
     INT countW;
     LPWSTR srcW;
     BOOL ret = FALSE;
+    LCID lcid = locale;
 
+    if (!NlsValidateLocale( &lcid, 0 ))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
     if (count == -1) count = strlen(src) + 1;
 
     cp = get_lcid_codepage( locale, 0 );
@@ -8766,4 +8772,211 @@ int WINAPI GetTimeFormatEx( const WCHAR *name, DWORD flags, const SYSTEMTIME *sy
 
     TRACE( "(%s,%lx,%p,%s,%p,%d)\n", debugstr_w(name), flags, systime, debugstr_w(format), buffer, len );
     return get_time_format( locale, flags, systime, format, buffer, len );
+}
+
+
+/* Unicode script of a range of characters, as ISO 15924 codes; unlisted characters are Zyyy */
+static const struct { WCHAR first, last; char script[5]; } script_ranges[] =
+{
+    { 0x0041, 0x005a, "Latn" }, { 0x0061, 0x007a, "Latn" }, { 0x00aa, 0x00aa, "Latn" },
+    { 0x00ba, 0x00ba, "Latn" }, { 0x00c0, 0x00d6, "Latn" }, { 0x00d8, 0x00f6, "Latn" },
+    { 0x00f8, 0x02b8, "Latn" }, { 0x02e0, 0x02e4, "Latn" }, { 0x0300, 0x036f, "Qaai" },
+    { 0x0370, 0x0373, "Grek" }, { 0x0375, 0x037d, "Grek" }, { 0x037f, 0x0383, "Grek" },
+    { 0x0384, 0x0384, "Grek" }, { 0x0386, 0x0386, "Grek" }, { 0x0388, 0x03e1, "Grek" },
+    { 0x03e2, 0x03ef, "Copt" }, { 0x03f0, 0x03ff, "Grek" }, { 0x0400, 0x0484, "Cyrl" },
+    { 0x0485, 0x0486, "Qaai" }, { 0x0487, 0x052f, "Cyrl" }, { 0x0531, 0x058f, "Armn" },
+    { 0x0591, 0x05ff, "Hebr" }, { 0x0600, 0x060b, "Arab" }, { 0x060d, 0x061a, "Arab" },
+    { 0x061c, 0x061e, "Arab" }, { 0x0620, 0x063f, "Arab" }, { 0x0641, 0x064a, "Arab" },
+    { 0x064b, 0x0655, "Qaai" }, { 0x0656, 0x066f, "Arab" }, { 0x0670, 0x0670, "Qaai" },
+    { 0x0671, 0x06dc, "Arab" }, { 0x06de, 0x06ff, "Arab" }, { 0x0700, 0x074f, "Syrc" },
+    { 0x0750, 0x077f, "Arab" }, { 0x0780, 0x07bf, "Thaa" }, { 0x07c0, 0x07ff, "Nkoo" },
+    { 0x0800, 0x083f, "Samr" }, { 0x0840, 0x085f, "Mand" }, { 0x0860, 0x086f, "Syrc" },
+    { 0x0870, 0x08ff, "Arab" }, { 0x0900, 0x0950, "Deva" }, { 0x0951, 0x0954, "Qaai" },
+    { 0x0955, 0x0963, "Deva" }, { 0x0966, 0x097f, "Deva" }, { 0x0980, 0x09ff, "Beng" },
+    { 0x0a00, 0x0a7f, "Guru" }, { 0x0a80, 0x0aff, "Gujr" }, { 0x0b00, 0x0b7f, "Orya" },
+    { 0x0b80, 0x0bff, "Taml" }, { 0x0c00, 0x0c7f, "Telu" }, { 0x0c80, 0x0cff, "Knda" },
+    { 0x0d00, 0x0d7f, "Mlym" }, { 0x0d80, 0x0dff, "Sinh" }, { 0x0e00, 0x0e3e, "Thai" },
+    { 0x0e40, 0x0e7f, "Thai" }, { 0x0e80, 0x0eff, "Laoo" }, { 0x0f00, 0x0fd4, "Tibt" },
+    { 0x0fd9, 0x0fff, "Tibt" }, { 0x1000, 0x109f, "Mymr" }, { 0x10a0, 0x10fa, "Geor" },
+    { 0x10fc, 0x10ff, "Geor" }, { 0x1100, 0x11ff, "Hang" }, { 0x1200, 0x139f, "Ethi" },
+    { 0x13a0, 0x13ff, "Cher" }, { 0x1400, 0x167f, "Cans" }, { 0x1680, 0x169f, "Ogam" },
+    { 0x16a0, 0x16ea, "Runr" }, { 0x16ee, 0x16ff, "Runr" }, { 0x1780, 0x17ff, "Khmr" },
+    { 0x1800, 0x1801, "Mong" }, { 0x1804, 0x1804, "Mong" }, { 0x1806, 0x18af, "Mong" },
+    { 0x1ab0, 0x1aff, "Qaai" }, { 0x1c80, 0x1c8f, "Cyrl" }, { 0x1c90, 0x1cbf, "Geor" },
+    { 0x1d00, 0x1d25, "Latn" }, { 0x1d26, 0x1d2a, "Grek" }, { 0x1d2b, 0x1d2b, "Cyrl" },
+    { 0x1d2c, 0x1d5c, "Latn" }, { 0x1d5d, 0x1d61, "Grek" }, { 0x1d62, 0x1d65, "Latn" },
+    { 0x1d66, 0x1d6a, "Grek" }, { 0x1d6b, 0x1d77, "Latn" }, { 0x1d78, 0x1d78, "Cyrl" },
+    { 0x1d79, 0x1dbe, "Latn" }, { 0x1dbf, 0x1dbf, "Grek" }, { 0x1dc0, 0x1dff, "Qaai" },
+    { 0x1e00, 0x1eff, "Latn" }, { 0x1f00, 0x1fff, "Grek" }, { 0x200c, 0x200d, "Qaai" },
+    { 0x2071, 0x2071, "Latn" }, { 0x207f, 0x207f, "Latn" }, { 0x2090, 0x209c, "Latn" },
+    { 0x20d0, 0x20ff, "Qaai" }, { 0x2126, 0x2126, "Grek" }, { 0x212a, 0x212b, "Latn" },
+    { 0x2132, 0x2132, "Latn" }, { 0x214e, 0x214e, "Latn" }, { 0x2160, 0x2188, "Latn" },
+    { 0x2c00, 0x2c5f, "Glag" }, { 0x2c60, 0x2c7f, "Latn" }, { 0x2c80, 0x2cff, "Copt" },
+    { 0x2d00, 0x2d2f, "Geor" }, { 0x2d30, 0x2d7f, "Tfng" }, { 0x2d80, 0x2ddf, "Ethi" },
+    { 0x2de0, 0x2dff, "Cyrl" }, { 0x2e80, 0x2fdf, "Hani" }, { 0x3005, 0x3005, "Hani" },
+    { 0x3007, 0x3007, "Hani" }, { 0x3021, 0x3029, "Hani" }, { 0x302a, 0x302d, "Qaai" },
+    { 0x3038, 0x303b, "Hani" }, { 0x3041, 0x3096, "Hira" }, { 0x3099, 0x309a, "Qaai" },
+    { 0x309d, 0x309f, "Hira" }, { 0x30a1, 0x30fa, "Kana" }, { 0x30fd, 0x30ff, "Kana" },
+    { 0x3105, 0x312f, "Bopo" }, { 0x3131, 0x318e, "Hang" }, { 0x31a0, 0x31bf, "Bopo" },
+    { 0x31f0, 0x31ff, "Kana" }, { 0x3200, 0x321e, "Hang" }, { 0x3260, 0x327e, "Hang" },
+    { 0x32d0, 0x32fe, "Kana" }, { 0x3300, 0x3357, "Kana" }, { 0x3400, 0x4dbf, "Hani" },
+    { 0x4e00, 0x9fff, "Hani" }, { 0xa000, 0xa4cf, "Yiii" }, { 0xa4d0, 0xa4ff, "Lisu" },
+    { 0xa500, 0xa62b, "Vaii" }, { 0xa640, 0xa69f, "Cyrl" }, { 0xa722, 0xa787, "Latn" },
+    { 0xa78b, 0xa7ff, "Latn" }, { 0xa960, 0xa97f, "Hang" }, { 0xab30, 0xab5a, "Latn" },
+    { 0xab5c, 0xab64, "Latn" }, { 0xab65, 0xab65, "Grek" }, { 0xab66, 0xab69, "Latn" },
+    { 0xac00, 0xd7ff, "Hang" }, { 0xd840, 0xd87f, "Hani" }, { 0xf900, 0xfaff, "Hani" },
+    { 0xfb00, 0xfb06, "Latn" }, { 0xfb13, 0xfb17, "Armn" }, { 0xfb1d, 0xfb4f, "Hebr" },
+    { 0xfb50, 0xfd3d, "Arab" }, { 0xfd40, 0xfdff, "Arab" }, { 0xfe00, 0xfe0f, "Qaai" },
+    { 0xfe20, 0xfe2d, "Qaai" }, { 0xfe2e, 0xfe2f, "Cyrl" }, { 0xfe70, 0xfefe, "Arab" },
+    { 0xff21, 0xff3a, "Latn" }, { 0xff41, 0xff5a, "Latn" }, { 0xff66, 0xff6f, "Kana" },
+    { 0xff71, 0xff9d, "Kana" }, { 0xffa0, 0xffdc, "Hang" },
+};
+
+static const char *get_char_script( WCHAR ch )
+{
+    int min = 0, max = ARRAY_SIZE(script_ranges) - 1;
+
+    while (min <= max)
+    {
+        int pos = (min + max) / 2;
+        if (ch < script_ranges[pos].first) max = pos - 1;
+        else if (ch > script_ranges[pos].last) min = pos + 1;
+        else return script_ranges[pos].script;
+    }
+    return "Zyyy";
+}
+
+static int __cdecl compare_scripts( const void *a, const void *b )
+{
+    return memcmp( a, b, 4 );
+}
+
+
+/***********************************************************************
+ *	GetStringScripts   (kernelbase.@)
+ */
+INT WINAPI GetStringScripts( DWORD flags, const WCHAR *str, INT len, WCHAR *scripts, INT size )
+{
+    char found[64][4];
+    BOOL common = FALSE, inherited = FALSE;
+    unsigned int count = 0, i, j;
+    int pos = 0;
+    WCHAR out[66 * 5 + 1];
+
+    TRACE( "%#lx, %s, %d, %p, %d\n", flags, debugstr_wn( str, len ), len, scripts, size );
+
+    if (flags & ~GSS_ALLOW_INHERITED_COMMON)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
+    if (!str || !len || len < -1 || size < 0 || (size && !scripts))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    if (len == -1) len = wcslen( str );
+
+    for (i = 0; i < len; i++)
+    {
+        const char *script = get_char_script( str[i] );
+
+        if (!memcmp( script, "Zyyy", 4 )) common = TRUE;
+        else if (!memcmp( script, "Qaai", 4 )) inherited = TRUE;
+        else
+        {
+            for (j = 0; j < count; j++) if (!memcmp( found[j], script, 4 )) break;
+            if (j == count && count < ARRAY_SIZE(found)) memcpy( found[count++], script, 4 );
+        }
+    }
+    qsort( found, count, sizeof(found[0]), compare_scripts );
+
+    /* common and inherited text is only listed on request, ahead of the others */
+    if ((flags & GSS_ALLOW_INHERITED_COMMON) && common)
+    {
+        for (j = 0; j < 4; j++) out[pos++] = "Zyyy"[j];
+        out[pos++] = ';';
+    }
+    if ((flags & GSS_ALLOW_INHERITED_COMMON) && inherited)
+    {
+        for (j = 0; j < 4; j++) out[pos++] = "Qaai"[j];
+        out[pos++] = ';';
+    }
+    for (i = 0; i < count; i++)
+    {
+        for (j = 0; j < 4; j++) out[pos++] = found[i][j];
+        out[pos++] = ';';
+    }
+    out[pos++] = 0;
+
+    if (!size) return pos;
+    if (size < pos)
+    {
+        SetLastError( ERROR_INSUFFICIENT_BUFFER );
+        return 0;
+    }
+    memcpy( scripts, out, pos * sizeof(WCHAR) );
+    return pos;
+}
+
+
+/* check that a script list is a sequence of four letter codes, each followed by ';' */
+static BOOL is_valid_script_list( const WCHAR *list, int len )
+{
+    int i, j;
+
+    if (len % 5) return FALSE;
+    for (i = 0; i < len; i += 5)
+    {
+        for (j = 0; j < 4; j++)
+            if (!((list[i + j] >= 'A' && list[i + j] <= 'Z') || (list[i + j] >= 'a' && list[i + j] <= 'z')))
+                return FALSE;
+        if (list[i + 4] != ';') return FALSE;
+    }
+    return TRUE;
+}
+
+
+/***********************************************************************
+ *	VerifyScripts   (kernelbase.@)
+ */
+BOOL WINAPI VerifyScripts( DWORD flags, const WCHAR *locale_scripts, INT locale_len,
+                           const WCHAR *test_scripts, INT test_len )
+{
+    int i, j;
+
+    TRACE( "%#lx, %s, %d, %s, %d\n", flags, debugstr_wn( locale_scripts, locale_len ), locale_len,
+           debugstr_wn( test_scripts, test_len ), test_len );
+
+    if (flags & ~VS_ALLOW_LATIN)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return FALSE;
+    }
+    if (!locale_scripts || !test_scripts || locale_len < -1 || test_len < -1)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    if (locale_len == -1) locale_len = wcslen( locale_scripts );
+    if (test_len == -1) test_len = wcslen( test_scripts );
+    if (!is_valid_script_list( locale_scripts, locale_len ) || !is_valid_script_list( test_scripts, test_len ))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+
+    for (i = 0; i < test_len; i += 5)
+    {
+        if ((flags & VS_ALLOW_LATIN) && !wcsnicmp( test_scripts + i, L"Latn", 4 )) continue;
+        for (j = 0; j < locale_len; j += 5)
+            if (!wcsnicmp( test_scripts + i, locale_scripts + j, 4 )) break;
+        if (j >= locale_len)
+        {
+            /* a script that is not allowed is not an error */
+            SetLastError( 0 );
+            return FALSE;
+        }
+    }
+    return TRUE;
 }

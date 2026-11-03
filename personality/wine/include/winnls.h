@@ -401,6 +401,9 @@ static const WCHAR LOCALE_NAME_SYSTEM_DEFAULT[] = {'!','x','-','s','y','s','-','
 #define LCMAP_SORTKEY    0x00000400	/* Create a sort key */
 #define LCMAP_BYTEREV    0x00000800	/* Reverse the result */
 #define LCMAP_HASH       0x00040000
+
+#define GSS_ALLOW_INHERITED_COMMON  0x0001
+#define VS_ALLOW_LATIN              0x0001
 #define LCMAP_HIRAGANA   0x00100000	/* Transform Japanese katakana into hiragana */
 #define LCMAP_KATAKANA   0x00200000	/* Transform Japanese hiragana into katakana */
 #define LCMAP_HALFWIDTH  0x00400000	/* Use single byte chars in output */
@@ -995,6 +998,8 @@ WINBASEAPI BOOL        WINAPI SetThreadPreferredUILanguages(DWORD,PCZZWSTR,PULON
 WINBASEAPI LANGID      WINAPI SetThreadUILanguage(LANGID);
 WINBASEAPI BOOL        WINAPI SetUserGeoID(GEOID);
 WINBASEAPI BOOL        WINAPI SetUserGeoName(PWSTR);
+WINBASEAPI INT         WINAPI GetStringScripts(DWORD,LPCWSTR,INT,LPWSTR,INT);
+WINBASEAPI BOOL        WINAPI VerifyScripts(DWORD,LPCWSTR,INT,LPCWSTR,INT);
 WINBASEAPI INT         WINAPI WideCharToMultiByte(UINT,DWORD,LPCWSTR,INT,LPSTR,INT,LPCSTR,LPBOOL);
 WINBASEAPI INT         WINAPI FindNLSStringEx(const WCHAR *,DWORD,const WCHAR *,INT,const WCHAR *,INT,INT *,NLSVERSIONINFO *,void *,LPARAM);
 

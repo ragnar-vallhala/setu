@@ -835,7 +835,7 @@
 @ stdcall GetStartupInfoA(ptr)
 @ stdcall -import GetStartupInfoW(ptr)
 @ stdcall -import GetStdHandle(long)
-# @ stub GetStringScripts
+@ stdcall -import GetStringScripts(long wstr long ptr long)
 @ stdcall -import GetStringTypeA(long long str long ptr)
 @ stdcall GetStringTypeExA(long long str long ptr)
 @ stdcall -import GetStringTypeExW(long long wstr long ptr)
@@ -1600,7 +1600,7 @@
 @ stdcall -import VerLanguageNameW(long wstr long)
 @ stdcall -ret64 VerSetConditionMask(long long long long) NTDLL.VerSetConditionMask
 @ stdcall VerifyConsoleIoHandle(long)
-# @ stub VerifyScripts
+@ stdcall -import VerifyScripts(long wstr long wstr long)
 @ stdcall VerifyVersionInfoA(ptr long int64)
 @ stdcall VerifyVersionInfoW(ptr long int64)
 @ stdcall -import VirtualAlloc(ptr long long long)

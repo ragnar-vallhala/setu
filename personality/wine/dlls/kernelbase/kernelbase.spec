@@ -709,7 +709,7 @@
 # @ stub GetStateSettingsFolder
 # @ stub GetStateVersion
 @ stdcall GetStdHandle(long)
-# @ stub GetStringScripts
+@ stdcall GetStringScripts(long wstr long ptr long)
 @ stub GetStringTableEntry
 @ stdcall GetStringTypeA(long long str long ptr)
 @ stdcall GetStringTypeExW(long long wstr long ptr)
@@ -1718,7 +1718,7 @@
 # @ stub VerifyPackageFullName
 # @ stub VerifyPackageId
 # @ stub VerifyPackageRelativeApplicationId
-# @ stub VerifyScripts
+@ stdcall VerifyScripts(long wstr long wstr long)
 @ stdcall VirtualAlloc2(long ptr long long long ptr long)
 @ stdcall VirtualAlloc2FromApp(long ptr long long long ptr long)
 @ stdcall VirtualAlloc(ptr long long long)
