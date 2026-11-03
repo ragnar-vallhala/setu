@@ -6511,7 +6511,14 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetUserPreferredUILanguages( DWORD flags, ULONG *c
 INT WINAPI DECLSPEC_HOTPATCH IdnToAscii( DWORD flags, const WCHAR *src, INT srclen,
                                          WCHAR *dst, INT dstlen )
 {
-    NTSTATUS status = RtlIdnToAscii( flags, src, srclen, dst, &dstlen );
+    NTSTATUS status;
+
+    if (flags & ~(IDN_ALLOW_UNASSIGNED | IDN_USE_STD3_ASCII_RULES))
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
+    status = RtlIdnToAscii( flags, src, srclen, dst, &dstlen );
     if (!set_ntstatus( status )) return 0;
     return dstlen;
 }

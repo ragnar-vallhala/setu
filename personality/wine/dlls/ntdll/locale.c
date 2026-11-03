@@ -1245,6 +1245,9 @@ NTSTATUS WINAPI RtlIdnToAscii( DWORD flags, const WCHAR *src, INT srclen, WCHAR 
         }
     }
 
+    /* the whole name, with its terminating null if any, must fit in 255 characters */
+    if (out > 255) return STATUS_INVALID_IDN_NORMALIZATION;
+
     if (*dstlen)
     {
         if (out <= *dstlen) memcpy( dst, res, out * sizeof(WCHAR) );
@@ -1428,6 +1431,10 @@ NTSTATUS WINAPI RtlIdnToUnicode( DWORD flags, const WCHAR *src, INT srclen, WCHA
         }
 
         if (check_invalid_chars( info, flags, buffer, buflen )) return STATUS_INVALID_IDN_NORMALIZATION;
+
+        /* an xn-- label must decode to something that isn't plain ASCII */
+        for (i = 0; i < buflen; i++) if (buffer[i] >= 0x80) break;
+        if (i == buflen) return STATUS_INVALID_IDN_NORMALIZATION;
 
         for (i = 0; i < buflen; i++)
         {
