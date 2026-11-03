@@ -1,0 +1,127 @@
+{
+  "test": "kernel32/srw_lock",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "initialize_zeroes": {
+      "word_zero": true,
+      "last_error": "unchanged"
+    },
+    "srwlock_init_is_zero": {
+      "word_zero": true,
+      "size": 8
+    },
+    "free_lock": {
+      "other_exclusive": 1,
+      "other_shared": 1,
+      "word_nonzero": false
+    },
+    "try_exclusive_free": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "exclusive_held": {
+      "other_exclusive": 0,
+      "other_shared": 0,
+      "word_nonzero": true
+    },
+    "try_exclusive_again_same_thread": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "try_shared_while_exclusive_same_thread": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "release_exclusive": {
+      "last_error": "unchanged",
+      "word_zero": true
+    },
+    "after_release_exclusive": {
+      "other_exclusive": 1,
+      "other_shared": 1,
+      "word_nonzero": false
+    },
+    "try_shared_free": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "shared_held_once": {
+      "other_exclusive": 0,
+      "other_shared": 1,
+      "word_nonzero": true
+    },
+    "try_shared_second": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "try_exclusive_while_shared": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "shared_held_after_one_release": {
+      "other_exclusive": 0,
+      "other_shared": 1,
+      "word_nonzero": true
+    },
+    "after_release_all_shared": {
+      "other_exclusive": 1,
+      "other_shared": 1,
+      "word_nonzero": false
+    },
+    "word_zero_after_shared_release": {
+      "word_zero": true
+    },
+    "acquire_exclusive_held": {
+      "other_exclusive": 0,
+      "other_shared": 0,
+      "word_nonzero": true
+    },
+    "acquire_shared_twice_held": {
+      "other_exclusive": 0,
+      "other_shared": 1,
+      "word_nonzero": true
+    },
+    "acquire_shared_released": {
+      "other_exclusive": 1,
+      "other_shared": 1,
+      "word_nonzero": false
+    },
+    "exclusive_waiter_handoff": {
+      "not_before_release": true,
+      "got_after_release": true,
+      "thread_exit": 7
+    },
+    "after_handoff": {
+      "other_exclusive": 1,
+      "other_shared": 1,
+      "word_nonzero": false
+    },
+    "three_shared_owners": {
+      "inside": 3
+    },
+    "try_exclusive_with_three_readers": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "try_shared_with_three_readers": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "after_three_readers": {
+      "other_exclusive": 1,
+      "other_shared": 1,
+      "word_nonzero": false
+    },
+    "try_exclusive_after_readers": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "cycles_leave_word_zero": {
+      "word_zero": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "30b5e0bbd96be436612713bc74f3311b797c65a83ce4913d74cd846ffa59a2af"
+}
