@@ -2874,6 +2874,36 @@ BOOL WINAPI DECLSPEC_HOTPATCH NeedCurrentDirectoryForExePathW( LPCWSTR name )
 }
 
 
+#ifndef REPLACEFILE_IGNORE_ACL_ERRORS
+#define REPLACEFILE_IGNORE_ACL_ERRORS 0x00000004
+#endif
+
+/* rename the file of a handle to a DOS path */
+static NTSTATUS rename_handle( HANDLE handle, const WCHAR *path, BOOLEAN replace )
+{
+    FILE_RENAME_INFORMATION *info;
+    UNICODE_STRING nt_name;
+    IO_STATUS_BLOCK io;
+    NTSTATUS status;
+    ULONG size;
+
+    if (!RtlDosPathNameToNtPathName_U( path, &nt_name, NULL, NULL )) return STATUS_OBJECT_PATH_NOT_FOUND;
+    size = offsetof( FILE_RENAME_INFORMATION, FileName[nt_name.Length / sizeof(WCHAR)] );
+    if (!(info = HeapAlloc( GetProcessHeap(), 0, size )))
+    {
+        RtlFreeUnicodeString( &nt_name );
+        return STATUS_NO_MEMORY;
+    }
+    info->ReplaceIfExists = replace;
+    info->RootDirectory = NULL;
+    info->FileNameLength = nt_name.Length;
+    memcpy( info->FileName, nt_name.Buffer, nt_name.Length );
+    status = NtSetInformationFile( handle, &io, info, size, FileRenameInformation );
+    HeapFree( GetProcessHeap(), 0, info );
+    RtlFreeUnicodeString( &nt_name );
+    return status;
+}
+
 /***********************************************************************
  *	ReplaceFileW   (kernelbase.@)
  */
@@ -2881,101 +2911,107 @@ BOOL WINAPI DECLSPEC_HOTPATCH ReplaceFileW( const WCHAR *replaced, const WCHAR *
                                             const WCHAR *backup, DWORD flags,
                                             void *exclude, void *reserved )
 {
-    UNICODE_STRING nt_replaced_name, nt_replacement_name;
-    HANDLE hReplacement = NULL;
-    NTSTATUS status;
-    IO_STATUS_BLOCK io;
-    OBJECT_ATTRIBUTES attr;
+    static const DWORD valid_flags = REPLACEFILE_WRITE_THROUGH | REPLACEFILE_IGNORE_MERGE_ERRORS |
+                                     REPLACEFILE_IGNORE_ACL_ERRORS;
+    HANDLE replaced_handle, replacement_handle;
+    FILE_DISPOSITION_INFORMATION disposition = { TRUE };
     FILE_BASIC_INFORMATION info;
+    IO_STATUS_BLOCK io;
+    NTSTATUS status;
+    DWORD err = 0;
 
     TRACE( "%s %s %s 0x%08lx %p %p\n", debugstr_w(replaced), debugstr_w(replacement), debugstr_w(backup),
            flags, exclude, reserved );
 
-    if (flags) FIXME("Ignoring flags %lx\n", flags);
-
-    /* First two arguments are mandatory */
-    if (!replaced || !replacement)
+    if (!replaced || !replacement || (flags & ~valid_flags))
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetLastError( ERROR_INVALID_PARAMETER );
         return FALSE;
     }
 
-    /* Open the "replaced" file for reading */
-    if (!RtlDosPathNameToNtPathName_U( replaced, &nt_replaced_name, NULL, NULL ))
+    /* the replaced file may be open by others, if they share it */
+    replaced_handle = CreateFileW( replaced, GENERIC_READ | GENERIC_WRITE | DELETE | SYNCHRONIZE,
+                                   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                                   OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, 0 );
+    if (replaced_handle == INVALID_HANDLE_VALUE) return FALSE;
+    status = NtQueryInformationFile( replaced_handle, &io, &info, sizeof(info), FileBasicInformation );
+    if (!status && (info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)) status = STATUS_ACCESS_DENIED;
+    if (!set_ntstatus( status ))
     {
-        SetLastError( ERROR_PATH_NOT_FOUND );
-        return FALSE;
-    }
-    InitializeObjectAttributes( &attr, &nt_replaced_name, OBJ_CASE_INSENSITIVE, 0, NULL );
-
-    /* Replacement should fail if replaced is READ_ONLY */
-    status = NtQueryAttributesFile(&attr, &info);
-    RtlFreeUnicodeString(&nt_replaced_name);
-    if (!set_ntstatus( status )) return FALSE;
-
-    if (info.FileAttributes & FILE_ATTRIBUTE_READONLY)
-    {
-        SetLastError( ERROR_ACCESS_DENIED );
+        CloseHandle( replaced_handle );
         return FALSE;
     }
 
-    /*
-     * Open the replacement file for reading, writing, and deleting
-     * (writing and deleting are needed when finished)
-     */
-    if (!RtlDosPathNameToNtPathName_U( replacement, &nt_replacement_name, NULL, NULL ))
+    /* the replacement file may not be open at all */
+    replacement_handle = CreateFileW( replacement, GENERIC_READ | GENERIC_WRITE | DELETE | SYNCHRONIZE, 0, NULL,
+                                      OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, 0 );
+    if (replacement_handle == INVALID_HANDLE_VALUE)
     {
-        SetLastError( ERROR_PATH_NOT_FOUND );
+        CloseHandle( replaced_handle );
         return FALSE;
     }
-    attr.ObjectName = &nt_replacement_name;
-    status = NtOpenFile( &hReplacement, GENERIC_READ | GENERIC_WRITE | DELETE | WRITE_DAC | SYNCHRONIZE,
-                         &attr, &io, 0, FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT );
-    RtlFreeUnicodeString(&nt_replacement_name);
-    if (!set_ntstatus( status )) return FALSE;
-    NtClose( hReplacement );
+    if (GetFileAttributesW( replacement ) & FILE_ATTRIBUTE_DIRECTORY)
+    {
+        err = ERROR_ACCESS_DENIED;
+        goto done;
+    }
 
-    /* If the user wants a backup then that needs to be performed first */
+    /* move the replaced file out of the way, to the backup name or a temporary one */
     if (backup)
     {
-        if (!MoveFileExW( replaced, backup, MOVEFILE_REPLACE_EXISTING )) return FALSE;
+        if (rename_handle( replaced_handle, backup, TRUE ))
+        {
+            err = ERROR_UNABLE_TO_REMOVE_REPLACED;
+            goto done;
+        }
     }
     else
     {
-        /* ReplaceFile() can replace an open target. To do this, we need to move
-         * it out of the way first. */
         WCHAR temp_path[MAX_PATH], temp_file[MAX_PATH];
-        WCHAR* filePart;
-        DWORD cnt = GetFullPathNameW(replaced, ARRAY_SIZE( temp_path ), temp_path, &filePart);
-        if (!cnt) return FALSE;
-        if (cnt >= ARRAY_SIZE( temp_path ) || !filePart)
+        WCHAR *part;
+        DWORD len = GetFullPathNameW( replaced, ARRAY_SIZE( temp_path ), temp_path, &part );
+
+        if (!len || len >= ARRAY_SIZE( temp_path ) || !part)
         {
-            SetLastError( ERROR_PATH_NOT_FOUND );
-            return FALSE;
+            err = len ? ERROR_PATH_NOT_FOUND : GetLastError();
+            goto done;
         }
-        *filePart = 0;
-
-        if (!GetTempFileNameW( temp_path, L"rf", 0, temp_file ) ||
-            !MoveFileExW( replaced, temp_file, MOVEFILE_REPLACE_EXISTING ))
-            return FALSE;
-
-        DeleteFileW( temp_file );
+        *part = 0;
+        if (!GetTempFileNameW( temp_path, L"rf", 0, temp_file ))
+        {
+            err = ERROR_UNABLE_TO_REMOVE_REPLACED;
+            goto done;
+        }
+        if (rename_handle( replaced_handle, temp_file, TRUE ))
+        {
+            DeleteFileW( temp_file );
+            err = ERROR_UNABLE_TO_REMOVE_REPLACED;
+            goto done;
+        }
+        NtSetInformationFile( replaced_handle, &io, &disposition, sizeof(disposition),
+                              FileDispositionInformation );
     }
 
-    /*
-     * Now that the backup has been performed (if requested), copy the replacement
-     * into place
-     */
-    if (!MoveFileExW( replacement, replaced, 0 ))
+    /* the replacement takes the attributes of the replaced file */
+    info.CreationTime.QuadPart = info.LastAccessTime.QuadPart = 0;
+    info.LastWriteTime.QuadPart = info.ChangeTime.QuadPart = 0;
+    NtSetInformationFile( replacement_handle, &io, &info, sizeof(info), FileBasicInformation );
+
+    if (rename_handle( replacement_handle, replaced, FALSE ))
     {
-        /* on failure we need to indicate whether a backup was made */
-        if (!backup)
-            SetLastError( ERROR_UNABLE_TO_MOVE_REPLACEMENT );
-        else
-            SetLastError( ERROR_UNABLE_TO_MOVE_REPLACEMENT_2 );
-        return FALSE;
+        /* with a backup, both files keep their names */
+        if (backup) rename_handle( replaced_handle, replaced, FALSE );
+        err = ERROR_UNABLE_TO_MOVE_REPLACEMENT;
+        goto done;
     }
-    return TRUE;
+    /* Windows reports this error after making a backup */
+    err = backup ? ERROR_ENVVAR_NOT_FOUND : 0;
+
+done:
+    CloseHandle( replacement_handle );
+    CloseHandle( replaced_handle );
+    SetLastError( err );
+    return !err || err == ERROR_ENVVAR_NOT_FOUND;
 }
 
 
