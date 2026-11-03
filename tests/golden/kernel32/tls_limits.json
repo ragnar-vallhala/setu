@@ -1,0 +1,89 @@
+{
+  "test": "kernel32/tls_limits",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "tls_exhaust": {
+      "max_index": 1087,
+      "over_64_at_least_1020": true,
+      "first_below_64": true,
+      "error": 8
+    },
+    "tls_order": {
+      "increasing": true
+    },
+    "tls_set_highest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "get": true
+    },
+    "tls_highest_other_thread": {
+      "null": true,
+      "error": 0
+    },
+    "tls_free_mid": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "tls_realloc_reuses": {
+      "same_index": true,
+      "value_cleared": true
+    },
+    "tls_free_twice": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_free_1088": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_free_out_of_indexes": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_get_1088": {
+      "null": true,
+      "last_error": 87
+    },
+    "tls_get_1087_unallocated": {
+      "null": true,
+      "last_error": 0
+    },
+    "tls_set_1088": {
+      "ret": false,
+      "last_error": 87
+    },
+    "tls_set_63_unallocated": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "tls_get_clears_error": {
+      "value": true,
+      "error": 0
+    },
+    "tls_get_null_value_clears_error": {
+      "null": true,
+      "error": 0
+    },
+    "fls_exhaust": {
+      "last_index": 4079,
+      "error": 8
+    },
+    "fls_set_last": {
+      "ret": true,
+      "last_error": "unchanged",
+      "get": true
+    },
+    "fls_free_twice": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fls_get_past_last": {
+      "null": true,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "eb5ee521a891dc2ce1a3bca73e0956b4bfd9a17f76720f513e75281377ec19c5"
+}
