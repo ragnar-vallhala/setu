@@ -1,0 +1,91 @@
+{
+  "test": "kernel32/interlocked_slist",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exports": {
+      "InterlockedPushListSListEx_k32": true,
+      "RtlFirstEntrySList_ntdll": true,
+      "InterlockedPushListSList_k32": true,
+      "InterlockedPushListSListEx_ntdll": true,
+      "InterlockedFlushSList_k32": true,
+      "InterlockedIncrement_k32": false,
+      "InterlockedCompareExchange64_k32": false,
+      "header_size": 16
+    },
+    "init": {
+      "depth": 0,
+      "header_zero": true,
+      "last_error": "unchanged"
+    },
+    "pop_empty": {
+      "got": -1,
+      "last_error": "unchanged"
+    },
+    "push_first_returns_null": {
+      "prev": -1,
+      "last_error": "unchanged",
+      "depth": 1
+    },
+    "push_second_returns_previous_first": {
+      "prev": 1,
+      "depth": 2
+    },
+    "first_entry": {
+      "first": 3
+    },
+    "chain_after_three_pushes": {
+      "chain": "3,2,1",
+      "depth": 3
+    },
+    "pop_lifo": {
+      "got": 3,
+      "depth": 2
+    },
+    "flush_returns_chain": {
+      "chain": "2,1",
+      "depth": 0
+    },
+    "flush_empties": {
+      "depth": 0,
+      "last_error": "unchanged"
+    },
+    "flush_empty": {
+      "got": -1,
+      "last_error": "unchanged"
+    },
+    "repush_popped": {
+      "chain": "5",
+      "depth": 1
+    },
+    "push_list_ex_returns_previous_first": {
+      "prev": 4,
+      "last_error": "unchanged"
+    },
+    "chain_after_push_list": {
+      "chain": "10,11,12,4",
+      "depth": 4
+    },
+    "push_list_ex_count_is_trusted": {
+      "prev": -1,
+      "depth": 5
+    },
+    "depth_after_70000_pushes": {
+      "depth": 4464
+    },
+    "pop_all_70000": {
+      "popped": 70000,
+      "depth": 0
+    },
+    "stress_four_threads": {
+      "popped_during": 2668,
+      "left_after": 5332,
+      "total": 8000,
+      "duplicates": 0,
+      "every_item_seen_once": 8000
+    }
+  },
+  "errors": [],
+  "source_sha256": "1a6c838448f20b73a4060a334167c76027849c949e8e15fb0309de1295801b3d"
+}
