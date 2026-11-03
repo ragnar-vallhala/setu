@@ -639,7 +639,7 @@ static const struct geo_id *find_geo_name_entry( const WCHAR *name )
 }
 
 
-static const NLS_LOCALE_DATA *get_locale_by_name( const WCHAR *name, LCID *lcid )
+static const NLS_LOCALE_DATA *find_locale_by_name( const WCHAR *name, LCID *lcid )
 {
     const NLS_LOCALE_LCNAME_INDEX *entry;
 
@@ -656,6 +656,41 @@ static const NLS_LOCALE_DATA *get_locale_by_name( const WCHAR *name, LCID *lcid 
     if (!(entry = find_lcname_entry( name ))) return NULL;
     *lcid = entry->id;
     return get_locale_data( entry->idx );
+}
+
+
+/* name of the last unknown locale used, which LOCALE_CUSTOM_UNSPECIFIED stands for */
+static WCHAR custom_locale_name[LOCALE_NAME_MAX_LENGTH];
+
+/* Windows accepts well-formed names that it doesn't know: a 2 or 3 letter
+ * language followed by subtags of 1 to 8 letters or digits */
+static BOOL is_custom_locale_name( const WCHAR *name )
+{
+    int i, len;
+
+    if (name == LOCALE_NAME_USER_DEFAULT || wcslen( name ) >= LOCALE_NAME_MAX_LENGTH) return FALSE;
+    for (len = 0; iswalpha( name[len] ) && name[len] < 0x80; len++) ;
+    if (len < 2 || len > 3) return FALSE;
+    for (i = len; name[i]; i += len)
+    {
+        if (name[i] != '-' && name[i] != '_') return FALSE;
+        for (i++, len = 0; name[i + len] && name[i + len] < 0x80 && iswalnum( name[i + len] ); len++) ;
+        if (!len || len > 8) return FALSE;
+    }
+    return TRUE;
+}
+
+
+/* unknown well-formed names are custom locales using the invariant locale data */
+static const NLS_LOCALE_DATA *get_locale_by_name( const WCHAR *name, LCID *lcid )
+{
+    const NLS_LOCALE_DATA *locale = find_locale_by_name( name, lcid );
+
+    if (locale || !is_custom_locale_name( name )) return locale;
+    if (!(locale = find_locale_by_name( L"", lcid ))) return NULL;
+    lstrcpynW( custom_locale_name, name, ARRAY_SIZE(custom_locale_name) );
+    *lcid = LOCALE_CUSTOM_UNSPECIFIED;
+    return locale;
 }
 
 
@@ -681,7 +716,9 @@ static const struct sortguid *get_language_sort( const WCHAR *name )
         name = locale_strings + system_locale->sname + 1;
     }
 
-    if (!(entry = find_lcname_entry( name )))
+    if (!(entry = find_lcname_entry( name )) && is_custom_locale_name( name ))
+        entry = find_lcname_entry( L"" );
+    if (!entry)
     {
         WARN( "unknown locale %s\n", debugstr_w(name) );
         SetLastError( ERROR_INVALID_PARAMETER );
@@ -705,7 +742,7 @@ static const struct sortguid *get_language_sort( const WCHAR *name )
             }
             if (!name[0]) break;
             name = locale_strings + (SORTIDFROMLCID( lcid ) ? locale->sname : locale->sparent) + 1;
-            if (!(locale = get_locale_by_name( name, &lcid ))) break;
+            if (!(locale = find_locale_by_name( name, &lcid ))) break;
         }
         RegCloseKey( key );
     }
@@ -1122,6 +1159,9 @@ static int get_locale_info( const NLS_LOCALE_DATA *locale, LCID lcid, LCTYPE typ
     int ret;
 
     if (locale != user_locale) type |= LOCALE_NOUSEROVERRIDE;
+
+    if (lcid == LOCALE_CUSTOM_UNSPECIFIED && custom_locale_name[0] && LOWORD(type) == LOCALE_SNAME)
+        return locale_return_data( custom_locale_name, wcslen( custom_locale_name ) + 1, type, buffer, len );
 
     switch (LOWORD(type))
     {
@@ -5188,9 +5228,15 @@ BOOL WINAPI DECLSPEC_HOTPATCH EnumSystemLocalesEx( LOCALE_ENUMPROCEX proc, DWORD
     WCHAR buffer[LOCALE_NAME_MAX_LENGTH];
     DWORD i, flags;
 
-    if (reserved)
+    if (reserved || !proc)
     {
         SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    if (wanted_flags & ~(LOCALE_WINDOWS | LOCALE_SUPPLEMENTAL | LOCALE_ALTERNATE_SORTS |
+                         LOCALE_REPLACEMENT | LOCALE_NEUTRALDATA | LOCALE_SPECIFICDATA))
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
         return FALSE;
     }
 
@@ -5204,7 +5250,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH EnumSystemLocalesEx( LOCALE_ENUMPROCEX proc, DWORD
         if (SORTIDFROMLCID( lcnames_index[i].id ) || wcschr( str + 1, '_' ))
             flags = LOCALE_ALTERNATE_SORTS;
         else
-            flags = LOCALE_WINDOWS | (locale->inotneutral ? LOCALE_SPECIFICDATA : LOCALE_NEUTRALDATA);
+            /* a specific locale always names a region; the invariant locale doesn't */
+            flags = LOCALE_WINDOWS | (locale->inotneutral && wcschr( str + 1, '-' ) ?
+                                      LOCALE_SPECIFICDATA : LOCALE_NEUTRALDATA);
         if (wanted_flags && !(flags & wanted_flags)) continue;
         if (!proc( buffer, flags, param )) break;
     }
@@ -6799,7 +6847,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH IsValidLocale( LCID lcid, DWORD flags )
 BOOL WINAPI DECLSPEC_HOTPATCH IsValidLocaleName( const WCHAR *locale )
 {
     if (locale == LOCALE_NAME_USER_DEFAULT) return FALSE;
-    return !!find_lcname_entry( locale );
+    return find_lcname_entry( locale ) || is_custom_locale_name( locale );
 }
 
 
@@ -6882,8 +6930,17 @@ DWORD WINAPI DECLSPEC_HOTPATCH IsValidNLSVersion( NLS_FUNCTION func, const WCHAR
  */
 INT WINAPI DECLSPEC_HOTPATCH LCIDToLocaleName( LCID lcid, WCHAR *name, INT count, DWORD flags )
 {
-    const NLS_LOCALE_DATA *locale = NlsValidateLocale( &lcid, flags );
+    const NLS_LOCALE_DATA *locale;
 
+    if (flags & ~LOCALE_ALLOW_NEUTRAL_NAMES)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    if (lcid == LOCALE_CUSTOM_UNSPECIFIED && custom_locale_name[0])
+        return locale_return_data( custom_locale_name, wcslen( custom_locale_name ) + 1, 0, name, count );
+
+    locale = NlsValidateLocale( &lcid, flags );
     if (!locale)
     {
         SetLastError( ERROR_INVALID_PARAMETER );
@@ -7090,11 +7147,12 @@ LCID WINAPI DECLSPEC_HOTPATCH LocaleNameToLCID( const WCHAR *name, DWORD flags )
     LCID lcid;
     const NLS_LOCALE_DATA *locale = get_locale_by_name( name, &lcid );
 
-    if (!locale)
+    if (!locale || (flags & ~LOCALE_ALLOW_NEUTRAL_NAMES))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
     }
+    if (lcid == LOCALE_CUSTOM_UNSPECIFIED) return lcid;
     if (!(flags & LOCALE_ALLOW_NEUTRAL_NAMES) && !locale->inotneutral)
         lcid = locale->idefaultlanguage;
     return lcid;
@@ -7183,7 +7241,7 @@ INT WINAPI DECLSPEC_HOTPATCH ResolveLocaleName( LPCWSTR name, LPWSTR buffer, INT
 {
     LCID lcid;
     UINT pos, datalen;
-    const NLS_LOCALE_DATA *locale = get_locale_by_name( name, &lcid );
+    const NLS_LOCALE_DATA *locale = find_locale_by_name( name, &lcid );
 
     if (!locale)
     {
@@ -7201,7 +7259,7 @@ INT WINAPI DECLSPEC_HOTPATCH ResolveLocaleName( LPCWSTR name, LPWSTR buffer, INT
             for (p = tmp + wcslen(tmp) - 1; p >= tmp; p--) if (*p == '-' || *p == '_') break;
             if (p <= tmp) break;
             *p = 0;
-            locale = get_locale_by_name( tmp, &lcid );
+            locale = find_locale_by_name( tmp, &lcid );
         }
     }
 
@@ -8321,6 +8379,7 @@ int WINAPI GetNumberFormatEx( const WCHAR *name, DWORD flags, const WCHAR *value
     }
 
     TRACE( "(%s,%lx,%s,%p,%p,%d)\n", debugstr_w(name), flags, debugstr_w(value), format, buffer, len );
+    if (lcid == LOCALE_CUSTOM_UNSPECIFIED) SetLastError( 0 );  /* as Windows does for custom locales */
     return get_number_format( locale, flags, value, format, buffer, len );
 }
 
