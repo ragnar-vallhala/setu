@@ -1,0 +1,240 @@
+{
+  "test": "kernel32/geo_info",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "us_244": {
+      "NATION": "244",
+      "LATITUDE": "39.450",
+      "LONGITUDE": "-98.908",
+      "ISO2": "US",
+      "ISO3": "USA",
+      "RFC1766": "en-us",
+      "LCID": "00000409",
+      "FRIENDLYNAME": "United States",
+      "OFFICIALNAME": "United States of America",
+      "ISO_UN_NUMBER": "840",
+      "PARENT": "23581",
+      "DIALINGCODE": "1",
+      "CURRENCYCODE": "USD",
+      "CURRENCYSYMBOL": "$",
+      "NAME": "US",
+      "ID": "244"
+    },
+    "germany_94": {
+      "NATION": "94",
+      "LATITUDE": "51.202",
+      "LONGITUDE": "10.382",
+      "ISO2": "DE",
+      "ISO3": "DEU",
+      "RFC1766": "en-de",
+      "LCID": "00000409",
+      "FRIENDLYNAME": "Germany",
+      "OFFICIALNAME": "Federal Republic of Germany",
+      "ISO_UN_NUMBER": "276",
+      "PARENT": "10210824",
+      "DIALINGCODE": "49",
+      "CURRENCYCODE": "EUR",
+      "CURRENCYSYMBOL": "€",
+      "NAME": "DE",
+      "ID": "94"
+    },
+    "japan_122": {
+      "NATION": "122",
+      "LATITUDE": "35.156",
+      "LONGITUDE": "136.060",
+      "ISO2": "JP",
+      "ISO3": "JPN",
+      "RFC1766": "en-jp",
+      "LCID": "00000409",
+      "FRIENDLYNAME": "Japan",
+      "OFFICIALNAME": "Japan",
+      "ISO_UN_NUMBER": "392",
+      "PARENT": "47600",
+      "DIALINGCODE": "81",
+      "CURRENCYCODE": "JPY",
+      "CURRENCYSYMBOL": "¥",
+      "NAME": "JP",
+      "ID": "122"
+    },
+    "india_113": {
+      "NATION": "113",
+      "LATITUDE": "22.671",
+      "LONGITUDE": "79.144",
+      "ISO2": "IN",
+      "ISO3": "IND",
+      "RFC1766": "en-in",
+      "LCID": "00000409",
+      "FRIENDLYNAME": "India",
+      "OFFICIALNAME": "Republic of India",
+      "ISO_UN_NUMBER": "356",
+      "PARENT": "47614",
+      "DIALINGCODE": "91",
+      "CURRENCYCODE": "INR",
+      "CURRENCYSYMBOL": "₹",
+      "NAME": "IN",
+      "ID": "113"
+    },
+    "world_39070": {
+      "NATION.error": 0,
+      "LATITUDE": "0.000",
+      "LONGITUDE": "0.000",
+      "ISO2": "XX",
+      "ISO3": "XX",
+      "RFC1766": "en-xx",
+      "LCID": "00000409",
+      "FRIENDLYNAME": "World",
+      "OFFICIALNAME": "World",
+      "ISO_UN_NUMBER": "001",
+      "PARENT": "39070",
+      "DIALINGCODE": "0",
+      "CURRENCYCODE": "XDR",
+      "CURRENCYSYMBOL": "¤",
+      "NAME": "001",
+      "ID": "39070"
+    },
+    "caribbean_10039880": {
+      "NATION.error": 0,
+      "LATITUDE": "19.000",
+      "LONGITUDE": "-67.000",
+      "ISO2": "XX",
+      "ISO3": "XX",
+      "RFC1766": "en-xx",
+      "LCID": "00000409",
+      "FRIENDLYNAME": "Caribbean",
+      "OFFICIALNAME": "Caribbean",
+      "ISO_UN_NUMBER": "029",
+      "PARENT": "161832257",
+      "DIALINGCODE": "0",
+      "CURRENCYCODE": "XDR",
+      "CURRENCYSYMBOL": "¤",
+      "NAME": "029",
+      "ID": "10039880"
+    },
+    "size_query": {
+      "ret": 14,
+      "last_error": "unchanged"
+    },
+    "buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "bad_geoid": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "geoid_none": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "bad_geotype": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "langid_english": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "value": "United States"
+    },
+    "langid_nonzero_iso2": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "value": "US"
+    },
+    "have_ex_fns": {
+      "get_geo_info_ex": true,
+      "enum_system_geo_names": true,
+      "get_user_default_geo_name": true
+    },
+    "ex_us_iso3": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "value": "USA"
+    },
+    "ex_us_friendly": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "value": "United States"
+    },
+    "ex_lower_us": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "value": "US"
+    },
+    "ex_de_currency": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "value": "EUR"
+    },
+    "ex_un_world": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "value": "World"
+    },
+    "ex_un_world_id": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "value": "39070"
+    },
+    "ex_bad_name": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "ex_nation_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ex_lcid_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ex_name": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "value": "JP"
+    },
+    "enum_nations": {
+      "ret": true,
+      "last_error": "unchanged",
+      "many": true,
+      "has_us": true,
+      "has_world": false
+    },
+    "enum_regions": {
+      "ret": true,
+      "fewer_than_nations": true,
+      "has_us": false,
+      "has_world": true
+    },
+    "enum_all": {
+      "ret": true,
+      "last_error": "unchanged",
+      "at_least_nations": true
+    },
+    "enum_bad_class": {
+      "ret": false,
+      "last_error": 1004
+    },
+    "enum_parent_nonzero": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "enum_names_nations": {
+      "ret": true,
+      "last_error": "unchanged",
+      "has_us": true,
+      "has_001": false,
+      "same_count_as_ids": false
+    },
+    "user_geo_consistent": {
+      "id_valid": true,
+      "name_ok": true,
+      "name_matches_id": true,
+      "region_class_id_valid": 1,
+      "bad_class": 4294967295
+    }
+  },
+  "errors": [],
+  "source_sha256": "1710f121ab3910ec6af9ddf9e7502ec582f2c6f63cada86c98823afcf5817c0c"
+}

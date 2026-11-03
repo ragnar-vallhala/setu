@@ -1,0 +1,343 @@
+{
+  "test": "kernel32/locale_names",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "resolve_en": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-US"
+    },
+    "resolve_de": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "de-DE"
+    },
+    "resolve_fr": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "fr-FR"
+    },
+    "resolve_zh": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "zh-CN"
+    },
+    "resolve_zh_hant": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "zh-HK"
+    },
+    "resolve_zh_hans": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "zh-CN"
+    },
+    "resolve_sr": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "name": "sr-Latn-RS"
+    },
+    "resolve_pt": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "pt-BR"
+    },
+    "resolve_en_us_lower": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-US"
+    },
+    "resolve_en_gb": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-GB"
+    },
+    "resolve_en_unknown_region": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-US"
+    },
+    "resolve_unknown_language": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "name": ""
+    },
+    "resolve_phonebook": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "de-DE"
+    },
+    "resolve_invariant": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "name": ""
+    },
+    "resolve_size_query": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "resolve_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "resolve_buffer_exact": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-US"
+    },
+    "resolve_null_is_user_default": {
+      "ok": true,
+      "same": true
+    },
+    "n2l_en_us": {
+      "lcid": "0x00000409",
+      "last_error": "unchanged"
+    },
+    "n2l_en_us_lower": {
+      "lcid": "0x00000409",
+      "last_error": "unchanged"
+    },
+    "n2l_de_phoneb": {
+      "lcid": "0x00010407",
+      "last_error": "unchanged"
+    },
+    "n2l_es_tradnl": {
+      "lcid": "0x0000040a",
+      "last_error": "unchanged"
+    },
+    "n2l_ja_radstr": {
+      "lcid": "0x00040411",
+      "last_error": "unchanged"
+    },
+    "n2l_neutral_en": {
+      "lcid": "0x00000409",
+      "last_error": "unchanged"
+    },
+    "n2l_neutral_en_allow": {
+      "lcid": "0x00000009",
+      "last_error": "unchanged"
+    },
+    "n2l_neutral_zh_hans_allow": {
+      "lcid": "0x00000004",
+      "last_error": "unchanged"
+    },
+    "n2l_invariant": {
+      "lcid": "0x0000007f",
+      "last_error": "unchanged"
+    },
+    "n2l_unknown": {
+      "lcid": "0x00001000",
+      "last_error": "unchanged"
+    },
+    "n2l_bad_flag": {
+      "lcid": "0x00000000",
+      "last_error": 87
+    },
+    "n2l_sr_latn_rs": {
+      "lcid": "0x0000241a",
+      "last_error": "unchanged"
+    },
+    "n2l_en_001": {
+      "lcid": "0x00001000",
+      "last_error": "unchanged"
+    },
+    "n2l_defaults": {
+      "user_matches": true,
+      "system_matches": true
+    },
+    "l2n_0409": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-US"
+    },
+    "l2n_0407": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "de-DE"
+    },
+    "l2n_10407": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "name": "de-DE_phoneb"
+    },
+    "l2n_040a": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "name": "es-ES_tradnl"
+    },
+    "l2n_0c0a": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "es-ES"
+    },
+    "l2n_0804": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "zh-CN"
+    },
+    "l2n_0404": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "zh-TW"
+    },
+    "l2n_241a": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "name": "sr-Latn-RS"
+    },
+    "l2n_neutral_0009": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-US"
+    },
+    "l2n_neutral_0009_allow": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "name": "en"
+    },
+    "l2n_invariant": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "name": ""
+    },
+    "l2n_custom_unspecified": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "xx-YY"
+    },
+    "l2n_bogus": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "l2n_size_query": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "l2n_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "l2n_buffer_exact": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name": "en-US"
+    },
+    "l2n_bad_flag": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "l2n_defaults": {
+      "user_same": true,
+      "system_same": true
+    },
+    "valid_en_us": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_en_us_lower": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_neutral_en": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_invariant": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_phonebook": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_underscore": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_unknown": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_trailing_dash": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "isvalid_0409_supported": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "isvalid_0409_installed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "isvalid_bogus": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "isvalid_phonebook_lcid": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "enum_all": {
+      "ret": true,
+      "nonzero": true,
+      "has_en_us": true,
+      "has_en": true,
+      "has_invariant": true,
+      "has_phoneb": true,
+      "all_valid": true
+    },
+    "enum_windows": {
+      "ret": true,
+      "has_en_us": true,
+      "has_phoneb": false,
+      "le_all": true,
+      "all_valid": true
+    },
+    "enum_alternate_sorts": {
+      "ret": true,
+      "nonzero": true,
+      "has_phoneb": true,
+      "has_tradnl": true,
+      "has_en_us": false,
+      "all_have_underscore": true
+    },
+    "enum_neutral_specific": {
+      "neutral_has_en": true,
+      "neutral_has_en_us": false,
+      "specific_has_en_us": true,
+      "specific_has_en": false,
+      "specific_all_have_dash": true,
+      "neutral_lt_specific": true,
+      "sum_le_all": true,
+      "neutral_specific_no_alt": true
+    },
+    "enum_windows_plus_alternate": {
+      "ret": true,
+      "sum": true
+    },
+    "enum_callback_stops": {
+      "ret": true,
+      "count": 3,
+      "last_error": "unchanged"
+    },
+    "enum_bad_flag": {
+      "ret": false,
+      "count": 0,
+      "last_error": 1004
+    },
+    "enum_reserved_not_null": {
+      "ret": false,
+      "count": 0,
+      "last_error": 87
+    },
+    "enum_null_callback": {
+      "ret": false,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "39615d38d0390b70b6afd65140a932c7da393237bc7d24482e9a8700e86bd31d"
+}

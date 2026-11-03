@@ -1,0 +1,308 @@
+{
+  "test": "kernel32/private_profile",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "get_value": {
+      "ret": 5,
+      "last_error": 0,
+      "value": "value"
+    },
+    "get_case_insensitive": {
+      "ret": 5,
+      "last_error": 0,
+      "value": "value"
+    },
+    "get_trimmed": {
+      "ret": 12,
+      "last_error": 0,
+      "value": "padded value"
+    },
+    "get_quotes_stripped": {
+      "ret": 9,
+      "last_error": 0,
+      "value": "in quotes"
+    },
+    "get_single_quotes_stripped": {
+      "ret": 6,
+      "last_error": 0,
+      "value": "single"
+    },
+    "get_unbalanced_quote": {
+      "ret": 5,
+      "last_error": 0,
+      "value": "\"open"
+    },
+    "get_empty_value": {
+      "ret": 0,
+      "last_error": 0,
+      "value": ""
+    },
+    "get_duplicate_first_wins": {
+      "ret": 5,
+      "last_error": 0,
+      "value": "first"
+    },
+    "get_no_equals_line": {
+      "ret": 3,
+      "last_error": 2,
+      "value": "def"
+    },
+    "get_commented_key": {
+      "ret": 3,
+      "last_error": 2,
+      "value": "def"
+    },
+    "get_second_section_block": {
+      "ret": 3,
+      "last_error": 2,
+      "value": "def"
+    },
+    "get_spaced_section": {
+      "ret": 1,
+      "last_error": 0,
+      "value": "1"
+    },
+    "get_missing_key_default": {
+      "ret": 11,
+      "last_error": 2,
+      "value": "the default"
+    },
+    "get_default_trailing_spaces": {
+      "ret": 4,
+      "last_error": 2,
+      "value": "dflt"
+    },
+    "get_default_null": {
+      "ret": 0,
+      "last_error": 2,
+      "value": ""
+    },
+    "get_missing_section": {
+      "ret": 1,
+      "last_error": 2,
+      "value": "d"
+    },
+    "get_truncated": {
+      "ret": 4,
+      "last_error": 234,
+      "value": "padd"
+    },
+    "get_size_1": {
+      "ret": 0,
+      "last_error": 234,
+      "value": ""
+    },
+    "get_default_truncated": {
+      "ret": 3,
+      "last_error": 2,
+      "value": "lon"
+    },
+    "get_missing_file": {
+      "ret": 1,
+      "last_error": 2,
+      "value": "d"
+    },
+    "list_keys": {
+      "ret": 50,
+      "last_error": 0,
+      "list": "key|spaced|quoted|single|half|empty|dup|dup|Mixed||"
+    },
+    "list_keys_truncated": {
+      "ret": 8,
+      "last_error": 234,
+      "list": "key|spac|"
+    },
+    "list_sections": {
+      "ret": 30,
+      "last_error": 0,
+      "list": "main|spaced section|ints|main||"
+    },
+    "list_sections_truncated": {
+      "ret": 6,
+      "last_error": 234,
+      "list": "main|s|"
+    },
+    "list_keys_missing_section": {
+      "ret": 4,
+      "last_error": 2,
+      "list": "dflt|"
+    },
+    "int_decimal": {
+      "ret": 42,
+      "last_error": 0
+    },
+    "int_leading_spaces_negative": {
+      "ret": 4294967289,
+      "last_error": 0
+    },
+    "int_hex_text": {
+      "ret": 16,
+      "last_error": 0
+    },
+    "int_trailing_letters": {
+      "ret": 12,
+      "last_error": 0
+    },
+    "int_max_u32": {
+      "ret": 4294967295,
+      "last_error": 0
+    },
+    "int_overflow": {
+      "ret": 0,
+      "last_error": 0
+    },
+    "int_plus_sign": {
+      "ret": 5,
+      "last_error": 0
+    },
+    "int_blank": {
+      "ret": 5,
+      "last_error": 0
+    },
+    "int_missing": {
+      "ret": 4294967293,
+      "last_error": 2
+    },
+    "section_ints": {
+      "ret": 81,
+      "last_error": 0,
+      "list": "dec=42|neg=-7|hex=0x10|trail=12abc|big=4294967295|over=4294967296|plus=+5|blank=||"
+    },
+    "section_main_raw_lines": {
+      "ret": 124,
+      "last_error": 0,
+      "list": "key=value|spaced=padded value|quoted=\"in quotes\"|single='single'|half=\"open|empty=|dup=first|dup=second|noequals|Mixed=Case||"
+    },
+    "section_truncated": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "list": "dec=42|neg||"
+    },
+    "section_missing": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "section_names": {
+      "ret": 30,
+      "last_error": 0,
+      "list": "main|spaced section|ints|main||"
+    },
+    "section_names_truncated": {
+      "ret": 5,
+      "last_error": 234,
+      "list": "main|||"
+    },
+    "write_creates_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d760d0a"
+    },
+    "write_second_key": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d760d0a6b323d76320d0a"
+    },
+    "write_replace_value": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d6e65770d0a6b323d76320d0a"
+    },
+    "write_new_section": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d6e65770d0a6b323d76320d0a5b6f746865725d0d0a783d310d0a"
+    },
+    "write_value_with_spaces": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d6e65770d0a6b323d76320d0a73703d202061206220200d0a5b6f746865725d0d0a783d310d0a"
+    },
+    "write_empty_value": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d6e65770d0a6b323d76320d0a73703d202061206220200d0a653d0d0a5b6f746865725d0d0a783d310d0a"
+    },
+    "write_delete_key": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d6e65770d0a73703d202061206220200d0a653d0d0a5b6f746865725d0d0a783d310d0a"
+    },
+    "write_delete_missing_key": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d6e65770d0a73703d202061206220200d0a653d0d0a5b6f746865725d0d0a783d310d0a"
+    },
+    "write_delete_section": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a6b3d6e65770d0a73703d202061206220200d0a653d0d0a"
+    },
+    "write_null_section": {
+      "ret": false,
+      "last_error": 2,
+      "file": "5b7365635d0d0a6b3d6e65770d0a73703d202061206220200d0a653d0d0a"
+    },
+    "read_back_spaces": {
+      "ret": 3,
+      "last_error": 0,
+      "value": "a b"
+    },
+    "write_section_replaces": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b7365635d0d0a613d310d0a62203d20320d0a6a756e6b0d0a"
+    },
+    "write_section_null_deletes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": ""
+    },
+    "struct_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b73745d0d0a626c6f623d303141423030464641420d0a"
+    },
+    "struct_read": {
+      "ret": true,
+      "last_error": 0,
+      "data": "01ab00ff"
+    },
+    "struct_read_wrong_size": {
+      "ret": false,
+      "last_error": 24
+    },
+    "struct_corrupt_checksum": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b73745d0d0a626c6f623d303141423030464630300d0a"
+    },
+    "struct_read_bad_checksum": {
+      "ret": false,
+      "last_error": 13
+    },
+    "utf16_read": {
+      "ret": 6,
+      "last_error": 0,
+      "value": "café 中"
+    },
+    "utf16_write_keeps_encoding": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "fffe5b0075005d000d000a006e0061006d0065003d00630061006600e90020002d4e0d000a006e00650077003d00e9000d000a00"
+    },
+    "ansi_write_non_latin": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file": "5b615d0d0a6b3d3fe90d0a"
+    },
+    "ansi_read_back": {
+      "ret": 2,
+      "last_error": 0,
+      "value": "?é"
+    }
+  },
+  "errors": [],
+  "source_sha256": "cf832271a26917319129b7947e4095053459f46970c1e8475eeb0dc9435b12f8"
+}

@@ -1,0 +1,111 @@
+{
+  "test": "kernel32/toolhelp",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "snapshot_all": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "process_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dwSize_kept": 1
+    },
+    "process_walk": {
+      "several": true,
+      "self_found": 1,
+      "self_exe_is_file_name": true,
+      "has_pid0": true,
+      "pid0_name": "[System Process]",
+      "has_pid4": true,
+      "pid4_name": "System",
+      "last_error": 18
+    },
+    "thread_walk": {
+      "count_matches_process_entry": true,
+      "at_least_three": true,
+      "saw_main": true,
+      "saw_workers": 2,
+      "owner_ok": true
+    },
+    "process_next_after_end": {
+      "ret": false
+    },
+    "process_first_bad_size": {
+      "ret": false,
+      "last_error": 24
+    },
+    "process_first_bigger_size": {
+      "ret": false,
+      "last_error": 24
+    },
+    "module_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "module_is_file_name": true,
+      "is_exe": true,
+      "base_is_handle": true,
+      "size_is_image_size": true,
+      "pid_is_self": true,
+      "module_id": 1,
+      "glbl_cnt": 65535,
+      "proc_cnt": 65535,
+      "path_matches": true
+    },
+    "module_walk": {
+      "several": true,
+      "kernel32_ok": true,
+      "ntdll_ok": true,
+      "all_match_getmodulehandle": true,
+      "last_error": 18
+    },
+    "module_first_bad_size": {
+      "ret": false,
+      "last_error": 24
+    },
+    "modules_only_snapshot": {
+      "process_first": false,
+      "process_error": 18,
+      "module_first": true,
+      "thread_first": false,
+      "thread_error": 18
+    },
+    "module32_only_in_64bit_process": {
+      "snap": "valid",
+      "module_first": false,
+      "last_error": 18
+    },
+    "modules_by_explicit_pid": {
+      "snap": "valid",
+      "first_is_exe": true
+    },
+    "modules_bogus_pid": {
+      "snap": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "no_flags": {
+      "snap": "valid",
+      "last_error": "unchanged",
+      "process_first": false
+    },
+    "read_own_memory_pid0": {
+      "ret": false,
+      "last_error": 87,
+      "got": 0,
+      "data": ""
+    },
+    "read_own_memory_pid_self": {
+      "ret": true,
+      "last_error": "unchanged",
+      "data": "toolhelp-read"
+    },
+    "read_unmapped": {
+      "ret": false,
+      "last_error": 299
+    }
+  },
+  "errors": [],
+  "source_sha256": "8c4b439927052b69ca5363aee04d2d7d0e3a848ba859b8b39c79641858e24ff5"
+}

@@ -1,0 +1,274 @@
+{
+  "test": "kernel32/NormalizeString",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "ascii": {
+      "nfc": "6100620063000000",
+      "nfc.is": true,
+      "nfd": "6100620063000000",
+      "nfd.is": true,
+      "nfkc": "6100620063000000",
+      "nfkc.is": true,
+      "nfkd": "6100620063000000",
+      "nfkd.is": true
+    },
+    "e_acute_precomposed": {
+      "nfc": "e9000000",
+      "nfc.is": true,
+      "nfd": "650001030000",
+      "nfd.is": false,
+      "nfkc": "e9000000",
+      "nfkc.is": true,
+      "nfkd": "650001030000",
+      "nfkd.is": false
+    },
+    "e_acute_decomposed": {
+      "nfc": "e9000000",
+      "nfc.is": false,
+      "nfd": "650001030000",
+      "nfd.is": true,
+      "nfkc": "e9000000",
+      "nfkc.is": false,
+      "nfkd": "650001030000",
+      "nfkd.is": true
+    },
+    "mark_order": {
+      "nfc": "a11e01030000",
+      "nfc.is": false,
+      "nfd": "6100230301030000",
+      "nfd.is": false,
+      "nfkc": "a11e01030000",
+      "nfkc.is": false,
+      "nfkd": "6100230301030000",
+      "nfkd.is": false
+    },
+    "mark_order_canonical": {
+      "nfc": "a11e01030000",
+      "nfc.is": false,
+      "nfd": "6100230301030000",
+      "nfd.is": true,
+      "nfkc": "a11e01030000",
+      "nfkc.is": false,
+      "nfkd": "6100230301030000",
+      "nfkd.is": true
+    },
+    "hangul_syllable": {
+      "nfc": "5cd50000",
+      "nfc.is": true,
+      "nfd": "12116111ab110000",
+      "nfd.is": false,
+      "nfkc": "5cd50000",
+      "nfkc.is": true,
+      "nfkd": "12116111ab110000",
+      "nfkd.is": false
+    },
+    "hangul_jamo": {
+      "nfc": "5cd50000",
+      "nfc.is": false,
+      "nfd": "12116111ab110000",
+      "nfd.is": true,
+      "nfkc": "5cd50000",
+      "nfkc.is": false,
+      "nfkd": "12116111ab110000",
+      "nfkd.is": true
+    },
+    "ligature_fi": {
+      "nfc": "01fb0000",
+      "nfc.is": true,
+      "nfd": "01fb0000",
+      "nfd.is": true,
+      "nfkc": "660069000000",
+      "nfkc.is": false,
+      "nfkd": "660069000000",
+      "nfkd.is": false
+    },
+    "fullwidth_a": {
+      "nfc": "21ff0000",
+      "nfc.is": true,
+      "nfd": "21ff0000",
+      "nfd.is": true,
+      "nfkc": "41000000",
+      "nfkc.is": false,
+      "nfkd": "41000000",
+      "nfkd.is": false
+    },
+    "superscript_two": {
+      "nfc": "b2000000",
+      "nfc.is": true,
+      "nfd": "b2000000",
+      "nfd.is": true,
+      "nfkc": "32000000",
+      "nfkc.is": false,
+      "nfkd": "32000000",
+      "nfkd.is": false
+    },
+    "ohm_sign": {
+      "nfc": "a9030000",
+      "nfc.is": false,
+      "nfd": "a9030000",
+      "nfd.is": false,
+      "nfkc": "a9030000",
+      "nfkc.is": false,
+      "nfkd": "a9030000",
+      "nfkd.is": false
+    },
+    "angstrom_sign": {
+      "nfc": "c5000000",
+      "nfc.is": false,
+      "nfd": "41000a030000",
+      "nfd.is": false,
+      "nfkc": "c5000000",
+      "nfkc.is": false,
+      "nfkd": "41000a030000",
+      "nfkd.is": false
+    },
+    "composition_exclusion": {
+      "nfc": "15093c090000",
+      "nfc.is": false,
+      "nfd": "15093c090000",
+      "nfd.is": false,
+      "nfkc": "15093c090000",
+      "nfkc.is": false,
+      "nfkd": "15093c090000",
+      "nfkd.is": false
+    },
+    "singleton_kelvin": {
+      "nfc": "4b000000",
+      "nfc.is": false,
+      "nfd": "4b000000",
+      "nfd.is": false,
+      "nfkc": "4b000000",
+      "nfkc.is": false,
+      "nfkd": "4b000000",
+      "nfkd.is": false
+    },
+    "surrogate_pair_math_a": {
+      "nfc": "35d800dc0000",
+      "nfc.is": true,
+      "nfd": "35d800dc0000",
+      "nfd.is": true,
+      "nfkc": "41000000",
+      "nfkc.is": false,
+      "nfkd": "41000000",
+      "nfkd.is": false
+    },
+    "long_s_dot": {
+      "nfc": "9b1e23030000",
+      "nfc.is": true,
+      "nfd": "7f01230307030000",
+      "nfd.is": false,
+      "nfkc": "691e0000",
+      "nfkc.is": false,
+      "nfkd": "7300230307030000",
+      "nfkd.is": false
+    },
+    "vietnamese_stack": {
+      "nfc": "c71e0000",
+      "nfc.is": true,
+      "nfd": "6500230302030000",
+      "nfd.is": false,
+      "nfkc": "c71e0000",
+      "nfkc.is": true,
+      "nfkd": "6500230302030000",
+      "nfkd.is": false
+    },
+    "ellipsis": {
+      "nfc": "26200000",
+      "nfc.is": true,
+      "nfd": "26200000",
+      "nfd.is": true,
+      "nfkc": "2e002e002e000000",
+      "nfkc.is": false,
+      "nfkd": "2e002e002e000000",
+      "nfkd.is": false
+    },
+    "size_estimate": {
+      "ret": 9,
+      "last_error": 0
+    },
+    "size_estimate_counted": {
+      "ret": 6,
+      "last_error": 0
+    },
+    "size_estimate_kd_ligature": {
+      "ret": 36,
+      "last_error": 0
+    },
+    "buffer_too_small": {
+      "ret": -8,
+      "last_error": 122
+    },
+    "buffer_exact": {
+      "ret": 3,
+      "last_error": 0,
+      "out": "650001030000"
+    },
+    "counted_no_nul": {
+      "ret": 1,
+      "last_error": 0,
+      "out": "e900"
+    },
+    "zero_length": {
+      "ret": 0,
+      "last_error": 0
+    },
+    "lone_high_surrogate": {
+      "ret": -3,
+      "last_error": 1113
+    },
+    "lone_low_surrogate": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "noncharacter_fffe": {
+      "ret": -1,
+      "last_error": 1113
+    },
+    "unassigned_code_point": {
+      "ret": 3,
+      "last_error": 0,
+      "out": "610078030000"
+    },
+    "bad_form_0": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_form_3": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_form_other": {
+      "ret": 2,
+      "last_error": 0,
+      "out": "61000000"
+    },
+    "is_nfc_decomposed": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "is_nfd_precomposed": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "is_counted_prefix": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "is_lone_surrogate": {
+      "ret": false,
+      "last_error": 1113
+    },
+    "is_bad_form": {
+      "ret": false,
+      "last_error": 87
+    },
+    "is_zero_length": {
+      "ret": true,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4577da1299394672fff9f847a671799696625d93089d7f8e319a493b9adfe834"
+}

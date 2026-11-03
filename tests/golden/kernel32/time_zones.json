@@ -1,0 +1,319 @@
+{
+  "test": "kernel32/time_zones",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "current_shape": {
+      "ret_valid": true,
+      "last_error": 0,
+      "dynamic_same_ret": true,
+      "dynamic_same_bias": true,
+      "dynamic_same_names": true,
+      "dynamic_same_dates": true,
+      "std_name_nonempty": true,
+      "key_name_nonempty": true,
+      "bias_in_range": true,
+      "unknown_iff_no_dst_date": true,
+      "key_enumerable": true
+    },
+    "filetime_local_uses_current_bias": {
+      "ok": true,
+      "diff_is_current_bias": true,
+      "round_trip": true
+    },
+    "enum_shape": {
+      "have_enum": true,
+      "many": true,
+      "end_ret": 259,
+      "sorted_by_descending_bias": false,
+      "far_index_ret": 259
+    },
+    "zone_pacific": {
+      "found": true,
+      "bias": 480,
+      "std_name": "Pacific Standard Time",
+      "std_date": "0-11-01 02:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Pacific Daylight Time",
+      "dst_date": "0-03-02 02:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Pacific Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 0,
+      "first_year": 2006,
+      "last_year_ge_first": true
+    },
+    "zone_utc": {
+      "found": true,
+      "bias": 0,
+      "std_name": "Coordinated Universal Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Coordinated Universal Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": 0,
+      "key": "UTC",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_gmt": {
+      "found": true,
+      "bias": 0,
+      "std_name": "GMT Standard Time",
+      "std_date": "0-10-05 02:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "GMT Daylight Time",
+      "dst_date": "0-03-05 01:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "GMT Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_central_europe": {
+      "found": true,
+      "bias": -60,
+      "std_name": "W. Europe Standard Time",
+      "std_date": "0-10-05 03:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "W. Europe Daylight Time",
+      "dst_date": "0-03-05 02:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "W. Europe Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_india": {
+      "found": true,
+      "bias": -330,
+      "std_name": "India Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "India Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "India Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_aus_eastern": {
+      "found": true,
+      "bias": -600,
+      "std_name": "AUS Eastern Standard Time",
+      "std_date": "0-04-01 03:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "AUS Eastern Daylight Time",
+      "dst_date": "0-10-01 02:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "AUS Eastern Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 0,
+      "first_year": 2007,
+      "last_year_ge_first": true
+    },
+    "zone_tokyo": {
+      "found": true,
+      "bias": -540,
+      "std_name": "Tokyo Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Tokyo Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Tokyo Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_nepal": {
+      "found": true,
+      "bias": -345,
+      "std_name": "Nepal Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Nepal Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Nepal Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_dateline": {
+      "found": true,
+      "bias": 720,
+      "std_name": "Dateline Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Dateline Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Dateline Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_line_islands": {
+      "found": true,
+      "bias": -840,
+      "std_name": "Line Islands Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Line Islands Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Line Islands Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 2
+    },
+    "zone_morocco": {
+      "found": true,
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-02-03 03:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-03-04 02:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Morocco Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 0,
+      "first_year": 2007,
+      "last_year_ge_first": true
+    },
+    "zone_russian": {
+      "found": true,
+      "bias": -180,
+      "std_name": "Russia TZ 2 Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Russia TZ 2 Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Russian Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 0,
+      "first_year": 2010,
+      "last_year_ge_first": true
+    },
+    "zone_eastern": {
+      "found": true,
+      "bias": 300,
+      "std_name": "Eastern Standard Time",
+      "std_date": "0-11-01 02:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Eastern Daylight Time",
+      "dst_date": "0-03-02 02:00:00.000 dow0",
+      "dst_bias": -60,
+      "key": "Eastern Standard Time",
+      "dynamic_disabled": false,
+      "years_ret": 0,
+      "first_year": 2006,
+      "last_year_ge_first": true
+    },
+    "year_pacific_2006": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 480,
+      "std_name": "Pacific Standard Time",
+      "std_date": "0-10-05 02:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Pacific Daylight Time",
+      "dst_date": "0-04-01 02:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "year_pacific_2024": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 480,
+      "std_name": "Pacific Standard Time",
+      "std_date": "0-11-01 02:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Pacific Daylight Time",
+      "dst_date": "0-03-02 02:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "year_russian_2010": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": -180,
+      "std_name": "Russia TZ 2 Standard Time",
+      "std_date": "0-10-05 03:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Russia TZ 2 Daylight Time",
+      "dst_date": "0-03-05 02:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "year_russian_2013": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": -240,
+      "std_name": "Russia TZ 2 Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Russia TZ 2 Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "year_utc_2024": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Coordinated Universal Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Coordinated Universal Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": 0
+    },
+    "pacific_summer_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2024-07-01 05:00:00.000 dow1"
+    },
+    "pacific_winter_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2024-01-15 04:00:00.000 dow1"
+    },
+    "pacific_2006_rule_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2006-03-20 04:00:00.000 dow1"
+    },
+    "pacific_2007_rule_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2007-03-20 05:00:00.000 dow2"
+    },
+    "pacific_local_to_utc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2024-07-01 12:00:00.000 dow1"
+    },
+    "russian_2012_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2012-01-01 04:00:00.000 dow0"
+    },
+    "russian_2015_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2015-01-01 03:00:00.000 dow4"
+    },
+    "aus_january_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2024-01-01 11:00:00.000 dow1"
+    },
+    "nepal_to_local": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2024-01-01 05:45:00.000 dow1"
+    },
+    "india_local_to_utc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "2023-12-31 18:30:00.000 dow0"
+    }
+  },
+  "errors": [],
+  "source_sha256": "90d33ffef937df2ff0586eea6c815e3042349c8a9cffd31e141122ccc96e4697"
+}

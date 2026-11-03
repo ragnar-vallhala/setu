@@ -1,0 +1,161 @@
+{
+  "test": "kernel32/atoms",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "init_table": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "add_string": {
+      "class": "string",
+      "last_error": "unchanged"
+    },
+    "add_same_other_case": {
+      "same": true,
+      "last_error": "unchanged"
+    },
+    "find_other_case": {
+      "same": true,
+      "last_error": "unchanged"
+    },
+    "name_keeps_first_case": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "buf": "SetuOracleAtom"
+    },
+    "name_size_5": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "buf": "Setu"
+    },
+    "name_size_1": {
+      "ret": 0,
+      "last_error": 122,
+      "buf": "#"
+    },
+    "name_size_0": {
+      "ret": 0,
+      "last_error": 234
+    },
+    "delete_once_still_referenced": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "still_found": true
+    },
+    "delete_last_reference": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "find_after_delete": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "delete_again": {
+      "returned_atom": false,
+      "ret_zero": 1,
+      "last_error": 6
+    },
+    "name_of_deleted": {
+      "ret": 0,
+      "last_error": 6,
+      "buf": "################################################################"
+    },
+    "add_integer_string": {
+      "ret": 1234,
+      "last_error": "unchanged"
+    },
+    "add_makeintatom": {
+      "ret": 1234,
+      "last_error": "unchanged"
+    },
+    "add_integer_zero": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "add_makeintatom_zero": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "add_integer_bfff": {
+      "ret": 49151,
+      "last_error": "unchanged"
+    },
+    "add_integer_c000": {
+      "class": "zero",
+      "last_error": 87
+    },
+    "add_makeintatom_c000": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "add_integer_with_letters": {
+      "class": "string",
+      "last_error": "unchanged"
+    },
+    "add_integer_hex_text": {
+      "class": "string",
+      "last_error": "unchanged"
+    },
+    "add_integer_too_big": {
+      "class": "zero",
+      "last_error": 87
+    },
+    "add_hash_only": {
+      "class": "string",
+      "last_error": "unchanged"
+    },
+    "find_integer_never_added": {
+      "ret": 4321,
+      "last_error": "unchanged"
+    },
+    "name_integer": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "buf": "#1234"
+    },
+    "name_integer_small_buffer": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "buf": "#1"
+    },
+    "name_integer_zero": {
+      "ret": 0,
+      "last_error": 87,
+      "buf": "################################################################"
+    },
+    "delete_integer": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "add_255_chars": {
+      "class": "string",
+      "last_error": "unchanged"
+    },
+    "name_255_chars_full": {
+      "ret": 255,
+      "last_error": "unchanged",
+      "buf": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu"
+    },
+    "add_256_chars": {
+      "class": "zero",
+      "last_error": 87
+    },
+    "add_empty": {
+      "class": "zero",
+      "last_error": 123
+    },
+    "ansi_and_wide_share_table": {
+      "same": true,
+      "last_error": "unchanged"
+    },
+    "name_ansi_size_5": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "buf": "536574750023"
+    }
+  },
+  "errors": [],
+  "source_sha256": "864f6250b6a6d149921b42f5010cd923d2442ee47bb911f12256259fa46923e2"
+}

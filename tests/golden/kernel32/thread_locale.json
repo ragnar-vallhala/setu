@@ -1,0 +1,230 @@
+{
+  "test": "kernel32/thread_locale",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "initial": {
+      "is_user_default": true
+    },
+    "set_ja_jp": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "0x00000411",
+      "thread_acp": 932
+    },
+    "thread_acp_decodes_sjis": {
+      "ret": 1,
+      "w0": "0x00003042"
+    },
+    "set_ru_ru": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "0x00000419",
+      "thread_acp": 1251
+    },
+    "set_de_phonebook": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "0x00010407",
+      "thread_acp": 1252
+    },
+    "set_neutral_lang": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "0x00000009",
+      "thread_acp": 1252
+    },
+    "set_bogus": {
+      "ret": false,
+      "last_error": 87,
+      "now": "0x00000009",
+      "thread_acp": 1252
+    },
+    "set_invariant": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "0x0000007f",
+      "thread_acp": 1252
+    },
+    "set_user_default_constant": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now_is_user_default": true,
+      "now_is_system_default": true
+    },
+    "after_user_default_constant": {
+      "is_user_default": true
+    },
+    "set_system_default_constant": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now_is_user_default": true,
+      "now_is_system_default": true
+    },
+    "after_system_default_constant": {
+      "is_system_default": true
+    },
+    "set_zero": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now_is_user_default": true,
+      "now_is_system_default": true
+    },
+    "convert_0409": {
+      "ret": "0x00000409",
+      "last_error": "unchanged"
+    },
+    "convert_lang_english": {
+      "ret": "0x00000409",
+      "last_error": "unchanged"
+    },
+    "convert_lang_german": {
+      "ret": "0x00000407",
+      "last_error": "unchanged"
+    },
+    "convert_lang_chinese": {
+      "ret": "0x00000804",
+      "last_error": "unchanged"
+    },
+    "convert_lang_serbian": {
+      "ret": "0x0000041a",
+      "last_error": "unchanged"
+    },
+    "convert_zh_hant_7c04": {
+      "ret": "0x00000c04",
+      "last_error": "unchanged"
+    },
+    "convert_sublang_default_spanish": {
+      "ret": "0x0000040a",
+      "last_error": "unchanged"
+    },
+    "convert_sublang_neutral_spanish": {
+      "ret": "0x00000c0a",
+      "last_error": "unchanged"
+    },
+    "convert_sort_kept": {
+      "ret": "0x00010407",
+      "last_error": "unchanged"
+    },
+    "convert_invariant": {
+      "ret": "0x0000007f",
+      "last_error": "unchanged"
+    },
+    "convert_bogus": {
+      "ret": "0x00007fff",
+      "last_error": "unchanged"
+    },
+    "convert_defaults": {
+      "neutral_is_user": true,
+      "user_is_user": true,
+      "system_is_system": true
+    },
+    "ui_initial": {
+      "is_user_ui": true
+    },
+    "ui_set_en_us": {
+      "ret": "0x00000409",
+      "last_error": 0,
+      "now": "0x00000409"
+    },
+    "ui_set_de_de": {
+      "ret": "0x00000407",
+      "last_error": 0,
+      "now": "0x00000407"
+    },
+    "ui_set_bogus": {
+      "ret": "0x00000407",
+      "last_error": 2,
+      "now": "0x00000407"
+    },
+    "ui_set_zero": {
+      "ret_is_user_ui": false,
+      "last_error": 0
+    },
+    "pref_initial_names": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 1,
+      "size": 7
+    },
+    "pref_set_names": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 2
+    },
+    "pref_get_names": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 2,
+      "size": 13,
+      "list": "de-DE|fr-FR||"
+    },
+    "pref_get_ids": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 2,
+      "size": 11,
+      "list": "0407|040C||"
+    },
+    "pref_size_query": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 2,
+      "size": 13
+    },
+    "pref_buffer_too_small": {
+      "ret": false,
+      "last_error": 122,
+      "num": 2,
+      "size": 13
+    },
+    "pref_both_flags_rejected": {
+      "ret": false,
+      "last_error": 87,
+      "num": 57005,
+      "size": 256
+    },
+    "pref_set_ids": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 1
+    },
+    "pref_get_names_after_ids": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 1,
+      "size": 7,
+      "list": "en-US||"
+    },
+    "pref_set_bad_name": {
+      "ret": false,
+      "last_error": 31,
+      "num": 57005
+    },
+    "pref_after_bad_name": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 1,
+      "size": 7,
+      "list": "en-US||"
+    },
+    "pref_set_both_flags": {
+      "ret": false,
+      "last_error": 87,
+      "num": 57005
+    },
+    "pref_clear": {
+      "ret": true,
+      "last_error": "unchanged",
+      "num": 57005
+    },
+    "pref_after_clear_thread_only": {
+      "ret": true,
+      "num": 0,
+      "size": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "d08c6c8cc092e7024bf09030f1aa24cbe54c338ba79b4f37674c9951751c94d8"
+}

@@ -1,0 +1,314 @@
+{
+  "test": "kernel32/calendar_info",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "en_us_gregorian": {
+      "ICALINTVALUE": "1",
+      "SCALNAME": "Gregorian Calendar",
+      "IYEAROFFSETRANGE": "0",
+      "SERASTRING": "A.D.",
+      "SABBREVERASTRING": "AD",
+      "SSHORTDATE": "M/d/yyyy",
+      "SLONGDATE": "dddd, MMMM d, yyyy",
+      "SYEARMONTH": "MMMM yyyy",
+      "SMONTHDAY": "MMMM d",
+      "SDAYNAME1": "Monday",
+      "SABBREVDAYNAME1": "Mon",
+      "SSHORTESTDAYNAME1": "Mo",
+      "SMONTHNAME1": "January",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "Jan",
+      "ITWODIGITYEARMAX": "2049"
+    },
+    "de_de_gregorian": {
+      "ICALINTVALUE": "1",
+      "SCALNAME": "Gregorianischer Kalender",
+      "IYEAROFFSETRANGE": "0",
+      "SERASTRING": "n. Chr.",
+      "SABBREVERASTRING": "n. Chr.",
+      "SSHORTDATE": "dd.MM.yyyy",
+      "SLONGDATE": "dddd, d. MMMM yyyy",
+      "SYEARMONTH": "MMMM yyyy",
+      "SMONTHDAY": "d. MMMM",
+      "SDAYNAME1": "Montag",
+      "SABBREVDAYNAME1": "Mo",
+      "SSHORTESTDAYNAME1": "Mo",
+      "SMONTHNAME1": "Januar",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "Jan",
+      "ITWODIGITYEARMAX": "2049"
+    },
+    "ja_jp_gregorian": {
+      "ICALINTVALUE": "1",
+      "SCALNAME": "西暦 (日本語)",
+      "IYEAROFFSETRANGE": "0",
+      "SERASTRING": "西暦",
+      "SABBREVERASTRING": "西暦",
+      "SSHORTDATE": "yyyy/MM/dd",
+      "SLONGDATE": "yyyy'年'M'月'd'日'",
+      "SYEARMONTH": "yyyy'年'M'月'",
+      "SMONTHDAY": "M月d日",
+      "SDAYNAME1": "月曜日",
+      "SABBREVDAYNAME1": "月",
+      "SSHORTESTDAYNAME1": "月",
+      "SMONTHNAME1": "1月",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "1",
+      "ITWODIGITYEARMAX": "2049"
+    },
+    "ja_jp_japanese": {
+      "ICALINTVALUE": "3",
+      "SCALNAME": "和暦",
+      "IYEAROFFSETRANGE": "2019",
+      "SERASTRING": "令和",
+      "SABBREVERASTRING": "令",
+      "SSHORTDATE": "ggy'年'M'月'd'日'",
+      "SLONGDATE": "ggy'年'M'月'd'日'",
+      "SYEARMONTH": "ggy'年'M'月'",
+      "SMONTHDAY": "M'月'd'日'",
+      "SDAYNAME1": "月曜日",
+      "SABBREVDAYNAME1": "月",
+      "SSHORTESTDAYNAME1": "月",
+      "SMONTHNAME1": "1月",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "1",
+      "ITWODIGITYEARMAX": "99"
+    },
+    "th_th_thai": {
+      "ICALINTVALUE": "7",
+      "SCALNAME": "พุทธศักราช",
+      "IYEAROFFSETRANGE": "543",
+      "SERASTRING": "พ.ศ.",
+      "SABBREVERASTRING": "พ.ศ.",
+      "SSHORTDATE": "d/M/yyyy",
+      "SLONGDATE": "d MMMM yyyy",
+      "SYEARMONTH": "MMMM yyyy",
+      "SMONTHDAY": "d MMMM",
+      "SDAYNAME1": "จันทร์",
+      "SABBREVDAYNAME1": "จ.",
+      "SSHORTESTDAYNAME1": "จ",
+      "SMONTHNAME1": "มกราคม",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "ม.ค.",
+      "ITWODIGITYEARMAX": "2592"
+    },
+    "ar_sa_hijri": {
+      "ICALINTVALUE": "6",
+      "SCALNAME": "التقويم الهجري",
+      "IYEAROFFSETRANGE": "0",
+      "SERASTRING": "بعد الهجرة",
+      "SABBREVERASTRING": "هـ",
+      "SSHORTDATE": "dd/MM/yy",
+      "SLONGDATE": "dd/MM/yyyy",
+      "SYEARMONTH": "MMMM, yyyy",
+      "SMONTHDAY": "dd MMMM",
+      "SDAYNAME1": "الإثنين",
+      "SABBREVDAYNAME1": "الإثنين",
+      "SSHORTESTDAYNAME1": "ن",
+      "SMONTHNAME1": "محرم",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "محرم",
+      "ITWODIGITYEARMAX": "1451"
+    },
+    "he_il_hebrew": {
+      "ICALINTVALUE": "8",
+      "SCALNAME": "לוח שנה עברי",
+      "IYEAROFFSETRANGE": "0",
+      "SERASTRING": "C.E.",
+      "SABBREVERASTRING": "C.E.",
+      "SSHORTDATE": "dd MMMM yyyy",
+      "SLONGDATE": "dddd dd MMMM yyyy",
+      "SYEARMONTH": "MMMM yyyy",
+      "SMONTHDAY": "dd MMMM",
+      "SDAYNAME1": "יום שני",
+      "SABBREVDAYNAME1": "ב",
+      "SSHORTESTDAYNAME1": "ב",
+      "SMONTHNAME1": "תשרי",
+      "SMONTHNAME13": "אלול",
+      "SABBREVMONTHNAME1": "תשרי",
+      "ITWODIGITYEARMAX": "5810"
+    },
+    "en_us_us_english": {
+      "ICALINTVALUE": "2",
+      "SCALNAME": "Gregorian Calendar",
+      "IYEAROFFSETRANGE": "0",
+      "SERASTRING": "A.D.",
+      "SABBREVERASTRING": "AD",
+      "SSHORTDATE": "M/d/yyyy",
+      "SLONGDATE": "dddd, MMMM dd, yyyy",
+      "SYEARMONTH": "MMMM, yyyy",
+      "SMONTHDAY": "MMMM dd",
+      "SDAYNAME1": "Monday",
+      "SABBREVDAYNAME1": "Mon",
+      "SSHORTESTDAYNAME1": "Mo",
+      "SMONTHNAME1": "January",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "Jan",
+      "ITWODIGITYEARMAX": "2049"
+    },
+    "invariant_gregorian": {
+      "ICALINTVALUE": "1",
+      "SCALNAME": "Gregorian Calendar",
+      "IYEAROFFSETRANGE": "0",
+      "SERASTRING": "A.D.",
+      "SABBREVERASTRING": "AD",
+      "SSHORTDATE": "MM/dd/yyyy",
+      "SLONGDATE": "dddd, dd MMMM yyyy",
+      "SYEARMONTH": "yyyy MMMM",
+      "SMONTHDAY": "MMMM dd",
+      "SDAYNAME1": "Monday",
+      "SABBREVDAYNAME1": "Mon",
+      "SSHORTESTDAYNAME1": "Mo",
+      "SMONTHNAME1": "January",
+      "SMONTHNAME13": "",
+      "SABBREVMONTHNAME1": "Jan",
+      "ITWODIGITYEARMAX": "2049"
+    },
+    "return_number_twodigityearmax": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "number": 2049
+    },
+    "return_number_calint": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "number": 3
+    },
+    "return_number_string_type": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "japanese_era_list_current": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "value": "令和"
+    },
+    "size_query": {
+      "ret": 10,
+      "last_error": "unchanged"
+    },
+    "buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "calendar_not_for_locale": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "calendar_bogus": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "caltype_bogus": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "locale_bogus": {
+      "ret": 19,
+      "last_error": "unchanged",
+      "value": "Gregorian Calendar"
+    },
+    "english_era_name": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "english_abbrev_era_name": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "enum_en_calnames_all": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 2,
+      "list": "1:Gregorian Calendar|2:Gregorian Calendar"
+    },
+    "enum_ja_calnames_all": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 3,
+      "list": "1:西暦 (日本語)|3:和暦|2:西暦 (英語)"
+    },
+    "enum_ja_eras": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 5,
+      "list": "3:令和|3:平成|3:昭和|3:大正|3:明治"
+    },
+    "enum_en_shortdates": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 7,
+      "list": "1:M/d/yyyy|1:M/d/yy|1:MM/dd/yy|1:MM/dd/yyyy|1:yy/MM/dd|1:yyyy-MM-dd|1:dd-MMM-yy"
+    },
+    "enum_bad_locale": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 2,
+      "list": "1:MM/dd/yyyy|1:yyyy-MM-dd"
+    },
+    "enum_dates_en_short": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 11,
+      "list": "1:M/d/yyyy|1:M/d/yy|1:MM/dd/yy|1:MM/dd/yyyy|1:yy/MM/dd|1:yyyy-MM-dd|1:dd-MMM-yy|2:M/d/yyyy|2:M/d/yy|2:MM/dd/yy|2:MM/dd/yyyy"
+    },
+    "enum_dates_en_long": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 6,
+      "list": "1:dddd, MMMM d, yyyy|1:MMMM d, yyyy|1:dddd, d MMMM, yyyy|1:d MMMM, yyyy|2:dddd, MMMM dd, yyyy|2:MMMM dd, yyyy"
+    },
+    "enum_dates_en_yearmonth": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 2,
+      "list": "1:MMMM yyyy|2:MMMM, yyyy"
+    },
+    "enum_dates_de_short": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 4,
+      "list": "1:dd.MM.yyyy|1:dd.MM.yy|1:yyyy-MM-dd|1:dd. MMM. yyyy"
+    },
+    "enum_dates_ja_long": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 20,
+      "list": "1:yyyy'年'M'月'd'日'|1:yyyy'年'MM'月'dd'日'|1:yyyy'年'M'月'd'日 'dddd|1:yyyy'年'MM'月'dd'日 'dddd|1:yyyy'年'MMM'月'd'日'|1:yyyy'年'MMM'月'd'日 'dddd|1:yyyy'年'MMMMd'日'|1:yyyy'年'MMMMd'日 'dddd|3:ggy'年'M'月'd'日'|3:ggy'年'M'月'd'日' dddd|3:ggy'年'MM'月'dd'日'|3:ggy'年'MM'月'dd'日' dddd|3:ggy'年'MMM'月'd'日'|3:ggy'年'MMM'月'd'日' dddd|3:ggy'年'MMMMd'日'|3:ggy'年'MMMMd'日' dddd|3:ggy'年'M'月'd'日('ddd')'|3:y'年'M'月'd'日'|2:dddd, MMMM dd, yyyy|2:MMMM dd, yyyy"
+    },
+    "enum_dates_bad_flags": {
+      "ret": false,
+      "last_error": 1004,
+      "count": 0,
+      "list": ""
+    },
+    "enum_times_en": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 4,
+      "list": "h:mm:ss tt|hh:mm:ss tt|H:mm:ss|HH:mm:ss"
+    },
+    "enum_times_en_short": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 4,
+      "list": "h:mm tt|hh:mm tt|H:mm|HH:mm"
+    },
+    "enum_times_de": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 2,
+      "list": "HH:mm:ss|HH:mm:ss' Uhr'"
+    },
+    "enum_times_bad_flag": {
+      "ret": false,
+      "last_error": 1004,
+      "count": 0,
+      "list": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "fe455b35f45376e573a35d7cb79fe3bf6165bcd06f58e1d3b248b7042c995581"
+}

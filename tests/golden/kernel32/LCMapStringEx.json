@@ -1,0 +1,346 @@
+{
+  "test": "kernel32/LCMapStringEx",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "tr_upper_i": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "490031010000",
+      "str": "Iı"
+    },
+    "tr_upper_i_linguistic": {
+      "ret": 3,
+      "last_error": 0,
+      "out": "300149000000",
+      "str": "İI"
+    },
+    "tr_lower_I_linguistic": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "310169000000",
+      "str": "ıi"
+    },
+    "tr_lower_I": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "690030010000",
+      "str": "iİ"
+    },
+    "az_upper_i_linguistic": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "30010000",
+      "str": "İ"
+    },
+    "en_upper_i_linguistic": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "490049000000",
+      "str": "II"
+    },
+    "en_upper_sharp_s": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "5300540052004100fe0d0000",
+      "str": "STRA෾"
+    },
+    "en_upper_final_sigma": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "9f03c2030000",
+      "str": "Ος"
+    },
+    "el_lower_sigma_linguistic": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "bf03c3030000",
+      "str": "οσ"
+    },
+    "en_titlecase": {
+      "ret": 27,
+      "last_error": "unchanged",
+      "out": "480065006c006c006f00200057006f0072006c006400200046006f006f002d0042006100720020004f0027006e00650069006c000000",
+      "str": "Hello World Foo-Bar O'neil"
+    },
+    "en_titlecase_digraph": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "c50175006e0067006c0061000000",
+      "str": "ǅungla"
+    },
+    "en_titlecase_with_upper": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "410062000000",
+      "str": "Ab"
+    },
+    "zh_simplified": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "496ced8b665b0000",
+      "str": "汉语学"
+    },
+    "zh_traditional": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "226f9e8a785b0000",
+      "str": "漢語學"
+    },
+    "zh_both_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ja_katakana_voiced": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "ac30d130f4300000",
+      "str": "ガパヴ"
+    },
+    "ja_hiragana_small": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "413095309630fc300000",
+      "str": "ぁゕゖー"
+    },
+    "ja_halfwidth_voiced": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "76ff9eff8aff9fff61ff0000",
+      "str": "ｶﾞﾊﾟ｡"
+    },
+    "ja_fullwidth_halfkana": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "ac30d1300000",
+      "str": "ガパ"
+    },
+    "ja_fullwidth_ascii": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "21ff5aff003019ff5eff0000",
+      "str": "Ａｚ　９～"
+    },
+    "ja_katakana_fullwidth": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "a230a23041ff0000",
+      "str": "アアａ"
+    },
+    "ja_hiragana_katakana_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ja_half_full_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "byterev": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "004100420000",
+      "str": "䄀䈀"
+    },
+    "byterev_upper": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "004100420000",
+      "str": "䄀䈀"
+    },
+    "ignorenonspace": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "72006500730075006d006500200065000000",
+      "str": "resume e"
+    },
+    "ignoresymbols": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "61006200630064000000",
+      "str": "abcd"
+    },
+    "ignore_both": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "650078000000",
+      "str": "ex"
+    },
+    "ignorecase_alone": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "upper_ignorenonspace": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "size_query": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "size_query_counted": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "buffer_exact": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "480045004c004c004f000000"
+    },
+    "zero_length_src": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_locale": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "41000000",
+      "str": "A"
+    },
+    "bad_flag": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "00610000",
+      "str": "愀"
+    },
+    "sortkey_with_upper": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "sortkey_with_byterev_ok": {
+      "ret": 7,
+      "last_error": "unchanged"
+    },
+    "titlecase_with_sortkey": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "in_place_upper": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "str": "ABC"
+    },
+    "in_place_sortkey": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "reserved_not_null": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "w_lcid_tr_upper": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "30010000"
+    },
+    "key_a": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "key": "0e020101010100"
+    },
+    "key_A": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "key": "0e02010112010100"
+    },
+    "key_abc": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "key": "0e020e090e0a0101010100"
+    },
+    "key_empty": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "key": "0101010100"
+    },
+    "key_ignorecase_A": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "key": "0e020101010100"
+    },
+    "key_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "rel_a_b": {
+      "both_ok": true,
+      "key_order": -1,
+      "compare": 1,
+      "agree": true
+    },
+    "rel_a_A": {
+      "both_ok": true,
+      "key_order": -1,
+      "compare": 1,
+      "agree": true
+    },
+    "rel_ignorecase": {
+      "both_ok": true,
+      "key_order": 0,
+      "compare": 2,
+      "agree": true
+    },
+    "rel_accent": {
+      "both_ok": true,
+      "key_order": -1,
+      "compare": 1,
+      "agree": true
+    },
+    "rel_hyphen": {
+      "both_ok": true,
+      "key_order": 1,
+      "compare": 3,
+      "agree": true
+    },
+    "rel_stringsort": {
+      "both_ok": true,
+      "key_order": -1,
+      "compare": 1,
+      "agree": true
+    },
+    "rel_digits": {
+      "both_ok": true,
+      "key_order": 1,
+      "compare": 3,
+      "agree": true
+    },
+    "rel_sv": {
+      "both_ok": true,
+      "key_order": 1,
+      "compare": 3,
+      "agree": true
+    },
+    "rel_de": {
+      "both_ok": true,
+      "key_order": -1,
+      "compare": 1,
+      "agree": true
+    },
+    "rel_phonebook": {
+      "both_ok": true,
+      "key_order": 0,
+      "compare": 2,
+      "agree": true
+    },
+    "rel_kana": {
+      "both_ok": true,
+      "key_order": 0,
+      "compare": 2,
+      "agree": true
+    },
+    "hash_relations": {
+      "ret": -1622640206,
+      "last_error": "unchanged",
+      "all_ok": false,
+      "same_input_same_hash": true,
+      "different_input_differs": true,
+      "ignorecase_equal": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "6dee2576e3a909812d4d2ba000c6e81f93d33afccc407e7d32891cc0579651d4"
+}

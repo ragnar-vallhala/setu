@@ -1,0 +1,184 @@
+{
+  "test": "kernel32/FoldStringW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "digits_ascii_kept": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "3000310032000000"
+    },
+    "digits_arabic_indic": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "3000310039000000"
+    },
+    "digits_devanagari": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "300039000000"
+    },
+    "digits_fullwidth": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "300039000000"
+    },
+    "digits_superscript": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "32003300310030000000"
+    },
+    "digits_circled": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "310069240000"
+    },
+    "digits_thai": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "300039000000"
+    },
+    "foldczone_fullwidth": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "4100610021000000"
+    },
+    "foldczone_ligature_fi": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "660069000000"
+    },
+    "foldczone_compat_ohm": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "a903c5000000"
+    },
+    "foldczone_halfwidth_kana": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "ac300000"
+    },
+    "foldczone_plain_kept": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100620063000000"
+    },
+    "precomposed": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "e9002000e4000000"
+    },
+    "precomposed_no_composition": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "780001030000"
+    },
+    "composite": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "65000103610008030000"
+    },
+    "composite_hangul": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "12116111ab110000"
+    },
+    "composite_plain_kept": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100620063000000"
+    },
+    "expand_ligatures": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "61006500410045006f00650073007300660069000000"
+    },
+    "expand_ligatures_ij": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "69006a0064007e010000"
+    },
+    "foldczone_and_digits": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "410031000000"
+    },
+    "foldczone_and_composite": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6500010341000000"
+    },
+    "digits_and_precomposed": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "1e6601030000"
+    },
+    "precomposed_and_composite": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ligatures_and_precomposed": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ligatures_and_composite": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "no_flags": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "bad_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "zero_length": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "null_source": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "size_query": {
+      "ret": 4,
+      "last_error": "unchanged"
+    },
+    "buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "buffer_exact": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100650078000000"
+    },
+    "counted_no_nul": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "31003200"
+    },
+    "same_buffer": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "ansi_superscript_two": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "61326200"
+    },
+    "ansi_ligatures": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "6165737300"
+    },
+    "ansi_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    }
+  },
+  "errors": [],
+  "source_sha256": "db8eb7f7703643b629edd6d84bce537dc127678348fa51e2e650373e4a5fe781"
+}

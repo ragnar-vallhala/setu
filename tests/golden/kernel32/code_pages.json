@@ -1,0 +1,357 @@
+{
+  "test": "kernel32/code_pages",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "cp1252": {
+      "ret": true,
+      "last_error": 0,
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 1252,
+      "name": "1252  (ANSI - Latin I)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp1250": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 1250,
+      "name": "1250  (ANSI - Central Europe)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp1251": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 1251,
+      "name": "1251  (ANSI - Cyrillic)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp1253": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 1253,
+      "name": "1253  (ANSI - Greek)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp1255": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 1255,
+      "name": "1255  (ANSI - Hebrew)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp1256": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 1256,
+      "name": "1256  (ANSI - Arabic)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp874": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 874,
+      "name": "874   (ANSI/OEM - Thai)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp437": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 437,
+      "name": "437   (OEM - United States)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp850": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 850,
+      "name": "850   (OEM - Multilingual Latin I)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp866": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 866,
+      "name": "866   (OEM - Russian)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp932": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 2,
+      "default_char": "3f00",
+      "lead_bytes": "81-9f,e0-fc",
+      "unicode_default_char": "0x000030fb",
+      "code_page": 932,
+      "name": "932   (ANSI/OEM - Japanese Shift-JIS)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp936": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 2,
+      "default_char": "3f00",
+      "lead_bytes": "81-fe",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 936,
+      "name": "936   (ANSI/OEM - Simplified Chinese GBK)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp949": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 2,
+      "default_char": "3f00",
+      "lead_bytes": "81-fe",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 949,
+      "name": "949   (ANSI/OEM - Korean)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp950": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 2,
+      "default_char": "3f00",
+      "lead_bytes": "81-fe",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 950,
+      "name": "950   (ANSI/OEM - Traditional Chinese Big5)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp28591": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 28591,
+      "name": "28591 (ISO 8859-1 Latin I)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp20127": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 20127,
+      "name": "20127 (US-ASCII)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp10000": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 1,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000003f",
+      "code_page": 10000,
+      "name": "10000 (MAC - Roman)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp_utf8": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 4,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000fffd",
+      "code_page": 65001,
+      "name": "65001 (UTF-8)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp_utf7": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_char_size": 5,
+      "default_char": "3f00",
+      "lead_bytes": "",
+      "unicode_default_char": "0x0000fffd",
+      "code_page": 65000,
+      "name": "65000 (UTF-7)",
+      "cpinfo_ret": true,
+      "cpinfo_matches": true
+    },
+    "cp_symbol": {
+      "ret": false,
+      "last_error": 87,
+      "cpinfo_ret": false
+    },
+    "cp_unknown": {
+      "ret": false,
+      "last_error": 87,
+      "cpinfo_ret": false
+    },
+    "cp_1200_utf16": {
+      "ret": false,
+      "last_error": 87,
+      "cpinfo_ret": false
+    },
+    "cpinfoex_flag_nonzero": {
+      "ret": false,
+      "last_error": 1004
+    },
+    "cpinfoex_null_out": {
+      "ret": false,
+      "last_error": 87
+    },
+    "aliases": {
+      "acp_ok": true,
+      "acp_is_getacp": true,
+      "oem_ok": true,
+      "oem_is_getoemcp": true,
+      "thread_acp_ok": true,
+      "thread_acp_is_getacp": true,
+      "mac_ok": true,
+      "acp_valid": true,
+      "oem_valid": true,
+      "acp_not_utf8": true
+    },
+    "valid_1252": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_utf8": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_utf7": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_cp_acp_alias": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "valid_cp_oemcp_alias": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "valid_symbol": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "valid_1200": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "valid_20932": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_50220": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_54936": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "valid_unknown": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "dbcs_lead_bytes": {
+      "932_81": true,
+      "932_a0": false,
+      "932_e0": true,
+      "932_41": false,
+      "936_81": true,
+      "936_ff": false,
+      "949_a1": true,
+      "1252_81": false
+    },
+    "dbcs_bad_code_page": {
+      "ret": false,
+      "last_error": 87
+    },
+    "dbcs_utf8": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "enum_supported": {
+      "ret": true,
+      "last_error": "unchanged",
+      "many": true,
+      "has_1252": true,
+      "has_65001": true,
+      "all_valid": true
+    },
+    "enum_installed": {
+      "ret": true,
+      "le_supported": true,
+      "has_1252": true,
+      "all_valid": true
+    },
+    "enum_stop": {
+      "ret": true,
+      "count": 2
+    },
+    "enum_bad_flags": {
+      "ret": false,
+      "last_error": 1004
+    }
+  },
+  "errors": [],
+  "source_sha256": "a3666a479d327e701c8a96079998939bccdbdbcef3abee268dc8f1ce739d9464"
+}

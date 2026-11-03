@@ -1,0 +1,180 @@
+{
+  "test": "kernel32/duration_format",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "hh_mm_ss": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "26:03:04"
+    },
+    "d_hh_mm_ss": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "1 02:03:04"
+    },
+    "h_m_s_single": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "2:3:4"
+    },
+    "capital_H": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "26:03"
+    },
+    "minutes_only_carry": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "1563"
+    },
+    "seconds_only_carry": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "93784"
+    },
+    "days_only": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "1"
+    },
+    "fraction_1": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "93784.5"
+    },
+    "fraction_3": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "93784.567"
+    },
+    "fraction_7": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "93784.5678901"
+    },
+    "fraction_9": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "93784.567890100"
+    },
+    "fraction_capital_F": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "93784.FFF"
+    },
+    "quoted_literal": {
+      "ret": 15,
+      "last_error": "unchanged",
+      "out": "26 hours 3 min"
+    },
+    "quoted_apostrophe": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "263"
+    },
+    "unterminated_quote": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "26 x"
+    },
+    "other_letters_literal": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "26:03 xyz t"
+    },
+    "triple_h": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "026"
+    },
+    "zero": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "out": "00:00:00.000"
+    },
+    "large_hours": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "1000:00"
+    },
+    "default_format_en": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "26:03:04"
+    },
+    "default_format_de": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "26:03:04"
+    },
+    "default_format_ja": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "26:03:04"
+    },
+    "default_format_invariant": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "26:03:04"
+    },
+    "nouseroverride": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "bad_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "bad_locale": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "26:03"
+    },
+    "size_query": {
+      "ret": 9,
+      "last_error": "unchanged"
+    },
+    "buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "buffer_exact": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "26:03:04"
+    },
+    "empty_format": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "out": ""
+    },
+    "systemtime_overflowing_fields": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "out": "26:01:05.250"
+    },
+    "systemtime_ignores_date": {
+      "ret": 15,
+      "last_error": "unchanged",
+      "out": "9 01:02:03.004"
+    },
+    "systemtime_wins_over_value": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "systemtime_ms_1000": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "777601.000"
+    },
+    "lcid_form": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "26:03:04"
+    }
+  },
+  "errors": [],
+  "source_sha256": "096392af94d2ae3e7ed747595236457644c127fc1db4f0fbe171676671f53347"
+}

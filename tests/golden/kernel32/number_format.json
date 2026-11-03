@@ -1,0 +1,391 @@
+{
+  "test": "kernel32/number_format",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "en_basic": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "out": "1,234,567.89"
+    },
+    "en_negative": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "-1,234.50"
+    },
+    "en_round_half_up": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "0.13"
+    },
+    "en_round_carry": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "10,000.00"
+    },
+    "en_leading_zero": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "0.50"
+    },
+    "en_integer": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "42.00"
+    },
+    "en_zero": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "0.00"
+    },
+    "en_negative_zero_rounds": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "0.00"
+    },
+    "de_basic": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "out": "1.234.567,89"
+    },
+    "fr_basic": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "out": "1 234 567,89"
+    },
+    "hi_indian_grouping": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "12,34,56,789.50"
+    },
+    "ja_basic": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "-1,234,567.89"
+    },
+    "ar_sa_basic": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "-1,234.50"
+    },
+    "invariant_basic": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "-1,234,567.89"
+    },
+    "bad_two_points": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_letters": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_plus_sign": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_space": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_empty": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "0.00"
+    },
+    "bad_minus_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "0.00"
+    },
+    "bad_grouped_input": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "trailing_point": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "12.00"
+    },
+    "long_fraction": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "2.00"
+    },
+    "long_integer": {
+      "ret": 43,
+      "last_error": "unchanged",
+      "out": "123,456,789,012,345,678,901,234,567,890.00"
+    },
+    "bad_locale": {
+      "ret": 5,
+      "last_error": 0,
+      "out": "1.00"
+    },
+    "bad_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "size_query": {
+      "ret": 9,
+      "last_error": "unchanged"
+    },
+    "buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "buffer_exact": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "1,234.50"
+    },
+    "fmt_3_digits": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "1,234.568"
+    },
+    "fmt_0_digits_round": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "3"
+    },
+    "fmt_no_leading_zero": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": ".50"
+    },
+    "fmt_no_grouping": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "1234567.00"
+    },
+    "fmt_grouping_32": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "12,34,56,789.00"
+    },
+    "fmt_grouping_320": {
+      "ret": 15,
+      "last_error": "unchanged",
+      "out": "1234,56,789.00"
+    },
+    "fmt_negative_order_0": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "(12.50)"
+    },
+    "fmt_negative_order_1": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "-12.50"
+    },
+    "fmt_negative_order_2": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "- 12.50"
+    },
+    "fmt_negative_order_3": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "12.50-"
+    },
+    "fmt_negative_order_4": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "12.50 -"
+    },
+    "fmt_negative_order_5_bad": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "fmt_long_separators": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "fmt_null_separator": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "fmt_10_digits": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "fmt_with_nouseroverride_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "cur_en": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "($1,234.57)"
+    },
+    "cur_en_positive": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "$1,234.57"
+    },
+    "cur_de": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "-1.234,57 €"
+    },
+    "cur_fr": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "1 234,57 €"
+    },
+    "cur_ja": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "-¥1,235"
+    },
+    "cur_en_gb": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "-£1,234.50"
+    },
+    "cur_hi": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "₹12,34,567.50"
+    },
+    "cur_invariant": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "(¤1,234.50)"
+    },
+    "cur_bad_input": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "cur_size_query": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "cur_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "cur_fmt_neg_0": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "($1.50)"
+    },
+    "cur_fmt_neg_1": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "-$1.50"
+    },
+    "cur_fmt_neg_2": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "$-1.50"
+    },
+    "cur_fmt_neg_3": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "$1.50-"
+    },
+    "cur_fmt_neg_4": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "(1.50$)"
+    },
+    "cur_fmt_neg_5": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "-1.50$"
+    },
+    "cur_fmt_neg_6": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "1.50-$"
+    },
+    "cur_fmt_neg_7": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "1.50$-"
+    },
+    "cur_fmt_neg_8": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "-1.50 $"
+    },
+    "cur_fmt_neg_9": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "-$ 1.50"
+    },
+    "cur_fmt_neg_10": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "1.50 $-"
+    },
+    "cur_fmt_neg_11": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "$ 1.50-"
+    },
+    "cur_fmt_neg_12": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "$ -1.50"
+    },
+    "cur_fmt_neg_13": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "1.50- $"
+    },
+    "cur_fmt_neg_14": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "($ 1.50)"
+    },
+    "cur_fmt_neg_15": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "(1.50 $)"
+    },
+    "cur_fmt_neg_16_bad": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "cur_fmt_pos_0": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "$1.50"
+    },
+    "cur_fmt_pos_1": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "1.50$"
+    },
+    "cur_fmt_pos_2": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "$ 1.50"
+    },
+    "cur_fmt_pos_3": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "1.50 $"
+    },
+    "cur_fmt_pos_4_bad": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "cur_fmt_long_symbol": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "EUR1,234.50"
+    },
+    "cur_fmt_null_symbol": {
+      "ret": 0,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "691b5a49318b2c343c8aa2b97b5d6917b4d07702391bb8deae28a817595af91e"
+}

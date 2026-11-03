@@ -1,0 +1,127 @@
+{
+  "test": "kernel32/error_mode",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "initial": {
+      "process": "0x00008003",
+      "thread": "0x00000000"
+    },
+    "child_inherits": {
+      "created": true,
+      "child_process_mode": "0x00008003",
+      "child_thread_mode": "0x00000000"
+    },
+    "child_default_error_mode": {
+      "created": true,
+      "child_process_mode": "0x00000000",
+      "child_thread_mode": "0x00000000"
+    },
+    "set_zero": {
+      "prev": "0x00008003",
+      "last_error": "unchanged",
+      "now": "0x00000000",
+      "thread": "0x00000000"
+    },
+    "set_failcritical": {
+      "prev": "0x00000000",
+      "last_error": "unchanged",
+      "now": "0x00000001",
+      "thread": "0x00000000"
+    },
+    "set_all_documented": {
+      "prev": "0x00000001",
+      "last_error": "unchanged",
+      "now": "0x00008003",
+      "thread": "0x00000000"
+    },
+    "set_unknown_bits": {
+      "prev": "0x00008003",
+      "last_error": "unchanged",
+      "now": "0x000000f0",
+      "thread": "0x00000000"
+    },
+    "set_high_bits": {
+      "prev": "0x000000f0",
+      "last_error": "unchanged",
+      "now": "0x00010000",
+      "thread": "0x00000000"
+    },
+    "set_zero_again": {
+      "prev": "0x00010000",
+      "last_error": "unchanged",
+      "now": "0x00000000",
+      "thread": "0x00000000"
+    },
+    "thread_set_failcritical": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000000",
+      "thread": "0x00000001",
+      "process": "0x00000000"
+    },
+    "thread_set_all_allowed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000001",
+      "thread": "0x00008003",
+      "process": "0x00000000"
+    },
+    "thread_set_null_old": {
+      "ret": true,
+      "last_error": "unchanged",
+      "thread": "0x00000000",
+      "process": "0x00000000"
+    },
+    "thread_set_alignment_rejected": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0xdeadbeef",
+      "thread": "0x00000000",
+      "process": "0x00000000"
+    },
+    "thread_set_unknown_bit_rejected": {
+      "ret": false,
+      "last_error": 87,
+      "old": "0xdeadbeef",
+      "thread": "0x00000000",
+      "process": "0x00000000"
+    },
+    "thread_set_nogpfault": {
+      "ret": true,
+      "last_error": "unchanged",
+      "old": "0x00000000",
+      "thread": "0x00000002",
+      "process": "0x00000000"
+    },
+    "new_thread_mode": {
+      "seen": "0x00000000",
+      "creator_thread": "0x00000001"
+    },
+    "child_inherits_after_change": {
+      "created": true,
+      "child_process_mode": "0x00008000",
+      "child_thread_mode": "0x00000000"
+    },
+    "set_noalignmentfaultexcept": {
+      "prev": "0x00008000",
+      "last_error": "unchanged",
+      "now": "0x00000004",
+      "thread": "0x00000001"
+    },
+    "clear_after_alignment": {
+      "prev": "0x00000004",
+      "last_error": "unchanged",
+      "now": "0x00000004",
+      "thread": "0x00000001"
+    },
+    "child_after_alignment": {
+      "created": true,
+      "child_process_mode": "0x00000004",
+      "child_thread_mode": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "2739c876c2b8d8deb73f27d0fe1aa0111c9f0ce640654a743d5a5b328b314f83"
+}

@@ -1,0 +1,59 @@
+{
+  "test": "kernel32/encode_pointer",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "encode": {
+      "last_error": "unchanged",
+      "changes_value": true
+    },
+    "decode_round_trip": {
+      "last_error": "unchanged",
+      "round_trip": true,
+      "stable": true
+    },
+    "encode_null": {
+      "nonnull": true,
+      "decodes_to_null": true,
+      "decode_null_nonnull": true
+    },
+    "distinct_inputs": {
+      "different": true,
+      "decode_encode_inverse": true
+    },
+    "round_trip_every_bit": {
+      "all_ok": true
+    },
+    "system_encode": {
+      "have_fns": true,
+      "last_error": "unchanged",
+      "changes_value": true,
+      "stable": true,
+      "round_trip": true,
+      "differs_from_process_encoding": true
+    },
+    "remote_current_process": {
+      "have_fns": true,
+      "encode_hr": "0x00000000",
+      "decode_hr": "0x00000000",
+      "last_error": "unchanged",
+      "matches_local": true,
+      "round_trip": true
+    },
+    "remote_real_handle": {
+      "hr": "0xd0000022",
+      "matches_local": false,
+      "weak_handle_hr": "0xd0000022"
+    },
+    "remote_bad_handle": {
+      "hr": "0xd0000008"
+    },
+    "child_process_differs": {
+      "created": true,
+      "child_encoding_differs": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "ae39f7ea59712012feb8d09ff30f4186eb3006351750afbdd013a4c4c99e2af2"
+}

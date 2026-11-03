@@ -1,0 +1,179 @@
+{
+  "test": "kernel32/system_dirs",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "windir_shape": {
+      "drive_root_form": true,
+      "single_component": true,
+      "component_is_windows_any_case": true,
+      "systemroot_env_matches_any_case": true,
+      "system_windows_dir_same": true
+    },
+    "windows_full": {
+      "ret_is_length": true,
+      "last_error": "unchanged",
+      "path": "<windir>",
+      "no_trailing_backslash": true
+    },
+    "windows_size_query": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged"
+    },
+    "windows_one_too_small": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged",
+      "untouched": true
+    },
+    "windows_exact": {
+      "ret_minus_len": 0,
+      "last_error": "unchanged",
+      "same": true
+    },
+    "system_windows_full": {
+      "ret_is_length": true,
+      "last_error": "unchanged",
+      "path": "<windir>",
+      "no_trailing_backslash": true
+    },
+    "system_windows_size_query": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged"
+    },
+    "system_windows_one_too_small": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged",
+      "untouched": true
+    },
+    "system_windows_exact": {
+      "ret_minus_len": 0,
+      "last_error": "unchanged",
+      "same": true
+    },
+    "system_full": {
+      "ret_is_length": true,
+      "last_error": "unchanged",
+      "path": "<windir>\\system32",
+      "no_trailing_backslash": true
+    },
+    "system_size_query": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged"
+    },
+    "system_one_too_small": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged",
+      "untouched": true
+    },
+    "system_exact": {
+      "ret_minus_len": 0,
+      "last_error": "unchanged",
+      "same": true
+    },
+    "wow64_full": {
+      "ret_is_length": true,
+      "last_error": "unchanged",
+      "path": "<windir>\\SysWOW64",
+      "no_trailing_backslash": true
+    },
+    "wow64_size_query": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged"
+    },
+    "wow64_one_too_small": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged",
+      "untouched": true
+    },
+    "wow64_exact": {
+      "ret_minus_len": 0,
+      "last_error": "unchanged",
+      "same": true
+    },
+    "windows_a_full": {
+      "ret_is_length": true,
+      "last_error": "unchanged",
+      "matches_wide": true
+    },
+    "windows_a_size_query": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged"
+    },
+    "windows_a_one_too_small": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged",
+      "untouched": true
+    },
+    "system_a_full": {
+      "ret_is_length": true,
+      "last_error": "unchanged",
+      "matches_wide": true
+    },
+    "system_a_size_query": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged"
+    },
+    "system_a_one_too_small": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged",
+      "untouched": true
+    },
+    "wow64_a_full": {
+      "ret_is_length": true,
+      "last_error": "unchanged",
+      "matches_wide": true
+    },
+    "wow64_a_size_query": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged"
+    },
+    "wow64_a_one_too_small": {
+      "ret_minus_len": 1,
+      "last_error": "unchanged",
+      "untouched": true
+    },
+    "wow64_2_i386": {
+      "have_fn": true,
+      "ret_is_length": true,
+      "nonzero": true,
+      "last_error": "unchanged",
+      "path": "<windir>\\SysWOW64"
+    },
+    "wow64_2_amd64": {
+      "have_fn": true,
+      "ret_is_length": true,
+      "nonzero": true,
+      "last_error": "unchanged",
+      "path": "<windir>\\SysX8664"
+    },
+    "wow64_2_armnt": {
+      "have_fn": true,
+      "ret_is_length": true,
+      "nonzero": true,
+      "last_error": "unchanged",
+      "path": "<windir>\\SysArm32"
+    },
+    "wow64_2_arm64": {
+      "have_fn": true,
+      "ret_is_length": true,
+      "nonzero": true,
+      "last_error": "unchanged",
+      "path": "<windir>\\SysArm64"
+    },
+    "wow64_2_unknown": {
+      "have_fn": true,
+      "ret_is_length": true,
+      "nonzero": false,
+      "last_error": 160
+    },
+    "wow64_2_bogus": {
+      "have_fn": true,
+      "ret_is_length": true,
+      "nonzero": false,
+      "last_error": 160
+    }
+  },
+  "errors": [],
+  "source_sha256": "25a3359e8158a649a3eec6a34ba9d39a1a32b52ecce1909eca7c68901958de64"
+}

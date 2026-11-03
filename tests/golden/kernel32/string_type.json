@@ -1,0 +1,235 @@
+{
+  "test": "kernel32/string_type",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "arabic_letters_digits": {
+      "ok": true,
+      "ctype1": "0300,0300,0204,0204,0200",
+      "ctype2": "2,2,6,6,b",
+      "ctype3": "8000,8000,0000,0000,0003"
+    },
+    "hebrew": {
+      "ok": true,
+      "ctype1": "0300,0200,0210",
+      "ctype2": "2,b,2",
+      "ctype3": "8000,0003,0000"
+    },
+    "devanagari": {
+      "ok": true,
+      "ctype1": "0300,0200,0200,0204",
+      "ctype2": "1,1,b,1",
+      "ctype3": "8000,0004,0003,0000"
+    },
+    "cjk_and_kana": {
+      "ok": true,
+      "ctype1": "0300,0300,0300,0300,0300",
+      "ctype2": "1,1,1,1,1",
+      "ctype3": "8100,8020,8090,8050,8000"
+    },
+    "hangul": {
+      "ok": true,
+      "ctype1": "0300,0300,0300",
+      "ctype2": "1,1,1",
+      "ctype3": "8000,8000,8080"
+    },
+    "fullwidth_ascii": {
+      "ok": true,
+      "ctype1": "0381,0382,0284,0210",
+      "ctype2": "1,1,3,b",
+      "ctype3": "8080,8080,0080,0080"
+    },
+    "math_and_currency": {
+      "ok": true,
+      "ctype1": "0200,0200,0210,0312",
+      "ctype2": "b,5,5,1",
+      "ctype3": "0008,0008,0048,8008"
+    },
+    "spaces": {
+      "ok": true,
+      "ctype1": "0248,0208,0220,0248,0208",
+      "ctype2": "7,a,0,a,a",
+      "ctype3": "0008,0000,0000,0080,0000"
+    },
+    "controls": {
+      "ok": true,
+      "ctype1": "0220,0220,0228,0230,0260",
+      "ctype2": "0,0,8,0,0",
+      "ctype3": "0000,0000,0000,0408,0000"
+    },
+    "surrogates_private": {
+      "ok": true,
+      "ctype1": "0200,0200,0200,0200,0000",
+      "ctype2": "1,1,1,b,0",
+      "ctype3": "0800,1000,0000,0008,0000"
+    },
+    "greek_cyrillic": {
+      "ok": true,
+      "ctype1": "0301,0302,0301,0302,0301",
+      "ctype2": "1,1,1,1,1",
+      "ctype3": "8000,8000,8000,8000,8002"
+    },
+    "titlecase_digraph": {
+      "ok": true,
+      "ctype1": "0303,0302,0301",
+      "ctype2": "1,1,1",
+      "ctype3": "8002,8002,8002"
+    },
+    "ex_w_ignores_locale": {
+      "ret": true,
+      "last_error": "unchanged",
+      "t0": "0x00008020",
+      "t1": "0x00008050"
+    },
+    "a_cp932_dbcs": {
+      "ret": true,
+      "last_error": "unchanged",
+      "t0": "0x00000300",
+      "t1": "0x00000382",
+      "t2": "0x0000ffff"
+    },
+    "a_cp1251_cyrillic": {
+      "ret": true,
+      "last_error": "unchanged",
+      "t0": "0x00000301",
+      "t1": "0x00000302"
+    },
+    "exa_minus_one": {
+      "ret": true,
+      "last_error": "unchanged",
+      "t0": "0x00000001",
+      "t1": "0x00000003",
+      "t2": "0x0000000a",
+      "t3_nul": "0x00000000"
+    },
+    "a_bad_locale": {
+      "ret": false,
+      "last_error": 87
+    },
+    "have_script_fns": {
+      "get_string_scripts": true,
+      "verify_scripts": true
+    },
+    "scripts_latin": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "scripts": "Latn;"
+    },
+    "scripts_mixed": {
+      "ret": 21,
+      "last_error": "unchanged",
+      "scripts": "Cyrl;Hani;Hira;Latn;"
+    },
+    "scripts_common_only": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "scripts": ""
+    },
+    "scripts_allow_latin": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "scripts": "Zyyy;Qaai;Latn;"
+    },
+    "scripts_inherited_plain": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "scripts": "Latn;"
+    },
+    "scripts_size_query": {
+      "ret": 11,
+      "last_error": "unchanged"
+    },
+    "scripts_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "scripts_bad_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "scripts_counted": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "scripts": "Latn;"
+    },
+    "scripts_greek_arabic": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "scripts": "Arab;Grek;"
+    },
+    "verify_latin_in_latin": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_cyrl_not_in_latin": {
+      "ret": false,
+      "last_error": 0
+    },
+    "verify_subset": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_empty_test": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_zyyy_ignored": {
+      "ret": false,
+      "last_error": 0
+    },
+    "verify_allow_latin": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verify_bad_input_format": {
+      "ret": false,
+      "last_error": 87
+    },
+    "verify_bad_flag": {
+      "ret": false,
+      "last_error": 1004
+    },
+    "nls_version_en_us": {
+      "ret": true,
+      "last_error": 0,
+      "version_nonzero": true,
+      "defined_version_nonzero": true,
+      "effective_id": "0x00000409"
+    },
+    "nls_version_small_struct": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "nls_version_bad_function": {
+      "ret": false,
+      "last_error": 1004
+    },
+    "nls_version_bad_locale": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "defined_ascii": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "defined_noncharacter": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "defined_lone_surrogate": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "defined_emoji_pair": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "defined_bad_function": {
+      "ret": false,
+      "last_error": 1004
+    }
+  },
+  "errors": [],
+  "source_sha256": "443b2ccf18e71e3b0440785027b0bcf934cb471479876d883ad1d2dd313a98f4"
+}

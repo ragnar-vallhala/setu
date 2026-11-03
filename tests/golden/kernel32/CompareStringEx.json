@@ -1,0 +1,313 @@
+{
+  "test": "kernel32/CompareStringEx",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "en_lower_vs_upper": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": 0
+    },
+    "en_a_vs_B": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_prefix": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_accent_after_plain": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_accent_vs_next_letter": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_hyphen_word_sort": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_apostrophe_word_sort": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_digit_vs_letter": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_space_vs_letter": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_ligature_ae": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_sharp_s": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_ignorecase": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_linguistic_ignorecase": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_ignorenonspace": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_linguistic_ignorediacritic": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_ignorecase_not_accent": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_ignoresymbols": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_ignorewidth": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_width_differs": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_stringsort_hyphen": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_digits_as_numbers": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_digits_as_text": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_digits_leading_zero": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "en_digits_mixed_runs": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_ignorecase_stringsort": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_ignorekanatype": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "ja_kana_differs": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_linguistic_casing_flag": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "sv_o_umlaut_vs_z": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "de_o_umlaut_vs_z": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "da_aa_vs_z": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "en_aa_vs_z": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "da_ae_ligature": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "es_modern_ch": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "es_tradnl_ch": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "es_n_tilde_vs_o": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "de_phoneb_a_umlaut": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "de_default_a_umlaut": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "lt_y_vs_j": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "tr_dotted_ignorecase": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "tr_dotless_ignorecase": {
+      "ab": 3,
+      "ba": 1,
+      "last_error": "unchanged"
+    },
+    "tr_linguistic_ignorecase": {
+      "ab": 2,
+      "ba": 2,
+      "last_error": "unchanged"
+    },
+    "en_dotted_ignorecase": {
+      "ab": 1,
+      "ba": 3,
+      "last_error": "unchanged"
+    },
+    "len_counted_prefix": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "len_counted_both": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "len_embedded_nul": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "len_zero_vs_empty": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "len_zero_vs_text": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "len_minus_two": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "bad_flag_bit": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "bad_locale": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "null_first_string": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "null_both_zero_len": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "reserved_not_null": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "lparam_not_zero": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "w_lcid_sv": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "w_lcid_de_phonebook": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "w_lcid_bogus": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "a_lcid_1252_ignorecase": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "a_counted": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignorecase_2": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "ordinal_len_minus_two": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "ordinal_ignorecase_e_acute": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignorecase_deseret_pair": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "ordinal_ignorecase_fullwidth": {
+      "ret": 2,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "e8ca1513a1ff0b6ed0f9af77d9b9ac5be8ddce8f07a17198a40ee4208adac104"
+}

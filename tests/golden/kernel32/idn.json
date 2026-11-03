@@ -1,0 +1,252 @@
+{
+  "test": "kernel32/idn",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "ascii_plain": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "6500780061006d0070006c0065002e0063006f006d000000",
+      "str": "example.com"
+    },
+    "ascii_upper_folded": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "4500580041004d0050004c0045002e0043006f006d000000",
+      "str": "EXAMPLE.Com"
+    },
+    "ascii_umlaut": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "78006e002d002d00620063006800650072002d006b00760061002e00640065000000",
+      "str": "xn--bcher-kva.de"
+    },
+    "ascii_chinese": {
+      "ret": 24,
+      "last_error": "unchanged",
+      "out": "78006e002d002d0066007300710075003000300061002e0078006e002d002d0030007a0077006d003500360064000000",
+      "str": "xn--fsqu00a.xn--0zwm56d"
+    },
+    "ascii_mixed_case_unicode": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "78006e002d002d00620063006800650072002d006b00760061002e00640065000000",
+      "str": "xn--bcher-kva.de"
+    },
+    "ascii_sharp_s": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "73007400720061007300730065002e00640065000000",
+      "str": "strasse.de"
+    },
+    "ascii_fullwidth_dot": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "61002e0062000000",
+      "str": "a.b"
+    },
+    "ascii_ideographic_dot": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "61002e0062000000",
+      "str": "a.b"
+    },
+    "ascii_fullwidth_letters": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "610062000000",
+      "str": "ab"
+    },
+    "ascii_soft_hyphen_removed": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100620063000000",
+      "str": "abc"
+    },
+    "ascii_trailing_dot": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "out": "6500780061006d0070006c0065002e0063006f006d002e000000",
+      "str": "example.com."
+    },
+    "ascii_empty_label": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "ascii_label_63": {
+      "ret": 68,
+      "last_error": "unchanged",
+      "out": "6100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061006100610061002e0063006f006d000000",
+      "str": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+    },
+    "ascii_label_64": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "ascii_name_too_long": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "ascii_underscore": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "61005f0062002e0063006f006d000000",
+      "str": "a_b.com"
+    },
+    "ascii_underscore_std3": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "ascii_leading_hyphen_std3": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "ascii_leading_hyphen": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "2d00610062002e0063006f006d000000",
+      "str": "-ab.com"
+    },
+    "ascii_unassigned": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "ascii_unassigned_allowed": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "78006e002d002d0061002d007100690062000000",
+      "str": "xn--a-qib"
+    },
+    "ascii_prohibited_space": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100200062000000",
+      "str": "a b"
+    },
+    "ascii_prohibited_ideographic_space": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100200062000000",
+      "str": "a b"
+    },
+    "ascii_bidi_mixed": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "78006e002d002d0061002d007a00680063000000",
+      "str": "xn--a-zhc"
+    },
+    "ascii_bidi_rtl_only": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "78006e002d002d0034006400620063000000",
+      "str": "xn--4dbc"
+    },
+    "ascii_already_punycode": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "78006e002d002d00620063006800650072002d006b00760061002e00640065000000",
+      "str": "xn--bcher-kva.de"
+    },
+    "ascii_size_query": {
+      "ret": 17,
+      "last_error": "unchanged"
+    },
+    "ascii_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "ascii_counted": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "78006e002d002d00620063006800650072002d006b00760061002e0064006500",
+      "str": "xn--bcher-kva.de"
+    },
+    "ascii_zero_length": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "ascii_bad_flag": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "unicode_punycode": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "6200fc0063006800650072002e00640065000000",
+      "str": "bücher.de"
+    },
+    "unicode_punycode_upper_prefix": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "6200fc0063006800650072002e00640065000000",
+      "str": "bücher.de"
+    },
+    "unicode_chinese": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "8b4f505b2e004b6dd58b0000",
+      "str": "例子.测试"
+    },
+    "unicode_plain": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "4500780061006d0070006c0065002e0043004f004d000000",
+      "str": "Example.COM"
+    },
+    "unicode_bad_punycode": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "unicode_bad_punycode_digits": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "unicode_non_ascii_input": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "unicode_punycode_of_ascii": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "unicode_size_query": {
+      "ret": 10,
+      "last_error": "unchanged"
+    },
+    "unicode_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "nameprep_case_fold": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "6200fc0063006800650072002e00640065000000",
+      "str": "bücher.de"
+    },
+    "nameprep_sharp_s": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "73007400720061007300730065000000",
+      "str": "strasse"
+    },
+    "nameprep_compat": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "66006900c9030000",
+      "str": "fiω"
+    },
+    "nameprep_prohibited": {
+      "ret": 0,
+      "last_error": 123
+    },
+    "nameprep_ascii": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "6100620063000000",
+      "str": "abc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "32925e74df7a4b133ed44c722c97affca34786b3ed698ad2c780591cc09568bf"
+}

@@ -1,0 +1,181 @@
+{
+  "test": "kernel32/console_handles",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "stdout_is_crt_handle": {
+      "same": true,
+      "stdout_type": 3
+    },
+    "pipe_read_end": {
+      "file_type": 3,
+      "get_mode": false,
+      "get_mode_error": 6,
+      "mode_untouched": true,
+      "set_mode": false,
+      "set_mode_error": 6,
+      "write_console": false,
+      "write_console_error": 1,
+      "written_untouched": true,
+      "screen_info": false,
+      "screen_info_error": 6
+    },
+    "pipe_write_end": {
+      "file_type": 3,
+      "get_mode": false,
+      "get_mode_error": 6,
+      "mode_untouched": true,
+      "set_mode": false,
+      "set_mode_error": 6,
+      "write_console": false,
+      "write_console_error": 1,
+      "written_untouched": true,
+      "screen_info": false,
+      "screen_info_error": 6
+    },
+    "disk_file": {
+      "file_type": 1,
+      "get_mode": false,
+      "get_mode_error": 6,
+      "mode_untouched": true,
+      "set_mode": false,
+      "set_mode_error": 6,
+      "write_console": false,
+      "write_console_error": 6,
+      "written_untouched": true,
+      "screen_info": false,
+      "screen_info_error": 6
+    },
+    "nul_device": {
+      "file_type": 2,
+      "get_mode": false,
+      "get_mode_error": 6,
+      "mode_untouched": true,
+      "set_mode": false,
+      "set_mode_error": 6,
+      "write_console": false,
+      "write_console_error": 1,
+      "written_untouched": true,
+      "screen_info": false,
+      "screen_info_error": 6
+    },
+    "invalid_handle_value": {
+      "file_type": 0,
+      "get_mode": false,
+      "get_mode_error": 6,
+      "mode_untouched": true,
+      "set_mode": false,
+      "set_mode_error": 6,
+      "write_console": false,
+      "write_console_error": 6,
+      "written_untouched": true,
+      "screen_info": false,
+      "screen_info_error": 6
+    },
+    "null_handle": {
+      "file_type": 0,
+      "get_mode": false,
+      "get_mode_error": 6,
+      "mode_untouched": true,
+      "set_mode": false,
+      "set_mode_error": 6,
+      "write_console": false,
+      "write_console_error": 6,
+      "written_untouched": true,
+      "screen_info": false,
+      "screen_info_error": 6
+    },
+    "get_std_bogus": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 6
+    },
+    "set_std_bogus": {
+      "ret": false,
+      "last_error": 6
+    },
+    "set_std_pipe": {
+      "ret": true,
+      "last_error": "unchanged",
+      "get_returns_it": true
+    },
+    "set_std_invalid_value": {
+      "ret": true,
+      "last_error": "unchanged",
+      "get": "INVALID_HANDLE_VALUE"
+    },
+    "set_std_null": {
+      "ret": true,
+      "last_error": "unchanged",
+      "get": "NULL"
+    },
+    "writefile_on_pipe_still_works": {
+      "ret": true,
+      "data": "pipe"
+    },
+    "free_without_console": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "no_console_state": {
+      "window_null": true,
+      "console_cp": 0,
+      "last_error": 6
+    },
+    "conout_without_console": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 6
+    },
+    "attach_bogus_pid": {
+      "ret": false,
+      "last_error": 87
+    },
+    "alloc_console": {
+      "ret": true,
+      "last_error": 187,
+      "stdout_replaced": true,
+      "stdin_replaced": true,
+      "stderr_is_stdout": false,
+      "window_exists": true,
+      "out_type": 2,
+      "out_mode_ok": true,
+      "out_mode": "0x00000003",
+      "in_mode_ok": true,
+      "in_mode": "0x000001f7",
+      "cp_nonzero": true,
+      "output_cp_matches_oem": true
+    },
+    "write_console_new": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 5
+    },
+    "write_console_to_input": {
+      "ret": false,
+      "last_error": 6
+    },
+    "set_mode_bogus_bits": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_mode_processed_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "mode": "0x00000001"
+    },
+    "alloc_console_twice": {
+      "ret": false,
+      "last_error": 5
+    },
+    "free_console": {
+      "ret": true,
+      "last_error": 6,
+      "window_gone": true,
+      "std_handle_kept": true,
+      "old_handle_mode": false,
+      "old_handle_mode_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "b09780c15506d94ce9d7a7a76731691707f266739a93204c74580a9bf65cfc9f"
+}

@@ -1,0 +1,236 @@
+{
+  "test": "kernel32/datetime_named",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "en_short": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "3/14/2024"
+    },
+    "en_long": {
+      "ret": 25,
+      "last_error": "unchanged",
+      "out": "Thursday, March 14, 2024"
+    },
+    "en_yearmonth": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "March 2024"
+    },
+    "en_monthday": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "en_gb_short": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "14/03/2024"
+    },
+    "en_gb_long": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "14 March 2024"
+    },
+    "de_short": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "14.03.2024"
+    },
+    "de_long": {
+      "ret": 26,
+      "last_error": "unchanged",
+      "out": "Donnerstag, 14. März 2024"
+    },
+    "fr_long": {
+      "ret": 19,
+      "last_error": "unchanged",
+      "out": "jeudi 14 mars 2024"
+    },
+    "es_long": {
+      "ret": 28,
+      "last_error": "unchanged",
+      "out": "jueves, 14 de marzo de 2024"
+    },
+    "ru_long_genitive": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "14 марта 2024 г."
+    },
+    "ru_month_alone": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ru_day_month": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "pl_day_month": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ja_short": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "2024/03/14"
+    },
+    "ja_long": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "2024年3月14日"
+    },
+    "ja_alt_calendar_long": {
+      "ret": 10,
+      "last_error": 0,
+      "out": "令和6年3月14日"
+    },
+    "ja_alt_calendar_heisei": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ko_long": {
+      "ret": 17,
+      "last_error": "unchanged",
+      "out": "2024년 3월 14일 목요일"
+    },
+    "zh_cn_long": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "2024年3月14日"
+    },
+    "ar_sa_short": {
+      "ret": 9,
+      "last_error": 0,
+      "out": "04/09/45"
+    },
+    "ar_sa_gregorian_pattern": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "th_short": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "14/3/2567"
+    },
+    "he_rtl_reading": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "‏14/‏03/‏2024"
+    },
+    "en_ltr_reading": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "out": "‎3/‎14/‎2024"
+    },
+    "ltr_and_rtl_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "short_and_long_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "de_custom_names": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "en_default": {
+      "ret": 11,
+      "last_error": 0,
+      "out": "3:04:05 PM"
+    },
+    "en_morning": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "9:07:08 AM"
+    },
+    "en_no_seconds": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "3:04 PM"
+    },
+    "en_no_minutes": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "3 PM"
+    },
+    "en_no_marker": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "3:04:05"
+    },
+    "en_force24": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "15:04:05 PM"
+    },
+    "de_default": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "15:04:05"
+    },
+    "fr_default": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "15:04:05"
+    },
+    "ja_default": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "15:04:05"
+    },
+    "ko_default": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "오후 3:04:05"
+    },
+    "ko_morning": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "오전 9:07:08"
+    },
+    "zh_cn_default": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "15:04:05"
+    },
+    "ar_sa_default": {
+      "ret": 11,
+      "last_error": "unchanged",
+      "out": "03:04:05 م"
+    },
+    "hi_default": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "15:04:05"
+    },
+    "en_gb_tt": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "de_tt_empty_marker": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "ja_t_single": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "en_seconds_kept_literal": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "a_lcid_de": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "w_lcid_ja": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "15:04:05"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4e3eb39ee7ae15c84624a11c851e2e75100a439fcfe43798b365eb551389e219"
+}

@@ -1,0 +1,248 @@
+{
+  "test": "kernel32/format_message_flags",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "va_strings": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "a-bc-a"
+    },
+    "va_int_then_string": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "-5 x"
+    },
+    "va_i64": {
+      "ret": 18,
+      "last_error": "unchanged",
+      "out": "-1234567890123 end"
+    },
+    "va_i64x": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "123456789abc"
+    },
+    "va_hex_alt": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "0xff 0XFF"
+    },
+    "va_plus_space": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "[+7][ 7]"
+    },
+    "va_precision_string": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "[abc]"
+    },
+    "va_width_precision": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "[    ab]"
+    },
+    "va_zero_pad": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "[-0042]"
+    },
+    "va_lu": {
+      "ret": 10,
+      "last_error": "unchanged",
+      "out": "4000000000"
+    },
+    "va_pointer": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "0000000000001234"
+    },
+    "va_char_wide": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "Wn"
+    },
+    "va_star_width": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "[   42]"
+    },
+    "va_ignore_inserts": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "out": "%1!d! %2"
+    },
+    "va_hs_narrow": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "narrow"
+    },
+    "arr_i64u": {
+      "ret": 20,
+      "last_error": "unchanged",
+      "out": "18446744073709551615"
+    },
+    "arr_mixed": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "s ab z"
+    },
+    "arr_lowercase_ignored_language": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "lang"
+    },
+    "width_10_with_hard_break": {
+      "ret": 26,
+      "last_error": "unchanged",
+      "out": "aaaa bbbb\r\ncccc dddd\r\neeee"
+    },
+    "width_10_exact_fit": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "aaaa\r\nbbbbb cc"
+    },
+    "width_10_tab": {
+      "ret": 16,
+      "last_error": "unchanged",
+      "out": "aa\r\nbb cc dd\r\nee"
+    },
+    "width_10_crlf_in_text": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "aa bb"
+    },
+    "width_1": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "a\r\nb\r\n\r\nc\r\nd\r\n"
+    },
+    "width_10_insert_wraps": {
+      "ret": 25,
+      "last_error": "unchanged",
+      "out": "x\r\ninserted words here\r\ny"
+    },
+    "width_mask_hard_break": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "a\r\nb\rc"
+    },
+    "width_mask_tabs": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "a\tb\tc"
+    },
+    "width_10_trailing_space": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "aaaa "
+    },
+    "alloc_min_size_100": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "allocated": true,
+      "out": "abc",
+      "size_at_least_min": true
+    },
+    "alloc_min_smaller_than_text": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "allocated": true,
+      "out": "abcdef",
+      "size_holds_text": true
+    },
+    "alloc_large_output": {
+      "ret": 3990,
+      "last_error": "unchanged",
+      "allocated": true,
+      "strlen": 3990
+    },
+    "alloc_min_over_64k": {
+      "ret": 1,
+      "last_error": "unchanged",
+      "allocated": true
+    },
+    "size_over_64k": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "hmodule_exe_no_table": {
+      "ret": 0,
+      "last_error": 1812
+    },
+    "hmodule_ntdll_access_violation": {
+      "ret": 80,
+      "last_error": "unchanged",
+      "out": "The instruction at 0x%p referenced memory at 0x%p. The memory could not be %s.\r\n"
+    },
+    "hmodule_ntdll_object_name_not_found": {
+      "ret": 24,
+      "last_error": "unchanged",
+      "out": "Object Name not found.\r\n"
+    },
+    "hmodule_ntdll_missing_id": {
+      "ret": 0,
+      "last_error": 317
+    },
+    "hmodule_exe_falls_back_to_system": {
+      "ret": 0,
+      "last_error": 1812
+    },
+    "system_with_arguments": {
+      "ret": 95,
+      "last_error": "unchanged",
+      "out": "The system cannot find message text for message number 0x1A2B in the message file for System.\r\n"
+    },
+    "system_ignore_inserts_keeps_markers": {
+      "ret": 89,
+      "last_error": "unchanged",
+      "out": "The system cannot find message text for message number 0x%1 in the message file for %2.\r\n"
+    },
+    "system_unknown_id": {
+      "ret": 0,
+      "last_error": 317
+    },
+    "system_uninstalled_language": {
+      "ret": 0,
+      "last_error": 15100
+    },
+    "system_english_us": {
+      "ret": 19,
+      "last_error": "unchanged",
+      "out": "Access is denied.\r\n"
+    },
+    "system_max_width_mask": {
+      "ret": 18,
+      "last_error": "unchanged",
+      "out": "Access is denied. "
+    },
+    "system_hresult_win32": {
+      "ret": 44,
+      "last_error": "unchanged",
+      "out": "The system cannot find the file specified.\r\n"
+    },
+    "ansi_from_string": {
+      "ret": 12,
+      "last_error": "unchanged",
+      "out": "[ansi] [7] %"
+    },
+    "ansi_buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "ansi_system": {
+      "ret": 44,
+      "last_error": "unchanged",
+      "out": "The system cannot find the file specified.\r\n"
+    },
+    "ansi_wide_insert": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "wide"
+    }
+  },
+  "errors": [],
+  "source_sha256": "7c954dc62c49c3b24f15c4fe4d98f3d06a4240e5c67893f3fc61104bd365acad"
+}

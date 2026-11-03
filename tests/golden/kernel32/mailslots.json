@@ -1,0 +1,218 @@
+{
+  "test": "kernel32/mailslots",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "file_type": 0
+    },
+    "create_duplicate": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 183
+    },
+    "create_duplicate_other_case": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 183
+    },
+    "create_wrong_prefix": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_plain_name": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_remote_name": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_empty_slot_name": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "info_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64,
+      "next_size": "0xffffffff",
+      "count": 0,
+      "timeout": "0x00000000"
+    },
+    "open_client": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 0
+    },
+    "open_client_for_read": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_missing_slot": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "open_client_no_share": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "write_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 13
+    },
+    "write_second": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 3
+    },
+    "write_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 0
+    },
+    "write_too_big": {
+      "ret": false,
+      "last_error": 87,
+      "written": 0
+    },
+    "write_exact_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 64
+    },
+    "info_after_writes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64,
+      "next_size": "0x0000000d",
+      "count": 4,
+      "timeout": "0x00000000"
+    },
+    "read_small_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "got": 0
+    },
+    "info_after_small_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64,
+      "next_size": "0x0000000d",
+      "count": 4,
+      "timeout": "0x00000000"
+    },
+    "read_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "got": 13,
+      "data": "6669727374206d657373616765"
+    },
+    "read_second": {
+      "ret": true,
+      "last_error": "unchanged",
+      "got": 3,
+      "data": "326e64"
+    },
+    "read_empty_message": {
+      "ret": true,
+      "last_error": "unchanged",
+      "got": 0,
+      "data": ""
+    },
+    "read_max_message": {
+      "ret": true,
+      "last_error": "unchanged",
+      "got": 64,
+      "data": "42424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242"
+    },
+    "info_drained": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64,
+      "next_size": "0xffffffff",
+      "count": 0,
+      "timeout": "0x00000000"
+    },
+    "set_timeout_50": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "info_timeout_50": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64,
+      "next_size": "0xffffffff",
+      "count": 0,
+      "timeout": "0x00000032"
+    },
+    "read_timeout_empty": {
+      "ret": false,
+      "last_error": 121,
+      "got": 0
+    },
+    "read_timeout_waited": {
+      "waited_some": true
+    },
+    "set_info_on_client": {
+      "ret": false,
+      "last_error": 87
+    },
+    "info_on_client": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64,
+      "next_size": "0xffffffff",
+      "count": 0,
+      "timeout": "0x00000032"
+    },
+    "read_from_client": {
+      "ret": false,
+      "last_error": 5,
+      "got": 0
+    },
+    "info_null_outputs": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64
+    },
+    "create_no_limit": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "info_no_limit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 0,
+      "next_size": "0xffffffff",
+      "count": 0,
+      "timeout": "0xffffffff"
+    },
+    "write_before_close": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 4
+    },
+    "write_after_server_closed": {
+      "ret": false,
+      "last_error": 38,
+      "written": 0
+    },
+    "recreate_after_close": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "info_recreated": {
+      "ret": true,
+      "last_error": "unchanged",
+      "max_size": 64,
+      "next_size": "0xffffffff",
+      "count": 0,
+      "timeout": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "f4a55345de4cbe580525d81f75cb98230a85a65cc10c97689f7cb9fdefa6c8ec"
+}

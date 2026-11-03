@@ -1,0 +1,287 @@
+{
+  "test": "kernel32/WideCharToMultiByte",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "cp1252_best_fit_default": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "413f3800",
+      "used_default": 1
+    },
+    "cp1252_no_best_fit": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "3f3f3f00",
+      "used_default": 1
+    },
+    "cp1252_custom_default": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "612a7a00",
+      "used_default": 1
+    },
+    "cp1252_custom_default_multibyte_str": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "61587a00",
+      "used_default": 1
+    },
+    "cp1252_used_default_false": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "616263e900",
+      "used_default": 0
+    },
+    "cp1252_used_default_null_ok": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "3f00"
+    },
+    "cp1252_fullwidth_best_fit": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "416200",
+      "used_default": 0
+    },
+    "cp1252_fullwidth_no_best_fit": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "3f3f00",
+      "used_default": 1
+    },
+    "cp1252_lone_surrogate": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "613f7a00",
+      "used_default": 1
+    },
+    "cp1252_surrogate_pair": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "3f3f00",
+      "used_default": 1
+    },
+    "cp1252_err_invalid_chars_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "cp1252_c1_controls": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "818d3f8000",
+      "used_default": 1
+    },
+    "cp437_best_fit": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "416100",
+      "used_default": 0
+    },
+    "cp437_no_best_fit": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "3f3f00",
+      "used_default": 1
+    },
+    "composite_check_precompose": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "e900",
+      "used_default": 0
+    },
+    "composite_check_defaultchar": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "3f00",
+      "used_default": 1
+    },
+    "composite_check_discardns": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "7800",
+      "used_default": 0
+    },
+    "composite_check_sepchars": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "78b400",
+      "used_default": 0
+    },
+    "no_composite_check": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "65b400",
+      "used_default": 0
+    },
+    "discardns_without_compositecheck": {
+      "ret": 0,
+      "last_error": 1004,
+      "used_default": 7
+    },
+    "two_composite_companions": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "6100"
+    },
+    "utf8_err_invalid_lone_high": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "utf8_err_invalid_lone_low": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "utf8_err_invalid_reversed_pair": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "utf8_lone_high_at_end_counted": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": "61efbfbd"
+    },
+    "utf8_reversed_pair": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "efbfbdefbfbd"
+    },
+    "utf8_noncharacter": {
+      "ret": 7,
+      "last_error": "unchanged",
+      "out": "efbfbeefbfbf00"
+    },
+    "utf8_no_best_fit_ok": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "c3a900"
+    },
+    "utf8_compositecheck_rejected": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "6100"
+    },
+    "utf8_used_default_rejected": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "6100",
+      "used_default": 0
+    },
+    "utf8_size_query_err_invalid": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "utf7_flags_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "utf7_default_char_rejected": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "utf7_plus_and_specials": {
+      "ret": 22,
+      "last_error": "unchanged",
+      "out": "312b2d312b4144302d32202b41483441584141682d00"
+    },
+    "utf7_lone_surrogate": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "out": "2b3241412d00"
+    },
+    "symbol_cp_42": {
+      "ret": 0,
+      "last_error": 1113
+    },
+    "symbol_cp_flags_rejected": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "cp932_kanji_kana": {
+      "ret": 9,
+      "last_error": "unchanged",
+      "out": "93fa967bb682a04100",
+      "used_default": 0
+    },
+    "cp932_yen_backslash": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "5c5c00",
+      "used_default": 0
+    },
+    "cp932_unmappable": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "3f00",
+      "used_default": 1
+    },
+    "cp932_buffer_splits_dbcs": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "cp936_hanzi": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "d6d0cec400",
+      "used_default": 0
+    },
+    "cp949_hangul": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "c7d1b1db00",
+      "used_default": 0
+    },
+    "cp950_hanzi": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "a4a4a4e500",
+      "used_default": 0
+    },
+    "cp932_default_char_dbcs": {
+      "ret": 3,
+      "last_error": "unchanged",
+      "out": "810023",
+      "used_default": 1
+    },
+    "size_query": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "size_query_counted": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "buffer_too_small": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "buffer_exact_no_nul": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "out": "68656c6c6f"
+    },
+    "zero_length": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "null_source": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_code_page": {
+      "ret": 0,
+      "last_error": 87
+    },
+    "bad_flag_bit": {
+      "ret": 0,
+      "last_error": 1004
+    },
+    "same_buffer_rejected": {
+      "ret": 0,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "589a19577a7f6384a2095ca426a49b176d339f6a5fe69db571845eb38122f728"
+}
