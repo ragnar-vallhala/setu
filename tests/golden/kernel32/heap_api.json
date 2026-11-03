@@ -1,0 +1,248 @@
+{
+  "test": "kernel32/heap_api",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "get_process_heaps_count_only": {
+      "nonzero": true,
+      "last_error": "unchanged"
+    },
+    "get_process_heaps_lists_default": {
+      "same_count": true,
+      "first_is_default": true,
+      "has_default": true
+    },
+    "get_process_heaps_after_create": {
+      "delta": 1,
+      "has_new": true
+    },
+    "get_process_heaps_after_destroy": {
+      "delta": 0
+    },
+    "get_process_heaps_small_buffer": {
+      "returns_total": true,
+      "last_error": "unchanged"
+    },
+    "create_initial_gt_max": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "create_unknown_flag": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "create_executable": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "executable_heap_block_protect": {
+      "protect": "PAGE_EXECUTE_READWRITE"
+    },
+    "plain_heap_block_protect": {
+      "protect": "PAGE_READWRITE",
+      "private": true
+    },
+    "growable_alloc_4mb": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "growable_4mb_size": {
+      "size_exact": true
+    },
+    "large_block_own_allocation": {
+      "committed": true,
+      "region_covers_block": true
+    },
+    "free_large": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "realloc_in_place_shrink": {
+      "same_pointer": true,
+      "last_error": "unchanged",
+      "size": 50
+    },
+    "realloc_in_place_grow_huge": {
+      "ret_null": true,
+      "last_error": 8,
+      "size_unchanged": 50
+    },
+    "realloc_grow_zero_memory": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "keeps_first_50": true,
+      "zero_from_100": true,
+      "size": 300
+    },
+    "realloc_to_zero": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "size": 0
+    },
+    "size_37": {
+      "size": 37,
+      "last_error": "unchanged"
+    },
+    "validate_heap": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "validate_block": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "validate_interior_pointer": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "validate_process_heap": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "validate_static_buffer": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "lock": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "lock_recursive": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unlock": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unlock_second": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "compact": {
+      "nonzero": true,
+      "last_error": "unchanged"
+    },
+    "no_serialize_lock": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "no_serialize_unlock": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "no_serialize_set_lfh": {
+      "ret": false,
+      "last_error": 87
+    },
+    "walk_three_blocks": {
+      "first_is_region": true,
+      "has_region": true,
+      "single_region_index": true,
+      "busy": 3,
+      "found_size1": 1,
+      "found_size2": 1,
+      "found_size3": 1,
+      "has_free_block": true,
+      "busy_moveable": false,
+      "other_flags": 0,
+      "end_error": 259
+    },
+    "walk_after_free_middle": {
+      "first_is_region": true,
+      "has_region": true,
+      "single_region_index": true,
+      "busy": 2,
+      "found_size1": 1,
+      "found_size2": 0,
+      "found_size3": 1,
+      "has_free_block": true,
+      "busy_moveable": false,
+      "other_flags": 0,
+      "end_error": 259
+    },
+    "walk_empty_heap": {
+      "first_is_region": true,
+      "has_region": true,
+      "single_region_index": true,
+      "busy": 0,
+      "found_size1": 0,
+      "found_size2": 0,
+      "found_size3": 0,
+      "has_free_block": true,
+      "busy_moveable": false,
+      "other_flags": 0,
+      "end_error": 259
+    },
+    "query_compat_new_heap": {
+      "ret": true,
+      "last_error": "unchanged",
+      "value": 0,
+      "ret_len": 4
+    },
+    "query_compat_small_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "ret_len": 4
+    },
+    "set_lfh": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_after_set_lfh": {
+      "value": 2
+    },
+    "set_lal": {
+      "ret": false,
+      "last_error": 31
+    },
+    "set_compat_7": {
+      "ret": false,
+      "last_error": 31
+    },
+    "set_compat_small_buffer": {
+      "ret": false,
+      "last_error": 122
+    },
+    "set_termination_on_corruption": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_unknown_class": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_unknown_class": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fixed_alloc_half": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "fixed_alloc_second_half": {
+      "ret_null": true,
+      "last_error": 8
+    },
+    "fixed_realloc_past_max": {
+      "ret_null": true,
+      "last_error": 8,
+      "size_unchanged": 32768
+    },
+    "destroy_fixed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "destroy_process_heap": {
+      "ret": false,
+      "last_error": 6
+    },
+    "process_heap_still_works": {
+      "ret_null": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "ad434992df5350eb1b967e0250f207ead4745c53fb8012775647502b06711714"
+}
