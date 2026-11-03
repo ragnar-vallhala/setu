@@ -5748,6 +5748,19 @@ struct set_fd_eof_info_reply
 
 
 
+struct set_fd_pos_info_request
+{
+    struct request_header __header;
+    obj_handle_t handle;
+    file_pos_t   pos;
+};
+struct set_fd_pos_info_reply
+{
+    struct reply_header __header;
+};
+
+
+
 struct get_window_layered_info_request
 {
     struct request_header __header;
@@ -6568,6 +6581,7 @@ enum request
     REQ_get_delete_pending,
     REQ_set_fd_name_info,
     REQ_set_fd_eof_info,
+    REQ_set_fd_pos_info,
     REQ_get_window_layered_info,
     REQ_set_window_layered_info,
     REQ_alloc_user_handle,
@@ -6889,6 +6903,7 @@ union generic_request
     struct get_delete_pending_request get_delete_pending_request;
     struct set_fd_name_info_request set_fd_name_info_request;
     struct set_fd_eof_info_request set_fd_eof_info_request;
+    struct set_fd_pos_info_request set_fd_pos_info_request;
     struct get_window_layered_info_request get_window_layered_info_request;
     struct set_window_layered_info_request set_window_layered_info_request;
     struct alloc_user_handle_request alloc_user_handle_request;
@@ -7208,6 +7223,7 @@ union generic_reply
     struct get_delete_pending_reply get_delete_pending_reply;
     struct set_fd_name_info_reply set_fd_name_info_reply;
     struct set_fd_eof_info_reply set_fd_eof_info_reply;
+    struct set_fd_pos_info_reply set_fd_pos_info_reply;
     struct get_window_layered_info_reply get_window_layered_info_reply;
     struct set_window_layered_info_reply set_window_layered_info_reply;
     struct alloc_user_handle_reply alloc_user_handle_reply;
@@ -7243,6 +7259,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 937
+#define SERVER_PROTOCOL_VERSION 938
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

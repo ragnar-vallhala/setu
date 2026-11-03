@@ -2428,6 +2428,54 @@ static NTSTATUS server_get_file_info( HANDLE handle, IO_STATUS_BLOCK *io, void *
 }
 
 
+/* Windows keeps any non-negative file position, while the host refuses positions
+ * beyond its maximum file size. Such a position is kept by the server for the
+ * file object, and the unix file descriptor stays at the host's maximum. */
+
+/* whether the host accepts no position after pos */
+static BOOL is_host_max_pos( int fd, off_t pos )
+{
+    BOOL ret;
+
+    /* host file systems take positions of at least 2 GiB; checking moves the
+     * shared position for a moment, so don't do it for ordinary positions */
+    if (pos < 0x7fffffff) return FALSE;
+    if (pos == (off_t)0x7fffffffffffffff) return TRUE;
+    ret = lseek( fd, pos + 1, SEEK_SET ) == (off_t)-1 && errno == EINVAL;
+    lseek( fd, pos, SEEK_SET );
+    return ret;
+}
+
+/* set the file position kept by the server */
+static NTSTATUS set_server_file_pos( HANDLE handle, LONGLONG pos )
+{
+    NTSTATUS status;
+
+    SERVER_START_REQ( set_fd_pos_info )
+    {
+        req->handle = wine_server_obj_handle( handle );
+        req->pos    = pos;
+        status = wine_server_call( req );
+    }
+    SERVER_END_REQ;
+    return status;
+}
+
+/* get the current file position, including one beyond the host's limit */
+static off_t get_file_pos( HANDLE handle, int fd )
+{
+    FILE_POSITION_INFORMATION info;
+    IO_STATUS_BLOCK io;
+    off_t pos = lseek( fd, 0, SEEK_CUR );
+
+    if (pos == (off_t)-1 || !is_host_max_pos( fd, pos )) return pos;
+    if (!server_get_file_info( handle, &io, &info, sizeof(info), FilePositionInformation ) &&
+        info.CurrentByteOffset.QuadPart > pos)
+        return info.CurrentByteOffset.QuadPart;
+    return pos;
+}
+
+
 static unsigned int server_open_file_object( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBUTES *attr,
                                              ULONG sharing, ULONG options )
 {
@@ -5360,7 +5408,7 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
     case FilePositionInformation:
         {
             FILE_POSITION_INFORMATION *info = ptr;
-            off_t res = lseek( fd, 0, SEEK_CUR );
+            off_t res = get_file_pos( handle, fd );
             if (res == (off_t)-1) status = errno_to_status( errno );
             else info->CurrentByteOffset.QuadPart = res;
         }
@@ -5397,7 +5445,7 @@ NTSTATUS WINAPI NtQueryInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
                 fill_delete_pending( handle, &st, &info->StandardInformation );
                 info->EaInformation.EaSize = 0;
                 info->AccessInformation.AccessFlags = 0;  /* FIXME */
-                info->PositionInformation.CurrentByteOffset.QuadPart = lseek( fd, 0, SEEK_CUR );
+                info->PositionInformation.CurrentByteOffset.QuadPart = get_file_pos( handle, fd );
                 info->ModeInformation.Mode = 0;  /* FIXME */
                 info->AlignmentInformation.AlignmentRequirement = 1;  /* FIXME */
                 status = server_get_name_info( handle, &info->NameInformation, &name_len );
@@ -5665,16 +5713,25 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
                 FILE_FS_DEVICE_INFORMATION device;
                 IO_STATUS_BLOCK iosb;
 
-                /* pipes have no position to move, but setting one succeeds */
+                /* a pipe keeps the position of its file object, which reads
+                 * and writes don't move */
                 if (status == STATUS_BAD_DEVICE_TYPE &&
                     !NtQueryVolumeInformationFile( handle, &iosb, &device, sizeof(device),
                                                    FileFsDeviceInformation ) &&
                     device.DeviceType == FILE_DEVICE_NAMED_PIPE)
-                    status = STATUS_SUCCESS;
+                {
+                    if (info->CurrentByteOffset.QuadPart < 0) status = STATUS_INVALID_PARAMETER;
+                    else status = set_server_file_pos( handle, info->CurrentByteOffset.QuadPart );
+                }
                 return io->Status = status;
             }
 
-            if (lseek( fd, info->CurrentByteOffset.QuadPart, SEEK_SET ) == (off_t)-1)
+            if (lseek( fd, info->CurrentByteOffset.QuadPart, SEEK_SET ) != (off_t)-1)
+            {
+                if (is_host_max_pos( fd, info->CurrentByteOffset.QuadPart ))
+                    status = set_server_file_pos( handle, info->CurrentByteOffset.QuadPart );
+            }
+            else
             {
                 if (errno == EINVAL && info->CurrentByteOffset.QuadPart >= 0)
                 {
@@ -5690,6 +5747,7 @@ NTSTATUS WINAPI NtSetInformationFile( HANDLE handle, IO_STATUS_BLOCK *io,
                         else hi = mid;
                     }
                     if (lseek( fd, lo, SEEK_SET ) == (off_t)-1) status = errno_to_status( errno );
+                    else status = set_server_file_pos( handle, info->CurrentByteOffset.QuadPart );
                 }
                 else status = errno_to_status( errno );
             }
@@ -6670,6 +6728,13 @@ NTSTATUS WINAPI NtReadFile( HANDLE handle, HANDLE event, PIO_APC_ROUTINE apc, vo
                 {
                     status = STATUS_SUCCESS;
                     goto done;
+                }
+                /* the read would end beyond the largest possible position */
+                if (type == FD_TYPE_FILE && length &&
+                    get_file_pos( handle, unix_handle ) > (off_t)(0x7fffffffffffffff - length))
+                {
+                    status = STATUS_INVALID_PARAMETER;
+                    goto err;
                 }
                 switch (type)
                 {

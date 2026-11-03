@@ -4022,6 +4022,13 @@ struct handle_info
 @END
 
 
+/* set the file position kept by the server (for files without a host position) */
+@REQ(set_fd_pos_info)
+    obj_handle_t handle;        /* handle to a file */
+    file_pos_t   pos;           /* new file position */
+@END
+
+
 /* Retrieve layered info for a window */
 @REQ(get_window_layered_info)
     user_handle_t  handle;        /* handle to the window */

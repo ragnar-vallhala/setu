@@ -162,6 +162,7 @@ struct fd
     struct completion   *completion;  /* completion object attached to this fd */
     apc_param_t          comp_key;    /* completion key to set in completion events */
     unsigned int         comp_flags;  /* completion flags */
+    file_pos_t           pos;         /* file position kept by the server (pipes, beyond the host's limit) */
 };
 
 static void fd_dump( struct object *obj, int verbose );
@@ -1852,6 +1853,7 @@ static struct fd *alloc_fd_object(void)
     fd->poll_index = -1;
     fd->completion = NULL;
     fd->comp_flags = 0;
+    fd->pos        = 0;
     init_async_queue( &fd->read_q );
     init_async_queue( &fd->write_q );
     init_async_queue( &fd->wait_q );
@@ -1894,6 +1896,7 @@ struct fd *alloc_pseudo_fd( const struct fd_ops *fd_user_ops, struct object *use
     fd->poll_index = -1;
     fd->completion = NULL;
     fd->comp_flags = 0;
+    fd->pos        = 0;
     fd->no_fd_status = STATUS_BAD_DEVICE_TYPE;
     init_async_queue( &fd->read_q );
     init_async_queue( &fd->write_q );
@@ -2836,6 +2839,18 @@ void default_fd_get_file_info( struct fd *fd, obj_handle_t handle, unsigned int 
             set_reply_data( &info, sizeof(info) );
             break;
         }
+    case FilePositionInformation:
+        {
+            FILE_POSITION_INFORMATION info;
+            if (get_reply_max_size() < sizeof(info))
+            {
+                set_error( STATUS_INFO_LENGTH_MISMATCH );
+                return;
+            }
+            info.CurrentByteOffset.QuadPart = fd->pos;
+            set_reply_data( &info, sizeof(info) );
+            break;
+        }
     case FileIoCompletionNotificationInformation:
         {
             FILE_IO_COMPLETION_NOTIFICATION_INFORMATION info;
@@ -3559,6 +3574,17 @@ DECL_HANDLER(set_fd_eof_info)
     if (fd)
     {
         set_fd_eof( fd, req->eof );
+        release_object( fd );
+    }
+}
+
+/* set the file position kept by the server */
+DECL_HANDLER(set_fd_pos_info)
+{
+    struct fd *fd = get_handle_fd_obj( current->process, req->handle, 0 );
+    if (fd)
+    {
+        fd->pos = req->pos;
         release_object( fd );
     }
 }
