@@ -63,6 +63,7 @@ struct pipe_end
     process_id_t         client_pid; /* process that created the client */
     process_id_t         server_pid; /* process that created the server */
     data_size_t          buffer_size;/* size of buffered data that doesn't block caller */
+    unsigned int         index;      /* FileInternalInformation index number */
     struct list          message_queue;
     struct async_queue   read_q;     /* read queue */
     struct async_queue   write_q;    /* write queue */
@@ -910,6 +911,38 @@ static void pipe_end_get_file_info( struct fd *fd, obj_handle_t handle, unsigned
             std_info->Directory               = 0;
             break;
         }
+    case FileBasicInformation:
+        {
+            FILE_BASIC_INFORMATION *basic_info;
+
+            if (!(get_handle_access( current->process, handle) & FILE_READ_ATTRIBUTES))
+            {
+                set_error( STATUS_ACCESS_DENIED );
+                return;
+            }
+            if (get_reply_max_size() < sizeof(*basic_info))
+            {
+                set_error( STATUS_INFO_LENGTH_MISMATCH );
+                return;
+            }
+            if (!(basic_info = set_reply_data_size( sizeof(*basic_info) ))) return;
+            memset( basic_info, 0, sizeof(*basic_info) );
+            basic_info->FileAttributes = FILE_ATTRIBUTE_NORMAL;
+            break;
+        }
+    case FileInternalInformation:
+        {
+            FILE_INTERNAL_INFORMATION *internal_info;
+
+            if (get_reply_max_size() < sizeof(*internal_info))
+            {
+                set_error( STATUS_INFO_LENGTH_MISMATCH );
+                return;
+            }
+            if (!(internal_info = set_reply_data_size( sizeof(*internal_info) ))) return;
+            internal_info->IndexNumber.QuadPart = pipe_end->index;
+            break;
+        }
     default:
         default_fd_get_file_info( fd, handle, info_class );
     }
@@ -1415,7 +1448,10 @@ static void init_pipe_end( struct pipe_end *pipe_end, struct named_pipe *pipe,
     pipe_end->fd = NULL;
     pipe_end->flags = pipe_flags;
     pipe_end->connection = NULL;
+    static unsigned int next_index;
+
     pipe_end->buffer_size = buffer_size;
+    pipe_end->index = ++next_index;
     init_async_queue( &pipe_end->read_q );
     init_async_queue( &pipe_end->write_q );
     list_init( &pipe_end->message_queue );
