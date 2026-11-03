@@ -934,6 +934,7 @@
     "kernel32/FlushFileBuffers:no_access",
     "kernel32/FlushFileBuffers:no_buffering",
     "kernel32/FlushFileBuffers:nul_read",
+    "kernel32/FlushFileBuffers:nul_write",
     "kernel32/FlushFileBuffers:null_handle",
     "kernel32/FlushFileBuffers:overlapped",
     "kernel32/FlushFileBuffers:read_attributes_only",

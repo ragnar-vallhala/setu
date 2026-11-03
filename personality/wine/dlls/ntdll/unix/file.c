@@ -7209,6 +7209,22 @@ NTSTATUS WINAPI NtFlushBuffersFileEx( HANDLE handle, ULONG flags, void *params, 
 
     if (!io || !virtual_check_buffer_for_write( io, sizeof(*io) )) return STATUS_ACCESS_VIOLATION;
 
+    /* the NUL device can't flush, but still checks for write access first */
+    if (!server_get_unix_fd( handle, 0, &fd, &needs_close, &type, NULL ))
+    {
+        FILE_FS_DEVICE_INFORMATION info;
+        BOOL is_null = !get_device_info( fd, &info ) &&
+                       info.DeviceType == FILE_DEVICE_NULL;
+
+        if (needs_close) close( fd );
+        if (is_null)
+        {
+            if (check_handle_access( handle, FILE_WRITE_DATA ) && check_handle_access( handle, FILE_APPEND_DATA ))
+                return STATUS_ACCESS_DENIED;
+            return STATUS_INVALID_DEVICE_REQUEST;
+        }
+    }
+
     ret = server_get_unix_fd( handle, FILE_WRITE_DATA, &fd, &needs_close, &type, NULL );
     if (ret == STATUS_ACCESS_DENIED)
         ret = server_get_unix_fd( handle, FILE_APPEND_DATA, &fd, &needs_close, &type, NULL );
