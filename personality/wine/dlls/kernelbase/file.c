@@ -2963,11 +2963,17 @@ BOOL WINAPI DECLSPEC_HOTPATCH NeedCurrentDirectoryForExePathA( LPCSTR name )
  */
 BOOL WINAPI DECLSPEC_HOTPATCH NeedCurrentDirectoryForExePathW( LPCWSTR name )
 {
+    UNICODE_STRING var, val;
     WCHAR env_val;
 
     if (wcschr( name, '\\' )) return TRUE;
-    /* check the existence of the variable, not value */
-    return !GetEnvironmentVariableW( L"NoDefaultCurrentDirectoryInExePath", &env_val, 1 );
+    /* check the existence of the variable, not its value (an empty value
+     * counts too), and leave the last error alone */
+    RtlInitUnicodeString( &var, L"NoDefaultCurrentDirectoryInExePath" );
+    val.Buffer = &env_val;
+    val.Length = 0;
+    val.MaximumLength = sizeof(env_val);
+    return RtlQueryEnvironmentVariable_U( NULL, &var, &val ) == STATUS_VARIABLE_NOT_FOUND;
 }
 
 
