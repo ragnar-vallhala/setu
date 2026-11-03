@@ -59,6 +59,8 @@ void WINAPI RtlRunOnceInitialize( RTL_RUN_ONCE *once )
  */
 DWORD WINAPI RtlRunOnceBeginInitialize( RTL_RUN_ONCE *once, ULONG flags, void **context )
 {
+    if (flags & ~(RTL_RUN_ONCE_CHECK_ONLY | RTL_RUN_ONCE_ASYNC)) return STATUS_INVALID_PARAMETER;
+
     if (flags & RTL_RUN_ONCE_CHECK_ONLY)
     {
         ULONG_PTR val = (ULONG_PTR)ReadPointerAcquire( &once->Ptr );
@@ -106,6 +108,7 @@ DWORD WINAPI RtlRunOnceBeginInitialize( RTL_RUN_ONCE *once, ULONG flags, void **
 DWORD WINAPI RtlRunOnceComplete( RTL_RUN_ONCE *once, ULONG flags, void *context )
 {
     if ((ULONG_PTR)context & 3) return STATUS_INVALID_PARAMETER;
+    if (flags & ~(RTL_RUN_ONCE_ASYNC | RTL_RUN_ONCE_INIT_FAILED)) return STATUS_INVALID_PARAMETER;
 
     if (flags & RTL_RUN_ONCE_INIT_FAILED)
     {
@@ -121,6 +124,7 @@ DWORD WINAPI RtlRunOnceComplete( RTL_RUN_ONCE *once, ULONG flags, void *context 
         switch (val & 3)
         {
         case 1:  /* in progress */
+            if (flags & RTL_RUN_ONCE_ASYNC) return STATUS_INVALID_PARAMETER;
             if (InterlockedCompareExchangePointer( &once->Ptr, context, (void *)val ) != (void *)val) break;
             val &= ~3;
             while (val)
@@ -466,6 +470,8 @@ DWORD WINAPI RtlRunOnceExecuteOnce( RTL_RUN_ONCE *once, PRTL_RUN_ONCE_INIT_FN fu
         return STATUS_UNSUCCESSFUL;
     }
 
+    /* A context with the reserved low bits set is a caller bug: raise. */
+    if (context && ((ULONG_PTR)*context & 3)) RtlRaiseStatus( STATUS_INVALID_PARAMETER_3 );
     return RtlRunOnceComplete( once, 0, context ? *context : NULL );
 }
 
