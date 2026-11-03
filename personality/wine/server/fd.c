@@ -2955,7 +2955,9 @@ static void set_fd_disposition( struct fd *fd, unsigned int flags )
 
     if (!fd->inode)
     {
-        set_error( STATUS_OBJECT_TYPE_MISMATCH );
+        /* a device such as NUL has nothing to delete */
+        if (fd->fd_ops->get_fd_type( fd ) == FD_TYPE_DEVICE) set_error( STATUS_INVALID_DEVICE_REQUEST );
+        else set_error( STATUS_OBJECT_TYPE_MISMATCH );
         return;
     }
 
