@@ -1,0 +1,148 @@
+{
+  "test": "kernel32/QueryDosDeviceW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "root_drive": {
+      "ret": 25,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first_is_device": true
+    },
+    "root_drive_lowercase": {
+      "ret": 25,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first_is_device": true
+    },
+    "root_drive_trailing_backslash": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "nul": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first": "\\Device\\Null"
+    },
+    "nul_lowercase": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first": "\\Device\\Null"
+    },
+    "pipe": {
+      "ret": 19,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first": "\\Device\\NamedPipe"
+    },
+    "mailslot": {
+      "ret": 18,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first": "\\Device\\MailSlot"
+    },
+    "unused_drive": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "missing_name": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "empty_name": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "nul_buffer_1": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "nul_buffer_12": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "nul_buffer_13": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "nul_buffer_14": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first": "\\Device\\Null"
+    },
+    "list_all": {
+      "ret_nonzero": true,
+      "last_error": "unchanged",
+      "has_nul": true,
+      "has_root_drive": true,
+      "has_pipe": true,
+      "ret_counts_final_nul": true
+    },
+    "list_all_small_buffer": {
+      "ret": 0,
+      "last_error": 122
+    },
+    "define_raw": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_defined_raw": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": true,
+      "first": "\\Device\\Null"
+    },
+    "define_raw_push_second": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_defined_two": {
+      "ret": 33,
+      "last_error": "unchanged",
+      "targets": 2,
+      "ret_counts_final_nul": false,
+      "first": "\\Device\\NamedPipe"
+    },
+    "open_defined": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "remove_exact": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_after_remove_exact": {
+      "ret": 15,
+      "last_error": "unchanged",
+      "targets": 1,
+      "ret_counts_final_nul": false,
+      "first": "\\Device\\Null"
+    },
+    "remove_all": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "query_after_remove_all": {
+      "ret": 0,
+      "last_error": 2
+    },
+    "remove_missing": {
+      "ret": true,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4f1d82d4b3c273697c72958aed6fd55092a10b3ac364c570595ec86ed8319c81"
+}

@@ -1,0 +1,349 @@
+{
+  "test": "kernel32/SetFileAttributesW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "fresh": {
+      "file": "0x00000020",
+      "dir": "0x00000010"
+    },
+    "file_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000001"
+    },
+    "file_hidden": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000002"
+    },
+    "file_system": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000004"
+    },
+    "file_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_archive": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020"
+    },
+    "file_device": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_normal": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_temporary": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000100"
+    },
+    "file_sparse": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_reparse": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_compressed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_offline": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00001000"
+    },
+    "file_not_content_indexed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00002000"
+    },
+    "file_encrypted": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_integrity_stream": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_virtual": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_no_scrub_data": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00020000"
+    },
+    "file_recall_on_open": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_pinned": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00080000"
+    },
+    "file_unpinned": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00100000"
+    },
+    "file_recall_on_data_access": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "dir_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000011"
+    },
+    "dir_hidden": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000012"
+    },
+    "dir_system": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000014"
+    },
+    "dir_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_archive": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000030"
+    },
+    "dir_device": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_normal": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_temporary": {
+      "ret": false,
+      "last_error": 87,
+      "attrs": "0x00000010"
+    },
+    "dir_sparse": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_reparse": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_compressed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_offline": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00001010"
+    },
+    "dir_not_content_indexed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00002010"
+    },
+    "dir_encrypted": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_integrity_stream": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_virtual": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_no_scrub_data": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00020010"
+    },
+    "dir_recall_on_open": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_pinned": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00080010"
+    },
+    "dir_unpinned": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00100010"
+    },
+    "dir_recall_on_data_access": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "file_zero": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "file_all_dos_bits": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000027"
+    },
+    "file_normal_with_hidden": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000002"
+    },
+    "file_all_bits": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x001a3127"
+    },
+    "file_high_unknown_bit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000002"
+    },
+    "dir_zero": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010"
+    },
+    "dir_all_dos_bits": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000037"
+    },
+    "missing_file": {
+      "ret": false,
+      "last_error": 2,
+      "attrs": "missing"
+    },
+    "missing_dir": {
+      "ret": false,
+      "last_error": 3,
+      "attrs": "missing"
+    },
+    "file_trailing_backslash": {
+      "ret": false,
+      "last_error": 123,
+      "attrs": "0x00000080"
+    },
+    "file_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000004"
+    },
+    "file_other_case": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020"
+    },
+    "dir_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000012"
+    },
+    "wildcard": {
+      "ret": false,
+      "last_error": 123,
+      "attrs": "0x00000020"
+    },
+    "empty_path": {
+      "ret": false,
+      "last_error": 3,
+      "attrs": "0x00000020"
+    },
+    "dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000030"
+    },
+    "nul_device": {
+      "ret": false,
+      "last_error": 1,
+      "attrs": "0x00000020"
+    },
+    "open_exclusive": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000002"
+    },
+    "open_share_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000002"
+    },
+    "open_share_read_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000004"
+    },
+    "open_attributes_only_no_share": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020"
+    },
+    "delete_pending": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000002"
+    },
+    "readonly_to_hidden": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000003"
+    },
+    "readonly_cleared": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080"
+    },
+    "ansi_hidden": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000002"
+    }
+  },
+  "errors": [],
+  "source_sha256": "c44c98b8cf4846139182828167b4d00f4aab691977a7ec3cd069e95c081a8e7d"
+}

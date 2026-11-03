@@ -1,0 +1,248 @@
+{
+  "test": "kernel32/CreateSymbolicLinkW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "file_link_relative": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "file_link_unprivileged_flag": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "file_link_absolute": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "dir_link_relative": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000410"
+    },
+    "file_flag_on_dir_target": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "dir_flag_on_file_target": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000410"
+    },
+    "dangling_file_link": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "dangling_dir_link": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000410"
+    },
+    "link_name_exists": {
+      "ret": false,
+      "last_error": 183,
+      "link_attrs": "0x00000420"
+    },
+    "link_name_is_existing_file": {
+      "ret": false,
+      "last_error": 183,
+      "link_attrs": "0x00000020"
+    },
+    "link_in_missing_dir": {
+      "ret": false,
+      "last_error": 3,
+      "link_attrs": "missing"
+    },
+    "invalid_flag_4": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "invalid_flag_high": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "empty_target": {
+      "ret": false,
+      "last_error": 4392,
+      "link_attrs": "missing"
+    },
+    "link_to_itself": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "target_dotdot_relative": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "link_to_link": {
+      "ret": true,
+      "last_error": 0,
+      "link_attrs": "0x00000420"
+    },
+    "find_file_link": {
+      "ret": "valid",
+      "attrs": "0x00000420",
+      "reserved0": "0xa000000c",
+      "size": 0
+    },
+    "find_dir_link": {
+      "ret": "valid",
+      "attrs": "0x00000410",
+      "reserved0": "0xa000000c",
+      "size": 0
+    },
+    "find_dangling": {
+      "ret": "valid",
+      "attrs": "0x00000420",
+      "reserved0": "0xa000000c",
+      "size": 0
+    },
+    "find_through_dir_link": {
+      "ret": "valid",
+      "attrs": "0x00000020",
+      "reserved0": "0x00000000",
+      "size": 6
+    },
+    "open_file_link_follows": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000020",
+      "data": "7461726765742064617461",
+      "reparse_tag": "0x00000000"
+    },
+    "open_file_link_reparse_point": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000420",
+      "data": "",
+      "reparse_tag": "0xa000000c"
+    },
+    "open_absolute_link_follows": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000020",
+      "data": "7461726765742064617461",
+      "reparse_tag": "0x00000000"
+    },
+    "open_dangling": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "open_dangling_reparse_point": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000420",
+      "data": "",
+      "reparse_tag": "0xa000000c"
+    },
+    "open_dir_link_follows": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000010",
+      "reparse_tag": "0x00000000"
+    },
+    "open_dir_link_reparse_point": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000410",
+      "reparse_tag": "0xa000000c"
+    },
+    "open_file_through_dir_link": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000020",
+      "data": "696e73696465",
+      "reparse_tag": "0x00000000"
+    },
+    "open_relative_dotdot_link": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000020",
+      "data": "7461726765742064617461",
+      "reparse_tag": "0x00000000"
+    },
+    "open_chain": {
+      "ret": "valid",
+      "last_error": 0,
+      "attrs": "0x00000020",
+      "data": "7461726765742064617461",
+      "reparse_tag": "0x00000000"
+    },
+    "open_self_loop": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 1921
+    },
+    "open_dir_link_created_as_file": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "open_file_link_created_as_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "attributes_ex_of_link": {
+      "ret": true,
+      "attrs": "0x00000420",
+      "size": 0
+    },
+    "final_path_through_link": {
+      "ends_with_target": true
+    },
+    "delete_file_link": {
+      "ret": true,
+      "last_error": "unchanged",
+      "target.exists": true,
+      "target.attrs": "0x00000020",
+      "target.size": 11,
+      "target.data": "7461726765742064617461"
+    },
+    "deletefile_on_dir_link": {
+      "ret": false,
+      "last_error": 5
+    },
+    "rmdir_dir_link": {
+      "ret": true,
+      "last_error": "unchanged",
+      "target_dir.exists": true,
+      "target_dir.attrs": "0x00000010",
+      "target_inside.exists": true,
+      "target_inside.attrs": "0x00000020",
+      "target_inside.size": 6,
+      "target_inside.data": "696e73696465"
+    },
+    "delete_dangling": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "move_link": {
+      "ret": true,
+      "last_error": "unchanged",
+      "moved.exists": true,
+      "moved.attrs": "0x00000420",
+      "moved.size": 0
+    },
+    "copy_link_copies_target": {
+      "ret": true,
+      "last_error": 0,
+      "copy.exists": true,
+      "copy.attrs": "0x00000020",
+      "copy.size": 11,
+      "copy.data": "7461726765742064617461"
+    },
+    "final_listing": {
+      "root": "bad4.txt,badh.txt,chain_moved.txt,copied.txt,dangling_dir,dlink_as_file,flink2.txt,flink_abs.txt,flink_as_dir,self.txt,target.txt,tdir"
+    }
+  },
+  "errors": [],
+  "source_sha256": "8e8a5ade915f9c4ef4aa5f3fe4fcf4dabe9279884d7d37cc085276a904901039"
+}

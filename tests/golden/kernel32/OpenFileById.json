@@ -1,0 +1,166 @@
+{
+  "test": "kernel32/OpenFileById",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "file_id_same_dir": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt",
+      "data": "616c706861"
+    },
+    "file_id_hint_other_dir": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt",
+      "data": "616c706861"
+    },
+    "file_id_hint_is_file": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt",
+      "data": "616c706861"
+    },
+    "file_id_no_access": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt"
+    },
+    "file_id_write_access": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt"
+    },
+    "file_id_nested": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "deeper\\b.txt",
+      "data": "62657461"
+    },
+    "directory_id_no_backup_semantics": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "sub\\deeper",
+      "read_error": 1
+    },
+    "directory_id_backup_semantics": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "sub\\deeper",
+      "read_error": 1
+    },
+    "cwd_id": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "work\\kernel32__OpenFileById",
+      "read_error": 1
+    },
+    "sharing_violation": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 32
+    },
+    "after_exclusive_closed": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\x.txt",
+      "data": "6578636c"
+    },
+    "after_rename_to_subdir": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "sub\\x_moved.txt",
+      "data": "6578636c"
+    },
+    "after_delete": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "delete_pending": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\y.txt",
+      "data": "70656e64696e67"
+    },
+    "id_zero": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "id_bogus": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "id_minus_one": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "size_4": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "size_0": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "size_large": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt",
+      "data": "616c706861"
+    },
+    "type_unknown": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "type_object_id_none": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt",
+      "data": "616c706861"
+    },
+    "file_id_info": {
+      "ret": true,
+      "last_error": "unchanged",
+      "low_matches_legacy_id": true,
+      "high_zero": true
+    },
+    "extended_id": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt",
+      "data": "616c706861"
+    },
+    "hint_null": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 161
+    },
+    "hint_invalid": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 6
+    },
+    "hint_event": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 6
+    },
+    "hint_nul_device": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "(none)",
+      "data": ""
+    },
+    "delete_on_close_flag": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "name": "kernel32__OpenFileById\\a.txt",
+      "data": "616c706861"
+    },
+    "after_delete_on_close_by_id": {
+      "a.exists": true,
+      "a.attrs": "0x00000020",
+      "a.size": 5,
+      "a.data": "616c706861"
+    }
+  },
+  "errors": [],
+  "source_sha256": "41500d062148f4e1eebbca8c43c279349e35f0236fd97be8d22769e60533de95"
+}

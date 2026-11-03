@@ -1,0 +1,149 @@
+{
+  "test": "kernel32/GetCompressedFileSizeW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "empty": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "small": {
+      "low": 5,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "small_no_high": {
+      "low": 5,
+      "last_error": "unchanged"
+    },
+    "exact_4k": {
+      "low": 4096,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "4k_plus_1": {
+      "low": 4097,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "one_mib_plus_3": {
+      "low": 1048579,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "other_case": {
+      "low": 5,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "missing": {
+      "low": 4294967295,
+      "high": "0xaaaaaaaa",
+      "last_error": 2
+    },
+    "missing_no_high": {
+      "low": 4294967295,
+      "last_error": 2
+    },
+    "missing_dir": {
+      "low": 4294967295,
+      "high": "0xaaaaaaaa",
+      "last_error": 3
+    },
+    "empty_path": {
+      "low": 4294967295,
+      "high": "0xaaaaaaaa",
+      "last_error": 3
+    },
+    "invalid_char": {
+      "low": 4294967295,
+      "high": "0xaaaaaaaa",
+      "last_error": 123
+    },
+    "wildcard": {
+      "low": 4294967295,
+      "high": "0xaaaaaaaa",
+      "last_error": 123
+    },
+    "directory": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "directory_trailing_backslash": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "current_dir": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "nul_device": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "readonly_hidden": {
+      "low": 5,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "open_exclusive": {
+      "low": 5,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "open_after_write": {
+      "low": 10,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "open_after_extend": {
+      "low": 300000,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "closed_after_extend": {
+      "low": 300000,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "set_sparse": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "sparse_64mib_hole": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "sparse_attrs": {
+      "attrs": "0x00000220"
+    },
+    "sparse_with_64k_data": {
+      "low": 0,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "sparse_tail_past_4gib": {
+      "low": 131072,
+      "high": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "huge_logical_size": {
+      "size_high": 5,
+      "size_low": 65536
+    },
+    "ansi_small": {
+      "low": 5,
+      "high": 0,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "3f90fd4bdf5caeac7d4d7ca41aba56301365f0836ac63ec1877634758d785d34"
+}

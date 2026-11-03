@@ -1,0 +1,208 @@
+{
+  "test": "kernel32/CreateDirectoryExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "template_plain": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "template_hidden": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000012"
+    },
+    "template_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000011"
+    },
+    "template_system_archive": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000034"
+    },
+    "template_not_content_indexed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "template_with_children": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "children_not_copied": {
+      "n_full": ""
+    },
+    "template_is_file": {
+      "ret": false,
+      "last_error": 267,
+      "dir.exists": false
+    },
+    "template_missing": {
+      "ret": false,
+      "last_error": 2,
+      "dir.exists": false
+    },
+    "template_missing_parent": {
+      "ret": false,
+      "last_error": 3,
+      "dir.exists": false
+    },
+    "template_empty": {
+      "ret": false,
+      "last_error": 3,
+      "dir.exists": false
+    },
+    "target_exists": {
+      "ret": false,
+      "last_error": 183,
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "target_is_existing_file": {
+      "ret": false,
+      "last_error": 183,
+      "dir.exists": true,
+      "dir.attrs": "0x00000002",
+      "dir.size": 0,
+      "dir.data": ""
+    },
+    "target_missing_parent": {
+      "ret": false,
+      "last_error": 3,
+      "dir.exists": false
+    },
+    "target_empty": {
+      "ret": false,
+      "last_error": 3,
+      "dir.exists": false
+    },
+    "target_invalid_char": {
+      "ret": false,
+      "last_error": 123,
+      "dir.exists": false
+    },
+    "target_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "target_inside_template": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "template_is_cwd": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "template_dotdot_path": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000012"
+    },
+    "template_with_security_attributes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000012"
+    },
+    "ansi_template_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000011"
+    },
+    "mkdir_total_246": {
+      "ret": true,
+      "last_error": "unchanged",
+      "exists": true
+    },
+    "mkdir_total_247": {
+      "ret": true,
+      "last_error": "unchanged",
+      "exists": true
+    },
+    "mkdir_total_248": {
+      "ret": false,
+      "last_error": 206,
+      "exists": false
+    },
+    "mkdir_total_249": {
+      "ret": false,
+      "last_error": 206,
+      "exists": false
+    },
+    "mkdir_total_259": {
+      "ret": false,
+      "last_error": 206,
+      "exists": false
+    },
+    "mkdir_total_260": {
+      "ret": false,
+      "last_error": 3,
+      "exists": false
+    },
+    "mkdir_long_prefix_total_300": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir_long_prefix_total_300": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_component_256": {
+      "ret": false,
+      "last_error": 3
+    },
+    "mkdir_dot_component": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "mkdir_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "mkdir_trailing_space": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "mkdir_device_name": {
+      "ret": false,
+      "last_error": 267,
+      "dir.exists": false
+    },
+    "mkdir_forward_slashes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "final_listing": {
+      "root": "n_ansi,n_dotc,n_dotdot,n_from_cwd,n_fs,n_full,n_hidden,n_nci,n_plain,n_ro,n_sys_arch,n_tb,n_trail,n_trail_sp,n_with_sa,t_full,t_hidden,t_nci,t_plain,t_ro,t_sys_arch,tfile.txt"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4db53e4679006e9fd929d5710a43cb6004bb393e29469b941468018ec1083dd1"
+}

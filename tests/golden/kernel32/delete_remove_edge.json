@@ -1,0 +1,272 @@
+{
+  "test": "kernel32/delete_remove_edge",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "delete_trailing_backslash": {
+      "ret": false,
+      "last_error": 123,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "61"
+    },
+    "delete_trailing_slash": {
+      "ret": false,
+      "last_error": 123,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "61"
+    },
+    "delete_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_trailing_space": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_wildcard_star": {
+      "ret": false,
+      "last_error": 123,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "61"
+    },
+    "delete_wildcard_question": {
+      "ret": false,
+      "last_error": 123,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "61"
+    },
+    "delete_forward_slash_path": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_long_prefix": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_long_prefix_trailing_dot": {
+      "ret": false,
+      "last_error": 2,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "61"
+    },
+    "delete_dot": {
+      "ret": false,
+      "last_error": 5
+    },
+    "delete_dotdot": {
+      "ret": false,
+      "last_error": 5
+    },
+    "delete_empty": {
+      "ret": false,
+      "last_error": 3
+    },
+    "delete_device_nul": {
+      "ret": false,
+      "last_error": 87
+    },
+    "delete_invalid_char": {
+      "ret": false,
+      "last_error": 123
+    },
+    "delete_case_insensitive": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_hidden_system": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_readonly_hidden": {
+      "ret": false,
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000003",
+      "file.size": 1,
+      "file.data": "72"
+    },
+    "delete_after_clearing_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_open_share_rw": {
+      "ret": false,
+      "last_error": 32,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "6f"
+    },
+    "delete_open_share_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_again_while_pending": {
+      "ret": false,
+      "last_error": 2,
+      "file.exists": false
+    },
+    "open_while_delete_pending": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "create_while_delete_pending": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "after_pending_close": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 0,
+      "file.data": ""
+    },
+    "delete_mapped_view": {
+      "ret": false,
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "6d"
+    },
+    "delete_after_unmap": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false
+    },
+    "rmdir_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_trailing_slash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_wildcard": {
+      "ret": false,
+      "last_error": 123,
+      "dir.exists": false
+    },
+    "rmdir_dot": {
+      "ret": false,
+      "last_error": 32
+    },
+    "rmdir_dotdot": {
+      "ret": false,
+      "last_error": 145
+    },
+    "rmdir_empty": {
+      "ret": false,
+      "last_error": 3
+    },
+    "rmdir_case_insensitive": {
+      "ret": false,
+      "last_error": 2,
+      "dir.exists": false
+    },
+    "rmdir_long_prefix": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_dotdot_component": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_parent_nonempty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_readonly": {
+      "ret": false,
+      "last_error": 5,
+      "dir.exists": true,
+      "dir.attrs": "0x00000011"
+    },
+    "rmdir_after_clearing_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_hidden_system": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "rmdir_with_hidden_child": {
+      "ret": false,
+      "last_error": 145,
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "rmdir_open_no_share_delete": {
+      "ret": false,
+      "last_error": 32,
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "rmdir_open_share_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "dir.exists": false
+    },
+    "mkdir_inside_pending_dir": {
+      "ret": false,
+      "last_error": 3
+    },
+    "mkdir_over_pending_dir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_pending_dir_close": {
+      "dir.exists": true,
+      "dir.attrs": "0x00000010"
+    },
+    "rmdir_on_file_trailing_backslash": {
+      "ret": false,
+      "last_error": 267,
+      "dir.exists": true,
+      "dir.attrs": "0x00000020",
+      "dir.size": 1,
+      "dir.data": "66"
+    },
+    "delete_on_dir_trailing_backslash": {
+      "ret": false,
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000010"
+    },
+    "final_listing": {
+      "root": "e,f,hf,keep,o.txt,od"
+    }
+  },
+  "errors": [],
+  "source_sha256": "ad20b5e48a9966a53bf7ef0b08f29290d3a4bae0fb9c6200e21ccd1f52047e92"
+}

@@ -1,0 +1,205 @@
+{
+  "test": "kernel32/GetBinaryTypeW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "self_exe": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 6
+    },
+    "pe32_i386_console": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32_i386_gui": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32plus_amd64": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32plus_amd64_other_extension": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32plus_amd64_no_extension": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32plus_dll": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32_dll": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32plus_arm64": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32_armnt": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32plus_ia64": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe_unknown_machine": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe32_not_executable_flag": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "amd64_with_pe32_magic": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pe_truncated_after_signature": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "ne_windows": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 2
+    },
+    "ne_os2": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "le": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "lx": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "unknown_new_signature": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "dos_mz": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "mz_two_bytes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "zm_signature": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "com_extension": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "com_extension_upper": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "com_bytes_other_extension": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "pif_extension": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 3
+    },
+    "bat_file": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "cmd_file": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "text_file": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "text_with_exe_extension": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "empty_exe": {
+      "ret": false,
+      "last_error": 193,
+      "type": "untouched"
+    },
+    "elf_header": {
+      "ret": true,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "missing": {
+      "ret": false,
+      "last_error": 2,
+      "type": "untouched"
+    },
+    "missing_dir": {
+      "ret": false,
+      "last_error": 3,
+      "type": "untouched"
+    },
+    "directory": {
+      "ret": false,
+      "last_error": 5,
+      "type": "untouched"
+    },
+    "empty_path": {
+      "ret": false,
+      "last_error": 123,
+      "type": "untouched"
+    },
+    "locked_exclusive": {
+      "ret": false,
+      "last_error": 32,
+      "type": "untouched"
+    },
+    "ansi_pe32": {
+      "ret": false,
+      "last_error": 193,
+      "type": 2863311530
+    }
+  },
+  "errors": [],
+  "source_sha256": "9f39a0271e5cf00a7ca9429824a98d17ea54637366209ba1ebaa6b900cedd220"
+}

@@ -1,0 +1,220 @@
+{
+  "test": "kernel32/GetVolumeInformationW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_nonzero": true,
+      "serial_matches_ref": true,
+      "label_terminated": true
+    },
+    "null_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_nonzero": true,
+      "serial_matches_ref": true,
+      "label_terminated": true
+    },
+    "cwd_not_root": {
+      "ret": false,
+      "last_error": 123
+    },
+    "cwd_trailing_backslash": {
+      "ret": false,
+      "last_error": 144
+    },
+    "relative_subdir": {
+      "ret": false,
+      "last_error": 144
+    },
+    "relative_file": {
+      "ret": false,
+      "last_error": 123
+    },
+    "drive_no_backslash": {
+      "ret": false,
+      "last_error": 123
+    },
+    "drive_forward_slash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_nonzero": true,
+      "serial_matches_ref": true,
+      "label_terminated": true
+    },
+    "long_prefix_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_nonzero": true,
+      "serial_matches_ref": true,
+      "label_terminated": true
+    },
+    "dot_prefix_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_nonzero": true,
+      "serial_matches_ref": true,
+      "label_terminated": true
+    },
+    "unused_drive": {
+      "ret": false,
+      "last_error": 3
+    },
+    "empty": {
+      "ret": false,
+      "last_error": 3
+    },
+    "missing_dir": {
+      "ret": false,
+      "last_error": 2
+    },
+    "all_outputs_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "fs_buffer_4": {
+      "ret": false,
+      "last_error": 24
+    },
+    "fs_buffer_5": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS"
+    },
+    "fs_buffer_0": {
+      "ret": false,
+      "last_error": 234
+    },
+    "ansi_null_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff"
+    },
+    "by_handle_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_matches_ref": true
+    },
+    "by_handle_file_no_access": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_matches_ref": true
+    },
+    "by_handle_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fs": "NTFS",
+      "flags": "0x03e706ff",
+      "max_component": 255,
+      "serial_matches_ref": true
+    },
+    "by_handle_nul": {
+      "ret": false,
+      "last_error": 1
+    },
+    "by_handle_pipe": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "volpath_cwd": {
+      "ret": true,
+      "last_error": 234,
+      "equals_root": true,
+      "len": 3
+    },
+    "volpath_relative_file": {
+      "ret": true,
+      "last_error": 234,
+      "equals_root": true,
+      "len": 3
+    },
+    "volpath_missing_file": {
+      "ret": true,
+      "last_error": 234,
+      "equals_root": true,
+      "len": 3
+    },
+    "volpath_root": {
+      "ret": true,
+      "last_error": 234,
+      "equals_root": true,
+      "len": 3
+    },
+    "volpath_dot": {
+      "ret": true,
+      "last_error": 234,
+      "equals_root": true,
+      "len": 3
+    },
+    "volpath_buffer_4": {
+      "ret": true,
+      "last_error": 234,
+      "equals_root": true,
+      "len": 3
+    },
+    "volpath_buffer_3": {
+      "ret": true,
+      "last_error": 234,
+      "equals_root": false,
+      "len": 2
+    },
+    "volpath_buffer_2": {
+      "ret": false,
+      "last_error": 206
+    },
+    "volpath_empty": {
+      "ret": false,
+      "last_error": 123
+    },
+    "volpath_unused_drive": {
+      "ret": false,
+      "last_error": 2
+    },
+    "volume_guid_root": {
+      "ret": true,
+      "last_error": 234,
+      "len": 49,
+      "prefix": true,
+      "trailing_backslash": true
+    },
+    "volume_guid_not_mount_point": {
+      "ret": false,
+      "last_error": 123
+    },
+    "volume_guid_no_backslash": {
+      "ret": false,
+      "last_error": 123
+    },
+    "volume_guid_small_buffer": {
+      "ret": false,
+      "last_error": 206
+    }
+  },
+  "errors": [],
+  "source_sha256": "f980ad4778d435b8aa0b106e037e8ce8edcd4b42b10e841c3717bddd9bb05f6d"
+}

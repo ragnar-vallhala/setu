@@ -1,0 +1,162 @@
+{
+  "test": "kernel32/ReOpenFile",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "same_access_read": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "upgrade_to_write": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "downgrade_no_access": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0
+    },
+    "share_none_conflicts_with_orig": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 32
+    },
+    "share_read_only": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "overlapped": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0
+    },
+    "no_buffering": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "read_error": 87
+    },
+    "sequential_scan": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "write_through": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "backup_semantics": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "delete_on_close_flag": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "after_delete_on_close_reopen": {
+      "f.exists": false
+    },
+    "attribute_bits_in_flags": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "open_reparse_point_flag": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "security_flags": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "orig_share_read_reopen_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 32
+    },
+    "orig_share_read_reopen_read": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "orig_share_read_reopen_read_share_read": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "from_attributes_only_to_read": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "30313233343536373839"
+    },
+    "orig_exclusive_reopen_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 32
+    },
+    "orig_exclusive_reopen_attributes": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0
+    },
+    "orig_delete_on_close": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "70656e64696e67"
+    },
+    "orig_renamed": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": "72656e616d6564"
+    },
+    "directory_no_backup_semantics": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "directory_backup_semantics": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "anon_pipe": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 231
+    },
+    "nul_device": {
+      "ret": "valid",
+      "last_error": 0,
+      "position": 0,
+      "data": ""
+    },
+    "event": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 6
+    },
+    "invalid_handle": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 6
+    },
+    "null_handle": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 161
+    }
+  },
+  "errors": [],
+  "source_sha256": "c2f4fb8b48d545c5c94007d92330dbcc675cef81e327fe0f710172f32137b284"
+}

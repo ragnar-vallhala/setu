@@ -1,0 +1,145 @@
+{
+  "test": "kernel32/FlushFileBuffers",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "fresh_empty_file": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_write": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "twice": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "generic_read": {
+      "ret": false,
+      "last_error": 5
+    },
+    "generic_write": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "file_write_data": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "file_append_data": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "file_write_attributes": {
+      "ret": false,
+      "last_error": 5
+    },
+    "read_attributes_only": {
+      "ret": false,
+      "last_error": 5
+    },
+    "no_access": {
+      "ret": false,
+      "last_error": 5
+    },
+    "write_through": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "no_buffering": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "overlapped": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_on_close": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "directory_read": {
+      "ret": false,
+      "last_error": 5
+    },
+    "directory_write": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "nul_read": {
+      "ret": false,
+      "last_error": 5
+    },
+    "nul_write": {
+      "ret": false,
+      "last_error": 1
+    },
+    "anon_pipe_write_empty": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "anon_pipe_read_end": {
+      "ret": false,
+      "last_error": 5
+    },
+    "anon_pipe_write_reader_closed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "named_pipe_server_unconnected": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "named_pipe_client_empty": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "named_pipe_server_connected": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "named_pipe_server_client_gone": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "section_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "invalid_handle_value": {
+      "ret": false,
+      "last_error": 6
+    },
+    "null_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "current_process": {
+      "ret": false,
+      "last_error": 6
+    },
+    "closed_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "duplicated_with_write": {
+      "ret": false,
+      "last_error": 6
+    },
+    "file_content": {
+      "f.exists": true,
+      "f.attrs": "0x00000020",
+      "f.size": 5,
+      "f.data": "68656c6c6f",
+      "g.exists": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "5d5700d965c0058617297da9a13e4f27e62fbc2a53cfd14a640eefa5a46fcf2c"
+}

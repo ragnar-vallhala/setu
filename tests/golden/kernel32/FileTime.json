@@ -1,0 +1,149 @@
+{
+  "test": "kernel32/FileTime",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "get_fresh": {
+      "ret": true,
+      "last_error": "unchanged",
+      "creation_nonzero": true,
+      "write_ge_creation": true,
+      "after_2020": true
+    },
+    "get_all_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_write_only": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_set_write_only": {
+      "write": 126254331067891234,
+      "creation_changed": false
+    },
+    "set_all": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_set_all": {
+      "creation": 126254331067891234,
+      "access": 127000000000000001,
+      "write": 128000000000000000
+    },
+    "after_set_all_by_path": {
+      "creation": 126254331067891234,
+      "access": 127000000000000001,
+      "write": 128000000000000000
+    },
+    "after_set_all_by_find": {
+      "creation": 126254331067891234,
+      "write": 128000000000000000
+    },
+    "set_all_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_zero_write": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_set_zero_write": {
+      "write": 128000000000000000
+    },
+    "set_write_high_bit": {
+      "ret": false,
+      "last_error": 87
+    },
+    "after_set_write_high_bit": {
+      "write": 128000000000000000
+    },
+    "set_write_minus_one": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_set_minus_one": {
+      "write": 128000000000000000
+    },
+    "write_after_minus_one": {
+      "write": 128000000000000000
+    },
+    "after_close_minus_one": {
+      "write": 128000000000000000
+    },
+    "write_updates_time_after_close": {
+      "write_after_t1": false,
+      "creation": 126254331067891234
+    },
+    "set_after_write_sticks": {
+      "write": 127000000000000001
+    },
+    "set_on_read_only_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "get_on_read_handle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "write": 127000000000000001
+    },
+    "set_on_write_attributes_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_on_write_attributes_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_on_read_attributes_handle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "write": 128000000000000000
+    },
+    "get_on_no_access_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_directory": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "after_set_directory": {
+      "creation": 126254331067891234,
+      "access": 127000000000000001,
+      "write": 128000000000000000
+    },
+    "dir_write_time_after_child_create": {
+      "write_changed": true,
+      "creation": 126254331067891234
+    },
+    "get_invalid_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "set_invalid_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "get_event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "compare_less": {
+      "ret": -1,
+      "last_error": "unchanged"
+    },
+    "compare_greater": {
+      "ret": 1
+    },
+    "compare_equal": {
+      "ret": 0
+    },
+    "compare_high_bit": {
+      "ret": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "131f0d21aeb850fbdaddd34335b29d544d0a6ccb016776704cbd67229002f12e"
+}

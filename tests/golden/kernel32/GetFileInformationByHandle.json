@@ -1,0 +1,264 @@
+{
+  "test": "kernel32/GetFileInformationByHandle",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "file_basic": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "ref_shape": {
+      "serial_nonzero": true,
+      "serial_matches_volume_info": true
+    },
+    "file_no_access": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "file_read_attributes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "file_reopened_other_case": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "file_hidden_readonly": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000003",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "file_attrs_normal": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "file_attrs_system_nci": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00002024",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "hardlink_one": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 2,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "hardlink_two_via_original": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 3,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "hardlink_after_delete_same_handle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 2,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "hardlink_delete_on_close_open": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 2,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "hardlink_after_delete_on_close": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "other_file_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 0,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "copy_has_new_index": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "renamed_keeps_index": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "after_extend_5000": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 5000,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "after_append_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 5004,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": true,
+      "index_nonzero": true
+    },
+    "directory_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010",
+      "size": 0,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "directory_with_children": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010",
+      "size": 0,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "current_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010",
+      "size": 0,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "directory_readonly_hidden": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000013",
+      "size": 0,
+      "links": 1,
+      "serial_matches_ref": true,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "nul_device": {
+      "ret": false,
+      "last_error": 1
+    },
+    "anon_pipe": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080",
+      "size": 0,
+      "links": 1,
+      "serial_matches_ref": false,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "named_pipe_server": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000080",
+      "size": 0,
+      "links": 1,
+      "serial_matches_ref": false,
+      "index_matches_ref": false,
+      "index_nonzero": true
+    },
+    "event": {
+      "ret": false,
+      "last_error": 6
+    },
+    "invalid_handle_value": {
+      "ret": false,
+      "last_error": 6
+    },
+    "null_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "current_process": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "7a3774383e9d46aabf7a7cc75897d85b3b8157165fa161ff227bcbf6405100ce"
+}

@@ -1,0 +1,136 @@
+{
+  "test": "kernel32/GetDriveTypeW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "root": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "null": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "drive_no_backslash": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "drive_forward_slash": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "lowercase_drive": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "double_backslash": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "long_prefix_root": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "dot_prefix_root": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "long_prefix_no_backslash": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "cwd_not_root": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "cwd_trailing_backslash": {
+      "type": 3,
+      "last_error": 4390
+    },
+    "relative_dir": {
+      "type": 3,
+      "last_error": 4390
+    },
+    "relative_dir_no_backslash": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "dot": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "dot_backslash": {
+      "type": 3,
+      "last_error": 4390
+    },
+    "empty": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "backslash": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "unused_drive": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "unused_drive_no_backslash": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "bad_drive_letter": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "missing_dir": {
+      "type": 1,
+      "last_error": "unchanged"
+    },
+    "ansi_root": {
+      "type": 3,
+      "last_error": "unchanged"
+    },
+    "logical_drives_mask": {
+      "last_error": "unchanged",
+      "nonzero": true,
+      "root_bit_set": true,
+      "q_bit_clear": true,
+      "high_bits_clear": true
+    },
+    "strings_size_query": {
+      "last_error": "unchanged",
+      "len_is_4n_plus_1": true
+    },
+    "strings_full": {
+      "last_error": "unchanged",
+      "ret_is_4n": true,
+      "each_entry_is_X_colon_backslash": true,
+      "count_matches_mask": true,
+      "contains_root": true,
+      "double_nul_terminated": true,
+      "sorted": true
+    },
+    "strings_buffer_exact_minus_one": {
+      "last_error": "unchanged",
+      "ret_is_required": true,
+      "buffer_untouched": true
+    },
+    "strings_buffer_exact": {
+      "last_error": "unchanged",
+      "ret_is_4n": true
+    },
+    "strings_buffer_3": {
+      "last_error": "unchanged",
+      "ret_is_required": true,
+      "buffer_untouched": true
+    },
+    "strings_ansi": {
+      "last_error": "unchanged",
+      "ret_is_4n": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "c8b217e7a753a6c668ad8fbbb805e3d85fb096d14d45ba0a067f693a3a8a91b1"
+}

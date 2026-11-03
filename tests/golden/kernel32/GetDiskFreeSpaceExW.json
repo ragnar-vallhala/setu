@@ -1,0 +1,204 @@
+{
+  "test": "kernel32/GetDiskFreeSpaceExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "root_shape": {
+      "len": 3,
+      "drive_letter_root": true
+    },
+    "ex_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_null": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_subdir": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_subdir_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_cwd_full": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_file": {
+      "ret": false,
+      "last_error": 267
+    },
+    "ex_missing_dir": {
+      "ret": false,
+      "last_error": 3
+    },
+    "ex_missing_dir_trailing_backslash": {
+      "ret": false,
+      "last_error": 3
+    },
+    "ex_missing_nested": {
+      "ret": false,
+      "last_error": 3
+    },
+    "ex_empty": {
+      "ret": false,
+      "last_error": 3
+    },
+    "ex_unused_drive": {
+      "ret": false,
+      "last_error": 3
+    },
+    "ex_bad_drive_char": {
+      "ret": false,
+      "last_error": 3
+    },
+    "ex_long_prefix_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_drive_no_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_nonzero": true,
+      "avail_le_free": true,
+      "free_le_total": true,
+      "total_matches_ref": true
+    },
+    "ex_all_outputs_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "ex_only_free": {
+      "ret": true,
+      "last_error": "unchanged",
+      "avail_close_to_free": true
+    },
+    "legacy_root": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_null": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_subdir": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_subdir_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_cwd_full": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_cwd_full_trailing_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_file": {
+      "ret": false,
+      "last_error": 267
+    },
+    "legacy_missing_dir": {
+      "ret": false,
+      "last_error": 2
+    },
+    "legacy_empty": {
+      "ret": false,
+      "last_error": 3
+    },
+    "legacy_unused_drive": {
+      "ret": false,
+      "last_error": 3
+    },
+    "legacy_drive_no_backslash": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes_per_sector_pow2": true,
+      "sectors_per_cluster_pow2": true,
+      "free_le_total": true,
+      "total_matches_ex": true
+    },
+    "legacy_only_spc": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "ex_ansi_dot": {
+      "ret": true,
+      "last_error": "unchanged",
+      "total_matches_ref": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "d6727dfa56cc42fc9d9384c0b52552081ea9b63e254f31d84255ed818d01424d"
+}

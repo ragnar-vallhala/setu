@@ -1,0 +1,155 @@
+{
+  "test": "kernel32/GetFileType",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "disk_file": {
+      "type": "DISK",
+      "raw": 1,
+      "last_error": "unchanged"
+    },
+    "disk_file_no_access": {
+      "type": "DISK",
+      "raw": 1,
+      "last_error": "unchanged"
+    },
+    "disk_file_overlapped": {
+      "type": "DISK",
+      "raw": 1,
+      "last_error": "unchanged"
+    },
+    "directory": {
+      "type": "DISK",
+      "raw": 1,
+      "last_error": "unchanged"
+    },
+    "nul_device": {
+      "type": "CHAR",
+      "raw": 2,
+      "last_error": "unchanged"
+    },
+    "nul_device_dotdot": {
+      "type": "CHAR",
+      "raw": 2,
+      "last_error": "unchanged"
+    },
+    "nul_with_extension": {
+      "type": "CHAR",
+      "raw": 2,
+      "last_error": "unchanged"
+    },
+    "nul_in_subdir": {
+      "type": "CHAR",
+      "raw": 2,
+      "last_error": "unchanged"
+    },
+    "anon_pipe_read": {
+      "type": "PIPE",
+      "raw": 3,
+      "last_error": "unchanged"
+    },
+    "anon_pipe_write": {
+      "type": "PIPE",
+      "raw": 3,
+      "last_error": "unchanged"
+    },
+    "named_pipe_server": {
+      "type": "PIPE",
+      "raw": 3,
+      "last_error": "unchanged"
+    },
+    "named_pipe_client": {
+      "type": "PIPE",
+      "raw": 3,
+      "last_error": "unchanged"
+    },
+    "named_pipe_message_server": {
+      "type": "PIPE",
+      "raw": 3,
+      "last_error": "unchanged"
+    },
+    "mailslot_server": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 0
+    },
+    "mailslot_client": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 0
+    },
+    "event": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "mutex": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "file_mapping_empty_file": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "pagefile_section": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "completion_port": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "registry_key": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "token": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "current_process": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "current_thread": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "invalid_handle_value": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "null_handle": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "bogus_handle": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "closed_handle": {
+      "type": "UNKNOWN",
+      "raw": 0,
+      "last_error": 6
+    },
+    "duplicated_file_handle": {
+      "type": "DISK",
+      "raw": 1,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "c3fe5d6e034e182714e5871853e5ade2722a01310a7ab433eed72b6585dabb7b"
+}

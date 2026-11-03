@@ -1,0 +1,350 @@
+{
+  "test": "kernel32/MoveFileExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "rename_plain": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "616161"
+    },
+    "onto_existing_no_flag": {
+      "ret": false,
+      "last_error": 183,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "616161",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "636363"
+    },
+    "onto_existing_replace": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "616161"
+    },
+    "write_through": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "646464"
+    },
+    "copy_allowed_same_volume": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "646464"
+    },
+    "copy_allowed_replace": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "646464"
+    },
+    "missing_source": {
+      "ret": false,
+      "last_error": 2,
+      "src.exists": false,
+      "dst.exists": false
+    },
+    "missing_source_replace": {
+      "ret": false,
+      "last_error": 2,
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "646464"
+    },
+    "missing_dest_dir": {
+      "ret": false,
+      "last_error": 3,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "646464",
+      "dst.exists": false
+    },
+    "same_name": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "646464",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "646464"
+    },
+    "same_name_replace": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "646464",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "646464"
+    },
+    "same_name_other_case": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "646464",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "646464"
+    },
+    "listing_after_case_rename": {
+      "root": "G.TXT,c.txt"
+    },
+    "dir_rename": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000010"
+    },
+    "dir_onto_existing_dir": {
+      "ret": false,
+      "last_error": 183,
+      "src.exists": true,
+      "src.attrs": "0x00000010",
+      "dst.exists": true,
+      "dst.attrs": "0x00000010"
+    },
+    "dir_onto_existing_dir_replace": {
+      "ret": false,
+      "last_error": 5,
+      "src.exists": true,
+      "src.attrs": "0x00000010",
+      "dst.exists": true,
+      "dst.attrs": "0x00000010"
+    },
+    "dir_onto_file_replace": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000010"
+    },
+    "file_onto_dir_replace": {
+      "ret": false,
+      "last_error": 5,
+      "src.exists": true,
+      "src.attrs": "0x00000010",
+      "dst.exists": true,
+      "dst.attrs": "0x00000010"
+    },
+    "file_into_dir": {
+      "ret": false,
+      "last_error": 3,
+      "src.exists": true,
+      "src.attrs": "0x00000010",
+      "dst.exists": false
+    },
+    "dir_copy_allowed": {
+      "ret": false,
+      "last_error": 2,
+      "src.exists": false,
+      "dst.exists": false
+    },
+    "dir_into_itself": {
+      "ret": false,
+      "last_error": 2,
+      "src.exists": false,
+      "dst.exists": false
+    },
+    "replace_readonly_dest": {
+      "ret": false,
+      "last_error": 5,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "696969",
+      "dst.exists": true,
+      "dst.attrs": "0x00000001",
+      "dst.size": 2,
+      "dst.data": "726f"
+    },
+    "replace_hidden_dest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "696969"
+    },
+    "move_readonly_source": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000021",
+      "dst.size": 3,
+      "dst.data": "6a6a6a"
+    },
+    "source_open_no_share_delete": {
+      "ret": false,
+      "last_error": 32,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "6c6c6c",
+      "dst.exists": false
+    },
+    "source_open_share_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "6c6c6c"
+    },
+    "dest_open_replace": {
+      "ret": false,
+      "last_error": 5,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "6c6c6c",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "6e6e6e"
+    },
+    "dest_open_share_delete_replace": {
+      "ret": false,
+      "last_error": 5,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "6c6c6c",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "6e6e6e"
+    },
+    "invalid_flag_bit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "707070"
+    },
+    "fail_if_not_trackable": {
+      "ret": false,
+      "last_error": 2,
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "707070"
+    },
+    "create_hardlink_flag": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "707070",
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "707070"
+    },
+    "delay_with_copy_allowed": {
+      "ret": false,
+      "last_error": 87,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "707070",
+      "dst.exists": false
+    },
+    "null_dest_no_delay": {
+      "ret": false,
+      "last_error": 3,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "707070"
+    },
+    "dest_invalid_char": {
+      "ret": false,
+      "last_error": 123,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "707070",
+      "dst.exists": false
+    },
+    "dest_empty": {
+      "ret": false,
+      "last_error": 3,
+      "src.exists": true,
+      "src.attrs": "0x00000020",
+      "src.size": 3,
+      "src.data": "707070",
+      "dst.exists": false
+    },
+    "src_empty": {
+      "ret": false,
+      "last_error": 3,
+      "src.exists": false,
+      "dst.exists": false
+    },
+    "trailing_backslash_dest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "src.exists": false,
+      "dst.exists": false
+    },
+    "wildcard_source": {
+      "ret": false,
+      "last_error": 123,
+      "src.exists": false,
+      "dst.exists": true,
+      "dst.attrs": "0x00000020",
+      "dst.size": 3,
+      "dst.data": "707070"
+    },
+    "final_listing": {
+      "root": "G.TXT,c.txt,d3,h.txt,hid.txt,k.txt,m.txt,n.txt,q.txt,ro.txt,t.txt",
+      "d2": "",
+      "d3": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "d68555fd9560000ce3a61e8456a299bef12ebd88069a770633ac2f078d022125"
+}

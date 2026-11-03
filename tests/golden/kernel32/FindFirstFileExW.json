@@ -1,0 +1,254 @@
+{
+  "test": "kernel32/FindFirstFileExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "standard_all": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,B.TXT,Sub2.dir/,a.txt,c.dat,long file name.text,sub/",
+      "alt_names": 1,
+      "alt_names_are_8_3": true
+    },
+    "basic_all": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,B.TXT,Sub2.dir/,a.txt,c.dat,long file name.text,sub/",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "standard_long_name": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "long file name.text",
+      "alt_names": 1,
+      "alt_names_are_8_3": true
+    },
+    "basic_long_name": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "long file name.text",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "standard_short_name_only": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "limit_to_directories": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,B.TXT,Sub2.dir/,a.txt,c.dat,long file name.text,sub/",
+      "alt_names": 1,
+      "alt_names_are_8_3": true
+    },
+    "limit_to_directories_txt": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "B.TXT,a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "limit_to_devices": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 50
+    },
+    "large_fetch": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,B.TXT,Sub2.dir/,a.txt,c.dat,long file name.text,sub/",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "on_disk_entries_only": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,B.TXT,Sub2.dir/,a.txt,c.dat,long file name.text,sub/",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "case_insensitive_upper_pattern": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "case_sensitive_upper_pattern": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "case_sensitive_exact": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "case_sensitive_wildcard": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "B.TXT,a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "case_insensitive_wildcard": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "B.TXT,a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "all_flags": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,B.TXT,Sub2.dir/,a.txt,c.dat,long file name.text,sub/",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "subdir_pattern": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,inner.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "subdir_limit_dirs": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,inner.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "dir_by_name": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "sub/",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "file_by_name_limit_dirs": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "question_marks": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "B.TXT,a.txt",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "star_dot": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "../,./,sub/",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    },
+    "no_match": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "trailing_backslash": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "empty_pattern": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "info_level_max": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "info_level_99": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "search_op_max": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "unknown_flag_8": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "unknown_flag_high": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "search_filter_non_null": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "search_filter_non_null_limit_dirs": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "basic_fields": {
+      "name": "B.TXT",
+      "attrs": "0x00000020",
+      "size_low": 5,
+      "size_high": 0,
+      "alt0": 0,
+      "reserved0": "0xcccccccc"
+    },
+    "standard_fields_hidden": {
+      "name": "c.dat",
+      "attrs": "0x00000002",
+      "size_low": 0,
+      "alt": ""
+    },
+    "standard_fields_dir": {
+      "name": "Sub2.dir",
+      "attrs": "0x00000010",
+      "size_low": 0,
+      "alt": ""
+    },
+    "order_all": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 18,
+      "entries": "./,../,a.txt,B.TXT,c.dat,long file name.text,sub/,Sub2.dir/",
+      "alt_names": 0,
+      "alt_names_are_8_3": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "26fc01c2546ff1ddf6ada9b352b44f9ce72115275ed355fd3d4cb5ac58e4b96c"
+}

@@ -1,0 +1,252 @@
+{
+  "test": "kernel32/FileDispositionInfoEx",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "delete_classic": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false,
+      "listing": "a.txt,keep"
+    },
+    "classic_after_first_close": {
+      "file.exists": false,
+      "listing": "a.txt,keep"
+    },
+    "classic_after_last_close": {
+      "file.exists": false,
+      "listing": "keep"
+    },
+    "delete_posix": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false,
+      "listing": "keep,p.txt"
+    },
+    "posix_recreate_same_name": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "posix_other_handle_reads": {
+      "ret": true,
+      "last_error": "unchanged",
+      "data": "706f736978"
+    },
+    "posix_other_handle_writes": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "posix_standard_info": {
+      "ret": true,
+      "delete_pending": true,
+      "links": 0
+    },
+    "posix_after_close": {
+      "file.exists": false,
+      "listing": "keep"
+    },
+    "set_then": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "clear_with_do_not_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "63",
+      "listing": "c.txt,keep"
+    },
+    "cleared_file_kept": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "63",
+      "listing": "c.txt,keep"
+    },
+    "posix_set": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "posix_clear_after": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "63",
+      "listing": "c.txt,keep"
+    },
+    "posix_clear_after_close": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "63",
+      "listing": "c.txt,keep"
+    },
+    "readonly_plain": {
+      "ret": false,
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000001",
+      "file.size": 2,
+      "file.data": "726f",
+      "listing": "c.txt,keep,ro.txt"
+    },
+    "readonly_ignore_ro": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false,
+      "listing": "c.txt,keep,ro.txt"
+    },
+    "readonly_after_close": {
+      "file.exists": false,
+      "listing": "c.txt,keep"
+    },
+    "readonly_posix_ignore_ro": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false,
+      "listing": "c.txt,keep,ro2.txt"
+    },
+    "on_close_without_doc_open": {
+      "ret": false,
+      "last_error": 50,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 2,
+      "file.data": "6f63",
+      "listing": "c.txt,keep,oc.txt"
+    },
+    "on_close_without_doc_after": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 2,
+      "file.data": "6f63",
+      "listing": "c.txt,keep,oc.txt"
+    },
+    "on_close_clear_doc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 2,
+      "file.data": "6f63",
+      "listing": "c.txt,keep,oc.txt,oc2.txt"
+    },
+    "on_close_clear_doc_after": {
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 2,
+      "file.data": "6f63",
+      "listing": "c.txt,keep,oc.txt,oc2.txt"
+    },
+    "unknown_flag_0x100": {
+      "ret": false,
+      "last_error": 50,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "76",
+      "listing": "c.txt,keep,oc.txt,oc2.txt,v.txt"
+    },
+    "force_image_section_check": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false,
+      "listing": "c.txt,keep,oc.txt,oc2.txt,v.txt"
+    },
+    "short_buffer": {
+      "ret": false,
+      "last_error": 24
+    },
+    "without_delete_access": {
+      "ret": false,
+      "last_error": 5,
+      "file.exists": true,
+      "file.attrs": "0x00000020",
+      "file.size": 1,
+      "file.data": "76",
+      "listing": "c.txt,keep,oc.txt,oc2.txt,v2.txt"
+    },
+    "posix_empty_directory": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false,
+      "listing": "c.txt,ed,keep,oc.txt,oc2.txt,v2.txt"
+    },
+    "posix_recreate_directory": {
+      "ret": false,
+      "last_error": 5
+    },
+    "posix_nonempty_directory": {
+      "ret": false,
+      "last_error": 145,
+      "file.exists": true,
+      "file.attrs": "0x00000010",
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,v2.txt"
+    },
+    "posix_with_mapped_view": {
+      "ret": true,
+      "last_error": "unchanged",
+      "file.exists": false,
+      "listing": "c.txt,keep,m.txt,nd,oc.txt,oc2.txt,v2.txt"
+    },
+    "mapped_after_close": {
+      "file.exists": false,
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,v2.txt"
+    },
+    "rename_ex_no_replace": {
+      "ret": false,
+      "last_error": 183,
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,r1.txt,r2.txt,v2.txt"
+    },
+    "rename_ex_replace": {
+      "ret": true,
+      "last_error": "unchanged",
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,r2.txt,v2.txt"
+    },
+    "rename_ex_replace_target_open": {
+      "ret": false,
+      "last_error": 5,
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,r2.txt,r3.txt,v2.txt"
+    },
+    "rename_ex_posix_replace_target_open": {
+      "ret": true,
+      "last_error": "unchanged",
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,r2.txt,v2.txt"
+    },
+    "replaced_target_handle_still_reads": {
+      "data": "7231"
+    },
+    "rename_ex_replace_readonly": {
+      "ret": false,
+      "last_error": 5,
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,r2.txt,r4.txt,rro.txt,v2.txt"
+    },
+    "rename_ex_replace_readonly_ignore": {
+      "ret": true,
+      "last_error": "unchanged",
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,r2.txt,rro.txt,v2.txt"
+    },
+    "rename_ex_unknown_flag": {
+      "ret": false,
+      "last_error": 50,
+      "listing": "c.txt,keep,nd,oc.txt,oc2.txt,r2.txt,rro.txt,v2.txt"
+    },
+    "rename_final_contents": {
+      "r2.exists": true,
+      "r2.attrs": "0x00000020",
+      "r2.size": 2,
+      "r2.data": "7233",
+      "rro.exists": true,
+      "rro.attrs": "0x00000020",
+      "rro.size": 2,
+      "rro.data": "7234"
+    }
+  },
+  "errors": [],
+  "source_sha256": "60444d1a9bfa8ada3e9983b93e99acaa9d67de829c87cc9de5610392026d241f"
+}

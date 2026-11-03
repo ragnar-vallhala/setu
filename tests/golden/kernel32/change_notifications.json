@@ -1,0 +1,183 @@
+{
+  "test": "kernel32/change_notifications",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "fcn_valid": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "fcn_missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "fcn_missing_parent": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "fcn_on_file": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "fcn_zero_filter": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "fcn_unknown_filter_bit": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 87
+    },
+    "fcn_all_filters": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "fcn_empty_path": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "fcn_trailing_backslash": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "signal_create_file_name": {
+      "before": "timeout",
+      "after": "signaled",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_nested_no_subtree": {
+      "before": "timeout",
+      "after": "timeout",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_nested_subtree": {
+      "before": "timeout",
+      "after": "signaled",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_attr_with_name_filter": {
+      "before": "timeout",
+      "after": "timeout",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_attr_with_attr_filter": {
+      "before": "timeout",
+      "after": "timeout",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_size_with_size_filter": {
+      "before": "timeout",
+      "after": "signaled",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_mkdir_with_file_filter": {
+      "before": "timeout",
+      "after": "timeout",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_mkdir_with_dir_filter": {
+      "before": "timeout",
+      "after": "signaled",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_rename": {
+      "before": "timeout",
+      "after": "signaled",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_outside_change": {
+      "before": "timeout",
+      "after": "timeout",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "signal_nothing": {
+      "before": "timeout",
+      "after": "timeout",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "close_valid": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "close_invalid": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "next_invalid": {
+      "ret": false,
+      "last_error": 6
+    },
+    "rdc_zero_filter": {
+      "ret": false,
+      "last_error": 87
+    },
+    "rdc_on_file_handle": {
+      "ret": false,
+      "last_error": 87
+    },
+    "rdc_arm_names": {
+      "wait": "signaled",
+      "ret": true,
+      "records": "1:arm0",
+      "count": 1
+    },
+    "rdc_batch_names": {
+      "ret": true,
+      "last_error": "unchanged",
+      "records": "1:one.txt,1:two.txt,4:one.txt,5:uno.txt,2:two.txt,1:dir,2:arm0",
+      "count": 7
+    },
+    "rdc_nested_not_reported": {
+      "ret": true,
+      "records": "1:three.txt",
+      "count": 1
+    },
+    "rdc_overflow_small_buffer": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": 0
+    },
+    "rdc_arm_subtree": {
+      "wait": "signaled",
+      "ret": true,
+      "records": "1:arm1",
+      "count": 1
+    },
+    "rdc_batch_subtree": {
+      "ret": true,
+      "last_error": "unchanged",
+      "records": "1:dir\\deep.txt,2:dir\\deep.txt,2:uno.txt,1:dir\\moved_in.txt",
+      "count": 4
+    },
+    "rdc_attribute_filter": {
+      "wait": "signaled",
+      "ret": true,
+      "records": "3:three.txt",
+      "count": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "8203cf68e16ef8aed56610265207c8f264a17498d57be6d44cc01c21e45ef15a"
+}

@@ -1,0 +1,215 @@
+{
+  "test": "kernel32/named_streams",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_main": {
+      "ret": "valid",
+      "last_error": 0,
+      "write": true
+    },
+    "create_stream": {
+      "ret": "valid",
+      "last_error": 0,
+      "write": true
+    },
+    "create_stream_explicit_type": {
+      "ret": "valid",
+      "last_error": 0,
+      "write": true
+    },
+    "create_stream_exists": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 80
+    },
+    "create_stream_missing_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "write": true
+    },
+    "create_stream_bad_type": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_stream_empty_name_data": {
+      "ret": "valid",
+      "last_error": 0,
+      "write": true
+    },
+    "create_stream_invalid_char": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_stream_too_many_colons": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "read_main": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "6d61696e20766961202444415441",
+      "size": 14
+    },
+    "read_stream": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "73747265616d206f6e6521",
+      "size": 11
+    },
+    "read_stream_case_insensitive": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "73747265616d206f6e6521",
+      "size": 11
+    },
+    "read_stream_with_type": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "73747265616d206f6e6521",
+      "size": 11
+    },
+    "read_stream_s2": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "74776f",
+      "size": 3
+    },
+    "read_missing_stream": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "read_main_via_data": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "6d61696e20766961202444415441",
+      "size": 14
+    },
+    "read_auto_created_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "",
+      "size": 0
+    },
+    "read_auto_created_stream": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "6175746f",
+      "size": 4
+    },
+    "attrs_main": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 14
+    },
+    "attrs_stream": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000020",
+      "size": 11
+    },
+    "attrs_missing_stream": {
+      "ret": false,
+      "last_error": 2
+    },
+    "find_streams": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 38,
+      "streams": "::$DATA=14,:s1:$DATA=11,:s2:$DATA=3"
+    },
+    "find_streams_auto": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 38,
+      "streams": "::$DATA=0,:s:$DATA=4"
+    },
+    "find_streams_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "stream_info_class": {
+      "ret": true,
+      "last_error": "unchanged",
+      "streams": "::$DATA=14,:s1:$DATA=11,:s2:$DATA=3"
+    },
+    "listing": {
+      "root": "f.txt,g.txt"
+    },
+    "stream_open_while_main_exclusive": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "delete_stream": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "find_after_delete_stream": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 38,
+      "streams": "::$DATA=14,:s1:$DATA=11"
+    },
+    "delete_missing_stream": {
+      "ret": false,
+      "last_error": 2
+    },
+    "copy_file": {
+      "ret": true,
+      "last_error": 0
+    },
+    "find_streams_copy": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 38,
+      "streams": "::$DATA=14,:s1:$DATA=11"
+    },
+    "truncate_main": {
+      "ret": "valid",
+      "last_error": 0,
+      "write": true
+    },
+    "stream_after_main_truncate": {
+      "ret": "valid",
+      "last_error": 0,
+      "data": "73747265616d206f6e6521",
+      "size": 11
+    },
+    "create_always_main": {
+      "ret": "valid",
+      "last_error": 183,
+      "write": true
+    },
+    "streams_after_create_always": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "end_error": 38,
+      "streams": "::$DATA=5"
+    },
+    "dir_stream_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dir_stream_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dir_streams": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 38
+    },
+    "dir_attrs_after_stream": {
+      "ret": true,
+      "last_error": "unchanged",
+      "attrs": "0x00000010",
+      "size": 0
+    },
+    "move_stream": {
+      "ret": false,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "0ade2dee6dd3b8c34511653f5ee010e086e6e9d3f9edcdd99f8b0c3f203f740b"
+}

@@ -1,0 +1,125 @@
+{
+  "test": "kernel32/wow64_fs_redirection",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exports": {
+      "disable": true,
+      "revert": true,
+      "enable": true,
+      "is_wow64_process2": true,
+      "get_system_wow64_directory2w": false,
+      "kernelbase_is_wow64_process2": true,
+      "kernelbase_get_system_wow64_directory2w": true
+    },
+    "disable": {
+      "ret": false,
+      "last_error": 1,
+      "old_untouched": true,
+      "old_null": false
+    },
+    "disable_twice": {
+      "ret": false,
+      "last_error": 1
+    },
+    "revert_old": {
+      "ret": false,
+      "last_error": 1
+    },
+    "revert_null": {
+      "ret": false,
+      "last_error": 1
+    },
+    "revert_one": {
+      "ret": false,
+      "last_error": 1
+    },
+    "enable_false": {
+      "ret": false,
+      "last_error": 1
+    },
+    "enable_true": {
+      "ret": false,
+      "last_error": 1
+    },
+    "system32_visible_either_way": {
+      "before": true,
+      "disabled": true
+    },
+    "is_wow64_process_self": {
+      "ret": true,
+      "last_error": "unchanged",
+      "wow64": 0
+    },
+    "is_wow64_process_null": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "is_wow64_process_event": {
+      "ret": false,
+      "last_error": 6
+    },
+    "is_wow64_process2_self": {
+      "ret": true,
+      "last_error": "unchanged",
+      "process_machine": "0x00000000",
+      "native_machine": "0x00008664"
+    },
+    "is_wow64_process2_null_native": {
+      "ret": true,
+      "last_error": "unchanged",
+      "process_machine": "0x00000000"
+    },
+    "syswow64_dir": {
+      "ret_nonzero": true,
+      "last_error": "unchanged",
+      "tail": "syswow64",
+      "ret_is_len": true,
+      "under_windows_dir": true
+    },
+    "syswow64_size_query": {
+      "need_is_len_plus_1": true,
+      "last_error": "unchanged"
+    },
+    "syswow64_buffer_len": {
+      "need_is_len_plus_1": true,
+      "untouched": true,
+      "last_error": "unchanged"
+    },
+    "syswow64_ansi": {
+      "same_len": true,
+      "last_error": "unchanged"
+    },
+    "syswow64_2_i386": {
+      "ret_nonzero": true,
+      "last_error": "unchanged",
+      "tail": "syswow64"
+    },
+    "syswow64_2_amd64": {
+      "ret_nonzero": true,
+      "last_error": "unchanged",
+      "tail": "sysx8664"
+    },
+    "syswow64_2_armnt": {
+      "ret_nonzero": true,
+      "last_error": "unchanged",
+      "tail": "sysarm32"
+    },
+    "syswow64_2_arm64": {
+      "ret_nonzero": true,
+      "last_error": "unchanged",
+      "tail": "sysarm64"
+    },
+    "syswow64_2_unknown": {
+      "ret_nonzero": false,
+      "last_error": 160
+    },
+    "syswow64_2_bogus": {
+      "ret_nonzero": false,
+      "last_error": 160
+    }
+  },
+  "errors": [],
+  "source_sha256": "953e4105172e8d8214d972b890e31a413758997ee6c4488c789ed690c15bdeee"
+}
