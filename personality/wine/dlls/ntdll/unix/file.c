@@ -4356,7 +4356,8 @@ static NTSTATUS lookup_unix_name( int root_fd, OBJECT_ATTRIBUTES *attr, UNICODE_
         if (*ptr == '.')
         {
             if (ptr + 1 == end) return STATUS_OBJECT_NAME_INVALID;  /* "." element */
-            if (ptr[1] == '\\') return STATUS_OBJECT_NAME_INVALID;  /* "." element */
+            /* a "." directory element is looked up like a name, and is not found */
+            if (ptr[1] == '\\') return STATUS_OBJECT_PATH_NOT_FOUND;
             if (ptr[1] == '.')
             {
                 if (ptr + 2 == end) return STATUS_OBJECT_NAME_INVALID;  /* ".." element */
@@ -4570,7 +4571,8 @@ static NTSTATUS nt_to_unix_file_name_no_root( OBJECT_ATTRIBUTES *attr, UNICODE_S
 
     /* check if prefix exists (except for DOS drives to avoid extra stat calls) */
 
-    if (wcschr( prefix, '/' ))
+    /* "." and ".." are not device names: "\??\.\x" is a missing path */
+    if (wcschr( prefix, '/' ) || (prefix[0] == '.' && (!prefix[1] || (prefix[1] == '.' && !prefix[2]))))
     {
         free( unix_name );
         return STATUS_OBJECT_PATH_NOT_FOUND;
