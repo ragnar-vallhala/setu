@@ -1012,7 +1012,6 @@ void WINAPI RtlInitializeSListHead(PSLIST_HEADER list)
 {
 #ifdef _WIN64
     list->Alignment = list->Region = 0;
-    list->Header16.HeaderType = 1;  /* we use the 16-byte header */
 #else
     list->Alignment = 0;
 #endif
@@ -1052,7 +1051,6 @@ PSLIST_ENTRY WINAPI RtlInterlockedFlushSList(PSLIST_HEADER list)
 #ifdef _WIN64
     if (!list->Header16.NextEntry) return NULL;
     new.Alignment = new.Region = 0;
-    new.Header16.HeaderType = 1;  /* we use the 16-byte header */
     do
     {
         old = *list;
