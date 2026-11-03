@@ -23,6 +23,17 @@ static unsigned long long u(FILETIME f) { return ((unsigned long long)f.dwHighDa
 #define T2 127000000000000001ULL
 #define T3 128000000000000000ULL
 
+/* Print a file time that the test set itself as its value (T1, T2, T3, 0 or
+ * the high-bit value), and any other time as "other": a time the system
+ * filled in from the clock differs between runs. */
+static void o_time(const char *name, unsigned long long v)
+{
+    if (v == T1 || v == T2 || v == T3 || v == 0 || v == 0x8000000000000000ULL)
+        o_u64(name, v);
+    else
+        o_str(name, "other");
+}
+
 static void make_file(const wchar_t *path, const char *content)
 {
     HANDLE h = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
@@ -80,31 +91,31 @@ int main(void)
     set_case("set_write_only", h, NULL, NULL, &t1);
     GetFileTime(h, &c, &a, &w);
     oracle_case("after_set_write_only");
-    o_u64("write", u(w));
+    o_time("write", u(w));
     o_bool("creation_changed", u(c) == T1);
     oracle_case_end();
 
     set_case("set_all", h, &t1, &t2, &t3);
     GetFileTime(h, &c, &a, &w);
     oracle_case("after_set_all");
-    o_u64("creation", u(c));
-    o_u64("access", u(a));
-    o_u64("write", u(w));
+    o_time("creation", u(c));
+    o_time("access", u(a));
+    o_time("write", u(w));
     oracle_case_end();
 
     times_of(L"f.txt", &fc, &fa, &fw);
     oracle_case("after_set_all_by_path");
-    o_u64("creation", fc);
-    o_u64("access", fa);
-    o_u64("write", fw);
+    o_time("creation", fc);
+    o_time("access", fa);
+    o_time("write", fw);
     oracle_case_end();
 
     {
         WIN32_FIND_DATAW fd;
         HANDLE f = FindFirstFileW(L"f.txt", &fd);
         oracle_case("after_set_all_by_find");
-        o_u64("creation", u(fd.ftCreationTime));
-        o_u64("write", u(fd.ftLastWriteTime));
+        o_time("creation", u(fd.ftCreationTime));
+        o_time("write", u(fd.ftLastWriteTime));
         oracle_case_end();
         FindClose(f);
     }
@@ -113,7 +124,7 @@ int main(void)
     set_case("set_zero_write", h, NULL, NULL, &zero);
     GetFileTime(h, &c, &a, &w);
     oracle_case("after_set_zero_write");
-    o_u64("write", u(w));
+    o_time("write", u(w));
     oracle_case_end();
 
     {
@@ -121,7 +132,7 @@ int main(void)
         set_case("set_write_high_bit", h, NULL, NULL, &big);
         GetFileTime(h, &c, &a, &w);
         oracle_case("after_set_write_high_bit");
-        o_u64("write", u(w));
+        o_time("write", u(w));
         oracle_case_end();
     }
 
@@ -131,7 +142,7 @@ int main(void)
         set_case("set_write_minus_one", h, NULL, NULL, &m1);
         GetFileTime(h, &c, &a, &w);
         oracle_case("after_set_minus_one");
-        o_u64("write", u(w));
+        o_time("write", u(w));
         oracle_case_end();
         DWORD n;
         SetFilePointer(h, 0, NULL, FILE_END);
@@ -139,13 +150,13 @@ int main(void)
         FlushFileBuffers(h);
         GetFileTime(h, &c, &a, &w);
         oracle_case("write_after_minus_one");
-        o_u64("write", u(w));
+        o_time("write", u(w));
         oracle_case_end();
     }
     CloseHandle(h);
     times_of(L"f.txt", &fc, &fa, &fw);
     oracle_case("after_close_minus_one");
-    o_u64("write", fw);
+    o_time("write", fw);
     oracle_case_end();
 
     /* A plain write moves the time forward at the latest when the handle closes. */
@@ -159,7 +170,7 @@ int main(void)
     times_of(L"f.txt", &fc, &fa, &fw);
     oracle_case("write_updates_time_after_close");
     o_bool("write_after_t1", fw > T1);
-    o_u64("creation", fc);
+    o_time("creation", fc);
     oracle_case_end();
 
     /* Setting the time is the last thing before close: it sticks. */
@@ -172,7 +183,7 @@ int main(void)
     CloseHandle(h);
     times_of(L"f.txt", &fc, &fa, &fw);
     oracle_case("set_after_write_sticks");
-    o_u64("write", fw);
+    o_time("write", fw);
     oracle_case_end();
 
     /* Access rights. */
@@ -182,7 +193,7 @@ int main(void)
     oracle_case("get_on_read_handle");
     o_bool("ret", r);
     o_lasterr();
-    o_u64("write", u(w));
+    o_time("write", u(w));
     oracle_case_end();
     CloseHandle(h);
 
@@ -200,7 +211,7 @@ int main(void)
     oracle_case("get_on_read_attributes_handle");
     o_bool("ret", r);
     o_lasterr();
-    o_u64("write", u(w));
+    o_time("write", u(w));
     oracle_case_end();
     CloseHandle(h);
 
@@ -219,9 +230,9 @@ int main(void)
     set_case("set_directory", h, &t1, &t2, &t3);
     GetFileTime(h, &c, &a, &w);
     oracle_case("after_set_directory");
-    o_u64("creation", u(c));
-    o_u64("access", u(a));
-    o_u64("write", u(w));
+    o_time("creation", u(c));
+    o_time("access", u(a));
+    o_time("write", u(w));
     oracle_case_end();
     CloseHandle(h);
 
@@ -229,7 +240,7 @@ int main(void)
     times_of(L"d", &fc, &fa, &fw);
     oracle_case("dir_write_time_after_child_create");
     o_bool("write_changed", fw != T3);
-    o_u64("creation", fc);
+    o_time("creation", fc);
     oracle_case_end();
 
     /* Bad handles. */
