@@ -663,10 +663,11 @@ static const NLS_LOCALE_DATA *find_locale_by_name( const WCHAR *name, LCID *lcid
 static WCHAR custom_locale_name[LOCALE_NAME_MAX_LENGTH];
 
 /* Windows accepts well-formed names that it doesn't know: a 2 or 3 letter
- * language followed by subtags of 1 to 8 letters or digits */
+ * language followed by script (4 letters) or region (2 letters or 3 digits)
+ * subtags; "xx-YY" and "en-001" are accepted, "xx-INVALID" isn't */
 static BOOL is_custom_locale_name( const WCHAR *name )
 {
-    int i, len;
+    int i, len, alpha, digit;
 
     if (name == LOCALE_NAME_USER_DEFAULT || wcslen( name ) >= LOCALE_NAME_MAX_LENGTH) return FALSE;
     for (len = 0; iswalpha( name[len] ) && name[len] < 0x80; len++) ;
@@ -674,8 +675,12 @@ static BOOL is_custom_locale_name( const WCHAR *name )
     for (i = len; name[i]; i += len)
     {
         if (name[i] != '-' && name[i] != '_') return FALSE;
-        for (i++, len = 0; name[i + len] && name[i + len] < 0x80 && iswalnum( name[i + len] ); len++) ;
-        if (!len || len > 8) return FALSE;
+        for (i++, len = alpha = digit = 0; name[i + len] && name[i + len] < 0x80 && iswalnum( name[i + len] ); len++)
+        {
+            if (iswdigit( name[i + len] )) digit++;
+            else alpha++;
+        }
+        if (!((len == 2 && alpha == 2) || (len == 3 && digit == 3) || (len == 4 && alpha == 4))) return FALSE;
     }
     return TRUE;
 }
