@@ -6446,6 +6446,13 @@ NTSTATUS WINAPI NtReadFile( HANDLE handle, HANDLE event, PIO_APC_ROUTINE apc, vo
 
     if (type == FD_TYPE_FILE)
     {
+        /* unbuffered I/O works in whole sectors */
+        if ((options & FILE_NO_INTERMEDIATE_BUFFERING) &&
+            ((length & 511) || (offset && offset->QuadPart >= 0 && (offset->QuadPart & 511))))
+        {
+            status = STATUS_INVALID_PARAMETER;
+            goto err;
+        }
         if (async_read && (!offset || offset->QuadPart < 0))
         {
             status = STATUS_INVALID_PARAMETER;

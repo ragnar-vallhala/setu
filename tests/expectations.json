@@ -1446,6 +1446,7 @@
     "kernel32/ReOpenFile:event",
     "kernel32/ReOpenFile:from_attributes_only_to_read",
     "kernel32/ReOpenFile:invalid_handle",
+    "kernel32/ReOpenFile:no_buffering",
     "kernel32/ReOpenFile:null_handle",
     "kernel32/ReOpenFile:orig_delete_on_close",
     "kernel32/ReOpenFile:orig_exclusive_reopen_attributes",
