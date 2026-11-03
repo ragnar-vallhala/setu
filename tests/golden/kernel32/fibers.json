@@ -1,0 +1,113 @@
+{
+  "test": "kernel32/fibers",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "is_fiber_before": {
+      "ret": false
+    },
+    "convert_to_thread_when_not_fiber": {
+      "ret": false,
+      "last_error": 1281
+    },
+    "convert_thread_to_fiber": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "is_current": true,
+      "data": true,
+      "is_fiber": true
+    },
+    "convert_twice": {
+      "ret_null": true,
+      "last_error": 1280
+    },
+    "convert_ex_twice": {
+      "ret_null": true,
+      "last_error": 1280
+    },
+    "create_fiber": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "ping_pong": {
+      "log": "a1b1a2",
+      "a_data": true,
+      "a_current": true,
+      "b_saw_fls": 0,
+      "main_fls": "0x00000005",
+      "back_on_main": true
+    },
+    "fls_alloc_with_callback": {
+      "valid": true,
+      "last_error": "unchanged"
+    },
+    "delete_fiber_runs_callback": {
+      "calls": 1,
+      "data": "0x00000077"
+    },
+    "delete_unstarted_fiber": {
+      "calls": 0
+    },
+    "fls_free_null_value": {
+      "calls": 0
+    },
+    "fls_free_runs_callback": {
+      "ret": true,
+      "last_error": "unchanged",
+      "calls": 1,
+      "data": "0x00000099"
+    },
+    "fls_free_twice": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fls_get_freed": {
+      "ret_null": true,
+      "last_error": 0
+    },
+    "fls_set_freed": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "fls_get_out_of_range": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "fls_free_out_of_indexes": {
+      "ret": false,
+      "last_error": 87
+    },
+    "fls_get_fresh_index": {
+      "ret_null": false,
+      "last_error": 0
+    },
+    "create_fiber_float_switch": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "float_fiber_ran": {
+      "out": 6
+    },
+    "create_fiber_unknown_flag": {
+      "ret_null": true,
+      "last_error": 87
+    },
+    "convert_back_to_thread": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_fiber_after": false
+    },
+    "convert_ex_float": {
+      "ret_null": false,
+      "last_error": "unchanged",
+      "data": true
+    },
+    "convert_ex_unknown_flag": {
+      "ret_null": true,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "bc6898e2cf312a4480db0abe9570729c7267ab03d405a71d813fda4b4732b054"
+}
