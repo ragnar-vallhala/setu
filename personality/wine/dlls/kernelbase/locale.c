@@ -6635,7 +6635,8 @@ INT WINAPI DECLSPEC_HOTPATCH GetLocaleInfoEx( const WCHAR *name, LCTYPE info, WC
 
     TRACE( "%s 0x%lx %p %d\n", debugstr_w(name), info, buffer, len );
 
-    nls_first_use( &nls_used_locale, TRUE );
+    /* the user's overrides are what is loaded on first use */
+    if (!(info & LOCALE_NOUSEROVERRIDE)) nls_first_use( &nls_used_locale, TRUE );
 
     if (!locale)
     {
@@ -8986,7 +8987,7 @@ int WINAPI GetDateFormatW( LCID lcid, DWORD flags, const SYSTEMTIME *systime,
 {
     const NLS_LOCALE_DATA *locale;
 
-    nls_first_use( &nls_used_locale, TRUE );
+    if (!(flags & LOCALE_NOUSEROVERRIDE)) nls_first_use( &nls_used_locale, TRUE );
     locale = NlsValidateLocale( &lcid, 0 );
 
     if (len < 0 || (len && !buffer) || !locale)
@@ -9009,7 +9010,7 @@ int WINAPI GetDateFormatEx( const WCHAR *name, DWORD flags, const SYSTEMTIME *sy
     LCID lcid;
     const NLS_LOCALE_DATA *locale = get_locale_by_name( name, &lcid );
 
-    nls_first_use( &nls_used_locale, TRUE );
+    if (!(flags & LOCALE_NOUSEROVERRIDE)) nls_first_use( &nls_used_locale, TRUE );
 
     if (len < 0 || (len && !buffer) || !locale || calendar)
     {
