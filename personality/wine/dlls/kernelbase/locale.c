@@ -6069,6 +6069,134 @@ BOOL WINAPI /* DECLSPEC_HOTPATCH */ GetFileMUIPath( DWORD flags, const WCHAR *fi
 }
 
 
+/* write a number with at least 'width' digits */
+static WCHAR *duration_number( WCHAR *p, WCHAR *end, ULONGLONG val, int width )
+{
+    WCHAR tmp[24];
+    int n = 0;
+
+    do { tmp[n++] = '0' + val % 10; val /= 10; } while (val);
+    while (width-- > n && p < end) *p++ = '0';
+    while (n && p < end) *p++ = tmp[--n];
+    return p;
+}
+
+
+/******************************************************************************
+ *	GetDurationFormatEx   (kernelbase.@)
+ *
+ * The largest unit present in the format holds everything above it, e.g.
+ * "m" alone gives the total number of minutes. Fractions ('f') are truncated
+ * 100ns digits, padded with zeros past the 7th.
+ */
+int WINAPI GetDurationFormatEx( const WCHAR *name, DWORD flags, const SYSTEMTIME *systime,
+                                ULONGLONG duration, const WCHAR *format, WCHAR *buffer, int len )
+{
+    static const ULONGLONG ticks_per_second = 10000000;
+    WCHAR output[256], *p = output, *end = output + ARRAY_SIZE(output) - 1;
+    ULONGLONG secs, frac, days = 0, hours = 0, minutes = 0;
+    BOOL has_d = FALSE, has_h = FALSE, has_m = FALSE;
+    const NLS_LOCALE_DATA *locale;
+    const WCHAR *f;
+    LCID lcid;
+    int ret;
+
+    TRACE( "(%s,%lx,%p,%s,%s,%p,%d)\n", debugstr_w(name), flags, systime,
+           wine_dbgstr_longlong(duration), debugstr_w(format), buffer, len );
+
+    if (len < 0 || (len && !buffer) || (systime && duration))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    if (flags)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
+    if (!(locale = get_locale_by_name( name, &lcid )))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    if (!format)
+    {
+        const DWORD *array = (const DWORD *)(locale_strings + locale->sduration + 1);
+        format = locale_strings[locale->sduration] ? locale_strings + array[0] + 1 : L"h:mm:ss";
+    }
+    if (systime)
+        duration = ((((ULONGLONG)systime->wDay * 24 + systime->wHour) * 60 + systime->wMinute) * 60 +
+                    systime->wSecond) * ticks_per_second + (ULONGLONG)systime->wMilliseconds * 10000;
+
+    for (f = format; *f; f++)
+    {
+        if (*f == '\'')
+        {
+            while (*++f && *f != '\'') ;
+            if (!*f) break;
+        }
+        else if (*f == 'd') has_d = TRUE;
+        else if (*f == 'h' || *f == 'H') has_h = TRUE;
+        else if (*f == 'm') has_m = TRUE;
+    }
+
+    secs = duration / ticks_per_second;
+    frac = duration % ticks_per_second;
+    if (has_d) { days = secs / 86400; secs %= 86400; }
+    if (has_h) { hours = secs / 3600; secs %= 3600; }
+    if (has_m) { minutes = secs / 60; secs %= 60; }
+
+    for (f = format; *f && p < end; )
+    {
+        WCHAR ch = *f;
+        int count = 1;
+
+        if (ch == '\'')
+        {
+            for (f++; *f && *f != '\''; f++) if (p < end) *p++ = *f;
+            if (*f) f++;
+            continue;
+        }
+        if (ch != 'd' && ch != 'h' && ch != 'H' && ch != 'm' && ch != 's' && ch != 'f')
+        {
+            *p++ = *f++;
+            continue;
+        }
+        while (f[count] == ch) count++;
+        f += count;
+        switch (ch)
+        {
+        case 'd': p = duration_number( p, end, days, count ); break;
+        case 'h':
+        case 'H': p = duration_number( p, end, hours, count ); break;
+        case 'm': p = duration_number( p, end, minutes, count ); break;
+        case 's': p = duration_number( p, end, secs, count ); break;
+        case 'f':
+        {
+            WCHAR digits[8];
+            int i;
+
+            for (i = 6, digits[7] = 0; i >= 0; i--, frac /= 10) digits[i] = '0' + frac % 10;
+            for (i = 0; i < count && p < end; i++) *p++ = i < 7 ? digits[i] : '0';
+            frac = duration % ticks_per_second;
+            break;
+        }
+        }
+    }
+    *p = 0;
+
+    ret = p - output + 1;
+    if (!len) return ret;
+    if (ret > len)
+    {
+        SetLastError( ERROR_INSUFFICIENT_BUFFER );
+        return 0;
+    }
+    memcpy( buffer, output, ret * sizeof(WCHAR) );
+    return ret;
+}
+
+
 /******************************************************************************
  *	GetGeoInfoW   (kernelbase.@)
  */

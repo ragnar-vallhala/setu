@@ -520,7 +520,7 @@
 @ stdcall GetDiskSpaceInformationW(wstr ptr)
 @ stdcall GetDriveTypeA(str)
 @ stdcall GetDriveTypeW(wstr)
-# @ stub GetDurationFormatEx
+@ stdcall GetDurationFormatEx(wstr long ptr int64 wstr ptr long)
 @ stdcall GetDynamicTimeZoneInformation(ptr)
 @ stdcall GetDynamicTimeZoneInformationEffectiveYears(ptr ptr ptr)
 # @ stub GetEffectivePackageStatusForUser

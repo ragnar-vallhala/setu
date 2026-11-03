@@ -171,8 +171,25 @@ BOOL WINAPI GetCPInfoExA( UINT codepage, DWORD dwFlags, LPCPINFOEXA cpinfo )
 }
 
 
-/*********************************************************************
- *              GetDaylightFlag   (KERNEL32.@)
+/******************************************************************************
+ *           GetDurationFormat   (KERNEL32.@)
+ */
+INT WINAPI GetDurationFormat( LCID lcid, DWORD flags, const SYSTEMTIME *duration, ULONGLONG value,
+                              LPCWSTR format, LPWSTR buffer, INT len )
+{
+    WCHAR name[LOCALE_NAME_MAX_LENGTH];
+
+    if (!LCIDToLocaleName( lcid, name, ARRAY_SIZE(name), LOCALE_ALLOW_NEUTRAL_NAMES ))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    return GetDurationFormatEx( name, flags, duration, value, format, buffer, len );
+}
+
+
+/******************************************************************************
+ *           GetDaylightFlag   (KERNEL32.@)
  */
 BOOL WINAPI GetDaylightFlag(void)
 {

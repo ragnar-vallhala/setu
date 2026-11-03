@@ -668,8 +668,8 @@
 @ stdcall GetDllDirectoryW(long ptr)
 @ stdcall -import GetDriveTypeA(str)
 @ stdcall -import GetDriveTypeW(wstr)
-# @ stub GetDurationFormat
-# @ stub GetDurationFormatEx
+@ stdcall GetDurationFormat(long long ptr int64 wstr ptr long)
+@ stdcall -import GetDurationFormatEx(wstr long ptr int64 wstr ptr long)
 @ stdcall -import GetDynamicTimeZoneInformation(ptr)
 @ stdcall -import GetDynamicTimeZoneInformationEffectiveYears(ptr ptr ptr)
 @ stdcall -import -ret64 -arch=i386,x86_64 GetEnabledXStateFeatures()
