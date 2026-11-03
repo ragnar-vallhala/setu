@@ -886,7 +886,10 @@ static int prepend( char **path, const char *segment )
     return 1;
 }
 
-static void inotify_notify_all( struct inotify_event *ie )
+/* A move is a rename only when both of its halves are in the same directory;
+ * a move between directories shows up as a removal from the old directory and
+ * an addition to the new one, as on Windows. */
+static void inotify_notify_all( struct inotify_event *ie, int same_dir_move )
 {
     unsigned int filter, action;
     struct inode *inode, *i;
@@ -912,9 +915,13 @@ static void inotify_notify_all( struct inotify_event *ie )
     else if (ie->mask & IN_DELETE)
         action = FILE_ACTION_REMOVED;
     else if (ie->mask & IN_MOVED_FROM)
-        action = FILE_ACTION_RENAMED_OLD_NAME;
+        action = same_dir_move ? FILE_ACTION_RENAMED_OLD_NAME : FILE_ACTION_REMOVED;
     else if (ie->mask & IN_MOVED_TO)
-        action = FILE_ACTION_RENAMED_NEW_NAME;
+    {
+        if (ie->mask & IN_ISDIR)
+            inode_check_dir( inode, ie->name );
+        action = same_dir_move ? FILE_ACTION_RENAMED_NEW_NAME : FILE_ACTION_ADDED;
+    }
     else
         action = FILE_ACTION_MODIFIED;
 
@@ -946,6 +953,24 @@ static void inotify_notify_all( struct inotify_event *ie )
     }
 }
 
+/* look in the events read together for the other half of a move */
+static int is_same_dir_move( const char *buffer, int size, const struct inotify_event *ie )
+{
+    unsigned int other = (ie->mask & IN_MOVED_FROM) ? IN_MOVED_TO : IN_MOVED_FROM;
+    const struct inotify_event *e;
+    int ofs;
+
+    if (!(ie->mask & (IN_MOVED_FROM | IN_MOVED_TO)) || !ie->cookie) return 0;
+    for (ofs = 0; ofs < size - (int)offsetof(struct inotify_event, name); )
+    {
+        e = (const struct inotify_event *)&buffer[ofs];
+        ofs += offsetof( struct inotify_event, name[e->len] );
+        if (ofs > size) break;
+        if ((e->mask & other) && e->cookie == ie->cookie) return e->wd == ie->wd;
+    }
+    return 0;
+}
+
 static void inotify_poll_event( struct fd *fd, int event )
 {
     int r, ofs, unix_fd;
@@ -965,7 +990,7 @@ static void inotify_poll_event( struct fd *fd, int event )
         ie = (struct inotify_event*) &buffer[ofs];
         ofs += offsetof( struct inotify_event, name[ie->len] );
         if (ofs > r) break;
-        if (ie->len) inotify_notify_all( ie );
+        if (ie->len) inotify_notify_all( ie, is_same_dir_move( buffer, r, ie ));
     }
 }
 

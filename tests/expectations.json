@@ -2275,6 +2275,7 @@
     "kernel32/change_notifications:rdc_arm_subtree",
     "kernel32/change_notifications:rdc_attribute_filter",
     "kernel32/change_notifications:rdc_batch_names",
+    "kernel32/change_notifications:rdc_batch_subtree",
     "kernel32/change_notifications:rdc_nested_not_reported",
     "kernel32/change_notifications:rdc_on_file_handle",
     "kernel32/change_notifications:rdc_overflow_small_buffer",
