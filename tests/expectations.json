@@ -1029,6 +1029,7 @@
     "kernel32/GetDiskFreeSpaceExW:ex_empty",
     "kernel32/GetDiskFreeSpaceExW:ex_file",
     "kernel32/GetDiskFreeSpaceExW:ex_long_prefix_root",
+    "kernel32/GetDiskFreeSpaceExW:ex_missing_dir",
     "kernel32/GetDiskFreeSpaceExW:ex_missing_nested",
     "kernel32/GetDiskFreeSpaceExW:ex_null",
     "kernel32/GetDiskFreeSpaceExW:ex_only_free",

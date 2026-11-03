@@ -853,7 +853,12 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetDiskFreeSpaceExW( LPCWSTR root, PULARGE_INTEGER
 
     TRACE( "%s,%p,%p,%p\n", debugstr_w(root), avail, total, totalfree );
 
-    if (!open_device_root( root, &handle )) return FALSE;
+    if (!open_device_root( root, &handle ))
+    {
+        /* unlike GetDiskFreeSpaceW, a missing directory isn't a missing file */
+        if (GetLastError() == ERROR_FILE_NOT_FOUND) SetLastError( ERROR_PATH_NOT_FOUND );
+        return FALSE;
+    }
 
     status = NtQueryVolumeInformationFile( handle, &io, &info, sizeof(info), FileFsSizeInformation );
     NtClose( handle );
