@@ -1081,6 +1081,12 @@ BOOLEAN WINAPI DECLSPEC_HOTPATCH CreateSymbolicLinkW( const WCHAR *link, const W
     if (flags & ~(SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE))
         FIXME( "ignoring unknown flags %#lx\n", flags );
 
+    if (!target_len)
+    {
+        SetLastError( ERROR_INVALID_REPARSE_DATA );
+        return FALSE;
+    }
+
     status = RtlDosPathNameToNtPathName_U_WithStatus( link, &nt_link, NULL, NULL );
     if (status) return set_ntstatus( status );
 
@@ -1154,7 +1160,9 @@ BOOLEAN WINAPI DECLSPEC_HOTPATCH CreateSymbolicLinkW( const WCHAR *link, const W
     status = NtDeviceIoControlFile( file, NULL, NULL, NULL, &io, FSCTL_SET_REPARSE_POINT, data, size, NULL, 0 );
     HeapFree( GetProcessHeap(), 0, data );
     NtClose( file );
-    return set_ntstatus( status );
+    if (!set_ntstatus( status )) return FALSE;
+    SetLastError( ERROR_SUCCESS );  /* as on Windows */
+    return TRUE;
 }
 
 
