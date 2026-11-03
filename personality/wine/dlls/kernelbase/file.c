@@ -3853,8 +3853,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH ReadDirectoryChangesW( HANDLE handle, LPVOID buffe
 
     if (!overlapped)
     {
+        DWORD err = GetLastError();
+
         memset( &ov, 0, sizeof ov );
         ov.hEvent = CreateEventW( NULL, 0, 0, NULL );
+        SetLastError( err );  /* success leaves the last error alone */
         pov = &ov;
     }
     else
@@ -3878,6 +3881,13 @@ BOOL WINAPI DECLSPEC_HOTPATCH ReadDirectoryChangesW( HANDLE handle, LPVOID buffe
         status = ios->Status;
     }
     if (!overlapped) CloseHandle( ov.hEvent );
+    /* changes that don't fit in the buffer are lost: the call succeeds
+     * without returning any */
+    if (status == STATUS_NOTIFY_ENUM_DIR)
+    {
+        if (returned) *returned = 0;
+        return TRUE;
+    }
     return set_ntstatus( status );
 }
 
