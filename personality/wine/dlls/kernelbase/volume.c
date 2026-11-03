@@ -163,13 +163,18 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetVolumeInformationW( LPCWSTR root, LPWSTR label,
     for (i = 4; i < nt_name.Length / sizeof(WCHAR); i++) if (nt_name.Buffer[i] == '\\') break;
     if (i != nt_name.Length / sizeof(WCHAR) - 1)
     {
-        /* check if root contains an explicit subdir */
-        if (root[0] && root[1] == ':') root += 2;
-        while (*root == '\\') root++;
-        if (wcschr( root, '\\' ))
-            SetLastError( ERROR_DIR_NOT_ROOT );
-        else
+        FILE_BASIC_INFORMATION basic;
+
+        /* a name without a trailing backslash is not a root at all; one
+         * with it names a directory that would have to be a mount point */
+        if (!root[0] || (root[lstrlenW( root ) - 1] != '\\' && root[lstrlenW( root ) - 1] != '/'))
             SetLastError( ERROR_INVALID_NAME );
+        else
+        {
+            InitializeObjectAttributes( &attr, &nt_name, OBJ_CASE_INSENSITIVE, 0, NULL );
+            if ((status = NtQueryAttributesFile( &attr, &basic ))) set_ntstatus( status );
+            else SetLastError( ERROR_DIR_NOT_ROOT );
+        }
         goto done;
     }
 
