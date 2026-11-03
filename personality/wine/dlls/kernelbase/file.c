@@ -2333,7 +2333,14 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetLongPathNameW( LPCWSTR shortpath, LPWSTR longp
         return 0;
     }
 
-    if (shortpath[0] == '\\' && shortpath[1] == '\\')
+    /* a verbatim drive path is expanded like a normal one, after its prefix */
+    if (shortpath[0] == '\\' && shortpath[1] == '\\' && shortpath[2] == '?' && shortpath[3] == '\\' &&
+        shortpath[4] && shortpath[5] == ':')
+    {
+        memcpy( tmplongpath, shortpath, 4 * sizeof(WCHAR) );
+        lp = sp = 4;
+    }
+    else if (shortpath[0] == '\\' && shortpath[1] == '\\')
     {
         FIXME( "UNC pathname %s\n", debugstr_w(shortpath) );
         tmplen = lstrlenW( shortpath );
@@ -2346,11 +2353,12 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetLongPathNameW( LPCWSTR shortpath, LPWSTR longp
     }
 
     /* check for drive letter */
-    if (shortpath[0] != '/' && shortpath[1] == ':' )
+    if (shortpath[sp] != '/' && shortpath[sp] && shortpath[sp + 1] == ':' )
     {
-        tmplongpath[0] = shortpath[0];
-        tmplongpath[1] = ':';
-        lp = sp = 2;
+        tmplongpath[lp] = shortpath[sp];
+        tmplongpath[lp + 1] = ':';
+        lp += 2;
+        sp += 2;
     }
 
     if (wcspbrk( shortpath + sp, L"*?" ))
@@ -2512,7 +2520,13 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetShortPathNameW( LPCWSTR longpath, LPWSTR short
 
         /* Check if the file exists and use the existing short file name */
         handle = FindFirstFileW( tmpshortpath, &wfd );
-        if (handle == INVALID_HANDLE_VALUE) goto notfound;
+        if (handle == INVALID_HANDLE_VALUE)
+        {
+            /* a missing directory before the last component is a missing path */
+            for (p = longpath + lp + tmplen; *p == '/' || *p == '\\'; p++);
+            if (*p) goto pathnotfound;
+            goto notfound;
+        }
         FindClose( handle );
 
         /* In rare cases (like "a.abcd") short path may be longer than original path.
@@ -2531,7 +2545,8 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetShortPathNameW( LPCWSTR longpath, LPWSTR short
             tmpshortpath = new_buf;
         }
 
-        lstrcpyW( tmpshortpath + sp, wfd.cAlternateFileName[0] ? wfd.cAlternateFileName : wfd.cFileName );
+        /* a name without a short name is kept as the caller spelled it */
+        if (wfd.cAlternateFileName[0]) lstrcpyW( tmpshortpath + sp, wfd.cAlternateFileName );
         sp += lstrlenW( tmpshortpath + sp );
         lp += tmplen;
     }
@@ -2547,6 +2562,12 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetShortPathNameW( LPCWSTR longpath, LPWSTR short
 
     HeapFree( GetProcessHeap(), 0, tmpshortpath );
     return tmplen;
+
+ pathnotfound:
+    HeapFree( GetProcessHeap(), 0, tmpshortpath );
+    TRACE( "path not found\n" );
+    SetLastError( ERROR_PATH_NOT_FOUND );
+    return 0;
 
  notfound:
     HeapFree( GetProcessHeap(), 0, tmpshortpath );
