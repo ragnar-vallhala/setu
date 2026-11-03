@@ -1,0 +1,112 @@
+{
+  "test": "kernel32/thread_pool",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_work": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "work_submitted_5_times": {
+      "calls": 5,
+      "ctx": true
+    },
+    "try_submit_simple": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "simple_callback_ran": {
+      "signalled": true,
+      "ctx": true
+    },
+    "wait_signalled": {
+      "calls": 1,
+      "result": "0x00000000"
+    },
+    "wait_timeout_after_rearm": {
+      "calls": 2,
+      "result": "0x00000102",
+      "event_still_set": true
+    },
+    "timer_not_set_initially": {
+      "set": false
+    },
+    "timer_set_periodic": {
+      "set": true
+    },
+    "timer_cancelled": {
+      "reached_3": true,
+      "set": false,
+      "stable": true
+    },
+    "callback_return_actions": {
+      "event_set": true,
+      "sem_count": 2,
+      "mutex_free": true,
+      "cs_free": true
+    },
+    "callback_may_run_long": {
+      "ret": 1
+    },
+    "create_cleanup_group": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "cleanup_group_waits_members": {
+      "calls": 2
+    },
+    "create_pool": {
+      "ret_null": false,
+      "last_error": "unchanged"
+    },
+    "pool_min_2": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "pool_min_1_after_max_1": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "private_pool_work": {
+      "calls": 3
+    },
+    "queue_user_work_item": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "queue_user_work_item_ran": {
+      "signalled": true
+    },
+    "register_wait_once": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unregister_wait_blocking": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "register_wait_fired": {
+      "calls": 1,
+      "timed_out": false
+    },
+    "register_wait_timeout_0": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "register_wait_timed_out": {
+      "calls": 2,
+      "timed_out": true
+    },
+    "register_wait_null_handle": {
+      "ret": false,
+      "last_error": 87
+    },
+    "unregister_null": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "0b56210febfb195b2cf9b6f4a294580b4265e6217697a92b4e5d77617d66d998"
+}
