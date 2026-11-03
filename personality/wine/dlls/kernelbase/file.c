@@ -2030,12 +2030,20 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
 
     TRACE( "(%p,%p,%ld,%lx)\n", file, path, count, flags );
 
-    if (flags & ~(FILE_NAME_OPENED | VOLUME_NAME_GUID | VOLUME_NAME_NONE | VOLUME_NAME_NT))
+    /* only one volume name format can be asked for; unknown flags are ignored */
+    switch (flags & (VOLUME_NAME_GUID | VOLUME_NAME_NONE | VOLUME_NAME_NT))
     {
-        WARN("Unknown flags: %lx\n", flags);
+    case VOLUME_NAME_DOS:
+    case VOLUME_NAME_GUID:
+    case VOLUME_NAME_NONE:
+    case VOLUME_NAME_NT:
+        break;
+    default:
+        WARN("Invalid flags: %lx\n", flags);
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
     }
+    flags &= FILE_NAME_OPENED | VOLUME_NAME_GUID | VOLUME_NAME_NONE | VOLUME_NAME_NT;
 
     /* get object name */
     status = NtQueryObject( file, ObjectNameInformation, &buffer, sizeof(buffer), &buffer_size );
@@ -2054,8 +2062,24 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
     if (info->Name.Length < 4 * sizeof(WCHAR) || info->Name.Buffer[0] != '\\' ||
         info->Name.Buffer[1] != '?' || info->Name.Buffer[2] != '?' || info->Name.Buffer[3] != '\\' )
     {
-        FIXME("Unexpected object name: %s\n", debugstr_wn(info->Name.Buffer, info->Name.Length / sizeof(WCHAR)));
-        SetLastError( ERROR_GEN_FAILURE );
+        static const WCHAR device_prefix[] = L"\\Device\\";
+        static const WCHAR pipe_prefix[] = L"\\Device\\NamedPipe\\";
+        const WCHAR *name = info->Name.Buffer;
+        DWORD len = info->Name.Length / sizeof(WCHAR);
+
+        /* objects that aren't files on a volume: pipes have no path, devices
+         * such as NUL can't be asked for one */
+        if (len >= ARRAY_SIZE(pipe_prefix) - 1 &&
+            !wcsnicmp( name, pipe_prefix, ARRAY_SIZE(pipe_prefix) - 1 ))
+            SetLastError( ERROR_BAD_PATHNAME );
+        else if (len >= ARRAY_SIZE(device_prefix) - 1 &&
+                 !wcsnicmp( name, device_prefix, ARRAY_SIZE(device_prefix) - 1 ))
+            SetLastError( ERROR_INVALID_PARAMETER );
+        else
+        {
+            FIXME("Unexpected object name: %s\n", debugstr_wn(name, len));
+            SetLastError( ERROR_GEN_FAILURE );
+        }
         goto done;
     }
 
@@ -2149,6 +2173,7 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetFinalPathNameByHandleW( HANDLE file, LPWSTR pa
         {
             lstrcpyW(path, L"\\\\?\\");
             lstrcatW(path, info->Name.Buffer);
+            SetLastError( ERROR_SUCCESS );  /* as on Windows */
         }
         else
         {
