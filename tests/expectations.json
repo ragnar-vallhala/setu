@@ -678,6 +678,8 @@
     "kernel32/CreateFile2:open_dir_no_flags",
     "kernel32/CreateFile2:open_existing_missing",
     "kernel32/CreateFile2:sharing_violation",
+    "kernel32/CreateFile2:size_0",
+    "kernel32/CreateFile2:size_minus_4",
     "kernel32/CreateFile2:size_plus_4",
     "kernel32/CreateFile2:sqos_bogus",
     "kernel32/CreateFile2:sqos_identification",

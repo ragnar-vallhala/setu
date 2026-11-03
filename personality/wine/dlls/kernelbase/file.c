@@ -746,7 +746,12 @@ HANDLE WINAPI DECLSPEC_HOTPATCH CreateFile2( LPCWSTR name, DWORD access, DWORD s
     DWORD flags = params ? params->dwFileFlags : 0;
 
     TRACE( "%s %#lx %#lx %#lx %p", debugstr_w(name), access, sharing, creation, params );
-    if (params) FIXME( "Ignoring extended parameters %p\n", params );
+    /* a larger structure is accepted, a smaller one is not */
+    if (params && params->dwSize < sizeof(*params))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return INVALID_HANDLE_VALUE;
+    }
 
     if (attributes & ~attributes_mask) FIXME( "unsupported attributes %#lx\n", attributes );
     if (flags & ~flags_mask) FIXME( "unsupported flags %#lx\n", flags );
