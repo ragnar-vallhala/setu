@@ -4472,7 +4472,8 @@ static NTSTATUS lookup_unix_name( int root_fd, OBJECT_ATTRIBUTES *attr, UNICODE_
             {
                 strcat( unix_name, "/" );
                 /* a trailing backslash is only valid after a directory */
-                if (status == STATUS_SUCCESS && fstatat( root_fd, unix_name, &st, 0 ) == -1 && errno == ENOTDIR)
+                if ((status == STATUS_SUCCESS || status == STATUS_OBJECT_NAME_COLLISION) &&
+                    fstatat( root_fd, unix_name, &st, 0 ) == -1 && errno == ENOTDIR)
                     status = STATUS_OBJECT_NAME_INVALID;
             }
         }
