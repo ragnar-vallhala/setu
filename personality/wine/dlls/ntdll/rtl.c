@@ -1063,6 +1063,65 @@ PVOID WINAPI RtlDecodePointer( PVOID ptr )
     return (PVOID)(ptrval ^ get_pointer_obfuscator());
 }
 
+/* system pointers use a value shared by all processes, not the process one */
+static DWORD_PTR get_system_pointer_obfuscator( void )
+{
+    DWORD_PTR cookie = user_shared_data->Cookie;
+
+    if (!cookie) cookie = 0x5e7a0c1e;
+    return (cookie << ((sizeof(DWORD_PTR) - sizeof(ULONG)) * 8)) | (cookie ^ 0xa5a5a5a5);
+}
+
+/******************************************************************************
+ * RtlEncodeSystemPointer   [NTDLL.@]
+ */
+PVOID WINAPI RtlEncodeSystemPointer( PVOID ptr )
+{
+    return (PVOID)((DWORD_PTR)ptr ^ get_system_pointer_obfuscator());
+}
+
+/******************************************************************************
+ * RtlDecodeSystemPointer   [NTDLL.@]
+ */
+PVOID WINAPI RtlDecodeSystemPointer( PVOID ptr )
+{
+    return (PVOID)((DWORD_PTR)ptr ^ get_system_pointer_obfuscator());
+}
+
+/* only the current process can be asked for its encoding */
+static NTSTATUS check_remote_pointer_process( HANDLE process )
+{
+    PROCESS_BASIC_INFORMATION pbi;
+    NTSTATUS status;
+
+    if (process == NtCurrentProcess()) return STATUS_SUCCESS;
+    status = NtQueryInformationProcess( process, ProcessBasicInformation, &pbi, sizeof(pbi), NULL );
+    if (status == STATUS_INVALID_HANDLE || status == STATUS_OBJECT_TYPE_MISMATCH) return STATUS_INVALID_HANDLE;
+    return STATUS_ACCESS_DENIED;
+}
+
+/******************************************************************************
+ * RtlEncodeRemotePointer   [NTDLL.@]
+ */
+NTSTATUS WINAPI RtlEncodeRemotePointer( HANDLE process, PVOID ptr, PVOID *encoded )
+{
+    NTSTATUS status = check_remote_pointer_process( process );
+
+    if (!status) *encoded = RtlEncodePointer( ptr );
+    return status;
+}
+
+/******************************************************************************
+ * RtlDecodeRemotePointer   [NTDLL.@]
+ */
+NTSTATUS WINAPI RtlDecodeRemotePointer( HANDLE process, PVOID ptr, PVOID *decoded )
+{
+    NTSTATUS status = check_remote_pointer_process( process );
+
+    if (!status) *decoded = RtlDecodePointer( ptr );
+    return status;
+}
+
 /******************************************************************************
  *  RtlGetCompressionWorkSpaceSize		[NTDLL.@]
  */

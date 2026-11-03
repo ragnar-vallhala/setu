@@ -249,7 +249,7 @@
 @ stdcall DebugActiveProcessStop(long)
 @ stdcall DebugBreak()
 @ stdcall DecodePointer(ptr) ntdll.RtlDecodePointer
-# @ stub DecodeRemotePointer
+@ stdcall DecodeRemotePointer(long ptr ptr)
 @ stdcall DecodeSystemPointer(ptr) ntdll.RtlDecodeSystemPointer
 @ stdcall DefineDosDeviceW(long wstr wstr)
 @ stdcall DelayLoadFailureHook(str str)
@@ -293,7 +293,7 @@
 @ stdcall DuplicateTokenEx(long long ptr long long ptr)
 @ stdcall EmptyWorkingSet(long)
 @ stdcall EncodePointer(ptr) ntdll.RtlEncodePointer
-# @ stub EncodeRemotePointer
+@ stdcall EncodeRemotePointer(long ptr ptr)
 @ stdcall EncodeSystemPointer(ptr) ntdll.RtlEncodeSystemPointer
 # @ stub EnterCriticalPolicySectionInternal
 @ stdcall EnterCriticalSection(ptr) ntdll.RtlEnterCriticalSection

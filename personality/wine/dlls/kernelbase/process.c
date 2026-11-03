@@ -1899,3 +1899,23 @@ BOOL WINAPI DECLSPEC_HOTPATCH CompareObjectHandles( HANDLE first, HANDLE second 
 {
     return set_ntstatus( NtCompareObjects( first, second ));
 }
+
+
+/***********************************************************************
+ *           EncodeRemotePointer   (kernelbase.@)
+ */
+HRESULT WINAPI EncodeRemotePointer( HANDLE process, void *ptr, void **encoded )
+{
+    NTSTATUS status = RtlEncodeRemotePointer( process, ptr, encoded );
+    return status ? HRESULT_FROM_NT( status ) : S_OK;
+}
+
+
+/***********************************************************************
+ *           DecodeRemotePointer   (kernelbase.@)
+ */
+HRESULT WINAPI DecodeRemotePointer( HANDLE process, void *ptr, void **decoded )
+{
+    NTSTATUS status = RtlDecodeRemotePointer( process, ptr, decoded );
+    return status ? HRESULT_FROM_NT( status ) : S_OK;
+}
