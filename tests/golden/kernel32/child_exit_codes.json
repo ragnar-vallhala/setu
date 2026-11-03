@@ -1,0 +1,136 @@
+{
+  "test": "kernel32/child_exit_codes",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "return_from_main": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000007",
+      "main_thread_exit_code": "0x00000007"
+    },
+    "crt_exit": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000008",
+      "main_thread_exit_code": "0x00000008"
+    },
+    "crt__exit": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000009",
+      "main_thread_exit_code": "0x00000009"
+    },
+    "exitprocess": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x0000000a",
+      "main_thread_exit_code": "0x0000000a"
+    },
+    "terminate_self": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x0000000b",
+      "main_thread_exit_code": "0x0000000b"
+    },
+    "exitthread_then_other_exitprocess": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x0000000e",
+      "main_thread_exit_code": "0x0000000d"
+    },
+    "exitthread_then_other_crt_exit": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000010",
+      "main_thread_exit_code": "0x0000000f"
+    },
+    "other_thread_exitprocess": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000011",
+      "main_thread_exit_code": "0x00000011"
+    },
+    "return_with_thread_running": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000012",
+      "main_thread_exit_code": "0x00000012"
+    },
+    "exitprocess_high_bit": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x80000001",
+      "main_thread_exit_code": "0x80000001"
+    },
+    "return_negative": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0xfffffffe",
+      "main_thread_exit_code": "0xfffffffe"
+    },
+    "atexit_handler_exitprocess": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000015",
+      "main_thread_exit_code": "0x00000015"
+    },
+    "crt_abort": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000003",
+      "main_thread_exit_code": "0x00000003"
+    },
+    "divide_by_zero": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x00000000",
+      "main_thread_exit_code": "0x00000000"
+    },
+    "raise_custom_code": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0xe0001234",
+      "main_thread_exit_code": "0xe0001234"
+    },
+    "raise_noncontinuable": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0x20000001",
+      "main_thread_exit_code": "0x20000001"
+    },
+    "access_violation_in_thread": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0xc0000005",
+      "main_thread_exit_code": "0xc0000005"
+    },
+    "fastfail": {
+      "created": true,
+      "exited": true,
+      "thread_signaled": true,
+      "process_exit_code": "0xc0000409",
+      "main_thread_exit_code": "0xc0000409"
+    }
+  },
+  "errors": [],
+  "source_sha256": "79dbe2a778299e48d17f0ec3e918f8b208d7cdb0e9219a595de2abc9e655a64a"
+}

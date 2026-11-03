@@ -1,0 +1,228 @@
+{
+  "test": "kernel32/device_namespace_paths",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "open_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "open_dotdot_normalised": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "open_forward_slashes": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "open_trailing_dot_stripped": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "open_trailing_space_stripped": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "open_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "open_missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "attr_file": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_dir": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "find_file": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[a.txt]"
+    },
+    "find_wildcard": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[a.txt]"
+    },
+    "mkdir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "move": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_forward_slash_prefix": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "attr_dotdot_past_root": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "volume_zero_access": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1
+    },
+    "volume_attr": {
+      "ret": "0xffffffff",
+      "last_error": 87
+    },
+    "volume_root_attr": {
+      "ret": "0x00000016",
+      "last_error": "unchanged"
+    },
+    "volume_root_find_no_pattern": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "volume_root_find_star": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "bogus_volume_letter_dev": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "nul_device": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2
+    },
+    "nul_device_lowercase": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2
+    },
+    "nul_device_create_always": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2
+    },
+    "nul_device_trailing_sep": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2
+    },
+    "nul_device_subpath": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2
+    },
+    "nul_device_with_ext": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "nul_device_attr": {
+      "ret": "0xffffffff",
+      "last_error": 87
+    },
+    "nul_device_find": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "nul_device_delete": {
+      "ret": false,
+      "last_error": 87
+    },
+    "nul_device_mkdir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verbatim_nul": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2
+    },
+    "globalroot_null": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2
+    },
+    "com9_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "lpt9_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "pipe_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "pipe_root": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 3
+    },
+    "mailslot_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "pipe_existing": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 3
+    },
+    "pipe_existing_other_case": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 3
+    },
+    "pipe_forward_slashes": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 3
+    },
+    "pipe_verbatim_prefix": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 3
+    },
+    "pipe_attr": {
+      "ret": "0x00000080",
+      "last_error": "unchanged"
+    },
+    "bare_prefix": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "bare_prefix_no_sep": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "bare_prefix_open": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    }
+  },
+  "errors": [],
+  "source_sha256": "34c38e7d2580091132bf3cb1a74cb53b50cd5d2cebac7589b4b68b4a748e22b3"
+}

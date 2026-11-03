@@ -1,0 +1,262 @@
+{
+  "test": "kernel32/verbatim_paths",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_plain": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "attr_plain_without_prefix": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_plain": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_plain_other_case": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_lowercase_drive": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_cwd_dir": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "attr_cwd_no_trailing_sep": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "attr_drive_root": {
+      "ret": "0x00000016",
+      "last_error": "unchanged"
+    },
+    "open_dotdot_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "open_dot_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "open_forward_slash": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_forward_slash_name": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "open_double_separator": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "create_in_double_separator": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "attr_dotdot_component": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "attr_dot_component": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "relative_after_prefix": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "dot_after_prefix": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "prefix_only": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "forward_slash_prefix": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "mixed_slash_prefix": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "create_trailing_dot": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_trailing_space": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_trailing_dots_spaces": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_only_dots": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_only_space": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "listing_after_odd_names": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[ ][...][dot.][mix. . ][plain.txt][space ][sub]"
+    },
+    "attr_trailing_dot_verbatim": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_trailing_dot_normal": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "attr_stripped_name_normal": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "open_trailing_dot_normal": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "open_trailing_space_normal": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "find_trailing_dot_normal": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "find_trailing_dot_verbatim": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[dot.]"
+    },
+    "find_wildcard_dot_star_normal": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[dot.]"
+    },
+    "delete_trailing_dot_normal": {
+      "ret": false,
+      "last_error": 2
+    },
+    "move_trailing_space_verbatim": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "move_verbatim_to_normal": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_trailing_dot_verbatim": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_trailing_mix_verbatim": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_only_dots_verbatim": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_only_space_verbatim": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_plain": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_in_trailing_dot_dir": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "attr_in_trailing_dot_dir_normal": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "rmdir_nonempty_trailing_dot": {
+      "ret": false,
+      "last_error": 145
+    },
+    "rmdir_trailing_dot_normal": {
+      "ret": false,
+      "last_error": 2
+    },
+    "rmdir_trailing_dot_verbatim": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_dotdot_component": {
+      "ret": false,
+      "last_error": 123
+    },
+    "mkdir_existing_trailing_sep": {
+      "ret": false,
+      "last_error": 183
+    },
+    "setcd_verbatim": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "getcd_after_verbatim_setcd": {
+      "starts_with_prefix": true,
+      "ends_with_vdir": true
+    },
+    "relative_attr_under_verbatim_cwd": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "mkdir_deep_past_max_path": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_deep_past_max_path": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "attr_deep_verbatim": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_deep_normal_relative": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "attr_deep_normal_absolute": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "create_component_255": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_component_256": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "final_listing": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd][nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn][plain.txt][renamed2][sub][vdir]"
+    }
+  },
+  "errors": [],
+  "source_sha256": "30bc81674c08b17f599c3b7cb38d09be604075441cc56ccaed496a2362921aba"
+}

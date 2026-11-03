@@ -1,0 +1,300 @@
+{
+  "test": "kernel32/max_path_limits",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "dir_created": true
+    },
+    "open_relative_258": {
+      "ret": true,
+      "last_error": 0
+    },
+    "open_absolute_258": {
+      "ret": true,
+      "last_error": 0
+    },
+    "attr_258": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "find_258": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "copy_to_258": {
+      "ret": true,
+      "last_error": 0
+    },
+    "move_from_258": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_new_258": {
+      "ret": true,
+      "last_error": 0
+    },
+    "delete_258": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "open_relative_259": {
+      "ret": true,
+      "last_error": 0
+    },
+    "open_absolute_259": {
+      "ret": true,
+      "last_error": 0
+    },
+    "attr_259": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "find_259": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "copy_to_259": {
+      "ret": true,
+      "last_error": 0
+    },
+    "move_from_259": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_new_259": {
+      "ret": true,
+      "last_error": 0
+    },
+    "delete_259": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "open_relative_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "open_absolute_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "attr_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "find_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "copy_to_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "move_from_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "create_new_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "delete_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "open_relative_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "open_absolute_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "attr_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "find_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "copy_to_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "move_from_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "create_new_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "delete_261": {
+      "ret": false,
+      "last_error": 3
+    },
+    "open_relative_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "open_absolute_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "attr_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "find_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "copy_to_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "move_from_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "create_new_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "delete_300": {
+      "ret": false,
+      "last_error": 3
+    },
+    "mkdir_246": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dir_attr_246": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "setcd_246": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir_246": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_247": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "dir_attr_247": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "setcd_247": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir_247": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_248": {
+      "ret": false,
+      "last_error": 206
+    },
+    "dir_attr_248": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "setcd_248": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir_248": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_249": {
+      "ret": false,
+      "last_error": 206
+    },
+    "dir_attr_249": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "setcd_249": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir_249": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_259": {
+      "ret": false,
+      "last_error": 206
+    },
+    "dir_attr_259": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "setcd_259": {
+      "ret": false,
+      "last_error": 206
+    },
+    "rmdir_259": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "dir_attr_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "setcd_260": {
+      "ret": false,
+      "last_error": 206
+    },
+    "rmdir_260": {
+      "ret": false,
+      "last_error": 3
+    },
+    "long_input_length": {
+      "over_260": true
+    },
+    "long_input_resolves_short_open": {
+      "ret": false,
+      "last_error": 3
+    },
+    "long_input_resolves_short_attr": {
+      "ret": false,
+      "last_error": 3
+    },
+    "fullpath_300": {
+      "ret_is_300": true,
+      "last_error": "unchanged"
+    },
+    "longpath_300_missing": {
+      "ret": false,
+      "last_error": 3
+    },
+    "create_component_256": {
+      "ret": false,
+      "last_error": 3
+    },
+    "attr_component_256": {
+      "ret": false,
+      "last_error": 3
+    },
+    "create_component_255": {
+      "ret": false,
+      "last_error": 3
+    }
+  },
+  "errors": [],
+  "source_sha256": "db3c66da1956a9383f3144b7cab55981c89a21eacec09449a92b2be769c16379"
+}

@@ -1,0 +1,310 @@
+{
+  "test": "kernel32/drive_relative_paths",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "other_drive_no_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_only_no_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\",
+      "file_part": null
+    },
+    "other_drive_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_lowercase_letter": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_dotdot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\x",
+      "file_part": "x"
+    },
+    "other_drive_var_dotdot_past_root": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\x",
+      "file_part": "x"
+    },
+    "other_drive_var_dot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\",
+      "file_part": null
+    },
+    "other_drive_only_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\",
+      "file_part": null
+    },
+    "other_drive_absolute_ignores_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\abs",
+      "file_part": "abs"
+    },
+    "other_drive_forward_slash": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\a\\b",
+      "file_part": "b"
+    },
+    "other_drive_var_trailing_sep": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_lowercase_value": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_names_other_drive": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_relative_value": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_empty": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_deleted_lowercase_name": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "other_drive_var_set_lowercase_name": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "current_drive_relative": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\foo",
+      "file_part": "foo"
+    },
+    "current_drive_ignores_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\foo",
+      "file_part": "foo"
+    },
+    "current_drive_lowercase_letter": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<cwd>\\foo",
+      "file_part": "foo"
+    },
+    "current_drive_dotdot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<parent>\\x",
+      "file_part": "x"
+    },
+    "setcd_does_not_set_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "setcd_drive_relative": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>\\sub"
+    },
+    "setcd_drive_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "<cwd>"
+    },
+    "setcd_missing_drive_with_var": {
+      "ret": false,
+      "last_error": 3
+    },
+    "create_current_drive_relative": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "created_in_cwd": {
+      "exists": true
+    },
+    "attr_current_drive_relative_dotdot": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "create_missing_drive_relative": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "attr_missing_drive_only": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "other_drive_var_deep": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\a\\b",
+      "file_part": "b"
+    },
+    "other_drive_var_deep_dotdot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\x",
+      "file_part": "x"
+    },
+    "other_drive_var_unnormalised_value": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\x",
+      "file_part": "x"
+    },
+    "other_drive_var_forward_slash_value": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\x",
+      "file_part": "x"
+    },
+    "define_q_drive": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mapped_drive_no_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "mapped_drive_var_existing_dir": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\sub\\foo",
+      "file_part": "foo"
+    },
+    "mapped_drive_var_existing_dir_dotdot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\x",
+      "file_part": "x"
+    },
+    "mapped_drive_var_existing_dir_only": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\sub",
+      "file_part": "sub"
+    },
+    "mapped_drive_var_trailing_sep": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\sub\\deeper\\\\foo",
+      "file_part": "foo"
+    },
+    "mapped_drive_var_missing_dir": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "mapped_drive_var_other_letter": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "mapped_drive_var_relative_value": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "Q:\\foo",
+      "file_part": "foo"
+    },
+    "mapped_drive_create_relative": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "mapped_drive_create_relative_where": {
+      "in_sub": true,
+      "in_root": false
+    },
+    "mapped_drive_setcd_drive_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "now": "Q:\\sub"
+    },
+    "after_switch_old_drive_no_var": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "full": "<drive>:\\foo",
+      "file_part": "foo"
+    },
+    "after_switch_back_q_var": {
+      "exists": true,
+      "last_error": "unchanged",
+      "value": "Q:\\sub"
+    },
+    "after_switch_back_c_var": {
+      "exists": true,
+      "last_error": "unchanged",
+      "value": "<drive>:\\"
+    },
+    "probe_to_q_abs_c_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "probe_to_q_abs_q_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "probe_within_q_c_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "probe_within_q_q_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "probe_back_to_c_sub_c_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "probe_back_to_c_sub_q_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "probe_within_c_c_var": {
+      "exists": false,
+      "last_error": 203
+    },
+    "probe_within_c_q_var": {
+      "exists": false,
+      "last_error": 203
+    }
+  },
+  "errors": [],
+  "source_sha256": "5f51b7e2e4a99851a7e23039c88658de54260b5b2e097a72eeb054751e806087"
+}

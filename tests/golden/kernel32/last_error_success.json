@@ -1,0 +1,377 @@
+{
+  "test": "kernel32/last_error_success",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "createfile_create_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "createfile_open_existing": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "createfile_open_always_exists": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "createfile_open_always_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "createfile_create_always_exists": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "createfile_create_always_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "createfile_truncate_existing": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "createfile_open_always_directory": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "writefile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "flushfilebuffers": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getfilesize": {
+      "ret": 16,
+      "last_error": "unchanged"
+    },
+    "getfilesizeex": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "setfilepointer_begin": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "readfile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "readfile_at_eof": {
+      "ok": true,
+      "read": 0,
+      "last_error": "unchanged"
+    },
+    "setfilepointer_low_ffffffff": {
+      "ret": "0xffffffff",
+      "high": 0,
+      "last_error": 0
+    },
+    "setendoffile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getfileinformationbyhandle": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getfiletype_disk": {
+      "ret": 1,
+      "last_error": "unchanged"
+    },
+    "closehandle_file": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getfiletype_unknown_section": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "getfiletype_pipe": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "peeknamedpipe_empty": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getfiletype_nul": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "getfileattributes": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getfileattributesex": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "setfileattributes": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "createdirectory": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "removedirectory": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "copyfile": {
+      "ok": true,
+      "last_error": 0
+    },
+    "copyfile_overwrite": {
+      "ok": true,
+      "last_error": 0
+    },
+    "movefile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "movefileex_replace": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "deletefile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "findfirstfile": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "findnextfile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "findclose": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getcurrentdirectory": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "setcurrentdirectory": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getfullpathname": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getlongpathname": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "gettemppath": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getsystemdirectory": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getwindowsdirectory": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getmodulehandle": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getmodulefilename": {
+      "ok": true,
+      "last_error": 0
+    },
+    "getmodulefilename_truncated": {
+      "ret": 4,
+      "last_error": 122
+    },
+    "getprocaddress": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "loadlibrary": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "freelibrary": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "createevent_unnamed": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "setevent": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "wait_signaled": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "resetevent": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "wait_timeout": {
+      "ret": 258,
+      "last_error": "unchanged"
+    },
+    "duplicatehandle": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "gethandleinformation": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "closehandle_event": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "createmutex_unnamed": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "releasemutex": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "createsemaphore_unnamed": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "releasesemaphore": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "createfilemapping_unnamed": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "mapviewoffile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "unmapviewoffile": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "critical_section_enter_leave": {
+      "last_error": "unchanged"
+    },
+    "createthread": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "getexitcodethread": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "tlsalloc": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "tlsgetvalue_null": {
+      "null": true,
+      "last_error": 0
+    },
+    "tlssetvalue": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "tlsgetvalue_set": {
+      "one": true,
+      "last_error": 0
+    },
+    "tlsfree": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "heapalloc": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "heapfree": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "virtualalloc": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "virtualfree": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "localalloc": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "localfree": {
+      "ret_null": true,
+      "last_error": "unchanged"
+    },
+    "setenvironmentvariable": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getenvironmentvariable": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "expandenvironmentstrings": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "setenvironmentvariable_delete": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "multibytetowidechar": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "widechartomultibyte": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getstdhandle": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "queryperformancecounter": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getversionex": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "getsystemtime": {
+      "last_error": "unchanged"
+    },
+    "sleep_0": {
+      "last_error": "unchanged"
+    },
+    "formatmessage": {
+      "ok": true,
+      "last_error": "unchanged"
+    },
+    "openprocess_self": {
+      "ok": true,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "a324b7fcf75c51bc818ccf272ec11dd844a0884d087b5c4d1a2a265966c30ac5"
+}

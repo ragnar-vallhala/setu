@@ -1,0 +1,199 @@
+{
+  "test": "kernel32/trailing_dots_spaces",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_trailing_dot": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_trailing_space": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_trailing_dot_space_mix": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_ext_trailing_dot": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_double_dot_inside": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_leading_space": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_leading_dot": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_space_before_ext": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_existing_via_trailing_dot": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 80
+    },
+    "create_only_space": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "create_only_dots": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "create_dot_space": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "listing_after_create": {
+      "names": " lead.txt,.dotfile,t1,t2,t3,t4.txt,t5..txt,t6 .txt"
+    },
+    "open_with_extra_dots": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_with_extra_spaces": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_ext_with_trailing_space": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_without_inner_dot": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "attr_trailing_dot": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_trailing_space_dot": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "mkdir_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_trailing_space": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_through_dir_with_dot": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "create_through_dir_with_space": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "create_through_dir_with_dots_spaces": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "attr_dir_trailing_dot_sep": {
+      "ret": "0x00000010",
+      "last_error": "unchanged"
+    },
+    "attr_dir_trailing_space_sep": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "listing_d1": {
+      "names": "in1.txt"
+    },
+    "setcd_trailing_dot": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "getcd_after_trailing_dot": {
+      "last_component": "d1"
+    },
+    "find_exact_trailing_dot": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[t1]"
+    },
+    "find_exact_trailing_space": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[t2]"
+    },
+    "find_star_dot": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[.][..][.dotfile][d1][d2][t1][t2][t3]"
+    },
+    "find_t_star_dot": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[t1][t2][t3]"
+    },
+    "find_star_dot_star": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[t1][t2][t3][t4.txt][t5..txt][t6 .txt]"
+    },
+    "find_star_txt_dot": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[ lead.txt][t4.txt][t5..txt][t6 .txt]"
+    },
+    "find_question_dot": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[t1][t2][t3]"
+    },
+    "find_in_dir_with_dot": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[.][..][in1.txt]"
+    },
+    "find_star_space": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[t1][t2][t3][t4.txt][t5..txt][t6 .txt]"
+    },
+    "move_trailing_dots": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "move_trailing_spaces": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "copy_trailing": {
+      "ret": true,
+      "last_error": 0
+    },
+    "delete_trailing_dots": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_trailing_space": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir_nonempty_trailing": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "rmdir_trailing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "final_listing": {
+      "names": " lead.txt,.dotfile,c4.txt,d1,t3,t4.txt,t5..txt,t6 .txt"
+    }
+  },
+  "errors": [],
+  "source_sha256": "ec7a003c1a5cb7bcc98dc5a0895f7a66178024ebb59428f828a29807c0a18b95"
+}

@@ -1,0 +1,343 @@
+{
+  "test": "kernel32/reserved_names",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "nul": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_upper": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_create_new": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_ext": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_two_exts": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_space_ext": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_trailing_dot": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_colon": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_in_subdir": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_in_missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "nul_absolute": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_like_prefix": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "nul_like_suffix": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "nul_as_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "com9_missing_port": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "com9_ext_missing_port": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "lpt9_missing_port": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "com0_not_device": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "lpt0_not_device": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "com10_not_device": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "conin_like_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "listing_after_opens": {
+      "names": "COM0,com10,conin.txt,lpt0.txt,nulx,sub,xnul"
+    },
+    "full_aux": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\aux",
+      "file_part": null
+    },
+    "full_prn_ext": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\prn",
+      "file_part": null
+    },
+    "full_con_upper_ext": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\CON",
+      "file_part": null
+    },
+    "full_com1_ext": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\com1",
+      "file_part": null
+    },
+    "full_lpt3_in_dir": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\lpt3",
+      "file_part": null
+    },
+    "full_com_superscript_1": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\COM¹",
+      "file_part": null
+    },
+    "full_lpt_superscript_2": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\lpt²",
+      "file_part": null
+    },
+    "full_com0": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\COM0",
+      "file_part": "COM0"
+    },
+    "full_nul_trailing_spaces": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "full_nul_colon": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "full_nul_colon_ext": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "full_conin": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\CONIN$",
+      "file_part": null
+    },
+    "full_conout_ext": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\conout$",
+      "file_part": null
+    },
+    "full_clock": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\clock$",
+      "file_part": "clock$"
+    },
+    "full_trailing_sep": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\nul\\",
+      "file_part": null
+    },
+    "attr_nul": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_nul_ext": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_com9": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "attr_aux_in_subdir": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "find_nul": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "first": "nul",
+      "attrs": "0x00000020"
+    },
+    "find_nul_ext": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "first": "nul",
+      "attrs": "0x00000020"
+    },
+    "find_nul_wildcard": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "first": "nulx",
+      "attrs": "0x00000020"
+    },
+    "mkdir_nul": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "mkdir_con": {
+      "ret": false,
+      "last_error": 267
+    },
+    "mkdir_aux_ext": {
+      "ret": false,
+      "last_error": 267
+    },
+    "delete_nul": {
+      "ret": false,
+      "last_error": 87
+    },
+    "delete_nul_ext": {
+      "ret": false,
+      "last_error": 87
+    },
+    "rmdir_nul": {
+      "ret": false,
+      "last_error": 87
+    },
+    "setattr_nul": {
+      "ret": false,
+      "last_error": 1
+    },
+    "move_to_nul": {
+      "ret": false,
+      "last_error": 183
+    },
+    "move_to_aux_ext": {
+      "ret": false,
+      "last_error": 183
+    },
+    "copy_to_nul": {
+      "ret": true,
+      "last_error": 0
+    },
+    "copy_from_nul": {
+      "ret": false,
+      "last_error": 87
+    },
+    "copy_from_nul_result": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "setcd_nul": {
+      "ret": false,
+      "last_error": 267
+    },
+    "verbatim_create_nul_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "verbatim_create_con_txt_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "nul_still_device_after_file": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "find_nul_after_file": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "first": "nul",
+      "attrs": "0x00000020"
+    },
+    "find_wildcard_sees_nul_file": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "first": "nul",
+      "attrs": "0x00000020"
+    },
+    "open_nul_after_file": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "nul_file_size_untouched_via_normal_path": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "verbatim_attr_nul_file": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "verbatim_delete_nul_file": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "verbatim_delete_con_txt_file": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "final_listing": {
+      "names": "COM0,com10,conin.txt,lpt0.txt,nulx,src.txt,sub,xnul"
+    }
+  },
+  "errors": [],
+  "source_sha256": "e5952aa668f06ee50814922e2ad21c5b683527fdfc2ddf45c8ca49621cdf29b5"
+}

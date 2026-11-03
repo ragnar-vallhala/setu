@@ -1,0 +1,182 @@
+{
+  "test": "kernel32/create_process_search",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "cmd_name_no_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=child arg1\n"
+    },
+    "cmd_name_with_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=child.exe arg1\n"
+    },
+    "cmd_name_upper_case": {
+      "ret": true,
+      "who": "module=<cwd>\\CHILD.EXE\ncmdline=CHILD.EXE\n"
+    },
+    "cmd_other_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\child.bin\ncmdline=child.bin arg1\n"
+    },
+    "cmd_no_ext_file_exists": {
+      "ret": false,
+      "last_error": 2
+    },
+    "cmd_trailing_dot": {
+      "ret": false,
+      "last_error": 2
+    },
+    "cmd_relative_subdir_no_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\sub\\subchild.exe\ncmdline=sub\\subchild arg1\n"
+    },
+    "cmd_relative_dot_subdir": {
+      "ret": true,
+      "who": "module=<cwd>\\sub\\subchild.exe\ncmdline=.\\sub\\subchild.exe\n"
+    },
+    "cmd_forward_slash": {
+      "ret": true,
+      "who": "module=<cwd>\\sub\\subchild.exe\ncmdline=sub/subchild.exe arg1\n"
+    },
+    "cmd_quoted": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=\"child.exe\" arg1\n"
+    },
+    "cmd_quoted_no_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=\"child\" arg1\n"
+    },
+    "cmd_leading_spaces": {
+      "ret": false,
+      "last_error": 87
+    },
+    "cmd_tab_separator": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=child.exe\targ1\n"
+    },
+    "cmd_missing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "cmd_missing_quoted_path": {
+      "ret": false,
+      "last_error": 2
+    },
+    "cmd_directory_with_exe_name": {
+      "ret": false,
+      "last_error": 5
+    },
+    "cmd_unquoted_space_relative": {
+      "ret": true,
+      "who": "module=<cwd>\\my dir\\spaced.exe\ncmdline=\"my dir\\spaced.exe\" arg1\n"
+    },
+    "cmd_unquoted_space_absolute": {
+      "ret": true,
+      "who": "module=<cwd>\\my dir\\spaced.exe\ncmdline=\"<cwd>\\my dir\\spaced.exe\" arg1\n"
+    },
+    "cmd_quoted_space_absolute": {
+      "ret": true,
+      "who": "module=<cwd>\\my dir\\spaced.exe\ncmdline=\"<cwd>\\my dir\\spaced.exe\" arg1\n"
+    },
+    "cmd_unquoted_two_words_no_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\two words.exe\ncmdline=\"two words\" arg1\n"
+    },
+    "cmd_unquoted_two_words_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\two words.exe\ncmdline=\"two words.exe\" arg1\n"
+    },
+    "cmd_unquoted_space_shadowed": {
+      "ret": true,
+      "who": "module=<cwd>\\my.exe\ncmdline=my dir\\spaced.exe arg1\n"
+    },
+    "cmd_quoted_space_not_shadowed": {
+      "ret": true,
+      "who": "module=<cwd>\\my dir\\spaced.exe\ncmdline=\"my dir\\spaced.exe\" arg1\n"
+    },
+    "path_search_no_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\pdir\\pathchild.exe\ncmdline=pathchild arg1\n"
+    },
+    "path_search_with_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\pdir\\pathchild.exe\ncmdline=pathchild.exe arg1\n"
+    },
+    "path_search_app_name_not_searched": {
+      "ret": false,
+      "last_error": 2
+    },
+    "path_search_relative_with_dir_not_searched": {
+      "ret": false,
+      "last_error": 2
+    },
+    "path_relative_entry": {
+      "ret": true,
+      "who": "module=<cwd>\\pdir\\pathchild.exe\ncmdline=pathchild arg1\n"
+    },
+    "path_quoted_entry": {
+      "ret": false,
+      "last_error": 2
+    },
+    "path_empty_and_trailing_sep_entries": {
+      "ret": true,
+      "who": "module=<cwd>\\pdir\\pathchild.exe\ncmdline=pathchild arg1\n"
+    },
+    "cwd_before_path": {
+      "ret": true,
+      "who": "module=<cwd>\\pathchild.exe\ncmdline=pathchild arg1\n"
+    },
+    "app_relative": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=anything arg1\n"
+    },
+    "app_no_ext_not_appended": {
+      "ret": false,
+      "last_error": 2
+    },
+    "app_other_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\child.bin\ncmdline=x arg1\n"
+    },
+    "app_no_ext_file": {
+      "ret": true,
+      "who": "module=<cwd>\\noext\ncmdline=x arg1\n"
+    },
+    "app_unquoted_space": {
+      "ret": true,
+      "who": "module=<cwd>\\my dir\\spaced.exe\ncmdline=x arg1\n"
+    },
+    "app_quoted": {
+      "ret": false,
+      "last_error": 123
+    },
+    "app_subdir": {
+      "ret": true,
+      "who": "module=<cwd>\\sub\\subchild.exe\ncmdline=x\n"
+    },
+    "app_missing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "app_cmdline_null": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=\"child.exe\"\n"
+    },
+    "app_cmdline_null_space": {
+      "ret": true,
+      "who": "module=<cwd>\\my dir\\spaced.exe\ncmdline=\"my dir\\spaced.exe\"\n"
+    },
+    "app_cmdline_empty": {
+      "ret": true,
+      "who": "module=<cwd>\\child.exe\ncmdline=\"child.exe\"\n"
+    },
+    "app_directory": {
+      "ret": false,
+      "last_error": 5
+    }
+  },
+  "errors": [],
+  "source_sha256": "72b880aa3d7dc25e2f57f6fcd4aaa06505eaca914af03f4bf4eb318829337694"
+}

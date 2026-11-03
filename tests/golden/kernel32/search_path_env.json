@@ -1,0 +1,206 @@
+{
+  "test": "kernel32/search_path_env",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "path_first_entry": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p1\\one.txt",
+      "file_part": "one.txt"
+    },
+    "path_second_entry": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p2\\two.txt",
+      "file_part": "two.txt"
+    },
+    "path_first_entry_wins": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p1\\both.txt",
+      "file_part": "both.txt"
+    },
+    "path_cwd_before_path": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\shadow.txt",
+      "file_part": "shadow.txt"
+    },
+    "path_missing": {
+      "found": false,
+      "last_error": 2
+    },
+    "path_ext_appended": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p2\\tool.exe",
+      "file_part": "tool.exe"
+    },
+    "path_name_without_ext_exists_first": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p1\\tool",
+      "file_part": "tool"
+    },
+    "path_not_used_with_subdir_name": {
+      "found": false,
+      "last_error": 2
+    },
+    "path_order_reversed": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p2\\both.txt",
+      "file_part": "both.txt"
+    },
+    "path_relative_entries": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p2\\two.txt",
+      "file_part": "two.txt"
+    },
+    "path_quoted_entry": {
+      "found": false,
+      "last_error": 2
+    },
+    "path_unquoted_space_entry": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p 3\\three.txt",
+      "file_part": "three.txt"
+    },
+    "path_empty_missing_trailing_sep": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p1\\one.txt",
+      "file_part": "one.txt"
+    },
+    "path_trailing_forward_slash": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\p1\\one.txt",
+      "file_part": "one.txt"
+    },
+    "path_env_reference_not_expanded": {
+      "found": false,
+      "last_error": 2
+    },
+    "path_unset": {
+      "found": false,
+      "last_error": 2
+    },
+    "path_unset_cwd_still_searched": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\shadow.txt",
+      "file_part": "shadow.txt"
+    },
+    "explicit_path_ignores_env": {
+      "found": false,
+      "last_error": 2
+    },
+    "sys_dll_default_mode": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\kernel32.dll",
+      "file_part": "kernel32.dll"
+    },
+    "windir_exe_default_mode": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\notepad.exe",
+      "file_part": "notepad.exe"
+    },
+    "cwd_only_dll_default_mode": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\setu_only_here.dll",
+      "file_part": "setu_only_here.dll"
+    },
+    "set_safe_mode": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "sys_dll_safe_mode": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<sysdir>\\kernel32.dll",
+      "file_part": "kernel32.dll"
+    },
+    "cwd_only_dll_safe_mode": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\setu_only_here.dll",
+      "file_part": "setu_only_here.dll"
+    },
+    "set_unsafe_mode": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "sys_dll_unsafe_mode": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\kernel32.dll",
+      "file_part": "kernel32.dll"
+    },
+    "windir_exe_unsafe_mode": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<cwd>\\notepad.exe",
+      "file_part": "notepad.exe"
+    },
+    "set_mode_zero": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_mode_both": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_mode_permanent_alone": {
+      "ret": false,
+      "last_error": 87
+    },
+    "set_safe_mode_permanent": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_unsafe_after_permanent": {
+      "ret": false,
+      "last_error": 5
+    },
+    "sys_dll_after_permanent": {
+      "found": true,
+      "last_error": "unchanged",
+      "path": "<sysdir>\\kernel32.dll",
+      "file_part": "kernel32.dll"
+    },
+    "need_cwd_default": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "need_cwd_default_with_dir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "need_cwd_var_set": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "need_cwd_var_set_with_dir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "need_cwd_var_set_forward_slash": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "need_cwd_var_empty": {
+      "ret": false,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "7e23dc162a601991d0f9b2406af0760c78b3c35daa5f4cba3307d251eaeeb566"
+}

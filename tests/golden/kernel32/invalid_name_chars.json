@@ -1,0 +1,398 @@
+{
+  "test": "kernel32/invalid_name_chars",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "lt_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "lt_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "lt_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "lt_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "lt_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "lt_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "lt_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "gt_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "gt_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "gt_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "gt_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "gt_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "gt_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "gt_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "quote_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "quote_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "quote_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "quote_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "quote_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "quote_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "quote_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "pipe_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "pipe_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "pipe_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "pipe_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "pipe_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "pipe_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "pipe_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "question_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "question_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "question_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "question_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "question_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "question_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "question_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "star_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "star_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "star_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "star_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "star_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "star_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "star_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_01_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_01_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_01_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_01_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_01_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "ctrl_01_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_01_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_tab_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_tab_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_tab_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_tab_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_tab_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "ctrl_tab_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_tab_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_1f_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_1f_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_1f_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "ctrl_1f_mkdir": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_1f_attr": {
+      "ret": "0xffffffff",
+      "last_error": 123
+    },
+    "ctrl_1f_delete": {
+      "ret": false,
+      "last_error": 123
+    },
+    "ctrl_1f_move_to": {
+      "ret": false,
+      "last_error": 123
+    },
+    "del_7f_create": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "del_7f_open_existing": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "del_7f_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "del_7f_mkdir": {
+      "ret": false,
+      "last_error": 183
+    },
+    "del_7f_attr": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "del_7f_delete": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "del_7f_move_to": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "colon_create": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "colon_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "colon_in_dir_component": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "colon_mkdir": {
+      "ret": false,
+      "last_error": 3
+    },
+    "colon_attr": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "colon_delete": {
+      "ret": false,
+      "last_error": 3
+    },
+    "colon_move_to": {
+      "ret": false,
+      "last_error": 3
+    },
+    "colon_stream_on_existing_file": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "colon_default_stream": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "colon_two_colons_bad_type": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "colon_leading": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "colon_trailing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "colon_stream_name_as_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "empty_name": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "trailing_backslash_new_file": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "non_ascii_name": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "punctuation_allowed": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "find_question": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[abc.txt][abd.txt]"
+    },
+    "find_star": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[ab.c][abc.txt][abcd][abd.txt]"
+    },
+    "find_dos_star_lt": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[abcd]"
+    },
+    "find_dos_qm_gt": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[abc.txt][abd.txt]"
+    },
+    "find_dos_dot_quote": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "names": "[ab.c]"
+    },
+    "find_pipe": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "find_wildcard_in_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "find_ctrl_char": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "final_listing": {
+      "names": "ab.c,abc.txt,abcd,abd.txt,base.txt,semi;comma,plus+eq=[br]{c}#$%&'@^`~!.txt,src.txt,été 中.txt"
+    }
+  },
+  "errors": [],
+  "source_sha256": "3ca10c8d45ad7bca56d67bb765612707497c727310804f7392041cca4d853e0e"
+}

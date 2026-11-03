@@ -1,0 +1,134 @@
+{
+  "test": "kernel32/env_block_child",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "inherit_after_set": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_A=a-value\nSETU_B=b-value\nSETU_EMPTY=\nSETU_HIDE=x\nget SETU_A -> [a-value]\nget setu_a -> [a-value]\nget SETU_DUP -> missing err=203\nget SETU_B -> [b-value]\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> [x]\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=0\nexpand a-value|b-value|%SETU_MISSING%\n"
+    },
+    "inherit_after_delete": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_A=a-value\nSETU_B=b-value\nSETU_EMPTY=\nget SETU_A -> [a-value]\nget setu_a -> [a-value]\nget SETU_DUP -> missing err=203\nget SETU_B -> [b-value]\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=0\nexpand a-value|b-value|%SETU_MISSING%\n"
+    },
+    "set_big_value": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "inherit_big_value": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_A=a-value\nSETU_B=b-value\nSETU_BIG=abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+    },
+    "inherit_with_unicode_flag": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_A=a-value\nSETU_B=b-value\nSETU_EMPTY=\nget SETU_A -> [a-value]\nget setu_a -> [a-value]\nget SETU_DUP -> missing err=203\nget SETU_B -> [b-value]\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=0\nexpand a-value|b-value|%SETU_MISSING%\n"
+    },
+    "unicode_sorted": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_A=1\nSETU_B=2\ncount=2\nget SETU_A -> [1]\nget setu_a -> [1]\nget SETU_DUP -> missing err=203\nget SETU_B -> [2]\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand 1|2|%SETU_MISSING%\n"
+    },
+    "unicode_unsorted": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_B=2\nSETU_A=1\nSETU_DUP=x\ncount=3\nget SETU_A -> [1]\nget setu_a -> [1]\nget SETU_DUP -> [x]\nget SETU_B -> [2]\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand 1|2|%SETU_MISSING%\n"
+    },
+    "unicode_case_duplicates": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "setu_a=lower\nSETU_A=upper\ncount=2\nget SETU_A -> [lower]\nget setu_a -> [lower]\nget SETU_DUP -> missing err=203\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand lower|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "unicode_exact_duplicates": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_DUP=first\nSETU_DUP=second\ncount=2\nget SETU_A -> missing err=203\nget setu_a -> missing err=203\nget SETU_DUP -> [first]\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand %SETU_A%|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "unicode_entry_without_equals": {
+      "created": false,
+      "last_error": 87
+    },
+    "unicode_drive_entry": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "=X:=X:\\dir\nSETU_A=1\ncount=2\nget SETU_A -> [1]\nget setu_a -> [1]\nget SETU_DUP -> missing err=203\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> [X:\\dir]\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand 1|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "unicode_value_with_equals": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_EQ=a=b=c\ncount=1\nget SETU_A -> missing err=203\nget setu_a -> missing err=203\nget SETU_DUP -> missing err=203\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> [a=b=c]\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand %SETU_A%|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "unicode_empty_value": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_EMPTY=\nSETU_A=1\ncount=2\nget SETU_A -> [1]\nget setu_a -> [1]\nget SETU_DUP -> missing err=203\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=0\nexpand 1|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "unicode_non_ascii": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_A=é中\nSETU_B=ü\ncount=2\nget SETU_A -> [é中]\nget setu_a -> [é中]\nget SETU_DUP -> missing err=203\nget SETU_B -> [ü]\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand é中|ü|%SETU_MISSING%\n"
+    },
+    "unicode_empty_block": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "count=0\nget SETU_A -> missing err=203\nget setu_a -> missing err=203\nget SETU_DUP -> missing err=203\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand %SETU_A%|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "ansi_block": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_B=2\nSETU_A=1\ncount=2\nget SETU_A -> [1]\nget setu_a -> [1]\nget SETU_DUP -> missing err=203\nget SETU_B -> [2]\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand 1|2|%SETU_MISSING%\n"
+    },
+    "ansi_block_high_chars": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "SETU_A=éü\ncount=1\nget SETU_A -> [éü]\nget setu_a -> [éü]\nget SETU_DUP -> missing err=203\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand éü|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "ansi_empty_block": {
+      "created": true,
+      "last_error": "unchanged",
+      "exit_code": "0x00000000",
+      "report_exists": true,
+      "child_sees": "count=0\nget SETU_A -> missing err=203\nget setu_a -> missing err=203\nget SETU_DUP -> missing err=203\nget SETU_B -> missing err=203\nget SETU_NOEQ -> missing err=203\nget =X: -> missing err=203\nget SETU_EQ -> missing err=203\nget SETU_HIDE -> missing err=203\nget SETU_BIG -> missing err=203\nget SETU_EMPTY -> missing err=203\nexpand %SETU_A%|%SETU_B%|%SETU_MISSING%\n"
+    },
+    "unicode_block_without_flag": {
+      "created": false,
+      "last_error": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "144c5408ca41c3c3080a423b68f47192ada5ec91472c32d77719dba276895456"
+}

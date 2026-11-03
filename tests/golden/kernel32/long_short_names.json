@@ -1,0 +1,317 @@
+{
+  "test": "kernel32/long_short_names",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "find_alternate_names": {
+      "names": ".hidden;12345678.123;123456789.txt;Long Directory Name;LongFileName3.txt;MiXed.Txt;Mixed Case Name.txt;UPPER.TXT;a b.txt;a+b.txt;ab.cdef;br[1].txt;comma,name.txt;eq=sign.txt;longfilename.txt;longfilename2.txt;longfilename4.txt;lower.txt;noext;page.html;semi;colon.txt;sp ace;trailing;verylongnoext;x.y.z.txt;été.txt;"
+    },
+    "find_alternate_names[.hidden]": {
+      "alt": "HIDDEN~1"
+    },
+    "find_alternate_names[12345678.123]": {
+      "alt": ""
+    },
+    "find_alternate_names[123456789.txt]": {
+      "alt": "123456~1.TXT"
+    },
+    "find_alternate_names[Long Directory Name]": {
+      "alt": "LONGDI~1"
+    },
+    "find_alternate_names[LongFileName3.txt]": {
+      "alt": "LONGFI~3.TXT"
+    },
+    "find_alternate_names[MiXed.Txt]": {
+      "alt": ""
+    },
+    "find_alternate_names[Mixed Case Name.txt]": {
+      "alt": "MIXEDC~1.TXT"
+    },
+    "find_alternate_names[UPPER.TXT]": {
+      "alt": ""
+    },
+    "find_alternate_names[a b.txt]": {
+      "alt": "AB5079~1.TXT"
+    },
+    "find_alternate_names[a+b.txt]": {
+      "alt": "A_B~1.TXT"
+    },
+    "find_alternate_names[ab.cdef]": {
+      "alt": "AB9F6F~1.CDE"
+    },
+    "find_alternate_names[br[1].txt]": {
+      "alt": "BR_1_~1.TXT"
+    },
+    "find_alternate_names[comma,name.txt]": {
+      "alt": "COMMA_~1.TXT"
+    },
+    "find_alternate_names[eq=sign.txt]": {
+      "alt": "EQ_SIG~1.TXT"
+    },
+    "find_alternate_names[longfilename.txt]": {
+      "alt": "LONGFI~1.TXT"
+    },
+    "find_alternate_names[longfilename2.txt]": {
+      "alt": "LONGFI~2.TXT"
+    },
+    "find_alternate_names[longfilename4.txt]": {
+      "alt": "LONGFI~4.TXT"
+    },
+    "find_alternate_names[lower.txt]": {
+      "alt": ""
+    },
+    "find_alternate_names[noext]": {
+      "alt": ""
+    },
+    "find_alternate_names[page.html]": {
+      "alt": "PAGE~1.HTM"
+    },
+    "find_alternate_names[semi;colon.txt]": {
+      "alt": "SEMI_C~1.TXT"
+    },
+    "find_alternate_names[sp ace]": {
+      "alt": "SPACE~1"
+    },
+    "find_alternate_names[trailing]": {
+      "alt": ""
+    },
+    "find_alternate_names[verylongnoext]": {
+      "alt": "VERYLO~1"
+    },
+    "find_alternate_names[x.y.z.txt]": {
+      "alt": "XYZ~1.TXT"
+    },
+    "find_alternate_names[été.txt]": {
+      "alt": "TDA51~1.TXT"
+    },
+    "short_long_name": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\LONGFI~1.TXT"
+    },
+    "short_collision_2": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\LONGFI~2.TXT"
+    },
+    "short_mixed_case_spaces": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\MIXEDC~1.TXT"
+    },
+    "short_already_8_3_lower": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\lower.txt"
+    },
+    "short_already_8_3_upper": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\UPPER.TXT"
+    },
+    "short_dir_and_file": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\LONGDI~1\\ANOTHE~1.TXT"
+    },
+    "short_dir_trailing_sep": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\LONGDI~1\\"
+    },
+    "short_input_other_case": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "N\\LONGFI~1.TXT"
+    },
+    "short_dot_prefix": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": ".\\n\\LONGFI~1.TXT"
+    },
+    "short_dotdot_kept": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\..\\n\\LONGFI~1.TXT"
+    },
+    "short_forward_slash": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n/LONGFI~1.TXT"
+    },
+    "short_missing": {
+      "last_error": 2,
+      "ret": 0
+    },
+    "short_missing_dir": {
+      "last_error": 3,
+      "ret": 0
+    },
+    "short_absolute": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "<cwd-short>\\n\\LONGFI~1.TXT"
+    },
+    "short_verbatim": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "\\\\?\\<cwd-short>\\n\\LONGFI~1.TXT"
+    },
+    "short_size_query": {
+      "ret": 15,
+      "last_error": "unchanged"
+    },
+    "short_buffer_len": {
+      "ret": 15,
+      "last_error": "unchanged"
+    },
+    "short_in_place": {
+      "ret": 14,
+      "last_error": "unchanged",
+      "out": "n\\MIXEDC~1.TXT"
+    },
+    "long_from_short": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "n\\longfilename.txt"
+    },
+    "long_from_short_dir_and_file": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "n\\Long Directory Name\\another long file.txt"
+    },
+    "long_from_short_absolute": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "<cwd>\\n\\Long Directory Name"
+    },
+    "long_from_lowercase_short": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "n\\longfilename.txt"
+    },
+    "long_from_bogus_short": {
+      "last_error": 2,
+      "ret": 0
+    },
+    "long_of_long_other_case": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "n\\LONGFILENAME.TXT"
+    },
+    "long_wildcard": {
+      "last_error": 123,
+      "ret": 0
+    },
+    "long_verbatim_short": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "\\\\?\\<cwd>\\n\\longfilename.txt"
+    },
+    "open_by_short_name": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "rename_by_short_name": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "short_after_rename": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\RENAME~1.TXT"
+    },
+    "short_new_after_free_slot": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "short": "n\\LONGFI~4.TXT"
+    },
+    "find_alternate_names_final": {
+      "names": ".hidden;12345678.123;123456789.txt;Long Directory Name;LongFileName3.txt;MiXed.Txt;Mixed Case Name.txt;UPPER.TXT;a b.txt;a+b.txt;ab.cdef;br[1].txt;comma,name.txt;eq=sign.txt;longfilename.txt;longfilename2.txt;longfilename5.txt;lower.txt;noext;page.html;renamed long file.txt;semi;colon.txt;sp ace;trailing;verylongnoext;x.y.z.txt;été.txt;"
+    },
+    "find_alternate_names_final[.hidden]": {
+      "alt": "HIDDEN~1"
+    },
+    "find_alternate_names_final[12345678.123]": {
+      "alt": ""
+    },
+    "find_alternate_names_final[123456789.txt]": {
+      "alt": "123456~1.TXT"
+    },
+    "find_alternate_names_final[Long Directory Name]": {
+      "alt": "LONGDI~1"
+    },
+    "find_alternate_names_final[LongFileName3.txt]": {
+      "alt": "LONGFI~3.TXT"
+    },
+    "find_alternate_names_final[MiXed.Txt]": {
+      "alt": ""
+    },
+    "find_alternate_names_final[Mixed Case Name.txt]": {
+      "alt": "MIXEDC~1.TXT"
+    },
+    "find_alternate_names_final[UPPER.TXT]": {
+      "alt": ""
+    },
+    "find_alternate_names_final[a b.txt]": {
+      "alt": "AB5079~1.TXT"
+    },
+    "find_alternate_names_final[a+b.txt]": {
+      "alt": "A_B~1.TXT"
+    },
+    "find_alternate_names_final[ab.cdef]": {
+      "alt": "AB9F6F~1.CDE"
+    },
+    "find_alternate_names_final[br[1].txt]": {
+      "alt": "BR_1_~1.TXT"
+    },
+    "find_alternate_names_final[comma,name.txt]": {
+      "alt": "COMMA_~1.TXT"
+    },
+    "find_alternate_names_final[eq=sign.txt]": {
+      "alt": "EQ_SIG~1.TXT"
+    },
+    "find_alternate_names_final[longfilename.txt]": {
+      "alt": "LONGFI~1.TXT"
+    },
+    "find_alternate_names_final[longfilename2.txt]": {
+      "alt": "LONGFI~2.TXT"
+    },
+    "find_alternate_names_final[longfilename5.txt]": {
+      "alt": "LONGFI~4.TXT"
+    },
+    "find_alternate_names_final[lower.txt]": {
+      "alt": ""
+    },
+    "find_alternate_names_final[noext]": {
+      "alt": ""
+    },
+    "find_alternate_names_final[page.html]": {
+      "alt": "PAGE~1.HTM"
+    },
+    "find_alternate_names_final[renamed long file.txt]": {
+      "alt": "RENAME~1.TXT"
+    },
+    "find_alternate_names_final[semi;colon.txt]": {
+      "alt": "SEMI_C~1.TXT"
+    },
+    "find_alternate_names_final[sp ace]": {
+      "alt": "SPACE~1"
+    },
+    "find_alternate_names_final[trailing]": {
+      "alt": ""
+    },
+    "find_alternate_names_final[verylongnoext]": {
+      "alt": "VERYLO~1"
+    },
+    "find_alternate_names_final[x.y.z.txt]": {
+      "alt": "XYZ~1.TXT"
+    },
+    "find_alternate_names_final[été.txt]": {
+      "alt": "TDA51~1.TXT"
+    }
+  },
+  "errors": [],
+  "source_sha256": "faca43d18e7f5a7eb41562981a5d6b4598cbac9390b3b4fd41df800abb613325"
+}

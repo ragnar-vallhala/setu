@@ -1,0 +1,237 @@
+{
+  "test": "kernel32/last_error_named_objects",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "event_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "event_existing": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "event_existing_keeps_state": {
+      "wait": 258
+    },
+    "event_other_case": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "event_ex_existing": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "open_event_existing": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_event_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "open_event_null_name": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "open_event_empty_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "event_empty_name": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "event_name_with_backslash": {
+      "ret": "NULL",
+      "last_error": 3
+    },
+    "event_local_prefix_same_object": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "event_local_prefix_lowercase": {
+      "ret": "NULL",
+      "last_error": 3
+    },
+    "event_global_prefix_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_event_global_prefix": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "event_unknown_prefix": {
+      "ret": "NULL",
+      "last_error": 3
+    },
+    "event_name_300_chars": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "mutex_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "mutex_existing_initial_owner": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "mutex_existing_initial_owner_owned": {
+      "owned": false
+    },
+    "mutex_ex_existing": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "open_mutex_existing": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_mutex_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "mutex_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "semaphore_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "event_over_mutex_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "mapping_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "timer_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "job_over_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "open_mutex_on_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "open_event_on_mutex_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "open_mapping_on_event_name": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "semaphore_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "semaphore_existing": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "semaphore_existing_keeps_max": {
+      "release_ok": true,
+      "prev": 1,
+      "release_past_max_ok": false,
+      "release_past_max_err": 298
+    },
+    "semaphore_initial_above_max": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "open_semaphore_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "timer_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "timer_existing": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "open_timer_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "mapping_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "mapping_existing_bigger_size": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "mapping_existing_keeps_size": {
+      "view_size": 4096
+    },
+    "mapping_existing_other_protect": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "open_mapping_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "job_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "job_existing": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "open_job_missing": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "pipe_first_instance_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "pipe_second_instance": {
+      "ret": "valid",
+      "last_error": 183
+    },
+    "pipe_instances_exhausted": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 231
+    },
+    "pipe_first_instance_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 231
+    },
+    "open_pipe_missing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "wait_pipe_missing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "event_tmp_new": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_event_after_last_close": {
+      "ret": "NULL",
+      "last_error": 2
+    },
+    "event_tmp_recreated": {
+      "ret": "valid",
+      "last_error": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "e423edb3a49b371e3440c077e3442e7cb9d3a514c259de8d129c8d494523cc9c"
+}
