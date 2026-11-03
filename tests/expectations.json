@@ -1148,6 +1148,8 @@
     "kernel32/GetCompressedFileSizeW:open_after_write",
     "kernel32/GetCompressedFileSizeW:open_exclusive",
     "kernel32/GetCompressedFileSizeW:other_case",
+    "kernel32/GetCompressedFileSizeW:probe_sparse_5_bytes",
+    "kernel32/GetCompressedFileSizeW:probe_sparse_set_after_data",
     "kernel32/GetCompressedFileSizeW:readonly_hidden",
     "kernel32/GetCompressedFileSizeW:set_sparse",
     "kernel32/GetCompressedFileSizeW:small",
