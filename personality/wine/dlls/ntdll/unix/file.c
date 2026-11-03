@@ -4492,6 +4492,10 @@ static NTSTATUS lookup_unix_name( int root_fd, OBJECT_ATTRIBUTES *attr, UNICODE_
 /******************************************************************************
  *           nt_to_unix_file_name_no_root
  */
+static NTSTATUS lookup_dos_drive_link( OBJECT_ATTRIBUTES *attr, UNICODE_STRING *nt_name, WCHAR letter,
+                                       unsigned int nt_pos, char **unix_name_ret, UINT disposition,
+                                       BOOL open_reparse, unsigned int reparse_count );
+
 static NTSTATUS nt_to_unix_file_name_no_root( OBJECT_ATTRIBUTES *attr, UNICODE_STRING *nt_name,
                                               char **unix_name_ret, UINT disposition,
                                               BOOL open_reparse, unsigned int reparse_count )
@@ -4506,7 +4510,8 @@ static NTSTATUS nt_to_unix_file_name_no_root( OBJECT_ATTRIBUTES *attr, UNICODE_S
     char *unix_name;
     int pos, ret, name_len, unix_len, prefix_len;
     WCHAR prefix[MAX_DIR_ENTRY_LEN + 1];
-    BOOLEAN is_unix = FALSE;
+    BOOLEAN is_unix = FALSE, is_drive;
+    int drive_pos;
 
     name     = attr->ObjectName->Buffer;
     name_len = attr->ObjectName->Length / sizeof(WCHAR);
@@ -4584,20 +4589,36 @@ static NTSTATUS nt_to_unix_file_name_no_root( OBJECT_ATTRIBUTES *attr, UNICODE_S
         }
     }
 
+    is_drive = (prefix_len == 2 && prefix[1] == ':');
+    drive_pos = pos;
+
     prefix_len++;  /* skip initial backslash */
     if (name_len > prefix_len && name[prefix_len] == '\\') prefix_len++;  /* allow a second backslash */
     nt_pos += prefix_len;
 
     status = lookup_unix_name( AT_FDCWD, attr, nt_name, nt_pos, &unix_name, unix_len,
                                pos, disposition, open_reparse, is_unix, reparse_count );
+    if (status && is_drive)
+    {
+        /* a letter that is not one of the Unix drives: either a DefineDosDevice
+         * link, or a drive that does not exist (and then the path is not found) */
+        char saved = unix_name[drive_pos];
+
+        unix_name[drive_pos] = 0;
+        if (lstat( unix_name, &st ) == -1 && errno == ENOENT)
+        {
+            free( unix_name );
+            return lookup_dos_drive_link( attr, nt_name, prefix[0], nt_pos, unix_name_ret,
+                                          disposition, open_reparse, reparse_count );
+        }
+        unix_name[drive_pos] = saved;
+    }
     if (status == STATUS_SUCCESS || status == STATUS_NO_SUCH_FILE)
     {
         *unix_name_ret = unix_name;
+        return status;
     }
-    else
-    {
-        free( unix_name );
-    }
+    free( unix_name );
     return status;
 }
 
@@ -4781,6 +4802,80 @@ static NTSTATUS resolve_absolute_reparse_point( const WCHAR *target, unsigned in
         free( *unix_name );
         *unix_name = new_unix_name;
     }
+    return status;
+}
+
+
+/******************************************************************************
+ *           lookup_dos_drive_link
+ *
+ * Look up a name on a drive letter that is not a Unix drive: if DefineDosDevice
+ * made \DosDevices\X: a link, the name is looked up again through the link's
+ * target, else the drive does not exist. nt_pos is the start of the name after
+ * the drive.
+ */
+static NTSTATUS lookup_dos_drive_link( OBJECT_ATTRIBUTES *attr, UNICODE_STRING *nt_name, WCHAR letter,
+                                       unsigned int nt_pos, char **unix_name_ret, UINT disposition,
+                                       BOOL open_reparse, unsigned int reparse_count )
+{
+    WCHAR link_nameW[] = {'\\','D','o','s','D','e','v','i','c','e','s','\\','?',':',0};
+    UNICODE_STRING link_str, target;
+    OBJECT_ATTRIBUTES link_attr;
+    HANDLE handle;
+    WCHAR *remainder = NULL;
+    unsigned int target_len, remainder_len;
+    char *unix_name = NULL;
+    ULONG size = 0;
+    NTSTATUS status;
+
+    if (reparse_count >= MAXIMUM_REPARSE_COUNT) return STATUS_OBJECT_PATH_NOT_FOUND;
+
+    link_nameW[12] = letter;
+    init_unicode_string( &link_str, link_nameW );
+    InitializeObjectAttributes( &link_attr, &link_str, OBJ_CASE_INSENSITIVE, 0, NULL );
+    if (NtOpenSymbolicLinkObject( &handle, SYMBOLIC_LINK_QUERY, &link_attr )) return STATUS_OBJECT_PATH_NOT_FOUND;
+
+    target.Buffer = NULL;
+    target.Length = target.MaximumLength = 0;
+    status = NtQuerySymbolicLinkObject( handle, &target, &size );
+    if (status == STATUS_BUFFER_TOO_SMALL)
+    {
+        if (!(target.Buffer = malloc( size + sizeof(WCHAR) ))) status = STATUS_NO_MEMORY;
+        else
+        {
+            target.MaximumLength = size;
+            status = NtQuerySymbolicLinkObject( handle, &target, NULL );
+        }
+    }
+    NtClose( handle );
+    if (status || !target.Length || target.Buffer[0] != '\\')
+    {
+        free( target.Buffer );
+        return status == STATUS_NO_MEMORY ? status : STATUS_OBJECT_PATH_NOT_FOUND;
+    }
+
+    /* stacked definitions are separated by nulls, the first one is in effect */
+    for (target_len = 0; target_len < target.Length / sizeof(WCHAR) && target.Buffer[target_len]; target_len++)
+        ;
+    while (target_len > 1 && target.Buffer[target_len - 1] == '\\') target_len--;
+
+    /* the remainder may live in nt_name, which is replaced: copy it */
+    remainder_len = attr->ObjectName->Length / sizeof(WCHAR) > nt_pos ?
+                    attr->ObjectName->Length / sizeof(WCHAR) - nt_pos : 0;
+    if (!(remainder = malloc( (remainder_len + 1) * sizeof(WCHAR) )))
+    {
+        free( target.Buffer );
+        return STATUS_NO_MEMORY;
+    }
+    memcpy( remainder, attr->ObjectName->Buffer + nt_pos, remainder_len * sizeof(WCHAR) );
+
+    TRACE( "%c: -> %s\n", (char)letter, debugstr_wn( target.Buffer, target_len ));
+    status = resolve_absolute_reparse_point( target.Buffer, target_len, attr, nt_name, remainder, remainder_len,
+                                             &unix_name, disposition, open_reparse, reparse_count + 1 );
+    free( remainder );
+    free( target.Buffer );
+    if (!status || status == STATUS_NO_SUCH_FILE) *unix_name_ret = unix_name;
+    else free( unix_name );
     return status;
 }
 
