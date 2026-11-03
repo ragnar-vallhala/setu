@@ -4731,6 +4731,7 @@
     "kernel32/wow64_fs_redirection:is_wow64_process2_null_native",
     "kernel32/wow64_fs_redirection:is_wow64_process2_self",
     "kernel32/wow64_fs_redirection:is_wow64_process_event",
+    "kernel32/wow64_fs_redirection:is_wow64_process_null",
     "kernel32/wow64_fs_redirection:is_wow64_process_self",
     "kernel32/wow64_fs_redirection:revert_null",
     "kernel32/wow64_fs_redirection:revert_old",
