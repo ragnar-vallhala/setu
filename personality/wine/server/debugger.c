@@ -430,7 +430,7 @@ static int continue_debug_event( struct debug_obj *debug_obj, struct process *pr
         }
     }
     /* not debugging this process, or no such event */
-    set_error( STATUS_ACCESS_DENIED );  /* FIXME */
+    set_error( STATUS_INVALID_PARAMETER );
     return 0;
 }
 
