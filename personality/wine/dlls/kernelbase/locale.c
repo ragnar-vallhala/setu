@@ -1950,6 +1950,8 @@ static void update_locale_registry(void)
 }
 
 
+static DWORD get_dynamic_tz_info( DYNAMIC_TIME_ZONE_INFORMATION *info );
+
 /***********************************************************************
  *		init_locale
  */
@@ -2000,7 +2002,8 @@ void init_locale( HMODULE module )
 
     current_locale_sort = get_language_sort( LOCALE_NAME_USER_DEFAULT );
 
-    if (GetDynamicTimeZoneInformation( &timezone ) != TIME_ZONE_ID_INVALID &&
+    /* internal use: not the process's first use of the time zone data */
+    if (get_dynamic_tz_info( &timezone ) != TIME_ZONE_ID_INVALID &&
         !RegCreateKeyExW( HKEY_LOCAL_MACHINE, L"System\\CurrentControlSet\\Control\\TimeZoneInformation",
                           0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey, NULL ))
     {
@@ -4833,6 +4836,18 @@ BOOL WINAPI DECLSPEC_HOTPATCH Internal_EnumUILanguages( UILANGUAGE_ENUMPROCW pro
 }
 
 
+/* Windows sets the last error to 0 the first time a process uses some of its
+ * national language data: time zone rules, locale information, sorting data.
+ * Some other calls use the same data and take that first time away. */
+static LONG nls_used_tz, nls_used_locale, nls_used_sort;
+
+static void nls_first_use( LONG *used, BOOL set_error )
+{
+    if (ReadNoFence( used ) || InterlockedExchange( used, 1 )) return;
+    if (set_error) SetLastError( ERROR_SUCCESS );
+}
+
+
 /******************************************************************************
  *	CompareStringEx   (kernelbase.@)
  */
@@ -4848,6 +4863,8 @@ INT WINAPI CompareStringEx( const WCHAR *locale, DWORD flags, const WCHAR *str1,
                                   0x10000000 | LOCALE_USE_CP_ACP;
     /* 0x10000000 is related to diacritics in Arabic, Japanese, and Hebrew */
     int ret;
+
+    nls_first_use( &nls_used_sort, TRUE );
 
     if (version) FIXME( "unexpected version parameter\n" );
     if (reserved) FIXME( "unexpected reserved value\n" );
@@ -5805,10 +5822,7 @@ static struct {
     WCHAR daylight_name[32];
 } cached_tzname;
 
-/***********************************************************************
- *	GetDynamicTimeZoneInformation   (kernelbase.@)
- */
-DWORD WINAPI DECLSPEC_HOTPATCH GetDynamicTimeZoneInformation( DYNAMIC_TIME_ZONE_INFORMATION *info )
+static DWORD get_dynamic_tz_info( DYNAMIC_TIME_ZONE_INFORMATION *info )
 {
     HKEY key;
     LARGE_INTEGER now;
@@ -5847,6 +5861,15 @@ DWORD WINAPI DECLSPEC_HOTPATCH GetDynamicTimeZoneInformation( DYNAMIC_TIME_ZONE_
 
     NtQuerySystemTime( &now );
     return get_timezone_id( (TIME_ZONE_INFORMATION *)info, now, FALSE );
+}
+
+/***********************************************************************
+ *	GetDynamicTimeZoneInformation   (kernelbase.@)
+ */
+DWORD WINAPI DECLSPEC_HOTPATCH GetDynamicTimeZoneInformation( DYNAMIC_TIME_ZONE_INFORMATION *info )
+{
+    nls_first_use( &nls_used_tz, FALSE );
+    return get_dynamic_tz_info( info );
 }
 
 
@@ -6332,6 +6355,8 @@ INT WINAPI DECLSPEC_HOTPATCH GetLocaleInfoW( LCID lcid, LCTYPE lctype, WCHAR *bu
 {
     const NLS_LOCALE_DATA *locale;
 
+    nls_first_use( &nls_used_locale, FALSE );
+
     if (len < 0 || (len && !buffer))
     {
         SetLastError( ERROR_INVALID_PARAMETER );
@@ -6358,6 +6383,8 @@ INT WINAPI DECLSPEC_HOTPATCH GetLocaleInfoEx( const WCHAR *name, LCTYPE info, WC
     const NLS_LOCALE_DATA *locale = get_locale_by_name( name, &lcid );
 
     TRACE( "%s 0x%lx %p %d\n", debugstr_w(name), info, buffer, len );
+
+    nls_first_use( &nls_used_locale, TRUE );
 
     if (!locale)
     {
@@ -6688,6 +6715,7 @@ LANGID WINAPI DECLSPEC_HOTPATCH GetUserDefaultLangID(void)
  */
 INT WINAPI DECLSPEC_HOTPATCH GetUserDefaultLocaleName( LPWSTR name, INT len )
 {
+    nls_first_use( &nls_used_locale, FALSE );
     return get_locale_info( user_locale, user_lcid, LOCALE_SNAME, name, len );
 }
 
@@ -7630,7 +7658,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH SystemTimeToTzSpecificLocalTime( const TIME_ZONE_I
     TIME_ZONE_INFORMATION tzinfo;
     LARGE_INTEGER ft;
 
-    if (!info)
+    if (info) nls_first_use( &nls_used_tz, TRUE );
+    else
     {
         RtlQueryTimeZoneInformation( (RTL_TIME_ZONE_INFORMATION *)&tzinfo );
         info = &tzinfo;
@@ -7665,7 +7694,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH TzSpecificLocalTimeToSystemTime( const TIME_ZONE_I
     TIME_ZONE_INFORMATION tzinfo;
     LARGE_INTEGER ft;
 
-    if (!info)
+    if (info) nls_first_use( &nls_used_tz, TRUE );
+    else
     {
         RtlQueryTimeZoneInformation( (RTL_TIME_ZONE_INFORMATION *)&tzinfo );
         info = &tzinfo;
@@ -8699,7 +8729,10 @@ int WINAPI GetDateFormatA( LCID lcid, DWORD flags, const SYSTEMTIME *time,
 int WINAPI GetDateFormatW( LCID lcid, DWORD flags, const SYSTEMTIME *systime,
                            const WCHAR *format, WCHAR *buffer, int len )
 {
-    const NLS_LOCALE_DATA *locale = NlsValidateLocale( &lcid, 0 );
+    const NLS_LOCALE_DATA *locale;
+
+    nls_first_use( &nls_used_locale, TRUE );
+    locale = NlsValidateLocale( &lcid, 0 );
 
     if (len < 0 || (len && !buffer) || !locale)
     {
@@ -8720,6 +8753,8 @@ int WINAPI GetDateFormatEx( const WCHAR *name, DWORD flags, const SYSTEMTIME *sy
 {
     LCID lcid;
     const NLS_LOCALE_DATA *locale = get_locale_by_name( name, &lcid );
+
+    nls_first_use( &nls_used_locale, TRUE );
 
     if (len < 0 || (len && !buffer) || !locale || calendar)
     {
@@ -8788,6 +8823,8 @@ int WINAPI GetTimeFormatEx( const WCHAR *name, DWORD flags, const SYSTEMTIME *sy
 {
     LCID lcid;
     const NLS_LOCALE_DATA *locale = get_locale_by_name( name, &lcid );
+
+    nls_first_use( &nls_used_locale, TRUE );
 
     if (len < 0 || (len && !buffer) || !locale)
     {
