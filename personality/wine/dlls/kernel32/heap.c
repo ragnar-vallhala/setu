@@ -144,6 +144,11 @@ static inline void *unsafe_ptr_from_HLOCAL( HLOCAL handle )
  */
 void *WINAPI GlobalLock( HGLOBAL handle )
 {
+    if (!handle)
+    {
+        SetLastError( ERROR_INVALID_HANDLE );
+        return NULL;
+    }
     return LocalLock( handle );
 }
 
@@ -166,7 +171,7 @@ void *WINAPI GlobalLock( HGLOBAL handle )
  */
 BOOL WINAPI GlobalUnlock( HGLOBAL handle )
 {
-    if (unsafe_ptr_from_HLOCAL( handle )) return TRUE;
+    if (!handle || unsafe_ptr_from_HLOCAL( handle )) return TRUE;
     return LocalUnlock( handle );
 }
 
