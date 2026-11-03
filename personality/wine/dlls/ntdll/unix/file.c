@@ -1670,8 +1670,11 @@ static void short_name_format( struct short_name_entry *entry, int slot, int has
         unsigned short hash = 0xbeef;
         const WCHAR *p;
 
-        for (p = entry->name; p < entry->name + entry->len; p++)
-            hash = (hash << 3) ^ (hash >> 5) ^ towupper( *p ) ^ (towupper( p[1] ) << 8);
+        const WCHAR *end = entry->name + entry->len;
+
+        /* the name is not null-terminated: the last character has no next one */
+        for (p = entry->name; p < end; p++)
+            hash = (hash << 3) ^ (hash >> 5) ^ towupper( *p ) ^ ((p + 1 < end ? towupper( p[1] ) : 0) << 8);
         if (base_len > 2) base_len = 2;
         memcpy( dst, entry->key, base_len * sizeof(WCHAR) );
         dst += base_len;
