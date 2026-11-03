@@ -5977,7 +5977,7 @@ struct set_job_limits_request
     struct request_header __header;
     obj_handle_t handle;
     unsigned int limit_flags;
-    char __pad_20[4];
+    unsigned int active_process_limit;
 };
 struct set_job_limits_reply
 {
@@ -6011,6 +6011,8 @@ struct get_job_info_reply
     struct reply_header __header;
     int total_processes;
     int active_processes;
+    unsigned int limit_flags;
+    unsigned int active_process_limit;
     /* VARARG(pids,uints); */
 };
 
@@ -7241,6 +7243,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 936
+#define SERVER_PROTOCOL_VERSION 937
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

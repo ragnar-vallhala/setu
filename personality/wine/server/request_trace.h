@@ -3388,6 +3388,7 @@ static void dump_set_job_limits_request( const struct set_job_limits_request *re
 {
     fprintf( stderr, " handle=%04x", req->handle );
     fprintf( stderr, ", limit_flags=%08x", req->limit_flags );
+    fprintf( stderr, ", active_process_limit=%08x", req->active_process_limit );
 }
 
 static void dump_set_job_completion_port_request( const struct set_job_completion_port_request *req )
@@ -3406,6 +3407,8 @@ static void dump_get_job_info_reply( const struct get_job_info_reply *req )
 {
     fprintf( stderr, " total_processes=%d", req->total_processes );
     fprintf( stderr, ", active_processes=%d", req->active_processes );
+    fprintf( stderr, ", limit_flags=%08x", req->limit_flags );
+    fprintf( stderr, ", active_process_limit=%08x", req->active_process_limit );
     dump_varargs_uints( ", pids=", cur_size );
 }
 
@@ -4673,6 +4676,7 @@ static const struct
     { "PROCESS_IN_JOB",              STATUS_PROCESS_IN_JOB },
     { "PROCESS_IS_TERMINATING",      STATUS_PROCESS_IS_TERMINATING },
     { "PROCESS_NOT_IN_JOB",          STATUS_PROCESS_NOT_IN_JOB },
+    { "QUOTA_EXCEEDED",              STATUS_QUOTA_EXCEEDED },
     { "RANGE_NOT_LOCKED",            STATUS_RANGE_NOT_LOCKED },
     { "REPARSE_POINT_NOT_RESOLVED",  STATUS_REPARSE_POINT_NOT_RESOLVED },
     { "SECTION_TOO_BIG",             STATUS_SECTION_TOO_BIG },
@@ -4680,7 +4684,9 @@ static const struct
     { "SHARING_VIOLATION",           STATUS_SHARING_VIOLATION },
     { "SHUTDOWN_IN_PROGRESS",        STATUS_SHUTDOWN_IN_PROGRESS },
     { "SUSPEND_COUNT_EXCEEDED",      STATUS_SUSPEND_COUNT_EXCEEDED },
+    { "THREAD_ALREADY_IN_SESSION",   STATUS_THREAD_ALREADY_IN_SESSION },
     { "THREAD_IS_TERMINATING",       STATUS_THREAD_IS_TERMINATING },
+    { "THREAD_NOT_IN_SESSION",       STATUS_THREAD_NOT_IN_SESSION },
     { "TIMEOUT",                     STATUS_TIMEOUT },
     { "TOO_MANY_OPENED_FILES",       STATUS_TOO_MANY_OPENED_FILES },
     { "UNSUCCESSFUL",                STATUS_UNSUCCESSFUL },

@@ -205,6 +205,7 @@ struct job
     int                  num_processes;     /* count of running processes */
     int                  total_processes;   /* count of processes which have been assigned */
     unsigned int         limit_flags;       /* limit flags */
+    unsigned int         active_process_limit; /* max active processes with JOB_OBJECT_LIMIT_ACTIVE_PROCESS */
     int                  terminating;       /* job is terminating */
     struct completion   *completion_port;   /* associated completion port */
     apc_param_t          completion_key;    /* key to send with completion messages */
@@ -254,6 +255,7 @@ static struct job *create_job_object( struct object *root, const struct unicode_
             job->num_processes = 0;
             job->total_processes = 0;
             job->limit_flags = 0;
+            job->active_process_limit = 0;
             job->terminating = 0;
             job->completion_port = NULL;
             job->completion_key = 0;
@@ -1911,7 +1913,14 @@ DECL_HANDLER(assign_job)
 
     if ((process = get_process_from_handle( req->process, PROCESS_SET_QUOTA | PROCESS_TERMINATE )))
     {
+        struct job *j;
+
+        for (j = job; j; j = j->parent)
+            if ((j->limit_flags & JOB_OBJECT_LIMIT_ACTIVE_PROCESS) &&
+                j->num_processes >= j->active_process_limit) break;
+
         if (!process->running_threads) set_error( STATUS_PROCESS_IS_TERMINATING );
+        else if (j && process->job != j) set_error( STATUS_QUOTA_EXCEEDED );
         else add_job_process( job, process );
         release_object( process );
     }
@@ -1956,6 +1965,8 @@ DECL_HANDLER(get_job_info)
 
     reply->total_processes = job->total_processes;
     reply->active_processes = job->num_processes;
+    reply->limit_flags = job->limit_flags;
+    reply->active_process_limit = job->active_process_limit;
 
     len = min( get_reply_max_size(), reply->active_processes * sizeof(*pids) );
     if (len && ((pids = set_reply_data_size( len ))))
@@ -1983,6 +1994,7 @@ DECL_HANDLER(set_job_limits)
     if (!job) return;
 
     job->limit_flags = req->limit_flags;
+    job->active_process_limit = req->active_process_limit;
     release_object( job );
 }
 

@@ -1472,6 +1472,23 @@ NTSTATUS WINAPI NtTerminateJobObject( HANDLE handle, NTSTATUS status )
 }
 
 
+static unsigned int get_job_limits( HANDLE handle, JOBOBJECT_BASIC_LIMIT_INFORMATION *limit )
+{
+    unsigned int ret;
+
+    SERVER_START_REQ( get_job_info )
+    {
+        req->handle = wine_server_obj_handle( handle );
+        if (!(ret = wine_server_call( req )))
+        {
+            limit->LimitFlags = reply->limit_flags;
+            limit->ActiveProcessLimit = reply->active_process_limit;
+        }
+    }
+    SERVER_END_REQ;
+    return ret;
+}
+
 /**************************************************************************
  *		NtQueryInformationJobObject (NTDLL.@)
  */
@@ -1549,6 +1566,7 @@ NTSTATUS WINAPI NtQueryInformationJobObject( HANDLE handle, JOBOBJECTINFOCLASS c
 
         if (len < sizeof(*extended_limit)) return STATUS_INFO_LENGTH_MISMATCH;
         memset( extended_limit, 0, sizeof(*extended_limit) );
+        if ((ret = get_job_limits( handle, &extended_limit->BasicLimitInformation ))) return ret;
         if (ret_len) *ret_len = sizeof(*extended_limit);
         return STATUS_SUCCESS;
     }
@@ -1558,6 +1576,7 @@ NTSTATUS WINAPI NtQueryInformationJobObject( HANDLE handle, JOBOBJECTINFOCLASS c
 
         if (len < sizeof(*basic_limit)) return STATUS_INFO_LENGTH_MISMATCH;
         memset( basic_limit, 0, sizeof(*basic_limit) );
+        if ((ret = get_job_limits( handle, basic_limit ))) return ret;
         if (ret_len) *ret_len = sizeof(*basic_limit);
         return STATUS_SUCCESS;
     }
@@ -1597,6 +1616,7 @@ NTSTATUS WINAPI NtSetInformationJobObject( HANDLE handle, JOBOBJECTINFOCLASS cla
         {
             req->handle = wine_server_obj_handle( handle );
             req->limit_flags = basic_limit->LimitFlags;
+            req->active_process_limit = basic_limit->ActiveProcessLimit;
             status = wine_server_call( req );
         }
         SERVER_END_REQ;
