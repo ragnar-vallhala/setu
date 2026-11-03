@@ -4417,6 +4417,9 @@ static NTSTATUS lookup_unix_name( int root_fd, OBJECT_ATTRIBUTES *attr, UNICODE_
             unix_name = *buffer = new_name;
         }
 
+        /* a name component is at most 255 characters */
+        if (end - name > MAX_DIR_ENTRY_LEN) return STATUS_OBJECT_NAME_INVALID;
+
         status = find_file_in_dir( root_fd, unix_name, pos, name, end - name, is_unix );
 
         /* try to resolve it as a reparse point */

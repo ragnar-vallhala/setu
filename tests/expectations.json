@@ -6752,6 +6752,7 @@
     "kernel32/verbatim_paths:attr_trailing_dot_normal",
     "kernel32/verbatim_paths:attr_trailing_dot_verbatim",
     "kernel32/verbatim_paths:create_component_255",
+    "kernel32/verbatim_paths:create_component_256",
     "kernel32/verbatim_paths:create_deep_past_max_path",
     "kernel32/verbatim_paths:create_forward_slash_name",
     "kernel32/verbatim_paths:create_in_double_separator",
