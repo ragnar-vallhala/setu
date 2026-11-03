@@ -4,12 +4,12 @@
 # Display: VNC on 127.0.0.1:5911 (display :11). Serial console: a log file.
 # QEMU monitor: a unix socket, e.g. for screenshots:
 #   echo 'screendump /tmp/s.ppm' | nc -U -q1 build/distro/run/monitor.sock
-# SSH: ssh -p 2223 setu@127.0.0.1 (password: setu).
+# SSH: ssh -p 2230 setu@127.0.0.1 (password: setu).
 #
 # Usage: distro/run-qemu.sh [options]
 #   --image FILE     disk image (default: build/distro/setu-dev.qcow2)
 #   --vnc N          VNC display number (default: 11, i.e. port 5911)
-#   --ssh-port N     host port forwarded to guest SSH (default: 2223)
+#   --ssh-port N     host port forwarded to guest SSH (default: 2230; 2222+ are the Windows oracle VMs)
 #   --serial FILE    serial log (default: RUN_DIR/serial.log)
 #   --run-dir DIR    monitor socket, pid file, UEFI vars and serial log
 #                    (default: build/distro/run); use another one to run a
@@ -25,7 +25,7 @@ REPO=$(cd "$HERE/.." && pwd)
 RUN=$REPO/build/distro/run
 IMAGE=$REPO/build/distro/setu-dev.qcow2
 VNC=11
-SSH_PORT=2223
+SSH_PORT=2230
 SERIAL=
 DAEMONIZE=0
 CPUS=4

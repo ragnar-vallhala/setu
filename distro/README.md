@@ -38,7 +38,7 @@ distro/run-qemu.sh        # VNC 127.0.0.1:5911, serial log build/distro/run/seri
   the first (own monitor socket, pid file and serial log).
 
 Login: user `setu`, password `setu` (passwordless sudo; dev image only).
-SSH: `ssh -p 2223 setu@127.0.0.1`.
+SSH: `ssh -p 2230 setu@127.0.0.1`.
 
 ### Installing a program: `distro/tests/msi-smoke.sh`
 
