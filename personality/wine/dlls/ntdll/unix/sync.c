@@ -1589,6 +1589,7 @@ NTSTATUS WINAPI NtSetInformationJobObject( HANDLE handle, JOBOBJECTINFOCLASS cla
         limit_flags = JOB_OBJECT_EXTENDED_LIMIT_VALID_FLAGS;
         /* fall through */
     case JobObjectBasicLimitInformation:
+        if (len < info_size) return STATUS_INFO_LENGTH_MISMATCH;
         if (len != info_size) return STATUS_INVALID_PARAMETER;
         basic_limit = info;
         if (basic_limit->LimitFlags & ~limit_flags) return STATUS_INVALID_PARAMETER;
