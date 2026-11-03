@@ -1,0 +1,70 @@
+{
+  "test": "kernel32/debug_output",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "no_debugger": {
+      "is_debugger_present": false,
+      "check_remote_ret": true,
+      "check_remote": 0
+    },
+    "check_remote_null_out": {
+      "ret": false,
+      "last_error": 87
+    },
+    "check_remote_null_process": {
+      "ret": false,
+      "last_error": 87
+    },
+    "output_debug_string_no_debugger": {
+      "last_error": "0xdeadbeef"
+    },
+    "output_debug_string_w_no_debugger": {
+      "last_error": "0xdeadbeef"
+    },
+    "output_debug_string_null": {
+      "last_error": "0xdeadbeef"
+    },
+    "create_debuggee": {
+      "ret": true
+    },
+    "create_process_event": {
+      "pid_matches": true,
+      "tid_matches": true,
+      "has_process_handle": true,
+      "has_thread_handle": true,
+      "has_start_address": true,
+      "unicode_flag_is_0_or_1": true
+    },
+    "debug_event_sequence": {
+      "seq": "create_process|exception:80000003:first|output_string:u0:n17:hello from child|output_string:u0:n12:wide string|output_string:u0:n17:debugger present|output_string:u0:n15:remote present|exception:e0000abc:first|exception:e0000abc:second|exit_process",
+      "some_dll_loads": true,
+      "breakpoints": 1,
+      "strings": 4,
+      "exit_code": "0x00000042"
+    },
+    "continue_wrong_thread": {
+      "ret": false,
+      "error": 87
+    },
+    "wait_debug_event_no_debuggee": {
+      "ret": false,
+      "last_error": 121
+    },
+    "continue_without_event": {
+      "ret": false,
+      "last_error": 87
+    },
+    "stop_debugging_exited": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "debug_self": {
+      "ret": false,
+      "last_error": 5
+    }
+  },
+  "errors": [],
+  "source_sha256": "6993ed81363714573514264c35146fe6483158a57991a26f59c98231cbc774ad"
+}
