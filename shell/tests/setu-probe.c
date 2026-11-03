@@ -8,6 +8,12 @@
  *                                        primary monitor's rcWork, as seen
  *                                        from this (separate) process
  *   setu-probe appbar-pos                print ABM_GETTASKBARPOS
+ *   setu-probe click X Y                 click at screen X,Y (SendInput)
+ *   setu-probe setfg TITLE               SetForegroundWindow on that window
+ *   setu-probe windows [all]             list top-level windows, top of the
+ *                                        z-order first, one per line:
+ *                                        window=HWND|class|title|L,T,R,B|state
+ *                                        ("all" includes hidden ones)
  *
  * Exit code 0 on success.
  */
@@ -52,6 +58,22 @@ static int mklnk(const WCHAR *lnk, const WCHAR *target, const WCHAR *args)
     IShellLinkW_Release(sl);
     wprintf(L"mklnk %ls -> %ls: %08lx\n", lnk, target, hr);
     return FAILED(hr);
+}
+
+static BOOL CALLBACK list_window(HWND hwnd, LPARAM lp)
+{
+    WCHAR title[128] = L"", cls[64] = L"";
+    RECT rc;
+    DWORD pid = 0;
+
+    if (lp && !IsWindowVisible(hwnd)) return TRUE;
+    GetWindowTextW(hwnd, title, 128);
+    GetClassNameW(hwnd, cls, 64);
+    GetWindowRect(hwnd, &rc);
+    GetWindowThreadProcessId(hwnd, &pid);
+    wprintf(L"window=%p|%ls|%ls|%ld,%ld,%ld,%ld|%ls%ls\n", hwnd, cls, title, rc.left, rc.top, rc.right, rc.bottom,
+            IsWindowVisible(hwnd) ? L"visible" : L"hidden", IsIconic(hwnd) ? L",minimized" : L"");
+    return TRUE;
 }
 
 int wmain(int argc, WCHAR **argv)
@@ -119,8 +141,14 @@ int wmain(int argc, WCHAR **argv)
                 GetForegroundWindow(), title);
         ret = !r;
     }
+    else if (argc >= 2 && !wcscmp(argv[1], L"windows"))
+    {
+        /* top-level windows, top of the z-order first; "windows all" includes hidden ones */
+        EnumWindows(list_window, argc < 3 || wcscmp(argv[2], L"all"));
+        ret = 0;
+    }
     else
-        fwprintf(stderr, L"usage: setu-probe mklnk LNK TARGET [ARGS] | workarea | appbar-pos | click X Y | setfg TITLE\n");
+        fwprintf(stderr, L"usage: setu-probe mklnk LNK TARGET [ARGS] | workarea | appbar-pos | click X Y | setfg TITLE | windows [all]\n");
     fflush(stdout);
     CoUninitialize();
     return ret;

@@ -81,9 +81,12 @@ tools/shell-smoke.sh --update-docs # also refresh shell/docs/*.png
 The smoke test builds the shell, starts Xvfb and the shell in its own prefix
 (`build/shell-prefix`), then checks: the taskbar is docked; a real click on
 the start button opens the launcher with the built-ins and a test `.lnk`;
-launching Notepad adds a taskbar button; the run box starts regedit; and
-real clicks on the Notepad button activate, minimize and restore it.
-Clicks are sent with `SendInput` by `shell/tests/setu-probe.exe`.
+launching Notepad adds a taskbar button; the run box starts regedit;
+real clicks on the Notepad button activate, minimize and restore it; and the
+desktop is repainted where the closed launcher and the minimized Notepad
+were (pixels sampled there must match the desktop background).
+Clicks are sent with `SendInput` by `shell/tests/setu-probe.exe`, which also
+lists the top-level windows (`setu-probe windows [all]`).
 Screenshots land in `build/shell/smoke/`.
 
 It then runs `shell/tests/setu-xproc.exe`, which checks personality
@@ -103,9 +106,6 @@ behaviour the shell relies on, each across two processes:
 
 Found while building the shell:
 
-- In the Xvfb virtual desktop, the area uncovered when a window is hidden or
-  minimized isn't repainted (stale pixels from the launcher, or black).
-  See the screenshots in `docs/`.
 - Only icons of 64x64 or smaller can be drawn by another process; the shell
   falls back to the program's file icon for larger ones.
 
@@ -113,6 +113,13 @@ Fixed in the personality (checked by `setu-xproc`): the system-wide work area
 (`ABM_SETPOS`, `SPI_SETWORKAREA`), cross-process window and class icons,
 `ARW_HIDE`, and `RegisterShellHookWindow` (the shell still polls as a
 fallback).
+
+Also fixed: in the virtual desktop, the area uncovered when a window was
+hidden or minimized wasn't repainted (stale launcher pixels, or black). The
+desktop window is drawn straight to X, and that drawing stayed buffered until
+the next X event; winex11 now sends it when the thread goes idle
+(`FlushOutput`). `tools/shell-smoke.sh` samples the vacated pixels after the
+launcher closes and after Notepad is minimized.
 
 ## References
 

@@ -9,6 +9,8 @@
 #   3. launching Notepad from the launcher adds a taskbar button,
 #   4. the run box starts a program (regedit.exe),
 #   5. taskbar buttons activate, minimize and restore windows,
+#   5b. the desktop is repainted where a window was hidden or minimized
+#      (pixels sampled where the launcher and Notepad were),
 #   6. two-process checks (shell/tests/setu-xproc.c): another process sees
 #      the work area the taskbar reserved, maximizes inside it and hides
 #      minimized windows (ARW_HIDE); RegisterShellHookWindow notifications;
@@ -90,6 +92,27 @@ shot() {
   rm -f "$OUT/$1.xwd"
 }
 
+# pixel X Y: the screen pixel at X,Y as "R,G,B"
+pixel() {
+  xwd -root -silent -display "$DISPLAY" > "$OUT/pixel.xwd"
+  convert "$OUT/pixel.xwd" -format "%[fx:int(255*p{$1,$2}.r)],%[fx:int(255*p{$1,$2}.g)],%[fx:int(255*p{$1,$2}.b)]" info:
+  rm -f "$OUT/pixel.xwd"
+}
+# wait_pixel X Y RGB [SECONDS]: wait until the pixel at X,Y is RGB
+wait_pixel() {
+  local i
+  for i in $(seq $(( ${4:-5} * 4 ))); do
+    [ "$(pixel "$1" "$2")" = "$3" ] && return 0
+    sleep 0.25
+  done
+  return 1
+}
+
+# win_rect TITLE [all]: "L T R B" of the top-level window with that title
+win_rect() {
+  "$WINE" "$PROBE_EXE" windows ${2:-} | tr -d '\r' | awk -F'|' -v t="$1" '$3 == t { gsub(",", " ", $4); print $4; exit }'
+}
+
 # wait_state REGEX [SECONDS]: wait until the shell's state file matches
 wait_state() {
   local re="$1" t="${2:-20}" i
@@ -144,6 +167,10 @@ grep -q '^app=shortcut|Smoke Notepad|.*notepad.exe' "$STATE" || fail "Start Menu
 pass "launcher open with $(grep -c '^app=' "$STATE") entries"
 sleep 1
 shot 02-launcher
+# The desktop background, from a corner no window in this test covers.
+DESK_RGB=$(pixel $(( ${RES%x*} - 20 )) 20)
+read -r LL LT LR LB < <(win_rect 'Setu launcher' all)
+[ -n "$LB" ] || fail "launcher window not found by setu-probe windows"
 
 # --- 3. launch Notepad from the launcher: a taskbar button appears ----------
 "$WINE" "$SHELL_EXE" --launch Notepad || fail "--launch Notepad failed"
@@ -152,6 +179,12 @@ wait_state '^launcher=closed' 5 || fail "launcher did not close after launching"
 pass "Notepad button: $(task_line Notepad)"
 sleep 1
 shot 03-notepad
+# Where the launcher was and Notepad isn't, the desktop must show again.
+read -r NL NT NR NB < <(win_rect 'Untitled - Notepad')
+PX=$(( (LL + LR) / 2 )); PY=$(( (NB + LB) / 2 ))
+[ "$PY" -gt "$NB" ] && [ "$PY" -lt "$LB" ] || fail "no launcher area outside Notepad to sample (launcher $LL,$LT,$LR,$LB, Notepad $NL,$NT,$NR,$NB)"
+wait_pixel "$PX" "$PY" "$DESK_RGB" 5 || fail "desktop not repainted where the launcher was: pixel $PX,$PY is $(pixel "$PX" "$PY"), desktop is $DESK_RGB"
+pass "desktop repainted under the closed launcher ($PX,$PY = $DESK_RGB)"
 
 # --- 4. the run box starts programs ------------------------------------------
 "$WINE" "$SHELL_EXE" --run 'regedit.exe' || fail "--run regedit.exe failed"
@@ -160,6 +193,15 @@ wait_state '^task=.*Registry Editor\|active' 10 || fail "regedit did not become 
 pass "run box: $(task_line 'Registry Editor')"
 sleep 1
 shot 04-two-apps
+# A point Notepad covers and Registry Editor doesn't: the desktop once
+# Notepad is minimized (checked in step 5).
+read -r RL RT RR RB < <(win_rect 'Registry Editor')
+if   [ $(( RL - NL )) -ge 2 ]; then QX=$(( (NL + RL) / 2 )); QY=$(( (NT + NB) / 2 ))
+elif [ $(( NR - RR )) -ge 2 ]; then QX=$(( (RR + NR) / 2 )); QY=$(( (NT + NB) / 2 ))
+elif [ $(( RT - NT )) -ge 2 ]; then QX=$(( (NL + NR) / 2 )); QY=$(( (NT + RT) / 2 ))
+elif [ $(( NB - RB )) -ge 2 ]; then QX=$(( (NL + NR) / 2 )); QY=$(( (RB + NB) / 2 ))
+else fail "Registry Editor ($RL,$RT,$RR,$RB) covers all of Notepad ($NL,$NT,$NR,$NB)"
+fi
 
 # --- 5. taskbar buttons: click activates, minimizes, restores ---------------
 # Real clicks: Windows only lets the process that got the last input event
@@ -172,6 +214,9 @@ wait_state '^task=.*Notepad\|inactive,minimized' 10 || fail "clicking the active
 pass "click minimizes: $(task_line Notepad)"
 sleep 1
 shot 05-minimized
+# Where only Notepad was, the desktop must show again, not black or stale.
+wait_pixel "$QX" "$QY" "$DESK_RGB" 5 || fail "desktop not repainted where Notepad was minimized: pixel $QX,$QY is $(pixel "$QX" "$QY"), desktop is $DESK_RGB"
+pass "desktop repainted under the minimized Notepad ($QX,$QY = $DESK_RGB)"
 click $(task_xy Notepad)
 wait_state '^task=.*Notepad\|active\|' 10 || fail "clicking the minimized Notepad button did not restore it"
 pass "click restores: $(task_line Notepad)"
