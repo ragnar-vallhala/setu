@@ -2275,16 +2275,32 @@ void *WINAPI RtlReAllocateHeap( HANDLE handle, ULONG flags, void *ptr, SIZE_T si
  *  flags [I] HEAP_ flags from "winnt.h"
  *
  * RETURNS
- *  The number of bytes compacted.
- *
- * NOTES
- *  This function is a harmless stub.
+ *  The size of the largest committed free block in the heap. Free blocks
+ *  are already coalesced, so there is nothing else to compact.
  */
 ULONG WINAPI RtlCompactHeap( HANDLE handle, ULONG flags )
 {
-    static BOOL reported;
-    if (!reported++) FIXME( "handle %p, flags %#lx stub!\n", handle, flags );
-    return 0;
+    struct heap *heap;
+    SUBHEAP *subheap;
+    struct block *block;
+    ULONG heap_flags, size, largest = 0;
+
+    if (!(heap = unsafe_heap_from_handle( handle, flags, &heap_flags ))) return 0;
+
+    heap_lock( heap, heap_flags );
+    LIST_FOR_EACH_ENTRY( subheap, &heap->subheap_list, SUBHEAP, entry )
+    {
+        for (block = first_block( subheap ); block; block = next_block( subheap, block ))
+        {
+            if (!(block_get_flags( block ) & BLOCK_FLAG_FREE)) continue;
+            size = block_get_size( block ) - block_get_overhead( block );
+            if (size > largest) largest = size;
+        }
+    }
+    heap_unlock( heap, heap_flags );
+
+    TRACE( "handle %p, flags %#lx, return %#lx.\n", handle, flags, largest );
+    return largest;
 }
 
 
