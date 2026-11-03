@@ -1297,6 +1297,10 @@ static WCHAR *fixup_mask( const WCHAR *mask )
     return ret;
 }
 
+#ifndef FIND_FIRST_EX_ON_DISK_ENTRIES_ONLY
+#define FIND_FIRST_EX_ON_DISK_ENTRIES_ONLY 4
+#endif
+
 
 /******************************************************************************
  *	FindFirstFileExW   (kernelbase.@)
@@ -1316,9 +1320,19 @@ HANDLE WINAPI DECLSPEC_HOTPATCH FindFirstFileExW( LPCWSTR filename, FINDEX_INFO_
 
     TRACE( "%s %d %p %d %p %lx\n", debugstr_w(filename), level, data, search_op, filter, flags );
 
+    if (flags & ~(FIND_FIRST_EX_CASE_SENSITIVE | FIND_FIRST_EX_LARGE_FETCH | FIND_FIRST_EX_ON_DISK_ENTRIES_ONLY))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return INVALID_HANDLE_VALUE;
+    }
     if (flags & ~FIND_FIRST_EX_LARGE_FETCH)
     {
         FIXME("flags not implemented 0x%08lx\n", flags );
+    }
+    if (search_op == FindExSearchLimitToDevices)
+    {
+        SetLastError( ERROR_NOT_SUPPORTED );
+        return INVALID_HANDLE_VALUE;
     }
     if (search_op != FindExSearchNameMatch && search_op != FindExSearchLimitToDirectories)
     {
@@ -1625,7 +1639,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH FindNextFileW( HANDLE handle, WIN32_FIND_DATAW *da
         data->ftLastWriteTime  = *(FILETIME *)&dir_info->LastWriteTime;
         data->nFileSizeHigh    = dir_info->EndOfFile.QuadPart >> 32;
         data->nFileSizeLow     = (DWORD)dir_info->EndOfFile.QuadPart;
-        data->dwReserved0      = dir_info->ReparsePointTag;
+        /* the reparse tag, only set for a reparse point */
+        if (dir_info->FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+            data->dwReserved0  = dir_info->ReparsePointTag;
         data->dwReserved1      = 0;
 
         memcpy( data->cFileName, dir_info->FileName, dir_info->FileNameLength );
