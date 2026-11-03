@@ -75,6 +75,20 @@
       "last_error": "unchanged",
       "after_next": "timeout"
     },
+    "probe_attr_cleared_with_attr_filter": {
+      "before": "timeout",
+      "after": "signaled",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
+    "probe_attr_set_again_with_attr_filter": {
+      "before": "timeout",
+      "after": "signaled",
+      "next_ret": true,
+      "last_error": "unchanged",
+      "after_next": "timeout"
+    },
     "signal_size_with_size_filter": {
       "before": "timeout",
       "after": "signaled",
@@ -179,5 +193,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "8203cf68e16ef8aed56610265207c8f264a17498d57be6d44cc01c21e45ef15a"
+  "source_sha256": "314ca053d5109150f802303883fe23337acabf8f8cdfccaff8b63b6ca5e07f15"
 }

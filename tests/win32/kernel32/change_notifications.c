@@ -63,6 +63,7 @@ static void signal_case(const char *name, BOOL subtree, DWORD filter, void (*cha
 static void ch_create(void) { make_file(L"w\\new1.txt"); }
 static void ch_create_nested(void) { make_file(L"w\\sub\\nested.txt"); }
 static void ch_attr(void) { SetFileAttributesW(L"w\\new1.txt", FILE_ATTRIBUTE_HIDDEN); }
+static void ch_attr_clear(void) { SetFileAttributesW(L"w\\new1.txt", FILE_ATTRIBUTE_NORMAL); }
 static void ch_size(void)
 {
     HANDLE f = CreateFileW(L"w\\new1.txt", GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -189,6 +190,9 @@ int main(void)
     signal_case("signal_nested_subtree", TRUE, FILE_NOTIFY_CHANGE_FILE_NAME, ch_create_nested);
     signal_case("signal_attr_with_name_filter", FALSE, FILE_NOTIFY_CHANGE_FILE_NAME, ch_attr);
     signal_case("signal_attr_with_attr_filter", FALSE, FILE_NOTIFY_CHANGE_ATTRIBUTES, ch_attr);
+    /* Probes: the file is already HIDDEN here; an actual change of attributes. */
+    signal_case("probe_attr_cleared_with_attr_filter", FALSE, FILE_NOTIFY_CHANGE_ATTRIBUTES, ch_attr_clear);
+    signal_case("probe_attr_set_again_with_attr_filter", FALSE, FILE_NOTIFY_CHANGE_ATTRIBUTES, ch_attr);
     signal_case("signal_size_with_size_filter", FALSE, FILE_NOTIFY_CHANGE_SIZE, ch_size);
     signal_case("signal_mkdir_with_file_filter", FALSE, FILE_NOTIFY_CHANGE_FILE_NAME, ch_mkdir);
     RemoveDirectoryW(L"w\\newdir");
