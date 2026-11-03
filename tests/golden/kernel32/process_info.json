@@ -269,8 +269,123 @@
       "ret": false,
       "last_error": 6,
       "code": 2863311530
+    },
+    "probe_exit_code_fresh_event": {
+      "ret": true,
+      "last_error": 6,
+      "code": 0
+    },
+    "probe_exit_code_signaled_event": {
+      "ret": true,
+      "last_error": 6,
+      "code": 0
+    },
+    "probe_exit_code_mutex": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_semaphore": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_timer": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_file": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_section": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_job": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_completion_port": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_token": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_closed_handle": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_null": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_invalid_value": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 259
+    },
+    "probe_exit_code_bogus_value": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_event_sync_only": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_event_query_state": {
+      "ret": true,
+      "last_error": 6,
+      "code": 0
+    },
+    "probe_exit_code_event_modify_state": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_event_query_sync": {
+      "ret": true,
+      "last_error": 6,
+      "code": 0
+    },
+    "probe_exit_code_event_read_control": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_event_zero_access": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "probe_exit_code_named_event": {
+      "ret": true,
+      "last_error": 6,
+      "code": 0
+    },
+    "probe_nt_query_basic_event": {
+      "status": "0xc0000024",
+      "exit_status": "0xaaaaaaaa",
+      "got": 43690
+    },
+    "probe_nt_query_basic_semaphore": {
+      "status": "0xc0000024",
+      "exit_status": "0xaaaaaaaa",
+      "got": 43690
     }
   },
   "errors": [],
-  "source_sha256": "15a83a7cce5f479aa25d370bef073456951ac9666bc916f8d28bc856519bc489"
+  "source_sha256": "6c9bece9ac0d6d6e470b282748bc9d36afed88433d9f40589db48bd4e62090e1"
 }

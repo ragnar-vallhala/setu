@@ -173,8 +173,200 @@ static void timefmt_case(const char *name, DWORD flags, const wchar_t *fmt, WORD
 
 #define EPOCH_1970 116444736000000000ULL
 
-int main(void)
+/* ---- first-call probes ----
+ * Some calls set the last error to 0 only the first time they run in a
+ * process. Each probe runs in a fresh child process: it makes some earlier
+ * calls, then the probed call with the sentinel in place, and exits with the
+ * last error the probed call left. */
+static const SYSTEMTIME probe_st = {2024, 2, 4, 29, 13, 5, 9, 7};
+
+static void probe_tz(void)
 {
+    TIME_ZONE_INFORMATION tz = eastern();
+    SYSTEMTIME in = {2024, 1, 0, 15, 12, 0, 0, 0}, out;
+    SystemTimeToTzSpecificLocalTime(&tz, &in, &out);
+}
+
+static void probe_date(void)
+{
+    wchar_t buf[64];
+    GetDateFormatEx(LOCALE_NAME_INVARIANT, 0, &probe_st, NULL, buf, 64, NULL);
+}
+
+static void probe_cmp(void)
+{
+    CompareStringEx(LOCALE_NAME_INVARIANT, 0, L"abc", -1, L"abc", -1, NULL, NULL, 0);
+}
+
+static DWORD first_call_child(const char *which)
+{
+    TIME_ZONE_INFORMATION tz = eastern(), bad;
+    DYNAMIC_TIME_ZONE_INFORMATION dtz;
+    SYSTEMTIME in = {2024, 1, 0, 15, 12, 0, 0, 0}, out;
+    FILETIME f = ft_of(133537536000000000ULL), f2;
+    wchar_t buf[128];
+    void (*target)(void) = NULL;
+
+    bad = tz;
+    bad.DaylightDate.wMonth = 13;
+    if (!strcmp(which, "tz")) target = probe_tz;
+    else if (!strcmp(which, "tz_to_utc_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        TzSpecificLocalTimeToSystemTime(&tz, &in, &out);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "tz_after_to_utc")) { TzSpecificLocalTimeToSystemTime(&tz, &in, &out); target = probe_tz; }
+    else if (!strcmp(which, "tz_after_get_tzi")) { GetTimeZoneInformation(&tz); tz = eastern(); target = probe_tz; }
+    else if (!strcmp(which, "tz_after_get_dtzi")) { GetDynamicTimeZoneInformation(&dtz); target = probe_tz; }
+    else if (!strcmp(which, "tz_after_local_ft")) { FileTimeToLocalFileTime(&f, &f2); target = probe_tz; }
+    else if (!strcmp(which, "tz_after_bad_rule")) { SystemTimeToTzSpecificLocalTime(&bad, &in, &out); target = probe_tz; }
+    else if (!strcmp(which, "tz_after_null_tz")) { SystemTimeToTzSpecificLocalTime(NULL, &in, &out); target = probe_tz; }
+    else if (!strcmp(which, "tz_after_st2ft")) { SystemTimeToFileTime(&in, &f2); target = probe_tz; }
+    else if (!strcmp(which, "tz_after_date")) { probe_date(); target = probe_tz; }
+    else if (!strcmp(which, "tz_null_tz_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        SystemTimeToTzSpecificLocalTime(NULL, &in, &out);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "tz_bad_rule_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        SystemTimeToTzSpecificLocalTime(&bad, &in, &out);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "date")) target = probe_date;
+    else if (!strcmp(which, "date_after_cmp")) { probe_cmp(); target = probe_date; }
+    else if (!strcmp(which, "date_after_tz")) { probe_tz(); target = probe_date; }
+    else if (!strcmp(which, "date_after_lcid_date")) {
+        GetDateFormatW(LOCALE_INVARIANT, 0, &probe_st, NULL, buf, 128);
+        target = probe_date;
+    }
+    else if (!strcmp(which, "date_after_name_to_lcid")) { LocaleNameToLCID(L"en-US", 0); target = probe_date; }
+    else if (!strcmp(which, "date_after_valid_name")) { IsValidLocaleName(L"en-US"); target = probe_date; }
+    else if (!strcmp(which, "date_after_locale_info_ex")) {
+        GetLocaleInfoEx(LOCALE_NAME_INVARIANT, LOCALE_SNAME, buf, 128);
+        target = probe_date;
+    }
+    else if (!strcmp(which, "date_after_locale_info_w")) {
+        GetLocaleInfoW(LOCALE_INVARIANT, LOCALE_SNAME, buf, 128);
+        target = probe_date;
+    }
+    else if (!strcmp(which, "date_after_user_locale_name")) { GetUserDefaultLocaleName(buf, 128); target = probe_date; }
+    else if (!strcmp(which, "date_after_bad_flags")) {
+        GetDateFormatEx(LOCALE_NAME_INVARIANT, DATE_LONGDATE | DATE_SHORTDATE, &probe_st, NULL, buf, 128, NULL);
+        target = probe_date;
+    }
+    else if (!strcmp(which, "date_after_time")) {
+        GetTimeFormatEx(LOCALE_NAME_INVARIANT, 0, &probe_st, NULL, buf, 128);
+        target = probe_date;
+    }
+    else if (!strcmp(which, "date_lcid_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetDateFormatW(LOCALE_INVARIANT, 0, &probe_st, NULL, buf, 128);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "date_en_us_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetDateFormatEx(L"en-US", 0, &probe_st, NULL, buf, 128, NULL);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "date_custom_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetDateFormatEx(LOCALE_NAME_INVARIANT, 0, &probe_st, L"yyyy", buf, 128, NULL);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "date_user_default_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetDateFormatEx(NULL, 0, &probe_st, L"yyyy", buf, 128, NULL);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "time_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetTimeFormatEx(LOCALE_NAME_INVARIANT, 0, &probe_st, NULL, buf, 128);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "cmp")) target = probe_cmp;
+    else if (!strcmp(which, "cmp_after_date")) { probe_date(); target = probe_cmp; }
+    else if (!strcmp(which, "cmp_after_lcid_cmp")) {
+        CompareStringW(LOCALE_INVARIANT, 0, L"abc", -1, L"abc", -1);
+        target = probe_cmp;
+    }
+    else if (!strcmp(which, "cmp_after_ordinal")) { CompareStringOrdinal(L"a", -1, L"a", -1, FALSE); target = probe_cmp; }
+    else if (!strcmp(which, "cmp_after_name_to_lcid")) { LocaleNameToLCID(L"en-US", 0); target = probe_cmp; }
+    else if (!strcmp(which, "cmp_lcid_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        CompareStringW(LOCALE_INVARIANT, 0, L"abc", -1, L"abc", -1);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "cmp_en_us_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        CompareStringEx(L"en-US", 0, L"abc", -1, L"abc", -1, NULL, NULL, 0);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "cmp_ignore_case_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        CompareStringEx(LOCALE_NAME_INVARIANT, NORM_IGNORECASE, L"abc", -1, L"ABC", -1, NULL, NULL, 0);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "lcmap_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        LCMapStringEx(LOCALE_NAME_INVARIANT, LCMAP_LOWERCASE, L"ABC", -1, buf, 128, NULL, NULL, 0);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "name_to_lcid_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        LocaleNameToLCID(L"en-US", 0);
+        return GetLastError();
+    }
+    else if (!strcmp(which, "locale_info_ex_first")) {
+        SetLastError(ORACLE_SENTINEL);
+        GetLocaleInfoEx(LOCALE_NAME_INVARIANT, LOCALE_SNAME, buf, 128);
+        return GetLastError();
+    }
+    else return 0xBADBAD;
+
+    SetLastError(ORACLE_SENTINEL);
+    target();
+    return GetLastError();
+}
+
+static const char *const first_call_probes[] = {
+    "tz", "tz_to_utc_first", "tz_after_to_utc", "tz_after_get_tzi", "tz_after_get_dtzi", "tz_after_local_ft",
+    "tz_after_bad_rule", "tz_after_null_tz", "tz_after_st2ft", "tz_after_date", "tz_null_tz_first",
+    "tz_bad_rule_first", "date", "date_after_cmp", "date_after_tz", "date_after_lcid_date",
+    "date_after_name_to_lcid", "date_after_valid_name", "date_after_locale_info_ex", "date_after_locale_info_w",
+    "date_after_user_locale_name", "date_after_bad_flags", "date_after_time", "date_lcid_first",
+    "date_en_us_first", "date_custom_first", "date_user_default_first", "time_first", "cmp", "cmp_after_date",
+    "cmp_after_lcid_cmp", "cmp_after_ordinal", "cmp_after_name_to_lcid", "cmp_lcid_first", "cmp_en_us_first",
+    "cmp_ignore_case_first", "lcmap_first", "name_to_lcid_first", "locale_info_ex_first",
+};
+
+static void first_call_cases(void)
+{
+    char self[MAX_PATH], cmd[MAX_PATH + 64], name[96];
+    size_t i;
+    GetModuleFileNameA(NULL, self, MAX_PATH);
+    for (i = 0; i < sizeof first_call_probes / sizeof first_call_probes[0]; i++) {
+        STARTUPINFOA si = {.cb = sizeof si};
+        PROCESS_INFORMATION pi;
+        DWORD code = 0xAAAAAAAA;
+        snprintf(cmd, sizeof cmd, "\"%s\" first %s", self, first_call_probes[i]);
+        if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+            WaitForSingleObject(pi.hProcess, INFINITE);
+            GetExitCodeProcess(pi.hProcess, &code);
+            CloseHandle(pi.hThread);
+            CloseHandle(pi.hProcess);
+        }
+        snprintf(name, sizeof name, "probe_first_call_%s", first_call_probes[i]);
+        oracle_case(name);
+        if (code == ORACLE_SENTINEL) o_str("last_error", "unchanged");
+        else o_u32("last_error", code);
+        oracle_case_end();
+    }
+}
+
+int main(int argc, char **argv)
+{
+    if (argc > 2 && !strcmp(argv[1], "first")) return (int)first_call_child(argv[2]);
     oracle_begin("kernel32/time_conv");
 
     /* ---- FileTimeToSystemTime ---- */
@@ -405,6 +597,7 @@ int main(void)
         tz_case("probe_tz_bad_rule_day_6", &bad, 1, 2024, 7, 15, 12, 0);
     }
     datefmt_case("probe_date_default_again", 0, NULL, 2024, 2, 4, 29);
+    first_call_cases();
 
     return oracle_end();
 }

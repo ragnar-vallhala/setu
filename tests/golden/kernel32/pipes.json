@@ -605,8 +605,126 @@
     "info_on_file_handle": {
       "ret": false,
       "last_error": 87
+    },
+    "probe_pos_fresh_read_end": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_pos_set_10": {
+      "ret": "0x0000000a",
+      "last_error": "unchanged"
+    },
+    "probe_pos_write_end_untouched": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_pos_write_5": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 5
+    },
+    "probe_pos_read_end_after_write": {
+      "ret": "0x0000000a",
+      "last_error": "unchanged"
+    },
+    "probe_pos_write_end_after_write": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_pos_read_3": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 3,
+      "data": "68656c"
+    },
+    "probe_pos_read_end_after_read": {
+      "ret": "0x0000000a",
+      "last_error": "unchanged"
+    },
+    "probe_pos_end_with_data": {
+      "ret": "0x00000002",
+      "last_error": "unchanged"
+    },
+    "probe_pos_after_end_with_data": {
+      "ret": "0x00000002",
+      "last_error": "unchanged"
+    },
+    "probe_pos_read_rest": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "6c6f"
+    },
+    "probe_pos_current_plus_5": {
+      "ret": "0x00000007",
+      "last_error": "unchanged"
+    },
+    "probe_pos_negative": {
+      "ret": "0xffffffff",
+      "last_error": 131
+    },
+    "probe_pos_after_negative": {
+      "ret": "0x00000007",
+      "last_error": "unchanged"
+    },
+    "probe_pos_dup_sees": {
+      "ret": "0x00000007",
+      "last_error": "unchanged"
+    },
+    "probe_pos_dup_set_20": {
+      "ret": "0x00000014",
+      "last_error": "unchanged"
+    },
+    "probe_pos_orig_after_dup_set": {
+      "ret": "0x00000014",
+      "last_error": "unchanged"
+    },
+    "probe_pos_write_end_set_7": {
+      "ret": "0x00000007",
+      "last_error": "unchanged"
+    },
+    "probe_pos_write_2": {
+      "ret": true,
+      "last_error": "unchanged",
+      "written": 2
+    },
+    "probe_pos_write_end_after_set_write": {
+      "ret": "0x00000007",
+      "last_error": "unchanged"
+    },
+    "probe_pos_read_2": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "6162"
+    },
+    "probe_pos_read_end_final": {
+      "ret": "0x00000014",
+      "last_error": "unchanged"
+    },
+    "probe_pos_huge": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "probe_pos_after_huge": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "probe_pos_named_server_set_4": {
+      "ret": "0x00000004",
+      "last_error": "unchanged"
+    },
+    "probe_pos_named_client": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "probe_pos_named_server": {
+      "ret": "0x00000004",
+      "last_error": "unchanged"
     }
   },
   "errors": [],
-  "source_sha256": "c693f37876c37ddf2f4f8ecb0fa21d5a67ca65033e63bc7025cf2ef49033f3e5"
+  "source_sha256": "c3ca09784ac4eb3038eb9a95b765f204d448c0a4c14774065b3e3d82fa5f2b15"
 }

@@ -205,5 +205,52 @@ int main(void)
         oracle_case_end();
     }
 
+    {   /* Probes: positions far beyond what a file can hold. */
+        char buf[8];
+        BOOL ok;
+        h = CreateFileW(L"p.bin", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                        CREATE_ALWAYS, 0, NULL);
+        WriteFile(h, "0123456789", 10, &n, NULL);
+        seek_case("probe_huge", 0x7fffffffffffffffLL, FILE_BEGIN);
+        n = 77;
+        ORACLE_CALL(ok, ReadFile(h, buf, sizeof buf, &n, NULL));
+        oracle_case("probe_read_at_huge");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_u32("read", n);
+        oracle_case_end();
+        seek_case("probe_current_after_huge_read", 0, FILE_CURRENT);
+        seek_case("probe_current_overflow", 1, FILE_CURRENT);
+        seek_case("probe_current_after_overflow", 0, FILE_CURRENT);
+        seek_case("probe_current_back_to_zero", -0x7fffffffffffffffLL, FILE_CURRENT);
+        seek_case("probe_huge_minus_1", 0x7ffffffffffffffeLL, FILE_BEGIN);
+        seek_case("probe_current_plus_1", 1, FILE_CURRENT);
+        seek_case("probe_end_after_huge", 0, FILE_END);
+        seek_case("probe_current_after_end", 0, FILE_CURRENT);
+        seek_case("probe_16tib", 0x100000000000LL, FILE_BEGIN);
+        seek_case("probe_current_16tib", 0, FILE_CURRENT);
+        seek_case("probe_1pib", 0x4000000000000LL, FILE_BEGIN);
+        seek_case("probe_current_1pib", 0, FILE_CURRENT);
+        seek_case("probe_3", 3, FILE_BEGIN);
+        n = 77;
+        ORACLE_CALL(ok, ReadFile(h, buf, 2, &n, NULL));
+        oracle_case("probe_read_after_huge_reset");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_u32("read", n);
+        o_bytes("data", buf, n <= 2 ? n : 0);
+        oracle_case_end();
+        seek_case("probe_huge_again", 0x7fffffffffffffffLL, FILE_BEGIN);
+        {   /* a second handle to the same file has its own position */
+            HANDLE h1 = h;
+            h = CreateFileW(L"p.bin", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+            seek_case("probe_other_handle_current", 0, FILE_CURRENT);
+            CloseHandle(h);
+            h = h1;
+            seek_case("probe_first_handle_current", 0, FILE_CURRENT);
+        }
+        CloseHandle(h);
+    }
+
     return oracle_end();
 }

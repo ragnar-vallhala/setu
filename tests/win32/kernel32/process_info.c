@@ -393,5 +393,94 @@ int main(int argc, char **argv)
         CloseHandle(t);
     }
 
+    /* ---- probes: GetExitCodeProcess on other object types ---- */
+    {
+        HANDLE x;
+        x = CreateEventW(NULL, FALSE, FALSE, NULL);
+        exit_code_case("probe_exit_code_fresh_event", x);
+        CloseHandle(x);
+        x = CreateEventW(NULL, TRUE, TRUE, NULL);
+        exit_code_case("probe_exit_code_signaled_event", x);
+        CloseHandle(x);
+        x = CreateMutexW(NULL, FALSE, NULL);
+        exit_code_case("probe_exit_code_mutex", x);
+        CloseHandle(x);
+        x = CreateSemaphoreW(NULL, 1, 2, NULL);
+        exit_code_case("probe_exit_code_semaphore", x);
+        CloseHandle(x);
+        x = CreateWaitableTimerW(NULL, TRUE, NULL);
+        exit_code_case("probe_exit_code_timer", x);
+        CloseHandle(x);
+        x = CreateFileW(L"pi_probe.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                        FILE_FLAG_DELETE_ON_CLOSE, NULL);
+        exit_code_case("probe_exit_code_file", x);
+        CloseHandle(x);
+        x = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 4096, NULL);
+        exit_code_case("probe_exit_code_section", x);
+        CloseHandle(x);
+        x = CreateJobObjectW(NULL, NULL);
+        exit_code_case("probe_exit_code_job", x);
+        CloseHandle(x);
+        x = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
+        exit_code_case("probe_exit_code_completion_port", x);
+        CloseHandle(x);
+        x = NULL;
+        OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &x);
+        exit_code_case("probe_exit_code_token", x);
+        CloseHandle(x);
+        x = CreateEventW(NULL, FALSE, FALSE, NULL);
+        CloseHandle(x);
+        exit_code_case("probe_exit_code_closed_handle", x);
+        exit_code_case("probe_exit_code_null", NULL);
+        exit_code_case("probe_exit_code_invalid_value", INVALID_HANDLE_VALUE);
+        exit_code_case("probe_exit_code_bogus_value", (HANDLE)(ULONG_PTR)0x123454);
+        x = CreateEventW(NULL, FALSE, FALSE, NULL);
+        HANDLE ro = NULL;
+        DuplicateHandle(GetCurrentProcess(), x, GetCurrentProcess(), &ro, SYNCHRONIZE, FALSE, 0);
+        exit_code_case("probe_exit_code_event_sync_only", ro);
+        CloseHandle(ro);
+        static const struct { const char *name; DWORD access; } ev_access[] = {
+            {"probe_exit_code_event_query_state", 0x0001 /* EVENT_QUERY_STATE */},
+            {"probe_exit_code_event_modify_state", EVENT_MODIFY_STATE},
+            {"probe_exit_code_event_query_sync", 0x0001 | SYNCHRONIZE},
+            {"probe_exit_code_event_read_control", READ_CONTROL},
+            {"probe_exit_code_event_zero_access", 0},
+        };
+        for (size_t i = 0; i < sizeof ev_access / sizeof ev_access[0]; i++) {
+            ro = NULL;
+            DuplicateHandle(GetCurrentProcess(), x, GetCurrentProcess(), &ro, ev_access[i].access, FALSE, 0);
+            exit_code_case(ev_access[i].name, ro);
+            CloseHandle(ro);
+        }
+        CloseHandle(x);
+        x = CreateEventW(NULL, TRUE, FALSE, L"SetuOracle_pi_named_event");
+        exit_code_case("probe_exit_code_named_event", x);
+        CloseHandle(x);
+        /* the same through ntdll */
+        typedef LONG(WINAPI * nqip_fn)(HANDLE, int, void *, ULONG, ULONG *);
+        nqip_fn nqip = (nqip_fn)(void (*)(void))GetProcAddress(GetModuleHandleW(L"ntdll.dll"),
+                                                               "NtQueryInformationProcess");
+        struct { LONG_PTR exit_status; void *peb; ULONG_PTR affinity, prio, pid, ppid; } pbi;
+        ULONG got = 0xaaaa;
+        LONG st;
+        x = CreateEventW(NULL, FALSE, FALSE, NULL);
+        memset(&pbi, 0xaa, sizeof pbi);
+        st = nqip(x, 0 /* ProcessBasicInformation */, &pbi, sizeof pbi, &got);
+        oracle_case("probe_nt_query_basic_event");
+        o_hex32("status", (DWORD)st);
+        o_hex32("exit_status", (DWORD)pbi.exit_status);
+        o_u32("got", got);
+        oracle_case_end();
+        got = 0xaaaa;
+        memset(&pbi, 0xaa, sizeof pbi);
+        st = nqip(CreateSemaphoreW(NULL, 1, 2, NULL), 0, &pbi, sizeof pbi, &got);
+        oracle_case("probe_nt_query_basic_semaphore");
+        o_hex32("status", (DWORD)st);
+        o_hex32("exit_status", (DWORD)pbi.exit_status);
+        o_u32("got", got);
+        oracle_case_end();
+        CloseHandle(x);
+    }
+
     return oracle_end();
 }

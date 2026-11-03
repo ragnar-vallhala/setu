@@ -382,5 +382,75 @@ int main(void)
         CloseHandle(f);
     }
 
+    /* Probes: the file position of a pipe. Is it kept per file object or
+     * per handle, and do reads and writes move it? */
+    {
+        HANDLE r, w, dup = NULL;
+        DWORD p;
+        LARGE_INTEGER d, np;
+        BOOL ok;
+        CreatePipe(&r, &w, NULL, 0);
+#define POS_CASE(name, h, dist, method)                       \
+    do {                                                      \
+        ORACLE_CALL(p, SetFilePointer((h), (dist), NULL, (method))); \
+        oracle_case(name);                                    \
+        o_hex32("ret", p);                                    \
+        o_lasterr();                                          \
+        oracle_case_end();                                    \
+    } while (0)
+        POS_CASE("probe_pos_fresh_read_end", r, 0, FILE_CURRENT);
+        POS_CASE("probe_pos_set_10", r, 10, FILE_BEGIN);
+        POS_CASE("probe_pos_write_end_untouched", w, 0, FILE_CURRENT);
+        write_case("probe_pos_write_5", w, "hello", 5);
+        POS_CASE("probe_pos_read_end_after_write", r, 0, FILE_CURRENT);
+        POS_CASE("probe_pos_write_end_after_write", w, 0, FILE_CURRENT);
+        read_case("probe_pos_read_3", r, 3);
+        POS_CASE("probe_pos_read_end_after_read", r, 0, FILE_CURRENT);
+        POS_CASE("probe_pos_end_with_data", r, 0, FILE_END);
+        POS_CASE("probe_pos_after_end_with_data", r, 0, FILE_CURRENT);
+        read_case("probe_pos_read_rest", r, 16);
+        POS_CASE("probe_pos_current_plus_5", r, 5, FILE_CURRENT);
+        POS_CASE("probe_pos_negative", r, -1, FILE_BEGIN);
+        POS_CASE("probe_pos_after_negative", r, 0, FILE_CURRENT);
+        DuplicateHandle(GetCurrentProcess(), r, GetCurrentProcess(), &dup, 0, FALSE, DUPLICATE_SAME_ACCESS);
+        POS_CASE("probe_pos_dup_sees", dup, 0, FILE_CURRENT);
+        POS_CASE("probe_pos_dup_set_20", dup, 20, FILE_BEGIN);
+        POS_CASE("probe_pos_orig_after_dup_set", r, 0, FILE_CURRENT);
+        CloseHandle(dup);
+        POS_CASE("probe_pos_write_end_set_7", w, 7, FILE_BEGIN);
+        write_case("probe_pos_write_2", w, "ab", 2);
+        POS_CASE("probe_pos_write_end_after_set_write", w, 0, FILE_CURRENT);
+        read_case("probe_pos_read_2", r, 2);
+        POS_CASE("probe_pos_read_end_final", r, 0, FILE_CURRENT);
+        d.QuadPart = 0x7fffffffffffffffLL;
+        np.QuadPart = -12345;
+        ORACLE_CALL(ok, SetFilePointerEx(r, d, &np, FILE_BEGIN));
+        oracle_case("probe_pos_huge");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_i64("new_pos", np.QuadPart);
+        oracle_case_end();
+        d.QuadPart = 0;
+        np.QuadPart = -12345;
+        ORACLE_CALL(ok, SetFilePointerEx(r, d, &np, FILE_CURRENT));
+        oracle_case("probe_pos_after_huge");
+        o_bool("ret", ok);
+        o_lasterr();
+        o_i64("new_pos", np.QuadPart);
+        oracle_case_end();
+        CloseHandle(r);
+        CloseHandle(w);
+
+        /* named pipe: server and client ends */
+        HANDLE s = CreateNamedPipeW(PIPE("pos"), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE, 1, 0, 0, 0, NULL);
+        HANDLE c = CreateFileW(PIPE("pos"), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+        POS_CASE("probe_pos_named_server_set_4", s, 4, FILE_BEGIN);
+        POS_CASE("probe_pos_named_client", c, 0, FILE_CURRENT);
+        POS_CASE("probe_pos_named_server", s, 0, FILE_CURRENT);
+        CloseHandle(c);
+        CloseHandle(s);
+#undef POS_CASE
+    }
+
     return oracle_end();
 }

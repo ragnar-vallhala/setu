@@ -148,8 +148,104 @@
     "size_invalid_handle": {
       "ret": false,
       "last_error": 6
+    },
+    "probe_huge": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "probe_read_at_huge": {
+      "ret": false,
+      "last_error": 87,
+      "read": 0
+    },
+    "probe_current_after_huge_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "probe_current_overflow": {
+      "ret": false,
+      "last_error": 131,
+      "new_pos": -12345
+    },
+    "probe_current_after_overflow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "probe_current_back_to_zero": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 0
+    },
+    "probe_huge_minus_1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775806
+    },
+    "probe_current_plus_1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "probe_end_after_huge": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 10
+    },
+    "probe_current_after_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 10
+    },
+    "probe_16tib": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 17592186044416
+    },
+    "probe_current_16tib": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 17592186044416
+    },
+    "probe_1pib": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 1125899906842624
+    },
+    "probe_current_1pib": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 1125899906842624
+    },
+    "probe_3": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 3
+    },
+    "probe_read_after_huge_reset": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 2,
+      "data": "3334"
+    },
+    "probe_huge_again": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
+    },
+    "probe_other_handle_current": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 0
+    },
+    "probe_first_handle_current": {
+      "ret": true,
+      "last_error": "unchanged",
+      "new_pos": 9223372036854775807
     }
   },
   "errors": [],
-  "source_sha256": "f7f5f168528b9060c1cd4187bee384cd65ffbb9c28e5398f68b1e8ae9eb729b5"
+  "source_sha256": "80caf893cd9c6d8ec20380384b9b1ccb62bbd0040bda5c0db307d6bf4c293b24"
 }
