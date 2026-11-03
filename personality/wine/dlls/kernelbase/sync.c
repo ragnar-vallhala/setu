@@ -1026,9 +1026,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH InitializeCriticalSectionAndSpinCount( CRITICAL_SE
 BOOL WINAPI DECLSPEC_HOTPATCH InitializeCriticalSectionEx( CRITICAL_SECTION *crit, DWORD spincount,
                                                            DWORD flags )
 {
-    NTSTATUS ret = RtlInitializeCriticalSectionEx( crit, spincount, flags );
-    if (ret) RtlRaiseStatus( ret );
-    return !ret;
+    return set_ntstatus( RtlInitializeCriticalSectionEx( crit, spincount, flags ));
 }
 
 

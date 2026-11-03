@@ -213,7 +213,9 @@ NTSTATUS WINAPI RtlInitializeCriticalSection( RTL_CRITICAL_SECTION *crit )
  */
 NTSTATUS WINAPI RtlInitializeCriticalSectionAndSpinCount( RTL_CRITICAL_SECTION *crit, ULONG spincount )
 {
-    return RtlInitializeCriticalSectionEx( crit, spincount, crit_sect_default_flags() );
+    /* The flag bits of the spin count are ignored here, not rejected. */
+    return RtlInitializeCriticalSectionEx( crit, spincount & ~RTL_CRITICAL_SECTION_ALL_FLAG_BITS,
+                                           crit_sect_default_flags() );
 }
 
 
@@ -222,6 +224,9 @@ NTSTATUS WINAPI RtlInitializeCriticalSectionAndSpinCount( RTL_CRITICAL_SECTION *
  */
 NTSTATUS WINAPI RtlInitializeCriticalSectionEx( RTL_CRITICAL_SECTION *crit, ULONG spincount, ULONG flags )
 {
+    if ((spincount & RTL_CRITICAL_SECTION_ALL_FLAG_BITS) || (flags & RTL_CRITICAL_SECTION_FLAG_RESERVED))
+        return STATUS_INVALID_PARAMETER;
+
     if (flags & (RTL_CRITICAL_SECTION_FLAG_DYNAMIC_SPIN|RTL_CRITICAL_SECTION_FLAG_STATIC_INIT))
         FIXME("(%p,%lu,0x%08lx) semi-stub\n", crit, spincount, flags);
 
@@ -252,8 +257,10 @@ NTSTATUS WINAPI RtlInitializeCriticalSectionEx( RTL_CRITICAL_SECTION *crit, ULON
     crit->RecursionCount = 0;
     crit->OwningThread   = 0;
     crit->LockSemaphore  = 0;
+    /* A spin count of 0 selects the default of 2000, except for static init. */
+    if (!spincount && !(flags & RTL_CRITICAL_SECTION_FLAG_STATIC_INIT)) spincount = 2000;
     if (NtCurrentTeb()->Peb->NumberOfProcessors <= 1) spincount = 0;
-    crit->SpinCount = spincount & ~0x80000000;
+    crit->SpinCount = spincount;
     return STATUS_SUCCESS;
 }
 
@@ -264,6 +271,7 @@ NTSTATUS WINAPI RtlInitializeCriticalSectionEx( RTL_CRITICAL_SECTION *crit, ULON
 ULONG WINAPI RtlSetCriticalSectionSpinCount( RTL_CRITICAL_SECTION *crit, ULONG spincount )
 {
     ULONG oldspincount = crit->SpinCount;
+    spincount &= ~RTL_CRITICAL_SECTION_ALL_FLAG_BITS;
     if (NtCurrentTeb()->Peb->NumberOfProcessors <= 1) spincount = 0;
     crit->SpinCount = spincount;
     return oldspincount;
