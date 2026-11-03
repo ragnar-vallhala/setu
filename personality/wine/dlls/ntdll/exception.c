@@ -144,7 +144,7 @@ static ULONG remove_vectored_handler( struct list *handler_list, VECTORED_HANDLE
  *
  * Call the vectored handlers chain.
  */
-static LONG call_vectored_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
+static LONG call_handler_list( struct list *list, EXCEPTION_RECORD *rec, CONTEXT *context )
 {
     struct list *ptr;
     LONG ret = EXCEPTION_CONTINUE_SEARCH;
@@ -156,7 +156,7 @@ static LONG call_vectored_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
     except_ptrs.ContextRecord = context;
 
     RtlEnterCriticalSection( &vectored_handlers_section );
-    ptr = list_head( &vectored_exception_handlers );
+    ptr = list_head( list );
     while (ptr)
     {
         handler = LIST_ENTRY( ptr, VECTORED_HANDLER, entry );
@@ -172,7 +172,7 @@ static LONG call_vectored_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
         TRACE( "handler at %p returned %lx\n", func, ret );
 
         RtlEnterCriticalSection( &vectored_handlers_section );
-        ptr = list_next( &vectored_exception_handlers, ptr );
+        ptr = list_next( list, ptr );
         if (!--handler->count)  /* removed during execution */
         {
             list_remove( &handler->entry );
@@ -183,6 +183,18 @@ static LONG call_vectored_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
     RtlLeaveCriticalSection( &vectored_handlers_section );
     RtlFreeHeap( GetProcessHeap(), 0, to_free );
     return ret;
+}
+
+static LONG call_vectored_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
+{
+    return call_handler_list( &vectored_exception_handlers, rec, context );
+}
+
+/* Vectored continue handlers run when a vectored handler has decided to
+ * continue execution. */
+static void call_vectored_continue_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
+{
+    call_handler_list( &vectored_continue_handlers, rec, context );
 }
 
 
@@ -247,7 +259,10 @@ NTSTATUS WINAPI dispatch_exception( EXCEPTION_RECORD *rec, CONTEXT *context )
     TRACE_CONTEXT( context );
 
     if (call_vectored_handlers( rec, context ) == EXCEPTION_CONTINUE_EXECUTION)
+    {
+        call_vectored_continue_handlers( rec, context );
         NtContinue( context, FALSE );
+    }
 
     if ((status = call_seh_handlers( rec, context )) == STATUS_SUCCESS)
         NtContinue( context, FALSE );
