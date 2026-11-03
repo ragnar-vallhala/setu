@@ -2285,6 +2285,7 @@
     "kernel32/change_notifications:signal_mkdir_with_dir_filter",
     "kernel32/change_notifications:signal_mkdir_with_file_filter",
     "kernel32/change_notifications:signal_nested_no_subtree",
+    "kernel32/change_notifications:signal_nested_subtree",
     "kernel32/change_notifications:signal_nothing",
     "kernel32/change_notifications:signal_outside_change",
     "kernel32/change_notifications:signal_rename",

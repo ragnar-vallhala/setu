@@ -823,6 +823,42 @@ end:
     free( path );
 }
 
+/* a recursive watch also covers the subdirectories that exist when it starts */
+static void inode_check_subdirs( struct inode *inode, int depth )
+{
+    struct inode *child;
+    struct dirent *de;
+    struct stat st;
+    char *path;
+    DIR *dirp;
+
+    if (depth > 64 || !(path = inode_get_path( inode, 0 ))) return;
+    dirp = opendir( path );
+    free( path );
+    if (!dirp) return;
+
+    while ((de = readdir( dirp )))
+    {
+        if (!strcmp( de->d_name, "." ) || !strcmp( de->d_name, ".." )) continue;
+        if (de->d_type != DT_DIR)
+        {
+            if (de->d_type != DT_UNKNOWN) continue;
+            if (!(path = inode_get_path( inode, strlen( de->d_name ) ))) continue;
+            strcat( path, de->d_name );
+            if (lstat( path, &st ) == -1 || !S_ISDIR( st.st_mode ))
+            {
+                free( path );
+                continue;
+            }
+            free( path );
+        }
+        inode_check_dir( inode, de->d_name );
+        if ((child = inode_from_name( inode, de->d_name )) && child->wd != -1)
+            inode_check_subdirs( child, depth + 1 );
+    }
+    closedir( dirp );
+}
+
 static int prepend( char **path, const char *segment )
 {
     int extra;
@@ -1147,6 +1183,10 @@ static void dir_add_to_existing_notify( struct dir *dir )
 {
 }
 
+static void inode_check_subdirs( struct inode *inode, int depth )
+{
+}
+
 #endif  /* HAVE_SYS_INOTIFY_H */
 
 struct object *create_dir_obj( struct fd *fd, unsigned int access, mode_t mode )
@@ -1205,6 +1245,7 @@ DECL_HANDLER(read_directory_changes)
 {
     struct dir *dir;
     struct async *async;
+    int first = 0;
 
     if (!req->filter)
     {
@@ -1244,6 +1285,7 @@ DECL_HANDLER(read_directory_changes)
         dir->filter = req->filter;
         dir->subtree = req->subtree;
         dir->want_data = req->want_data;
+        first = 1;
     }
 
     /* if there's already a change in the queue, send it */
@@ -1253,6 +1295,8 @@ DECL_HANDLER(read_directory_changes)
     /* setup the real notification */
     if (!inotify_adjust_changes( dir ))
         dnotify_adjust_changes( dir );
+    else if (first && dir->subtree)
+        inode_check_subdirs( dir->inode, 0 );
 
     set_error(STATUS_PENDING);
 
