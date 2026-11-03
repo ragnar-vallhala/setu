@@ -1,0 +1,276 @@
+{
+  "test": "kernel32/process_info",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "process_id_pseudo": {
+      "matches_current": true,
+      "last_error": "unchanged"
+    },
+    "process_id_of_current_thread": {
+      "matches_current": true,
+      "last_error": "unchanged"
+    },
+    "process_id_null": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "process_id_event_handle": {
+      "ret": 0,
+      "last_error": 6
+    },
+    "exit_code_event_handle": {
+      "ret": true,
+      "last_error": 6,
+      "code": 0
+    },
+    "open_self_all_access": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_self_zero_access": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "open_self_query_limited": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_pid_zero": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "open_pid_bogus": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "open_pid_odd": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_self_bad_access_bits": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "open_inheritable": {
+      "inherit_flag": true
+    },
+    "exit_code_self_pseudo": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 259
+    },
+    "times_self": {
+      "ret": true,
+      "last_error": "unchanged",
+      "creation_before_now": true,
+      "creation_recent": true,
+      "exit_zero": true,
+      "kernel_lt_1h": true,
+      "user_lt_1h": true
+    },
+    "process_version_self_zero": {
+      "ret": "0x00050002",
+      "last_error": "unchanged"
+    },
+    "process_version_self_pid": {
+      "ret": "0x00050002",
+      "last_error": "unchanged"
+    },
+    "process_version_bogus_pid": {
+      "ret": "0x00000000",
+      "last_error": 87
+    },
+    "priority_class_default": {
+      "class": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "set_priority_below_normal": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "priority_class_after_set": {
+      "class": "0x00004000"
+    },
+    "set_priority_invalid": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "set_priority_two_classes": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "priority_class_after_invalid": {
+      "class": "0x00000040"
+    },
+    "image_name_win32": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_matches": true,
+      "suffix": true,
+      "drive_letter": true
+    },
+    "image_name_native": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len_matches": true,
+      "device_prefix": true,
+      "suffix": true
+    },
+    "image_name_small_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "len_after": 5
+    },
+    "image_name_bad_flags": {
+      "ret": false,
+      "last_error": 87
+    },
+    "affinity_mask": {
+      "ret": true,
+      "last_error": "unchanged",
+      "process_eq_system": true,
+      "system_eq_active_mask": true
+    },
+    "handle_count": {
+      "ret": true,
+      "last_error": "unchanged",
+      "positive": true
+    },
+    "handle_count_tracks_handles": {
+      "delta_after_10": 10,
+      "delta_after_close": 0
+    },
+    "working_set_size": {
+      "ret": true,
+      "last_error": "unchanged",
+      "min_lt_max": true,
+      "min_nonzero": true
+    },
+    "child_suspended_exit_code": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 259
+    },
+    "child_ids": {
+      "pid_matches": true,
+      "pid_of_thread": true,
+      "tid_matches": true,
+      "pid_differs": true
+    },
+    "process_version_child": {
+      "ret": "0x00050002",
+      "last_error": "unchanged"
+    },
+    "child_open_limited": {
+      "sync": "valid",
+      "query_limited": "valid"
+    },
+    "exit_code_sync_only_handle": {
+      "ret": false,
+      "last_error": 5,
+      "code": 2863311530
+    },
+    "exit_code_query_limited_handle": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 259
+    },
+    "process_id_sync_only_handle": {
+      "nonzero": false,
+      "last_error": 5
+    },
+    "times_sync_only_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "times_query_limited_handle": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "priority_class_sync_only_handle": {
+      "ret": "0x00000000",
+      "last_error": 5
+    },
+    "read_memory_query_limited_handle": {
+      "ret": false,
+      "last_error": 5,
+      "got": 0
+    },
+    "terminate_query_limited_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "terminate_sync_only_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "wait_query_limited_handle": {
+      "ret": "0xffffffff",
+      "last_error": 5
+    },
+    "wait_sync_only_handle_running": {
+      "ret": "0x00000102",
+      "last_error": "unchanged"
+    },
+    "child_exit_code": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 7
+    },
+    "child_exit_code_query_limited": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 7
+    },
+    "times_exited_child": {
+      "ret": true,
+      "exit_ge_creation": true,
+      "exit_nonzero": true
+    },
+    "open_exited_child_while_handle_held": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "terminate_exited_child": {
+      "ret": false,
+      "last_error": 5
+    },
+    "child_exit_code_after_terminate": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 7
+    },
+    "open_exited_child_after_all_closed": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "terminate_suspended_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "terminated_child_exit_code": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 3221225477
+    },
+    "child_exit_minus_1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "code": 4294967295
+    },
+    "exit_code_thread_handle": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    },
+    "exit_code_real_thread_handle": {
+      "ret": false,
+      "last_error": 6,
+      "code": 2863311530
+    }
+  },
+  "errors": [],
+  "source_sha256": "15a83a7cce5f479aa25d370bef073456951ac9666bc916f8d28bc856519bc489"
+}
