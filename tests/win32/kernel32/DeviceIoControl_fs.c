@@ -15,6 +15,9 @@
 #include <winioctl.h>
 
 static BYTE out[16384];
+/* Set for a call whose output holds machine-specific data (object ids):
+ * the case then shows only whether data came back. */
+static BOOL hide_out;
 
 static BOOL ioctl_case(const char *name, HANDLE h, DWORD code, void *in, DWORD in_len, DWORD out_len)
 {
@@ -27,7 +30,11 @@ static BOOL ioctl_case(const char *name, HANDLE h, DWORD code, void *in, DWORD i
     o_lasterr();
     if (ret == 0xAAAA) o_str("bytes", "untouched");
     else o_u32("bytes", ret);
-    if (r && ret && ret != 0xAAAA && ret <= 64) o_bytes("out", out, ret);
+    if (r && ret && ret != 0xAAAA && ret <= 64)
+    {
+        if (hide_out) o_bool("out_returned", TRUE);
+        else o_bytes("out", out, ret);
+    }
     oracle_case_end();
     return r;
 }
@@ -63,7 +70,9 @@ int main(void)
     ioctl_case("storage_ioctl_on_file", h, IOCTL_STORAGE_GET_DEVICE_NUMBER, NULL, 0, 64);
     ioctl_case("set_sparse_read_handle", h, FSCTL_SET_SPARSE, NULL, 0, 0);
     ioctl_case("is_volume_mounted_on_file", h, FSCTL_IS_VOLUME_MOUNTED, NULL, 0, 0);
+    hide_out = TRUE;
     ioctl_case("get_object_id_none", h, FSCTL_GET_OBJECT_ID, NULL, 0, sizeof(FILE_OBJECTID_BUFFER));
+    hide_out = FALSE;
     {
         FILE_ALLOCATED_RANGE_BUFFER q = {{{0}}, {{0}}};
         q.Length.QuadPart = 1 << 20;
