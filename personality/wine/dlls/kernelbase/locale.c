@@ -4146,8 +4146,12 @@ static int map_to_titlecase( const struct sortguid *sortid, DWORD flags,
         WCHAR ch = src[pos];
         BOOL alpha = (get_char_type( CT_CTYPE1, ch ) & C1_ALPHA) != 0;
 
-        dst[pos] = casemap( in_word ? lower : upper, ch );
-        in_word = alpha;
+        if (in_word) dst[pos] = casemap( lower, ch );
+        else if (ch >= 0x01c4 && ch <= 0x01cc) dst[pos] = 0x01c5 + (ch - 0x01c4) / 3 * 3; /* digraph title forms */
+        else if (ch >= 0x01f1 && ch <= 0x01f3) dst[pos] = 0x01f2;
+        else dst[pos] = casemap( upper, ch );
+        /* an apostrophe doesn't start a new word: "o'neil" -> "O'neil" */
+        in_word = alpha || (in_word && ch == '\'');
     }
     return srclen;
 }
@@ -6903,19 +6907,50 @@ INT WINAPI DECLSPEC_HOTPATCH LCMapStringEx( const WCHAR *locale, DWORD flags, co
 
     flags &= ~LOCALE_USE_CP_ACP;
 
+    if (src == dst && (flags & LCMAP_SORTKEY))
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
     if (src == dst && (flags & ~(LCMAP_LOWERCASE | LCMAP_UPPERCASE)))
     {
         SetLastError( ERROR_INVALID_FLAGS );
         return 0;
     }
-    if (flags & (LCMAP_LOWERCASE | LCMAP_UPPERCASE | LCMAP_SORTKEY))
+    /* sort keys and hashes can't be combined with case mappings */
+    if ((flags & (LCMAP_SORTKEY | LCMAP_HASH)) && (flags & (LCMAP_LOWERCASE | LCMAP_UPPERCASE)))
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
+    if (flags & (LCMAP_LOWERCASE | LCMAP_UPPERCASE | LCMAP_SORTKEY | LCMAP_HASH))
     {
         if (!(sortid = get_language_sort( locale ))) return 0;
     }
     if (flags & LCMAP_HASH)
     {
-        FIXME( "LCMAP_HASH %s not supported\n", debugstr_wn( src, srclen ));
-        return 0;
+        /* a hash of the sort key: strings that compare equal hash equal */
+        DWORD hash = 0x811c9dc5, keyflags = flags & ~(LCMAP_HASH | LCMAP_SORTKEY);
+        BYTE *key;
+        int i, len = get_sortkey( sortid, keyflags, src, srclen, NULL, 0 );
+
+        if (!len) return 0;
+        if (dstlen && dstlen < (int)sizeof(DWORD))
+        {
+            SetLastError( ERROR_INSUFFICIENT_BUFFER );
+            return 0;
+        }
+        if (!(key = HeapAlloc( GetProcessHeap(), 0, len )))
+        {
+            SetLastError( ERROR_NOT_ENOUGH_MEMORY );
+            return 0;
+        }
+        len = get_sortkey( sortid, keyflags, src, srclen, key, len );
+        for (i = 0; i < len; i++) hash = (hash ^ key[i]) * 0x01000193;
+        HeapFree( GetProcessHeap(), 0, key );
+        if (!hash) hash = 1;
+        if (dst && dstlen) memcpy( dst, &hash, sizeof(hash) );
+        return hash;
     }
     if (flags & LCMAP_SORTHANDLE)
     {
