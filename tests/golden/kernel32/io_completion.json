@@ -1,0 +1,222 @@
+{
+  "test": "kernel32/io_completion",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_port": {
+      "ret": "valid",
+      "last_error": "unchanged"
+    },
+    "get_empty_timeout_0": {
+      "ret": false,
+      "last_error": 258,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    },
+    "get_empty_timeout_10": {
+      "ret": false,
+      "last_error": 258,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    },
+    "post_1": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "post_2": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "post_max_bytes": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_first": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": "0x00000001",
+      "key": "0x00000011",
+      "ov": "0x00001000"
+    },
+    "get_second_null_overlapped": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": "0x00000002",
+      "key": "0x00000022",
+      "ov": "0x00000000"
+    },
+    "get_third_max_bytes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": "0xffffffff",
+      "key": "0x00000033",
+      "ov": "0x00003000"
+    },
+    "get_drained": {
+      "ret": false,
+      "last_error": 258,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    },
+    "wait_on_port_empty": {
+      "ret": "0x00000102",
+      "last_error": "unchanged"
+    },
+    "wait_on_port_with_packet": {
+      "ret": "0x00000000",
+      "last_error": "unchanged"
+    },
+    "get_after_wait_on_port": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bytes": "0x00000000",
+      "key": "0x00000001",
+      "ov": "0x00000000"
+    },
+    "get_ex_three_of_five": {
+      "ret": true,
+      "last_error": "unchanged",
+      "removed": 3,
+      "entries": "100/40/4000,101/41/4001,102/42/4002",
+      "internal0": "0x00000000"
+    },
+    "get_ex_remaining_two": {
+      "ret": true,
+      "last_error": "unchanged",
+      "removed": 2
+    },
+    "get_ex_empty": {
+      "ret": false,
+      "last_error": 258,
+      "removed": 1
+    },
+    "get_ex_count_zero": {
+      "ret": false,
+      "last_error": 87,
+      "removed": 85
+    },
+    "get_ex_not_alertable_apc_queued": {
+      "ret": false,
+      "last_error": 258,
+      "removed": 1
+    },
+    "get_ex_alertable_apc_queued": {
+      "ret": false,
+      "last_error": 192,
+      "removed": 1
+    },
+    "get_ex_alertable_packet_and_apc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "removed": 1
+    },
+    "post_to_event": {
+      "ret": false,
+      "last_error": 6
+    },
+    "get_from_event": {
+      "ret": false,
+      "last_error": 6,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    },
+    "post_to_null": {
+      "ret": false,
+      "last_error": 6
+    },
+    "create_with_event_as_port": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "associate_event": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "associate_file": {
+      "same_port": true,
+      "last_error": "unchanged"
+    },
+    "associate_file_second_port": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "read_with_port": {
+      "ret_or_pending": true,
+      "completed": true
+    },
+    "read_packet": {
+      "ret": true,
+      "bytes": 4,
+      "key": "0x000000f1",
+      "ov_matches": true
+    },
+    "other_port_empty": {
+      "ret": false,
+      "last_error": 258,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    },
+    "skip_on_success": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "skip_bad_flag": {
+      "ret": false,
+      "last_error": 87
+    },
+    "skip_on_success_packet": {
+      "read_sync": false,
+      "packet_iff_async": true
+    },
+    "pipe_no_packet_before_write": {
+      "ret": false,
+      "last_error": 258,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    },
+    "pipe_read_packet": {
+      "read_pending": true,
+      "ret": true,
+      "bytes": 5,
+      "key": "0x00000077",
+      "ov_matches": true
+    },
+    "pipe_broken_packet": {
+      "ret": false,
+      "error": 109,
+      "bytes": 0,
+      "ov_matches": true
+    },
+    "three_threads_three_packets": {
+      "all_got_one": true,
+      "key_sum": 111
+    },
+    "empty_after_threads": {
+      "ret": false,
+      "last_error": 258,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    },
+    "close_port": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "get_on_closed_port": {
+      "ret": false,
+      "last_error": 6,
+      "bytes": "0x00005555",
+      "key": "0x00005555",
+      "ov": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "89f2c186537606411d08750e86e9de7aadd953309a276f27e8ea7aea775ccaf5"
+}
