@@ -547,10 +547,8 @@ UINT WINAPI DECLSPEC_HOTPATCH GetLogicalDriveStringsW( UINT len, LPWSTR buffer )
 }
 
 
-/***********************************************************************
- *           GetDriveTypeW   (kernelbase.@)
- */
-UINT WINAPI DECLSPEC_HOTPATCH GetDriveTypeW( LPCWSTR root )
+/* the type of the drive whose root is "X:\" */
+static UINT get_root_drive_type( LPCWSTR root )
 {
     FILE_FS_DEVICE_INFORMATION info;
     IO_STATUS_BLOCK io;
@@ -593,6 +591,80 @@ UINT WINAPI DECLSPEC_HOTPATCH GetDriveTypeW( LPCWSTR root )
         }
     }
     TRACE( "%s -> %d\n", debugstr_w(root), ret );
+    return ret;
+}
+
+
+/***********************************************************************
+ *           GetDriveTypeW   (kernelbase.@)
+ *
+ * Only the root of a drive, or a directory named with a trailing
+ * backslash, has a drive type; for the directory the last error is
+ * ERROR_NOT_A_REPARSE_POINT, as it is not a volume mount point.
+ */
+UINT WINAPI DECLSPEC_HOTPATCH GetDriveTypeW( LPCWSTR root )
+{
+    DWORD error = GetLastError();
+    FILE_BASIC_INFORMATION basic;
+    OBJECT_ATTRIBUTES attr;
+    UNICODE_STRING nt_name;
+    WCHAR drive[4];
+    const WCHAR *p;
+    UINT len, ret;
+
+    if (!root)
+    {
+        ret = get_root_drive_type( NULL );
+        SetLastError( error );
+        return ret;
+    }
+    if (((root[0] | 0x20) >= 'a' && (root[0] | 0x20) <= 'z') && root[1] == ':' && !root[2])
+    {
+        drive[0] = root[0];
+        lstrcpyW( drive + 1, L":\\" );
+        ret = get_root_drive_type( drive );
+        SetLastError( error );
+        return ret;
+    }
+
+    if (!root[0] || (root[lstrlenW( root ) - 1] != '\\' && root[lstrlenW( root ) - 1] != '/'))
+        return DRIVE_NO_ROOT_DIR;
+    if (!RtlDosPathNameToNtPathName_U( root, &nt_name, NULL, NULL ))
+    {
+        SetLastError( error );
+        return DRIVE_NO_ROOT_DIR;
+    }
+
+    len = nt_name.Length / sizeof(WCHAR);
+    p = nt_name.Buffer + 4;  /* skip \??\ */
+    if (len < 7 || p[1] != ':' || p[2] != '\\')
+    {
+        RtlFreeUnicodeString( &nt_name );
+        SetLastError( error );
+        return DRIVE_NO_ROOT_DIR;
+    }
+    drive[0] = p[0];
+    lstrcpyW( drive + 1, L":\\" );
+
+    if (len == 7)
+    {
+        RtlFreeUnicodeString( &nt_name );
+        ret = get_root_drive_type( drive );
+        SetLastError( error );
+        return ret;
+    }
+
+    /* a directory: it would have to be a volume mount point */
+    InitializeObjectAttributes( &attr, &nt_name, OBJ_CASE_INSENSITIVE, 0, NULL );
+    if (NtQueryAttributesFile( &attr, &basic ) || !(basic.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+    {
+        RtlFreeUnicodeString( &nt_name );
+        SetLastError( error );
+        return DRIVE_NO_ROOT_DIR;
+    }
+    RtlFreeUnicodeString( &nt_name );
+    ret = get_root_drive_type( drive );
+    SetLastError( ERROR_NOT_A_REPARSE_POINT );
     return ret;
 }
 
