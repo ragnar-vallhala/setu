@@ -667,6 +667,21 @@ static void inotify_do_change_notify( struct dir *dir, unsigned int action,
     if (dir->want_data)
     {
         size_t len = strlen(relpath);
+        struct list *last = list_tail( &dir->change_records );
+
+        /* a change that only repeats the pending one isn't reported again: one
+         * attribute change on Windows may be several inotify events here */
+        if (last && action == FILE_ACTION_MODIFIED)
+        {
+            record = LIST_ENTRY( last, struct change_record, entry );
+            if (record->event.action == action && record->event.len == len &&
+                !memcmp( record->event.name, relpath, len ))
+            {
+                fd_async_wake_up( dir->fd, ASYNC_TYPE_WAIT, STATUS_ALERTED );
+                return;
+            }
+        }
+
         record = malloc( offsetof(struct change_record, event.name[len]) );
         if (!record)
             return;
