@@ -1109,9 +1109,10 @@ NTSTATUS WINAPI RtlSetCurrentDirectory_U(const UNICODE_STRING* dir)
         goto out;
     }
 
-    if (!RtlDosPathNameToNtPathName_U( dir->Buffer, &newdir, NULL, NULL ))
+    if ((nts = RtlDosPathNameToNtPathName_U_WithStatus( dir->Buffer, &newdir, NULL, NULL )))
     {
-        nts = STATUS_OBJECT_NAME_INVALID;
+        /* a path too long for a DOS path is reported as too long here */
+        nts = (nts == STATUS_OBJECT_PATH_NOT_FOUND) ? STATUS_NAME_TOO_LONG : STATUS_OBJECT_NAME_INVALID;
         goto out;
     }
 
