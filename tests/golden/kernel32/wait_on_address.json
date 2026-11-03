@@ -1,0 +1,86 @@
+{
+  "test": "kernel32/wait_on_address",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exports": {
+      "wait": true,
+      "wake_single": true,
+      "wake_all": true
+    },
+    "differs_returns_at_once": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "same_timeout_0": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "same_timeout_10": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "size_1_same": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "size_1_differs": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "size_2_same": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "size_8_same": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "size_8_high_half_differs": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "size_0": {
+      "ret": false,
+      "last_error": 87
+    },
+    "size_3": {
+      "ret": false,
+      "last_error": 87
+    },
+    "size_16": {
+      "ret": false,
+      "last_error": 87
+    },
+    "size_1_compares_low_byte_only": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "unaligned_4": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "unaligned_2": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "unaligned_8_by_4": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "wake_without_waiters": {
+      "survived": true
+    },
+    "wake_all_three": {
+      "joined": true,
+      "woken": 3
+    },
+    "wake_single_one": {
+      "joined": true,
+      "woken": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "0033175b289f2edc384e74939ebd1ba1f41adffd6644e195c3e7f8cd0103e98f"
+}
