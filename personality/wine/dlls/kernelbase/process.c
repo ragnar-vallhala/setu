@@ -621,6 +621,28 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR 
         }
     }
 
+    if (handle_list)
+    {
+        /* The listed handles must be inheritable, and inheritance must be on. */
+        const HANDLE *handles = handle_list->value;
+        SIZE_T i;
+        DWORD hflags;
+
+        if (!inherit)
+        {
+            status = STATUS_INVALID_PARAMETER;
+            goto done;
+        }
+        for (i = 0; i < handle_list->size / sizeof(HANDLE); i++)
+        {
+            if (!GetHandleInformation( handles[i], &hflags ) || !(hflags & HANDLE_FLAG_INHERIT))
+            {
+                status = STATUS_INVALID_PARAMETER;
+                goto done;
+            }
+        }
+    }
+
     if (inherit) nt_flags |= PROCESS_CREATE_FLAGS_INHERIT_HANDLES;
     if (flags & DEBUG_ONLY_THIS_PROCESS) nt_flags |= PROCESS_CREATE_FLAGS_NO_DEBUG_INHERIT;
     if (flags & CREATE_BREAKAWAY_FROM_JOB) nt_flags |= PROCESS_CREATE_FLAGS_BREAKAWAY;
@@ -1826,6 +1848,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH UpdateProcThreadAttribute( struct _PROC_THREAD_ATT
 
     TRACE( "(%p %lx %08Ix %p %Id %p %p)\n", list, flags, attr, value, size, prev_ret, size_ret );
 
+    if (flags)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
     if (list->count >= list->size)
     {
         SetLastError( ERROR_GEN_FAILURE );
