@@ -1189,15 +1189,16 @@ BOOL WINAPI DECLSPEC_HOTPATCH SetPriorityClass( HANDLE process, DWORD class )
     PROCESS_PRIORITY_CLASS ppc;
 
     ppc.Foreground = FALSE;
-    switch (class)
+    /* Windows tests the class bits one at a time, so a value with several
+     * (or unknown extra) bits picks the first class found, idle first. */
+    if (class & IDLE_PRIORITY_CLASS)              ppc.PriorityClass = PROCESS_PRIOCLASS_IDLE;
+    else if (class & BELOW_NORMAL_PRIORITY_CLASS) ppc.PriorityClass = PROCESS_PRIOCLASS_BELOW_NORMAL;
+    else if (class & NORMAL_PRIORITY_CLASS)       ppc.PriorityClass = PROCESS_PRIOCLASS_NORMAL;
+    else if (class & ABOVE_NORMAL_PRIORITY_CLASS) ppc.PriorityClass = PROCESS_PRIOCLASS_ABOVE_NORMAL;
+    else if (class & HIGH_PRIORITY_CLASS)         ppc.PriorityClass = PROCESS_PRIOCLASS_HIGH;
+    else if (class & REALTIME_PRIORITY_CLASS)     ppc.PriorityClass = PROCESS_PRIOCLASS_REALTIME;
+    else
     {
-    case IDLE_PRIORITY_CLASS:         ppc.PriorityClass = PROCESS_PRIOCLASS_IDLE; break;
-    case BELOW_NORMAL_PRIORITY_CLASS: ppc.PriorityClass = PROCESS_PRIOCLASS_BELOW_NORMAL; break;
-    case NORMAL_PRIORITY_CLASS:       ppc.PriorityClass = PROCESS_PRIOCLASS_NORMAL; break;
-    case ABOVE_NORMAL_PRIORITY_CLASS: ppc.PriorityClass = PROCESS_PRIOCLASS_ABOVE_NORMAL; break;
-    case HIGH_PRIORITY_CLASS:         ppc.PriorityClass = PROCESS_PRIOCLASS_HIGH; break;
-    case REALTIME_PRIORITY_CLASS:     ppc.PriorityClass = PROCESS_PRIOCLASS_REALTIME; break;
-    default:
         SetLastError( ERROR_INVALID_PARAMETER );
         return FALSE;
     }
