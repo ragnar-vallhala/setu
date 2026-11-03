@@ -162,10 +162,12 @@ BOOL WINAPI SetDllDirectoryW( LPCWSTR dir )
  *  flags in the header.
  *
  *  ".com" and ".pif" files are only recognized by their file name extension,
- *  as per native Windows.
+ *  as per native Windows; so is an ".exe" file without an MZ header, as a DOS
+ *  executable.
  */
 BOOL WINAPI GetBinaryTypeW( LPCWSTR name, LPDWORD type )
 {
+    DWORD err = GetLastError(), binary_type;
     HANDLE hfile, mapping;
     NTSTATUS status;
     const WCHAR *ptr;
@@ -173,6 +175,11 @@ BOOL WINAPI GetBinaryTypeW( LPCWSTR name, LPDWORD type )
     TRACE("%s\n", debugstr_w(name) );
 
     if (type == NULL) return FALSE;
+    if (name && !name[0])
+    {
+        SetLastError( ERROR_INVALID_NAME );
+        return FALSE;
+    }
 
     hfile = CreateFileW( name, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0 );
     if ( hfile == INVALID_HANDLE_VALUE )
@@ -182,6 +189,7 @@ BOOL WINAPI GetBinaryTypeW( LPCWSTR name, LPDWORD type )
                               NULL, NULL, PAGE_READONLY, SEC_IMAGE, hfile );
     CloseHandle( hfile );
 
+    /* anything that isn't an executable fails with ERROR_BAD_EXE_FORMAT */
     switch (status)
     {
     case STATUS_SUCCESS:
@@ -190,54 +198,52 @@ BOOL WINAPI GetBinaryTypeW( LPCWSTR name, LPDWORD type )
 
             status = NtQuerySection( mapping, SectionImageInformation, &info, sizeof(info), NULL );
             CloseHandle( mapping );
-            if (status) return FALSE;
-            if (info.ImageCharacteristics & IMAGE_FILE_DLL) return FALSE;
+            if (status || (info.ImageCharacteristics & IMAGE_FILE_DLL)) goto bad_format;
             switch (info.Machine)
             {
             case IMAGE_FILE_MACHINE_I386:
             case IMAGE_FILE_MACHINE_ARMNT:
-                *type = SCS_32BIT_BINARY;
-                return TRUE;
+                binary_type = SCS_32BIT_BINARY;
+                break;
             case IMAGE_FILE_MACHINE_AMD64:
             case IMAGE_FILE_MACHINE_ARM64:
-                *type = SCS_64BIT_BINARY;
-                return TRUE;
+                binary_type = SCS_64BIT_BINARY;
+                break;
+            default:
+                goto bad_format;
             }
-            return FALSE;
+            break;
         }
     case STATUS_INVALID_IMAGE_WIN_16:
-        *type = SCS_WOW_BINARY;
-        return TRUE;
+        binary_type = SCS_WOW_BINARY;
+        break;
     case STATUS_INVALID_IMAGE_WIN_32:
-        *type = SCS_32BIT_BINARY;
-        return TRUE;
+        binary_type = SCS_32BIT_BINARY;
+        break;
     case STATUS_INVALID_IMAGE_WIN_64:
-        *type = SCS_64BIT_BINARY;
-        return TRUE;
-    case STATUS_INVALID_IMAGE_NE_FORMAT:
-        *type = SCS_OS216_BINARY;
-        return TRUE;
+        binary_type = SCS_64BIT_BINARY;
+        break;
+    case STATUS_INVALID_IMAGE_NE_FORMAT:  /* a 16-bit image not for Windows */
     case STATUS_INVALID_IMAGE_PROTECT:
-        *type = SCS_DOS_BINARY;
-        return TRUE;
+        binary_type = SCS_DOS_BINARY;
+        break;
     case STATUS_INVALID_IMAGE_NOT_MZ:
-        if ((ptr = wcsrchr( name, '.' )))
-        {
-            if (!wcsicmp( ptr, L".com" ))
-            {
-                *type = SCS_DOS_BINARY;
-                return TRUE;
-            }
-            if (!wcsicmp( ptr, L".pif" ))
-            {
-                *type = SCS_PIF_BINARY;
-                return TRUE;
-            }
-        }
-        return FALSE;
+        /* without an MZ header, the extension decides */
+        if (!(ptr = wcsrchr( name, '.' ))) goto bad_format;
+        if (!wcsicmp( ptr, L".com" ) || !wcsicmp( ptr, L".exe" )) binary_type = SCS_DOS_BINARY;
+        else if (!wcsicmp( ptr, L".pif" )) binary_type = SCS_PIF_BINARY;
+        else goto bad_format;
+        break;
     default:
-        return FALSE;
+        goto bad_format;
     }
+    *type = binary_type;
+    SetLastError( err );
+    return TRUE;
+
+bad_format:
+    SetLastError( ERROR_BAD_EXE_FORMAT );
+    return FALSE;
 }
 
 /***********************************************************************
