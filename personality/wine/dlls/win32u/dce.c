@@ -754,6 +754,10 @@ void flush_window_surfaces( BOOL idle )
     DWORD now;
     struct window_surface *surface;
 
+    /* windows without a surface (such as the virtual desktop) are drawn
+     * directly by the driver: send what it buffered before going idle */
+    if (idle) user_driver->pFlushOutput();
+
     pthread_mutex_lock( &surfaces_lock );
     now = NtGetTickCount();
     if (idle) last_idle = now;

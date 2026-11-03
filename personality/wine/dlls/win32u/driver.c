@@ -787,6 +787,10 @@ static void nulldrv_FlashWindowEx( FLASHWINFO *info )
 {
 }
 
+static void nulldrv_FlushOutput(void)
+{
+}
+
 static void nulldrv_GetDC( HDC hdc, HWND hwnd, HWND top_win, const RECT *win_rect,
                            const RECT *top_rect, DWORD flags )
 {
@@ -1283,6 +1287,7 @@ static const struct user_driver_funcs lazy_load_driver =
     nulldrv_DesktopWindowProc,
     nulldrv_DestroyWindow,
     loaderdrv_FlashWindowEx,
+    nulldrv_FlushOutput,
     loaderdrv_GetDC,
     nulldrv_ProcessEvents,
     nulldrv_ReleaseDC,
@@ -1382,6 +1387,7 @@ void __wine_set_user_driver( const struct user_driver_funcs *funcs, UINT version
     SET_USER_FUNC(DesktopWindowProc);
     SET_USER_FUNC(DestroyWindow);
     SET_USER_FUNC(FlashWindowEx);
+    SET_USER_FUNC(FlushOutput);
     SET_USER_FUNC(GetDC);
     SET_USER_FUNC(ProcessEvents);
     SET_USER_FUNC(ReleaseDC);

@@ -692,6 +692,7 @@ static const struct user_driver_funcs x11drv_funcs =
     .pGetDC = X11DRV_GetDC,
     .pProcessEvents = X11DRV_ProcessEvents,
     .pReleaseDC = X11DRV_ReleaseDC,
+    .pFlushOutput = X11DRV_FlushOutput,
     .pScrollDC = X11DRV_ScrollDC,
     .pSetCapture = X11DRV_SetCapture,
     .pSetDesktopWindow = X11DRV_SetDesktopWindow,

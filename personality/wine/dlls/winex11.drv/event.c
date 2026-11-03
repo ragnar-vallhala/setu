@@ -950,6 +950,21 @@ static BOOL X11DRV_FocusOut( HWND hwnd, XEvent *xev )
 
 
 /***********************************************************************
+ *           FlushOutput   (X11DRV.@)
+ *
+ * The thread is going idle: send the requests of direct drawing (to the
+ * virtual desktop window, embedded or client windows) still buffered on
+ * gdi_display. Window surfaces flush themselves; without this, painting
+ * the desktop where a window was hidden only reaches the X server with
+ * the next X event.
+ */
+void X11DRV_FlushOutput(void)
+{
+    if (gdi_display) XFlush( gdi_display );
+}
+
+
+/***********************************************************************
  *           X11DRV_Expose
  */
 static BOOL X11DRV_Expose( HWND hwnd, XEvent *xev )
