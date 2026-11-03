@@ -5354,7 +5354,8 @@ INT WINAPI DECLSPEC_HOTPATCH FoldStringW( DWORD flags, LPCWSTR src, INT srclen, 
     {
         status = fold_string( flags, src, srclen, buf, &len );
         if (buf != dst) RtlFreeHeap( GetProcessHeap(), 0, buf );
-        if (status != STATUS_BUFFER_TOO_SMALL) break;
+        /* a caller's buffer that is too small is an error, only size queries retry */
+        if (status != STATUS_BUFFER_TOO_SMALL || dstlen) break;
         if (!(buf = RtlAllocateHeap( GetProcessHeap(), 0, len * sizeof(WCHAR) )))
         {
             SetLastError( ERROR_OUTOFMEMORY );

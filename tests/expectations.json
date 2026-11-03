@@ -1048,6 +1048,7 @@
     "kernel32/FoldStringW:ansi_superscript_two",
     "kernel32/FoldStringW:bad_flag",
     "kernel32/FoldStringW:buffer_exact",
+    "kernel32/FoldStringW:buffer_too_small",
     "kernel32/FoldStringW:composite",
     "kernel32/FoldStringW:composite_hangul",
     "kernel32/FoldStringW:composite_plain_kept",
