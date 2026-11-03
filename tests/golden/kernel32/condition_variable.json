@@ -1,0 +1,99 @@
+{
+  "test": "kernel32/condition_variable",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "initialize_zeroes": {
+      "word_zero": true,
+      "size": 8
+    },
+    "cs_timeout_0": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "cs_owned_after_timeout": {
+      "owner_is_me": true,
+      "recursion": 1,
+      "other_thread_try": 0
+    },
+    "cs_timeout_20ms": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "cs_owned_after_timeout_20ms": {
+      "owner_is_me": true,
+      "recursion": 1
+    },
+    "wake_without_waiters": {
+      "last_error": "unchanged"
+    },
+    "cs_wake_is_not_remembered": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "srw_exclusive_timeout_0": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "srw_exclusive_held_after_timeout": {
+      "other_exclusive": 0,
+      "other_shared": 0
+    },
+    "srw_exclusive_timeout_20ms": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "srw_shared_timeout_0": {
+      "ret": false,
+      "last_error": 1460
+    },
+    "srw_shared_held_after_timeout": {
+      "other_exclusive": 0,
+      "other_shared": 1
+    },
+    "srw_unknown_flag_timeout_0": {
+      "ret": false,
+      "last_error": 87
+    },
+    "srw_free_after_timeouts": {
+      "other_exclusive": 1
+    },
+    "cs_wake_one_waiter": {
+      "woken": 1,
+      "tokens_left": 0,
+      "waiter_owned_cs_once": 1
+    },
+    "cs_wake_sleep_result": {
+      "sleep_ret": true,
+      "sleep_last_error": 0
+    },
+    "cs_wake_all_three": {
+      "woken": 3,
+      "tokens_left": 0,
+      "all_owned_cs_once": true
+    },
+    "cs_wake_one_of_two": {
+      "one_thread_done": true,
+      "woken": 1,
+      "still_waiting": 1
+    },
+    "cs_wake_second_of_two": {
+      "woken": 2,
+      "still_waiting": 0
+    },
+    "srw_wake_all_two": {
+      "woken": 2,
+      "all_held_exclusive_after_wake": true
+    },
+    "srw_wake_sleep_result": {
+      "sleep_ret": true,
+      "sleep_last_error": 0
+    },
+    "srw_free_after_waiters": {
+      "other_exclusive": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "14ad6437dcd9c309feb36c34de55e311a93dd4829576f7f2f3a078189be12905"
+}
