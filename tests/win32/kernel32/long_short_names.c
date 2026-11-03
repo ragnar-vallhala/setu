@@ -202,6 +202,9 @@ int main(void)
         long_case("long_from_lowercase_short", L"n\\longfi~1.txt");
         long_case("long_from_bogus_short", L"n\\LONGFI~9.TXT");
         long_case("long_of_long_other_case", L"n\\LONGFILENAME.TXT");
+        long_case("long_of_8_3_other_case", L"N\\LOWER.TXT");
+        long_case("long_of_8_3_upper_file_lower_input", L"n\\upper.txt");
+        long_case("long_of_8_3_dir_other_case", L"N");
         long_case("long_wildcard", L"n\\long*.txt");
         swprintf(abs, MAX_PATH, L"\\\\?\\%ls\\n\\LONGFI~1.TXT", cwd);
         long_case("long_verbatim_short", abs);

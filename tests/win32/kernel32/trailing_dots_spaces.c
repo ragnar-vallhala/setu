@@ -28,6 +28,18 @@ static void create_case(const char *name, const wchar_t *path, DWORD disp)
     if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
 }
 
+static void open_case(const char *name, const wchar_t *path, DWORD access, DWORD disp, DWORD flags)
+{
+    HANDLE h;
+    ORACLE_CALL(h, CreateFileW(path, access, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, disp,
+                               flags, NULL));
+    oracle_case(name);
+    o_handle("ret", h);
+    o_lasterr();
+    oracle_case_end();
+    if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+}
+
 static void attr_case(const char *name, const wchar_t *path)
 {
     DWORD a;
@@ -119,6 +131,24 @@ int main(void)
     create_case("create_through_dir_with_dots_spaces", L"d1 . .\\in3.txt", CREATE_NEW);
     attr_case("attr_dir_trailing_dot_sep", L"d1.\\");
     attr_case("attr_dir_trailing_space_sep", L"d2 \\");
+    /* Probes: CreateFileW on an existing directory or file named with a
+     * trailing separator, for each disposition and access. */
+    open_case("dirsep_rw_create_new", L"d1\\", GENERIC_READ | GENERIC_WRITE, CREATE_NEW, 0);
+    open_case("dirsep_rw_create_always", L"d1\\", GENERIC_READ | GENERIC_WRITE, CREATE_ALWAYS, 0);
+    open_case("dirsep_rw_open_existing", L"d1\\", GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING, 0);
+    open_case("dirsep_rw_open_always", L"d1\\", GENERIC_READ | GENERIC_WRITE, OPEN_ALWAYS, 0);
+    open_case("dirsep_rw_truncate_existing", L"d1\\", GENERIC_READ | GENERIC_WRITE, TRUNCATE_EXISTING, 0);
+    open_case("dirsep_read_open_existing", L"d1\\", GENERIC_READ, OPEN_EXISTING, 0);
+    open_case("dirsep_noaccess_open_existing", L"d1\\", 0, OPEN_EXISTING, 0);
+    open_case("dirsep_read_open_existing_backup", L"d1\\", GENERIC_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
+    open_case("dirsep_read_create_new_backup", L"d1\\", GENERIC_READ, CREATE_NEW, FILE_FLAG_BACKUP_SEMANTICS);
+    open_case("dir_rw_create_new", L"d1", GENERIC_READ | GENERIC_WRITE, CREATE_NEW, 0);
+    open_case("dir_rw_open_existing", L"d1", GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING, 0);
+    open_case("dir_read_open_existing", L"d1", GENERIC_READ, OPEN_EXISTING, 0);
+    open_case("filesep_rw_open_existing", L"t3\\", GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING, 0);
+    open_case("filesep_rw_create_new", L"t3\\", GENERIC_READ | GENERIC_WRITE, CREATE_NEW, 0);
+    open_case("cwdsep_rw_open_existing", L".\\", GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING, 0);
+    open_case("cwdsep_read_open_existing", L".\\", GENERIC_READ, OPEN_EXISTING, 0);
     listing("listing_d1", L"d1");
     ORACLE_CALL(ok, SetCurrentDirectoryW(L"d1."));
     bool_case("setcd_trailing_dot", ok);

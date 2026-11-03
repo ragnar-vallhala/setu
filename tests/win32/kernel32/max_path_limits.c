@@ -185,6 +185,31 @@ int main(void)
         ORACLE_CALL(a, GetFileAttributesW(lng));
         result("long_input_resolves_short_attr", a != INVALID_FILE_ATTRIBUTES);
     }
+    /* Probe: the shortest input (relative, then absolute) that fails although
+     * it resolves to the short, existing "src.txt" ("./" padding). */
+    for (int absolute = 0; absolute < 2; absolute++) {
+        size_t first_fail_open = 0, first_fail_attr = 0;
+        for (size_t len = 150; len <= 330; len++) {
+            wchar_t in[1024] = L"";
+            if (absolute) swprintf(in, 1024, L"%ls\\", cwd);
+            size_t left = len - wcslen(in) - wcslen(L"src.txt");
+            if (left & 1) {
+                wcscat(in, L"sub\\..\\");
+                left -= 7;
+            }
+            for (size_t k = 0; k < left / 2; k++) wcscat(in, L".\\");
+            wcscat(in, L"src.txt");
+            if (wcslen(in) != len) continue;
+            HANDLE h = CreateFileW(in, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+            if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+            else if (!first_fail_open) first_fail_open = len;
+            if (GetFileAttributesW(in) == INVALID_FILE_ATTRIBUTES && !first_fail_attr) first_fail_attr = len;
+        }
+        oracle_case(absolute ? "probe_input_len_absolute" : "probe_input_len_relative");
+        o_u32("first_failing_open", (DWORD)first_fail_open);
+        o_u32("first_failing_attr", (DWORD)first_fail_attr);
+        oracle_case_end();
+    }
     /* GetFullPathNameW itself has no MAX_PATH limit. */
     {
         wchar_t buf[1024];

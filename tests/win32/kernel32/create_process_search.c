@@ -111,6 +111,7 @@ int main(void)
     copy_self(L"my dir\\spaced.exe");
     copy_self(L"pdir\\pathchild.exe");
     copy_self(L"two words.exe");
+    copy_self(L"longchildname.exe");
 
     wchar_t c[1024];
 
@@ -118,6 +119,9 @@ int main(void)
     run_case("cmd_name_no_ext", NULL, L"child arg1");
     run_case("cmd_name_with_ext", NULL, L"child.exe arg1");
     run_case("cmd_name_upper_case", NULL, L"CHILD.EXE");
+    /* Is the module name kept as typed, or expanded to the long name? */
+    run_case("cmd_short_name", NULL, L"LONGCH~1.EXE arg1");
+    run_case("cmd_short_name_no_ext", NULL, L"longch~1 arg1");
     run_case("cmd_other_ext", NULL, L"child.bin arg1");
     run_case("cmd_no_ext_file_exists", NULL, L"noext arg1");
     run_case("cmd_trailing_dot", NULL, L"child. arg1");
@@ -175,6 +179,8 @@ int main(void)
 
     /* ---- lpApplicationName set ---- */
     run_case("app_relative", L"child.exe", L"anything arg1");
+    run_case("app_upper_case", L"CHILD.EXE", L"x");
+    run_case("app_short_name", L"LONGCH~1.EXE", L"x");
     run_case("app_no_ext_not_appended", L"child", L"child arg1");
     run_case("app_other_ext", L"child.bin", L"x arg1");
     run_case("app_no_ext_file", L"noext", L"x arg1");

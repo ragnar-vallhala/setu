@@ -107,6 +107,70 @@
       "ret": "0xffffffff",
       "last_error": 2
     },
+    "dirsep_rw_create_new": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dirsep_rw_create_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dirsep_rw_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dirsep_rw_open_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dirsep_rw_truncate_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dirsep_read_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dirsep_noaccess_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "dirsep_read_open_existing_backup": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "dirsep_read_create_new_backup": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 80
+    },
+    "dir_rw_create_new": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "dir_rw_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "dir_read_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "filesep_rw_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "filesep_rw_create_new": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 123
+    },
+    "cwdsep_rw_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "cwdsep_read_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
     "listing_d1": {
       "names": "in1.txt"
     },
@@ -195,5 +259,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "ec7a003c1a5cb7bcc98dc5a0895f7a66178024ebb59428f828a29807c0a18b95"
+  "source_sha256": "e36f5acc7dbeb456270922ae0dbd3d14b5476fe504b1f91793f8afd77b5629ff"
 }

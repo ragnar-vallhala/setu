@@ -200,6 +200,21 @@
       "ret_is_len": true,
       "long": "n\\LONGFILENAME.TXT"
     },
+    "long_of_8_3_other_case": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "n\\lower.txt"
+    },
+    "long_of_8_3_upper_file_lower_input": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "n\\UPPER.TXT"
+    },
+    "long_of_8_3_dir_other_case": {
+      "last_error": "unchanged",
+      "ret_is_len": true,
+      "long": "n"
+    },
     "long_wildcard": {
       "last_error": 123,
       "ret": 0
@@ -313,5 +328,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "faca43d18e7f5a7eb41562981a5d6b4598cbac9390b3b4fd41df800abb613325"
+  "source_sha256": "87d99040bca64007c1f1886bad8b2f47718fe827eb07357825f00dbaa9287ade"
 }

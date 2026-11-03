@@ -16,6 +16,14 @@
       "ret": true,
       "who": "module=<cwd>\\CHILD.EXE\ncmdline=CHILD.EXE\n"
     },
+    "cmd_short_name": {
+      "ret": true,
+      "who": "module=<cwd>\\LONGCH~1.EXE\ncmdline=LONGCH~1.EXE arg1\n"
+    },
+    "cmd_short_name_no_ext": {
+      "ret": true,
+      "who": "module=<cwd>\\longch~1.exe\ncmdline=longch~1 arg1\n"
+    },
     "cmd_other_ext": {
       "ret": true,
       "who": "module=<cwd>\\child.bin\ncmdline=child.bin arg1\n"
@@ -132,6 +140,14 @@
       "ret": true,
       "who": "module=<cwd>\\child.exe\ncmdline=anything arg1\n"
     },
+    "app_upper_case": {
+      "ret": true,
+      "who": "module=<cwd>\\CHILD.EXE\ncmdline=x\n"
+    },
+    "app_short_name": {
+      "ret": true,
+      "who": "module=<cwd>\\LONGCH~1.EXE\ncmdline=x\n"
+    },
     "app_no_ext_not_appended": {
       "ret": false,
       "last_error": 2
@@ -178,5 +194,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "72b880aa3d7dc25e2f57f6fcd4aaa06505eaca914af03f4bf4eb318829337694"
+  "source_sha256": "5c93485f5207b5dcc891f36f384cb88f0e320a6dc6fc33084d4f035ba4952891"
 }
