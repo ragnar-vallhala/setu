@@ -7112,6 +7112,9 @@ INT WINAPI DECLSPEC_HOTPATCH NormalizeString(NORM_FORM form, const WCHAR *src, I
         dst_len = -dst_len;
         break;
     }
+    /* any other failure, such as an unsupported form, returns 0 */
+    if (status && status != STATUS_BUFFER_TOO_SMALL && status != STATUS_NO_UNICODE_TRANSLATION)
+        dst_len = 0;
     SetLastError( RtlNtStatusToDosError( status ));
     return dst_len;
 }

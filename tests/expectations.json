@@ -1666,6 +1666,8 @@
     "kernel32/MultiByteToWideChar:utf8_zero_length",
     "kernel32/NormalizeString:angstrom_sign",
     "kernel32/NormalizeString:ascii",
+    "kernel32/NormalizeString:bad_form_0",
+    "kernel32/NormalizeString:bad_form_3",
     "kernel32/NormalizeString:bad_form_other",
     "kernel32/NormalizeString:buffer_exact",
     "kernel32/NormalizeString:buffer_too_small",
