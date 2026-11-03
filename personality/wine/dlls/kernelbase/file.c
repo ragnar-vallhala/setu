@@ -686,8 +686,31 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateDirectoryW( LPCWSTR path, LPSECURITY_ATTRIBU
     NTSTATUS status;
     HANDLE handle;
 
+    WCHAR full[MAX_PATH];
+    ULONG len;
+
     TRACE( "%s\n", debugstr_w(path) );
 
+    if (path && RtlIsDosDeviceName_U( path ))
+    {
+        SetLastError( ERROR_DIRECTORY );
+        return FALSE;
+    }
+    /* without the \\?\ prefix, the full path must leave room for an 8.3 file name */
+    if (path && wcsncmp( path, L"\\\\?\\", 4 ))
+    {
+        len = RtlGetFullPathName_U( path, sizeof(full), full, NULL );
+        if (len >= sizeof(full))
+        {
+            SetLastError( ERROR_PATH_NOT_FOUND );
+            return FALSE;
+        }
+        if (len / sizeof(WCHAR) >= MAX_PATH - 12)
+        {
+            SetLastError( ERROR_FILENAME_EXCED_RANGE );
+            return FALSE;
+        }
+    }
     if (!RtlDosPathNameToNtPathName_U( path, &nt_name, NULL, NULL ))
     {
         SetLastError( ERROR_PATH_NOT_FOUND );
@@ -710,7 +733,30 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateDirectoryW( LPCWSTR path, LPSECURITY_ATTRIBU
 BOOL WINAPI DECLSPEC_HOTPATCH CreateDirectoryExW( LPCWSTR template, LPCWSTR path,
                                                   LPSECURITY_ATTRIBUTES sa )
 {
-    return CreateDirectoryW( path, sa );
+    static const DWORD copied = FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN |
+                                FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_ARCHIVE;
+    DWORD attrs = 0;
+
+    TRACE( "%s %s\n", debugstr_w(template), debugstr_w(path) );
+
+    if (template)
+    {
+        if (!template[0])
+        {
+            SetLastError( ERROR_PATH_NOT_FOUND );
+            return FALSE;
+        }
+        if ((attrs = GetFileAttributesW( template )) == INVALID_FILE_ATTRIBUTES) return FALSE;
+        if (!(attrs & FILE_ATTRIBUTE_DIRECTORY))
+        {
+            SetLastError( ERROR_DIRECTORY );
+            return FALSE;
+        }
+    }
+    if (!CreateDirectoryW( path, sa )) return FALSE;
+    /* the new directory gets the DOS attributes of the template */
+    if (attrs & copied) SetFileAttributesW( path, attrs & copied );
+    return TRUE;
 }
 
 
