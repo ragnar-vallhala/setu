@@ -1502,6 +1502,17 @@ HANDLE WINAPI DECLSPEC_HOTPATCH FindFirstFileExW( LPCWSTR filename, FINDEX_INFO_
     }
     else
     {
+        const WCHAR *c;
+
+        /* '|' and control characters cannot be in a name, nor in a pattern */
+        for (c = mask; *c; c++)
+        {
+            if (*c < 0x20 || *c == '|')
+            {
+                SetLastError( ERROR_INVALID_NAME );
+                goto error;
+            }
+        }
         nt_name.Length = (mask - nt_name.Buffer) * sizeof(WCHAR);
         has_wildcard = wcspbrk( mask, L"*?<>" ) != NULL;
         if (has_wildcard)
