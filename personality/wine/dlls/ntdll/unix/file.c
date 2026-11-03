@@ -7385,6 +7385,18 @@ NTSTATUS WINAPI NtFlushBuffersFileEx( HANDLE handle, ULONG flags, void *params, 
 
     if (!io || !virtual_check_buffer_for_write( io, sizeof(*io) )) return STATUS_ACCESS_VIOLATION;
 
+    /* a section handle gives access to the file it maps, but isn't a file */
+    {
+        static const WCHAR sectionW[] = {'S','e','c','t','i','o','n'};
+        char buffer[sizeof(OBJECT_TYPE_INFORMATION) + 64 * sizeof(WCHAR)];
+        OBJECT_TYPE_INFORMATION *type_info = (OBJECT_TYPE_INFORMATION *)buffer;
+
+        if (!NtQueryObject( handle, ObjectTypeInformation, type_info, sizeof(buffer), NULL ) &&
+            type_info->TypeName.Length == sizeof(sectionW) &&
+            !memcmp( type_info->TypeName.Buffer, sectionW, sizeof(sectionW) ))
+            return STATUS_OBJECT_TYPE_MISMATCH;
+    }
+
     /* the NUL device can't flush, but still checks for write access first */
     if (!server_get_unix_fd( handle, 0, &fd, &needs_close, &type, NULL ))
     {

@@ -980,6 +980,7 @@
     "kernel32/FlushFileBuffers:null_handle",
     "kernel32/FlushFileBuffers:overlapped",
     "kernel32/FlushFileBuffers:read_attributes_only",
+    "kernel32/FlushFileBuffers:section_handle",
     "kernel32/FlushFileBuffers:twice",
     "kernel32/FlushFileBuffers:write_through",
     "kernel32/GetBinaryTypeW:amd64_with_pe32_magic",
