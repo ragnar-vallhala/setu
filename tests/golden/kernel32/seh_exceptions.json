@@ -1,0 +1,141 @@
+{
+  "test": "kernel32/seh_exceptions",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "add_handler": {
+      "ret_null": false
+    },
+    "raise_three_args": {
+      "code": "0xe0000100",
+      "flags": "0x00000000",
+      "nparams": 3,
+      "p0": 1,
+      "p1": 2,
+      "p2": 3,
+      "nested_null": true
+    },
+    "raise_code_without_customer_bit": {
+      "code": "0x12345678",
+      "flags": "0x00000000",
+      "nparams": 0,
+      "nested_null": true
+    },
+    "raise_unknown_flags": {
+      "code": "0xe0000101",
+      "flags": "0x00000000",
+      "nparams": 0,
+      "nested_null": true
+    },
+    "raise_args_null_with_count": {
+      "code": "0xe0000102",
+      "flags": "0x00000000",
+      "nparams": 0,
+      "nested_null": true
+    },
+    "raise_twenty_args": {
+      "code": "0xe0000103",
+      "flags": "0x00000000",
+      "nparams": 15,
+      "p0": 100,
+      "p1": 101,
+      "p2": 102,
+      "nested_null": true
+    },
+    "raise_max_args": {
+      "code": "0xe0000104",
+      "flags": "0x00000000",
+      "nparams": 15,
+      "p0": 100,
+      "p1": 101,
+      "p2": 102,
+      "nested_null": true
+    },
+    "handler_log_single": {
+      "log": "111111"
+    },
+    "order_first_searches_second_continues": {
+      "log": "12c"
+    },
+    "order_handler_added_first": {
+      "log": "2c"
+    },
+    "remove_handlers": {
+      "h3": 1,
+      "h2": 1,
+      "c1": 1,
+      "c1_again": 0,
+      "h2_as_continue": 0,
+      "null": 0
+    },
+    "access_violation_write": {
+      "code": "0xc0000005",
+      "flags": "0x00000000",
+      "nparams": 2,
+      "p0": 1,
+      "p1": 16,
+      "nested_null": true
+    },
+    "access_violation_read": {
+      "code": "0xc0000005",
+      "flags": "0x00000000",
+      "nparams": 2,
+      "p0": 0,
+      "p1": 32,
+      "nested_null": true
+    },
+    "integer_divide_by_zero": {
+      "code": "0xc0000094",
+      "flags": "0x00000000",
+      "nparams": 0,
+      "nested_null": true
+    },
+    "breakpoint": {
+      "code": "0x80000003",
+      "flags": "0x00000000",
+      "nparams": 1,
+      "p0": 0,
+      "nested_null": true
+    },
+    "illegal_instruction": {
+      "code": "0xc000001d",
+      "flags": "0x00000000",
+      "nparams": 0,
+      "nested_null": true
+    },
+    "child_access_violation": {
+      "exit": "0xc0000005"
+    },
+    "child_raise_unhandled": {
+      "exit": "0xe0001234"
+    },
+    "child_noncontinuable_continued": {
+      "exit": "0x00000077"
+    },
+    "child_filter_exits": {
+      "exit": "0x00005042"
+    },
+    "child_filter_continue_search": {
+      "exit": "0xe0000043"
+    },
+    "child_filter_execute_handler": {
+      "exit": "0xe0000044"
+    },
+    "child_stack_overflow": {
+      "exit": "0xc00000fd"
+    },
+    "child_int3": {
+      "exit": "0x80000003"
+    },
+    "child_ud2": {
+      "exit": "0xc000001d"
+    },
+    "set_unhandled_filter_returns_previous": {
+      "prev_null": false,
+      "again_is_ours": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "0e1824d3de8bd51b867049614a247b6420c6f2275320412b33d0ea2549339c90"
+}
