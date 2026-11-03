@@ -1366,12 +1366,16 @@ DECL_HANDLER(new_process)
 
     if (!(req->flags & PROCESS_CREATE_FLAGS_INHERIT_HANDLES) && info->data->console != 1)
     {
-        info->data->hstdin  = duplicate_handle( parent, info->data->hstdin, process,
-                                                0, 0, DUPLICATE_SAME_ACCESS | DUPLICATE_SAME_ATTRIBUTES );
-        info->data->hstdout = duplicate_handle( parent, info->data->hstdout, process,
-                                                0, 0, DUPLICATE_SAME_ACCESS | DUPLICATE_SAME_ATTRIBUTES );
-        info->data->hstderr = duplicate_handle( parent, info->data->hstderr, process,
-                                                0, 0, DUPLICATE_SAME_ACCESS | DUPLICATE_SAME_ATTRIBUTES );
+        /* INVALID_HANDLE_VALUE (and other pseudo-handle values) are passed on as they are */
+        if ((int)info->data->hstdin >= 0)
+            info->data->hstdin  = duplicate_handle( parent, info->data->hstdin, process,
+                                                    0, 0, DUPLICATE_SAME_ACCESS | DUPLICATE_SAME_ATTRIBUTES );
+        if ((int)info->data->hstdout >= 0)
+            info->data->hstdout = duplicate_handle( parent, info->data->hstdout, process,
+                                                    0, 0, DUPLICATE_SAME_ACCESS | DUPLICATE_SAME_ATTRIBUTES );
+        if ((int)info->data->hstderr >= 0)
+            info->data->hstderr = duplicate_handle( parent, info->data->hstderr, process,
+                                                    0, 0, DUPLICATE_SAME_ACCESS | DUPLICATE_SAME_ATTRIBUTES );
         /* some handles above may have been invalid; this is not an error */
         if (get_error() == STATUS_INVALID_HANDLE ||
             get_error() == STATUS_OBJECT_TYPE_MISMATCH) clear_error();

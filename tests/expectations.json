@@ -4922,6 +4922,7 @@
     "kernel32/std_handle_redirect:all_nul",
     "kernel32/std_handle_redirect:crt_stdio_over_pipes",
     "kernel32/std_handle_redirect:file_not_inheritable",
+    "kernel32/std_handle_redirect:invalid_handle_values",
     "kernel32/std_handle_redirect:null_handles",
     "kernel32/std_handle_redirect:parent_setstdhandle_inherit_false",
     "kernel32/std_handle_redirect:parent_setstdhandle_inherited",

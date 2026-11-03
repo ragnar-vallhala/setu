@@ -225,9 +225,13 @@ static RTL_USER_PROCESS_PARAMETERS *create_process_params( const WCHAR *filename
         params->hStdError  = NtCurrentTeb()->Peb->ProcessParameters->hStdError;
     }
 
-    if (params->hStdInput  == INVALID_HANDLE_VALUE) params->hStdInput  = NULL;
-    if (params->hStdOutput == INVALID_HANDLE_VALUE) params->hStdOutput = NULL;
-    if (params->hStdError  == INVALID_HANDLE_VALUE) params->hStdError  = NULL;
+    /* values given with STARTF_USESTDHANDLES reach the child as they are, even INVALID_HANDLE_VALUE */
+    if (!(startup->dwFlags & STARTF_USESTDHANDLES))
+    {
+        if (params->hStdInput  == INVALID_HANDLE_VALUE) params->hStdInput  = NULL;
+        if (params->hStdOutput == INVALID_HANDLE_VALUE) params->hStdOutput = NULL;
+        if (params->hStdError  == INVALID_HANDLE_VALUE) params->hStdError  = NULL;
+    }
 
     params->dwX             = startup->dwX;
     params->dwY             = startup->dwY;
