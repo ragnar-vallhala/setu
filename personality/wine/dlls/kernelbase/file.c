@@ -3618,18 +3618,23 @@ HANDLE WINAPI DECLSPEC_HOTPATCH OpenFileById( HANDLE handle, LPFILE_ID_DESCRIPTO
     OBJECT_ATTRIBUTES attr;
     IO_STATUS_BLOCK io;
     UNICODE_STRING objectName;
+    NTSTATUS status;
 
-    if (!id)
+    if (!id || id->dwSize < sizeof(*id) || id->Type > ExtendedFileIdType)
     {
         SetLastError( ERROR_INVALID_PARAMETER );
         return INVALID_HANDLE_VALUE;
     }
+    if (!handle)
+    {
+        SetLastError( ERROR_BAD_PATHNAME );
+        return INVALID_HANDLE_VALUE;
+    }
 
+    /* a directory opens too, with or without backup semantics */
     options = FILE_OPEN_BY_FILE_ID;
     if (flags & FILE_FLAG_BACKUP_SEMANTICS)
         options |= FILE_OPEN_FOR_BACKUP_INTENT;
-    else
-        options |= FILE_NON_DIRECTORY_FILE;
     if (flags & FILE_FLAG_NO_BUFFERING) options |= FILE_NO_INTERMEDIATE_BUFFERING;
     if (!(flags & FILE_FLAG_OVERLAPPED)) options |= FILE_SYNCHRONOUS_IO_NONALERT;
     if (flags & FILE_FLAG_RANDOM_ACCESS) options |= FILE_RANDOM_ACCESS;
@@ -3641,8 +3646,11 @@ HANDLE WINAPI DECLSPEC_HOTPATCH OpenFileById( HANDLE handle, LPFILE_ID_DESCRIPTO
     InitializeObjectAttributes( &attr, &objectName, 0, handle, sec_attr ? sec_attr->lpSecurityDescriptor : NULL );
     if (sec_attr && sec_attr->bInheritHandle) attr.Attributes |= OBJ_INHERIT;
 
-    if (!set_ntstatus( NtCreateFile( &result, access | SYNCHRONIZE, &attr, &io, NULL, flags,
-                                     share, OPEN_EXISTING, options, NULL, 0 )))
+    status = NtCreateFile( &result, access | SYNCHRONIZE, &attr, &io, NULL, flags,
+                           share, OPEN_EXISTING, options, NULL, 0 );
+    /* an id that names no file is an invalid parameter */
+    if (status == STATUS_OBJECT_NAME_NOT_FOUND) status = STATUS_INVALID_PARAMETER;
+    if (!set_ntstatus( status ))
         return INVALID_HANDLE_VALUE;
     return result;
 }
