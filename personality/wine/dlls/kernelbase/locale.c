@@ -6195,6 +6195,12 @@ INT WINAPI DECLSPEC_HOTPATCH GetLocaleInfoEx( const WCHAR *name, LCTYPE info, WC
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
     }
+    /* names are always allowed to be neutral here, so the LCID-only flag is rejected */
+    if (info & LOCALE_ALLOW_NEUTRAL_NAMES)
+    {
+        SetLastError( ERROR_INVALID_FLAGS );
+        return 0;
+    }
     return get_locale_info( locale, lcid, info, buffer, len );
 }
 
