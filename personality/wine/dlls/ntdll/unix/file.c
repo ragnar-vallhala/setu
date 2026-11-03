@@ -3803,6 +3803,8 @@ static NTSTATUS file_id_to_unix_file_name( OBJECT_ATTRIBUTES *attr, char **unix_
     {
         status = STATUS_OBJECT_TYPE_MISMATCH;
         if (type == FD_TYPE_FILE) goto search_drive;
+        /* a device such as NUL opens itself, whatever the id */
+        if (type == FD_TYPE_DEVICE) status = STATUS_BAD_DEVICE_TYPE;
         goto done;
     }
 
@@ -5040,6 +5042,13 @@ NTSTATUS WINAPI NtCreateFile( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBU
 
     if (status == STATUS_BAD_DEVICE_TYPE)
     {
+        static UNICODE_STRING empty;
+
+        if (options & FILE_OPEN_BY_FILE_ID)
+        {
+            new_attr.ObjectName = &empty;
+            options &= ~FILE_OPEN_BY_FILE_ID;
+        }
         status = server_open_file_object( handle, access, &new_attr, sharing, options );
         if (status == STATUS_SUCCESS) io->Information = FILE_OPENED;
         goto done;

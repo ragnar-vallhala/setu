@@ -200,6 +200,10 @@ struct device_file
 static void device_file_dump( struct object *obj, int verbose );
 static struct fd *device_file_get_fd( struct object *obj );
 static WCHAR *device_file_get_full_name( struct object *obj, data_size_t max, data_size_t *len );
+static struct object *device_file_lookup_name( struct object *obj, struct unicode_str *name,
+                                               unsigned int attr, struct object *root );
+static struct object *device_file_open_file( struct object *obj, unsigned int access,
+                                             unsigned int sharing, unsigned int options );
 static struct list *device_file_get_kernel_obj_list( struct object *obj );
 static int device_file_close_handle( struct object *obj, struct process *process, obj_handle_t handle );
 static void device_file_destroy( struct object *obj );
@@ -227,10 +231,10 @@ static const struct object_ops device_file_ops =
     default_get_sd,                   /* get_sd */
     default_set_sd,                   /* set_sd */
     device_file_get_full_name,        /* get_full_name */
-    no_lookup_name,                   /* lookup_name */
+    device_file_lookup_name,          /* lookup_name */
     no_link_name,                     /* link_name */
     NULL,                             /* unlink_name */
-    no_open_file,                     /* open_file */
+    device_file_open_file,            /* open_file */
     device_file_get_kernel_obj_list,  /* get_kernel_obj_list */
     device_file_close_handle,         /* close_handle */
     device_file_destroy               /* destroy */
@@ -619,6 +623,25 @@ static void queue_irp( struct device_file *file, const union irp_params *params,
     add_irp_to_queue( file->device->manager, irp, current );
     release_object( irp );
     async_set_unknown_status( async );
+}
+
+/* a handle to a Unix device such as NUL can be opened again (ReOpenFile) */
+static struct object *device_file_lookup_name( struct object *obj, struct unicode_str *name,
+                                               unsigned int attr, struct object *root )
+{
+    struct device_file *file = (struct device_file *)obj;
+
+    if (!name && file->device->unix_path) return NULL;  /* the device file itself */
+    return no_lookup_name( obj, name, attr, root );
+}
+
+static struct object *device_file_open_file( struct object *obj, unsigned int access,
+                                             unsigned int sharing, unsigned int options )
+{
+    struct device_file *file = (struct device_file *)obj;
+
+    if (!file->device->unix_path) return no_open_file( obj, access, sharing, options );
+    return device_open_file( &file->device->obj, access, sharing, options );
 }
 
 static enum server_fd_type device_file_get_fd_type( struct fd *fd )
