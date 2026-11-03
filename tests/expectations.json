@@ -3037,6 +3037,8 @@
     "kernel32/share_mode_matrix:disposition_vs_r_--D",
     "kernel32/share_mode_matrix:disposition_vs_r_-W-",
     "kernel32/share_mode_matrix:disposition_vs_r_-WD",
+    "kernel32/share_mode_matrix:disposition_vs_r_R--",
+    "kernel32/share_mode_matrix:disposition_vs_r_R-D",
     "kernel32/share_mode_matrix:disposition_vs_r_RW-",
     "kernel32/share_mode_matrix:disposition_vs_r_RWD",
     "kernel32/share_mode_matrix:first_attr_---",

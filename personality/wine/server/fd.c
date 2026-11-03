@@ -1763,8 +1763,9 @@ static unsigned int check_sharing( struct fd *fd, unsigned int access, unsigned 
         existing_access |= fd_ptr->access;
     }
 
+    /* overwriting the file (CREATE_ALWAYS) writes it, whatever the access */
     if (((access & read_access) && !(existing_sharing & FILE_SHARE_READ)) ||
-        ((access & write_access) && !(existing_sharing & FILE_SHARE_WRITE)) ||
+        (((access & write_access) || (open_flags & O_TRUNC)) && !(existing_sharing & FILE_SHARE_WRITE)) ||
         ((access & DELETE) && !(existing_sharing & FILE_SHARE_DELETE)))
         return STATUS_SHARING_VIOLATION;
     if (((existing_access & FILE_MAPPING_WRITE) && !(sharing & FILE_SHARE_WRITE)) ||
