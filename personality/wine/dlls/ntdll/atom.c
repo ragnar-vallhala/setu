@@ -126,7 +126,7 @@ static NTSTATUS add_atom( RTL_ATOM_TABLE table, const WCHAR *name, ULONG len, RT
  */
 static NTSTATUS is_integral_atom( LPCWSTR atomstr, size_t len, RTL_ATOM* pAtom )
 {
-    RTL_ATOM atom;
+    ULONG atom;
 
     if (!IS_INTATOM( atomstr ))
     {
@@ -136,9 +136,11 @@ static NTSTATUS is_integral_atom( LPCWSTR atomstr, size_t len, RTL_ATOM* pAtom )
         if (*ptr++ == '#')
         {
             atom = 0;
+            /* numbers that don't fit are not wrapped around */
             while (ptr < atomstr + len && *ptr >= '0' && *ptr <= '9')
             {
-                atom = atom * 10 + *ptr++ - '0';
+                if (atom < MAXINTATOM) atom = atom * 10 + *ptr - '0';
+                ptr++;
             }
             if (ptr > atomstr + 1 && ptr == atomstr + len) goto done;
         }

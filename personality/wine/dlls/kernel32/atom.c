@@ -230,7 +230,8 @@ ATOM WINAPI DeleteAtom( ATOM atom /* [in] Atom to delete */ )
     if (atom >= MAXINTATOM)
     {
         if (!(table = get_local_table( 0 ))) return atom;
-        if (!set_ntstatus( RtlDeleteAtomFromAtomTable( table, atom ))) return atom;
+        /* Windows returns 0 for an atom that is already gone, with the error set */
+        set_ntstatus( RtlDeleteAtomFromAtomTable( table, atom ));
     }
     return 0;
 }
@@ -387,11 +388,8 @@ UINT WINAPI GetAtomNameA(
         c = min(len, count - 1);
         memcpy(buffer, tmp, c);
         buffer[c] = '\0';
-        if (len >= count)
-        {
-            len = c;
-            SetLastError( ERROR_MORE_DATA );
-        }
+        /* truncation is silent */
+        if (len >= count) len = c;
     }
     return len;
 }
@@ -452,8 +450,13 @@ UINT WINAPI GetAtomNameW( ATOM atom, LPWSTR buffer, INT count )
     length = sizeof(tmp);
     if (!set_ntstatus( RtlQueryAtomInAtomTable( table, atom, NULL, NULL, tmp, &length ))) return 0;
     length = min(length, (count - 1) * sizeof(WCHAR));
-    if (length) memcpy(buffer, tmp, length);
-    else SetLastError( ERROR_INSUFFICIENT_BUFFER );
+    if (!length)
+    {
+        /* the buffer is left alone */
+        SetLastError( ERROR_INSUFFICIENT_BUFFER );
+        return 0;
+    }
+    memcpy(buffer, tmp, length);
     length /= sizeof(WCHAR);
     buffer[length] = '\0';
     return length;
