@@ -4312,6 +4312,21 @@ static NTSTATUS collapse_relative_symlink( WCHAR *path, unsigned int len, unsign
 }
 
 
+/* A symbolic link created as a file can't be followed to a directory, nor
+ * one created as a directory to a file. */
+static NTSTATUS check_symlink_type( int link_fd, int root_fd, const char *unix_name,
+                                    unsigned int remainder_len, NTSTATUS status )
+{
+    struct stat link_st, target_st;
+
+    if (status || remainder_len || !unix_name) return status;
+    if (!fstat( link_fd, &link_st ) && !fstatat( root_fd, unix_name, &target_st, 0 ) &&
+        !S_ISDIR( link_st.st_mode ) != !S_ISDIR( target_st.st_mode ))
+        return STATUS_ACCESS_DENIED;
+    return status;
+}
+
+
 static NTSTATUS resolve_reparse_point( int fd, int root_fd, OBJECT_ATTRIBUTES *attr, UNICODE_STRING *nt_name,
         unsigned int nt_pos, unsigned int reparse_len, char **unix_name, int unix_len, int pos,
         UINT disposition, BOOL open_reparse, BOOL is_unix, unsigned int reparse_count )
@@ -4391,6 +4406,19 @@ static NTSTATUS resolve_reparse_point( int fd, int root_fd, OBJECT_ATTRIBUTES *a
                 return status;
             }
 
+            if ((collapsed_len < nt_pos || memcmp( new_nt_name, name, nt_pos * sizeof(WCHAR) )) &&
+                !attr->RootDirectory)
+            {
+                /* the target leaves the directory of the link: look up the
+                 * whole name again, as for an absolute target */
+                status = resolve_absolute_reparse_point( new_nt_name, collapsed_len, attr, nt_name,
+                                                         remainder, remainder_len, unix_name,
+                                                         disposition, open_reparse, reparse_count );
+                free( new_nt_name );
+                free( data );
+                return check_symlink_type( fd, root_fd, *unix_name, remainder_len, status );
+            }
+
             if (remainder_len)
             {
                 if (new_nt_name[collapsed_len - 1] != '\\')
@@ -4414,6 +4442,7 @@ static NTSTATUS resolve_reparse_point( int fd, int root_fd, OBJECT_ATTRIBUTES *a
                                                      remainder, remainder_len, unix_name,
                                                      disposition, open_reparse, reparse_count );
         }
+        status = check_symlink_type( fd, root_fd, *unix_name, remainder_len, status );
         break;
     }
 
