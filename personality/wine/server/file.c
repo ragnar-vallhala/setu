@@ -566,6 +566,8 @@ static struct object *file_open_file( struct object *obj, unsigned int access,
 
     if ((unix_name = dup_fd_reopen_name( file->fd )))
     {
+        /* a file without a name is opened through its /proc link, which must be followed */
+        if (!strncmp( unix_name, "/proc/", 6 )) options &= ~FILE_OPEN_REPARSE_POINT;
         get_nt_name( file->fd, &nt_name );
         new_file = create_file( NULL, unix_name, strlen(unix_name), nt_name, access,
                                 sharing, FILE_OPEN, options, 0, NULL );

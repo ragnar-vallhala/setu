@@ -2007,27 +2007,30 @@ char *dup_fd_name( struct fd *root, const char *name )
 }
 
 /* the name to open the file of an fd again: its own name, unless the file
- * has been renamed or deleted since */
+ * has been renamed or deleted since, or its name is pending deletion */
 char *dup_fd_reopen_name( struct fd *fd )
 {
     char proc[32], *ret;
     struct stat st;
     ssize_t len;
+    int pending;
 
     if (!fd->unix_name) return NULL;
-    if (fd->unix_fd == -1 || !fd->inode ||
-        (!stat( fd->unix_name, &st ) && st.st_dev == fd->inode->device->dev && st.st_ino == fd->inode->ino))
+    if (fd->unix_fd == -1 || !fd->inode) return strdup( fd->unix_name );
+    pending = inode_is_delete_pending( fd->inode, fd->unix_name );
+    if (!pending && !stat( fd->unix_name, &st ) &&
+        st.st_dev == fd->inode->device->dev && st.st_ino == fd->inode->ino)
         return strdup( fd->unix_name );
 
     snprintf( proc, sizeof(proc), "/proc/self/fd/%d", fd->unix_fd );
     if (!(ret = malloc( PATH_MAX ))) return NULL;
-    len = readlink( proc, ret, PATH_MAX - 1 );
+    len = pending ? -1 : readlink( proc, ret, PATH_MAX - 1 );
     if (len > 0 && ret[0] == '/' && (len < 10 || memcmp( ret + len - 10, " (deleted)", 10 )))
     {
         ret[len] = 0;  /* where the file is now */
         return ret;
     }
-    strcpy( ret, proc );  /* the file has no name left */
+    strcpy( ret, proc );  /* the file has no usable name left */
     return ret;
 }
 
@@ -2195,8 +2198,9 @@ struct fd *open_fd( struct fd *root, const char *name, struct unicode_str nt_nam
             set_error( STATUS_FILE_IS_A_DIRECTORY );
             goto error;
         }
-        /* a name that is pending deletion can't be opened again */
-        if (inode_is_delete_pending( inode, fd->unix_name ))
+        /* a name that is pending deletion can't be opened again, but the file
+         * of an open handle can (see dup_fd_reopen_name) */
+        if (strncmp( name, "/proc/self/fd/", 14 ) && inode_is_delete_pending( inode, fd->unix_name ))
         {
             set_error( STATUS_DELETE_PENDING );
             goto error;
