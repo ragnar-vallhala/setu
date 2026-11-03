@@ -3604,11 +3604,94 @@ static NTSTATUS find_file_id( int root_fd, char **unix_name, ULONG *len, ULONGLO
 
 
 /******************************************************************************
+ *           find_file_id_on_drive
+ *
+ * Search the whole drive that holds the hint handle for a file id, and
+ * return absolute unix and NT names for it.
+ */
+static NTSTATUS find_file_id_on_drive( HANDLE hint, ULONGLONG file_id, char **unix_name_ret,
+                                       UNICODE_STRING *nt_name )
+{
+    struct list dir_queue = LIST_INIT( dir_queue );
+    struct stat st, root_st;
+    char *hint_name, *root, *unix_name, *rel, *full;
+    int drive, root_fd;
+    ULONG len, i;
+    NTSTATUS status;
+
+    if (server_get_unix_name( hint, &hint_name )) return STATUS_OBJECT_NAME_NOT_FOUND;
+    drive = find_dos_device( hint_name );
+    free( hint_name );
+    if (drive < 0) return STATUS_OBJECT_NAME_NOT_FOUND;
+
+    if (asprintf( &root, "%s/dosdevices/%c:", config_dir, 'a' + drive ) == -1) return STATUS_NO_MEMORY;
+    if ((root_fd = open( root, O_RDONLY | O_DIRECTORY )) == -1 || fstat( root_fd, &root_st ) ||
+        /* never search the whole host file system */
+        (!stat( "/", &st ) && st.st_dev == root_st.st_dev && st.st_ino == root_st.st_ino))
+    {
+        if (root_fd != -1) close( root_fd );
+        free( root );
+        return STATUS_OBJECT_NAME_NOT_FOUND;
+    }
+
+    len = 2 * MAX_DIR_ENTRY_LEN + 4;
+    if (!(unix_name = malloc( len )))
+    {
+        close( root_fd );
+        free( root );
+        return STATUS_NO_MEMORY;
+    }
+    strcpy( unix_name, "." );
+    if (root_st.st_ino == file_id) status = STATUS_SUCCESS;
+    else
+    {
+        status = add_dir_to_queue( &dir_queue, "." );
+        if (!status)
+            status = find_file_id( root_fd, &unix_name, &len, file_id, root_st.st_dev, &dir_queue );
+        flush_dir_queue( &dir_queue );
+    }
+    close( root_fd );
+
+    if (!status)
+    {
+        rel = unix_name + 1;  /* skip "." */
+        if (*rel == '/') rel++;
+        if (asprintf( &full, "%s/%s", root, rel ) == -1) status = STATUS_NO_MEMORY;
+        else
+        {
+            len = strlen( rel );
+            nt_name->MaximumLength = (len + 8) * sizeof(WCHAR);
+            if (!(nt_name->Buffer = malloc( nt_name->MaximumLength )))
+            {
+                free( full );
+                status = STATUS_NO_MEMORY;
+            }
+            else
+            {
+                memcpy( nt_name->Buffer, dos_prefixW, sizeof(dos_prefixW) );
+                nt_name->Buffer[4] = 'A' + drive;
+                len = 7 + ntdll_umbstowcs( rel, len, nt_name->Buffer + 7, len );
+                nt_name->Buffer[len] = 0;
+                nt_name->Length = len * sizeof(WCHAR);
+                for (i = 7; i < len; i++) if (nt_name->Buffer[i] == '/') nt_name->Buffer[i] = '\\';
+                TRACE( "%s -> %s\n", wine_dbgstr_longlong(file_id), debugstr_a(full) );
+                *unix_name_ret = full;
+            }
+        }
+    }
+    free( unix_name );
+    free( root );
+    return status;
+}
+
+
+/******************************************************************************
  *           file_id_to_unix_file_name
  *
  * Lookup a file from its file id instead of its name.
+ * The root handle only names the volume: the file can be anywhere on it.
  */
-static NTSTATUS file_id_to_unix_file_name( const OBJECT_ATTRIBUTES *attr, char **unix_name_ret,
+static NTSTATUS file_id_to_unix_file_name( OBJECT_ATTRIBUTES *attr, char **unix_name_ret,
                                            UNICODE_STRING *nt_name )
 {
     enum server_fd_type type;
@@ -3635,6 +3718,7 @@ static NTSTATUS file_id_to_unix_file_name( const OBJECT_ATTRIBUTES *attr, char *
     if (type != FD_TYPE_DIR)
     {
         status = STATUS_OBJECT_TYPE_MISMATCH;
+        if (type == FD_TYPE_FILE) goto search_drive;
         goto done;
     }
 
@@ -3659,6 +3743,18 @@ static NTSTATUS file_id_to_unix_file_name( const OBJECT_ATTRIBUTES *attr, char *
         if (!status)  /* get rid of "./" prefix */
             memmove( unix_name, unix_name + 2, strlen(unix_name) - 1 );
         flush_dir_queue( &dir_queue );
+    }
+
+search_drive:
+    if (status == STATUS_OBJECT_NAME_NOT_FOUND || status == STATUS_OBJECT_TYPE_MISMATCH)
+    {
+        if (!(status = find_file_id_on_drive( attr->RootDirectory, file_id, unix_name_ret, nt_name )))
+        {
+            free( unix_name );
+            if (needs_close) close( root_fd );
+            attr->RootDirectory = 0;
+            return STATUS_SUCCESS;
+        }
     }
 
 done:

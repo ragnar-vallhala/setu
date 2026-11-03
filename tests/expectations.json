@@ -1401,6 +1401,8 @@
     "kernel32/OpenFileById:directory_id_backup_semantics",
     "kernel32/OpenFileById:directory_id_no_backup_semantics",
     "kernel32/OpenFileById:extended_id",
+    "kernel32/OpenFileById:file_id_hint_is_file",
+    "kernel32/OpenFileById:file_id_hint_other_dir",
     "kernel32/OpenFileById:file_id_info",
     "kernel32/OpenFileById:file_id_nested",
     "kernel32/OpenFileById:file_id_no_access",
