@@ -968,9 +968,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetProcessWorkingSetSizeEx( HANDLE process, SIZE_T
                                                           SIZE_T *maxset, DWORD *flags)
 {
     FIXME( "(%p,%p,%p,%p): stub\n", process, minset, maxset, flags );
-    /* 32 MB working set size */
-    if (minset) *minset = 32*1024*1024;
-    if (maxset) *maxset = 32*1024*1024;
+    /* the documented defaults: 50 pages minimum, 345 pages maximum */
+    if (minset) *minset = 50 * 4096;
+    if (maxset) *maxset = 345 * 4096;
     if (flags) *flags = QUOTA_LIMITS_HARDWS_MIN_DISABLE | QUOTA_LIMITS_HARDWS_MAX_DISABLE;
     return TRUE;
 }
