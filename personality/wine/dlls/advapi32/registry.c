@@ -422,7 +422,7 @@ LSTATUS WINAPI RegSetValueA( HKEY hkey, LPCSTR subkey, DWORD type, LPCSTR data, 
  */
 LSTATUS WINAPI RegQueryValueW( HKEY hkey, LPCWSTR name, LPWSTR data, LPLONG count )
 {
-    DWORD ret;
+    DWORD ret, type = REG_NONE, count_in = count ? *count : 0;
     HKEY subkey = hkey;
 
     TRACE("(%p,%s,%p,%ld)\n", hkey, debugstr_w(name), data, count ? *count : 0 );
@@ -431,8 +431,42 @@ LSTATUS WINAPI RegQueryValueW( HKEY hkey, LPCWSTR name, LPWSTR data, LPLONG coun
     {
         if ((ret = RegOpenKeyW( hkey, name, &subkey )) != ERROR_SUCCESS) return ret;
     }
-    ret = RegQueryValueExW( subkey, NULL, NULL, NULL, (LPBYTE)data, (LPDWORD)count );
+    ret = RegQueryValueExW( subkey, NULL, NULL, &type, (LPBYTE)data, (LPDWORD)count );
     if (subkey != hkey) RegCloseKey( subkey );
+    if (!ret && type == REG_EXPAND_SZ && data)
+    {
+        /* the string is expanded in the buffer, and the count reported is
+         * the expanded length in characters; when it does not fit, as much
+         * as fits is returned, terminated */
+        DWORD cap, len;
+        WCHAR *raw = NULL, *exp = NULL;
+
+        if (count && (raw = malloc( *count + sizeof(WCHAR) )))
+        {
+            memcpy( raw, data, *count );
+            raw[*count / sizeof(WCHAR)] = 0;
+            len = ExpandEnvironmentStringsW( raw, NULL, 0 );
+            if (len && (exp = malloc( len * sizeof(WCHAR) )))
+            {
+                ExpandEnvironmentStringsW( raw, exp, len );
+                cap = (DWORD)(count_in / sizeof(WCHAR));
+                if (len <= cap) memcpy( data, exp, len * sizeof(WCHAR) );
+                else if (cap)
+                {
+                    memcpy( data, exp, (cap - 1) * sizeof(WCHAR) );
+                    data[cap - 1] = 0;
+                    ret = ERROR_MORE_DATA;
+                }
+                else ret = ERROR_MORE_DATA;
+                *count = len;
+            }
+        }
+        free( exp );
+        free( raw );
+    }
+    /* a default value that is not a string is still copied, but fails */
+    if (!ret && type != REG_SZ && type != REG_EXPAND_SZ && type != REG_MULTI_SZ)
+        ret = ERROR_INVALID_DATA;
     if (ret == ERROR_FILE_NOT_FOUND)
     {
         /* return empty string if default value not found */
@@ -451,7 +485,7 @@ LSTATUS WINAPI RegQueryValueW( HKEY hkey, LPCWSTR name, LPWSTR data, LPLONG coun
  */
 LSTATUS WINAPI RegQueryValueA( HKEY hkey, LPCSTR name, LPSTR data, LPLONG count )
 {
-    DWORD ret;
+    DWORD ret, type = REG_NONE, count_in = count ? *count : 0;
     HKEY subkey = hkey;
 
     TRACE("(%p,%s,%p,%ld)\n", hkey, debugstr_a(name), data, count ? *count : 0 );
@@ -460,8 +494,41 @@ LSTATUS WINAPI RegQueryValueA( HKEY hkey, LPCSTR name, LPSTR data, LPLONG count 
     {
         if ((ret = RegOpenKeyA( hkey, name, &subkey )) != ERROR_SUCCESS) return ret;
     }
-    ret = RegQueryValueExA( subkey, NULL, NULL, NULL, (LPBYTE)data, (LPDWORD)count );
+    ret = RegQueryValueExA( subkey, NULL, NULL, &type, (LPBYTE)data, (LPDWORD)count );
     if (subkey != hkey) RegCloseKey( subkey );
+    if (!ret && type == REG_EXPAND_SZ && data)
+    {
+        /* the string is expanded in the buffer and the count reported is the
+         * expanded length; when it does not fit, the buffer is left with an
+         * empty string and the count asks for one byte more, as documented
+         * for ExpandEnvironmentStringsA */
+        DWORD cap = count_in, len;
+        char *raw = NULL, *exp = NULL;
+
+        if (count && (raw = malloc( *count + 1 )))
+        {
+            memcpy( raw, data, *count );
+            raw[*count] = 0;
+            len = ExpandEnvironmentStringsA( raw, NULL, 0 );
+            if (len && (exp = malloc( len )))
+            {
+                len = ExpandEnvironmentStringsA( raw, exp, len );
+                if (len <= cap) memcpy( data, exp, len );
+                else
+                {
+                    if (cap) data[0] = 0;
+                    len++;
+                    ret = ERROR_MORE_DATA;
+                }
+                *count = len;
+            }
+        }
+        free( exp );
+        free( raw );
+    }
+    /* a default value that is not a string is still copied, but fails */
+    if (!ret && type != REG_SZ && type != REG_EXPAND_SZ && type != REG_MULTI_SZ)
+        ret = ERROR_INVALID_DATA;
     if (ret == ERROR_FILE_NOT_FOUND)
     {
         /* return empty string if default value not found */
