@@ -320,6 +320,8 @@ HKLM,System\CurrentControlSet\Control\Class\{745a17a0-74d3-11d0-b6fe-00a0c90f57d
 HKLM,System\CurrentControlSet\Control\Class\{745a17a0-74d3-11d0-b6fe-00a0c90f57da},"Class",,"HIDClass"
 
 [CurrentVersion]
+HKCU,Software\Classes,,16
+HKCU,Software\Classes\Local Settings,,16
 HKCU,%CurrentVersion%\Explorer\Advanced,,16
 HKCU,%CurrentVersion%\Explorer\FileExts,,16
 HKCU,%CurrentVersion%\Run,,16
