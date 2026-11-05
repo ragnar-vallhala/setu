@@ -103,6 +103,11 @@ static void get_case(const char *name, HKEY key, SECURITY_INFORMATION si)
     o_status("ret", st2);
     o_lasterr();
     o_bool("size_matches", size == need);
+    /* what the second call leaves in the size: the buffer size, the
+     * descriptor's own length (at most the queried size), or 0 */
+    o_bool("size_is_buffer", size == sizeof buf);
+    o_bool("size_le_query", size <= need);
+    o_bool("size_zero", size == 0);
     if (!st2) o_sd("sd", buf);
     oracle_case_end();
 }
