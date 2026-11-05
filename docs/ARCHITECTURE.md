@@ -108,11 +108,29 @@ personality, or as host-side daemons where that fits better.
 * **DOS attributes and NT metadata:** hidden, system, archive, read-only and
   the 8.3 short name are stored in xattrs (`user.DOSATTRIB`, compatible with
   Wine and Samba).
-* **ACLs:** the full NT security descriptor is stored in an xattr
-  (`security.NTACL` style, inspired by Samba's public design). The personality
+* **ACLs:** the full NT security descriptor is stored in an xattr, in the
+  spirit of Samba's `security.NTACL` (public design). The personality
   enforces it on `CreateFile` / `AccessCheck`. Coarse POSIX permissions are
   derived from it, so the Linux side gives defence in depth. Windows users and
   groups (SIDs) map to Linux uids and gids through a small identity service.
+  * *Decision (Milestone 2):* the attribute is **`user.setu.sd`**: one format
+    byte (`1`) followed by the descriptor (owner, group, DACL, SACL) in the
+    self-relative layout of [MS-DTYP] 2.4.6. The wineserver reads and writes it
+    (`server/filesec.c`); a file without it keeps Wine's mode-derived descriptor
+    and is not access-checked, so the host's existing files behave as before.
+  * *Why `user.*`:* the personality runs as an ordinary user, and writing
+    `security.*` or `trusted.*` attributes needs `CAP_SYS_ADMIN`. `user.*`
+    works unprivileged on ext4, btrfs, xfs and tmpfs, and survives copies that
+    keep xattrs. The cost is that the host user can edit or remove it, so it is
+    a Windows-side access model, not a Linux security boundary; the POSIX bits
+    stay the boundary. A future privileged service can move it to
+    `security.*` without changing the format.
+  * *Why not `user.NTACL`:* Samba's attribute has its own NDR-encoded layout
+    with hashes; sharing the name but not the format would confuse Samba on
+    the same files.
+  * The owner's own POSIX `rw` (and `x` for directories) bits are always kept,
+    so the host user never loses access to their files; deriving tighter POSIX
+    bits from the descriptor is still to do.
 * **Alternate data streams, reparse points, junctions:** later. Reparse points
   map to symlinks where semantics allow.
 
