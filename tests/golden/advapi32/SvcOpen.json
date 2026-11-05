@@ -1,0 +1,281 @@
+{
+  "test": "advapi32/SvcOpen",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "created": "valid"
+    },
+    "missing": {
+      "ret": "NULL",
+      "last_error": 1060
+    },
+    "null_name": {
+      "ret": "NULL",
+      "last_error": 487
+    },
+    "empty_name": {
+      "ret": "NULL",
+      "last_error": 123
+    },
+    "null_scm": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "exact": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "lower": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "display_name": {
+      "ret": "NULL",
+      "last_error": 1060
+    },
+    "trailing_space": {
+      "ret": "NULL",
+      "last_error": 1060
+    },
+    "access_zero": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "access_all": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "access_generic_all": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "access_maximum": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "access_undefined_bit": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "access_system_security": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "ansi_lower": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "connect_only_scm": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "zero_access_scm": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "rights_query_status": {
+      "open": "valid",
+      "query_status": 0,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_query_config": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 0,
+      "query_config2": 0,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_change_config": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 0,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_enumerate_dependents": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 0,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_interrogate": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 1062,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_user_defined": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 1062,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_stop": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 1062,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_pause_continue": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_read_control": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 0,
+      "delete": 5
+    },
+    "rights_generic_read": {
+      "open": "valid",
+      "query_status": 0,
+      "query_config": 0,
+      "query_config2": 0,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 1062,
+      "control_user": 5,
+      "enum_dependents": 0,
+      "query_security": 0,
+      "delete": 5
+    },
+    "rights_generic_execute": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 2,
+      "control_stop": 1062,
+      "control_interrogate": 5,
+      "control_user": 1062,
+      "enum_dependents": 5,
+      "query_security": 0,
+      "delete": 5
+    },
+    "rights_generic_write": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 0,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 0,
+      "delete": 5
+    },
+    "rights_start": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 2,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 5
+    },
+    "rights_delete": {
+      "open": "valid",
+      "query_status": 5,
+      "query_config": 5,
+      "query_config2": 5,
+      "change_config": 5,
+      "start": 5,
+      "control_stop": 5,
+      "control_interrogate": 5,
+      "control_user": 5,
+      "enum_dependents": 5,
+      "query_security": 5,
+      "delete": 0
+    },
+    "bogus_scm": {
+      "ret": "NULL",
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "2f33a0888a73663517a3c80066b100f8e8c3e0e6e3c5e1e7fe0398a2d7f348cb"
+}

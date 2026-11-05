@@ -1,0 +1,117 @@
+{
+  "test": "advapi32/SvcDelete",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "simple_before": {
+      "created": "valid",
+      "regkey": true,
+      "deleteflag.present": false
+    },
+    "simple_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "regkey": true,
+      "deleteflag.present": true,
+      "deleteflag": 1
+    },
+    "simple_delete_again": {
+      "ret": false,
+      "last_error": 1072
+    },
+    "simple_open_while_marked": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "simple_close": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "simple_gone": {
+      "ret": "NULL",
+      "last_error": 1060,
+      "regkey": false
+    },
+    "other_query_status": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st.type": "0x00000010",
+      "st.state": "STOPPED",
+      "st.accepted": "0x00000000",
+      "st.win32_exit": 1077,
+      "st.specific_exit": 0,
+      "st.checkpoint": 0,
+      "st.wait_hint": 0
+    },
+    "other_query_config": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "other_query_config2": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "other_change_config2": {
+      "ret": false,
+      "last_error": 1072
+    },
+    "other_start": {
+      "ret": false,
+      "last_error": 1058
+    },
+    "other_interrogate": {
+      "ret": false,
+      "last_error": 1062
+    },
+    "other_delete": {
+      "ret": false,
+      "last_error": 1072
+    },
+    "other_display_name": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "other_enum_group": {
+      "ret": false,
+      "last_error": 1060,
+      "count": 0
+    },
+    "running_started": {
+      "state": "RUNNING"
+    },
+    "running_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "RUNNING",
+      "regkey": true,
+      "deleteflag.present": true,
+      "deleteflag": 1
+    },
+    "running_open_after_close": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "running_stop_marked": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "running_gone_after_stop": {
+      "ret": "NULL",
+      "last_error": 1060
+    },
+    "running_log": {
+      "log": "SetuOracle_SvcDelete_3:main,argc=1,args=|SetuOracle_SvcDelete_3:register=ok,err=0|SetuOracle_SvcDelete_3:set_running|SetuOracle_SvcDelete_3:ctl=1,type=0|SetuOracle_SvcDelete_3:set_stopped|dispatcher=1,err=0"
+    },
+    "no_delete_right": {
+      "ret": false,
+      "last_error": 5
+    },
+    "null_handle": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "abddd9f95e315f6155c042b03e4dafd4a0b4042e312c4e71524bedd701738876"
+}

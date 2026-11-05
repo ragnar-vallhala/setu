@@ -1,0 +1,157 @@
+{
+  "test": "advapi32/SvcCreateNames",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "first": {
+      "ret": "valid"
+    },
+    "dup_name_exact": {
+      "ret": "NULL",
+      "last_error": 1073
+    },
+    "dup_name_case": {
+      "ret": "NULL",
+      "last_error": 1073
+    },
+    "dup_display_exact": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "dup_display_case": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "display_equals_other_keyname": {
+      "ret": "NULL",
+      "last_error": 1078
+    },
+    "keyname_equals_other_display": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "display_equals_own_keyname": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_upper": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "open_by_display_name": {
+      "ret": "NULL",
+      "last_error": 1060
+    },
+    "keyname_case_preserved": {
+      "ret": true,
+      "last_error": "unchanged",
+      "key": "SetuOracle_SvcCreateNames_1"
+    },
+    "delete_while_open": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_over_marked": {
+      "ret": "NULL",
+      "last_error": 1072
+    },
+    "create_after_last_close": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "name_empty": {
+      "ret": "NULL",
+      "last_error": 123
+    },
+    "name_slash": {
+      "ret": "NULL",
+      "last_error": 123
+    },
+    "name_backslash": {
+      "ret": "NULL",
+      "last_error": 123
+    },
+    "name_space": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "name_punct": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "name_colon_star": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "name_unicode": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "display_slash": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "name_len_255": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "name_len_256": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "name_len_257": {
+      "ret": "NULL",
+      "last_error": 1783
+    },
+    "name_len_300": {
+      "ret": "NULL",
+      "last_error": 1783
+    },
+    "display_len_255": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "display_len_256": {
+      "ret": "valid",
+      "last_error": 0,
+      "keyname_ok": true,
+      "keyname_matches": true,
+      "reopen": "valid"
+    },
+    "display_len_257": {
+      "ret": "NULL",
+      "last_error": 1783
+    },
+    "display_len_300": {
+      "ret": "NULL",
+      "last_error": 1783
+    }
+  },
+  "errors": [],
+  "source_sha256": "21edec2bdeda360d38bed4f1b344fe9f80d1d2149a88e0a8e85914da7d161448"
+}

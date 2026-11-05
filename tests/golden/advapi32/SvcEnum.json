@@ -1,0 +1,228 @@
+{
+  "test": "advapi32/SvcEnum",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "all_created": true
+    },
+    "group_all": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 4,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_4/SetuOracle Enum M/STOPPED/1;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "group_win32": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 3,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "group_own": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 2,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10"
+    },
+    "group_driver": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 1,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_4/SetuOracle Enum M/STOPPED/1"
+    },
+    "group_kernel_driver": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 1,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_4/SetuOracle Enum M/STOPPED/1"
+    },
+    "group_active": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "group_inactive": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 3,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "group_case": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 3,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "group_missing": {
+      "ret": false,
+      "last_error": 1060,
+      "need": 0,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "group_null_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "need": 465,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "group_tiny_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "need": 465,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "group_no_resume": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 3,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "group_no_resume_null_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "need": 465,
+      "count": 0
+    },
+    "bad_type": {
+      "ret": false,
+      "last_error": 87,
+      "need": 0,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "type_zero": {
+      "ret": false,
+      "last_error": 87,
+      "need": 0,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "type_interactive": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 3,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "bad_state": {
+      "ret": false,
+      "last_error": 87,
+      "need": 0,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "state_zero": {
+      "ret": false,
+      "last_error": 87,
+      "need": 0,
+      "count": 0,
+      "resume_nonzero": false
+    },
+    "group_exact_buffer": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 3,
+      "resume_zero": true
+    },
+    "group_page1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 3,
+      "need": 0,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "group_page2": {
+      "ret": true,
+      "last_error": 234,
+      "count": 3,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/STOPPED/10;SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20",
+      "resume_zero": true
+    },
+    "running_active": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 1,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_3/SetuOracle Enum Z/RUNNING/10"
+    },
+    "running_inactive": {
+      "ret": true,
+      "last_error": 234,
+      "need": 0,
+      "count": 2,
+      "resume_nonzero": false,
+      "services": "SetuOracle_SvcEnum_1/SetuOracle Enum A/STOPPED/10;SetuOracle_SvcEnum_2/SetuOracle Enum B/STOPPED/20"
+    },
+    "running_fields": {
+      "state_seen_by_start": "RUNNING",
+      "st.type": "0x00000010",
+      "st.state": "RUNNING",
+      "st.accepted": "0x00000001",
+      "st.win32_exit": 0,
+      "st.specific_exit": 0,
+      "st.checkpoint": 0,
+      "st.wait_hint": 0,
+      "st.has_pid": true,
+      "st.flags": "0x00000000"
+    },
+    "full_contains": {
+      "own_all": 1,
+      "own_active": 0,
+      "driver_in_win32": 0,
+      "driver_in_driver": 1
+    },
+    "group_empty_string": {
+      "ret": true,
+      "ungrouped_listed": true,
+      "grouped_listed": false
+    },
+    "bad_level": {
+      "ret": false,
+      "last_error": 124
+    },
+    "null_scm": {
+      "ret": false,
+      "last_error": 6
+    },
+    "no_enumerate_right": {
+      "ret": false,
+      "last_error": 5
+    },
+    "ansi_null_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "need": 465
+    },
+    "ansi_group": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 3,
+      "services": "SetuOracle_SvcEnum_3;SetuOracle_SvcEnum_1;SetuOracle_SvcEnum_2;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "a6d14df783401b764b404e525db6a5454f85418744cc0638cc6952df98b00de8"
+}

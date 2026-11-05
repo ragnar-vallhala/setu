@@ -1,0 +1,220 @@
+{
+  "test": "sc/sc_service",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] CreateService SUCCESS",
+      "lines": 1
+    },
+    "create_duplicate": {
+      "started": true,
+      "exit": 1073,
+      "l00": "[SC] CreateService FAILED 1073:",
+      "l01": "",
+      "l02": "The specified service already exists.",
+      "l03": "",
+      "lines": 4
+    },
+    "qc": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] QueryServiceConfig SUCCESS",
+      "l01": "",
+      "l02": "SERVICE_NAME: SetuOracle_sc_1",
+      "l03": "        TYPE               : 10  WIN32_OWN_PROCESS",
+      "l04": "        START_TYPE         : 3   DEMAND_START",
+      "l05": "        ERROR_CONTROL      : 1   NORMAL",
+      "l06": "        BINARY_PATH_NAME   : C:\\setu-oracle\\missing\\none.exe -x",
+      "l07": "        LOAD_ORDER_GROUP   : SetuOracleScGroup",
+      "l08": "        TAG                : 0",
+      "l09": "        DISPLAY_NAME       : SetuOracle sc display",
+      "l10": "        DEPENDENCIES       :",
+      "l11": "        SERVICE_START_NAME : LocalSystem",
+      "lines": 12
+    },
+    "query": {
+      "started": true,
+      "exit": 0,
+      "l00": "",
+      "l01": "SERVICE_NAME: SetuOracle_sc_1",
+      "l02": "        TYPE               : 10  WIN32_OWN_PROCESS",
+      "l03": "        STATE              : 1  STOPPED",
+      "l04": "        WIN32_EXIT_CODE    : 1077  (0x435)",
+      "l05": "        SERVICE_EXIT_CODE  : 0  (0x0)",
+      "l06": "        CHECKPOINT         : 0x0",
+      "l07": "        WAIT_HINT          : 0x0",
+      "lines": 8
+    },
+    "queryex": {
+      "started": true,
+      "exit": 0,
+      "l00": "",
+      "l01": "SERVICE_NAME: SetuOracle_sc_1",
+      "l02": "        TYPE               : 10  WIN32_OWN_PROCESS",
+      "l03": "        STATE              : 1  STOPPED",
+      "l04": "        WIN32_EXIT_CODE    : 1077  (0x435)",
+      "l05": "        SERVICE_EXIT_CODE  : 0  (0x0)",
+      "l06": "        CHECKPOINT         : 0x0",
+      "l07": "        WAIT_HINT          : 0x0",
+      "l08": "        PID <masked>",
+      "l09": "        FLAGS              :",
+      "lines": 10
+    },
+    "description": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] ChangeServiceConfig2 SUCCESS",
+      "lines": 1
+    },
+    "qdescription": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] QueryServiceConfig2 SUCCESS",
+      "l01": "",
+      "l02": "SERVICE_NAME: SetuOracle_sc_1",
+      "l03": "DESCRIPTION:  SetuOracle sc description",
+      "lines": 4
+    },
+    "config_start_auto": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] ChangeServiceConfig SUCCESS",
+      "lines": 1
+    },
+    "qc_after_config": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] QueryServiceConfig SUCCESS",
+      "l01": "",
+      "l02": "SERVICE_NAME: SetuOracle_sc_1",
+      "l03": "        TYPE               : 10  WIN32_OWN_PROCESS",
+      "l04": "        START_TYPE         : 2   AUTO_START",
+      "l05": "        ERROR_CONTROL      : 0   IGNORE",
+      "l06": "        BINARY_PATH_NAME   : C:\\setu-oracle\\missing\\none.exe -x",
+      "l07": "        LOAD_ORDER_GROUP   : SetuOracleScGroup",
+      "l08": "        TAG                : 0",
+      "l09": "        DISPLAY_NAME       : SetuOracle sc display",
+      "l10": "        DEPENDENCIES       :",
+      "l11": "        SERVICE_START_NAME : LocalSystem",
+      "lines": 12
+    },
+    "failure": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] ChangeServiceConfig2 SUCCESS",
+      "lines": 1
+    },
+    "qfailure": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] QueryServiceConfig2 SUCCESS",
+      "l01": "",
+      "l02": "SERVICE_NAME: SetuOracle_sc_1",
+      "l03": "        RESET_PERIOD (in seconds)    : 3600",
+      "l04": "        REBOOT_MESSAGE               :",
+      "l05": "        COMMAND_LINE                 : C:\\setu-oracle\\x.exe",
+      "l06": "        FAILURE_ACTIONS              : RESTART -- Delay = 5000 milliseconds.",
+      "l07": "                                       RUN PROCESS -- Delay = 1000 milliseconds.",
+      "l08": "",
+      "lines": 9
+    },
+    "getdisplayname": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] GetServiceDisplayName SUCCESS",
+      "l01": "Name = SetuOracle sc display",
+      "lines": 2
+    },
+    "getkeyname": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] GetServiceKeyName SUCCESS",
+      "l01": "Name = SetuOracle_sc_1",
+      "lines": 2
+    },
+    "start_missing_binary": {
+      "started": true,
+      "exit": 2,
+      "l00": "[SC] StartService FAILED 2:",
+      "l01": "",
+      "l02": "The system cannot find the file specified.",
+      "l03": "",
+      "lines": 4
+    },
+    "stop_not_started": {
+      "started": true,
+      "exit": 1062,
+      "l00": "[SC] ControlService FAILED 1062:",
+      "l01": "",
+      "l02": "The service has not been started.",
+      "l03": "",
+      "lines": 4
+    },
+    "delete": {
+      "started": true,
+      "exit": 0,
+      "l00": "[SC] DeleteService SUCCESS",
+      "lines": 1
+    },
+    "query_after_delete": {
+      "started": true,
+      "exit": 1060,
+      "l00": "[SC] EnumQueryServicesStatus:OpenService FAILED 1060:",
+      "l01": "",
+      "l02": "The specified service does not exist as an installed service.",
+      "l03": "",
+      "lines": 4
+    },
+    "qc_missing": {
+      "started": true,
+      "exit": 1060,
+      "l00": "[SC] OpenService FAILED 1060:",
+      "l01": "",
+      "l02": "The specified service does not exist as an installed service.",
+      "l03": "",
+      "lines": 4
+    },
+    "delete_missing": {
+      "started": true,
+      "exit": 1060,
+      "l00": "[SC] OpenService FAILED 1060:",
+      "l01": "",
+      "l02": "The specified service does not exist as an installed service.",
+      "l03": "",
+      "lines": 4
+    },
+    "create_no_binpath": {
+      "started": true,
+      "exit": 1639,
+      "l00": "DESCRIPTION:",
+      "l01": "        Creates a service entry in the registry and Service Database.",
+      "l02": "USAGE:",
+      "l03": "        sc <server> create [service name] [binPath= ] <option1> <option2>...",
+      "l04": "",
+      "l05": "OPTIONS:",
+      "l06": "NOTE: The option name includes the equal sign.",
+      "l07": "      A space is required between the equal sign and the value.",
+      "l08": " type= <own|share|interact|kernel|filesys|rec|userown|usershare>",
+      "l09": "       (default = own)",
+      "l10": " start= <boot|system|auto|demand|disabled|delayed-auto>",
+      "l11": "       (default = demand)",
+      "l12": " error= <normal|severe|critical|ignore>",
+      "l13": "       (default = normal)",
+      "l14": " binPath= <BinaryPathName to the .exe file>",
+      "l15": " group= <LoadOrderGroup>",
+      "l16": " tag= <yes|no>",
+      "l17": " depend= <Dependencies(separated by / (forward slash))>",
+      "l18": " obj= <AccountName|ObjectName>",
+      "l19": "       (default = LocalSystem)",
+      "l20": " DisplayName= <display name>",
+      "l21": " password= <password>",
+      "lines": 22
+    }
+  },
+  "errors": [],
+  "source_sha256": "e5be98f2f8c895cd4a07699faddeb6e99c55ecc0f5b9a2a773324d437abf04a1"
+}

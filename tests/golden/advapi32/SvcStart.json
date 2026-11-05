@@ -1,0 +1,175 @@
+{
+  "test": "advapi32/SvcStart",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "created": "valid"
+    },
+    "no_args": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "RUNNING",
+      "accepted": "0x00000001",
+      "has_pid": true,
+      "log": "SetuOracle_SvcStart_1:main,argc=1,args=|SetuOracle_SvcStart_1:register=ok,err=0|SetuOracle_SvcStart_1:set_running|SetuOracle_SvcStart_1:ctl=1,type=0|SetuOracle_SvcStart_1:set_stopped|dispatcher=1,err=0"
+    },
+    "five_args": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "RUNNING",
+      "accepted": "0x00000001",
+      "has_pid": true,
+      "log": "SetuOracle_SvcStart_1:main,argc=6,args=[one],[two words],[],[\"quoted\"],[tab\there]|SetuOracle_SvcStart_1:register=ok,err=0|SetuOracle_SvcStart_1:set_running|SetuOracle_SvcStart_1:ctl=1,type=0|SetuOracle_SvcStart_1:set_stopped|dispatcher=1,err=0"
+    },
+    "argc_zero_with_vector": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "RUNNING",
+      "accepted": "0x00000001",
+      "has_pid": true,
+      "log": "SetuOracle_SvcStart_1:main,argc=1,args=|SetuOracle_SvcStart_1:register=ok,err=0|SetuOracle_SvcStart_1:set_running|SetuOracle_SvcStart_1:ctl=1,type=0|SetuOracle_SvcStart_1:set_stopped|dispatcher=1,err=0"
+    },
+    "one_arg": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "RUNNING",
+      "accepted": "0x00000001",
+      "has_pid": true,
+      "log": "SetuOracle_SvcStart_1:main,argc=2,args=[single]|SetuOracle_SvcStart_1:register=ok,err=0|SetuOracle_SvcStart_1:set_running|SetuOracle_SvcStart_1:ctl=1,type=0|SetuOracle_SvcStart_1:set_stopped|dispatcher=1,err=0"
+    },
+    "ansi_args": {
+      "ret": true,
+      "last_error": "unchanged",
+      "log": "SetuOracle_SvcStart_1:main,argc=3,args=[ansi1],[ansi two]|SetuOracle_SvcStart_1:register=ok,err=0|SetuOracle_SvcStart_1:set_running|SetuOracle_SvcStart_1:ctl=1,type=0|SetuOracle_SvcStart_1:set_stopped|dispatcher=1,err=0"
+    },
+    "pending_after_start": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st.type": "0x00000010",
+      "st.state": "START_PENDING",
+      "st.accepted": "0x00000000",
+      "st.win32_exit": 0,
+      "st.specific_exit": 0,
+      "st.checkpoint": 7,
+      "st.wait_hint": 12345,
+      "st.has_pid": true,
+      "st.flags": "0x00000000"
+    },
+    "start_while_start_pending": {
+      "ret": false,
+      "last_error": 1056
+    },
+    "stop_while_start_pending": {
+      "ret": false,
+      "last_error": 1052
+    },
+    "pending_released": {
+      "st.type": "0x00000010",
+      "st.state": "RUNNING",
+      "st.accepted": "0x00000001",
+      "st.win32_exit": 0,
+      "st.specific_exit": 0,
+      "st.checkpoint": 0,
+      "st.wait_hint": 0,
+      "st.has_pid": true,
+      "st.flags": "0x00000000"
+    },
+    "start_while_running": {
+      "ret": false,
+      "last_error": 1056
+    },
+    "pending_log": {
+      "log": "SetuOracle_SvcStart_2:main,argc=1,args=|SetuOracle_SvcStart_2:register=ok,err=0|SetuOracle_SvcStart_2:set_pending|SetuOracle_SvcStart_2:set_running|SetuOracle_SvcStart_2:ctl=1,type=0|SetuOracle_SvcStart_2:set_stopped|dispatcher=1,err=0"
+    },
+    "failstart_specific": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st.type": "0x00000010",
+      "st.state": "STOPPED",
+      "st.accepted": "0x00000000",
+      "st.win32_exit": 1066,
+      "st.specific_exit": 42,
+      "st.checkpoint": 0,
+      "st.wait_hint": 0,
+      "st.has_pid": false,
+      "st.flags": "0x00000000",
+      "log": "SetuOracle_SvcStart_3:main,argc=1,args=|SetuOracle_SvcStart_3:register=ok,err=0|SetuOracle_SvcStart_3:set_stopped|dispatcher=1,err=0"
+    },
+    "failstart_win32": {
+      "ret": true,
+      "last_error": "unchanged",
+      "st.type": "0x00000010",
+      "st.state": "STOPPED",
+      "st.accepted": "0x00000000",
+      "st.win32_exit": 5,
+      "st.specific_exit": 0,
+      "st.checkpoint": 0,
+      "st.wait_hint": 0,
+      "st.has_pid": false,
+      "st.flags": "0x00000000",
+      "log": "SetuOracle_SvcStart_4:main,argc=1,args=|SetuOracle_SvcStart_4:register=ok,err=0|SetuOracle_SvcStart_4:set_stopped|dispatcher=1,err=0"
+    },
+    "process_exit_without_stopped": {
+      "st.type": "0x00000010",
+      "st.state": "RUNNING",
+      "st.accepted": "0x00000001",
+      "st.win32_exit": 0,
+      "st.specific_exit": 0,
+      "st.checkpoint": 0,
+      "st.wait_hint": 0,
+      "st.has_pid": true,
+      "st.flags": "0x00000000",
+      "log": "SetuOracle_SvcStart_5:main,argc=1,args=|SetuOracle_SvcStart_5:register=ok,err=0|SetuOracle_SvcStart_5:set_running"
+    },
+    "restart_after_process_exit": {
+      "ret": false,
+      "last_error": 1056,
+      "state": "RUNNING"
+    },
+    "disabled": {
+      "ret": false,
+      "last_error": 1058
+    },
+    "missing_binary": {
+      "ret": false,
+      "last_error": 2,
+      "st.type": "0x00000010",
+      "st.state": "STOPPED",
+      "st.accepted": "0x00000000",
+      "st.win32_exit": 0,
+      "st.specific_exit": 0,
+      "st.checkpoint": 0,
+      "st.wait_hint": 2000,
+      "st.has_pid": false,
+      "st.flags": "0x00000000"
+    },
+    "empty_binary_path": {
+      "ret": false,
+      "last_error": 2
+    },
+    "missing_binary_unquoted_space": {
+      "ret": false,
+      "last_error": 2
+    },
+    "marked_for_delete": {
+      "ret": false,
+      "last_error": 1058
+    },
+    "null_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "no_start_right": {
+      "ret": false,
+      "last_error": 5
+    },
+    "driver_missing_file": {
+      "ret": false,
+      "last_error": 3
+    }
+  },
+  "errors": [],
+  "source_sha256": "4ef33aa70dc52ca1c21d2e4a4ca53211f6e7301445494eaed221b132b7f6c2c8"
+}

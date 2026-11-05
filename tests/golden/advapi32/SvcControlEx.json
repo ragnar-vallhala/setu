@@ -1,0 +1,237 @@
+{
+  "test": "advapi32/SvcControlEx",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "started": {
+      "state": "RUNNING"
+    },
+    "interrogate_level1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ss.type": "0x00000010",
+      "ss.state": "RUNNING",
+      "ss.accepted": "0x00000003",
+      "ss.win32_exit": 0,
+      "ss.specific_exit": 0,
+      "ss.checkpoint": 0,
+      "ss.wait_hint": 0,
+      "ss.has_pid": true,
+      "ss.flags": "0x00000000",
+      "log": "SetuOracle_SvcControlEx_1:ctl=4,type=0"
+    },
+    "user_level1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ss.type": "0x00000010",
+      "ss.state": "RUNNING",
+      "ss.accepted": "0x00000003",
+      "ss.win32_exit": 0,
+      "ss.specific_exit": 0,
+      "ss.checkpoint": 0,
+      "ss.wait_hint": 0,
+      "ss.has_pid": true,
+      "ss.flags": "0x00000000",
+      "log": "SetuOracle_SvcControlEx_1:ctl=133,type=0"
+    },
+    "pause_level1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ss.type": "0x00000010",
+      "ss.state": "PAUSED",
+      "ss.accepted": "0x00000003",
+      "ss.win32_exit": 0,
+      "ss.specific_exit": 0,
+      "ss.checkpoint": 0,
+      "ss.wait_hint": 0,
+      "ss.has_pid": true,
+      "ss.flags": "0x00000000",
+      "log": "SetuOracle_SvcControlEx_1:ctl=2,type=0"
+    },
+    "continue_level1": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ss.type": "0x00000010",
+      "ss.state": "RUNNING",
+      "ss.accepted": "0x00000003",
+      "ss.win32_exit": 0,
+      "ss.specific_exit": 0,
+      "ss.checkpoint": 0,
+      "ss.wait_hint": 0,
+      "ss.has_pid": true,
+      "ss.flags": "0x00000000",
+      "log": "SetuOracle_SvcControlEx_1:ctl=3,type=0"
+    },
+    "level0": {
+      "ret": false,
+      "last_error": 124,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "level2": {
+      "ret": false,
+      "last_error": 124,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "level1_null_params": {
+      "ret": false,
+      "last_error": 87,
+      "log": ""
+    },
+    "stop_reason_zero": {
+      "ret": false,
+      "last_error": 87,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "stop_reason_no_flag": {
+      "ret": false,
+      "last_error": 87,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "stop_reason_bad_major": {
+      "ret": false,
+      "last_error": 87,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "stop_reason_bad_minor": {
+      "ret": false,
+      "last_error": 87,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "stop_reason_two_flags": {
+      "ret": false,
+      "last_error": 87,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "stop_comment_too_long": {
+      "ret": false,
+      "last_error": 87,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "stop_level0": {
+      "ret": false,
+      "last_error": 124,
+      "ss.type": "0xcccccccc",
+      "ss.state": "3435973836",
+      "ss.accepted": "0xcccccccc",
+      "ss.win32_exit": 3435973836,
+      "ss.specific_exit": 3435973836,
+      "ss.checkpoint": 3435973836,
+      "ss.wait_hint": 3435973836,
+      "ss.has_pid": false,
+      "ss.flags": "0xcccccccc",
+      "log": ""
+    },
+    "stop_null_params": {
+      "ret": false,
+      "last_error": 87,
+      "log": ""
+    },
+    "stop_planned_comment": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ss.pending_or_stopped": true
+    },
+    "stopped": {
+      "state": "STOPPED",
+      "log": "SetuOracle_SvcControlEx_1:ctl=1,type=0|SetuOracle_SvcControlEx_1:set_stopped|dispatcher=1,err=0"
+    },
+    "stop_when_stopped": {
+      "ret": false,
+      "last_error": 1062,
+      "ss.type": "0x00000010",
+      "ss.state": "STOPPED",
+      "ss.accepted": "0x00000000",
+      "ss.win32_exit": 0,
+      "ss.specific_exit": 0,
+      "ss.checkpoint": 0,
+      "ss.wait_hint": 0,
+      "ss.has_pid": false,
+      "ss.flags": "0x00000000",
+      "log": ""
+    },
+    "ansi_stop_custom": {
+      "ret": true,
+      "last_error": "unchanged",
+      "ss.pending_or_stopped": true
+    },
+    "ansi_stopped": {
+      "state": "STOPPED",
+      "log": "SetuOracle_SvcControlEx_1:ctl=1,type=0|SetuOracle_SvcControlEx_1:set_stopped|dispatcher=1,err=0"
+    }
+  },
+  "errors": [],
+  "source_sha256": "40d5be14b5d4f438eeb292255eaa2cbdf9a3bc7b883165be0092345aeb23cee3"
+}

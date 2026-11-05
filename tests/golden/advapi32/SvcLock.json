@@ -1,0 +1,110 @@
+{
+  "test": "advapi32/SvcLock",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "status_unlocked": {
+      "ret": true,
+      "last_error": "unchanged",
+      "locked": 0,
+      "owner_null": false,
+      "owner_empty": true
+    },
+    "status_null_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "need": 38
+    },
+    "lock": {
+      "ret": true,
+      "last_error": 0
+    },
+    "status_locked": {
+      "ret": true,
+      "last_error": "unchanged",
+      "locked": 1,
+      "owner_null": false,
+      "owner_empty": false
+    },
+    "lock_again_same_handle": {
+      "ret": false,
+      "last_error": 1055
+    },
+    "lock_again_other_handle": {
+      "ret": false,
+      "last_error": 1055
+    },
+    "create_while_locked": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "change_while_locked": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "start_while_locked": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "unlock": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "status_after_unlock": {
+      "ret": true,
+      "last_error": "unchanged",
+      "locked": 0,
+      "owner_null": false,
+      "owner_empty": true
+    },
+    "unlock_null": {
+      "ret": false,
+      "last_error": 1071
+    },
+    "lock_without_right": {
+      "ret": false,
+      "last_error": 5
+    },
+    "status_without_right": {
+      "ret": false,
+      "last_error": 5,
+      "need": 0
+    },
+    "status_with_right": {
+      "ret": true,
+      "last_error": "unchanged",
+      "locked": 0,
+      "owner_null": false,
+      "owner_empty": true
+    },
+    "lock_then_close_handle": {
+      "locked": true
+    },
+    "status_after_closing_lock_owner": {
+      "ret": true,
+      "last_error": "unchanged",
+      "locked": 1,
+      "owner_null": false,
+      "owner_empty": false
+    },
+    "unlock_after_close": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "status_end": {
+      "ret": true,
+      "last_error": "unchanged",
+      "locked": 0,
+      "owner_null": false,
+      "owner_empty": true
+    },
+    "ansi_status_null_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "need": 38
+    }
+  },
+  "errors": [],
+  "source_sha256": "32d877619dd63644394f1ba6716bb2e9e665110120ef41626c82f2a28c1dccd4"
+}

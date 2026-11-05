@@ -1,0 +1,82 @@
+{
+  "test": "advapi32/SvcDispatcher",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "dispatcher_not_a_service": {
+      "ret": false,
+      "last_error": 1063
+    },
+    "dispatcher_empty_table": {
+      "ret": false,
+      "last_error": 1056
+    },
+    "register_not_a_service": {
+      "ret": false,
+      "last_error": "unchanged"
+    },
+    "own_table_name_ignored": {
+      "state": "RUNNING",
+      "log": "argv0_is_table=0,argv0_is_name=1|SetuOracle_SvcDispatcher_1:main,argc=3,args=[a1],[a2]|SetuOracle_SvcDispatcher_1:register=ok,err=0|SetuOracle_SvcDispatcher_1:set_running|SetuOracle_SvcDispatcher_1:ctl=1,type=0|SetuOracle_SvcDispatcher_1:set_stopped|dispatcher=1,err=0"
+    },
+    "share_first_started": {
+      "a.type": "0x00000020",
+      "a.state": "RUNNING",
+      "a.accepted": "0x00000001",
+      "a.win32_exit": 0,
+      "a.specific_exit": 0,
+      "a.checkpoint": 0,
+      "a.wait_hint": 0,
+      "a.has_pid": true,
+      "a.flags": "0x00000000",
+      "log": "SetuOracle_SvcDispatcher_2:main,argc=1,args=|SetuOracle_SvcDispatcher_2:register=ok,err=0|SetuOracle_SvcDispatcher_2:set_running"
+    },
+    "share_second_started": {
+      "b.type": "0x00000020",
+      "b.state": "RUNNING",
+      "b.accepted": "0x00000001",
+      "b.win32_exit": 0,
+      "b.specific_exit": 0,
+      "b.checkpoint": 0,
+      "b.wait_hint": 0,
+      "b.has_pid": true,
+      "b.flags": "0x00000000",
+      "same_process": false,
+      "log": "SetuOracle_SvcDispatcher_3:main,argc=2,args=[barg]|SetuOracle_SvcDispatcher_3:register=ok,err=0|SetuOracle_SvcDispatcher_3:set_running"
+    },
+    "share_first_stopped": {
+      "opened_process": true,
+      "a.state": "STOPPED",
+      "b.state": "RUNNING",
+      "process_alive": true,
+      "log": "SetuOracle_SvcDispatcher_2:ctl=1,type=0|SetuOracle_SvcDispatcher_2:set_stopped|dispatcher=1,err=0"
+    },
+    "share_first_restarted": {
+      "a.state": "RUNNING",
+      "same_process": false,
+      "log": "SetuOracle_SvcDispatcher_2:main,argc=1,args=|SetuOracle_SvcDispatcher_2:register=ok,err=0|SetuOracle_SvcDispatcher_2:set_running"
+    },
+    "share_both_stopped": {
+      "process_exited": true,
+      "log": "SetuOracle_SvcDispatcher_2:ctl=1,type=0|SetuOracle_SvcDispatcher_2:set_stopped|SetuOracle_SvcDispatcher_3:ctl=1,type=0|SetuOracle_SvcDispatcher_3:set_stopped|dispatcher=1,err=0"
+    },
+    "noreport": {
+      "ret": true,
+      "last_error": "unchanged",
+      "state": "START_PENDING"
+    },
+    "share_name_not_in_table": {
+      "ret": false,
+      "err": 1083,
+      "state": "STOPPED",
+      "win32_exit": 0
+    },
+    "set_status_bogus_handle": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "9ba713d099fea677d94ba8e64fb86af68d17c258b4079c8916bcca7ff4fdc2f0"
+}

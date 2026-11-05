@@ -1,0 +1,542 @@
+{
+  "test": "advapi32/SvcConfig2",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "svc": "valid",
+      "driver": "valid"
+    },
+    "default_description": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 8,
+      "ret": true,
+      "last_error": "unchanged",
+      "description": null
+    },
+    "default_failure_actions": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 40,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 0,
+      "reboot_msg": null,
+      "command": null,
+      "actions": 0,
+      "actions_ptr_null": true
+    },
+    "default_failure_flag": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "flag": 0
+    },
+    "default_delayed": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "delayed": 0
+    },
+    "default_sid": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "sid_type": 0
+    },
+    "default_privileges": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 8,
+      "ret": true,
+      "last_error": "unchanged",
+      "privileges": null
+    },
+    "default_preshutdown": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "preshutdown_timeout": 10000
+    },
+    "default_triggers": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 24,
+      "ret": true,
+      "last_error": "unchanged",
+      "triggers": 0
+    },
+    "default_launch_protected": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "launch_protected": 0
+    },
+    "driver_default_sid": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "sid_type": 0
+    },
+    "driver_default_delayed": {
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "delayed": 0
+    },
+    "level_0": {
+      "null.ret": false,
+      "null.err": 124,
+      "null.need": 57005,
+      "ret": false,
+      "last_error": 124
+    },
+    "level_10": {
+      "null.ret": false,
+      "null.err": 124,
+      "null.need": 57005,
+      "ret": false,
+      "last_error": 124
+    },
+    "level_99": {
+      "null.ret": false,
+      "null.err": 124,
+      "null.need": 57005,
+      "ret": false,
+      "last_error": 124
+    },
+    "description_set": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 64,
+      "ret": true,
+      "last_error": "unchanged",
+      "description": "SetuOracle description text"
+    },
+    "description_struct_only_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "need": 64
+    },
+    "description_exact_buffer": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 64
+    },
+    "description_ansi_null": {
+      "ret": false,
+      "last_error": 122,
+      "need": 64
+    },
+    "description_ansi": {
+      "ret": true,
+      "last_error": "unchanged",
+      "description": "SetuOracle description text"
+    },
+    "description_null_keeps": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 64,
+      "ret": true,
+      "last_error": "unchanged",
+      "description": "SetuOracle description text"
+    },
+    "description_empty_clears": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 8,
+      "ret": true,
+      "last_error": "unchanged",
+      "description": null
+    },
+    "description_ansi_set": {
+      "change.ret": true,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 64,
+      "ret": true,
+      "last_error": "unchanged",
+      "description": "SetuOracle ANSI description"
+    },
+    "description_null_info": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "failure_set": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 168,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 86400,
+      "reboot_msg": "SetuOracle reboot message",
+      "command": "C:\\setu-oracle\\cmd.exe /x",
+      "actions": 3,
+      "actions_ptr_null": false,
+      "action0.type": 1,
+      "action0.delay": 1000,
+      "action1.type": 0,
+      "action1.delay": 0,
+      "action2.type": 3,
+      "action2.delay": 5000
+    },
+    "failure_null_actions_keeps": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 168,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 86400,
+      "reboot_msg": "SetuOracle reboot message",
+      "command": "C:\\setu-oracle\\cmd.exe /x",
+      "actions": 3,
+      "actions_ptr_null": false,
+      "action0.type": 1,
+      "action0.delay": 1000,
+      "action1.type": 0,
+      "action1.delay": 0,
+      "action2.type": 3,
+      "action2.delay": 5000
+    },
+    "failure_empty_strings": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 64,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 86400,
+      "reboot_msg": null,
+      "command": null,
+      "actions": 3,
+      "actions_ptr_null": false,
+      "action0.type": 1,
+      "action0.delay": 1000,
+      "action1.type": 0,
+      "action1.delay": 0,
+      "action2.type": 3,
+      "action2.delay": 5000
+    },
+    "failure_zero_actions_clears": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 40,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 0,
+      "reboot_msg": null,
+      "command": null,
+      "actions": 0,
+      "actions_ptr_null": true
+    },
+    "failure_reboot_no_privilege": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 48,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 60,
+      "reboot_msg": null,
+      "command": null,
+      "actions": 1,
+      "actions_ptr_null": false,
+      "action0.type": 2,
+      "action0.delay": 1000
+    },
+    "failure_bogus_type": {
+      "change.ret": false,
+      "change.err": 87,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 48,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 60,
+      "reboot_msg": null,
+      "command": null,
+      "actions": 1,
+      "actions_ptr_null": false,
+      "action0.type": 2,
+      "action0.delay": 1000
+    },
+    "failure_restart_without_start_right": {
+      "change.ret": false,
+      "change.err": 5,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 48,
+      "ret": true,
+      "last_error": "unchanged",
+      "reset_period": 60,
+      "reboot_msg": null,
+      "command": null,
+      "actions": 1,
+      "actions_ptr_null": false,
+      "action0.type": 2,
+      "action0.delay": 1000
+    },
+    "failure_flag_set": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "flag": 1
+    },
+    "failure_flag_5": {
+      "change.ret": false,
+      "change.err": 87,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "flag": 1
+    },
+    "failure_flag_clear": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "flag": 0
+    },
+    "delayed_on_demand_start": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "delayed": 1
+    },
+    "delayed_on_auto_start": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "delayed": 1
+    },
+    "delayed_2": {
+      "change.ret": false,
+      "change.err": 87,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "delayed": 1
+    },
+    "delayed_off": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "delayed": 0
+    },
+    "delayed_driver": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "delayed": 1
+    },
+    "sid_unrestricted": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "sid_type": 1
+    },
+    "sid_restricted": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "sid_type": 3
+    },
+    "sid_2": {
+      "change.ret": false,
+      "change.err": 87,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "sid_type": 3
+    },
+    "sid_none": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "sid_type": 0
+    },
+    "sid_driver": {
+      "change.ret": false,
+      "change.err": 87,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "sid_type": 0
+    },
+    "privileges_set": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 90,
+      "ret": true,
+      "last_error": "unchanged",
+      "privileges": "SeShutdownPrivilege,SeTimeZonePrivilege"
+    },
+    "privileges_bogus": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 90,
+      "ret": true,
+      "last_error": "unchanged",
+      "privileges": "SeShutdownPrivilege,SeTimeZonePrivilege"
+    },
+    "privileges_empty": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 8,
+      "ret": true,
+      "last_error": "unchanged",
+      "privileges": null
+    },
+    "privileges_null": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 8,
+      "ret": true,
+      "last_error": "unchanged",
+      "privileges": null
+    },
+    "preshutdown_5000": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "preshutdown_timeout": 5000
+    },
+    "preshutdown_0": {
+      "change.ret": true,
+      "change.err": 0,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "preshutdown_timeout": 0
+    },
+    "triggers_none": {
+      "change.ret": false,
+      "change.err": 87,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 24,
+      "ret": true,
+      "last_error": "unchanged",
+      "triggers": 0
+    },
+    "launch_protected_none": {
+      "change.ret": false,
+      "change.err": 2,
+      "null.ret": false,
+      "null.err": 122,
+      "null.need": 4,
+      "ret": true,
+      "last_error": "unchanged",
+      "launch_protected": 0
+    },
+    "change_level_0": {
+      "ret": false,
+      "last_error": 124
+    },
+    "change_level_99": {
+      "ret": false,
+      "last_error": 124
+    },
+    "access_change_without_right": {
+      "ret": false,
+      "last_error": 5
+    },
+    "access_query_without_right": {
+      "ret": false,
+      "last_error": 5
+    },
+    "query_null_handle": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "014a5bb42913a539cee1bdd972f468f559ceca5983d944ff669d7853de8235ff"
+}

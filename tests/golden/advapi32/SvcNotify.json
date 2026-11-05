@@ -1,0 +1,120 @@
+{
+  "test": "advapi32/SvcNotify",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "already_stopped": {
+      "ret": 0,
+      "last_error": 0,
+      "fired": true,
+      "n.version": 2,
+      "n.status": 0,
+      "n.triggered": "0x00000001",
+      "n.state": "STOPPED",
+      "n.type": "0x00000010",
+      "n.accepted": "0x00000000",
+      "n.win32_exit": 1077,
+      "n.has_pid": false
+    },
+    "running_registered": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "fired_before_start": false
+    },
+    "running_after_start": {
+      "fired": true,
+      "n.version": 2,
+      "n.status": 0,
+      "n.triggered": "0x00000008",
+      "n.state": "RUNNING",
+      "n.type": "0x00000010",
+      "n.accepted": "0x00000003",
+      "n.win32_exit": 0,
+      "n.has_pid": true
+    },
+    "paused": {
+      "ret": 0,
+      "fired": true,
+      "n.version": 2,
+      "n.status": 0,
+      "n.triggered": "0x00000040",
+      "n.state": "PAUSED",
+      "n.type": "0x00000010",
+      "n.accepted": "0x00000003",
+      "n.win32_exit": 0,
+      "n.has_pid": true
+    },
+    "second_pending_same_handle": {
+      "ret1": 0,
+      "ret2": 0
+    },
+    "pending_other_handle": {
+      "ret": 0
+    },
+    "stopped_both_handles": {
+      "callbacks": 3,
+      "n.version": 2,
+      "n.status": 0,
+      "n.triggered": "0x00000001",
+      "n.state": "STOPPED",
+      "n.type": "0x00000010",
+      "n.accepted": "0x00000000",
+      "n.win32_exit": 0,
+      "n.has_pid": false
+    },
+    "version_1": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "version_7": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "no_query_status_right": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "null_handle": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "mask_zero": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "fired": false
+    },
+    "close_with_pending": {
+      "ret": true,
+      "last_error": "unchanged",
+      "fired": false
+    },
+    "scm_created_registered": {
+      "ret": 0,
+      "last_error": 0
+    },
+    "scm_created": {
+      "fired": true,
+      "n.triggered": "0x00000080",
+      "names": "/SetuOracle_SvcNotify_2"
+    },
+    "scm_deleted": {
+      "ret": 0,
+      "fired": true,
+      "n.triggered": "0x00000100",
+      "names": "SetuOracle_SvcNotify_2"
+    },
+    "scm_running_mask": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "delete_pending": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "fired": true,
+      "n.triggered": "0x00000200"
+    }
+  },
+  "errors": [],
+  "source_sha256": "d8dd1787f54d9fc24b444b669aa43f5ebeb0b098c56f4e5d74e6876aebecd0b0"
+}

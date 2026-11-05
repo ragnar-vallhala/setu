@@ -1,0 +1,162 @@
+{
+  "test": "advapi32/SvcDependents",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "all_created": true
+    },
+    "deps_of_1_all": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 3,
+      "dependents": "SetuOracle_SvcDependents_4/STOPPED;SetuOracle_SvcDependents_3/STOPPED;SetuOracle_SvcDependents_2/STOPPED"
+    },
+    "deps_of_1_active": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 0,
+      "dependents": ""
+    },
+    "deps_of_1_inactive": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 3,
+      "dependents": "SetuOracle_SvcDependents_4/STOPPED;SetuOracle_SvcDependents_3/STOPPED;SetuOracle_SvcDependents_2/STOPPED"
+    },
+    "deps_of_1_null_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "need": 576,
+      "count": 0
+    },
+    "deps_of_1_small_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "need": 576,
+      "count": 0
+    },
+    "deps_of_2": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 1,
+      "dependents": "SetuOracle_SvcDependents_3/STOPPED"
+    },
+    "deps_of_3_none": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 0,
+      "dependents": ""
+    },
+    "deps_of_3_none_null_buffer": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 0,
+      "dependents": ""
+    },
+    "deps_of_8": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 1,
+      "dependents": "SetuOracle_SvcDependents_7/STOPPED"
+    },
+    "bad_state": {
+      "ret": false,
+      "last_error": 87,
+      "need": 0,
+      "count": 0
+    },
+    "no_enumerate_right": {
+      "ret": false,
+      "last_error": 5,
+      "need": 0,
+      "count": 0
+    },
+    "ansi_null_buffer": {
+      "ret": false,
+      "last_error": 234,
+      "need": 576
+    },
+    "ansi": {
+      "ret": true,
+      "last_error": "unchanged",
+      "count": 3,
+      "dependents": "SetuOracle_SvcDependents_4;SetuOracle_SvcDependents_3;SetuOracle_SvcDependents_2;"
+    },
+    "start_chain": {
+      "ret": true,
+      "last_error": "unchanged",
+      "s1": "RUNNING",
+      "s2": "RUNNING",
+      "s3": "RUNNING",
+      "s4": "STOPPED"
+    },
+    "start_chain_log": {
+      "log": "SetuOracle_SvcDependents_1:main,argc=1,args=|SetuOracle_SvcDependents_1:register=ok,err=0|SetuOracle_SvcDependents_1:set_running|SetuOracle_SvcDependents_2:main,argc=1,args=|SetuOracle_SvcDependents_2:register=ok,err=0|SetuOracle_SvcDependents_2:set_running|SetuOracle_SvcDependents_3:main,argc=1,args=|SetuOracle_SvcDependents_3:register=ok,err=0|SetuOracle_SvcDependents_3:set_running"
+    },
+    "deps_of_1_active_running": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 2,
+      "dependents": "SetuOracle_SvcDependents_3/RUNNING;SetuOracle_SvcDependents_2/RUNNING"
+    },
+    "deps_of_1_inactive_running": {
+      "ret": true,
+      "last_error": "unchanged",
+      "need": 0,
+      "count": 1,
+      "dependents": "SetuOracle_SvcDependents_4/STOPPED"
+    },
+    "stop_with_running_dependents": {
+      "ret": false,
+      "last_error": 1051,
+      "s1": "RUNNING"
+    },
+    "stop_middle_with_running_dependent": {
+      "ret": false,
+      "last_error": 1051
+    },
+    "stop_after_dependents_stopped": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "stop_after_dependents_stopped_states": {
+      "s1": "STOPPED",
+      "s2": "STOPPED",
+      "s3": "STOPPED"
+    },
+    "start_missing_dependency": {
+      "ret": false,
+      "last_error": 1075,
+      "s5": "STOPPED"
+    },
+    "start_disabled_dependency": {
+      "ret": false,
+      "last_error": 1068,
+      "s7": "STOPPED",
+      "s8": "STOPPED"
+    },
+    "start_group_dependency_stopped": {
+      "ret": true,
+      "last_error": "unchanged",
+      "s6": "RUNNING",
+      "s1": "RUNNING"
+    },
+    "start_group_dependency_running": {
+      "ret": true,
+      "last_error": "unchanged",
+      "s6": "RUNNING"
+    }
+  },
+  "errors": [],
+  "source_sha256": "18a313fff8b3d5fa634e6c7c8ed69906d5820f9fae5347d8ffae5ebd717687a0"
+}

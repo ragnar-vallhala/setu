@@ -1,0 +1,583 @@
+{
+  "test": "advapi32/SvcCreate",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "type_own": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "type_share": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000020",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "type_own_interactive": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000110",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "type_share_interactive": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000120",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "type_kernel_driver": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000001",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "\\??\\C:\\setu-oracle\\none.sys",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "",
+      "cfg.display": "Setu oracle display"
+    },
+    "type_fs_driver": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000002",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "\\??\\C:\\setu-oracle\\none.sys",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "",
+      "cfg.display": "Setu oracle display"
+    },
+    "type_win32_both": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_driver_both": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_zero": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_interactive_only": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_driver_interactive": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_adapter": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_recognizer": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_bogus_bit": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "type_user_own": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000050",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "",
+      "cfg.display": "Setu oracle display"
+    },
+    "type_own_interactive_account": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "start_boot_own": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "start_system_own": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "start_boot_driver": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "start_system_driver": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000001",
+      "cfg.start": 1,
+      "cfg.error": 0,
+      "cfg.path": "\\??\\C:\\setu-oracle\\none.sys",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "",
+      "cfg.display": "Setu oracle display"
+    },
+    "start_auto": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 2,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "start_disabled": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 4,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "start_5": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "start_huge": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "error_normal": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 1,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "error_severe": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 2,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "error_critical": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 3,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "error_4": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "error_huge": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "path_null": {
+      "ret": "NULL",
+      "last_error": 487
+    },
+    "path_empty": {
+      "ret": "NULL",
+      "last_error": 87
+    },
+    "path_relative": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "relative.exe -x",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "path_quoted_args": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "\"C:\\Program Files\\x y.exe\" -a \"b c\"",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "path_envvar": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\Windows\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "path_driver_relative": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000001",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "system32\\drivers\\none.sys",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "",
+      "cfg.display": "Setu oracle display"
+    },
+    "group_set": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "SetuOracleGroup",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "group_empty": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "tag_own_process": {
+      "ret": "valid",
+      "last_error": 0,
+      "tag_changed": true,
+      "tag_nonzero": true,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "SetuOracleGroup",
+      "cfg.tag": 1,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "tag_own_no_group": {
+      "ret": "NULL",
+      "last_error": 87,
+      "tag_changed": false,
+      "tag_nonzero": false
+    },
+    "tag_driver_demand": {
+      "ret": "valid",
+      "last_error": 0,
+      "tag_changed": true,
+      "tag_nonzero": true,
+      "cfg.ok": true,
+      "cfg.type": "0x00000001",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "\\??\\C:\\setu-oracle\\none.sys",
+      "cfg.group": "SetuOracleGroup",
+      "cfg.tag": 1,
+      "cfg.deps": "",
+      "cfg.account": "",
+      "cfg.display": "Setu oracle display"
+    },
+    "tag_driver_boot": {
+      "ret": "NULL",
+      "last_error": 87,
+      "tag_changed": false,
+      "tag_nonzero": false
+    },
+    "deps_one": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "SetuOracleDepA",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "deps_two_and_group": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "SetuOracleDepA,+SetuOracleGroup",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "deps_empty": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "account_localsystem": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "account_dot_localsystem": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu oracle display"
+    },
+    "account_localservice": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "NT AUTHORITY\\LocalService",
+      "cfg.display": "Setu oracle display"
+    },
+    "account_networkservice": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "NT AUTHORITY\\NetworkService",
+      "cfg.display": "Setu oracle display"
+    },
+    "account_share_localservice": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000020",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "NT AUTHORITY\\LocalService",
+      "cfg.display": "Setu oracle display"
+    },
+    "account_driver_object": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000001",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "\\??\\C:\\setu-oracle\\none.sys",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "\\Driver\\SetuOracle",
+      "cfg.display": "Setu oracle display"
+    },
+    "account_empty": {
+      "ret": "NULL",
+      "last_error": 1057
+    },
+    "null_scm": {
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "null_name": {
+      "ret": "NULL",
+      "last_error": 487
+    },
+    "display_null": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "SetuOracle_SvcCreate_91"
+    },
+    "display_empty": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\none.exe",
+      "cfg.group": "",
+      "cfg.tag": 0,
+      "cfg.deps": "",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "SetuOracle_SvcCreate_91"
+    },
+    "access_query_status_only": {
+      "ret": "valid",
+      "last_error": 0,
+      "query_status": true,
+      "delete": false,
+      "delete_err": 5
+    },
+    "access_zero": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "ansi_create": {
+      "ret": "valid",
+      "last_error": 0,
+      "cfg.ok": true,
+      "cfg.type": "0x00000010",
+      "cfg.start": 3,
+      "cfg.error": 0,
+      "cfg.path": "C:\\setu-oracle\\ansi.exe",
+      "cfg.group": "SetuOracleGroup",
+      "cfg.tag": 0,
+      "cfg.deps": "SetuOracleDepA",
+      "cfg.account": "LocalSystem",
+      "cfg.display": "Setu ANSI display"
+    }
+  },
+  "errors": [],
+  "source_sha256": "8b63acd055c64bc1fb7306ca3a2416b5aafdc490a3a320af3c6caa149fe7b695"
+}

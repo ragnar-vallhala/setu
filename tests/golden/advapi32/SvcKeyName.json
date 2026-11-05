@@ -1,0 +1,230 @@
+{
+  "test": "advapi32/SvcKeyName",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "a": "valid",
+      "b": "valid"
+    },
+    "key_exact": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 23,
+      "out": "SetuOracle_SvcKeyName_1"
+    },
+    "key_case": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 23,
+      "out": "SetuOracle_SvcKeyName_1"
+    },
+    "key_by_keyname": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "key_missing": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "key_null_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "size": 23
+    },
+    "key_zero_size": {
+      "ret": false,
+      "last_error": 122,
+      "size": 23,
+      "buf0": "0x00000023"
+    },
+    "key_one": {
+      "ret": false,
+      "last_error": 122,
+      "size": 23,
+      "buf0": "0x00000023"
+    },
+    "key_len": {
+      "ret": false,
+      "last_error": 122,
+      "size": 23,
+      "buf0": "0x00000000"
+    },
+    "key_len_plus_one": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 23,
+      "out": "SetuOracle_SvcKeyName_1"
+    },
+    "key_missing_null_buffer": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 2
+    },
+    "key_null_scm": {
+      "ret": false,
+      "last_error": 6,
+      "size": 300,
+      "buf0": "0x00000023"
+    },
+    "key_empty_name": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "key_no_display": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 23,
+      "out": "SetuOracle_SvcKeyName_2"
+    },
+    "display_exact": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 26,
+      "out": "SetuOracle KeyName Display"
+    },
+    "display_case": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 26,
+      "out": "SetuOracle KeyName Display"
+    },
+    "display_by_display": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "display_missing": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "display_null_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "size": 26
+    },
+    "display_zero_size": {
+      "ret": false,
+      "last_error": 122,
+      "size": 26,
+      "buf0": "0x00000023"
+    },
+    "display_len": {
+      "ret": false,
+      "last_error": 122,
+      "size": 26,
+      "buf0": "0x00000000"
+    },
+    "display_len_plus_one": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 26,
+      "out": "SetuOracle KeyName Display"
+    },
+    "display_default": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 23,
+      "out": "SetuOracle_SvcKeyName_2"
+    },
+    "display_missing_null_buffer": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 2
+    },
+    "ansi_key_exact": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 300,
+      "out": "SetuOracle_SvcKeyName_1"
+    },
+    "ansi_key_null_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "size": 46
+    },
+    "ansi_key_len": {
+      "ret": false,
+      "last_error": 122,
+      "size": 46,
+      "buf0": "0x00000000"
+    },
+    "ansi_key_len_plus_one": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 24,
+      "out": "SetuOracle_SvcKeyName_1"
+    },
+    "ansi_key_missing": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "ansi_display_exact": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 300,
+      "out": "SetuOracle KeyName Display"
+    },
+    "ansi_display_null_buffer": {
+      "ret": false,
+      "last_error": 122,
+      "size": 52
+    },
+    "ansi_display_len": {
+      "ret": false,
+      "last_error": 122,
+      "size": 52,
+      "buf0": "0x00000000"
+    },
+    "ansi_display_len_plus_one": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 27,
+      "out": "SetuOracle KeyName Display"
+    },
+    "ansi_display_missing": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "key_old_display_after_change": {
+      "ret": false,
+      "last_error": 1060,
+      "size": 300,
+      "buf0": "0x00000000"
+    },
+    "key_new_display_after_change": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 23,
+      "out": "SetuOracle_SvcKeyName_1"
+    },
+    "display_marked_for_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 26,
+      "out": "SetuOracle KeyName Renamed"
+    },
+    "key_marked_for_delete": {
+      "ret": true,
+      "last_error": "unchanged",
+      "size": 23,
+      "out": "SetuOracle_SvcKeyName_1"
+    }
+  },
+  "errors": [],
+  "source_sha256": "3865ee3217106ca553ccd206044e65b9044e77434adef90782f663a3b37c411a"
+}

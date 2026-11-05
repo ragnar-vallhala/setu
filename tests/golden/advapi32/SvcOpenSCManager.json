@@ -1,0 +1,182 @@
+{
+  "test": "advapi32/SvcOpenSCManager",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "all_access": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "connect": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "zero_access": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "generic_read": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "generic_write": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "generic_execute": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "generic_all": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "maximum_allowed": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "undefined_bits": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "undefined_bit_0x100": {
+      "ret": "NULL",
+      "last_error": 5
+    },
+    "read_control": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "write_dac": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "db_active": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "db_active_lower": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "db_failed": {
+      "ret": "NULL",
+      "last_error": 1065
+    },
+    "db_bogus": {
+      "ret": "NULL",
+      "last_error": 123
+    },
+    "db_empty": {
+      "ret": "NULL",
+      "last_error": 123
+    },
+    "machine_empty": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "machine_localhost_dot": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "machine_backslash_dot": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "ansi_db_active": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "ansi_db_bogus": {
+      "ret": "NULL",
+      "last_error": 123
+    },
+    "rights_connect_only": {
+      "open": "valid",
+      "create": "NULL",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_create": {
+      "open": "valid",
+      "create": "valid",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_enumerate": {
+      "open": "valid",
+      "create": "NULL",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_lock": {
+      "open": "valid",
+      "create": "NULL",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_zero": {
+      "open": "valid",
+      "create": "NULL",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_generic_read": {
+      "open": "valid",
+      "create": "NULL",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_generic_write": {
+      "open": "valid",
+      "create": "valid",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_generic_execute": {
+      "open": "valid",
+      "create": "NULL",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "rights_all": {
+      "open": "valid",
+      "create": "valid",
+      "last_error": 1060,
+      "enum": false,
+      "open_service": "NULL"
+    },
+    "close_null": {
+      "ret": false,
+      "last_error": 6
+    },
+    "close_twice": {
+      "ret": false,
+      "last_error": 6
+    },
+    "service_handle_as_scm": {
+      "created": "valid",
+      "ret": "NULL",
+      "last_error": 6
+    },
+    "scm_handle_as_service": {
+      "ret": false,
+      "last_error": 6
+    },
+    "delete_scm_handle": {
+      "ret": false,
+      "last_error": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "06dce283d9c49af784e8105616e35bb632dd5295dfd339e59236212c44d023d8"
+}
