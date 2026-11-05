@@ -657,6 +657,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExA( HKEY hkey, LPCSTR name, DWORD 
         }
         RtlFreeUnicodeString( &nameW );
     }
+    /* as in RegCreateKeyExW */
+    if (status == STATUS_CHILD_MUST_BE_VOLATILE && dispos) *dispos = REG_OPENED_EXISTING_KEY;
     return RtlNtStatusToDosError( status );
 }
 
