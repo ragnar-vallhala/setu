@@ -75,6 +75,7 @@ struct service_data
         LPSERVICE_MAIN_FUNCTIONW w;
     } proc;
     WCHAR *args;
+    DWORD args_len;  /* characters in args, up to the final terminator */
     WCHAR name[1];
 };
 
@@ -86,6 +87,7 @@ struct dispatcher_data
 
 static struct service_data **services;
 static unsigned int nb_services;
+static BOOL dispatcher_connected;  /* StartServiceCtrlDispatcher reached the SCM */
 static HANDLE service_event;
 static BOOL stop_service;
 
@@ -1971,9 +1973,10 @@ SERVICE_STATUS_HANDLE WINAPI DECLSPEC_HOTPATCH RegisterServiceCtrlHandlerExW(
         service->context = context;
         handle = service->handle;
     }
+    /* outside a service process Windows fails without setting the last error */
+    if (!handle && dispatcher_connected) SetLastError( ERROR_SERVICE_DOES_NOT_EXIST );
     LeaveCriticalSection( &service_cs );
 
-    if (!handle) SetLastError( ERROR_SERVICE_DOES_NOT_EXIST );
     return (SERVICE_STATUS_HANDLE)handle;
 }
 
@@ -2081,20 +2084,22 @@ static DWORD WINAPI service_thread( void *arg )
     TRACE("%p\n", arg);
     SetThreadDescription(GetCurrentThread(), L"wine_sechost_service");
 
-    while (str[len])
+    /* count by length: an argument may be an empty string */
+    while (len < info->args_len)
     {
         len += wcslen( &str[len] ) + 1;
         argc++;
     }
-    len++;
+    len = info->args_len + 1;
 
     if (info->unicode)
     {
         WCHAR **argv, *p;
+        DWORD i;
 
         argv = malloc( (argc + 1) * sizeof(*argv) );
-        for (argc = 0, p = str; *p; p += wcslen( p ) + 1)
-            argv[argc++] = p;
+        for (i = 0, p = str; i < argc; i++, p += wcslen( p ) + 1)
+            argv[i] = p;
         argv[argc] = NULL;
 
         info->proc.w( argc, argv );
@@ -2110,8 +2115,8 @@ static DWORD WINAPI service_thread( void *arg )
         WideCharToMultiByte(CP_ACP,0, str, len, strA, lenA, NULL, NULL);
 
         argv = malloc( (argc + 1) * sizeof(*argv) );
-        for (argc = 0, p = strA; *p; p += strlen( p ) + 1)
-            argv[argc++] = p;
+        for (len = 0, p = strA; len < argc; len++, p += strlen( p ) + 1)
+            argv[len] = p;
         argv[argc] = NULL;
 
         info->proc.a( argc, argv );
@@ -2134,6 +2139,8 @@ static DWORD service_handle_start( struct service_data *service, const void *dat
     free( service->args );
     service->args = malloc( (count + 2) * sizeof(WCHAR) );
     if (count) memcpy( service->args, data, count * sizeof(WCHAR) );
+    /* the data ends with an extra terminator after the last string */
+    service->args_len = count ? count - 1 : 0;
     service->args[count++] = 0;
     service->args[count++] = 0;
 
@@ -2224,7 +2231,7 @@ static DWORD WINAPI service_control_dispatcher( void *arg )
         if (!(service = find_service_by_name( name )))
         {
             FIXME( "got request for unknown service %s\n", debugstr_w(name) );
-            result = ERROR_INVALID_PARAMETER;
+            result = ERROR_SERVICE_NOT_IN_EXE;
             goto done;
         }
 
@@ -2334,6 +2341,7 @@ static BOOL service_run_main_thread(void)
         return FALSE;
     }
 
+    dispatcher_connected = TRUE;
     service_event = CreateEventW( NULL, FALSE, FALSE, NULL );
     stop_service  = FALSE;
 
