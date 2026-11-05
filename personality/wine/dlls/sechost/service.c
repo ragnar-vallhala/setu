@@ -1500,7 +1500,22 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceObjectSecurity( SC_HANDLE service, SEC
     NTSTATUS status;
     ACL acl;
 
+    DWORD err, needed;
+    BYTE dummy;
+
     FIXME( "%p %ld %p %lu %p - semi-stub\n", service, type, ret_descriptor, size, ret_size );
+
+    /* services.exe makes the access check */
+    __TRY
+    {
+        err = svcctl_QueryServiceObjectSecurity( service, type, &dummy, 0, &needed );
+    }
+    __EXCEPT(rpc_filter)
+    {
+        err = map_exception_code( GetExceptionCode() );
+    }
+    __ENDTRY
+    if (err) return set_error( err );
 
     if (type != DACL_SECURITY_INFORMATION)
         FIXME("information %ld not supported\n", type);

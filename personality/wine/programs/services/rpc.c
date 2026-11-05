@@ -2217,8 +2217,20 @@ DWORD __cdecl svcctl_QueryServiceObjectSecurity(
     DWORD buf_size,
     DWORD *needed_size)
 {
-    WINE_FIXME("\n");
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    struct sc_service_handle *svc;
+    DWORD access = 0, err;
+
+    WINE_TRACE("(%p, %#lx)\n", service, info);
+
+    /* Only the access check is made here; sechost builds the descriptor. */
+    if (info & (OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION))
+        access |= READ_CONTROL;
+    if (info & SACL_SECURITY_INFORMATION)
+        access |= ACCESS_SYSTEM_SECURITY;
+    if ((err = validate_service_handle(service, access, &svc)) != ERROR_SUCCESS)
+        return err;
+    *needed_size = 0;
+    return ERROR_SUCCESS;
 }
 
 DWORD __cdecl svcctl_SetServiceObjectSecurity(
