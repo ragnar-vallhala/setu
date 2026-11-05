@@ -2960,14 +2960,21 @@ LSTATUS WINAPI RegGetKeySecurity( HKEY hkey, SECURITY_INFORMATION SecurityInform
                                   PSECURITY_DESCRIPTOR pSecurityDescriptor,
                                   LPDWORD lpcbSecurityDescriptor )
 {
+    NTSTATUS status;
+    ULONG len;
+
     TRACE("(%p,%ld,%p,%ld)\n",hkey,SecurityInformation,pSecurityDescriptor,
           *lpcbSecurityDescriptor);
 
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
-    return RtlNtStatusToDosError( NtQuerySecurityObject( hkey,
-                SecurityInformation, pSecurityDescriptor,
-                *lpcbSecurityDescriptor, lpcbSecurityDescriptor ) );
+    /* The size is left alone on success, is the needed size when the buffer
+     * is too small, and is 0 after any other failure. */
+    status = NtQuerySecurityObject( hkey, SecurityInformation, pSecurityDescriptor,
+                                    *lpcbSecurityDescriptor, &len );
+    if (!status) return ERROR_SUCCESS;
+    *lpcbSecurityDescriptor = (status == STATUS_BUFFER_TOO_SMALL) ? len : 0;
+    return RtlNtStatusToDosError( status );
 }
 
 
