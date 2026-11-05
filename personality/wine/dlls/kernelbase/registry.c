@@ -573,6 +573,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExW( HKEY hkey, LPCWSTR name, DWORD
 
     if (!retkey) return ERROR_BADKEY;
     if (reserved) return ERROR_INVALID_PARAMETER;
+    if ((access & KEY_WOW64_RES) == KEY_WOW64_RES) return ERROR_INVALID_PARAMETER;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
     RtlInitUnicodeString( &nameW, name );
@@ -619,6 +620,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExA( HKEY hkey, LPCSTR name, DWORD 
 
     if (!retkey) return ERROR_BADKEY;
     if (reserved) return ERROR_INVALID_PARAMETER;
+    if ((access & KEY_WOW64_RES) == KEY_WOW64_RES) return ERROR_INVALID_PARAMETER;
     if (!is_version_nt())
     {
         access = MAXIMUM_ALLOWED;  /* Win95 ignores the access mask */
@@ -664,6 +666,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExW( HKEY hkey, LPCWSTR name, DWORD o
 
     if (!retkey) return ERROR_INVALID_PARAMETER;
     *retkey = NULL;
+    if ((access & KEY_WOW64_RES) == KEY_WOW64_RES) return ERROR_INVALID_PARAMETER;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
     RtlInitUnicodeString( &nameW, name );
@@ -707,6 +710,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExA( HKEY hkey, LPCSTR name, DWORD op
     if (!is_version_nt()) access = MAXIMUM_ALLOWED;  /* Win95 ignores the access mask */
     else
     {
+        if ((access & KEY_WOW64_RES) == KEY_WOW64_RES) return ERROR_INVALID_PARAMETER;
         /* NT+ allows beginning backslash for HKEY_CLASSES_ROOT */
         if (HandleToUlong(hkey) == HandleToUlong(HKEY_CLASSES_ROOT) && name && *name == '\\') name++;
     }

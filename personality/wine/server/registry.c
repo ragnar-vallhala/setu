@@ -907,6 +907,27 @@ static struct key *open_key( struct key *parent, const struct unicode_str *name,
     return key;
 }
 
+/* check the access mask requested for a key handle */
+static int check_key_access( unsigned int access )
+{
+    static const unsigned int valid = KEY_ALL_ACCESS | KEY_WOW64_RES | ACCESS_SYSTEM_SECURITY |
+                                      MAXIMUM_ALLOWED | GENERIC_READ | GENERIC_WRITE |
+                                      GENERIC_EXECUTE | GENERIC_ALL;
+
+    /* SYNCHRONIZE and the undefined specific bits are not valid for keys */
+    if (access & ~valid)
+    {
+        set_error( STATUS_ACCESS_DENIED );
+        return 0;
+    }
+    if ((access & KEY_WOW64_RES) == KEY_WOW64_RES)
+    {
+        set_error( STATUS_INVALID_PARAMETER );
+        return 0;
+    }
+    return 1;
+}
+
 /* create a subkey */
 static struct key *create_key( struct key *parent, const struct unicode_str *name,
                                unsigned int options, unsigned int access, unsigned int attributes,
@@ -2331,6 +2352,7 @@ DECL_HANDLER(create_key)
     const struct object_attributes *objattr = get_req_object_attributes( &sd, &name, NULL );
 
     if (!objattr) return;
+    if (!check_key_access( access )) return;
 
     if (!is_wow64_process( current->process )) access = (access & ~KEY_WOW64_32KEY) | KEY_WOW64_64KEY;
 
@@ -2366,6 +2388,7 @@ DECL_HANDLER(open_key)
     unsigned int access = req->access;
     struct unicode_str name = get_req_unicode_str();
 
+    if (!check_key_access( access )) return;
     if (!is_wow64_process( current->process )) access = (access & ~KEY_WOW64_32KEY) | KEY_WOW64_64KEY;
 
     if (req->parent && !(parent = get_hkey_obj( req->parent, 0 ))) return;
