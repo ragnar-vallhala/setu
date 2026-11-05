@@ -86,6 +86,11 @@ class WineTarget(Target):
         # variables would otherwise differ between a developer machine and CI.
         for var in [v for v in self.env if v.upper().startswith("SETU")]:
             del self.env[var]
+        # Wine's mount manager asks udisks2 over the system D-Bus for the
+        # host's disks and gives each one a drive letter, so plugging in a
+        # USB stick changed what d:... meant to the tests. The Windows VM has
+        # only C:, so keep the prefix to C: and Z: by giving Wine no bus.
+        self.env["DBUS_SYSTEM_BUS_ADDRESS"] = "unix:path=/nonexistent/setu-oracle-no-dbus"
         self.env.update({
             "WINEPREFIX": str(self.prefix),
             "WINEDEBUG": c["winedebug"],
@@ -119,6 +124,7 @@ class WineTarget(Target):
         if self.fresh_prefix and self.prefix.exists():
             self._wineserver("-k")
             shutil.rmtree(self.prefix)
+        self._drop_host_drives()
         stamp = self.prefix / ".setu-oracle-initialized"
         if not stamp.exists():
             print(f"setu: initialising {self.impl} prefix {self.prefix} (one-time, ~10-60s)")
@@ -137,6 +143,24 @@ class WineTarget(Target):
         if self.workroot.exists():
             shutil.rmtree(self.workroot)
         self.workroot.mkdir(parents=True)
+
+    def _drop_host_drives(self) -> None:
+        """Remove drive letters other than C: and Z: from the prefix.
+
+        A prefix used before the mount manager lost its D-Bus access can still
+        have letters for host disks (d: -> /media/..., d:: -> /dev/sdb1)."""
+        dosdevices = self.prefix / "dosdevices"
+        if not dosdevices.is_dir():
+            return
+        stale = [e for e in dosdevices.iterdir()
+                 if len(e.name) in (2, 3) and e.name[0] in "abdefghijklmnopqrstuvwxy"
+                 and e.name[1:] in (":", "::")]
+        if not stale:
+            return
+        self._wineserver("-k")
+        for e in stale:
+            print(f"setu: removing host drive {e.name} -> {os.readlink(e) if e.is_symlink() else '?'} from the prefix")
+            e.unlink()
 
     def _use_null_graphics_driver(self) -> None:
         """Select Wine's null graphics driver (HKCU\\Software\\Wine\\Drivers Graphics=null).
