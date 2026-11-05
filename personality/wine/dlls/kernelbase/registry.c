@@ -2639,14 +2639,17 @@ LSTATUS WINAPI RegSaveKeyExW( HKEY hkey, LPCWSTR file, SECURITY_ATTRIBUTES *sa, 
     TRACE( "(%p,%s,%p)\n", hkey, debugstr_w(file), sa );
 
     if (!file || !*file) return ERROR_INVALID_PARAMETER;
+    /* Only one of the two documented formats; REG_NO_COMPRESSION alone is refused. */
+    if (flags != REG_STANDARD_FORMAT && flags != REG_LATEST_FORMAT) return ERROR_INVALID_PARAMETER;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
     if ((status = RtlDosPathNameToNtPathName_U_WithStatus( file, &nameW, NULL, NULL )))
         return RtlNtStatusToDosError( status );
 
+    /* An existing file is not overwritten (ERROR_ALREADY_EXISTS). */
     InitializeObjectAttributes( &attr, &nameW, OBJ_CASE_INSENSITIVE, 0, sa );
     status = NtCreateFile( &handle, GENERIC_WRITE | SYNCHRONIZE, &attr, &io, NULL, FILE_NON_DIRECTORY_FILE,
-                           FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_OVERWRITE_IF,
+                           FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_CREATE,
                            FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 );
     RtlFreeUnicodeString( &nameW );
     if (!status)

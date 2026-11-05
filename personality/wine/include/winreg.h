@@ -89,6 +89,11 @@ typedef LONG LSTATUS;
 
 #define REG_PROCESS_APPKEY          0x00000001
 
+/* RegSaveKeyEx flags */
+#define REG_STANDARD_FORMAT         1
+#define REG_LATEST_FORMAT           2
+#define REG_NO_COMPRESSION          4
+
 #define REG_MUI_STRING_TRUNCATE     0x00000001
 
 WINADVAPI BOOL      WINAPI AbortSystemShutdownA(LPSTR);

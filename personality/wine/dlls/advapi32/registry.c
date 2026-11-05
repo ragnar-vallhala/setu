@@ -556,7 +556,7 @@ LSTATUS WINAPI RegQueryValueA( HKEY hkey, LPCSTR name, LPSTR data, LPLONG count 
  */
 LSTATUS WINAPI RegSaveKeyW( HKEY hkey, LPCWSTR file, LPSECURITY_ATTRIBUTES sa )
 {
-    return RegSaveKeyExW(hkey, file, sa, 0);
+    return RegSaveKeyExW(hkey, file, sa, REG_STANDARD_FORMAT);
 }
 
 
@@ -567,7 +567,7 @@ LSTATUS WINAPI RegSaveKeyW( HKEY hkey, LPCWSTR file, LPSECURITY_ATTRIBUTES sa )
  */
 LSTATUS WINAPI RegSaveKeyA( HKEY hkey, LPCSTR file, LPSECURITY_ATTRIBUTES sa )
 {
-    return RegSaveKeyExA(hkey, file, sa, 0);
+    return RegSaveKeyExA(hkey, file, sa, REG_STANDARD_FORMAT);
 }
 
 
