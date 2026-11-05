@@ -1350,6 +1350,8 @@ static void delete_value( struct key *key, const struct unicode_str *name )
     free( value->data );
     for (i = index; i < key->last_value; i++) key->values[i] = key->values[i + 1];
     key->last_value--;
+    /* ... until the last value is gone */
+    if (key->last_value < 0) key->max_value = key->max_data = 0;
     touch_key( key, REG_NOTIFY_CHANGE_LAST_SET );
 
     /* try to shrink the array */
