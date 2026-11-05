@@ -3018,7 +3018,11 @@ static LONG load_mui_string(const WCHAR *file_name, UINT res_id, WCHAR *buffer, 
 
     /* Verify the file existence. i.e. We don't rely on PATH variable */
     if (GetFileAttributesW(file_name) == INVALID_FILE_ATTRIBUTES)
+    {
+        /* a missing directory is reported as a missing file too */
+        SetLastError(ERROR_FILE_NOT_FOUND);
         return ERROR_FILE_NOT_FOUND;
+    }
 
     size = GetFullPathNameW(file_name, 0, NULL, NULL);
     if (!size)
@@ -3119,6 +3123,7 @@ LSTATUS WINAPI RegLoadMUIStringW(HKEY hKey, LPCWSTR pwszValue, LPWSTR pwszBuffer
     /* Parameter sanity checks. */
     if (!hKey || (!pwszBuffer && cbBuffer) || (cbBuffer % sizeof(WCHAR))
         || ((dwFlags & REG_MUI_STRING_TRUNCATE) && pcbData)
+        || (!(dwFlags & REG_MUI_STRING_TRUNCATE) && !pcbData)
         || (dwFlags & ~REG_MUI_STRING_TRUNCATE))
         return ERROR_INVALID_PARAMETER;
 
