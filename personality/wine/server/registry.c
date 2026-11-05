@@ -986,16 +986,20 @@ static struct security_descriptor *key_base_sd( struct token *token )
     return sd;
 }
 
-/* A new key gets the parent's inheritable ACEs and the creator's explicit
- * ones (Windows 10 oracle: RegKeySecurity child_inherited_dacl). */
-static int init_new_key_sd( struct key *key, const struct security_descriptor *creator )
+/* A new key needs KEY_CREATE_SUB_KEY on its parent (unless the caller uses
+ * its backup or restore privilege) and gets the parent's inheritable ACEs
+ * and the creator's explicit ones (Windows 10 oracle: RegKeySecurity
+ * child_inherited_dacl, reg/add_overwrite subkey_of_read_only_key). */
+static int init_new_key_sd( struct key *key, const struct security_descriptor *creator, int check )
 {
     struct key *parent = get_parent( key );
     struct token *token = current->token ? current->token : current->process->token;
     struct security_descriptor *base = NULL, *sd;
     const struct security_descriptor *psd;
+    unsigned int access = KEY_CREATE_SUB_KEY;
 
     if (!parent || !token) return 1;
+    if (check && !check_object_access( token, &parent->obj, &access )) return 0;
     if (!(psd = parent->obj.sd) && !(psd = base = key_base_sd( token ))) return 0;
     sd = sd_inherit_map( psd, creator, 1, token, &key_type.mapping );
     free( base );
@@ -1011,7 +1015,7 @@ static int init_new_key_sd( struct key *key, const struct security_descriptor *c
 /* create a subkey */
 static struct key *create_key( struct key *parent, const struct unicode_str *name,
                                unsigned int options, unsigned int access, unsigned int attributes,
-                               const struct security_descriptor *sd )
+                               const struct security_descriptor *sd, int check_parent )
 {
     struct key *key;
 
@@ -1036,7 +1040,7 @@ static struct key *create_key( struct key *parent, const struct unicode_str *nam
     }
     else
     {
-        if (!init_new_key_sd( key, sd ))
+        if (!init_new_key_sd( key, sd, check_parent ))
         {
             unlink_named_object( &key->obj );
             release_object( key );
@@ -2492,7 +2496,7 @@ DECL_HANDLER(create_key)
         if (!(parent = get_hkey_obj( objattr->rootdir, 0 ))) return;
     }
 
-    if ((key = create_key( parent, &name, req->options, access, objattr->attributes, sd )))
+    if ((key = create_key( parent, &name, req->options, access, objattr->attributes, sd, !privileged )))
     {
         data_size_t classlen;
 
@@ -2689,7 +2693,7 @@ DECL_HANDLER(load_registry)
     }
     clear_error();
 
-    if ((key = create_key( parent, &name, 0, KEY_WOW64_64KEY, 0, sd )))
+    if ((key = create_key( parent, &name, 0, KEY_WOW64_64KEY, 0, sd, 0 )))
     {
         struct loaded_hive *hive;
 
