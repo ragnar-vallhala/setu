@@ -515,6 +515,9 @@ static inline HKEY get_special_root_hkey( HKEY hkey )
     }
 }
 
+/* set once performance data has been read */
+static BOOL perf_data_queried;
+
 static BOOL is_perf_key( HKEY key )
 {
     return HandleToUlong(key) == HandleToUlong(HKEY_PERFORMANCE_DATA)
@@ -867,6 +870,7 @@ LSTATUS WINAPI RegEnumKeyExW( HKEY hkey, DWORD index, LPWSTR name, LPDWORD name_
            name_len ? *name_len : 0, reserved, class, class_len, ft );
 
     if (reserved) return ERROR_INVALID_PARAMETER;
+    if (is_perf_key( hkey )) return ERROR_NO_MORE_ITEMS;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
     status = NtEnumerateKey( hkey, index, KeyNodeInformation,
@@ -934,6 +938,7 @@ LSTATUS WINAPI RegEnumKeyExA( HKEY hkey, DWORD index, LPSTR name, LPDWORD name_l
            name_len ? *name_len : 0, reserved, class, class_len, ft );
 
     if (reserved) return ERROR_INVALID_PARAMETER;
+    if (is_perf_key( hkey )) return ERROR_NO_MORE_ITEMS;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
     status = NtEnumerateKey( hkey, index, KeyNodeInformation,
@@ -1061,6 +1066,11 @@ LSTATUS WINAPI RegQueryInfoKeyW( HKEY hkey, LPWSTR class, LPDWORD class_len, LPD
 
     if (class && !class_len && is_version_nt()) return ERROR_INVALID_PARAMETER;
     if (reserved) return ERROR_INVALID_PARAMETER;
+    if (is_perf_key( hkey ))
+    {
+        clear_key_info( class_len, subkeys, max_subkey, max_class, values, max_value, max_data );
+        return ERROR_SUCCESS;
+    }
     if (!(hkey = get_special_root_hkey( hkey )))
     {
         status = STATUS_INVALID_HANDLE;
@@ -1180,6 +1190,11 @@ LSTATUS WINAPI RegQueryInfoKeyA( HKEY hkey, LPSTR class, LPDWORD class_len, LPDW
 
     if (class && !class_len && is_version_nt()) return ERROR_INVALID_PARAMETER;
     if (reserved) return ERROR_INVALID_PARAMETER;
+    if (is_perf_key( hkey ))
+    {
+        clear_key_info( class_len, subkeys, max_subkey, max_class, values, max_value, max_data );
+        return ERROR_SUCCESS;
+    }
     if (!(hkey = get_special_root_hkey( hkey )))
     {
         status = STATUS_INVALID_HANDLE;
@@ -1260,8 +1275,13 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCloseKey( HKEY hkey )
     /* closing a predefined key does nothing; other values in that range are invalid */
     if ((LONG_PTR)hkey == (LONG)HandleToUlong(hkey) && (HandleToUlong(hkey) & 0x80000000))
     {
-        if ((HandleToUlong(hkey) >= HandleToUlong(HKEY_SPECIAL_ROOT_FIRST) &&
-             HandleToUlong(hkey) <= HandleToUlong(HKEY_SPECIAL_ROOT_LAST)) || is_perf_key( hkey ))
+        if (is_perf_key( hkey ))
+        {
+            if (perf_data_queried) SetLastError( ERROR_GEN_FAILURE );
+            return ERROR_SUCCESS;
+        }
+        if (HandleToUlong(hkey) >= HandleToUlong(HKEY_SPECIAL_ROOT_FIRST) &&
+            HandleToUlong(hkey) <= HandleToUlong(HKEY_SPECIAL_ROOT_LAST))
             return ERROR_SUCCESS;
         return ERROR_INVALID_HANDLE;
     }
@@ -1655,6 +1675,7 @@ static DWORD query_perf_data( const WCHAR *query, DWORD *type, void *data, DWORD
     HKEY root;
     PERF_DATA_BLOCK *pdb;
 
+    perf_data_queried = TRUE;
     if (!ret_size)
         return ERROR_INVALID_PARAMETER;
 
@@ -2964,6 +2985,7 @@ LSTATUS WINAPI RegGetKeySecurity( HKEY hkey, SECURITY_INFORMATION SecurityInform
  */
 LSTATUS WINAPI RegFlushKey( HKEY hkey )
 {
+    if (is_perf_key( hkey )) return ERROR_SUCCESS;
     hkey = get_special_root_hkey( hkey );
     if (!hkey) return ERROR_INVALID_HANDLE;
 
