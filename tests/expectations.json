@@ -746,6 +746,7 @@
     "advapi32/RegCopyTreeW:invalid_source",
     "advapi32/RegCopyTreeW:null_dest",
     "advapi32/RegCopyTreeW:source_enumerate_only",
+    "advapi32/RegCreateKeyExA:class_kept_from_first_create",
     "advapi32/RegCreateKeyExW:create_double_backslash",
     "advapi32/RegCreateKeyExW:create_empty_subkey",
     "advapi32/RegCreateKeyExW:create_empty_subkey_volatile",

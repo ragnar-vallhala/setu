@@ -2341,9 +2341,12 @@ DECL_HANDLER(create_key)
 
     if ((key = create_key( parent, &name, req->options, access, objattr->attributes, sd )))
     {
-        if ((class = get_req_data_after_objattr( objattr, &key->classlen )))
+        data_size_t classlen;
+
+        /* the class is only set when the key is created */
+        if (!get_error() && (class = get_req_data_after_objattr( objattr, &classlen )))
         {
-            key->classlen = (key->classlen / sizeof(WCHAR)) * sizeof(WCHAR);
+            key->classlen = (classlen / sizeof(WCHAR)) * sizeof(WCHAR);
             if (!(key->class = memdup( class, key->classlen ))) key->classlen = 0;
         }
         if (get_error() == STATUS_OBJECT_NAME_EXISTS)
