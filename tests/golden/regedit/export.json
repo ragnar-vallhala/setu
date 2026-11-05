@@ -1,0 +1,55 @@
+{
+  "test": "regedit/export",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "export_data": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\regedit_export\\data]\r\n@=\"dflt\"\r\n\"sz\"=\"tab\there \\\"quoted\\\" back\\\\slash\"\r\n\"name with \\\"quotes\\\"\"=\"v\"\r\n\"empty\"=\"\"\r\n\"dw\"=dword:89abcdef\r\n\"qw\"=hex(b):18,07,f6,e5,d4,c3,b2,a1\r\n\"bin_long\"=hex:00,03,06,09,0c,0f,12,15,18,1b,1e,21,24,27,2a,2d,30,33,36,39,3c,\\\r\n  3f,42,45,48,4b,4e,51,54,57,5a,5d,60,63,66,69,6c,6f,72,75,78,7b,7e,81,84,87,\\\r\n  8a,8d,90,93,96,99,9c,9f,a2,a5,a8,ab,ae,b1,b4,b7,ba,bd,c0,c3,c6,c9,cc,cf,d2,\\\r\n  d5,d8,db,de,e1,e4,e7,ea,ed,f0,f3,f6,f9,fc,ff,02,05,08,0b\r\n\"multi\"=hex(7):66,00,69,00,72,00,73,00,74,00,00,00,73,00,65,00,63,00,6f,00,6e,\\\r\n  00,64,00,00,00,00,00\r\n\"expand\"=hex(2):25,00,57,00,49,00,4e,00,44,00,49,00,52,00,25,00,5c,00,61,00,00,\\\r\n  00\r\n\"none\"=hex(0):\r\n\"type_99\"=hex(63):00,03,06,09\r\n\"a_very_long_value_name_that_pushes_the_hex_data_further_right\"=hex:00,03,06,\\\r\n  09,0c,0f,12,15,18,1b,1e,21,24,27,2a,2d,30,33,36,39,3c,3f,42,45,48,4b,4e,51,\\\r\n  54,57,5a,5d,60,63,66,69,6c,6f,72,75\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\regedit_export\\data\\sub]\r\n\"in_sub\"=\"1\"\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\regedit_export\\data\\sub\\leaf]\r\n\"in_leaf\"=\"2\"\r\n\r\n"
+    },
+    "export_leaf": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\regedit_export\\data\\sub\\leaf]\r\n\"in_leaf\"=\"2\"\r\n\r\n"
+    },
+    "export_empty_key": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\regedit_export\\emptykey]\r\n\r\n"
+    },
+    "export_short_root": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "file.exists": false
+    },
+    "export_overwrites": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\regedit_export\\emptykey]\r\n\r\n"
+    },
+    "before": {
+      "tree": "[]@=1:640066006c0074000000;a_very_long_value_name_that_pushes_the_hex_data_further_right=3:000306090c0f1215181b1e2124272a2d303336393c3f4245484b4e5154575a5d606366696c6f7275;bin_long=3:000306090c0f1215181b1e2124272a2d303336393c3f4245484b4e5154575a5d606366696c6f7275787b7e8184878a8d909396999c9fa2a5a8abaeb1b4b7babdc0c3c6c9cccfd2d5d8dbdee1e4e7eaedf0f3f6f9fcff0205080b;dw=4:efcdab89;empty=1:0000;expand=2:2500570049004e0044004900520025005c0061000000;multi=7:6600690072007300740000007300650063006f006e00640000000000;name with \"quotes\"=1:76000000;none=0:;qw=11:1807f6e5d4c3b2a1;sz=1:7400610062000900680065007200650020002200710075006f00740065006400220020006200610063006b005c0073006c006100730068000000;type_99=99:00030609; [\\sub]in_sub=1:31000000; [\\sub\\leaf]in_leaf=1:32000000;"
+    },
+    "after_round_trip": {
+      "exit": 0,
+      "tree": "[]@=1:640066006c0074000000;a_very_long_value_name_that_pushes_the_hex_data_further_right=3:000306090c0f1215181b1e2124272a2d303336393c3f4245484b4e5154575a5d606366696c6f7275;bin_long=3:000306090c0f1215181b1e2124272a2d303336393c3f4245484b4e5154575a5d606366696c6f7275787b7e8184878a8d909396999c9fa2a5a8abaeb1b4b7babdc0c3c6c9cccfd2d5d8dbdee1e4e7eaedf0f3f6f9fcff0205080b;dw=4:efcdab89;empty=1:0000;expand=2:2500570049004e0044004900520025005c0061000000;multi=7:6600690072007300740000007300650063006f006e00640000000000;name with \"quotes\"=1:76000000;none=0:;qw=11:1807f6e5d4c3b2a1;sz=1:7400610062000900680065007200650020002200710075006f00740065006400220020006200610063006b005c0073006c006100730068000000;type_99=99:00030609; [\\sub]in_sub=1:31000000; [\\sub\\leaf]in_leaf=1:32000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "d7757952cabc1fbca3e46923e8db2b1b17b303b3c8bd742db4357b6ebc920cad"
+}

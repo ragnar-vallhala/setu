@@ -1,0 +1,27 @@
+{
+  "test": "regedit/export_odd_data",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "original": {
+      "tree": "[]binary_zero=3:;dword_be=5:01020304;dword_long=4:010203040506;dword_short=4:0102;dword_zero=4:;expand_no_nul=2:2500780025000000;expand_zero=2:;full_resource=9:010203;link=6:5c00520065006700690073007400720079005c007800;multi_empty_inside=7:610000000000620000000000;multi_no_final=7:6100000062000000;multi_odd=7:61006200000000;multi_one_nul=7:0000;multi_zero=7:;none_zero=0:;qword_long=11:010203040506070809;qword_short=11:01020304;qword_zero=11:;requirements=10:010203;resource_list=8:010203;sz_embedded_nul=1:610062000000630064000000;sz_no_nul=1:6100620063000000;sz_odd_size=1:6100620000;sz_zero=1:;type_big=2147483647:0102;"
+    },
+    "export": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\regedit_export_odd_data\\d]\r\n\"sz_no_nul\"=\"abc\"\r\n\"sz_embedded_nul\"=\"ab\"\r\n\"sz_odd_size\"=\"ab\"\r\n\"sz_zero\"=\"\"\r\n\"expand_no_nul\"=hex(2):25,00,78,00,25,00,00,00\r\n\"expand_zero\"=hex(2):\r\n\"dword_short\"=hex(4):01,02\r\n\"dword_long\"=hex(4):01,02,03,04,05,06\r\n\"dword_zero\"=hex(4):\r\n\"dword_be\"=hex(5):01,02,03,04\r\n\"qword_short\"=hex(b):01,02,03,04\r\n\"qword_long\"=hex(b):01,02,03,04,05,06,07,08,09\r\n\"qword_zero\"=hex(b):\r\n\"multi_no_final\"=hex(7):61,00,00,00,62,00,00,00\r\n\"multi_empty_inside\"=hex(7):61,00,00,00,00,00,62,00,00,00,00,00\r\n\"multi_one_nul\"=hex(7):00,00\r\n\"multi_zero\"=hex(7):\r\n\"multi_odd\"=hex(7):61,00,62,00,00,00,00\r\n\"link\"=hex(6):5c,00,52,00,65,00,67,00,69,00,73,00,74,00,72,00,79,00,5c,00,78,\\\r\n  00\r\n\"resource_list\"=hex(8):01,02,03\r\n\"full_resource\"=hex(9):01,02,03\r\n\"requirements\"=hex(a):01,02,03\r\n\"type_big\"=hex(7fffffff):01,02\r\n\"none_zero\"=hex(0):\r\n\"binary_zero\"=hex:\r\n\r\n"
+    },
+    "import_after_delete": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]binary_zero=3:;dword_be=5:01020304;dword_long=4:010203040506;dword_short=4:0102;dword_zero=4:;expand_no_nul=2:2500780025000000;expand_zero=2:;full_resource=9:010203;link=6:5c00520065006700690073007400720079005c007800;multi_empty_inside=7:610000000000620000000000;multi_no_final=7:6100000062000000;multi_odd=7:61006200000000;multi_one_nul=7:0000;multi_zero=7:;none_zero=0:;qword_long=11:010203040506070809;qword_short=11:01020304;qword_zero=11:;requirements=10:010203;resource_list=8:010203;sz_embedded_nul=1:610062000000;sz_no_nul=1:6100620063000000;sz_odd_size=1:610062000000;sz_zero=1:0000;type_big=2147483647:0102;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "a8828e22a350ff9c44147e74257e45305fb51494fdd57d63c674a348ef2b1538"
+}

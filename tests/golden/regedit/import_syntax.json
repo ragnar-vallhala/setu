@@ -1,0 +1,190 @@
+{
+  "test": "regedit/import_syntax",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "hex_upper_case": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]b=3:0a0b;"
+    },
+    "hex_spaces": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=3:010203;"
+    },
+    "hex_trailing_comma": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=3:0102;"
+    },
+    "hex_empty": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=3:;b=2:;c=0:;"
+    },
+    "hex_single_digit": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=3:010203;"
+    },
+    "hex_three_digits": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]"
+    },
+    "hex_type_upper": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=11:0100000000000000;b=2147483647:01;"
+    },
+    "hex_type_too_big": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]"
+    },
+    "hex_qword_short": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=11:0102;"
+    },
+    "continuation_after_comma": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=3:010203;"
+    },
+    "continuation_without_comma": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]"
+    },
+    "continuation_comment_between": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=3:0102;"
+    },
+    "continuation_at_eof": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=3:01;"
+    },
+    "dword_upper": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]b=4:0a000000;"
+    },
+    "dword_short_digits": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=4:0a000000;"
+    },
+    "dword_nine_digits": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]b=4:ffffffff;"
+    },
+    "dword_spaces": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=4:01000000;b=4:02000000;c=4:03000000;"
+    },
+    "string_spaces_around_equals": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=1:78000000;b=1:79000000;c=1:7a000000;"
+    },
+    "string_unterminated": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]b=1:6f006b000000;"
+    },
+    "string_embedded_quote_unescaped": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]"
+    },
+    "name_with_equals": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=b=1:76000000;c\"d=1:77000000;"
+    },
+    "default_value_forms": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]@=1:740077006f000000;"
+    },
+    "default_value_quoted_at": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]@=1:6c00690074006500720061006c002000610074000000;"
+    },
+    "delete_default_value": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]"
+    },
+    "delete_missing_value": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=1:6b006500700074000000;"
+    },
+    "delete_with_spaces": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]"
+    },
+    "comment_forms": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=1:31000000;b=1:32000000;"
+    },
+    "value_indented": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=1:31000000;b=1:32000000;"
+    },
+    "key_line_trailing_text": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=1:31000000; [\\sub]b=1:32000000;"
+    },
+    "delete_missing_key": {
+      "exit": 0,
+      "out": "",
+      "err": "",
+      "tree": "[]a=1:31000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "085c89be5bf3183fdce2b341d92f2a0133e773331e654de7fe87b02ace35f777"
+}
