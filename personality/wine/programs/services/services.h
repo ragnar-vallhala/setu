@@ -63,6 +63,7 @@ struct service_entry
     BOOL force_shutdown;
     BOOL marked_for_delete;
     BOOL is_wow64;
+    BOOL is_driver_host;               /* a winedevice process loading drivers */
     BOOL delayed_autostart;
     DWORD failure_reset;               /* failure actions, see SERVICE_FAILURE_ACTIONSW */
     LPWSTR failure_reboot_msg;

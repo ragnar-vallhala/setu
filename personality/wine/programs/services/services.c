@@ -972,6 +972,7 @@ static DWORD add_winedevice_service(const struct service_entry *service, WCHAR *
         return err;
 
     (*entry)->is_wow64                  = is_wow64;
+    (*entry)->is_driver_host            = TRUE;
     (*entry)->config.dwServiceType      = SERVICE_WIN32_OWN_PROCESS;
     (*entry)->config.dwStartType        = SERVICE_DEMAND_START;
     (*entry)->status.dwServiceType      = (*entry)->config.dwServiceType;
@@ -1271,8 +1272,11 @@ DWORD service_start(struct service_entry *service, DWORD service_argc, LPCWSTR *
         err = process_send_start_message(process, shared_process, service->name, service_argv, service_argc);
 
         /* For a Win32 service, StartService returns once the dispatcher has started the service
-         * thread; the service may stay START_PENDING or already have reported SERVICE_STOPPED */
-        if (err == ERROR_SUCCESS && (service->config.dwServiceType & SERVICE_DRIVER))
+         * thread; the service may stay START_PENDING or already have reported SERVICE_STOPPED.
+         * A driver start waits for the driver, and the winedevice process that loads it must
+         * have registered its control handler before it is asked to load the driver. */
+        if (err == ERROR_SUCCESS &&
+            ((service->config.dwServiceType & SERVICE_DRIVER) || service->is_driver_host))
             err = service_wait_for_startup(service, process);
 
         if (err != ERROR_SUCCESS)
