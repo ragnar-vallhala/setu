@@ -2470,6 +2470,7 @@
     "advapi32/RegQueryValueExW:type_only_no_size_change",
     "advapi32/RegQueryValueExW:value_name_other_case",
     "advapi32/RegQueryValueExW_case:ascii",
+    "advapi32/RegQueryValueExW_case:cherokee",
     "advapi32/RegQueryValueExW_case:cyrillic",
     "advapi32/RegQueryValueExW_case:dotless_i",
     "advapi32/RegQueryValueExW_case:dotted_capital_i",
