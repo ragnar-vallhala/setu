@@ -262,6 +262,15 @@ static int export_registry_data(HANDLE hFile, HKEY hkey, WCHAR *path, REGSAM sam
         value_len = max_value_len;
         data_size = max_data_bytes;
         rc = RegEnumValueW(hkey, i, value_name, &value_len, NULL, &type, data, &data_size);
+        /* RegEnumValueW terminates string data when the buffer has room to
+         * spare, and with odd-sized data the NUL replaces the last byte; read
+         * such a value again into a buffer of exactly its size to keep it. */
+        if (rc == ERROR_SUCCESS && (data_size & 1) && data_size < max_data_bytes &&
+            (type == REG_SZ || type == REG_EXPAND_SZ || type == REG_MULTI_SZ))
+        {
+            value_len = max_value_len;
+            RegEnumValueW(hkey, i, value_name, &value_len, NULL, &type, data, &data_size);
+        }
 
         if (rc == ERROR_SUCCESS)
         {

@@ -122,6 +122,16 @@ static int run_copy(struct key *src, struct key *dest, REGSAM sam, BOOL recurse,
         if (rc == ERROR_NO_MORE_ITEMS) break;
         if (rc) goto cleanup;
 
+        /* RegEnumValueW terminates string data when the buffer has room to
+         * spare, and with odd-sized data the NUL replaces the last byte; read
+         * such a value again into a buffer of exactly its size to keep it. */
+        if ((data_size & 1) && data_size < max_data_size &&
+            (type == REG_SZ || type == REG_EXPAND_SZ || type == REG_MULTI_SZ))
+        {
+            name_len = max_name_len;
+            RegEnumValueW(src->hkey, i, name, &name_len, NULL, &type, data, &data_size);
+        }
+
         if (!force && dispos == REG_OPENED_EXISTING_KEY)
         {
             if (!RegQueryValueExW(dest->hkey, name, NULL, NULL, NULL, NULL))

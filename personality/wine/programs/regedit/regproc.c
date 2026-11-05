@@ -1383,6 +1383,15 @@ static void export_registry_data(FILE *fp, HKEY key, WCHAR *path, BOOL unicode)
         value_len = max_value_len;
         data_size = max_data_bytes;
         rc = RegEnumValueW(key, i, value_name, &value_len, NULL, &type, data, &data_size);
+        /* RegEnumValueW terminates string data when the buffer has room to
+         * spare, and with odd-sized data the NUL replaces the last byte; read
+         * such a value again into a buffer of exactly its size to keep it. */
+        if (rc == ERROR_SUCCESS && (data_size & 1) && data_size < max_data_bytes &&
+            (type == REG_SZ || type == REG_EXPAND_SZ || type == REG_MULTI_SZ))
+        {
+            value_len = max_value_len;
+            RegEnumValueW(key, i, value_name, &value_len, NULL, &type, data, &data_size);
+        }
         if (rc == ERROR_SUCCESS)
         {
             export_data(fp, value_name, value_len, type, data, data_size, unicode);
