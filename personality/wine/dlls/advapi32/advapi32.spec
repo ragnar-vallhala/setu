@@ -627,8 +627,8 @@
 @ stdcall RegDeleteKeyA(long str)
 @ stdcall -import RegDeleteKeyExA(long str long long)
 @ stdcall -import RegDeleteKeyExW(long wstr long long)
-# @ stub RegDeleteKeyTransactedA
-# @ stub RegDeleteKeyTransactedW
+@ stdcall RegDeleteKeyTransactedA(long str long long ptr ptr)
+@ stdcall RegDeleteKeyTransactedW(long wstr long long ptr ptr)
 @ stdcall -import RegDeleteKeyValueA(long str str)
 @ stdcall -import RegDeleteKeyValueW(long wstr wstr)
 @ stdcall RegDeleteKeyW(long wstr)
@@ -661,8 +661,8 @@
 @ stdcall RegOpenKeyA(long str ptr)
 @ stdcall -import RegOpenKeyExA(long str long long ptr)
 @ stdcall -import RegOpenKeyExW(long wstr long long ptr)
-# @ stub RegOpenKeyTransactedA
-# @ stub RegOpenKeyTransactedW
+@ stdcall RegOpenKeyTransactedA(long str long long ptr ptr ptr)
+@ stdcall RegOpenKeyTransactedW(long wstr long long ptr ptr ptr)
 @ stdcall RegOpenKeyW(long wstr ptr)
 @ stdcall -import RegOpenUserClassesRoot(ptr long long ptr)
 @ stdcall RegOverridePredefKey(long long)

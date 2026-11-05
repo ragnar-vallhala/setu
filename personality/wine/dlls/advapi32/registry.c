@@ -110,6 +110,16 @@ LSTATUS WINAPI RegCreateKeyA( HKEY hkey, LPCSTR lpSubKey, PHKEY phkResult )
 }
 
 
+/* Check the transaction handle passed to the Reg*Transacted functions. */
+static LSTATUS check_transaction( HANDLE transaction )
+{
+    if (!transaction || transaction == INVALID_HANDLE_VALUE) return ERROR_INVALID_TRANSACTION;
+    /* FIXME: there are no kernel transaction objects, so no other handle is a transaction */
+    FIXME( "transaction %p not supported\n", transaction );
+    return ERROR_INVALID_HANDLE;
+}
+
+
 /******************************************************************************
  * RegCreateKeyTransactedW   [ADVAPI32.@]
  */
@@ -117,9 +127,9 @@ LSTATUS WINAPI RegCreateKeyTransactedW( HKEY hkey, LPCWSTR name, DWORD reserved,
                                         DWORD options, REGSAM access, SECURITY_ATTRIBUTES *sa,
                                         PHKEY retkey, LPDWORD dispos, HANDLE transaction, PVOID reserved2 )
 {
-    FIXME( "(%p,%s,%lu,%s,%lu,%lu,%p,%p,%p,%p,%p): stub\n", hkey, debugstr_w(name), reserved,
+    TRACE( "(%p,%s,%lu,%s,%lu,%lu,%p,%p,%p,%p,%p)\n", hkey, debugstr_w(name), reserved,
            debugstr_w(class), options, access, sa, retkey, dispos, transaction, reserved2 );
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    return check_transaction( transaction );
 }
 
 
@@ -130,9 +140,53 @@ LSTATUS WINAPI RegCreateKeyTransactedA( HKEY hkey, LPCSTR name, DWORD reserved, 
                                         DWORD options, REGSAM access, SECURITY_ATTRIBUTES *sa,
                                         PHKEY retkey, LPDWORD dispos, HANDLE transaction, PVOID reserved2 )
 {
-    FIXME( "(%p,%s,%lu,%s,%lu,%lu,%p,%p,%p,%p,%p): stub\n", hkey, debugstr_a(name), reserved,
+    TRACE( "(%p,%s,%lu,%s,%lu,%lu,%p,%p,%p,%p,%p)\n", hkey, debugstr_a(name), reserved,
            debugstr_a(class), options, access, sa, retkey, dispos, transaction, reserved2 );
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    return check_transaction( transaction );
+}
+
+
+/******************************************************************************
+ * RegOpenKeyTransactedW   [ADVAPI32.@]
+ */
+LSTATUS WINAPI RegOpenKeyTransactedW( HKEY hkey, LPCWSTR name, DWORD options, REGSAM access,
+                                      PHKEY retkey, HANDLE transaction, PVOID reserved )
+{
+    TRACE( "(%p,%s,%lu,%lu,%p,%p,%p)\n", hkey, debugstr_w(name), options, access, retkey, transaction, reserved );
+    return check_transaction( transaction );
+}
+
+
+/******************************************************************************
+ * RegOpenKeyTransactedA   [ADVAPI32.@]
+ */
+LSTATUS WINAPI RegOpenKeyTransactedA( HKEY hkey, LPCSTR name, DWORD options, REGSAM access,
+                                      PHKEY retkey, HANDLE transaction, PVOID reserved )
+{
+    TRACE( "(%p,%s,%lu,%lu,%p,%p,%p)\n", hkey, debugstr_a(name), options, access, retkey, transaction, reserved );
+    return check_transaction( transaction );
+}
+
+
+/******************************************************************************
+ * RegDeleteKeyTransactedW   [ADVAPI32.@]
+ */
+LSTATUS WINAPI RegDeleteKeyTransactedW( HKEY hkey, LPCWSTR name, REGSAM access, DWORD reserved,
+                                        HANDLE transaction, PVOID reserved2 )
+{
+    TRACE( "(%p,%s,%lu,%lu,%p,%p)\n", hkey, debugstr_w(name), access, reserved, transaction, reserved2 );
+    return check_transaction( transaction );
+}
+
+
+/******************************************************************************
+ * RegDeleteKeyTransactedA   [ADVAPI32.@]
+ */
+LSTATUS WINAPI RegDeleteKeyTransactedA( HKEY hkey, LPCSTR name, REGSAM access, DWORD reserved,
+                                        HANDLE transaction, PVOID reserved2 )
+{
+    TRACE( "(%p,%s,%lu,%lu,%p,%p)\n", hkey, debugstr_a(name), access, reserved, transaction, reserved2 );
+    return check_transaction( transaction );
 }
 
 
