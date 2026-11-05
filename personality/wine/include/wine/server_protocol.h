@@ -4958,8 +4958,11 @@ struct filter_token_request
     obj_handle_t  handle;
     unsigned int  flags;
     data_size_t   privileges_size;
+    data_size_t   disable_sids_size;
     /* VARARG(privileges,luid_attr,privileges_size); */
-    /* VARARG(disable_sids,sid); */
+    /* VARARG(disable_sids,sids,disable_sids_size); */
+    /* VARARG(restrict_sids,sids); */
+    char __pad_28[4];
 };
 struct filter_token_reply
 {
@@ -4974,8 +4977,12 @@ struct access_check_request
     obj_handle_t    handle;
     unsigned int    desired_access;
     struct generic_map mapping;
-    /* VARARG(sd,security_descriptor); */
-    char __pad_36[4];
+    data_size_t     sd_size;
+    data_size_t     self_size;
+    int             type_count;
+    /* VARARG(sd,security_descriptor,sd_size); */
+    /* VARARG(self,sid,self_size); */
+    /* VARARG(types,bytes); */
 };
 struct access_check_reply
 {
@@ -4983,7 +4990,8 @@ struct access_check_reply
     unsigned int    access_granted;
     unsigned int    access_status;
     unsigned int    privileges_len;
-    /* VARARG(privileges,luid_attr); */
+    /* VARARG(privileges,luid_attr,privileges_len); */
+    /* VARARG(results,uints); */
     char __pad_20[4];
 };
 
@@ -5007,7 +5015,7 @@ struct get_token_groups_request
     struct request_header __header;
     obj_handle_t    handle;
     unsigned int    attr_mask;
-    char __pad_20[4];
+    int             restricted;
 };
 struct get_token_groups_reply
 {
@@ -5522,7 +5530,22 @@ struct get_token_info_reply
     int            is_elevated;
     int            group_count;
     int            privilege_count;
-    char __pad_52[4];
+    unsigned int   integrity;
+    int            restricted_count;
+    char __pad_60[4];
+};
+
+
+
+struct set_token_integrity_request
+{
+    struct request_header __header;
+    obj_handle_t   handle;
+    /* VARARG(label,sid); */
+};
+struct set_token_integrity_reply
+{
+    struct reply_header __header;
 };
 
 
@@ -6568,6 +6591,7 @@ enum request
     REQ_make_process_system,
     REQ_grant_process_admin_token,
     REQ_get_token_info,
+    REQ_set_token_integrity,
     REQ_create_linked_token,
     REQ_create_completion,
     REQ_open_completion,
@@ -6890,6 +6914,7 @@ union generic_request
     struct make_process_system_request make_process_system_request;
     struct grant_process_admin_token_request grant_process_admin_token_request;
     struct get_token_info_request get_token_info_request;
+    struct set_token_integrity_request set_token_integrity_request;
     struct create_linked_token_request create_linked_token_request;
     struct create_completion_request create_completion_request;
     struct open_completion_request open_completion_request;
@@ -7210,6 +7235,7 @@ union generic_reply
     struct make_process_system_reply make_process_system_reply;
     struct grant_process_admin_token_reply grant_process_admin_token_reply;
     struct get_token_info_reply get_token_info_reply;
+    struct set_token_integrity_reply set_token_integrity_reply;
     struct create_linked_token_reply create_linked_token_reply;
     struct create_completion_reply create_completion_reply;
     struct open_completion_reply open_completion_reply;
@@ -7260,6 +7286,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 939
+#define SERVER_PROTOCOL_VERSION 941
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

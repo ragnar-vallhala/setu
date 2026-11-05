@@ -3549,8 +3549,10 @@ enum caret_state
     obj_handle_t  handle;          /* handle to the token to duplicate */
     unsigned int  flags;           /* flags */
     data_size_t   privileges_size; /* size of privileges */
+    data_size_t   disable_sids_size; /* size of disable_sids */
     VARARG(privileges,luid_attr,privileges_size); /* privileges to remove from new token */
-    VARARG(disable_sids,sid);      /* array of groups to remove from new token */
+    VARARG(disable_sids,sids,disable_sids_size); /* array of groups to remove from new token */
+    VARARG(restrict_sids,sids);    /* restricting SIDs of the new token */
 @REPLY
     obj_handle_t  new_handle;      /* filtered handle */
 @END
@@ -3559,12 +3561,18 @@ enum caret_state
     obj_handle_t    handle; /* handle to the token */
     unsigned int    desired_access; /* desired access to the object */
     struct generic_map mapping;     /* mapping to specific rights */
-    VARARG(sd,security_descriptor); /* security descriptor to check */
+    data_size_t     sd_size;        /* size of the security descriptor */
+    data_size_t     self_size;      /* size of the PRINCIPAL_SELF SID */
+    int             type_count;     /* number of object types, -1 for no list */
+    VARARG(sd,security_descriptor,sd_size); /* security descriptor to check */
+    VARARG(self,sid,self_size);     /* SID that replaces PRINCIPAL_SELF */
+    VARARG(types,bytes);            /* object type list: { short level; short pad; GUID } each */
 @REPLY
     unsigned int    access_granted; /* access rights actually granted */
     unsigned int    access_status; /* was access granted? */
     unsigned int    privileges_len; /* length needed to store privileges */
-    VARARG(privileges,luid_attr); /* privileges used during access check */
+    VARARG(privileges,luid_attr,privileges_len); /* privileges used during access check */
+    VARARG(results,uints);          /* granted rights and status of each object type */
 @END
 
 @REQ(get_token_sid)
@@ -3578,6 +3586,7 @@ enum caret_state
 @REQ(get_token_groups)
     obj_handle_t    handle;       /* handle to the token */
     unsigned int    attr_mask;    /* mask for wanted attributes */
+    int             restricted;   /* return the restricting SIDs instead of the groups */
 @REPLY
     data_size_t     attr_len;     /* length needed to store attrs */
     data_size_t     sid_len;      /* length needed to store sids */
@@ -3887,6 +3896,15 @@ struct handle_info
     int            is_elevated;   /* is the token elevated as per GetTokenInformation(TokenElevation) */
     int            group_count;   /* the number of groups the token is a member of */
     int            privilege_count; /* the number of privileges the token has */
+    unsigned int   integrity;     /* integrity level (RID of the mandatory label) */
+    int            restricted_count; /* the number of restricting SIDs */
+@END
+
+
+/* Set the integrity level of a token */
+@REQ(set_token_integrity)
+    obj_handle_t   handle;        /* handle to the token */
+    VARARG(label,sid);            /* mandatory label SID */
 @END
 
 

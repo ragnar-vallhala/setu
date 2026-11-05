@@ -63,6 +63,7 @@ const struct luid SeUndockPrivilege               = { 25, 0 };
 const struct luid SeManageVolumePrivilege         = { 28, 0 };
 const struct luid SeImpersonatePrivilege          = { 29, 0 };
 const struct luid SeCreateGlobalPrivilege         = { 30, 0 };
+const struct luid SeRelabelPrivilege              = { 32, 0 };
 
 struct sid_attrs
 {
@@ -115,6 +116,11 @@ struct token
     struct acl    *default_dacl;    /* the default DACL to assign to objects created by this user */
     int            impersonation_level; /* impersonation level this token is capable of if non-primary token */
     int            elevation;       /* elevation type */
+    struct sid    *restricted;      /* restricting SIDs (Setu) */
+    unsigned int   restricted_count; /* number of restricting SIDs */
+    data_size_t    restricted_size; /* size of the restricting SIDs */
+    unsigned int   filter_flags;    /* flags the token was filtered with */
+    int            user_deny_only;  /* the user SID only matches deny ACEs */
 };
 
 struct privilege
@@ -229,11 +235,26 @@ static int acl_is_valid( const struct acl *acl, data_size_t size )
         case SYSTEM_AUDIT_ACE_TYPE:
         case SYSTEM_ALARM_ACE_TYPE:
         case SYSTEM_MANDATORY_LABEL_ACE_TYPE:
+            if (!sid_valid_size( (const struct sid *)(ace + 1), ace->size - sizeof(*ace) )) return FALSE;
             break;
+        case ACCESS_ALLOWED_OBJECT_ACE_TYPE:
+        case ACCESS_DENIED_OBJECT_ACE_TYPE:
+        case ACCESS_AUDIT_OBJECT_ACE_TYPE:
+        case ACCESS_ALARM_OBJECT_ACE_TYPE:
+        {
+            /* mask, flags, GUIDs present, SID */
+            unsigned int flags, offset = sizeof(*ace) + sizeof(flags);
+            if (ace->size < offset) return FALSE;
+            memcpy( &flags, ace + 1, sizeof(flags) );
+            if (flags & ACE_OBJECT_TYPE_PRESENT) offset += 16;
+            if (flags & ACE_INHERITED_OBJECT_TYPE_PRESENT) offset += 16;
+            if (ace->size < offset) return FALSE;
+            if (!sid_valid_size( (const struct sid *)((const char *)ace + offset), ace->size - offset )) return FALSE;
+            break;
+        }
         default:
             return FALSE;
         }
-        if (!sid_valid_size( (const struct sid *)(ace + 1), ace->size - sizeof(*ace) )) return FALSE;
     }
     return TRUE;
 }
@@ -291,7 +312,8 @@ int sd_is_valid( const struct security_descriptor *sd, data_size_t size )
 }
 
 /* extract security labels from SACL */
-struct acl *extract_security_labels( const struct acl *sacl )
+/* the ACEs of a SACL that are mandatory labels (labels != 0) or that are not */
+static struct acl *extract_sacl_aces( const struct acl *sacl, int labels )
 {
     size_t size = sizeof(*sacl);
     const struct ace *ace;
@@ -301,7 +323,7 @@ struct acl *extract_security_labels( const struct acl *sacl )
 
     for (i = 0, ace = ace_first( sacl ); i < sacl->count; i++, ace = ace_next( ace ))
     {
-        if (ace->type == SYSTEM_MANDATORY_LABEL_ACE_TYPE)
+        if ((ace->type == SYSTEM_MANDATORY_LABEL_ACE_TYPE) == !!labels)
         {
             size += ace->size;
             count++;
@@ -319,10 +341,22 @@ struct acl *extract_security_labels( const struct acl *sacl )
 
     label_ace = ace_first( label_acl );
     for (i = 0, ace = ace_first( sacl ); i < sacl->count; i++, ace = ace_next( ace ))
-        if (ace->type == SYSTEM_MANDATORY_LABEL_ACE_TYPE)
+        if ((ace->type == SYSTEM_MANDATORY_LABEL_ACE_TYPE) == !!labels)
             label_ace = mem_append( label_ace, ace, ace->size );
 
     return label_acl;
+}
+
+struct acl *extract_security_labels( const struct acl *sacl )
+{
+    return extract_sacl_aces( sacl, TRUE );
+}
+
+/* a SACL read without LABEL_SECURITY_INFORMATION leaves the labels out
+ * (Windows 10 oracle: FileSecurity handle_get_sacl_with_ass) */
+struct acl *extract_audit_aces( const struct acl *sacl )
+{
+    return extract_sacl_aces( sacl, FALSE );
 }
 
 /* replace security labels in an existing SACL */
@@ -456,6 +490,7 @@ static void token_destroy( struct object *obj )
     }
 
     free( token->default_dacl );
+    free( token->restricted );
 }
 
 /* creates a new token.
@@ -493,7 +528,13 @@ static struct token *create_token( unsigned int primary, unsigned int session_id
             token->impersonation_level = impersonation_level;
         token->default_dacl = NULL;
         token->primary_group = NULL;
+        token->owner = NULL;
         token->elevation = elevation;
+        token->restricted = NULL;
+        token->restricted_count = 0;
+        token->restricted_size = 0;
+        token->filter_flags = 0;
+        token->user_deny_only = 0;
 
         /* copy user */
         token->user = memdup( user, sid_len( user ));
@@ -550,17 +591,22 @@ static struct token *create_token( unsigned int primary, unsigned int session_id
     return token;
 }
 
-static int filter_group( struct group *group, const struct sid *filter, unsigned int count )
+static int sid_in_list( const struct sid *sid, const struct sid *filter, unsigned int count )
 {
     unsigned int i;
 
     for (i = 0; i < count; i++)
     {
-        if (equal_sid( &group->sid, filter )) return 1;
-        filter = (const struct sid *)((char *)filter + sid_len( filter ));
+        if (equal_sid( sid, filter )) return 1;
+        filter = (const struct sid *)((const char *)filter + sid_len( filter ));
     }
 
     return 0;
+}
+
+static int filter_group( struct group *group, const struct sid *filter, unsigned int count )
+{
+    return sid_in_list( &group->sid, filter, count );
 }
 
 static int filter_privilege( struct privilege *privilege, const struct luid_attr *filter, unsigned int count )
@@ -613,17 +659,15 @@ struct token *token_duplicate( struct token *src_token, unsigned primary,
         memcpy( newgroup, group, size );
         if (filter_group( group, remove_groups, remove_group_count ))
         {
-            newgroup->attrs &= ~(SE_GROUP_ENABLED | SE_GROUP_ENABLED_BY_DEFAULT);
+            newgroup->attrs &= ~(SE_GROUP_ENABLED | SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_MANDATORY);
             newgroup->attrs |= SE_GROUP_USE_FOR_DENY_ONLY;
         }
         list_add_tail( &token->groups, &newgroup->entry );
-        if (src_token->primary_group == &group->sid)
-        {
-            token->owner = &newgroup->sid;
-            token->primary_group = &newgroup->sid;
-        }
+        if (src_token->primary_group == &group->sid) token->primary_group = &newgroup->sid;
+        if (src_token->owner == &group->sid) token->owner = &newgroup->sid;
     }
     assert( token->primary_group );
+    if (!token->owner) token->owner = token->primary_group;
 
     /* copy privileges */
     LIST_FOR_EACH_ENTRY( privilege, &src_token->privileges, struct privilege, entry )
@@ -635,6 +679,20 @@ struct token *token_duplicate( struct token *src_token, unsigned primary,
             return NULL;
         }
     }
+
+    if (src_token->restricted_count)
+    {
+        if (!(token->restricted = memdup( src_token->restricted, src_token->restricted_size )))
+        {
+            release_object( token );
+            return NULL;
+        }
+        token->restricted_count = src_token->restricted_count;
+        token->restricted_size = src_token->restricted_size;
+    }
+    token->filter_flags = src_token->filter_flags;
+    token->user_deny_only = src_token->user_deny_only;
+    if (sid_in_list( src_token->user, remove_groups, remove_group_count )) token->user_deny_only = 1;
 
     if (sd) default_set_sd( &token->obj, sd, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
                             DACL_SECURITY_INFORMATION | SACL_SECURITY_INFORMATION );
@@ -682,6 +740,28 @@ static struct acl *create_default_dacl( const struct sid *user )
     set_ace( ace_next( ace ), user, ACCESS_ALLOWED_ACE_TYPE, 0, GENERIC_ALL );
 
     return default_dacl;
+}
+
+/* the default DACL of an administrator's token (Windows 10 oracle:
+ * PrivateObjectSecurity default_object): Administrators and SYSTEM get all
+ * access, the logon session read and execute */
+static struct acl *create_admin_default_dacl( const struct sid *admins, const struct sid *logon )
+{
+    struct ace *ace;
+    struct acl *dacl;
+    size_t size = sizeof(*dacl) + 3 * sizeof(*ace) + sid_len( admins ) + sid_len( &local_system_sid ) +
+                  sid_len( logon );
+
+    if (!(dacl = mem_alloc( size ))) return NULL;
+    dacl->revision = ACL_REVISION;
+    dacl->pad1     = 0;
+    dacl->size     = size;
+    dacl->count    = 3;
+    dacl->pad2     = 0;
+    ace = set_ace( ace_first( dacl ), admins, ACCESS_ALLOWED_ACE_TYPE, 0, GENERIC_ALL );
+    ace = set_ace( ace_next( ace ), &local_system_sid, ACCESS_ALLOWED_ACE_TYPE, 0, GENERIC_ALL );
+    set_ace( ace_next( ace ), logon, ACCESS_ALLOWED_ACE_TYPE, 0, GENERIC_READ | GENERIC_EXECUTE );
+    return dacl;
 }
 
 struct sid_data
@@ -748,7 +828,8 @@ struct token *token_create_admin( unsigned primary, int impersonation_level, int
     /* on Windows, this value changes every time the user logs on */
     struct sid logon_sid = { SID_REVISION, 3, SECURITY_NT_AUTHORITY, { SECURITY_LOGON_IDS_RID, 0, 0 /* FIXME: should be randomly generated when tokens are inherited by new processes */ }};
     const struct sid *user_sid = security_unix_uid_to_sid( getuid() );
-    struct acl *default_dacl = create_default_dacl( &domain_users_sid );
+    struct acl *default_dacl = create_admin_default_dacl( &alias_admins_sid, &logon_sid );
+    struct group *group;
     const struct luid_attr admin_privs[] =
     {
         { SeChangeNotifyPrivilege, SE_PRIVILEGE_ENABLED },
@@ -792,6 +873,10 @@ struct token *token_create_admin( unsigned primary, int impersonation_level, int
                           NULL, 4 /* domain_users */, impersonation_level, elevation );
     /* we really need a primary group */
     assert( token->primary_group );
+    /* objects an administrator creates are owned by Administrators (Windows 10
+     * oracle: FileSecurityInherit, PrivateObjectSecurity) */
+    LIST_FOR_EACH_ENTRY( group, &token->groups, struct group, entry )
+        if (equal_sid( &group->sid, &alias_admins_sid )) token->owner = &group->sid;
 
     /* Assign a high security label to the token. The default would be medium
      * but Wine provides admin access to all applications right now so high
@@ -842,8 +927,9 @@ static unsigned int token_adjust_privileges( struct token *token, const struct l
         if (privs[i].attrs & SE_PRIVILEGE_REMOVED) privilege_remove( privilege );
         else
         {
-            /* save previous state for caller */
-            if (mod_privs_count)
+            /* save previous state for caller, for privileges whose state changes
+             * (Windows 10 oracle: AccessCheck_privileges adjust_enable_security_again) */
+            if (mod_privs_count && privilege->enabled != !!(privs[i].attrs & SE_PRIVILEGE_ENABLED))
             {
                 *mod_privs++ = luid_and_attr_from_privilege( privilege );
                 mod_privs_count--;
@@ -895,24 +981,363 @@ int token_sid_present( struct token *token, const struct sid *sid, int deny )
 {
     struct group *group;
 
-    if (equal_sid( token->user, sid )) return TRUE;
+    if (equal_sid( token->user, sid )) return deny || !token->user_deny_only;
 
     LIST_FOR_EACH_ENTRY( group, &token->groups, struct group, entry )
     {
-        if (!(group->attrs & SE_GROUP_ENABLED)) continue;
-        if (!deny && (group->attrs & SE_GROUP_USE_FOR_DENY_ONLY)) continue;
+        /* deny-only groups match deny ACEs only */
+        if (group->attrs & SE_GROUP_USE_FOR_DENY_ONLY)
+        {
+            if (!deny) continue;
+        }
+        else if (!(group->attrs & SE_GROUP_ENABLED)) continue;
         if (equal_sid( &group->sid, sid )) return TRUE;
     }
 
     return FALSE;
 }
 
+/* whether a token may make a SID the owner of an object: its user, or one of
+ * its groups marked SE_GROUP_OWNER (MS docs: TOKEN_GROUPS; Windows 10 oracle:
+ * FileSecurity file_owner_admins, file_owner_everyone) */
+int token_sid_can_own( struct token *token, const struct sid *sid )
+{
+    struct group *group;
+
+    if (equal_sid( token->user, sid )) return !token->user_deny_only;
+    LIST_FOR_EACH_ENTRY( group, &token->groups, struct group, entry )
+    {
+        if (!(group->attrs & SE_GROUP_OWNER) || (group->attrs & SE_GROUP_USE_FOR_DENY_ONLY)) continue;
+        if (equal_sid( &group->sid, sid )) return TRUE;
+    }
+    return FALSE;
+}
+
+static const struct sid owner_rights_sid = { SID_REVISION, 1, SECURITY_CREATOR_SID_AUTHORITY, { SECURITY_CREATOR_OWNER_RIGHTS_RID } };
+static const struct sid principal_self_sid = { SID_REVISION, 1, SECURITY_NT_AUTHORITY, { SECURITY_PRINCIPAL_SELF_RID } };
+
+/* whether a SID is one of the token's restricting SIDs */
+static int token_restricted_sid_present( struct token *token, const struct sid *sid )
+{
+    const struct sid *r = token->restricted;
+    unsigned int i;
+
+    for (i = 0; i < token->restricted_count; i++)
+    {
+        if (equal_sid( r, sid )) return TRUE;
+        r = (const struct sid *)((const char *)r + sid_len( r ));
+    }
+    return FALSE;
+}
+
+static int ace_sid_matches( struct token *token, const struct sid *sid, const struct sid *self,
+                            int deny, int restricted_pass )
+{
+    if (self && equal_sid( sid, &principal_self_sid )) sid = self;
+    if (restricted_pass) return token_restricted_sid_present( token, sid );
+    return token_sid_present( token, sid, deny );
+}
+
+/* the integrity level of a token, from the label of its own security descriptor */
+unsigned int token_get_integrity( struct token *token )
+{
+    const struct acl *sacl;
+    const struct ace *ace;
+    unsigned int i;
+    int present;
+
+    if (!token->obj.sd) return SECURITY_MANDATORY_MEDIUM_RID;
+    sacl = sd_get_sacl( token->obj.sd, &present );
+    if (!present || !sacl) return SECURITY_MANDATORY_MEDIUM_RID;
+    for (i = 0, ace = ace_first( sacl ); i < sacl->count; i++, ace = ace_next( ace ))
+    {
+        const struct sid *sid = (const struct sid *)(ace + 1);
+        if (ace->type == SYSTEM_MANDATORY_LABEL_ACE_TYPE && sid->sub_count)
+            return sid->sub_auth[sid->sub_count - 1];
+    }
+    return SECURITY_MANDATORY_MEDIUM_RID;
+}
+
+/* rights the mandatory integrity policy leaves to a token (MS docs:
+ * "Mandatory Integrity Control"); objects without a label are medium, no-write-up */
+static unsigned int integrity_allowed( struct token *token, const struct security_descriptor *sd,
+                                       const struct generic_map *mapping )
+{
+    unsigned int level = SECURITY_MANDATORY_MEDIUM_RID, policy = SYSTEM_MANDATORY_LABEL_NO_WRITE_UP;
+    unsigned int allowed;
+    const struct acl *sacl;
+    const struct ace *ace;
+    unsigned int i;
+    int present;
+
+    sacl = sd_get_sacl( sd, &present );
+    if (present && sacl)
+    {
+        for (i = 0, ace = ace_first( sacl ); i < sacl->count; i++, ace = ace_next( ace ))
+        {
+            const struct sid *sid = (const struct sid *)(ace + 1);
+            if (ace->type != SYSTEM_MANDATORY_LABEL_ACE_TYPE || (ace->flags & INHERIT_ONLY_ACE)) continue;
+            if (!sid->sub_count) continue;
+            level = sid->sub_auth[sid->sub_count - 1];
+            policy = ace->mask;
+            break;
+        }
+    }
+    if (token_get_integrity( token ) >= level) return ~0u;
+    /* writing up is never allowed */
+    allowed = SYNCHRONIZE;
+    if (!(policy & SYSTEM_MANDATORY_LABEL_NO_READ_UP)) allowed |= mapping->read | READ_CONTROL;
+    if (!(policy & SYSTEM_MANDATORY_LABEL_NO_EXECUTE_UP)) allowed |= mapping->exec;
+    if (policy & SYSTEM_MANDATORY_LABEL_NO_READ_UP && policy & SYSTEM_MANDATORY_LABEL_NO_EXECUTE_UP)
+        allowed &= ~SYNCHRONIZE;
+    return allowed & ~(mapping->write & ~(mapping->read | mapping->exec));
+}
+
+/* an element of an object type list (MS docs: OBJECT_TYPE_LIST), as sent by ntdll */
+struct object_type
+{
+    unsigned short level;
+    unsigned short pad;
+    unsigned char  guid[16];
+};
+
+/* the object ACE layout (MS docs: ACCESS_ALLOWED_OBJECT_ACE): header, mask,
+ * flags, then the GUIDs that are present, then the SID */
+static const struct sid *ace_get_sid( const struct ace *ace, const unsigned char **guid )
+{
+    const unsigned char *ptr = (const unsigned char *)(ace + 1);
+    unsigned int flags;
+
+    *guid = NULL;
+    if (ace->type != ACCESS_ALLOWED_OBJECT_ACE_TYPE && ace->type != ACCESS_DENIED_OBJECT_ACE_TYPE)
+        return (const struct sid *)ptr;
+    memcpy( &flags, ptr, sizeof(flags) );
+    ptr += sizeof(flags);
+    if (flags & ACE_OBJECT_TYPE_PRESENT)
+    {
+        *guid = ptr;
+        ptr += 16;
+    }
+    if (flags & ACE_INHERITED_OBJECT_TYPE_PRESENT) ptr += 16;
+    return (const struct sid *)ptr;
+}
+
+/* index past the subtree of an element */
+static unsigned int type_subtree_end( const struct object_type *types, unsigned int count, unsigned int i )
+{
+    unsigned int j;
+    for (j = i + 1; j < count && types[j].level > types[i].level; j++) ;
+    return j;
+}
+
+/* index of the parent of an element, or -1 */
+static int type_parent( const struct object_type *types, unsigned int i )
+{
+    int j;
+    for (j = (int)i - 1; j >= 0; j--) if (types[j].level < types[i].level) return j;
+    return -1;
+}
+
+/* Walk a DACL (MS docs: "How DACLs Control Access to an Object"). Each right
+ * is decided by the first ACE that mentions it. The owner implicitly has
+ * READ_CONTROL and WRITE_DAC unless the DACL has OWNER RIGHTS ACEs, which then
+ * apply to the owner. With an object type list, an object ACE for a GUID
+ * applies to that element and its subtree; a grant to every child of an
+ * element grants it to the element, and a deny also denies the ancestors (MS
+ * docs: AccessCheckByTypeResultList). Without a list, count is 1 and element 0
+ * has no GUID. granted[] receives the rights of each element. */
+static void dacl_walk( struct token *token, const struct acl *dacl, const struct sid *owner,
+                       const struct sid *self, const struct generic_map *mapping, int restricted_pass,
+                       const struct object_type *types, unsigned int count, unsigned int *granted )
+{
+    unsigned int refused[256], i, k;
+    const struct ace *ace;
+    int owner_rights = FALSE, is_owner;
+
+    for (i = 0, ace = ace_first( dacl ); i < dacl->count; i++, ace = ace_next( ace ))
+    {
+        const unsigned char *guid;
+        if (ace->flags & INHERIT_ONLY_ACE) continue;
+        if (ace->type != ACCESS_ALLOWED_ACE_TYPE && ace->type != ACCESS_DENIED_ACE_TYPE &&
+            ace->type != ACCESS_ALLOWED_OBJECT_ACE_TYPE && ace->type != ACCESS_DENIED_OBJECT_ACE_TYPE) continue;
+        if (equal_sid( ace_get_sid( ace, &guid ), &owner_rights_sid )) owner_rights = TRUE;
+    }
+    is_owner = ace_sid_matches( token, owner, NULL, FALSE, restricted_pass );
+    for (k = 0; k < count; k++)
+    {
+        granted[k] = (is_owner && !owner_rights) ? READ_CONTROL | WRITE_DAC : 0;
+        refused[k] = 0;
+    }
+
+    for (i = 0, ace = ace_first( dacl ); i < dacl->count; i++, ace = ace_next( ace ))
+    {
+        const unsigned char *guid;
+        const struct sid *sid;
+        unsigned int access, first = 0, end = count;
+        int allow, match, p;
+
+        if (ace->flags & INHERIT_ONLY_ACE) continue;
+        switch (ace->type)
+        {
+        case ACCESS_ALLOWED_ACE_TYPE:
+        case ACCESS_ALLOWED_OBJECT_ACE_TYPE: allow = TRUE; break;
+        case ACCESS_DENIED_ACE_TYPE:
+        case ACCESS_DENIED_OBJECT_ACE_TYPE: allow = FALSE; break;
+        default: continue;
+        }
+        sid = ace_get_sid( ace, &guid );
+        if (equal_sid( sid, &owner_rights_sid )) match = is_owner;
+        else match = ace_sid_matches( token, sid, self, !allow, restricted_pass );
+        if (!match) continue;
+
+        if (guid)
+        {
+            /* the element with this GUID; ACEs for other GUIDs don't apply */
+            if (!types) continue;
+            for (first = 0; first < count; first++) if (!memcmp( types[first].guid, guid, 16 )) break;
+            if (first == count) continue;
+            end = type_subtree_end( types, count, first );
+        }
+
+        /* NtAccessCheck takes ACE masks as they are; generic rights in them
+         * match nothing (Windows 10 oracle: AccessCheck ace_generic_*) */
+        access = (mapping ? map_access( ace->mask, mapping ) : ace->mask) & ~ACCESS_SYSTEM_SECURITY;
+        for (k = first; k < end; k++)
+        {
+            if (allow) granted[k] |= access & ~refused[k];
+            else refused[k] |= access & ~granted[k];
+        }
+        if (!first) continue;
+        for (p = type_parent( types, first ); p >= 0; p = type_parent( types, p ))
+        {
+            if (allow)
+            {
+                /* rights every child has */
+                unsigned int all = ~0u, c;
+                for (c = p + 1; c < type_subtree_end( types, count, p ); c = type_subtree_end( types, count, c ))
+                    all &= granted[c];
+                granted[p] |= all & ~refused[p];
+            }
+            else refused[p] |= access & ~granted[p];
+        }
+    }
+}
+
 /* Checks access to a security descriptor. 'sd' must have been validated by
  * caller. It returns STATUS_SUCCESS if call succeeded or an error indicating
  * the reason. 'status' parameter will indicate if access is granted or denied.
+ * With an object type list, results[] and statuses[] receive one result per
+ * element and *granted_access / *status are those of the root.
  *
  * If both returned value and 'status' are STATUS_SUCCESS then access is granted.
  */
+static unsigned int token_access_check_by_type( struct token *token,
+                                 const struct security_descriptor *sd,
+                                 int map_aces,
+                                 unsigned int desired_access,
+                                 struct luid_attr *privs,
+                                 unsigned int *priv_count,
+                                 const struct generic_map *mapping,
+                                 const struct sid *self,
+                                 const struct object_type *types, unsigned int type_count,
+                                 unsigned int *results, unsigned int *statuses,
+                                 unsigned int *granted_access,
+                                 unsigned int *status )
+{
+    const struct luid_attr security_priv = { SeSecurityPrivilege, 0 };
+    const struct luid_attr owner_priv = { SeTakeOwnershipPrivilege, 0 };
+    struct luid_attr used[2];
+    unsigned int used_count = 0, max_privs = priv_count ? *priv_count : 0;
+    unsigned int want, priv_granted = 0, allowed, count = types ? type_count : 1, k;
+    unsigned int granted[256], rgranted[256];
+    const struct acl *dacl;
+    int dacl_present;
+    const struct sid *owner;
+
+    /* assume no access rights */
+    *granted_access = 0;
+    if (priv_count) *priv_count = 0;
+    if (count > ARRAY_SIZE(granted)) return STATUS_INVALID_PARAMETER;
+
+    /* fail if desired_access contains generic rights */
+    if (desired_access & (GENERIC_READ|GENERIC_WRITE|GENERIC_EXECUTE|GENERIC_ALL))
+        return STATUS_GENERIC_NOT_MAPPED;
+
+    dacl = sd_get_dacl( sd, &dacl_present );
+    owner = sd_get_owner( sd );
+    if (!owner || !sd_get_group( sd ))
+        return STATUS_INVALID_SECURITY_DESCR;
+
+    want = desired_access & ~MAXIMUM_ALLOWED;
+
+    /* privileges: ACCESS_SYSTEM_SECURITY needs SeSecurityPrivilege, and
+     * SeTakeOwnershipPrivilege grants WRITE_OWNER */
+    if ((want & WRITE_OWNER) && token_check_privileges( token, TRUE, &owner_priv, 1, NULL ))
+    {
+        used[used_count] = owner_priv;
+        used[used_count++].attrs = SE_PRIVILEGE_USED_FOR_ACCESS;
+        priv_granted |= WRITE_OWNER;
+    }
+    if (want & ACCESS_SYSTEM_SECURITY)
+    {
+        if (!token_check_privileges( token, TRUE, &security_priv, 1, NULL ))
+        {
+            *status = STATUS_PRIVILEGE_NOT_HELD;
+            if (statuses) for (k = 0; k < count; k++) { results[k] = 0; statuses[k] = STATUS_PRIVILEGE_NOT_HELD; }
+            return STATUS_SUCCESS;
+        }
+        used[used_count] = security_priv;
+        used[used_count++].attrs = SE_PRIVILEGE_USED_FOR_ACCESS;
+        priv_granted |= ACCESS_SYSTEM_SECURITY;
+    }
+    if (priv_count)
+    {
+        *priv_count = used_count;
+        if (used_count > max_privs) return STATUS_BUFFER_TOO_SMALL;
+        if (used_count) memcpy( privs, used, used_count * sizeof(*used) );
+    }
+
+    if (!dacl_present || !dacl)
+    {
+        /* no DACL: everything asked for is granted, and all rights for MAXIMUM_ALLOWED */
+        for (k = 0; k < count; k++) granted[k] = mapping->all | want;
+    }
+    else
+    {
+        dacl_walk( token, dacl, owner, self, map_aces ? mapping : NULL, FALSE, types, count, granted );
+        if (token->restricted_count)
+        {
+            /* restricted tokens need both passes to grant a right; a
+             * write-restricted token is only restricted for write access */
+            unsigned int unrestricted = 0;
+            if (token->filter_flags & WRITE_RESTRICTED)
+                unrestricted = (mapping->read | mapping->exec | READ_CONTROL | SYNCHRONIZE) & ~mapping->write;
+            dacl_walk( token, dacl, owner, self, map_aces ? mapping : NULL, TRUE, types, count, rgranted );
+            for (k = 0; k < count; k++) granted[k] &= rgranted[k] | unrestricted;
+        }
+    }
+    allowed = integrity_allowed( token, sd, mapping );
+
+    for (k = 0; k < count; k++)
+    {
+        unsigned int g = (granted[k] & allowed) | priv_granted, res;
+
+        /* the undefined bits 21-23 are never granted (oracle: AccessCheck no_dacl_high_bits) */
+        if ((g & want) != want || (want & 0x00e00000)) res = 0;
+        else if (desired_access & MAXIMUM_ALLOWED) res = (g & ~ACCESS_SYSTEM_SECURITY) | want;
+        else res = want;
+        if (statuses)
+        {
+            results[k] = res;
+            statuses[k] = res ? STATUS_SUCCESS : STATUS_ACCESS_DENIED;
+        }
+        if (!k) *granted_access = res;
+    }
+
+    *status = *granted_access ? STATUS_SUCCESS : STATUS_ACCESS_DENIED;
+    return STATUS_SUCCESS;
+}
+
 static unsigned int token_access_check( struct token *token,
                                  const struct security_descriptor *sd,
                                  unsigned int desired_access,
@@ -922,146 +1347,8 @@ static unsigned int token_access_check( struct token *token,
                                  unsigned int *granted_access,
                                  unsigned int *status )
 {
-    unsigned int current_access = 0;
-    unsigned int denied_access = 0;
-    ULONG i;
-    const struct acl *dacl;
-    int dacl_present;
-    const struct ace *ace;
-    const struct sid *owner;
-
-    /* assume no access rights */
-    *granted_access = 0;
-
-    /* fail if desired_access contains generic rights */
-    if (desired_access & (GENERIC_READ|GENERIC_WRITE|GENERIC_EXECUTE|GENERIC_ALL))
-    {
-        if (priv_count) *priv_count = 0;
-        return STATUS_GENERIC_NOT_MAPPED;
-    }
-
-    dacl = sd_get_dacl( sd, &dacl_present );
-    owner = sd_get_owner( sd );
-    if (!owner || !sd_get_group( sd ))
-    {
-        if (priv_count) *priv_count = 0;
-        return STATUS_INVALID_SECURITY_DESCR;
-    }
-
-    /* 1: Grant desired access if the object is unprotected */
-    if (!dacl_present || !dacl)
-    {
-        if (priv_count) *priv_count = 0;
-        if (desired_access & MAXIMUM_ALLOWED)
-            *granted_access = mapping->all;
-        else
-            *granted_access = desired_access;
-        return *status = STATUS_SUCCESS;
-    }
-
-    /* 2: Check if caller wants access to system security part. Note: access
-     * is only granted if specifically asked for */
-    if (desired_access & ACCESS_SYSTEM_SECURITY)
-    {
-        const struct luid_attr security_priv = { SeSecurityPrivilege, 0 };
-        struct luid_attr retpriv = security_priv;
-        if (token_check_privileges( token, TRUE, &security_priv, 1, &retpriv ))
-        {
-            if (priv_count)
-            {
-                /* assumes that there will only be one privilege to return */
-                if (*priv_count >= 1)
-                {
-                    *priv_count = 1;
-                    *privs = retpriv;
-                }
-                else
-                {
-                    *priv_count = 1;
-                    return STATUS_BUFFER_TOO_SMALL;
-                }
-            }
-            current_access |= ACCESS_SYSTEM_SECURITY;
-            if (desired_access == current_access)
-            {
-                *granted_access = current_access;
-                return *status = STATUS_SUCCESS;
-            }
-        }
-        else
-        {
-            if (priv_count) *priv_count = 0;
-            *status = STATUS_PRIVILEGE_NOT_HELD;
-            return STATUS_SUCCESS;
-        }
-    }
-    else if (priv_count) *priv_count = 0;
-
-    /* 3: Check whether the token is the owner */
-    /* NOTE: SeTakeOwnershipPrivilege is not checked for here - it is instead
-     * checked when a "set owner" call is made, overriding the access rights
-     * determined here. */
-    if (token_sid_present( token, owner, FALSE ))
-    {
-        current_access |= (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE);
-        if (desired_access == current_access)
-        {
-            *granted_access = current_access;
-            return *status = STATUS_SUCCESS;
-        }
-    }
-
-    /* 4: Grant rights according to the DACL */
-    for (i = 0, ace = ace_first( dacl ); i < dacl->count; i++, ace = ace_next( ace ))
-    {
-        const struct sid *sid = (const struct sid *)(ace + 1);
-
-        if (ace->flags & INHERIT_ONLY_ACE) continue;
-
-        switch (ace->type)
-        {
-        case ACCESS_DENIED_ACE_TYPE:
-            if (token_sid_present( token, sid, TRUE ))
-            {
-                unsigned int access = map_access( ace->mask, mapping );
-                if (desired_access & MAXIMUM_ALLOWED)
-                    denied_access |= access;
-                else
-                {
-                    denied_access |= (access & ~current_access);
-                    if (desired_access & access) goto done;
-                }
-            }
-            break;
-        case ACCESS_ALLOWED_ACE_TYPE:
-            if (token_sid_present( token, sid, FALSE ))
-            {
-                unsigned int access = map_access( ace->mask, mapping );
-                if (desired_access & MAXIMUM_ALLOWED)
-                    current_access |= access;
-                else
-                    current_access |= (access & ~denied_access);
-            }
-            break;
-        }
-
-        /* don't bother carrying on checking if we've already got all of
-            * rights we need */
-        if (desired_access == *granted_access)
-            break;
-    }
-
-done:
-    if (desired_access & MAXIMUM_ALLOWED)
-        *granted_access = current_access & ~denied_access;
-    else
-        if ((current_access & desired_access) == desired_access)
-            *granted_access = current_access & desired_access;
-        else
-            *granted_access = 0;
-
-    *status = *granted_access ? STATUS_SUCCESS : STATUS_ACCESS_DENIED;
-    return STATUS_SUCCESS;
+    return token_access_check_by_type( token, sd, TRUE, desired_access, privs, priv_count, mapping, NULL,
+                                       NULL, 0, NULL, NULL, granted_access, status );
 }
 
 const struct acl *token_get_default_dacl( struct token *token )
@@ -1271,7 +1558,9 @@ DECL_HANDLER(adjust_token_privileges)
             for (i = 0; i < priv_count; i++)
             {
                 struct privilege *privilege = token_find_privilege( token, privs[i].luid, FALSE );
-                if (privilege && req->get_modified_state)
+                /* only privileges whose state changes, as token_adjust_privileges records */
+                if (privilege && !(privs[i].attrs & SE_PRIVILEGE_REMOVED) &&
+                    privilege->enabled != !!(privs[i].attrs & SE_PRIVILEGE_ENABLED))
                     modified_priv_count++;
             }
             reply->len = modified_priv_count;
@@ -1346,6 +1635,32 @@ DECL_HANDLER(duplicate_token)
     }
 }
 
+/* Adds restricting SIDs to a token. A token that already has restricting SIDs
+ * keeps those that are in both lists. */
+static int token_set_restricted( struct token *token, const struct sid *sids, unsigned int count )
+{
+    const struct sid *sid = sids;
+    data_size_t size = 0;
+    unsigned int i, n = 0;
+    char *ptr, *buf;
+
+    for (i = 0; i < count; i++, sid = (const struct sid *)((const char *)sid + sid_len( sid )))
+        if (!token->restricted_count || token_restricted_sid_present( token, sid )) size += sid_len( sid );
+    if (!(buf = mem_alloc( size ? size : 1 ))) return FALSE;
+    ptr = buf;
+    for (i = 0, sid = sids; i < count; i++, sid = (const struct sid *)((const char *)sid + sid_len( sid )))
+    {
+        if (token->restricted_count && !token_restricted_sid_present( token, sid )) continue;
+        ptr = mem_append( ptr, sid, sid_len( sid ) );
+        n++;
+    }
+    free( token->restricted );
+    token->restricted = (struct sid *)buf;
+    token->restricted_count = n;
+    token->restricted_size = size;
+    return TRUE;
+}
+
 /* creates a restricted version of a token */
 DECL_HANDLER(filter_token)
 {
@@ -1358,15 +1673,43 @@ DECL_HANDLER(filter_token)
         const struct sid *filter_groups;
         struct token *token;
 
-        priv_count = min( req->privileges_size, get_req_data_size() ) / sizeof(struct luid_attr);
-        filter_groups = (const struct sid *)((char *)filter_privileges + priv_count * sizeof(struct luid_attr));
-        group_count = get_sid_count( filter_groups, get_req_data_size() - priv_count * sizeof(struct luid_attr) );
+        data_size_t size = get_req_data_size(), groups_size, restrict_size;
+        const struct sid *restrict_sids;
+        unsigned int restrict_count;
 
+        priv_count = min( req->privileges_size, size ) / sizeof(struct luid_attr);
+        size -= priv_count * sizeof(struct luid_attr);
+        filter_groups = (const struct sid *)((char *)filter_privileges + priv_count * sizeof(struct luid_attr));
+        groups_size = min( req->disable_sids_size, size );
+        group_count = get_sid_count( filter_groups, groups_size );
+        restrict_sids = (const struct sid *)((const char *)filter_groups + groups_size);
+        restrict_size = size - groups_size;
+        restrict_count = get_sid_count( restrict_sids, restrict_size );
+
+        if (restrict_count && src_token->restricted_count)
+        {
+            set_error( STATUS_INVALID_PARAMETER );
+            release_object( src_token );
+            return;
+        }
         token = token_duplicate( src_token, src_token->primary, src_token->impersonation_level, NULL,
                                  filter_privileges, priv_count, filter_groups, group_count );
+        if (token && (req->flags & DISABLE_MAX_PRIVILEGE))
+        {
+            /* everything but SeChangeNotifyPrivilege goes */
+            struct privilege *privilege, *next;
+            LIST_FOR_EACH_ENTRY_SAFE( privilege, next, &token->privileges, struct privilege, entry )
+                if (!is_equal_luid( privilege->luid, SeChangeNotifyPrivilege )) privilege_remove( privilege );
+        }
+        if (token && restrict_count && !token_set_restricted( token, restrict_sids, restrict_count ))
+        {
+            release_object( token );
+            token = NULL;
+        }
         if (token)
         {
             unsigned int access = get_handle_access( current->process, req->handle );
+            token->filter_flags |= req->flags & (WRITE_RESTRICTED | SANDBOX_INERT | LUA_TOKEN);
             reply->new_handle = alloc_handle_no_access_check( current->process, token, access, 0 );
             release_object( token );
         }
@@ -1398,12 +1741,31 @@ DECL_HANDLER(check_token_privileges)
     }
 }
 
+/* validates an object type list (MS docs: OBJECT_TYPE_LIST): one root at
+ * level 0, levels at most ACCESS_MAX_LEVEL, each a child of the one before or
+ * of an ancestor, no GUID twice */
+static int object_types_valid( const struct object_type *types, unsigned int count )
+{
+    unsigned int i;
+
+    if (!count || types[0].level != 0) return FALSE;
+    for (i = 1; i < count; i++)
+    {
+        if (!types[i].level || types[i].level > 4) return FALSE;
+        if (types[i].level > types[i - 1].level + 1) return FALSE;
+    }
+    return TRUE;
+}
+
 /* checks that a user represented by a token is allowed to access an object
  * represented by a security descriptor */
 DECL_HANDLER(access_check)
 {
-    data_size_t sd_size = get_req_data_size();
+    data_size_t size = get_req_data_size(), sd_size = min( req->sd_size, size ), self_size;
     const struct security_descriptor *sd = get_req_data();
+    const struct sid *self = NULL;
+    const struct object_type *types = NULL;
+    unsigned int type_count = 0;
     struct token *token;
 
     if (!sd_is_valid( sd, sd_size ))
@@ -1411,17 +1773,46 @@ DECL_HANDLER(access_check)
         set_error( STATUS_ACCESS_VIOLATION );
         return;
     }
+    size -= sd_size;
+    self_size = min( req->self_size, size );
+    if (self_size)
+    {
+        self = (const struct sid *)((const char *)sd + sd_size);
+        if (!sid_valid_size( self, self_size ))
+        {
+            set_error( STATUS_INVALID_SID );
+            return;
+        }
+    }
+    size -= self_size;
+    if (req->type_count >= 0)
+    {
+        types = (const struct object_type *)((const char *)sd + sd_size + self_size);
+        type_count = req->type_count;
+        if (size < type_count * sizeof(*types) || type_count > 256 || !object_types_valid( types, type_count ))
+        {
+            set_error( STATUS_INVALID_PARAMETER );
+            return;
+        }
+    }
 
     if ((token = (struct token *)get_handle_obj( current->process, req->handle,
                                                  TOKEN_QUERY,
                                                  &token_ops )))
     {
-        unsigned int status;
-        struct luid_attr priv;
-        unsigned int priv_count = 1;
+        unsigned int status, results[256], statuses[256], i;
+        struct luid_attr priv[2];
+        unsigned int priv_count = ARRAY_SIZE(priv);
 
-        memset(&priv, 0, sizeof(priv));
+        memset( priv, 0, sizeof(priv) );
 
+        /* unmapped generic rights are reported before the token type */
+        if (req->desired_access & (GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE | GENERIC_ALL))
+        {
+            set_error( STATUS_GENERIC_NOT_MAPPED );
+            release_object( token );
+            return;
+        }
         /* only impersonation tokens may be used with this function */
         if (token->primary)
         {
@@ -1437,15 +1828,30 @@ DECL_HANDLER(access_check)
             return;
         }
 
-        status = token_access_check( token, sd, req->desired_access, &priv, &priv_count, &req->mapping,
-                                     &reply->access_granted, &reply->access_status );
+        status = token_access_check_by_type( token, sd, FALSE, req->desired_access, priv, &priv_count, &req->mapping,
+                                             self, types, type_count, types ? results : NULL,
+                                             types ? statuses : NULL, &reply->access_granted,
+                                             &reply->access_status );
 
-        reply->privileges_len = priv_count*sizeof(struct luid_attr);
+        reply->privileges_len = priv_count * sizeof(struct luid_attr);
 
-        if ((priv_count > 0) && (reply->privileges_len <= get_reply_max_size()))
+        if (reply->privileges_len + (types ? 2 * type_count * sizeof(unsigned int) : 0) <= get_reply_max_size())
         {
-            struct luid_attr *privs = set_reply_data_size( priv_count * sizeof(*privs) );
-            memcpy( privs, &priv, sizeof(priv) );
+            char *ptr = set_reply_data_size( reply->privileges_len +
+                                             (types ? 2 * type_count * sizeof(unsigned int) : 0) );
+            if (ptr)
+            {
+                memcpy( ptr, priv, reply->privileges_len );
+                if (types)
+                {
+                    unsigned int *res = (unsigned int *)(ptr + reply->privileges_len);
+                    for (i = 0; i < type_count; i++)
+                    {
+                        res[2 * i] = results[i];
+                        res[2 * i + 1] = statuses[i];
+                    }
+                }
+            }
         }
 
         set_error( status );
@@ -1501,6 +1907,26 @@ DECL_HANDLER(get_token_groups)
         unsigned int group_count = 0;
         const struct group *group;
 
+        if (req->restricted)
+        {
+            /* restricting SIDs are reported as mandatory, enabled groups */
+            reply->attr_len = sizeof(unsigned int) * token->restricted_count;
+            reply->sid_len = token->restricted_size;
+            if (reply->attr_len + reply->sid_len <= get_reply_max_size())
+            {
+                unsigned int *attr_ptr = set_reply_data_size( reply->attr_len + reply->sid_len ), i;
+                if (attr_ptr)
+                {
+                    for (i = 0; i < token->restricted_count; i++)
+                        attr_ptr[i] = SE_GROUP_MANDATORY | SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_ENABLED;
+                    memcpy( attr_ptr + token->restricted_count, token->restricted, token->restricted_size );
+                }
+            }
+            else set_error( STATUS_BUFFER_TOO_SMALL );
+            release_object( token );
+            return;
+        }
+
         LIST_FOR_EACH_ENTRY( group, &token->groups, const struct group, entry )
         {
             if (req->attr_mask && !(group->attrs & req->attr_mask)) continue;
@@ -1542,6 +1968,8 @@ DECL_HANDLER(get_token_info)
         reply->primary = token->primary;
         reply->impersonation_level = token->impersonation_level;
         reply->elevation_type = token->elevation;
+        reply->integrity = token_get_integrity( token );
+        reply->restricted_count = token->restricted_count;
         /* Tokens with TokenElevationTypeDefault are considered elevated for the
            purposes of GetTokenInformation(TokenElevation) if they belong to the
            admins group. */
@@ -1627,6 +2055,51 @@ DECL_HANDLER(create_linked_token)
             reply->linked = alloc_handle( current->process, linked, TOKEN_ALL_ACCESS, 0 );
             release_object( linked );
         }
+        release_object( token );
+    }
+}
+
+/* Setu: access check of a token against a security descriptor for objects
+ * whose descriptor isn't kept in obj->sd (files with a stored descriptor).
+ * On success *access holds the granted rights. */
+int sd_access_check( struct token *token, const struct security_descriptor *sd,
+                     const struct generic_map *mapping, unsigned int *access )
+{
+    unsigned int status, granted;
+
+    if (!token) token = current->token ? current->token : current->process->token;
+    if (token_access_check( token, sd, *access, NULL, NULL, mapping, &granted, &status ) != STATUS_SUCCESS ||
+        status != STATUS_SUCCESS)
+    {
+        *access = 0;
+        return FALSE;
+    }
+    *access = granted;
+    return TRUE;
+}
+
+/* sets the integrity level of a token; raising it needs SeRelabelPrivilege
+ * (MS docs: SetTokenInformation, TokenIntegrityLevel) */
+DECL_HANDLER(set_token_integrity)
+{
+    const struct sid *label = get_req_data();
+    struct token *token;
+
+    if (!sid_valid_size( label, get_req_data_size() ) ||
+        memcmp( label->id_auth, high_label_sid.id_auth, sizeof(label->id_auth) ) || label->sub_count != 1)
+    {
+        set_error( STATUS_INVALID_PARAMETER );
+        return;
+    }
+    if ((token = (struct token *)get_handle_obj( current->process, req->handle, TOKEN_ADJUST_DEFAULT, &token_ops )))
+    {
+        const struct luid_attr relabel = { SeRelabelPrivilege, 0 };
+
+        if (label->sub_auth[0] > token_get_integrity( token ) &&
+            !token_check_privileges( token, TRUE, &relabel, 1, NULL ))
+            set_error( STATUS_PRIVILEGE_NOT_HELD );
+        else
+            token_assign_label( token, label );
         release_object( token );
     }
 }

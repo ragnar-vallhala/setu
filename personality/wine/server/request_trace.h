@@ -2712,8 +2712,10 @@ static void dump_filter_token_request( const struct filter_token_request *req )
     fprintf( stderr, " handle=%04x", req->handle );
     fprintf( stderr, ", flags=%08x", req->flags );
     fprintf( stderr, ", privileges_size=%u", req->privileges_size );
+    fprintf( stderr, ", disable_sids_size=%u", req->disable_sids_size );
     dump_varargs_luid_attr( ", privileges=", min( cur_size, req->privileges_size ));
-    dump_varargs_sid( ", disable_sids=", cur_size );
+    dump_varargs_sids( ", disable_sids=", min( cur_size, req->disable_sids_size ));
+    dump_varargs_sids( ", restrict_sids=", cur_size );
 }
 
 static void dump_filter_token_reply( const struct filter_token_reply *req )
@@ -2726,7 +2728,12 @@ static void dump_access_check_request( const struct access_check_request *req )
     fprintf( stderr, " handle=%04x", req->handle );
     fprintf( stderr, ", desired_access=%08x", req->desired_access );
     dump_generic_map( ", mapping=", &req->mapping );
-    dump_varargs_security_descriptor( ", sd=", cur_size );
+    fprintf( stderr, ", sd_size=%u", req->sd_size );
+    fprintf( stderr, ", self_size=%u", req->self_size );
+    fprintf( stderr, ", type_count=%d", req->type_count );
+    dump_varargs_security_descriptor( ", sd=", min( cur_size, req->sd_size ));
+    dump_varargs_sid( ", self=", min( cur_size, req->self_size ));
+    dump_varargs_bytes( ", types=", cur_size );
 }
 
 static void dump_access_check_reply( const struct access_check_reply *req )
@@ -2734,7 +2741,8 @@ static void dump_access_check_reply( const struct access_check_reply *req )
     fprintf( stderr, " access_granted=%08x", req->access_granted );
     fprintf( stderr, ", access_status=%08x", req->access_status );
     fprintf( stderr, ", privileges_len=%08x", req->privileges_len );
-    dump_varargs_luid_attr( ", privileges=", cur_size );
+    dump_varargs_luid_attr( ", privileges=", min( cur_size, req->privileges_len ));
+    dump_varargs_uints( ", results=", cur_size );
 }
 
 static void dump_get_token_sid_request( const struct get_token_sid_request *req )
@@ -2753,6 +2761,7 @@ static void dump_get_token_groups_request( const struct get_token_groups_request
 {
     fprintf( stderr, " handle=%04x", req->handle );
     fprintf( stderr, ", attr_mask=%08x", req->attr_mask );
+    fprintf( stderr, ", restricted=%d", req->restricted );
 }
 
 static void dump_get_token_groups_reply( const struct get_token_groups_reply *req )
@@ -3103,6 +3112,14 @@ static void dump_get_token_info_reply( const struct get_token_info_reply *req )
     fprintf( stderr, ", is_elevated=%d", req->is_elevated );
     fprintf( stderr, ", group_count=%d", req->group_count );
     fprintf( stderr, ", privilege_count=%d", req->privilege_count );
+    fprintf( stderr, ", integrity=%08x", req->integrity );
+    fprintf( stderr, ", restricted_count=%d", req->restricted_count );
+}
+
+static void dump_set_token_integrity_request( const struct set_token_integrity_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    dump_varargs_sid( ", label=", cur_size );
 }
 
 static void dump_create_linked_token_request( const struct create_linked_token_request *req )
@@ -3866,6 +3883,7 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_make_process_system_request,
     (dump_func)dump_grant_process_admin_token_request,
     (dump_func)dump_get_token_info_request,
+    (dump_func)dump_set_token_integrity_request,
     (dump_func)dump_create_linked_token_request,
     (dump_func)dump_create_completion_request,
     (dump_func)dump_open_completion_request,
@@ -4185,6 +4203,7 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_make_process_system_reply,
     NULL,
     (dump_func)dump_get_token_info_reply,
+    NULL,
     (dump_func)dump_create_linked_token_reply,
     (dump_func)dump_create_completion_reply,
     (dump_func)dump_open_completion_reply,
@@ -4504,6 +4523,7 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "make_process_system",
     "grant_process_admin_token",
     "get_token_info",
+    "set_token_integrity",
     "create_linked_token",
     "create_completion",
     "open_completion",

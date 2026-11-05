@@ -34,6 +34,8 @@ extern const struct luid SeIncreaseBasePriorityPrivilege;
 extern const struct luid SeCreatePagefilePrivilege;
 extern const struct luid SeBackupPrivilege;
 extern const struct luid SeRestorePrivilege;
+extern const struct luid SeRelabelPrivilege;
+extern unsigned int token_get_integrity( struct token *token );
 extern const struct luid SeShutdownPrivilege;
 extern const struct luid SeDebugPrivilege;
 extern const struct luid SeSystemEnvironmentPrivilege;
@@ -76,6 +78,7 @@ extern const struct sid *token_get_owner( struct token *token );
 extern const struct sid *token_get_primary_group( struct token *token );
 extern unsigned int token_get_session_id( struct token *token );
 extern int token_sid_present( struct token *token, const struct sid *sid, int deny );
+extern int token_sid_can_own( struct token *token, const struct sid *sid );
 
 static inline struct ace *ace_first( const struct acl *acl )
 {
@@ -122,6 +125,8 @@ static inline struct ace *set_ace( struct ace *ace, const struct sid *sid, unsig
 extern void security_set_thread_token( struct thread *thread, obj_handle_t handle );
 extern const struct sid *security_unix_uid_to_sid( uid_t uid );
 extern int check_object_access( struct token *token, struct object *obj, unsigned int *access );
+extern int sd_access_check( struct token *token, const struct security_descriptor *sd,
+                            const struct generic_map *mapping, unsigned int *access );
 
 static inline int thread_single_check_privilege( struct thread *thread, struct luid priv )
 {
@@ -138,6 +143,7 @@ static inline int thread_single_check_privilege( struct thread *thread, struct l
 
 extern int sd_is_valid( const struct security_descriptor *sd, data_size_t size );
 extern struct acl *extract_security_labels( const struct acl *sacl );
+extern struct acl *extract_audit_aces( const struct acl *sacl );
 extern struct acl *replace_security_labels( const struct acl *old_sacl, const struct acl *new_sacl );
 
 /* gets the discretionary access control list from a security descriptor */

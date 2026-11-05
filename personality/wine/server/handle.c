@@ -796,7 +796,14 @@ DECL_HANDLER(get_security_object)
     struct acl *label_acl = NULL;
 
     if (req->security_info & SACL_SECURITY_INFORMATION)
+    {
+        /* the SACL alone needs ACCESS_SYSTEM_SECURITY only (Windows 10 oracle:
+         * FileSecurity file_sacl_with_priv) */
+        if (!(req->security_info & (OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                                    DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION)))
+            access = 0;
         access |= ACCESS_SYSTEM_SECURITY;
+    }
 
     if (!(obj = get_handle_obj( current->process, req->handle, access, NULL ))) return;
 
@@ -804,6 +811,16 @@ DECL_HANDLER(get_security_object)
     if (sd)
     {
         req_sd.control = sd->control & ~SE_SELF_RELATIVE;
+        /* only the control bits of the parts asked for (Windows 10 oracle:
+         * FileSecurity subsets, RegKeySecurity) */
+        if (!(req->security_info & OWNER_SECURITY_INFORMATION)) req_sd.control &= ~SE_OWNER_DEFAULTED;
+        if (!(req->security_info & GROUP_SECURITY_INFORMATION)) req_sd.control &= ~SE_GROUP_DEFAULTED;
+        if (!(req->security_info & DACL_SECURITY_INFORMATION))
+            req_sd.control &= ~(SE_DACL_PRESENT | SE_DACL_DEFAULTED | SE_DACL_AUTO_INHERIT_REQ |
+                                SE_DACL_AUTO_INHERITED | SE_DACL_PROTECTED);
+        if (!(req->security_info & (SACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION)))
+            req_sd.control &= ~(SE_SACL_PRESENT | SE_SACL_DEFAULTED | SE_SACL_AUTO_INHERIT_REQ |
+                                SE_SACL_AUTO_INHERITED | SE_SACL_PROTECTED);
 
         owner = sd_get_owner( sd );
         if (req->security_info & OWNER_SECURITY_INFORMATION)
@@ -818,7 +835,14 @@ DECL_HANDLER(get_security_object)
             req_sd.group_len = 0;
 
         sacl = sd_get_sacl( sd, &present );
-        if (req->security_info & SACL_SECURITY_INFORMATION && present)
+        if (req->security_info & SACL_SECURITY_INFORMATION && present &&
+            !(req->security_info & LABEL_SECURITY_INFORMATION) && sacl)
+        {
+            if (!(label_acl = extract_audit_aces( sacl ))) goto done;
+            req_sd.sacl_len = label_acl->size;
+            sacl = label_acl;
+        }
+        else if (req->security_info & SACL_SECURITY_INFORMATION && present)
             req_sd.sacl_len = sd->sacl_len;
         else if (req->security_info & LABEL_SECURITY_INFORMATION && present && sacl)
         {
