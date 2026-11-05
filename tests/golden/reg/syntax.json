@@ -1,0 +1,160 @@
+{
+  "test": "reg/syntax",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "no_args": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG /?\" for usage.\r\n"
+    },
+    "help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "help_dash_h": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "query_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "add_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "delete_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "copy_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "export_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "import_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "compare_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "save_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "restore_help": {
+      "exit": 0,
+      "out_nonempty": true,
+      "err_nonempty": false
+    },
+    "help_with_extra_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "unknown_operation": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid Argument/Option - 'frobnicate'.\r\nType \"REG /?\" for usage.\r\n"
+    },
+    "operation_upper_case": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_syntax\r\n    v    REG_DWORD    0x1\r\n\r\n",
+      "err": ""
+    },
+    "query_no_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_missing_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "query_bad_root": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_root_prefix_only": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_root_trailing_backslash": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_double_trailing_backslash": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_v_no_name": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_v_twice": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_v_and_ve": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_unknown_switch": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_reg32_twice": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_reg32_reg64": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "query_reg64": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_syntax\r\n    v    REG_DWORD    0x1\r\n\r\n",
+      "err": ""
+    },
+    "add_no_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG ADD /?\" for usage.\r\n"
+    },
+    "delete_no_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG DELETE /?\" for usage.\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4e7953f993fe75b5fe191e5f159c2f97626c7ecbe33ebd6dbe5dd3c39e9df1ea"
+}

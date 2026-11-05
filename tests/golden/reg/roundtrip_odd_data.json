@@ -1,0 +1,41 @@
+{
+  "test": "reg/roundtrip_odd_data",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "original": {
+      "tree": "[]binary_zero=3:;dword_be=5:01020304;dword_long=4:010203040506;dword_short=4:0102;dword_zero=4:;expand_no_nul=2:2500780025000000;expand_zero=2:;full_resource=9:010203;link=6:5c00520065006700690073007400720079005c007800;multi_empty_inside=7:610000000000620000000000;multi_no_final=7:6100000062000000;multi_odd=7:61006200000000;multi_one_nul=7:0000;multi_zero=7:;none_zero=0:;qword_long=11:010203040506070809;qword_short=11:01020304;qword_zero=11:;requirements=10:010203;resource_list=8:010203;sz_embedded_nul=1:610062000000630064000000;sz_no_nul=1:6100620063000000;sz_odd_size=1:6100620000;sz_zero=1:;type_big=2147483647:0102;"
+    },
+    "export": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "save": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "copy": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]binary_zero=3:;dword_be=5:01020304;dword_long=4:010203040506;dword_short=4:0102;dword_zero=4:;expand_no_nul=2:2500780025000000;expand_zero=2:;full_resource=9:010203;link=6:5c00520065006700690073007400720079005c007800;multi_empty_inside=7:610000000000620000000000;multi_no_final=7:6100000062000000;multi_odd=7:61006200000000;multi_one_nul=7:0000;multi_zero=7:;none_zero=0:;qword_long=11:010203040506070809;qword_short=11:01020304;qword_zero=11:;requirements=10:010203;resource_list=8:010203;sz_embedded_nul=1:610062000000630064000000;sz_no_nul=1:6100620063000000;sz_odd_size=1:6100620000;sz_zero=1:;type_big=2147483647:0102;"
+    },
+    "restore_into_scratch": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]binary_zero=3:;dword_be=5:01020304;dword_long=4:010203040506;dword_short=4:0102;dword_zero=4:;expand_no_nul=2:2500780025000000;expand_zero=2:;full_resource=9:010203;link=6:5c00520065006700690073007400720079005c007800;multi_empty_inside=7:610000000000620000000000;multi_no_final=7:6100000062000000;multi_odd=7:61006200000000;multi_one_nul=7:0000;multi_zero=7:;none_zero=0:;qword_long=11:010203040506070809;qword_short=11:01020304;qword_zero=11:;requirements=10:010203;resource_list=8:010203;sz_embedded_nul=1:610062000000630064000000;sz_no_nul=1:6100620063000000;sz_odd_size=1:6100620000;sz_zero=1:;type_big=2147483647:0102;"
+    },
+    "import_after_delete": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]binary_zero=3:;dword_be=5:01020304;dword_long=4:010203040506;dword_short=4:0102;dword_zero=4:;expand_no_nul=2:2500780025000000;expand_zero=2:;full_resource=9:010203;link=6:5c00520065006700690073007400720079005c007800;multi_empty_inside=7:610000000000620000000000;multi_no_final=7:6100000062000000;multi_odd=7:61006200000000;multi_one_nul=7:0000;multi_zero=7:;none_zero=0:;qword_long=11:010203040506070809;qword_short=11:01020304;qword_zero=11:;requirements=10:010203;resource_list=8:010203;sz_embedded_nul=1:610062000000;sz_no_nul=1:6100620063000000;sz_odd_size=1:6100620063000000;sz_zero=1:0000;type_big=2147483647:0102;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "7f56241630697e77478dfb87629df340364e54bc9629d760e15e8d5f016adae1"
+}

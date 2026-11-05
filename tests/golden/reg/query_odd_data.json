@@ -1,0 +1,133 @@
+{
+  "test": "reg/query_odd_data",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_no_nul": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    sz_no_nul    REG_SZ    abc\r\n\r\n",
+      "err": ""
+    },
+    "sz_embedded_nul": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    sz_embedded_nul    REG_SZ    ab\r\n\r\n",
+      "err": ""
+    },
+    "sz_odd_size": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    sz_odd_size    REG_SZ    ab\r\n\r\n",
+      "err": ""
+    },
+    "sz_zero": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    sz_zero    REG_SZ    \r\n\r\n",
+      "err": ""
+    },
+    "expand_no_nul": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    expand_no_nul    REG_EXPAND_SZ    %x%\r\n\r\n",
+      "err": ""
+    },
+    "expand_zero": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    expand_zero    REG_EXPAND_SZ    \r\n\r\n",
+      "err": ""
+    },
+    "dword_short": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    dword_short    REG_DWORD    0x201\r\n\r\n",
+      "err": ""
+    },
+    "dword_long": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    dword_long    REG_DWORD    0x4030201\r\n\r\n",
+      "err": ""
+    },
+    "dword_zero": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    dword_zero    REG_DWORD    \r\n\r\n",
+      "err": ""
+    },
+    "qword_short": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    qword_short    REG_QWORD    0x4030201\r\n\r\n",
+      "err": ""
+    },
+    "qword_long": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    qword_long    REG_QWORD    0x807060504030201\r\n\r\n",
+      "err": ""
+    },
+    "qword_zero": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    qword_zero    REG_QWORD    \r\n\r\n",
+      "err": ""
+    },
+    "multi_no_final": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    multi_no_final    REG_MULTI_SZ    a\\0b\r\n\r\n",
+      "err": ""
+    },
+    "multi_empty_inside": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    multi_empty_inside    REG_MULTI_SZ    a\\0b\r\n\r\n",
+      "err": ""
+    },
+    "multi_one_nul": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    multi_one_nul    REG_MULTI_SZ    \r\n\r\n",
+      "err": ""
+    },
+    "multi_zero": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    multi_zero    REG_MULTI_SZ    \r\n\r\n",
+      "err": ""
+    },
+    "multi_odd": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    multi_odd    REG_MULTI_SZ    ab\r\n\r\n",
+      "err": ""
+    },
+    "link": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    link    REG_LINK    5C00520065006700690073007400720079005C007800\r\n\r\n",
+      "err": ""
+    },
+    "resource_list": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    resource_list    REG_RESOURCE_LIST    010203\r\n\r\n",
+      "err": ""
+    },
+    "full_resource": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    full_resource    REG_FULL_RESOURCE_DESCRIPTOR    010203\r\n\r\n",
+      "err": ""
+    },
+    "requirements": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    requirements    REG_NONE    010203\r\n\r\n",
+      "err": ""
+    },
+    "type_big": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    type_big    REG_NONE    0102\r\n\r\n",
+      "err": ""
+    },
+    "none_zero": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data\r\n    none_zero    REG_NONE    \r\n\r\n",
+      "err": ""
+    },
+    "export": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_odd_data]\r\n\"sz_no_nul\"=\"abc\"\r\n\"sz_embedded_nul\"=\"ab\"\r\n\"sz_odd_size\"=\"abc\"\r\n\"sz_zero\"=\"\"\r\n\"expand_no_nul\"=hex(2):25,00,78,00,25,00,00,00\r\n\"expand_zero\"=hex(2):\r\n\"dword_short\"=hex(4):01,02\r\n\"dword_long\"=hex(4):01,02,03,04,05,06\r\n\"dword_zero\"=hex(4):\r\n\"qword_short\"=hex(b):01,02,03,04\r\n\"qword_long\"=hex(b):01,02,03,04,05,06,07,08,09\r\n\"qword_zero\"=hex(b):\r\n\"multi_no_final\"=hex(7):61,00,00,00,62,00,00,00\r\n\"multi_empty_inside\"=hex(7):61,00,00,00,00,00,62,00,00,00,00,00\r\n\"multi_one_nul\"=hex(7):00,00\r\n\"multi_zero\"=hex(7):\r\n\"multi_odd\"=hex(7):61,00,62,00,00,00,00\r\n\"link\"=hex(6):5c,00,52,00,65,00,67,00,69,00,73,00,74,00,72,00,79,00,5c,00,78,\\\r\n  00\r\n\"resource_list\"=hex(8):01,02,03\r\n\"full_resource\"=hex(9):01,02,03\r\n\"requirements\"=hex(a):01,02,03\r\n\"type_big\"=hex(7fffffff):01,02\r\n\"none_zero\"=hex(0):\r\n\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "08e594ac307c89c13b9849045cc712c92a707ff56ccf75afba746397e174bbec"
+}

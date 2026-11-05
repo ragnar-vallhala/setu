@@ -1,0 +1,118 @@
+{
+  "test": "reg/delete",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "v_existing": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:72006f006f0074002000640065006600610075006c0074000000;v2=1:740077006f000000;V3=1:740068007200650065000000; [\\a]@=1:61002000640065006600610075006c0074000000;av=1:78000000;aw=1:79000000; [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "v_missing": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n",
+      "tree": "[]@=1:72006f006f0074002000640065006600610075006c0074000000;v2=1:740077006f000000;V3=1:740068007200650065000000; [\\a]@=1:61002000640065006600610075006c0074000000;av=1:78000000;aw=1:79000000; [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "v_other_case": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:72006f006f0074002000640065006600610075006c0074000000;v2=1:740077006f000000; [\\a]@=1:61002000640065006600610075006c0074000000;av=1:78000000;aw=1:79000000; [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "ve_existing": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]v2=1:740077006f000000; [\\a]@=1:61002000640065006600610075006c0074000000;av=1:78000000;aw=1:79000000; [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "ve_missing": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n",
+      "tree": "[]v2=1:740077006f000000; [\\a]@=1:61002000640065006600610075006c0074000000;av=1:78000000;aw=1:79000000; [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "va_keeps_subkeys": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]v2=1:740077006f000000; [\\a] [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "va_empty_key": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]v2=1:740077006f000000; [\\a] [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "v_and_ve": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG DELETE /?\" for usage.\r\n",
+      "tree": "[]v2=1:740077006f000000; [\\a] [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "v_and_va": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG DELETE /?\" for usage.\r\n",
+      "tree": "[]v2=1:740077006f000000; [\\a] [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "v_no_name": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG DELETE /?\" for usage.\r\n",
+      "tree": "[]v2=1:740077006f000000; [\\a] [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "key_missing": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n",
+      "tree": "[]v2=1:740077006f000000; [\\a] [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "value_in_missing_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n",
+      "tree": "[]v2=1:740077006f000000; [\\a] [\\a\\b]bv=1:7a000000; [\\c]cv=1:77000000;"
+    },
+    "key_with_subkeys": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]v2=1:740077006f000000; [\\c]cv=1:77000000;"
+    },
+    "key_other_case": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]v2=1:740077006f000000;"
+    },
+    "bad_root": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG DELETE /?\" for usage.\r\n",
+      "tree": "[]v2=1:740077006f000000;"
+    },
+    "unknown_switch": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG DELETE /?\" for usage.\r\n",
+      "tree": "[]v2=1:740077006f000000;"
+    },
+    "f_twice": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG DELETE /?\" for usage.\r\n",
+      "tree": "[]v2=1:740077006f000000;"
+    },
+    "v_last_value": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]"
+    }
+  },
+  "errors": [],
+  "source_sha256": "b382dce2e53250ec4f0bb4910b0d6440ae3a7aca2c5d4c9ab1715dd09a4d9397"
+}

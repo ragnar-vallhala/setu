@@ -1,0 +1,105 @@
+{
+  "test": "reg/query_recursive",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "s_whole_tree": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    top    REG_SZ    Apple pie\r\n    count    REG_DWORD    0x7\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    fruit    REG_SZ    apple\r\n    Wine    REG_SZ    first\r\n    list    REG_MULTI_SZ    x\\0apple\\0z\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    Wine    REG_SZ    second\r\n    num    REG_DWORD    0x10\r\n    (Default)    REG_SZ    beta default\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\empty\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\gamma\r\n    APPLE    REG_SZ    name match\r\n\r\n",
+      "err": ""
+    },
+    "s_v_name": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    Wine    REG_SZ    first\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    Wine    REG_SZ    second\r\n\r\nEnd of search: 2 match(es) found.\r\n",
+      "err": ""
+    },
+    "s_ve": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    (Default)    REG_SZ    beta default\r\n\r\nEnd of search: 1 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_default_scope": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    top    REG_SZ    Apple pie\r\n\r\nEnd of search: 1 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_with_s": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    top    REG_SZ    Apple pie\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    fruit    REG_SZ    apple\r\n    list    REG_MULTI_SZ    x\\0apple\\0z\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\gamma\r\n    APPLE    REG_SZ    name match\r\n\r\nEnd of search: 4 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_keys_only": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\nEnd of search: 1 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_data_only": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    top    REG_SZ    Apple pie\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    fruit    REG_SZ    apple\r\n    list    REG_MULTI_SZ    x\\0apple\\0z\r\n\r\nEnd of search: 3 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_case_sensitive": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    top    REG_SZ    Apple pie\r\n\r\nEnd of search: 1 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_exact": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    fruit    REG_SZ    apple\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\gamma\r\n    APPLE    REG_SZ    name match\r\n\r\nEnd of search: 2 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_exact_data": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    fruit    REG_SZ    apple\r\n\r\nEnd of search: 1 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_wildcard": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    top    REG_SZ    Apple pie\r\n    count    REG_DWORD    0x7\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    fruit    REG_SZ    apple\r\n    Wine    REG_SZ    first\r\n    list    REG_MULTI_SZ    x\\0apple\\0z\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    Wine    REG_SZ    second\r\n    num    REG_DWORD    0x10\r\n    (Default)    REG_SZ    beta default\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\empty\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\gamma\r\n    APPLE    REG_SZ    name match\r\n\r\nEnd of search: 13 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_no_match": {
+      "exit": 1,
+      "out": "\r\nEnd of search: 0 match(es) found.\r\n",
+      "err": ""
+    },
+    "f_value_names_only": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    Wine    REG_SZ    first\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    Wine    REG_SZ    second\r\n\r\nEnd of search: 2 match(es) found.\r\n",
+      "err": ""
+    },
+    "t_sz": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    top    REG_SZ    Apple pie\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    fruit    REG_SZ    apple\r\n    Wine    REG_SZ    first\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    Wine    REG_SZ    second\r\n    (Default)    REG_SZ    beta default\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\gamma\r\n    APPLE    REG_SZ    name match\r\n\r\nEnd of search: 6 match(es) found.\r\n",
+      "err": ""
+    },
+    "t_dword_and_multi": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\r\n    count    REG_DWORD    0x7\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    list    REG_MULTI_SZ    x\\0apple\\0z\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    num    REG_DWORD    0x10\r\n\r\nEnd of search: 3 match(es) found.\r\n",
+      "err": ""
+    },
+    "t_bad_type": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    },
+    "se_separator": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\r\n    list    REG_MULTI_SZ    x#apple#z\r\n\r\n",
+      "err": ""
+    },
+    "z_verbose": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query_recursive\\alpha\\beta\r\n    Wine    REG_SZ (1)    second\r\n    num    REG_DWORD (4)    0x10\r\n    (Default)    REG_SZ (1)    beta default\r\n\r\n",
+      "err": ""
+    },
+    "s_twice": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG QUERY /?\" for usage.\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "6d1393cb30fd5a3c7799def2c98e5a1cd1b2491582298267c22c2d8554976ed3"
+}

@@ -1,0 +1,102 @@
+{
+  "test": "reg/views",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "add_32": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "after_add_32": {
+      "v64.ret": 2,
+      "v32.ret": 0,
+      "v32.data": "740068006900720074007900740077006f000000"
+    },
+    "add_64": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "after_add_64": {
+      "v64.ret": 0,
+      "v64.type": 1,
+      "v64.data": "7300690078007400790066006f00750072000000",
+      "v32.ret": 0,
+      "v32.data": "740068006900720074007900740077006f000000"
+    },
+    "query_32": {
+      "exit": 0,
+      "out": "\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\SetuOracle\\reg_views\r\n    which    REG_SZ    thirtytwo\r\n\r\n",
+      "err": ""
+    },
+    "query_64": {
+      "exit": 0,
+      "out": "\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\SetuOracle\\reg_views\r\n    which    REG_SZ    sixtyfour\r\n\r\n",
+      "err": ""
+    },
+    "query_default_view": {
+      "exit": 0,
+      "out": "\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\SetuOracle\\reg_views\r\n    which    REG_SZ    sixtyfour\r\n\r\n",
+      "err": ""
+    },
+    "export_32": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "export_32_file": {
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_LOCAL_MACHINE\\SOFTWARE\\SetuOracle\\reg_views]\r\n\"which\"=\"thirtytwo\"\r\n\r\n"
+    },
+    "copy_32_to_hkcu": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "query_copied": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_views\\from32\r\n    which    REG_SZ    thirtytwo\r\n\r\n",
+      "err": ""
+    },
+    "delete_value_32": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "after_delete_32": {
+      "v64.ret": 0,
+      "v64.type": 1,
+      "v64.data": "7300690078007400790066006f00750072000000",
+      "v32.ret": 2
+    },
+    "hkcu_shared_add_32": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "hkcu_shared_query_64": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_views\r\n    shared    REG_SZ    x\r\n\r\n",
+      "err": ""
+    },
+    "delete_key_32": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "delete_key_64": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "after_delete_keys": {
+      "v64.ret": 2,
+      "v32.ret": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "2ee47a2ffba5ce7d178db2ee3a1f3dabae293b41afad285b4785be64f765d838"
+}

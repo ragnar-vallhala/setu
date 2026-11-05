@@ -1,0 +1,186 @@
+{
+  "test": "reg/add_multi",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "multi_default_sep": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "6100000062000000630000000000"
+    },
+    "multi_single": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "730069006e0067006c00650000000000"
+    },
+    "multi_empty": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "0000"
+    },
+    "multi_no_data": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "0000"
+    },
+    "multi_trailing_sep": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "61000000620000000000"
+    },
+    "multi_leading_sep": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid value specified for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "multi_double_sep": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid value specified for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "multi_custom_sep": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "78000000790000007a0000000000"
+    },
+    "multi_custom_sep_double": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid value specified for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "multi_custom_sep_trailing": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "78000000790000000000"
+    },
+    "multi_sep_two_chars": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "multi_sep_empty": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "multi_sep_missing": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "multi_sep_backslash0_with_s": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "61005c00300062000000630000000000"
+    },
+    "multi_sep_twice": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "s_with_sz": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "multi_backslash_other": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 7,
+      "value.data": "61005c006e0062005c000000630000000000"
+    },
+    "sz_backslash0_literal": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "61005c00300062000000"
+    },
+    "sz_trailing_backslash": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "43003a005c006400690072005c000000"
+    },
+    "sz_quoted_trailing_backslashes": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "43003a005c006400690072005c000000"
+    },
+    "sz_embedded_quote": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "730061007900200022006800690022000000"
+    },
+    "sz_percent": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "310030003000250025000000"
+    },
+    "sz_unicode": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "630061006600e9000000"
+    },
+    "expand_backslash0": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 2,
+      "value.data": "61005c00300062000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "6a943048938fb8bd6d866bb49095be79ed9e4fd1afba65239c20aeb26e118379"
+}

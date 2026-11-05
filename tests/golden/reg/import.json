@@ -1,0 +1,148 @@
+{
+  "test": "reg/import",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "v5_strings": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\s]@=1:640065006600610075006c0074000000;back=1:43003a005c006400690072000000;empty=1:0000;plain=1:74006500780074000000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_numbers": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\n]dw=4:cdab0000;dw_short=4:12000000;dw_space=4:01000000;dw_upper=4:ffffffff; [\\s]@=1:640065006600610075006c0074000000;back=1:43003a005c006400690072000000;empty=1:0000;plain=1:74006500780074000000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_hex_types": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\n]dw=4:cdab0000;dw_short=4:12000000;dw_space=4:01000000;dw_upper=4:ffffffff; [\\s]@=1:640065006600610075006c0074000000;back=1:43003a005c006400690072000000;empty=1:0000;plain=1:74006500780074000000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_continuation": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\n]dw=4:cdab0000;dw_short=4:12000000;dw_space=4:01000000;dw_upper=4:ffffffff; [\\s]@=1:640065006600610075006c0074000000;back=1:43003a005c006400690072000000;empty=1:0000;plain=1:74006500780074000000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_comments_and_blank": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\n]dw=4:cdab0000;dw_short=4:12000000;dw_space=4:01000000;dw_upper=4:ffffffff; [\\s]@=1:640065006600610075006c0074000000;back=1:43003a005c006400690072000000;empty=1:0000;plain=1:74006500780074000000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_delete_value": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\n]dw=4:cdab0000;dw_short=4:12000000;dw_space=4:01000000;dw_upper=4:ffffffff; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_delete_key": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_malformed_lines": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_key_without_bracket_end": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_values_before_any_key": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_short_root_name": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000;"
+    },
+    "v5_key_trailing_backslash": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "v5_unknown_escape": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "regedit4_strings": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\r4]@=1:720034002000640065006600610075006c0074000000;bin=3:0102;dw=4:10000000;multi=7:61000000620000000000;s=1:61006e00730069000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "regedit4_delete": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "bad_header": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "bad_version": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not intended for use with this version of Windows.\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "v5_header_in_ansi_file": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\ansi5]a=1:31000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "regedit4_lf_line_ends": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\ansi5]a=1:31000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\lf]a=1:31000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "empty_file": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\ansi5]a=1:31000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\lf]a=1:31000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "missing_file": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Error opening the file. There may be a disk or file system error.\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\ansi5]a=1:31000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\lf]a=1:31000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "no_file_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG IMPORT /?\" for usage.\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\ansi5]a=1:31000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\lf]a=1:31000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    },
+    "extra_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG IMPORT /?\" for usage.\r\n",
+      "tree": "[] [\\after]y=1:32000000; [\\ansi5]a=1:31000000; [\\c]after=1:6f006b000000;long=3:0102030405; [\\e] [\\h]bin=3:deadbeef;bin_empty=3:;custom=4660:aabb;dwhex=4:01000000;expand=2:250054004d00500025000000;multi=7:61000000620000000000;none=0:0102;qword=11:0807060504030201;single_digit=3:0102; [\\k]a=1:31000000;indented=1:32000000; [\\lf]a=1:31000000; [\\m]ok1=1:31000000;ok2=1:32000000; [\\s]back=1:43003a005c006400690072000000;empty=1:0000;quote=1:6100220062000000;uni=1:630061006600e9000000; [\\trail]x=1:31000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "6b4be63cb101b4092e85c5c42f577a48f7a09c2ff06d24e4506f33df0db64690"
+}

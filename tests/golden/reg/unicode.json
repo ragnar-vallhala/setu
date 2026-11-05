@@ -1,0 +1,75 @@
+{
+  "test": "reg/unicode",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "query_latin1": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\café\r\n    Été    REG_SZ    über\r\n\r\n",
+      "err": ""
+    },
+    "query_cjk": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\café\r\n    cjk    REG_SZ    ??\r\n\r\n",
+      "err": ""
+    },
+    "query_greek": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\café\r\n    greek    REG_SZ    Ω?\r\n\r\n",
+      "err": ""
+    },
+    "query_emoji": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\café\r\n    emoji    REG_SZ    ??\r\n\r\n",
+      "err": ""
+    },
+    "query_key_folded_case": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\CAFÉ\r\n    cjk    REG_SZ    ??\r\n\r\n",
+      "err": ""
+    },
+    "find_data_folded": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\café\r\n    Été    REG_SZ    über\r\n\r\nEnd of search: 1 match(es) found.\r\n",
+      "err": ""
+    },
+    "find_data_case_sensitive": {
+      "exit": 1,
+      "out": "\r\nEnd of search: 0 match(es) found.\r\n",
+      "err": ""
+    },
+    "find_value_name": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\café\r\n    Été    REG_SZ    über\r\n\r\nEnd of search: 1 match(es) found.\r\n",
+      "err": ""
+    },
+    "add_from_command_line": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]ñ=1:e500bb030000;"
+    },
+    "delete_value": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "export": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_unicode\\café]\r\n\"Été\"=\"über\"\r\n\"cjk\"=\"中文\"\r\n\"greek\"=\"Ωω\"\r\n\"emoji\"=\"😀\"\r\n\r\n"
+    },
+    "import_after_delete": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]cjk=1:2d4e87650000;emoji=1:3dd800de0000;greek=1:a903c9030000;Été=1:fc006200650072000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "7b51ce205808f38f6fa52d9fc1042100c2b822d208209e759b1e8535cb14744d"
+}

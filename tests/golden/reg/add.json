@@ -1,0 +1,169 @@
+{
+  "test": "reg/add",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_default_type": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "680065006c006c006f000000"
+    },
+    "sz_explicit": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "740077006f00200077006f007200640073000000"
+    },
+    "sz_no_data": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "0000"
+    },
+    "sz_empty_data": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "0000"
+    },
+    "sz_type_lower_case": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 1,
+      "value.data": "78000000"
+    },
+    "expand_sz": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 2,
+      "value.data": "2500530079007300740065006d0052006f006f00740025005c0078000000"
+    },
+    "dword_decimal": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 4,
+      "value.data": "7b000000"
+    },
+    "dword_hex": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 4,
+      "value.data": "ff000000"
+    },
+    "dword_hex_upper": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 4,
+      "value.data": "ab000000"
+    },
+    "dword_max": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 4,
+      "value.data": "ffffffff"
+    },
+    "dword_overflow": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax. Specify valid numeric value for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "dword_negative": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax. Specify valid numeric value for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "dword_not_number": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax. Specify valid numeric value for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "dword_no_data": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax. Specify valid numeric value for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "dword_octal_like": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 4,
+      "value.data": "0a000000"
+    },
+    "dword_trailing_junk": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax. Specify valid numeric value for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "dword_little_endian": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 4,
+      "value.data": "05000000"
+    },
+    "dword_big_endian": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 5,
+      "value.data": "05000000"
+    },
+    "qword_decimal": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 11,
+      "value.data": "cb04fb711f010000"
+    },
+    "qword_hex": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "value.ret": 0,
+      "value.type": 11,
+      "value.data": "ffffffffffffffff"
+    },
+    "qword_overflow": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax. Specify valid numeric value for '/d'.\r\nType \"REG ADD /?\" for usage.\r\n",
+      "value.ret": 2
+    },
+    "final_tree": {
+      "tree": "[]d1=4:7b000000;d11=4:05000000;d12=5:05000000;d2=4:ff000000;d3=4:ab000000;d4=4:ffffffff;d9=4:0a000000;e1=2:2500530079007300740065006d0052006f006f00740025005c0078000000;q1=11:cb04fb711f010000;q2=11:ffffffffffffffff;s1=1:680065006c006c006f000000;s2=1:740077006f00200077006f007200640073000000;s3=1:0000;s4=1:0000;s5=1:78000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "94ca9f0f698368e91d98d21176dcf9185d487030d39b13773c4a7196a018c3b9"
+}

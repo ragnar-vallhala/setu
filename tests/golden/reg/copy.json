@@ -1,0 +1,76 @@
+{
+  "test": "reg/copy",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "copy_values_only": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "dest": "[]@=1:7300720063002000640065006600610075006c0074000000;bin=3:010203;multi=7:61000000620000000000;name=1:760061006c00750065000000;num=4:2a000000;"
+    },
+    "copy_recursive": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "dest": "[]@=1:7300720063002000640065006600610075006c0074000000;bin=3:010203;multi=7:61000000620000000000;name=1:760061006c00750065000000;num=4:2a000000; [\\child]childv=1:63000000; [\\child\\grand]grandv=1:67000000;"
+    },
+    "copy_into_existing_f": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "dest": "[]@=1:7300720063002000640065006600610075006c0074000000;bin=3:010203;keep=1:6b006500700074000000;multi=7:61000000620000000000;name=1:760061006c00750065000000;num=4:2a000000;"
+    },
+    "copy_new_dest_no_f": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "dest": "[]grandv=1:67000000;"
+    },
+    "copy_onto_itself": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The registry entry cannot be copied onto itself.\r\nType \"REG COPY /?\" for usage.\r\n",
+      "dest": "[]@=1:7300720063002000640065006600610075006c0074000000;bin=3:010203;multi=7:61000000620000000000;name=1:760061006c00750065000000;num=4:2a000000; [\\child]childv=1:63000000; [\\child\\grand]grandv=1:67000000;"
+    },
+    "copy_missing_source": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n",
+      "dest": "open failed 2"
+    },
+    "copy_bad_dest_root": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG COPY /?\" for usage.\r\n",
+      "dest": "open failed 2"
+    },
+    "copy_missing_dest_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG COPY /?\" for usage.\r\n",
+      "dest": "open failed 2"
+    },
+    "copy_s_twice": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG COPY /?\" for usage.\r\n",
+      "dest": "open failed 2"
+    },
+    "copy_unknown_switch": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG COPY /?\" for usage.\r\n",
+      "dest": "open failed 2"
+    },
+    "copy_dest_other_case": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "dest": "[]@=1:7300720063002000640065006600610075006c0074000000;bin=3:010203;childv=1:63000000;multi=7:61000000620000000000;name=1:760061006c00750065000000;num=4:2a000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "21e13b9a307b0cdbd344bd4042a9e7a5e826fb0f9c29df4c83f3e4fc65e3f896"
+}

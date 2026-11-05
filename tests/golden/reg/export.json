@@ -1,0 +1,96 @@
+{
+  "test": "reg/export",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "export_types": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\types]\r\n\"str\"=\"plain\"\r\n\"empty_str\"=\"\"\r\n\"dw\"=dword:00abcdef\r\n\"qw\"=hex(b):88,77,66,55,44,33,22,11\r\n\"bin\"=hex:00,07,0e,15,1c\r\n\"bin_long\"=hex:00,07,0e,15,1c,23,2a,31,38,3f,46,4d,54,5b,62,69,70,77,7e,85,8c,\\\r\n  93,9a,a1,a8,af,b6,bd,c4,cb,d2,d9,e0,e7,ee,f5,fc,03,0a,11,18,1f,26,2d,34,3b,\\\r\n  42,49,50,57,5e,65,6c,73,7a,81,88,8f,96,9d,a4,ab,b2,b9,c0,c7,ce,d5,dc,e3,ea,\\\r\n  f1,f8,ff,06,0d,14,1b,22,29,30,37,3e,45,4c,53,5a,61,68,6f,76,7d,84,8b,92,99,\\\r\n  a0,a7,ae,b5\r\n\"bin_empty\"=hex:\r\n\"multi\"=hex(7):61,00,62,00,00,00,63,00,64,00,00,00,00,00\r\n\"expand\"=hex(2):25,00,54,00,45,00,4d,00,50,00,25,00,00,00\r\n\"none\"=hex(0):00,07,0e\r\n\"odd_type\"=hex(77):00,07\r\n\"dw_be\"=hex(5):ef,cd,ab,00\r\n\"dw_short\"=hex(4):ef,cd\r\n\"sz_no_nul\"=\"abc\"\r\n@=\"types default\"\r\n\r\n"
+    },
+    "export_escaping": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\escape]\r\n\"quote\\\"name\"=\"say \\\"hi\\\"\"\r\n\"back\\\\slash\"=\"C:\\\\dir\\\\file\"\r\n\"eq=name\"=\"a=b\"\r\n\"newline\"=\"line1\r\nline2\"\r\n\"tab\"=\"a\tb\"\r\n\"unicode\"=\"café 中\"\r\n\r\n"
+    },
+    "export_nested": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\nest]\r\n\"v\"=\"top\"\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\nest\\a_first]\r\n\"v\"=\"a\"\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\nest\\a_first\\deeper]\r\n\"v\"=\"deep\"\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\nest\\b_second]\r\n\"v\"=\"b\"\r\n\r\n"
+    },
+    "export_empty_key": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\empty]\r\n\r\n"
+    },
+    "export_overwrite_y": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\nest\\a_first]\r\n\"v\"=\"a\"\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\nest\\a_first\\deeper]\r\n\"v\"=\"deep\"\r\n\r\n"
+    },
+    "export_missing_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n",
+      "file.exists": false
+    },
+    "export_bad_root": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG EXPORT /?\" for usage.\r\n",
+      "file.exists": false
+    },
+    "export_no_file_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG EXPORT /?\" for usage.\r\n",
+      "file.exists": false
+    },
+    "export_extra_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG EXPORT /?\" for usage.\r\n",
+      "file.exists": false
+    },
+    "export_y_twice": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\empty]\r\n\r\n"
+    },
+    "export_bad_dir": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Unable to write to the file. There may be a disk or file system error.\r\n",
+      "file.exists": false
+    },
+    "export_other_extension": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_export\\empty]\r\n\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "6490f44f63dd629c60b74ed011a13f95a94595a6289c822ee62b9c05894dc656"
+}

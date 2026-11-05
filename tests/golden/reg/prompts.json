@@ -1,0 +1,134 @@
+{
+  "test": "reg/prompts",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "add_overwrite_yes": {
+      "exit": 0,
+      "out": "Value a exists, overwrite(Yes/No)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:660072006500730068000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "add_overwrite_upper_yes": {
+      "exit": 0,
+      "out": "Value a exists, overwrite(Yes/No)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:660072006500730068000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "add_overwrite_word_yes": {
+      "exit": 0,
+      "out": "Value a exists, overwrite(Yes/No)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:660072006500730068000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "add_overwrite_no": {
+      "exit": 0,
+      "out": "Value a exists, overwrite(Yes/No)? The operation was canceled by the user.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6f006c006400200061000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "add_overwrite_default_yes": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:660072006500730068000000;a=1:6f006c006400200061000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "add_new_value_no_prompt": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6f006c006400200061000000;b=1:6f006c006400200062000000;z=1:660072006500730068000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "add_overwrite_f_ignores_input": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:660072006500730068000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "delete_value_yes": {
+      "exit": 0,
+      "out": "Delete the registry value a (Yes/No)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "delete_value_no": {
+      "exit": 1,
+      "out": "Delete the registry value a (Yes/No)? The operation was canceled by the user.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6f006c006400200061000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "delete_va_yes": {
+      "exit": 0,
+      "out": "Delete all values under the registry key HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_prompts\\w (Yes/No)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[] [\\s]c=1:6f006c006400200063000000;"
+    },
+    "delete_va_no": {
+      "exit": 1,
+      "out": "Delete all values under the registry key HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_prompts\\w (Yes/No)? The operation was canceled by the user.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6f006c006400200061000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "delete_key_yes": {
+      "exit": 0,
+      "out": "Permanently delete the registry key HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_prompts\\w (Yes/No)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "open failed 2"
+    },
+    "delete_key_no": {
+      "exit": 0,
+      "out": "Permanently delete the registry key HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_prompts\\w (Yes/No)? The operation was canceled by the user.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6f006c006400200061000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "delete_missing_value_no_prompt": {
+      "exit": 1,
+      "out": "Delete the registry value nosuch (Yes/No)? ",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n",
+      "tree": "[]a=1:6f006c006400200061000000;b=1:6f006c006400200062000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "copy_one_conflict_yes": {
+      "exit": 0,
+      "out": "Value Software\\SetuOracle\\reg_prompts\\src1\\a exists. Overwrite (Yes/No/All)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6e0065007700200061000000;b=1:6f006c006400200062000000;new=1:610064006400650064000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "copy_one_conflict_no": {
+      "exit": 0,
+      "out": "Value Software\\SetuOracle\\reg_prompts\\src1\\a exists. Overwrite (Yes/No/All)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6f006c006400200061000000;b=1:6f006c006400200062000000;new=1:610064006400650064000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "copy_one_conflict_all": {
+      "exit": 0,
+      "out": "Value Software\\SetuOracle\\reg_prompts\\src1\\a exists. Overwrite (Yes/No/All)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6e0065007700200061000000;b=1:6f006c006400200062000000;new=1:610064006400650064000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "copy_overwrite_all": {
+      "exit": 0,
+      "out": "Value Software\\SetuOracle\\reg_prompts\\src\\a exists. Overwrite (Yes/No/All)? The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:6e0065007700200061000000;b=1:6e0065007700200062000000;new=1:610064006400650064000000; [\\s]c=1:6f006c006400200063000000;"
+    },
+    "export_overwrite_yes": {
+      "exit": 0,
+      "out": "File exists.reg already exists. Overwrite (Yes/No)?The operation completed successfully.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "utf16le-bom",
+      "file.text": "Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_prompts\\w]\r\n\"a\"=\"old a\"\r\n\"b\"=\"old b\"\r\n\r\n[HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_prompts\\w\\s]\r\n\"c\"=\"old c\"\r\n\r\n"
+    },
+    "export_overwrite_no": {
+      "exit": 0,
+      "out": "File exists.reg already exists. Overwrite (Yes/No)?The operation was canceled by the user.\r\r\n",
+      "err": "",
+      "file.exists": true,
+      "file.encoding": "ansi",
+      "file.text": "placeholder\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "bb7a6a4f58abdc7dd51752b74c3ab236b9e10a17483f243b351b1c47f276e600"
+}

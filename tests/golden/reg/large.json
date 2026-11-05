@@ -1,0 +1,87 @@
+{
+  "test": "reg/large",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "query_big_binary": {
+      "exit": 0,
+      "out_len": 12084,
+      "out_hash": 2748207880,
+      "err": ""
+    },
+    "query_big_sz": {
+      "exit": 0,
+      "out_len": 3078,
+      "out_hash": 256993455,
+      "err": ""
+    },
+    "export_big": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "import_big": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "bin_ret": 0,
+      "bin_size": 6000,
+      "bin_same": true,
+      "sz_ret": 0,
+      "sz_size": 6000,
+      "sz_same": true
+    },
+    "query_many_values": {
+      "exit": 0,
+      "out_len": 6242,
+      "out_hash": 2155306962,
+      "err": ""
+    },
+    "find_in_many": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_large\\many\r\n    v190    REG_DWORD    0xbe\r\n    v191    REG_DWORD    0xbf\r\n    v192    REG_DWORD    0xc0\r\n    v193    REG_DWORD    0xc1\r\n    v194    REG_DWORD    0xc2\r\n    v195    REG_DWORD    0xc3\r\n    v196    REG_DWORD    0xc4\r\n    v197    REG_DWORD    0xc5\r\n    v198    REG_DWORD    0xc6\r\n    v199    REG_DWORD    0xc7\r\n\r\nEnd of search: 10 match(es) found.\r\n",
+      "err": ""
+    },
+    "query_deep_recursive": {
+      "exit": 0,
+      "out_len": 3496,
+      "out_hash": 1188843659,
+      "err": ""
+    },
+    "find_deepest": {
+      "exit": 1,
+      "out": "\r\nEnd of search: 0 match(es) found.\r\n",
+      "err": ""
+    },
+    "delete_deep": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "deep_after_delete": {
+      "tree": "open failed 2"
+    },
+    "add_key_255": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG ADD /?\" for usage.\r\n"
+    },
+    "add_key_256": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid key name.\r\nType \"REG ADD /?\" for usage.\r\n"
+    },
+    "set_value_name_16383": {
+      "ret": 0
+    },
+    "query_long_value_name": {
+      "exit": 0,
+      "out_len": 16466,
+      "out_hash": 1956670089,
+      "err": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "5185f2a1133b063651c2d9b12da44144f47f24e421e2299d99661b7163795e5c"
+}

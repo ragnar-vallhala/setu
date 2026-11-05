@@ -1,0 +1,130 @@
+{
+  "test": "reg/query",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "query_key": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    str    REG_SZ    Hello, World\r\n    empty    REG_SZ    \r\n    dw    REG_DWORD    0x1234abcd\r\n    qw    REG_QWORD    0x102030405060708\r\n    bin    REG_BINARY    DEADBEEF0001\r\n    multi    REG_MULTI_SZ    one\\0two\\0three\r\n    exp    REG_EXPAND_SZ    %SystemRoot%\\x\r\n    none    REG_NONE    DEAD\r\n    bin_empty    REG_BINARY    \r\n    dw_be    REG_DWORD_BIG_ENDIAN    0x1234abcd\r\n    odd    REG_NONE    DEADBE\r\n    with space    REG_SZ    a b\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub2\r\n",
+      "err": ""
+    },
+    "query_v_str": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    str    REG_SZ    Hello, World\r\n\r\n",
+      "err": ""
+    },
+    "query_v_empty_string": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    empty    REG_SZ    \r\n\r\n",
+      "err": ""
+    },
+    "query_v_dword": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    dw    REG_DWORD    0x1234abcd\r\n\r\n",
+      "err": ""
+    },
+    "query_v_qword": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    qw    REG_QWORD    0x102030405060708\r\n\r\n",
+      "err": ""
+    },
+    "query_v_binary": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    bin    REG_BINARY    DEADBEEF0001\r\n\r\n",
+      "err": ""
+    },
+    "query_v_binary_empty": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    bin_empty    REG_BINARY    \r\n\r\n",
+      "err": ""
+    },
+    "query_v_multi": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    multi    REG_MULTI_SZ    one\\0two\\0three\r\n\r\n",
+      "err": ""
+    },
+    "query_v_expand": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    exp    REG_EXPAND_SZ    %SystemRoot%\\x\r\n\r\n",
+      "err": ""
+    },
+    "query_v_none": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    none    REG_NONE    DEAD\r\n\r\n",
+      "err": ""
+    },
+    "query_v_dword_big_endian": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    dw_be    REG_DWORD_BIG_ENDIAN    0x1234abcd\r\n\r\n",
+      "err": ""
+    },
+    "query_v_unknown_type": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    odd    REG_NONE    DEADBE\r\n\r\n",
+      "err": ""
+    },
+    "query_v_quoted_space": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    with space    REG_SZ    a b\r\n\r\n",
+      "err": ""
+    },
+    "query_v_other_case": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    STR    REG_SZ    Hello, World\r\n\r\n",
+      "err": ""
+    },
+    "query_v_missing": {
+      "exit": 1,
+      "out": "\r\n\r\n",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "query_ve_set": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\r\n    (Default)    REG_SZ    default data\r\n\r\n",
+      "err": ""
+    },
+    "query_ve_unset": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub2\r\n    (Default)    REG_SZ    (value not set)\r\n\r\n",
+      "err": ""
+    },
+    "query_subkey_with_default": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\r\n    (Default)    REG_SZ    default data\r\n    inner    REG_DWORD    0x1234abcd\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\\deep\r\n",
+      "err": ""
+    },
+    "query_empty_key": {
+      "exit": 0,
+      "out": "\r\n",
+      "err": ""
+    },
+    "query_long_root_name": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\r\n    (Default)    REG_SZ    default data\r\n    inner    REG_DWORD    0x1234abcd\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\\deep\r\n",
+      "err": ""
+    },
+    "query_trailing_backslash": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\r\n    (Default)    REG_SZ    default data\r\n    inner    REG_DWORD    0x1234abcd\r\n\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\\sub\\deep\r\n",
+      "err": ""
+    },
+    "query_key_other_case": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\SOFTWARE\\setuoracle\\REG_QUERY\\SUB\r\n    (Default)    REG_SZ    default data\r\n    inner    REG_DWORD    0x1234abcd\r\n\r\nHKEY_CURRENT_USER\\SOFTWARE\\setuoracle\\REG_QUERY\\SUB\\deep\r\n",
+      "err": ""
+    },
+    "query_dash_switch": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    str    REG_SZ    Hello, World\r\n\r\n",
+      "err": ""
+    },
+    "query_upper_switch": {
+      "exit": 0,
+      "out": "\r\nHKEY_CURRENT_USER\\Software\\SetuOracle\\reg_query\r\n    str    REG_SZ    Hello, World\r\n\r\n",
+      "err": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "6dc384e43d419ab7ed824a8bc6c50dab4abe6cf35f26fae36641d9f638186e03"
+}

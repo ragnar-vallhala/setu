@@ -1,0 +1,115 @@
+{
+  "test": "reg/compare",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "identical": {
+      "exit": 0,
+      "out": "\r\nResult Compared:  Identical\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "identical_s": {
+      "exit": 2,
+      "out": "< Key: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a\\only_a\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "different": {
+      "exit": 2,
+      "out": "< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  diff REG_SZ left\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  diff REG_SZ right\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  (Default) REG_SZ dflt\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  (Default) REG_SZ other dflt\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  num REG_DWORD 0x1\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  num REG_SZ 1\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  left_only REG_SZ l\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  right_only REG_SZ r\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "different_s": {
+      "exit": 2,
+      "out": "< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  diff REG_SZ left\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  diff REG_SZ right\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  (Default) REG_SZ dflt\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  (Default) REG_SZ other dflt\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  num REG_DWORD 0x1\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  num REG_SZ 1\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  left_only REG_SZ l\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  right_only REG_SZ r\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a\\sub  inner REG_SZ i1\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b\\sub  inner REG_SZ i2\r\n< Key: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a\\only_a\r\n> Key: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b\\only_b\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "v_same": {
+      "exit": 0,
+      "out": "\r\nResult Compared:  Identical\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "v_diff": {
+      "exit": 2,
+      "out": "< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  diff REG_SZ left\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  diff REG_SZ right\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "v_type_diff": {
+      "exit": 2,
+      "out": "< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  num REG_DWORD 0x1\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  num REG_SZ 1\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "v_missing_both": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "v_missing_right": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "ve": {
+      "exit": 2,
+      "out": "< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  (Default) REG_SZ dflt\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  (Default) REG_SZ other dflt\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "oa": {
+      "exit": 2,
+      "out": "= Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  same REG_SZ x\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  diff REG_SZ left\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  diff REG_SZ right\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  (Default) REG_SZ dflt\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  (Default) REG_SZ other dflt\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  num REG_DWORD 0x1\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  num REG_SZ 1\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  left_only REG_SZ l\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  right_only REG_SZ r\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "od": {
+      "exit": 2,
+      "out": "< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  diff REG_SZ left\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  diff REG_SZ right\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  (Default) REG_SZ dflt\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  (Default) REG_SZ other dflt\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  num REG_DWORD 0x1\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  num REG_SZ 1\r\n< Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  left_only REG_SZ l\r\n> Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\b  right_only REG_SZ r\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "os": {
+      "exit": 2,
+      "out": "= Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  same REG_SZ x\r\n\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "on": {
+      "exit": 2,
+      "out": "\r\nResult Compared:  Different\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "os_identical": {
+      "exit": 0,
+      "out": "= Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  same REG_SZ x\r\n= Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  diff REG_SZ left\r\n= Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  (Default) REG_SZ dflt\r\n= Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  num REG_DWORD 0x1\r\n= Value: HKEY_CURRENT_USER\\Software\\SetuOracle\\reg_compare\\a  left_only REG_SZ l\r\n\r\nResult Compared:  Identical\r\nThe operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "missing_left": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "missing_right": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "same_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The registry entry is being compared with itself.\r\n"
+    },
+    "one_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG COMPARE /?\" for usage.\r\n"
+    },
+    "oa_and_od": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG COMPARE /?\" for usage.\r\n"
+    },
+    "v_and_ve": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG COMPARE /?\" for usage.\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "957d9dabce82a1156ed7938ecafa6f42a558e116e45b1f14fd69a2f3d6123930"
+}

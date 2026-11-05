@@ -1,0 +1,106 @@
+{
+  "test": "reg/import_encoding",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "utf16le_bom_v5": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]café=1:2d4e87650000;emoji=1:3dd800de0000;"
+    },
+    "utf16le_bom_no_header": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "open failed 2"
+    },
+    "utf16le_no_bom_v5": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "open failed 2"
+    },
+    "utf16be_bom_v5": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "open failed 2"
+    },
+    "utf16le_bom_regedit4": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]a=1:e9000000;"
+    },
+    "utf8_bom_v5": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "open failed 2"
+    },
+    "utf8_bom_regedit4": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "open failed 2"
+    },
+    "utf8_no_bom_regedit4": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]a=1:c300a9000000;"
+    },
+    "cp1252_regedit4": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]café=1:e900ac200000;"
+    },
+    "cp1252_v5_header": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]a=1:e9000000;"
+    },
+    "utf16le_cr_only_line_ends": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]a=1:31000000;b=1:32000000;"
+    },
+    "utf16le_lf_only_line_ends": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]a=1:31000000;b=1:32000000;"
+    },
+    "utf16le_cjk_key_name": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "open failed 2"
+    },
+    "utf16le_hex_strings": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]a=1:e9000000;b=2:41000000;"
+    },
+    "bom_only": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The specified file is not a registry file. You can import only registry files.\r\n",
+      "tree": "open failed 2"
+    },
+    "utf16le_no_final_newline": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]a=1:31000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "6280aa65718ac8d2ae8c2c475bd35b80bef974f844bf5215a8f49e5a1294645f"
+}

@@ -1,0 +1,106 @@
+{
+  "test": "reg/roundtrip",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "original": {
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4e3e2e1e0dfdedddcdbdad9d8;dw=4:cefaedfe;exp=2:2500500041005400480025003b0078000000;multi=7:7800000079007900000000000000;none=0:fffefdfc;qw=11:f22fce733a0b0000;sz=1:710075006f00740065002000220020006200610063006b0020005c00200065006e0064000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=1:740077006f000000;"
+    },
+    "export": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "import_after_delete": {
+      "exit": 0,
+      "out": "",
+      "err": "The operation completed successfully.\r\r\n",
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4e3e2e1e0dfdedddcdbdad9d8;dw=4:cefaedfe;exp=2:2500500041005400480025003b0078000000;multi=7:7800000079007900000000000000;none=0:fffefdfc;qw=11:f22fce733a0b0000;sz=1:710075006f00740065002000220020006200610063006b0020005c00200065006e0064000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=1:740077006f000000;"
+    },
+    "save": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "save_existing_y": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "restore_into_scratch": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4e3e2e1e0dfdedddcdbdad9d8;dw=4:cefaedfe;exp=2:2500500041005400480025003b0078000000;multi=7:7800000079007900000000000000;none=0:fffefdfc;qw=11:f22fce733a0b0000;sz=1:710075006f00740065002000220020006200610063006b0020005c00200065006e0064000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=1:740077006f000000;"
+    },
+    "restore_missing_file": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "restore_missing_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "save_missing_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The system was unable to find the specified registry key or value.\r\n"
+    },
+    "save_no_file_arg": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG SAVE /?\" for usage.\r\n"
+    },
+    "load_hku": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "loaded_tree": {
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:fffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4e3e2e1e0dfdedddcdbdad9d8;dw=4:cefaedfe;exp=2:2500500041005400480025003b0078000000;multi=7:7800000079007900000000000000;none=0:fffefdfc;qw=11:f22fce733a0b0000;sz=1:710075006f00740065002000220020006200610063006b0020005c00200065006e0064000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=1:740077006f000000;"
+    },
+    "load_again": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "unload_hku": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "after_unload": {
+      "open": 2
+    },
+    "load_not_under_hku_or_hklm": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The root key must be HKLM or HKU for LOAD/UNLOAD.\r\nType \"REG LOAD /?\" for usage.\r\n"
+    },
+    "load_missing_file": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": ""
+    },
+    "unload_missing": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: The parameter is incorrect.\r\r\n"
+    },
+    "load_no_args": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG LOAD /?\" for usage.\r\n"
+    },
+    "unload_no_args": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Invalid syntax.\r\nType \"REG UNLOAD /?\" for usage.\r\n"
+    }
+  },
+  "errors": [],
+  "source_sha256": "fcf48c5a560ba12e2e4770881a8e4c074003dfd56d0e3e9a2bbc5975d6fd193a"
+}
