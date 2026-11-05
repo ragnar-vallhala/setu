@@ -548,6 +548,9 @@ static struct object *key_lookup_name( struct object *obj, struct unicode_str *n
                 set_error( STATUS_OBJECT_NAME_NOT_FOUND );
             }
         }
+        /* a link loop exhausts the lookup's recursion limit: Windows reports
+         * such a link as not found */
+        else if (get_error() == STATUS_INVALID_PARAMETER) set_error( STATUS_OBJECT_NAME_NOT_FOUND );
 
         key = (struct key *)obj;
         if (key && (key->flags & KEY_WOWSHARE) && (attr & OBJ_KEY_WOW64) && !name->str)
