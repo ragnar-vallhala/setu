@@ -178,7 +178,7 @@ static inline DWORD get_security_file( LPCWSTR full_file_name, DWORD access, HAN
     attr.Attributes = OBJ_CASE_INSENSITIVE;
     attr.ObjectName = &file_nameW;
     attr.SecurityDescriptor = NULL;
-    status = NtCreateFile( file, access|SYNCHRONIZE, &attr, &io, NULL, FILE_FLAG_BACKUP_SEMANTICS,
+    status = NtCreateFile( file, access, &attr, &io, NULL, FILE_FLAG_BACKUP_SEMANTICS,
                            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, FILE_OPEN,
                            FILE_OPEN_FOR_BACKUP_INTENT, NULL, 0 );
     RtlFreeUnicodeString( &file_nameW );
@@ -272,12 +272,55 @@ GetEffectiveRightsFromAclA( PACL pacl, PTRUSTEEA pTrustee, PACCESS_MASK pAccessR
     return 0;
 }
 
+/* the rights an ACL grants a SID trustee, which ACEs for the trustee and for
+ * Everyone apply to (MS docs: GetEffectiveRightsFromAclW; Windows 10 oracle:
+ * MapGenericMask eff_*): a deny ACE takes away rights not yet granted, an
+ * explicit deny after an explicit allow makes the ACL non-canonical, and
+ * generic bits in ACE masks count for nothing */
 DWORD WINAPI
 GetEffectiveRightsFromAclW( PACL pacl, PTRUSTEEW pTrustee, PACCESS_MASK pAccessRights )
 {
-    FIXME("%p %p %p - stub\n", pacl, pTrustee, pAccessRights);
+    static const SID world = { SID_REVISION, 1, { SECURITY_WORLD_SID_AUTHORITY }, { SECURITY_WORLD_RID } };
+    const DWORD valid = 0x03ffffff;
+    ACCESS_MASK granted = 0, denied = 0;
+    BOOL seen_allow = FALSE;
+    ACE_HEADER *ace;
+    PSID sid;
+    DWORD i;
 
-    return 1;
+    TRACE("%p %p %p\n", pacl, pTrustee, pAccessRights);
+
+    if (!pTrustee || !pAccessRights) return ERROR_INVALID_PARAMETER;
+    if (pTrustee->TrusteeForm != TRUSTEE_IS_SID)
+    {
+        FIXME("trustee form %u not supported\n", pTrustee->TrusteeForm);
+        return ERROR_CALL_NOT_IMPLEMENTED;
+    }
+    sid = (PSID)pTrustee->ptstrName;
+    if (!pacl)
+    {
+        *pAccessRights = valid;
+        return ERROR_SUCCESS;
+    }
+    for (i = 0; i < pacl->AceCount; i++)
+    {
+        ACCESS_MASK mask;
+        PSID ace_sid;
+
+        if (!GetAce( pacl, i, (void **)&ace )) return GetLastError();
+        if (ace->AceType != ACCESS_ALLOWED_ACE_TYPE && ace->AceType != ACCESS_DENIED_ACE_TYPE) continue;
+        if (ace->AceType == ACCESS_ALLOWED_ACE_TYPE && !(ace->AceFlags & INHERITED_ACE)) seen_allow = TRUE;
+        else if (ace->AceType == ACCESS_DENIED_ACE_TYPE && !(ace->AceFlags & INHERITED_ACE) && seen_allow)
+            return ERROR_INVALID_ACL;
+        if (ace->AceFlags & INHERIT_ONLY_ACE) continue;
+        mask = ((ACCESS_ALLOWED_ACE *)ace)->Mask & valid;
+        ace_sid = &((ACCESS_ALLOWED_ACE *)ace)->SidStart;
+        if (!EqualSid( ace_sid, sid ) && !EqualSid( ace_sid, (PSID)&world )) continue;
+        if (ace->AceType == ACCESS_ALLOWED_ACE_TYPE) granted |= mask & ~denied;
+        else denied |= mask & ~granted;
+    }
+    *pAccessRights = granted;
+    return ERROR_SUCCESS;
 }
 
 /*	##############################################
@@ -2252,122 +2295,101 @@ DWORD WINAPI SetEntriesInAclW( ULONG count, PEXPLICIT_ACCESSW pEntries,
         goto exit;
     }
 
-    for (i = 0; i < count; i++)
+    /* The new ACL is in canonical order (MS docs: SetEntriesInAclW, "Order of
+     * ACEs in a DACL"; Windows 10 oracle: NamedSecurityInfo set_entries,
+     * set_entries_merge_grant): denied ACEs, new ones first, then allowed ACEs,
+     * new ones first, then the rest, and the inherited ACEs last. Granting
+     * rights takes them out of the trustee's existing denied ACEs, setting
+     * rights replaces the trustee's allowed and denied ACEs, and revoking
+     * removes its allowed and audit ACEs. */
+    for (i = 0; i < count && status == STATUS_SUCCESS; i++)
+        if (pEntries[i].grfAccessMode == DENY_ACCESS)
+            status = RtlAddAccessDeniedAceEx(*NewAcl, ACL_REVISION, pEntries[i].grfInheritance,
+                                             pEntries[i].grfAccessPermissions, ppsid[i]);
+
+    if (OldAcl)
     {
-        switch (pEntries[i].grfAccessMode)
+        const ACE_HEADER *ace;
+        for (i = 0; status == STATUS_SUCCESS && !RtlGetAce(OldAcl, i, (void **)&ace); i++)
         {
-        case GRANT_ACCESS:
-            status = RtlAddAccessAllowedAceEx(*NewAcl, ACL_REVISION,
-                                              pEntries[i].grfInheritance,
-                                              pEntries[i].grfAccessPermissions,
-                                              ppsid[i]);
-            break;
-        case SET_ACCESS:
-        {
+            const ACCESS_DENIED_ACE *deny = (const ACCESS_DENIED_ACE *)ace;
+            DWORD mask;
             ULONG j;
-            BOOL add = TRUE;
-            if (OldAcl)
+
+            if (ace->AceType != ACCESS_DENIED_ACE_TYPE || (ace->AceFlags & INHERITED_ACE)) continue;
+            mask = deny->Mask;
+            for (j = 0; j < count; j++)
             {
-                for (j = 0; ; j++)
+                if (!EqualSid(ppsid[j], (PSID)&deny->SidStart)) continue;
+                if (pEntries[j].grfAccessMode == SET_ACCESS) mask = 0;
+                else if (pEntries[j].grfAccessMode == GRANT_ACCESS) mask &= ~pEntries[j].grfAccessPermissions;
+            }
+            if (mask) status = RtlAddAccessDeniedAceEx(*NewAcl, ACL_REVISION, ace->AceFlags, mask,
+                                                       (PSID)&deny->SidStart);
+        }
+    }
+
+    for (i = 0; i < count && status == STATUS_SUCCESS; i++)
+        if (pEntries[i].grfAccessMode == GRANT_ACCESS || pEntries[i].grfAccessMode == SET_ACCESS)
+            status = RtlAddAccessAllowedAceEx(*NewAcl, ACL_REVISION, pEntries[i].grfInheritance,
+                                              pEntries[i].grfAccessPermissions, ppsid[i]);
+
+    if (OldAcl)
+    {
+        const ACE_HEADER *ace;
+        for (i = 0; status == STATUS_SUCCESS && !RtlGetAce(OldAcl, i, (void **)&ace); i++)
+        {
+            BOOL add = TRUE;
+            ULONG j;
+
+            if (ace->AceType == ACCESS_DENIED_ACE_TYPE || (ace->AceFlags & INHERITED_ACE)) continue;
+            for (j = 0; j < count && add; j++)
+            {
+                switch (ace->AceType)
                 {
-                    const ACE_HEADER *existing_ace_header;
-                    status = RtlGetAce(OldAcl, j, (LPVOID *)&existing_ace_header);
-                    if (status != STATUS_SUCCESS)
-                        break;
-                    if (pEntries[i].grfAccessMode == SET_ACCESS &&
-                        existing_ace_header->AceType == ACCESS_ALLOWED_ACE_TYPE &&
-                        EqualSid(ppsid[i], &((ACCESS_ALLOWED_ACE *)existing_ace_header)->SidStart))
-                    {
+                case ACCESS_ALLOWED_ACE_TYPE:
+                    if ((pEntries[j].grfAccessMode == SET_ACCESS || pEntries[j].grfAccessMode == REVOKE_ACCESS) &&
+                        EqualSid(ppsid[j], &((ACCESS_ALLOWED_ACE *)ace)->SidStart))
                         add = FALSE;
-                        break;
-                    }
+                    break;
+                case SYSTEM_AUDIT_ACE_TYPE:
+                    if (pEntries[j].grfAccessMode == REVOKE_ACCESS &&
+                        EqualSid(ppsid[j], &((SYSTEM_AUDIT_ACE *)ace)->SidStart))
+                        add = FALSE;
+                    break;
+                case SYSTEM_ALARM_ACE_TYPE:
+                    if (pEntries[j].grfAccessMode == REVOKE_ACCESS &&
+                        EqualSid(ppsid[j], &((SYSTEM_ALARM_ACE *)ace)->SidStart))
+                        add = FALSE;
+                    break;
                 }
             }
-            if (add)
-                status = RtlAddAccessAllowedAceEx(*NewAcl, ACL_REVISION,
-                                                  pEntries[i].grfInheritance,
-                                                  pEntries[i].grfAccessPermissions,
-                                                  ppsid[i]);
-            break;
+            if (add) status = RtlAddAce(*NewAcl, ACL_REVISION, MAXDWORD, (PACE_HEADER)ace, ace->AceSize);
         }
-        case DENY_ACCESS:
-            status = RtlAddAccessDeniedAceEx(*NewAcl, ACL_REVISION,
-                                             pEntries[i].grfInheritance,
-                                             pEntries[i].grfAccessPermissions,
-                                             ppsid[i]);
-            break;
-        case SET_AUDIT_SUCCESS:
-            status = RtlAddAuditAccessAceEx(*NewAcl, ACL_REVISION,
-                                            pEntries[i].grfInheritance,
-                                            pEntries[i].grfAccessPermissions,
-                                            ppsid[i], TRUE, FALSE);
-            break;
-        case SET_AUDIT_FAILURE:
-            status = RtlAddAuditAccessAceEx(*NewAcl, ACL_REVISION,
-                                            pEntries[i].grfInheritance,
-                                            pEntries[i].grfAccessPermissions,
-                                            ppsid[i], FALSE, TRUE);
-            break;
-        default:
-            FIXME("unhandled access mode %d\n", pEntries[i].grfAccessMode);
-        }
+    }
+
+    for (i = 0; i < count && status == STATUS_SUCCESS; i++)
+    {
+        if (pEntries[i].grfAccessMode == SET_AUDIT_SUCCESS)
+            status = RtlAddAuditAccessAceEx(*NewAcl, ACL_REVISION, pEntries[i].grfInheritance,
+                                            pEntries[i].grfAccessPermissions, ppsid[i], TRUE, FALSE);
+        else if (pEntries[i].grfAccessMode == SET_AUDIT_FAILURE)
+            status = RtlAddAuditAccessAceEx(*NewAcl, ACL_REVISION, pEntries[i].grfInheritance,
+                                            pEntries[i].grfAccessPermissions, ppsid[i], FALSE, TRUE);
     }
 
     if (OldAcl)
     {
-        for (i = 0; ; i++)
-        {
-            BOOL add = TRUE;
-            ULONG j;
-            const ACE_HEADER *old_ace_header;
-            status = RtlGetAce(OldAcl, i, (LPVOID *)&old_ace_header);
-            if (status != STATUS_SUCCESS) break;
-            for (j = 0; j < count; j++)
-            {
-                if (pEntries[j].grfAccessMode == SET_ACCESS &&
-                    old_ace_header->AceType == ACCESS_ALLOWED_ACE_TYPE &&
-                    EqualSid(ppsid[j], &((ACCESS_ALLOWED_ACE *)old_ace_header)->SidStart))
-                {
-                    status = RtlAddAccessAllowedAceEx(*NewAcl, ACL_REVISION, pEntries[j].grfInheritance, pEntries[j].grfAccessPermissions, ppsid[j]);
-                    add = FALSE;
-                    break;
-                }
-                else if (pEntries[j].grfAccessMode == REVOKE_ACCESS)
-                {
-                    switch (old_ace_header->AceType)
-                    {
-                    case ACCESS_ALLOWED_ACE_TYPE:
-                        if (EqualSid(ppsid[j], &((ACCESS_ALLOWED_ACE *)old_ace_header)->SidStart))
-                            add = FALSE;
-                        break;
-                    case ACCESS_DENIED_ACE_TYPE:
-                        /* REVOKE_ACCESS does not affect ACCESS_DENIED_ACE. */
-                        break;
-                    case SYSTEM_AUDIT_ACE_TYPE:
-                        if (EqualSid(ppsid[j], &((SYSTEM_AUDIT_ACE *)old_ace_header)->SidStart))
-                            add = FALSE;
-                        break;
-                    case SYSTEM_ALARM_ACE_TYPE:
-                        if (EqualSid(ppsid[j], &((SYSTEM_ALARM_ACE *)old_ace_header)->SidStart))
-                            add = FALSE;
-                        break;
-                    default:
-                        FIXME("unhandled ace type %d\n", old_ace_header->AceType);
-                    }
+        const ACE_HEADER *ace;
+        for (i = 0; status == STATUS_SUCCESS && !RtlGetAce(OldAcl, i, (void **)&ace); i++)
+            if (ace->AceFlags & INHERITED_ACE)
+                status = RtlAddAce(*NewAcl, ACL_REVISION, MAXDWORD, (PACE_HEADER)ace, ace->AceSize);
+    }
 
-                    if (!add)
-                        break;
-                }
-            }
-            if (add)
-                status = RtlAddAce(*NewAcl, ACL_REVISION, 1, (PACE_HEADER)old_ace_header, old_ace_header->AceSize);
-            if (status != STATUS_SUCCESS)
-            {
-                WARN("RtlAddAce failed with error 0x%08lx\n", status);
-                ret = RtlNtStatusToDosError(status);
-                break;
-            }
-        }
+    if (status != STATUS_SUCCESS)
+    {
+        WARN("adding an ACE failed with error 0x%08lx\n", status);
+        ret = RtlNtStatusToDosError(status);
     }
 
 exit:
@@ -2899,74 +2921,334 @@ BOOL WINAPI FileEncryptionStatusA(LPCSTR lpFileName, LPDWORD lpStatus)
     return TRUE;
 }
 
-static NTSTATUS combine_dacls(ACL *parent, ACL *child, ACL **result)
+#ifndef SEF_DACL_AUTO_INHERIT
+#define SEF_DACL_AUTO_INHERIT             0x01
+#define SEF_SACL_AUTO_INHERIT             0x02
+#define SEF_DEFAULT_DESCRIPTOR_FOR_OBJECT 0x04
+#define SEF_AVOID_PRIVILEGE_CHECK         0x08
+#define SEF_AVOID_OWNER_CHECK             0x10
+#define SEF_DEFAULT_OWNER_FROM_PARENT     0x20
+#define SEF_DEFAULT_GROUP_FROM_PARENT     0x40
+#endif
+
+#ifndef PROTECTED_DACL_SECURITY_INFORMATION
+#define UNPROTECTED_SACL_SECURITY_INFORMATION 0x10000000
+#define UNPROTECTED_DACL_SECURITY_INFORMATION 0x20000000
+#define PROTECTED_SACL_SECURITY_INFORMATION   0x40000000
+#define PROTECTED_DACL_SECURITY_INFORMATION   0x80000000
+#endif
+
+static const GENERIC_MAPPING file_generic_mapping =
 {
+    FILE_GENERIC_READ, FILE_GENERIC_WRITE, FILE_GENERIC_EXECUTE, FILE_ALL_ACCESS
+};
+
+/* a file's security descriptor, allocated with malloc */
+static PSECURITY_DESCRIPTOR query_file_sd( HANDLE handle, SECURITY_INFORMATION info, NTSTATUS *status )
+{
+    PSECURITY_DESCRIPTOR sd;
+    DWORD size = 0;
+
+    *status = NtQuerySecurityObject( handle, info, NULL, 0, &size );
+    if (*status != STATUS_BUFFER_TOO_SMALL) return NULL;
+    if (!(sd = malloc( size )))
+    {
+        *status = STATUS_NO_MEMORY;
+        return NULL;
+    }
+    if ((*status = NtQuerySecurityObject( handle, info, sd, size, &size )))
+    {
+        free( sd );
+        return NULL;
+    }
+    return sd;
+}
+
+/* the DACL of a descriptor, NULL when there is none or it is a NULL DACL */
+static ACL *file_sd_dacl( PSECURITY_DESCRIPTOR sd, SECURITY_DESCRIPTOR_CONTROL *control )
+{
+    BOOL present = FALSE, defaulted;
+    ACL *acl = NULL;
+    DWORD rev;
+
+    *control = 0;
+    if (!sd) return NULL;
+    GetSecurityDescriptorControl( sd, control, &rev );
+    if (!GetSecurityDescriptorDacl( sd, &present, &acl, &defaulted ) || !present) return NULL;
+    return acl;
+}
+
+static ACL *copy_acl( const ACL *acl )
+{
+    ACL *ret;
+    if (!acl || !(ret = malloc( acl->AclSize ))) return NULL;
+    memcpy( ret, acl, acl->AclSize );
+    return ret;
+}
+
+static HANDLE query_token(void)
+{
+    HANDLE token;
+    if (OpenThreadToken( GetCurrentThread(), TOKEN_QUERY, TRUE, &token )) return token;
+    if (OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &token )) return token;
+    return NULL;
+}
+
+/* The DACL a file gets from its explicit ACEs and what it inherits from its
+ * parent's DACL: the explicit ACEs (inherited ones dropped) followed by the
+ * inherited ones, marked INHERITED_ACE (MS docs: SetSecurityInfo, "ACE
+ * inheritance"; Windows 10 oracle: NamedSecurityInfo child_set_unprotected). */
+static ACL *file_inherited_dacl( ACL *parent_dacl, ACL *explicit, PSECURITY_DESCRIPTOR obj_sd, BOOL is_dir,
+                                 HANDLE token )
+{
+    SECURITY_DESCRIPTOR parent, creator;
+    PSECURITY_DESCRIPTOR new_sd = NULL;
+    SECURITY_DESCRIPTOR_CONTROL control;
+    BYTE empty_buf[sizeof(ACL)];
+    ACL *empty = (ACL *)empty_buf, *ret;
+    PSID owner = NULL, group = NULL;
+    BOOL defaulted;
+
+    InitializeSecurityDescriptor( &parent, SECURITY_DESCRIPTOR_REVISION );
+    SetSecurityDescriptorDacl( &parent, TRUE, parent_dacl, FALSE );
+    parent.Control |= SE_DACL_AUTO_INHERITED;
+
+    InitializeSecurityDescriptor( &creator, SECURITY_DESCRIPTOR_REVISION );
+    GetSecurityDescriptorOwner( obj_sd, &owner, &defaulted );
+    GetSecurityDescriptorGroup( obj_sd, &group, &defaulted );
+    SetSecurityDescriptorOwner( &creator, owner, FALSE );
+    SetSecurityDescriptorGroup( &creator, group, FALSE );
+    if (!explicit)
+    {
+        InitializeAcl( empty, sizeof(empty_buf), ACL_REVISION );
+        explicit = empty;
+    }
+    SetSecurityDescriptorDacl( &creator, TRUE, explicit, FALSE );
+
+    if (!CreatePrivateObjectSecurityEx( &parent, &creator, &new_sd, NULL, is_dir, SEF_DACL_AUTO_INHERIT |
+                                        SEF_AVOID_OWNER_CHECK | SEF_AVOID_PRIVILEGE_CHECK, token,
+                                        (GENERIC_MAPPING *)&file_generic_mapping ))
+        return NULL;
+    ret = copy_acl( file_sd_dacl( new_sd, &control ));
+    DestroyPrivateObjectSecurity( &new_sd );
+    return ret;
+}
+
+/* store a DACL that is auto-inherited, and protected or not */
+static NTSTATUS set_file_dacl( HANDLE handle, ACL *dacl, BOOL protected )
+{
+    SECURITY_DESCRIPTOR sd;
+
+    InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
+    SetSecurityDescriptorDacl( &sd, TRUE, dacl, FALSE );
+    sd.Control |= SE_DACL_AUTO_INHERIT_REQ | SE_DACL_AUTO_INHERITED;
+    if (protected) sd.Control |= SE_DACL_PROTECTED;
+    return NtSetSecurityObject( handle, DACL_SECURITY_INFORMATION, &sd );
+}
+
+static void propagate_file_dacl( const WCHAR *path, ACL *old_dacl, ACL *new_dacl, HANDLE token, int depth );
+
+/* open a file with just the rights its security needs (READ_CONTROL and
+ * WRITE_DAC, which its owner always has), without SYNCHRONIZE */
+static HANDLE open_for_security( const WCHAR *path, ACCESS_MASK access )
+{
+    UNICODE_STRING name;
+    OBJECT_ATTRIBUTES attr;
+    IO_STATUS_BLOCK io;
+    HANDLE handle;
     NTSTATUS status;
-    ACL *combined;
-    int i;
 
-    /* initialize a combined DACL containing both inherited and new ACEs */
-    combined = calloc(1, child->AclSize + parent->AclSize);
-    if (!combined)
-        return STATUS_NO_MEMORY;
+    if (!RtlDosPathNameToNtPathName_U( path, &name, NULL, NULL )) return INVALID_HANDLE_VALUE;
+    InitializeObjectAttributes( &attr, &name, OBJ_CASE_INSENSITIVE, 0, NULL );
+    status = NtOpenFile( &handle, access, &attr, &io,
+                         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                         FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT );
+    RtlFreeUnicodeString( &name );
+    return status ? INVALID_HANDLE_VALUE : handle;
+}
 
-    status = RtlCreateAcl(combined, parent->AclSize+child->AclSize, ACL_REVISION);
-    if (status != STATUS_SUCCESS)
+/* Recompute what a child inherits after its parent's DACL changed from
+ * old_dacl to new_dacl. A child that is not auto-inherited yet is converted
+ * first: ACEs matching what the old DACL gave it become inherited, and when
+ * they don't match it becomes protected (Windows 10 oracle: NamedSecurityInfo
+ * child_after_named_set, explicit_after_named_set). */
+static void update_child_dacl( const WCHAR *path, BOOL is_dir, ACL *old_dacl, ACL *new_dacl, HANDLE token,
+                               int depth )
+{
+    const SECURITY_INFORMATION info = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                                      DACL_SECURITY_INFORMATION;
+    PSECURITY_DESCRIPTOR sd, conv = NULL, after;
+    SECURITY_DESCRIPTOR_CONTROL control, conv_control;
+    ACL *explicit, *dacl = NULL, *child_old = NULL, *child_new = NULL;
+    NTSTATUS status;
+    HANDLE handle;
+
+    if ((handle = open_for_security( path, READ_CONTROL | WRITE_DAC )) == INVALID_HANDLE_VALUE) return;
+    if (!(sd = query_file_sd( handle, info, &status ))) goto done;
+    explicit = file_sd_dacl( sd, &control );
+    if (control & SE_DACL_PROTECTED) goto done;
+    child_old = copy_acl( explicit );
+
+    if (!(control & SE_DACL_AUTO_INHERITED))
     {
-        free(combined);
-        return status;
-    }
+        SECURITY_DESCRIPTOR parent;
 
-    /* copy the new ACEs */
-    for (i=0; i<child->AceCount; i++)
-    {
-        ACE_HEADER *ace;
-
-        if (!GetAce(child, i, (void*)&ace))
-            continue;
-        if (!AddAce(combined, ACL_REVISION, MAXDWORD, ace, ace->AceSize))
-            WARN("error adding new ACE\n");
-    }
-
-    /* copy the inherited ACEs */
-    for (i=0; i<parent->AceCount; i++)
-    {
-        ACE_HEADER *ace;
-
-        if (!GetAce(parent, i, (void*)&ace))
-            continue;
-        if (!(ace->AceFlags & (OBJECT_INHERIT_ACE|CONTAINER_INHERIT_ACE)))
-            continue;
-        if ((ace->AceFlags & (OBJECT_INHERIT_ACE|CONTAINER_INHERIT_ACE)) !=
-                (OBJECT_INHERIT_ACE|CONTAINER_INHERIT_ACE))
+        InitializeSecurityDescriptor( &parent, SECURITY_DESCRIPTOR_REVISION );
+        SetSecurityDescriptorDacl( &parent, TRUE, old_dacl, FALSE );
+        if (!ConvertToAutoInheritPrivateObjectSecurity( &parent, sd, &conv, NULL, is_dir,
+                                                        (GENERIC_MAPPING *)&file_generic_mapping ))
+            goto done;
+        explicit = file_sd_dacl( conv, &conv_control );
+        if (conv_control & SE_DACL_PROTECTED)
         {
-            FIXME("unsupported flags: %x\n", ace->AceFlags);
-            continue;
+            set_file_dacl( handle, explicit, TRUE );
+            goto done;
         }
-
-        if (ace->AceFlags & NO_PROPAGATE_INHERIT_ACE)
-            ace->AceFlags &= ~(OBJECT_INHERIT_ACE|CONTAINER_INHERIT_ACE|NO_PROPAGATE_INHERIT_ACE);
-        ace->AceFlags &= ~INHERIT_ONLY_ACE;
-        ace->AceFlags |= INHERITED_ACE;
-
-        if (!AddAce(combined, ACL_REVISION, MAXDWORD, ace, ace->AceSize))
-            WARN("error adding inherited ACE\n");
     }
 
-    *result = combined;
-    return STATUS_SUCCESS;
+    if (!(dacl = file_inherited_dacl( new_dacl, explicit, sd, is_dir, token ))) goto done;
+    if (set_file_dacl( handle, dacl, FALSE )) goto done;
+    if (is_dir && (after = query_file_sd( handle, DACL_SECURITY_INFORMATION, &status )))
+    {
+        child_new = copy_acl( file_sd_dacl( after, &control ));
+        free( after );
+    }
+
+done:
+    CloseHandle( handle );
+    if (conv) DestroyPrivateObjectSecurity( &conv );
+    free( sd );
+    free( dacl );
+    if (child_new) propagate_file_dacl( path, child_old, child_new, token, depth + 1 );
+    free( child_old );
+    free( child_new );
+}
+
+/* push a directory's new DACL down to what it contains */
+static void propagate_file_dacl( const WCHAR *path, ACL *old_dacl, ACL *new_dacl, HANDLE token, int depth )
+{
+    WIN32_FIND_DATAW data;
+    size_t len = wcslen( path );
+    WCHAR *buf;
+    HANDLE find;
+
+    if (depth > 64 || !(buf = malloc( (len + MAX_PATH + 3) * sizeof(WCHAR) ))) return;
+    wcscpy( buf, path );
+    wcscpy( buf + len, L"\\*" );
+    if ((find = FindFirstFileW( buf, &data )) != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            BOOL is_dir = !!(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+            if (!wcscmp( data.cFileName, L"." ) || !wcscmp( data.cFileName, L".." )) continue;
+            buf[len] = '\\';
+            wcscpy( buf + len + 1, data.cFileName );
+            /* reparse points are updated but not walked into */
+            if (data.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) is_dir = FALSE;
+            update_child_dacl( buf, is_dir, old_dacl, new_dacl, token, depth );
+        } while (FindNextFileW( find, &data ));
+        FindClose( find );
+    }
+    free( buf );
+}
+
+/* the path of an open file, allocated, without a trailing backslash */
+static WCHAR *file_handle_path( HANDLE handle )
+{
+    DWORD len = GetFinalPathNameByHandleW( handle, NULL, 0, VOLUME_NAME_DOS );
+    WCHAR *path;
+
+    if (!len || !(path = malloc( (len + 1) * sizeof(WCHAR) ))) return NULL;
+    if (!GetFinalPathNameByHandleW( handle, path, len + 1, VOLUME_NAME_DOS ))
+    {
+        free( path );
+        return NULL;
+    }
+    len = wcslen( path );
+    if (len && path[len - 1] == '\\') path[len - 1] = 0;
+    return path;
+}
+
+/* The DACL of a file: auto-inherited, protected as asked (or as it was), with
+ * what the parent passes on when it is not protected, and pushed down to the
+ * directory's contents (MS docs: SetSecurityInfo; Windows 10 oracle:
+ * NamedSecurityInfo, FileSecurity handle_set_*). */
+static DWORD set_file_security_dacl( HANDLE handle, SECURITY_INFORMATION info, ACL *pDacl )
+{
+    const SECURITY_INFORMATION all = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                                     DACL_SECURITY_INFORMATION;
+    FILE_BASIC_INFORMATION basic;
+    PSECURITY_DESCRIPTOR old_sd, parent_sd = NULL, after;
+    SECURITY_DESCRIPTOR_CONTROL control, pcontrol;
+    ACL *dacl = NULL, *old_dacl = NULL, *new_dacl = NULL;
+    WCHAR *path = NULL, *sep;
+    IO_STATUS_BLOCK io;
+    HANDLE token = NULL, parent;
+    BOOL protected, is_dir;
+    NTSTATUS status;
+
+    if (!(old_sd = query_file_sd( handle, all, &status ))) return RtlNtStatusToDosError( status );
+    old_dacl = copy_acl( file_sd_dacl( old_sd, &control ));
+    if (info & PROTECTED_DACL_SECURITY_INFORMATION) protected = TRUE;
+    else if (info & UNPROTECTED_DACL_SECURITY_INFORMATION) protected = FALSE;
+    else protected = !!(control & SE_DACL_PROTECTED);
+    is_dir = !NtQueryInformationFile( handle, &io, &basic, sizeof(basic), FileBasicInformation ) &&
+             (basic.FileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+    path = file_handle_path( handle );
+    token = query_token();
+
+    if (!protected && path && (sep = wcsrchr( path, '\\' )) && sep > path && sep[-1] != '?')
+    {
+        WCHAR save = sep[1];
+        ACL *pdacl;
+
+        if (sep[-1] == ':') sep[1] = 0;  /* the root of a drive */
+        else *sep = 0;
+        parent = open_for_security( path, READ_CONTROL );
+        if (sep[-1] == ':') sep[1] = save;
+        else *sep = '\\';
+        if (parent != INVALID_HANDLE_VALUE)
+        {
+            parent_sd = query_file_sd( parent, DACL_SECURITY_INFORMATION, &status );
+            CloseHandle( parent );
+        }
+        pdacl = file_sd_dacl( parent_sd, &pcontrol );
+        if (pdacl) dacl = file_inherited_dacl( pdacl, pDacl, old_sd, is_dir, token );
+    }
+    if (!dacl && !(dacl = file_inherited_dacl( NULL, pDacl, old_sd, is_dir, token ))) dacl = copy_acl( pDacl );
+
+    status = set_file_dacl( handle, dacl ? dacl : pDacl, protected );
+    if (!status && is_dir && path && (after = query_file_sd( handle, DACL_SECURITY_INFORMATION, &status )))
+    {
+        new_dacl = copy_acl( file_sd_dacl( after, &pcontrol ));
+        free( after );
+        if (new_dacl) propagate_file_dacl( path, old_dacl, new_dacl, token, 0 );
+        status = STATUS_SUCCESS;
+    }
+
+    if (token) CloseHandle( token );
+    free( path );
+    free( parent_sd );
+    free( old_sd );
+    free( old_dacl );
+    free( new_dacl );
+    free( dacl );
+    return RtlNtStatusToDosError( status );
 }
 
 /******************************************************************************
  * SetSecurityInfo [ADVAPI32.@]
  */
-DWORD WINAPI SetSecurityInfo(HANDLE handle, SE_OBJECT_TYPE ObjectType, 
+DWORD WINAPI SetSecurityInfo(HANDLE handle, SE_OBJECT_TYPE ObjectType,
                       SECURITY_INFORMATION SecurityInfo, PSID psidOwner,
                       PSID psidGroup, PACL pDacl, PACL pSacl)
 {
+    const SECURITY_INFORMATION inherit_flags = PROTECTED_DACL_SECURITY_INFORMATION |
+        UNPROTECTED_DACL_SECURITY_INFORMATION | PROTECTED_SACL_SECURITY_INFORMATION |
+        UNPROTECTED_SACL_SECURITY_INFORMATION;
     SECURITY_DESCRIPTOR sd;
-    PACL dacl = pDacl;
     NTSTATUS status;
+    DWORD err;
 
     if (!handle)
         return ERROR_INVALID_HANDLE;
@@ -2974,107 +3256,32 @@ DWORD WINAPI SetSecurityInfo(HANDLE handle, SE_OBJECT_TYPE ObjectType,
     if (!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION))
         return ERROR_INVALID_SECURITY_DESCR;
 
+    /* a file's DACL goes on its own, as it is merged with what the parent passes on */
+    if (ObjectType == SE_FILE_OBJECT && (SecurityInfo & DACL_SECURITY_INFORMATION) && pDacl)
+    {
+        if ((err = set_file_security_dacl( handle, SecurityInfo, pDacl ))) return err;
+        SecurityInfo &= ~(DACL_SECURITY_INFORMATION | PROTECTED_DACL_SECURITY_INFORMATION |
+                          UNPROTECTED_DACL_SECURITY_INFORMATION);
+        if (!(SecurityInfo & ~inherit_flags)) return ERROR_SUCCESS;
+    }
+
     if (SecurityInfo & OWNER_SECURITY_INFORMATION)
         SetSecurityDescriptorOwner(&sd, psidOwner, FALSE);
     if (SecurityInfo & GROUP_SECURITY_INFORMATION)
         SetSecurityDescriptorGroup(&sd, psidGroup, FALSE);
     if (SecurityInfo & DACL_SECURITY_INFORMATION)
     {
-        if (ObjectType == SE_FILE_OBJECT && pDacl)
-        {
-            SECURITY_DESCRIPTOR_CONTROL control;
-            PSECURITY_DESCRIPTOR psd;
-            OBJECT_NAME_INFORMATION *name_info;
-            DWORD size, rev;
-
-            status = NtQuerySecurityObject(handle, SecurityInfo, NULL, 0, &size);
-            if (status != STATUS_BUFFER_TOO_SMALL)
-                return RtlNtStatusToDosError(status);
-
-            psd = malloc(size);
-            if (!psd)
-                return ERROR_NOT_ENOUGH_MEMORY;
-
-            status = NtQuerySecurityObject(handle, SecurityInfo, psd, size, &size);
-            if (status)
-            {
-                free(psd);
-                return RtlNtStatusToDosError(status);
-            }
-
-            status = RtlGetControlSecurityDescriptor(psd, &control, &rev);
-            free(psd);
-            if (status)
-                return RtlNtStatusToDosError(status);
-            /* TODO: copy some control flags to new sd */
-
-            /* inherit parent directory DACL */
-            if (!(control & SE_DACL_PROTECTED))
-            {
-                status = NtQueryObject(handle, ObjectNameInformation, NULL, 0, &size);
-                if (status != STATUS_INFO_LENGTH_MISMATCH)
-                    return RtlNtStatusToDosError(status);
-
-                name_info = malloc(size);
-                if (!name_info)
-                    return ERROR_NOT_ENOUGH_MEMORY;
-
-                status = NtQueryObject(handle, ObjectNameInformation, name_info, size, NULL);
-                if (status)
-                {
-                    free(name_info);
-                    return RtlNtStatusToDosError(status);
-                }
-
-                if (name_info->Name.Length && name_info->Name.Buffer[(name_info->Name.Length / 2) - 1] == '\\')
-                    name_info->Name.Length -= 2;
-                while (name_info->Name.Length && name_info->Name.Buffer[(name_info->Name.Length / 2) - 1] != '\\')
-                    name_info->Name.Length -= 2;
-
-                if (name_info->Name.Length)
-                {
-                    OBJECT_ATTRIBUTES attr;
-                    IO_STATUS_BLOCK io;
-                    HANDLE parent;
-                    PSECURITY_DESCRIPTOR parent_sd;
-                    ACL *parent_dacl;
-                    DWORD err = ERROR_ACCESS_DENIED;
-
-                    name_info->Name.Buffer[name_info->Name.Length/2] = 0;
-
-                    attr.Length = sizeof(attr);
-                    attr.RootDirectory = 0;
-                    attr.Attributes = 0;
-                    attr.ObjectName = &name_info->Name;
-                    attr.SecurityDescriptor = NULL;
-                    status = NtOpenFile(&parent, READ_CONTROL|SYNCHRONIZE, &attr, &io,
-                            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-                            FILE_OPEN_FOR_BACKUP_INTENT);
-                    free(name_info);
-                    if (!status)
-                    {
-                        err = GetSecurityInfo(parent, SE_FILE_OBJECT, DACL_SECURITY_INFORMATION,
-                                NULL, NULL, &parent_dacl, NULL, &parent_sd);
-                        CloseHandle(parent);
-                    }
-
-                    if (!err)
-                    {
-                        status = combine_dacls(parent_dacl, pDacl, &dacl);
-                        LocalFree(parent_sd);
-                        if (status != STATUS_SUCCESS)
-                            return RtlNtStatusToDosError(status);
-                    }
-                }
-                else
-                    free(name_info);
-            }
-        }
-
-        SetSecurityDescriptorDacl(&sd, TRUE, dacl, FALSE);
+        SetSecurityDescriptorDacl(&sd, TRUE, pDacl, FALSE);
+        if (SecurityInfo & PROTECTED_DACL_SECURITY_INFORMATION) sd.Control |= SE_DACL_PROTECTED;
     }
-    if (SecurityInfo & SACL_SECURITY_INFORMATION)
+    if (SecurityInfo & (SACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION))
+    {
         SetSecurityDescriptorSacl(&sd, TRUE, pSacl, FALSE);
+        /* a SACL set through here is auto-inherited (Windows 10 oracle:
+         * FileSecurity handle_set_label, handle_set_sacl_with_ass) */
+        if (ObjectType == SE_FILE_OBJECT) sd.Control |= SE_SACL_AUTO_INHERIT_REQ | SE_SACL_AUTO_INHERITED;
+        if (SecurityInfo & PROTECTED_SACL_SECURITY_INFORMATION) sd.Control |= SE_SACL_PROTECTED;
+    }
 
     switch (ObjectType)
     {
@@ -3082,7 +3289,7 @@ DWORD WINAPI SetSecurityInfo(HANDLE handle, SE_OBJECT_TYPE ObjectType,
     case SE_KERNEL_OBJECT:
     case SE_WMIGUID_OBJECT:
     case SE_REGISTRY_KEY:
-        status = NtSetSecurityObject(handle, SecurityInfo, &sd);
+        status = NtSetSecurityObject(handle, SecurityInfo & ~inherit_flags, &sd);
         break;
 
     default:
@@ -3091,8 +3298,6 @@ DWORD WINAPI SetSecurityInfo(HANDLE handle, SE_OBJECT_TYPE ObjectType,
         break;
 
     }
-    if (dacl != pDacl)
-        free(dacl);
     return RtlNtStatusToDosError(status);
 }
 

@@ -9,8 +9,8 @@
 @ stdcall -import AccessCheckAndAuditAlarmW(wstr ptr wstr wstr ptr long ptr long ptr ptr ptr)
 @ stdcall -import AccessCheckByType(ptr ptr long long ptr long ptr ptr ptr ptr ptr)
 # @ stub AccessCheckByTypeAndAuditAlarmA
-# @ stub AccessCheckByTypeAndAuditAlarmW
-# @ stub AccessCheckByTypeResultList
+@ stdcall -import AccessCheckByTypeAndAuditAlarmW(wstr ptr wstr wstr ptr ptr long long long ptr long ptr long ptr ptr ptr)
+@ stdcall -import AccessCheckByTypeResultList(ptr ptr long long ptr long ptr ptr ptr ptr ptr)
 # @ stub AccessCheckByTypeResultListAndAuditAlarmA
 # @ stub AccessCheckByTypeResultListAndAuditAlarmByHandleA
 # @ stub AccessCheckByTypeResultListAndAuditAlarmByHandleW
