@@ -77,6 +77,17 @@ static inline WCHAR to_upper( WCHAR ch )
     return ch + upcasemap[upcasemap[upcasemap[ch >> 8] + ((ch >> 4) & 0x0f)] + (ch & 0x0f)];
 }
 
+/* the registry's upper-case table does not have the newer mappings to the
+ * Cherokee capitals, the Georgian Mtavruli letters and U+2C70 */
+static inline WCHAR to_upper_registry( WCHAR ch )
+{
+    WCHAR upper = to_upper( ch );
+
+    if ((upper >= 0x13a0 && upper <= 0x13f5) || (upper >= 0x1c90 && upper <= 0x1cbf) || upper == 0x2c70)
+        return ch;
+    return upper;
+}
+
 /* compare case-insensitively through upper case, which is the order Windows
  * keeps registry keys in ('_' and '[' sort after the letters) */
 int memicmp_upcase_strW( const WCHAR *str1, const WCHAR *str2, data_size_t len )
@@ -84,7 +95,7 @@ int memicmp_upcase_strW( const WCHAR *str1, const WCHAR *str2, data_size_t len )
     int ret = 0;
 
     for (len /= sizeof(WCHAR); len; str1++, str2++, len--)
-        if ((ret = to_upper(*str1) - to_upper(*str2))) break;
+        if ((ret = to_upper_registry(*str1) - to_upper_registry(*str2))) break;
     return ret;
 }
 
