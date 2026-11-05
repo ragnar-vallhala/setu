@@ -71,17 +71,49 @@ D: type=removable fs=FAT label=SETUSTICK
 Z: type=fixed fs=NTFS label=
 ```
 
+## NT security descriptors: `security.NTACL` and `setu-ntacld`
+
+A file's NT security descriptor is the xattr **`security.NTACL`**: one
+format byte (`1`) and the self-relative descriptor ([MS-DTYP] 2.4.6). The
+wineserver reads it itself (reading `security.*` needs no privilege) and
+enforces it on open (`personality/wine/server/filesec.c`). Writing it needs
+`CAP_SYS_ADMIN`, which only **`setu-ntacld`** has:
+
+* `setu-ntacld.socket` listens on `/run/setu/ntacl.sock` (`SOCK_SEQPACKET`,
+  any local user may connect) and starts `setu-ntacld.service` on demand; the
+  helper exits after a minute without clients.
+* A request is a header and the new value, with the open file passed as an
+  `SCM_RIGHTS` descriptor; the reply is an errno value
+  (`setu-ntacl.h`). The helper takes no paths and opens no files.
+* It writes or removes only `security.NTACL`, only on a regular file or
+  directory owned by the caller's uid, only on a file system mounted under
+  `/var/lib/setu/volumes/` or `/run/setu/volumes/` (otherwise `EXDEV`), and
+  only a well-formed format-1 value (otherwise `EINVAL`).
+* The unit runs it as a dynamic user with `CAP_SYS_ADMIN` as its only
+  capability (bounding and ambient set) and a strict sandbox: no network, no
+  writable file system, a system call filter.
+
+Where the helper is missing (developer machines, CI) or answers `EXDEV` or
+`ENOTSUP`, the wineserver writes the same value to `user.setu.sd` instead.
+`SETU_NTACL_SOCKET` in the wineserver's environment points it at another
+socket (for tests).
+
 ## Test
 
 `distro/tests/drives-smoke.sh` boots the image and checks both parts,
 hot-plugging USB disks through the QEMU monitor (see `distro/README.md`).
+`distro/tests/ntacl-smoke.sh` checks security descriptors: a DACL set from
+Windows lands in `security.NTACL`, is enforced, can't be removed by the
+user, survives a wineserver restart, and a file outside the Setu volumes gets
+the `user.setu.sd` fallback.
 
 ## Not yet
 
 * The table lives in `/run`, so letters of removable volumes aren't
   remembered across plug-ins or boots (Windows keeps them in
   `HKLM\SYSTEM\MountedDevices`).
-* One Windows user: C: and FAT mounts belong to the owner of C:.
+* One Windows user: C: and FAT mounts belong to the owner of C:, and
+  setu-ntacld only writes descriptors of files the caller owns.
 * `setu-drives-sync` belongs in `setu-system.service` once that exists
   (§3.3, Service Control Manager); it polls instead of using inotify.
 * Volume serial and label of C: come from the personality's defaults, not

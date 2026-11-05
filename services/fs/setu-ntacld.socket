@@ -1,0 +1,14 @@
+# The setu-ntacld socket (README.md, "NT security descriptors"). Any local
+# user may connect; the helper only writes security.NTACL of files the
+# caller owns, on Setu volumes, from a descriptor the caller passes.
+[Unit]
+Description=Setu NT security descriptor helper socket
+
+[Socket]
+ListenSequentialPacket=/run/setu/ntacl.sock
+SocketMode=0666
+DirectoryMode=0755
+Accept=no
+
+[Install]
+WantedBy=sockets.target

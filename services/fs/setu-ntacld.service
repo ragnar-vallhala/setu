@@ -1,0 +1,38 @@
+# setu-ntacld (README.md, "NT security descriptors"): writes the
+# security.NTACL attribute for the wineserver, which stays unprivileged.
+# Started by setu-ntacld.socket; exits when idle. Its only capability is
+# CAP_SYS_ADMIN (needed to write a security.* attribute); it opens no files
+# and runs as a throwaway user with no other access.
+[Unit]
+Description=Setu NT security descriptor helper
+Requires=setu-ntacld.socket
+After=setu-ntacld.socket
+
+[Service]
+ExecStart=/usr/local/libexec/setu-ntacld --idle-exit 60
+DynamicUser=yes
+AmbientCapabilities=CAP_SYS_ADMIN
+CapabilityBoundingSet=CAP_SYS_ADMIN
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateNetwork=yes
+IPAddressDeny=any
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @mount
+UMask=0077
