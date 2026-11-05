@@ -20,18 +20,18 @@
 
 static BOOL op_delete_key = TRUE;
 
-static void output_error(LONG rc)
+static void delete_error(LONG rc)
 {
     if (rc == ERROR_FILE_NOT_FOUND)
     {
         if (op_delete_key)
-            output_message(STRING_KEY_NONEXIST);
+            output_error(STRING_KEY_NONEXIST);
         else
-            output_message(STRING_VALUE_NONEXIST);
+            output_error(STRING_VALUE_NONEXIST);
     }
     else
     {
-        output_message(STRING_ACCESS_DENIED);
+        output_error(STRING_ACCESS_DENIED);
     }
 }
 
@@ -54,14 +54,15 @@ static int run_delete(HKEY root, WCHAR *path, REGSAM sam, WCHAR *key_name, WCHAR
 
         if (!ret)
         {
+            /* Declining to delete values fails; declining to delete a key does not. */
             output_message(STRING_CANCELLED);
-            return 0;
+            return (value_name || value_empty || value_all) ? 1 : 0;
         }
     }
 
     if ((rc = RegOpenKeyExW(root, path, 0, KEY_READ|KEY_SET_VALUE|sam, &hkey)))
     {
-        output_error(rc);
+        delete_error(rc);
         return 1;
     }
 
@@ -71,7 +72,7 @@ static int run_delete(HKEY root, WCHAR *path, REGSAM sam, WCHAR *key_name, WCHAR
         if ((rc = RegDeleteTreeW(hkey, NULL)))
         {
             RegCloseKey(hkey);
-            output_error(rc);
+            delete_error(rc);
             return 1;
         }
 
@@ -103,7 +104,7 @@ static int run_delete(HKEY root, WCHAR *path, REGSAM sam, WCHAR *key_name, WCHAR
                     free(value_name);
                     RegCloseKey(hkey);
                     output_message(STRING_VALUEALL_FAILED, key_name);
-                    output_error(rc);
+                    delete_error(rc);
                     return 1;
                 }
             }
@@ -121,7 +122,7 @@ static int run_delete(HKEY root, WCHAR *path, REGSAM sam, WCHAR *key_name, WCHAR
         if ((rc = RegDeleteValueW(hkey, value_name)))
         {
             RegCloseKey(hkey);
-            output_error(rc);
+            delete_error(rc);
             return 1;
         }
     }
@@ -204,7 +205,5 @@ int reg_delete(int argc, WCHAR *argvW[])
     return run_delete(root, path, sam, key_name, value_name, value_empty, value_all, force);
 
 invalid:
-    output_message(STRING_INVALID_SYNTAX);
-    output_message(STRING_FUNC_HELP, wcsupr(argvW[1]));
-    return 1;
+    return syntax_error();
 }

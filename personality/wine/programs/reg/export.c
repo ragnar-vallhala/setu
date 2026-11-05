@@ -37,7 +37,7 @@ static WCHAR *escape_string(WCHAR *str, size_t str_len, size_t *line_len)
 
         if (!c) break;
 
-        if (c == '\r' || c == '\n' || c == '\\' || c == '"')
+        if (c == '\\' || c == '"' || c == '\n')
             escape_count++;
     }
 
@@ -51,13 +51,10 @@ static WCHAR *escape_string(WCHAR *str, size_t str_len, size_t *line_len)
 
         switch (c)
         {
-        case '\r':
-            buf[pos++] = '\\';
-            buf[pos] = 'r';
-            break;
+        /* Windows writes CR as it is and LF as CR LF; neither is escaped. */
         case '\n':
-            buf[pos++] = '\\';
-            buf[pos] = 'n';
+            buf[pos++] = '\r';
+            buf[pos] = '\n';
             break;
         case '\\':
             buf[pos++] = '\\';
@@ -102,12 +99,16 @@ static size_t export_value_name(HANDLE hFile, WCHAR *name, size_t len)
 
 static void export_string_data(WCHAR **buf, WCHAR *data, size_t size)
 {
-    size_t len = 0, line_len;
-    WCHAR *str;
+    size_t len, line_len;
+    WCHAR *str, *copy;
 
-    if (size)
-        len = size / sizeof(WCHAR) - 1;
-    str = escape_string(data, len, &line_len);
+    /* The string ends at the first NUL or with the data; an odd last byte
+     * still counts as a character. */
+    len = (size + 1) / sizeof(WCHAR);
+    copy = calloc(len + 1, sizeof(WCHAR));
+    memcpy(copy, data, size);
+    str = escape_string(copy, len, &line_len);
+    free(copy);
     *buf = malloc((line_len + 3) * sizeof(WCHAR));
     swprintf(*buf, line_len + 3, L"\"%s\"", str);
     free(str);
@@ -191,14 +192,28 @@ static void export_data(HANDLE hFile, WCHAR *value_name, DWORD value_len,
         export_string_data(&buf, data, size);
         break;
     case REG_DWORD:
-        if (size)
+        if (size == sizeof(DWORD))
         {
             export_dword_data(&buf, data);
             break;
         }
+        /* data of another size is written as hex(4) */
+        export_hex_data(hFile, &buf, type, line_len, data, size);
+        break;
+    case REG_EXPAND_SZ:
+        /* a missing terminating NUL is added */
+        if (size >= sizeof(WCHAR) && !(size % sizeof(WCHAR)) &&
+            ((WCHAR *)data)[size / sizeof(WCHAR) - 1])
+        {
+            BYTE *tmp = malloc(size + sizeof(WCHAR));
+            memcpy(tmp, data, size);
+            memset(tmp + size, 0, sizeof(WCHAR));
+            export_hex_data(hFile, &buf, type, line_len, tmp, size + sizeof(WCHAR));
+            free(tmp);
+            break;
+        }
         /* fall through */
     case REG_NONE:
-    case REG_EXPAND_SZ:
     case REG_BINARY:
     case REG_MULTI_SZ:
     default:
@@ -331,12 +346,7 @@ static HANDLE get_file_handle(WCHAR *filename, BOOL overwrite_file)
         }
         else
         {
-            WCHAR *str;
-
-            FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-                           FORMAT_MESSAGE_IGNORE_INSERTS, NULL, error, 0, (WCHAR *)&str, 0, NULL);
-            output_writeconsole(str, lstrlenW(str));
-            LocalFree(str);
+            output_error(STRING_WRITE_FILE_ERROR);
             exit(1);
         }
     }
@@ -390,7 +400,7 @@ int reg_export(int argc, WCHAR *argvW[])
 
     if (RegOpenKeyExW(root, path, 0, KEY_READ|sam, &hkey))
     {
-        output_message(STRING_KEY_NONEXIST);
+        output_error(STRING_KEY_NONEXIST);
         return 1;
     }
 
@@ -404,10 +414,9 @@ int reg_export(int argc, WCHAR *argvW[])
 
     RegCloseKey(hkey);
 
+    if (!ret) output_message(STRING_SUCCESS);
     return ret;
 
 invalid:
-    output_message(STRING_INVALID_SYNTAX);
-    output_message(STRING_FUNC_HELP, wcsupr(argvW[1]));
-    return 1;
+    return syntax_error();
 }

@@ -73,12 +73,29 @@
 
 /* export.c */
 #define STRING_OVERWRITE_FILE         350
+#define STRING_YESNO_FILE             352
+#define STRING_WRITE_FILE_ERROR       351
 
 /* import.c */
 #define STRING_ESCAPE_SEQUENCE        400
 #define STRING_KEY_IMPORT_FAILED      401
 #define STRING_FILE_NOT_FOUND         402
+#define STRING_NOT_REGISTRY_FILE      403
+#define STRING_BAD_REGISTRY_VERSION   404
 
 /* query.c */
 #define STRING_VALUE_NOT_SET          450
 #define STRING_MATCHES_FOUND          451
+
+/* compare.c */
+#define STRING_COMPARE_USAGE          500
+#define STRING_COMPARE_SAME           501
+#define STRING_COMPARE_IDENTICAL      502
+#define STRING_COMPARE_DIFFERENT      503
+
+/* hive.c */
+#define STRING_SAVE_USAGE             550
+#define STRING_RESTORE_USAGE          551
+#define STRING_LOAD_USAGE             552
+#define STRING_UNLOAD_USAGE           553
+#define STRING_HIVE_ROOT              554

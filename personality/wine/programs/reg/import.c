@@ -222,10 +222,11 @@ static BOOL convert_hex_csv_to_hex(struct parser *parser, WCHAR **str)
         *d++ = wc;
         parser->data_size++;
 
+        /* Spaces may follow a byte, before its comma. */
+        while (*end == ' ' || *end == '\t') end++;
         if (*end && *end != ',')
         {
-            while (*end == ' ' || *end == '\t') end++;
-            if (*end && *end != ';') return FALSE;
+            if (*end != ';') return FALSE;
             return TRUE;
         }
 
@@ -308,23 +309,13 @@ static BOOL unescape_string(WCHAR *str, WCHAR **unparsed)
             str_idx++;
             switch (str[str_idx])
             {
-            case 'n':
-                str[val_idx] = '\n';
-                break;
-            case 'r':
-                str[val_idx] = '\r';
-                break;
-            case '0':
-                return FALSE;
             case '\\':
             case '"':
                 str[val_idx] = str[str_idx];
                 break;
             default:
-                if (!str[str_idx]) return FALSE;
-                output_message(STRING_ESCAPE_SEQUENCE, str[str_idx]);
-                str[val_idx] = str[str_idx];
-                break;
+                /* Only \\ and \" are escapes; anything else makes the line invalid. */
+                return FALSE;
             }
         }
         else if (str[str_idx] == '"')
@@ -346,7 +337,7 @@ static HKEY parse_key_name(WCHAR *key_name, WCHAR **key_path)
     *key_path = wcschr(key_name, '\\');
     if (*key_path) (*key_path)++;
 
-    return path_get_rootkey(key_name);
+    return path_get_long_rootkey(key_name);
 }
 
 static void close_key(struct parser *parser)
@@ -431,6 +422,7 @@ enum reg_versions {
     REG_VERSION_40,
     REG_VERSION_50,
     REG_VERSION_FUZZY,
+    REG_VERSION_UNSUPPORTED,
     REG_VERSION_INVALID
 };
 
@@ -456,6 +448,10 @@ static enum reg_versions parse_file_header(const WCHAR *s)
      */
     if (!wcsncmp(s, header_31, 7)) /* "REGEDIT" without NUL */
         return REG_VERSION_FUZZY;
+
+    /* Windows reports a different error for an editor header with another version. */
+    if (!wcsncmp(s, L"Windows Registry Editor Version ", 32))
+        return REG_VERSION_UNSUPPORTED;
 
     return REG_VERSION_INVALID;
 }
@@ -519,11 +515,7 @@ static WCHAR *parse_win31_line_state(struct parser *parser, WCHAR *pos)
 
     line[key_end] = 0;
 
-    if (open_key(parser, line) != ERROR_SUCCESS)
-    {
-        output_message(STRING_KEY_IMPORT_FAILED, line);
-        return line;
-    }
+    if (open_key(parser, line) != ERROR_SUCCESS) return line;
 
     parser->value_name = NULL;
     parser->data_type = REG_SZ;
@@ -571,8 +563,12 @@ static WCHAR *key_name_state(struct parser *parser, WCHAR *pos)
 {
     WCHAR *p = pos, *key_end;
 
+    /* A rejected key line also ends the previous key: its values are dropped. */
     if (*p == ' ' || *p == '\t' || !(key_end = wcsrchr(p, ']')))
+    {
+        close_key(parser);
         goto done;
+    }
 
     *key_end = 0;
 
@@ -581,8 +577,7 @@ static WCHAR *key_name_state(struct parser *parser, WCHAR *pos)
         set_state(parser, DELETE_KEY);
         return p + 1;
     }
-    else if (open_key(parser, p) != ERROR_SUCCESS)
-        output_message(STRING_KEY_IMPORT_FAILED, p);
+    else open_key(parser, p);  /* A key that cannot be opened is skipped silently. */
 
 done:
     set_state(parser, LINE_START);
@@ -1001,12 +996,16 @@ int reg_import(int argc, WCHAR *argvW[])
     fp = _wfopen(filename, L"rb");
     if (!fp)
     {
-        output_message(STRING_FILE_NOT_FOUND, filename);
+        output_error(STRING_FILE_NOT_FOUND);
         return 1;
     }
 
     if (fread(s, sizeof(WCHAR), 1, fp) != 1)
-        goto error;
+    {
+        output_error(STRING_NOT_REGISTRY_FILE);
+        fclose(fp);
+        return 1;
+    }
 
     parser.is_unicode = (s[0] == 0xff && s[1] == 0xfe);
     get_line = parser.is_unicode ? get_lineW : get_lineA;
@@ -1031,21 +1030,30 @@ int reg_import(int argc, WCHAR *argvW[])
     while (pos)
         pos = (parser_funcs[parser.state])(&parser, pos);
 
-    if (parser.reg_version == REG_VERSION_INVALID)
+    if (parser.reg_version == REG_VERSION_UNSUPPORTED)
+    {
+        output_error(STRING_BAD_REGISTRY_VERSION);
+        fclose(fp);
+        return 1;
+    }
+
+    if (parser.reg_version == REG_VERSION_INVALID || parser.reg_version == -1)
         goto error;
 
     free(parser.value_name);
     close_key(&parser);
 
+    /* reg.exe reports a successful import on stderr. */
+    output_message_to(GetStdHandle(STD_ERROR_HANDLE), STRING_SUCCESS);
+
     fclose(fp);
     return 0;
 
 error:
+    output_error(STRING_NOT_REGISTRY_FILE);
     fclose(fp);
     return 1;
 
 invalid:
-    output_message(STRING_INVALID_SYNTAX);
-    output_message(STRING_FUNC_HELP, wcsupr(argvW[1]));
-    return 1;
+    return syntax_error();
 }

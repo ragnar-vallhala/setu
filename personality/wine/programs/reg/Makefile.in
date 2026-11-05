@@ -6,9 +6,11 @@ EXTRADLLFLAGS = -mconsole -municode
 
 SOURCES = \
 	add.c \
+	compare.c \
 	copy.c \
 	delete.c \
 	export.c \
+	hive.c \
 	import.c \
 	query.c \
 	reg.c \

@@ -112,33 +112,33 @@ STRINGTABLE
 \  /s\n\
 \     List all registry entries under <key> and its subkeys.\n\n"
 
-    STRING_SUCCESS, "reg: The operation completed successfully\n"
-    STRING_INVALID_KEY, "reg: Invalid registry key\n"
+    STRING_SUCCESS, "The operation completed successfully.\r\n"
+    STRING_INVALID_KEY, "Invalid key name.\n"
     STRING_INVALID_CMDLINE, "reg: Invalid command line parameters\n"
     STRING_NO_REMOTE, "reg: Unable to access remote machine\n"
-    STRING_VALUE_NONEXIST, "reg: Unable to find the specified registry value\n"
+    STRING_VALUE_NONEXIST, "The system was unable to find the specified registry key or value.\n"
     STRING_UNSUPPORTED_TYPE, "reg: Unsupported registry data type [%1]\n"
-    STRING_MISSING_NUMBER, "reg: The option [/d] must be followed by a valid numeric value\n"
-    STRING_MISSING_HEXDATA, "reg: The option [/d] must be followed by a valid hexadecimal value\n"
+    STRING_MISSING_NUMBER, "Invalid syntax. Specify valid numeric value for '/d'.\n"
+    STRING_MISSING_HEXDATA, "Invalid syntax. Specify valid hex value for '/d'.\n"
     STRING_UNHANDLED_TYPE, "reg: Unhandled registry data type [/t 0x%1!x!, /d %2]\n"
-    STRING_OVERWRITE_VALUE, "The registry value '%1' already exists. Do you want to overwrite it?"
+    STRING_OVERWRITE_VALUE, "Value %1 exists, overwrite"
     STRING_YES, "#msgctxt#Yes key#Y"
     STRING_NO, "#msgctxt#No key#N"
     STRING_ALL, "#msgctxt#All key#A"
-    STRING_YESNO, " (Yes|No)"
-    STRING_YESNOALL, " (Yes|No|All)"
-    STRING_CANCELLED, "reg: The registry operation was canceled\n"
+    STRING_YESNO, "(Yes/No)? "
+    STRING_YESNOALL, "(Yes/No/All)? "
+    STRING_CANCELLED, "The operation was canceled by the user.\r\n"
     STRING_DEFAULT_VALUE, "(Default)"
-    STRING_DELETE_VALUE, "Are you sure you want to delete the registry value '%1'?"
-    STRING_DELETE_VALUEALL, "Are you sure you want to delete all registry values in '%1'?"
-    STRING_DELETE_SUBKEY, "Are you sure you want to delete the registry key '%1'?"
-    STRING_INVALID_STRING, "reg: The option [/d] must be followed by a valid string\n"
+    STRING_DELETE_VALUE, "Delete the registry value %1 "
+    STRING_DELETE_VALUEALL, "Delete all values under the registry key %1 "
+    STRING_DELETE_SUBKEY, "Permanently delete the registry key %1 "
+    STRING_INVALID_STRING, "Invalid value specified for '/d'.\n"
     STRING_VALUEALL_FAILED, "reg: Unable to delete all registry values in '%1'\n"
-    STRING_MATCHES_FOUND, "Search complete. Number of matches found: %1!d!\n"
-    STRING_INVALID_SYNTAX, "reg: Invalid syntax. "
-    STRING_INVALID_OPTION, "reg: Invalid option [%1]. "
-    STRING_REG_HELP, "Type \"REG /?\" for help.\n"
-    STRING_FUNC_HELP, "Type \"REG %1 /?\" for help.\n"
+    STRING_MATCHES_FOUND, "End of search: %1!d! match(es) found.\n"
+    STRING_INVALID_SYNTAX, "Invalid syntax.\n"
+    STRING_INVALID_OPTION, "Invalid Argument/Option - '%1'.\n"
+    STRING_REG_HELP, "Type \"REG /?\" for usage.\n"
+    STRING_FUNC_HELP, "Type \"REG %1 /?\" for usage.\n"
     STRING_VALUE_NOT_SET, "(value not set)"
 
     STRING_IMPORT_USAGE, "REG IMPORT <file>\n\n\
@@ -146,7 +146,9 @@ STRINGTABLE
 \  <file>\n\
 \     The name and path of the registry file to import.\n\n"
 
-    STRING_FILE_NOT_FOUND, "reg: The file '%1' was not found.\n"
+    STRING_FILE_NOT_FOUND, "Error opening the file. There may be a disk or file system error.\n"
+    STRING_NOT_REGISTRY_FILE, "The specified file is not a registry file. You can import only registry files.\n"
+    STRING_BAD_REGISTRY_VERSION, "The specified file is not intended for use with this version of Windows.\n"
     STRING_ESCAPE_SEQUENCE, "reg: Unrecognized escape sequence [\\%1!c!]\n"
 
     STRING_EXPORT_USAGE, "REG EXPORT <key> <file> [/y]\n\n\
@@ -169,15 +171,17 @@ STRINGTABLE
 \     Overwrite <file> without prompting for confirmation.\n\n"
 
     STRING_INVALID_SYSTEM_KEY, "reg: Invalid system key\n"
-    STRING_OVERWRITE_FILE, "The file '%1' already exists. Do you want to overwrite it?"
-    STRING_KEY_NONEXIST, "reg: Unable to find the specified registry key\n"
+    STRING_OVERWRITE_FILE, "File %1 already exists. Overwrite "
+    STRING_YESNO_FILE, "(Yes/No)?"
+    STRING_WRITE_FILE_ERROR, "Unable to write to the file. There may be a disk or file system error.\n"
+    STRING_KEY_NONEXIST, "The system was unable to find the specified registry key or value.\n"
     STRING_KEY_IMPORT_FAILED, "reg: Unable to import the registry key '%1'\n"
 
     STRING_REG_VIEW_USAGE, "  /reg:32\n\
 \     Access the registry using the 32-bit view.\n\n\
 \  /reg:64\n\
 \     Access the registry using the 64-bit view.\n\n"
-    STRING_ACCESS_DENIED, "reg: Unable to access or create the specified registry key\n"
+    STRING_ACCESS_DENIED, "Access is denied.\r\n"
 
     STRING_COPY_USAGE, "REG COPY <key1> <key2> [/s] [/f]\n\n\
 \  Copies the contents of a specified registry key to another location.\n\
@@ -200,6 +204,38 @@ STRINGTABLE
 \     Overwrite all registry data in <key2> without prompting for confirmation.\n\
 \     This option does not modify subkeys and values that only exist in <key2>.\n\n"
 
-    STRING_COPY_SRC_DEST_SAME, "reg: The source and destination keys cannot be the same\n"
-    STRING_COPY_CONFIRM, "The value '%1\\%2' already exists in the destination key. Do you want to overwrite it?"
+    STRING_COPY_SRC_DEST_SAME, "The registry entry cannot be copied onto itself.\n"
+    STRING_COPY_CONFIRM, "Value %1\\%2 exists. Overwrite "
+
+    STRING_COMPARE_USAGE, "REG COMPARE <key1> <key2> [/v value_name | /ve] [/oa | /od | /os | /on] [/s]\n\n\
+\  Compares the values (and with /s the subkeys) of two registry keys.\n\n\
+\  <key1>, <key2>\n\
+\     The registry keys to compare, in the form ROOT\\Subkey.\n\n\
+\  /v <value_name>\n\
+\     Compare only this value.\n\n\
+\  /ve\n\
+\     Compare only the default value.\n\n\
+\  /oa, /od, /os, /on\n\
+\     Print all values, only the differences (default), only the equal\n\
+\     values, or nothing but the result.\n\n\
+\  /s\n\
+\     Compare all subkeys too.\n\n\
+\  The exit code is 0 when the keys are identical, 2 when they differ\n\
+\  and 1 when the comparison failed.\n\n"
+    STRING_COMPARE_SAME, "The registry entry is being compared with itself.\n"
+    STRING_COMPARE_IDENTICAL, "\nResult Compared:  Identical\n"
+    STRING_COMPARE_DIFFERENT, "\nResult Compared:  Different\n"
+
+    STRING_SAVE_USAGE, "REG SAVE <key> <file> [/y]\n\n\
+\  Saves a registry key and its subkeys to a hive file.\n\n\
+\  /y\n\
+\     Overwrite an existing file without prompting for confirmation.\n\n"
+    STRING_RESTORE_USAGE, "REG RESTORE <key> <file>\n\n\
+\  Replaces the values and subkeys of a registry key with the contents\n\
+\  of a hive file written by REG SAVE.\n\n"
+    STRING_LOAD_USAGE, "REG LOAD <key> <file>\n\n\
+\  Loads a hive file as a new key under HKEY_USERS or HKEY_LOCAL_MACHINE.\n\n"
+    STRING_UNLOAD_USAGE, "REG UNLOAD <key>\n\n\
+\  Unloads a hive loaded with REG LOAD.\n\n"
+    STRING_HIVE_ROOT, "The root key must be HKLM or HKU for LOAD/UNLOAD.\n"
 }

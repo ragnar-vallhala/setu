@@ -50,48 +50,91 @@ const struct reg_type_rels type_rels[] =
     {REG_MULTI_SZ,            L"REG_MULTI_SZ"},
 };
 
-void output_writeconsole(const WCHAR *str, DWORD wlen)
+const WCHAR *reg_op_name = L"";
+
+static void output_write(HANDLE out, const WCHAR *str, DWORD wlen)
 {
-    DWORD count;
+    DWORD count, len, i, j;
+    WCHAR *crlf;
+    char *msgA;
 
-    if (!WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), str, wlen, &count, NULL))
+    if (WriteConsoleW(out, str, wlen, &count, NULL)) return;
+
+    /* Redirected output is written like a C runtime text stream: in the OEM
+     * code page, with each \n written as \r\n. */
+    if (!(crlf = malloc(wlen * 2 * sizeof(WCHAR) + 1))) return;
+    for (i = j = 0; i < wlen; i++)
     {
-        DWORD len;
-        char  *msgA;
-
-        /* On Windows WriteConsoleW() fails if the output is redirected. So fall
-         * back to WriteFile() with OEM code page.
-         */
-        len = WideCharToMultiByte(GetOEMCP(), 0, str, wlen, NULL, 0, NULL, NULL);
-        msgA = malloc(len);
-
-        WideCharToMultiByte(GetOEMCP(), 0, str, wlen, msgA, len, NULL, NULL);
-        WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), msgA, len, &count, FALSE);
+        if (str[i] == '\n') crlf[j++] = '\r';
+        crlf[j++] = str[i];
+    }
+    len = WideCharToMultiByte(GetOEMCP(), 0, crlf, j, NULL, 0, NULL, NULL);
+    if ((msgA = malloc(len + 1)))
+    {
+        WideCharToMultiByte(GetOEMCP(), 0, crlf, j, msgA, len, NULL, NULL);
+        WriteFile(out, msgA, len, &count, FALSE);
         free(msgA);
     }
+    free(crlf);
 }
 
-static void output_formatstring(const WCHAR *fmt, va_list va_args)
+void output_writeconsole(const WCHAR *str, DWORD wlen)
+{
+    output_write(GetStdHandle(STD_OUTPUT_HANDLE), str, wlen);
+}
+
+/* Formats one line (no \r or \n) of a format string. */
+static void output_formatline(HANDLE out, const WCHAR *fmt, va_list *va_args)
 {
     WCHAR *str;
     DWORD len;
 
     len = FormatMessageW(FORMAT_MESSAGE_FROM_STRING|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                         fmt, 0, 0, (WCHAR *)&str, 0, &va_args);
+                         fmt, 0, 0, (WCHAR *)&str, 0, va_args);
     if (len == 0 && GetLastError() != ERROR_NO_WORK_DONE)
     {
         WINE_FIXME("Could not format string: le=%lu, fmt=%s\n", GetLastError(), wine_dbgstr_w(fmt));
         return;
     }
-    output_writeconsole(str, len);
+    output_write(out, str, len);
     LocalFree(str);
 }
 
-void WINAPIV output_message(unsigned int id, ...)
+/* Output is written like C runtime text: each \n of the format becomes \r\n
+ * and a \r is written as is, so a message ending in \r\n ends in \r\r\n.
+ * FormatMessage would turn either into \r\n itself, so the format is
+ * formatted a line at a time and the line breaks are written here. */
+static void output_formatstring(HANDLE out, const WCHAR *fmt, va_list va_args)
+{
+    const WCHAR *p = fmt;
+
+    for (;;)
+    {
+        size_t len = wcscspn(p, L"\r\n");
+
+        if (len)
+        {
+            WCHAR *seg = malloc((len + 1) * sizeof(WCHAR));
+            va_list copy;
+
+            if (!seg) return;
+            memcpy(seg, p, len * sizeof(WCHAR));
+            seg[len] = 0;
+            va_copy(copy, va_args);
+            output_formatline(out, seg, &copy);
+            va_end(copy);
+            free(seg);
+        }
+        if (!p[len]) break;
+        output_write(out, p + len, 1);
+        p += len + 1;
+    }
+}
+
+static void output_resource(HANDLE out, unsigned int id, va_list va_args)
 {
     WCHAR *fmt = NULL;
     int len;
-    va_list va_args;
 
     if (!(len = LoadStringW(GetModuleHandleW(NULL), id, (WCHAR *)&fmt, 0)))
     {
@@ -104,12 +147,17 @@ void WINAPIV output_message(unsigned int id, ...)
     if (!fmt) return;
 
     LoadStringW(GetModuleHandleW(NULL), id, fmt, len);
+    output_formatstring(out, fmt, va_args);
+    free(fmt);
+}
+
+void WINAPIV output_message(unsigned int id, ...)
+{
+    va_list va_args;
 
     va_start(va_args, id);
-    output_formatstring(fmt, va_args);
+    output_resource(GetStdHandle(STD_OUTPUT_HANDLE), id, va_args);
     va_end(va_args);
-
-    free(fmt);
 }
 
 void WINAPIV output_string(const WCHAR *fmt, ...)
@@ -117,37 +165,132 @@ void WINAPIV output_string(const WCHAR *fmt, ...)
     va_list va_args;
 
     va_start(va_args, fmt);
-    output_formatstring(fmt, va_args);
+    output_formatstring(GetStdHandle(STD_OUTPUT_HANDLE), fmt, va_args);
     va_end(va_args);
 }
 
+void WINAPIV output_message_to(HANDLE out, unsigned int id, ...)
+{
+    va_list va_args;
+
+    va_start(va_args, id);
+    output_resource(out, id, va_args);
+    va_end(va_args);
+}
+
+/* "ERROR: <message>" on standard error. */
+void WINAPIV output_error(unsigned int id, ...)
+{
+    HANDLE err = GetStdHandle(STD_ERROR_HANDLE);
+    va_list va_args;
+
+    output_write(err, L"ERROR: ", 7);
+    va_start(va_args, id);
+    output_resource(err, id, va_args);
+    va_end(va_args);
+}
+
+/* "ERROR: <message>" followed by the usage hint for the current operation. */
+int WINAPIV usage_error(unsigned int id, ...)
+{
+    HANDLE err = GetStdHandle(STD_ERROR_HANDLE);
+    va_list va_args;
+
+    output_write(err, L"ERROR: ", 7);
+    va_start(va_args, id);
+    output_resource(err, id, va_args);
+    va_end(va_args);
+    output_message_to(err, STRING_FUNC_HELP, reg_op_name);
+    return 1;
+}
+
+int syntax_error(void)
+{
+    return usage_error(STRING_INVALID_SYNTAX);
+}
+
+/* Messages for registry errors that are not syntax errors. */
+void output_reg_error(LONG rc)
+{
+    switch (rc)
+    {
+    case ERROR_FILE_NOT_FOUND:
+    case ERROR_PATH_NOT_FOUND:
+        output_error(STRING_KEY_NONEXIST);
+        break;
+    case ERROR_ACCESS_DENIED:
+        output_error(STRING_ACCESS_DENIED);
+        break;
+    default:
+    {
+        WCHAR *msg = NULL;
+        HANDLE err = GetStdHandle(STD_ERROR_HANDLE);
+        DWORD len = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|
+                                   FORMAT_MESSAGE_IGNORE_INSERTS, NULL, rc, 0, (WCHAR *)&msg, 0, NULL);
+        output_write(err, L"ERROR: ", 7);
+        /* The system message is written as is: like Windows, its \r\n comes out as \r\r\n. */
+        if (len)
+        {
+            output_write(err, msg, len);
+            LocalFree(msg);
+        }
+        else output_write(err, L"\n", 1);
+    }
+    }
+}
+
 /* ask_confirm() adapted from programs/cmd/builtins.c */
+/* Reads one line of input from the console or, when stdin is redirected, from
+ * the file or pipe (in the OEM code page). Returns the first character, or 0. */
+WCHAR read_answer(void)
+{
+    HANDLE in = GetStdHandle(STD_INPUT_HANDLE);
+    WCHAR answer[MAX_PATH];
+    char line[MAX_PATH];
+    DWORD count = 0, got, mode;
+    char c;
+
+    if (GetConsoleMode(in, &mode))
+    {
+        if (!ReadConsoleW(in, answer, ARRAY_SIZE(answer), &count, NULL) || !count)
+            return 0;
+        return answer[0];
+    }
+
+    while (ReadFile(in, &c, 1, &got, NULL) && got)
+    {
+        if (c == '\n') break;
+        if (count < sizeof(line)) line[count++] = c;
+    }
+    if (!count) return 0;
+    if (!MultiByteToWideChar(GetOEMCP(), 0, line, 1, answer, 1)) return 0;
+    return answer[0];
+}
+
 BOOL ask_confirm(unsigned int msgid, WCHAR *reg_info)
 {
     HMODULE hmod;
     WCHAR Ybuffer[4];
     WCHAR Nbuffer[4];
     WCHAR defval[32];
-    WCHAR answer[MAX_PATH];
+    WCHAR answer;
     WCHAR *str;
-    DWORD count;
 
     hmod = GetModuleHandleW(NULL);
     LoadStringW(hmod, STRING_YES, Ybuffer, ARRAY_SIZE(Ybuffer));
     LoadStringW(hmod, STRING_NO,  Nbuffer, ARRAY_SIZE(Nbuffer));
     LoadStringW(hmod, STRING_DEFAULT_VALUE, defval, ARRAY_SIZE(defval));
 
-    str = (reg_info && *reg_info) ? reg_info : defval;
+    str = reg_info ? reg_info : defval;
 
     while (1)
     {
         output_message(msgid, str);
-        output_message(STRING_YESNO);
-        ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), answer, ARRAY_SIZE(answer), &count, NULL);
-        answer[0] = towupper(answer[0]);
-        if (answer[0] == Ybuffer[0])
+        output_message(msgid == STRING_OVERWRITE_FILE ? STRING_YESNO_FILE : STRING_YESNO);
+        answer = towupper(read_answer());
+        if (answer == Ybuffer[0])
             return TRUE;
-        if (answer[0] == Nbuffer[0])
+        if (answer == Nbuffer[0])
             return FALSE;
     }
 }
@@ -174,19 +317,33 @@ HKEY path_get_rootkey(const WCHAR *path)
     return NULL;
 }
 
+/* .reg files only accept the full root key names. */
+HKEY path_get_long_rootkey(const WCHAR *path)
+{
+    DWORD i;
+
+    for (i = 0; i < ARRAY_SIZE(root_rels); i++)
+    {
+        if (path_rootname_cmp(path, root_rels[i].long_name))
+            return root_rels[i].key;
+    }
+
+    return NULL;
+}
+
 static BOOL sane_path(const WCHAR *key)
 {
     unsigned int i = lstrlenW(key);
 
     if (i < 3 || (key[i - 1] == '\\' && key[i - 2] == '\\'))
     {
-        output_message(STRING_INVALID_KEY);
+        usage_error(STRING_INVALID_KEY);
         return FALSE;
     }
 
     if (key[0] == '\\' && key[1] == '\\' && key[2] != '\\')
     {
-        output_message(STRING_NO_REMOTE);
+        output_error(STRING_NO_REMOTE);
         return FALSE;
     }
 
@@ -239,7 +396,7 @@ BOOL parse_registry_key(const WCHAR *key, HKEY *root, WCHAR **path)
     *root = path_get_rootkey(key);
     if (!*root)
     {
-        output_message(STRING_INVALID_SYSTEM_KEY);
+        usage_error(STRING_INVALID_KEY);
         return FALSE;
     }
 
@@ -252,7 +409,7 @@ BOOL parse_registry_key(const WCHAR *key, HKEY *root, WCHAR **path)
 
     if (!**path)
     {
-        output_message(STRING_INVALID_SYSTEM_KEY);
+        usage_error(STRING_INVALID_KEY);
         return FALSE;
     }
 
@@ -282,11 +439,16 @@ static BOOL is_help_switch(const WCHAR *s)
 
 enum operations {
     REG_ADD,
+    REG_COMPARE,
     REG_COPY,
     REG_DELETE,
     REG_EXPORT,
     REG_IMPORT,
     REG_QUERY,
+    REG_SAVE,
+    REG_RESTORE,
+    REG_LOAD,
+    REG_UNLOAD,
     REG_INVALID
 };
 
@@ -297,11 +459,16 @@ static enum operations get_operation(const WCHAR *str, int *op_help)
     static const struct op_info op_array[] =
     {
         { L"add",     REG_ADD,     STRING_ADD_USAGE },
+        { L"compare", REG_COMPARE, STRING_COMPARE_USAGE },
         { L"copy",    REG_COPY,    STRING_COPY_USAGE },
         { L"delete",  REG_DELETE,  STRING_DELETE_USAGE },
         { L"export",  REG_EXPORT,  STRING_EXPORT_USAGE },
         { L"import",  REG_IMPORT,  STRING_IMPORT_USAGE },
         { L"query",   REG_QUERY,   STRING_QUERY_USAGE },
+        { L"save",    REG_SAVE,    STRING_SAVE_USAGE },
+        { L"restore", REG_RESTORE, STRING_RESTORE_USAGE },
+        { L"load",    REG_LOAD,    STRING_LOAD_USAGE },
+        { L"unload",  REG_UNLOAD,  STRING_UNLOAD_USAGE },
         { NULL,    -1,          0 }
     };
 
@@ -325,8 +492,8 @@ int __cdecl wmain(int argc, WCHAR *argvW[])
 
     if (argc == 1)
     {
-        output_message(STRING_INVALID_SYNTAX);
-        output_message(STRING_REG_HELP);
+        output_error(STRING_INVALID_SYNTAX);
+        output_message_to(GetStdHandle(STD_ERROR_HANDLE), STRING_REG_HELP);
         return 1;
     }
 
@@ -337,11 +504,17 @@ int __cdecl wmain(int argc, WCHAR *argvW[])
     }
 
     op = get_operation(argvW[1], &op_help);
+    if (op != REG_INVALID)
+    {
+        static WCHAR name[16];
+        lstrcpynW(name, argvW[1], ARRAY_SIZE(name));
+        reg_op_name = wcsupr(name);
+    }
 
     if (op == REG_INVALID)
     {
-        output_message(STRING_INVALID_OPTION, argvW[1]);
-        output_message(STRING_REG_HELP);
+        output_error(STRING_INVALID_OPTION, argvW[1]);
+        output_message_to(GetStdHandle(STD_ERROR_HANDLE), STRING_REG_HELP);
         return 1;
     }
     else if (argc == 2) /* Valid operation, no arguments supplied */
@@ -359,8 +532,23 @@ int __cdecl wmain(int argc, WCHAR *argvW[])
     if (op == REG_ADD)
         return reg_add(argc, argvW);
 
+    if (op == REG_COMPARE)
+        return reg_compare(argc, argvW);
+
     if (op == REG_COPY)
         return reg_copy(argc, argvW);
+
+    if (op == REG_SAVE)
+        return reg_save(argc, argvW);
+
+    if (op == REG_RESTORE)
+        return reg_restore(argc, argvW);
+
+    if (op == REG_LOAD)
+        return reg_load(argc, argvW);
+
+    if (op == REG_UNLOAD)
+        return reg_unload(argc, argvW);
 
     if (op == REG_DELETE)
         return reg_delete(argc, argvW);
@@ -374,7 +562,5 @@ int __cdecl wmain(int argc, WCHAR *argvW[])
     return reg_query(argc, argvW);
 
 invalid:
-    output_message(STRING_INVALID_SYNTAX);
-    output_message(STRING_FUNC_HELP, wcsupr(argvW[1]));
-    return 1;
+    return syntax_error();
 }

@@ -32,12 +32,9 @@ enum operation {
     COPY_ALL
 };
 
-static void output_error(LONG rc)
+static void copy_error(LONG rc)
 {
-    if (rc == ERROR_FILE_NOT_FOUND)
-        output_message(STRING_KEY_NONEXIST);
-    else
-        output_message(STRING_ACCESS_DENIED);
+    output_reg_error(rc);
 }
 
 static enum operation ask_overwrite_value(WCHAR *path, WCHAR *value)
@@ -47,9 +44,8 @@ static enum operation ask_overwrite_value(WCHAR *path, WCHAR *value)
     static WCHAR Nbuffer[4];
     static WCHAR Abuffer[4];
     static WCHAR defval[32];
-    WCHAR answer[MAX_PATH];
+    WCHAR answer;
     WCHAR *str;
-    DWORD count;
 
     hmod = GetModuleHandleW(NULL);
     LoadStringW(hmod, STRING_YES, Ybuffer, ARRAY_SIZE(Ybuffer));
@@ -64,15 +60,13 @@ static enum operation ask_overwrite_value(WCHAR *path, WCHAR *value)
         output_message(STRING_COPY_CONFIRM, path, str);
         output_message(STRING_YESNOALL);
 
-        ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), answer, ARRAY_SIZE(answer), &count, NULL);
+        answer = towupper(read_answer());
 
-        *answer = towupper(*answer);
-
-        if (*answer == *Ybuffer)
+        if (answer == *Ybuffer)
             return COPY_YES;
-        if (*answer == *Nbuffer)
+        if (answer == *Nbuffer)
             return COPY_NO;
-        if (*answer == *Abuffer)
+        if (answer == *Abuffer)
             return COPY_ALL;
     }
 }
@@ -89,7 +83,7 @@ static int run_copy(struct key *src, struct key *dest, REGSAM sam, BOOL recurse,
 
     if ((rc = RegOpenKeyExW(src->root, src->subkey, 0, KEY_READ|sam, &src->hkey)))
     {
-        output_error(rc);
+        copy_error(rc);
         return 1;
     }
 
@@ -97,7 +91,7 @@ static int run_copy(struct key *src, struct key *dest, REGSAM sam, BOOL recurse,
                               KEY_READ|KEY_WRITE|sam, NULL, &dest->hkey, &dispos)))
     {
         RegCloseKey(src->hkey);
-        output_error(rc);
+        copy_error(rc);
         return 1;
     }
 
@@ -113,7 +107,7 @@ static int run_copy(struct key *src, struct key *dest, REGSAM sam, BOOL recurse,
         goto cleanup;
     }
 
-    if (!(data = malloc(max_data_size)))
+    if (!(data = malloc(max_data_size ? max_data_size : 1)))
     {
         rc = ERROR_NOT_ENOUGH_MEMORY;
         goto cleanup;
@@ -142,7 +136,7 @@ static int run_copy(struct key *src, struct key *dest, REGSAM sam, BOOL recurse,
 
         if ((rc = RegSetValueExW(dest->hkey, name, 0, type, data, data_size)))
         {
-            output_error(rc);
+            copy_error(rc);
             goto cleanup;
         }
     }
@@ -250,16 +244,15 @@ int reg_copy(int argc, WCHAR *argvW[])
 
     if (src.root == dest.root && !lstrcmpiW(src.subkey, dest.subkey))
     {
-        output_message(STRING_COPY_SRC_DEST_SAME);
-        return 1;
+        return usage_error(STRING_COPY_SRC_DEST_SAME);
     }
 
     src.path = src.subkey;
 
-    return run_copy(&src, &dest, sam, recurse, force);
+    if (run_copy(&src, &dest, sam, recurse, force)) return 1;
+    output_message(STRING_SUCCESS);
+    return 0;
 
 invalid:
-    output_message(STRING_INVALID_SYNTAX);
-    output_message(STRING_FUNC_HELP, wcsupr(argvW[1]));
-    return 1;
+    return syntax_error();
 }

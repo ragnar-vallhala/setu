@@ -77,8 +77,8 @@ static BOOL get_regdata(const WCHAR *data, DWORD reg_type, WCHAR separator,
             LPWSTR rest;
             unsigned long val;
             val = wcstoul(data, &rest, base);
-            if (*rest || data[0] == '-' || (val == ~0u && errno == ERANGE)) {
-                output_message(STRING_MISSING_NUMBER);
+            if (!data[0] || *rest || data[0] == '-' || (val == ~0u && errno == ERANGE)) {
+                usage_error(STRING_MISSING_NUMBER);
                 return FALSE;
             }
             *size_bytes = sizeof(DWORD);
@@ -92,9 +92,9 @@ static BOOL get_regdata(const WCHAR *data, DWORD reg_type, WCHAR separator,
             UINT64 val;
 
             val = _wcstoui64(data, &rest, base);
-            if (*rest || (val == ~0ull && errno == ERANGE))
+            if (!data[0] || *rest || data[0] == '-' || (val == ~0ull && errno == ERANGE))
             {
-                output_message(STRING_MISSING_NUMBER);
+                usage_error(STRING_MISSING_NUMBER);
                 return FALSE;
             }
             *size_bytes = sizeof(val);
@@ -135,7 +135,7 @@ static BOOL get_regdata(const WCHAR *data, DWORD reg_type, WCHAR separator,
             no_hex_data:
             free(*data_bytes);
             *data_bytes = NULL;
-            output_message(STRING_MISSING_HEXDATA);
+            usage_error(STRING_MISSING_HEXDATA);
             return FALSE;
         }
         case REG_MULTI_SZ:
@@ -158,7 +158,7 @@ static BOOL get_regdata(const WCHAR *data, DWORD reg_type, WCHAR separator,
                 if (destindex && !buffer[destindex - 1] && (!buffer[destindex] || destindex == 1))
                 {
                     free(buffer);
-                    output_message(STRING_INVALID_STRING);
+                    usage_error(STRING_INVALID_STRING);
                     return FALSE;
                 }
             }
@@ -170,7 +170,8 @@ static BOOL get_regdata(const WCHAR *data, DWORD reg_type, WCHAR separator,
             break;
         }
         default:
-            output_message(STRING_UNHANDLED_TYPE, reg_type, data);
+            usage_error(STRING_UNHANDLED_TYPE, reg_type, data);
+            return FALSE;
     }
 
     return TRUE;
@@ -180,14 +181,24 @@ static int run_add(HKEY root, WCHAR *path, REGSAM sam, WCHAR *value_name, BOOL v
                    WCHAR *type, WCHAR separator, WCHAR *data, BOOL force)
 {
     HKEY hkey;
-    DWORD dispos, data_type, data_size;
+    DWORD dispos, data_type, data_size = 0;
     BYTE *reg_data = NULL;
     LONG rc;
 
-    if (RegCreateKeyExW(root, path, 0, NULL, REG_OPTION_NON_VOLATILE,
-                        KEY_READ|KEY_WRITE|sam, NULL, &hkey, &dispos))
+    /* The type and the data are checked before the key is touched. */
+    data_type = wchar_get_type(type);
+
+    if (data_type == ~0u || (separator && data_type != REG_MULTI_SZ))
+        return syntax_error();
+
+    if (!get_regdata(data, data_type, separator, &reg_data, &data_size))
+        return 1;
+
+    if ((rc = RegCreateKeyExW(root, path, 0, NULL, REG_OPTION_NON_VOLATILE,
+                              KEY_READ|KEY_WRITE|sam, NULL, &hkey, &dispos)))
     {
-        output_message(STRING_ACCESS_DENIED);
+        free(reg_data);
+        output_reg_error(rc);
         return 1;
     }
 
@@ -195,35 +206,14 @@ static int run_add(HKEY root, WCHAR *path, REGSAM sam, WCHAR *value_name, BOOL v
     {
         if (RegQueryValueExW(hkey, value_name, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
         {
-            if (!ask_confirm(STRING_OVERWRITE_VALUE, value_name))
+            if (!ask_confirm(STRING_OVERWRITE_VALUE, value_name ? value_name : (WCHAR *)L""))
             {
+                free(reg_data);
                 RegCloseKey(hkey);
                 output_message(STRING_CANCELLED);
                 return 0;
             }
         }
-    }
-
-    data_type = wchar_get_type(type);
-
-    if (data_type == ~0u)
-    {
-        RegCloseKey(hkey);
-        output_message(STRING_UNSUPPORTED_TYPE, type);
-        return 1;
-    }
-
-    if ((data_type == REG_DWORD || data_type == REG_DWORD_BIG_ENDIAN) && !data)
-    {
-         RegCloseKey(hkey);
-         output_message(STRING_INVALID_CMDLINE);
-         return 1;
-    }
-
-    if (!get_regdata(data, data_type, separator, &reg_data, &data_size))
-    {
-        RegCloseKey(hkey);
-        return 1;
     }
 
     rc = RegSetValueExW(hkey, value_name, 0, data_type, reg_data, data_size);
@@ -233,7 +223,7 @@ static int run_add(HKEY root, WCHAR *path, REGSAM sam, WCHAR *value_name, BOOL v
 
     if (rc)
     {
-        output_message(STRING_ACCESS_DENIED);
+        output_reg_error(rc);
         return 1;
     }
 
@@ -252,6 +242,9 @@ int reg_add(int argc, WCHAR *argvW[])
 
     if (!parse_registry_key(argvW[2], &root, &path))
         return 1;
+    /* REG ADD refuses a key path (below the root) longer than a key name may be. */
+    if (path && wcslen(path) > 255)
+        return usage_error(STRING_INVALID_KEY);
 
     for (i = 3; i < argc; i++)
     {
@@ -321,7 +314,5 @@ int reg_add(int argc, WCHAR *argvW[])
     return run_add(root, path, sam, value_name, value_empty, type, separator, data, force);
 
 invalid:
-    output_message(STRING_INVALID_SYNTAX);
-    output_message(STRING_FUNC_HELP, wcsupr(argvW[1]));
-    return 1;
+    return syntax_error();
 }

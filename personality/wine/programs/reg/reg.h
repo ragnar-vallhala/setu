@@ -33,11 +33,20 @@ struct reg_type_rels {
 
 extern const struct reg_type_rels type_rels[9];
 
+extern const WCHAR *reg_op_name;
+
 void output_writeconsole(const WCHAR *str, DWORD wlen);
+void WINAPIV output_error(unsigned int id, ...);
+int WINAPIV usage_error(unsigned int id, ...);
+int syntax_error(void);
+void output_reg_error(LONG rc);
+void WINAPIV output_message_to(HANDLE out, unsigned int id, ...);
 void WINAPIV output_message(unsigned int id, ...);
 void WINAPIV output_string(const WCHAR *fmt, ...);
+WCHAR read_answer(void);
 BOOL ask_confirm(unsigned int msgid, WCHAR *reg_info);
 HKEY path_get_rootkey(const WCHAR *path);
+HKEY path_get_long_rootkey(const WCHAR *path);
 WCHAR *build_subkey_path(WCHAR *path, DWORD path_len, WCHAR *subkey_name, DWORD subkey_len);
 WCHAR *get_long_key(HKEY root, WCHAR *path);
 BOOL parse_registry_key(const WCHAR *key, HKEY *root, WCHAR **path);
@@ -61,5 +70,16 @@ int reg_import(int argc, WCHAR *argvW[]);
 
 /* query.c */
 int reg_query(int argc, WCHAR *argvW[]);
+const WCHAR *reg_type_to_wchar(DWORD type);
+WCHAR *reg_data_to_wchar(DWORD type, const BYTE *src, DWORD size_bytes);
+
+/* hive.c */
+int reg_save(int argc, WCHAR *argvW[]);
+int reg_restore(int argc, WCHAR *argvW[]);
+int reg_load(int argc, WCHAR *argvW[]);
+int reg_unload(int argc, WCHAR *argvW[]);
+
+/* compare.c */
+int reg_compare(int argc, WCHAR *argvW[]);
 
 #endif /* __REG_H__ */
