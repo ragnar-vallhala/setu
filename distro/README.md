@@ -20,7 +20,7 @@ taskbar and work area apply to all programs. labwc's config
 bindings and its root menu.
 
 ```sh
-distro/build-image.sh     # ~10 min; writes build/distro/setu-dev.qcow2 (~4 GB)
+distro/build-image.sh     # ~10 min; writes build/distro/setu-dev.qcow2 (~4.5 GB)
 distro/run-qemu.sh        # VNC 127.0.0.1:5911, serial log build/distro/run/serial.log
 ```
 
@@ -68,6 +68,37 @@ through by hand with `setu-probe click`: Welcome, licence, Custom Setup,
 Ready, Finish, and the files land in `C:\Program Files\7-Zip`. The wizard
 has cosmetic gaps (see below).
 
+### C: and drive letters: `distro/tests/drives-smoke.sh`
+
+The disk has three partitions: the ESP, the Linux root (`setu-root`, 6 GiB
+by default, `--root-size`) and **`C:`** (`setu-c`, the rest of `--size`,
+12G by default): an ext4 file system made with `-O casefold`, mounted at
+`/var/lib/setu/volumes/c`, with `+F` on its root, so the kernel looks names
+up without regard to case and keeps their case. The `setu` user's prefix
+links its `c:` straight to it. Other volumes get drive letters from the
+drive-letter service: the table `/run/setu/dosdevices` (C: fixed, the next
+free letter from D: for each volume udev reports), followed by every
+session. Details: [services/fs/README.md](../services/fs/README.md).
+
+`drives-smoke.sh` boots a snapshot (VNC :22, SSH 2234, run dir
+`build/distro/drives-smoke/run`) and checks: `lsattr -d` shows the casefold
+flag on the volume behind C:; `C:\Test\MixedCase.txt` made with cmd is found
+as `c:\test\mixedcase.TXT` and listed as `MixedCase.txt`; a FAT USB stick
+plugged in through the QEMU monitor (`drive_add` + `device_add
+usb-storage`) becomes `D:` (GetLogicalDrives, GetDriveType,
+GetVolumeInformation, `dir D:`), a second disk `E:`, and unplugging
+(`device_del`) removes the letter again. The disk images are made on the
+host without root (`mkfs.vfat -C` + `mcopy`, `mkfs.ext4 -d`). Then it runs
+`msi-smoke.sh`.
+
+```sh
+make -C shell
+distro/build-image.sh --shell build/shell/setu-shell.exe
+distro/tests/drives-smoke.sh      # [--msi FILE] [--no-msi]
+```
+
+![A Command Prompt on the Setu desktop listing C:\Test on the casefold C: volume, then D: (a FAT USB stick) and E: (an ext4 disk) plugged in through the QEMU monitor](docs/drives.png)
+
 ### How it builds without root
 
 The host has no sudo and no `newuidmap`, so `mmdebstrap --mode=unshare` and
@@ -91,8 +122,11 @@ from a fresh builder, so it is repeatable; artifacts live in `build/distro/`.
 | `rootfs/usr/local/bin/setu-session` | the session launcher (personality, desktop size, shell) |
 | `rootfs/etc/xdg/labwc/` | labwc config: no decorations, key bindings or root menu |
 | `rootfs/etc/systemd/system/setu-session.service` | tty1 autologin running `labwc -S setu-session` |
+| `../services/fs/` | drive-letter service and its units, installed by `build-image.sh` |
 | `run-qemu.sh` | boots the image (OVMF, virtio-gpu, VNC, serial log, monitor socket) |
 | `tests/msi-smoke.sh` | boots a snapshot, installs and runs an .msi over SSH, screendump |
+| `tests/drives-smoke.sh` | casefold C: and drive-letter hot-plug checks, then `msi-smoke.sh` |
+| `tests/lib.sh` | helpers shared by the smoke tests (boot, SSH, wine in the session, screendump) |
 | `docs/` | screenshots of the booted session |
 
 ![The dev image with --shell: the Setu taskbar and launcher with Notepad on the fullscreen personality desktop](docs/session-shell.png)
@@ -104,8 +138,8 @@ Without `--shell` the session runs notepad instead ([screenshot](docs/session.pn
 * `winedmo.so` (media decoding) links the build host's FFmpeg 6 sonames
   (`libavcodec.so.60`); Debian trixie ships FFmpeg 7, so it doesn't load in
   the image. Everything else in the personality resolves.
-* The root filesystem is plain ext4. Casefold for `C:` comes with the
-  installer.
+* The Linux root file system is plain ext4; only `C:` is casefolded. The
+  installer will make the same layout.
 * MSI wizard UI (7-Zip's): the Custom Setup page shows the dialog's
   placeholder text ("Neque porro quisquam...") instead of the selected
   feature's description and the install location, the Welcome/Finish pages
