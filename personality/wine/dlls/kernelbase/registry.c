@@ -576,6 +576,21 @@ NTSTATUS WINAPI DisablePredefinedHandleTableInternal( HKEY hkey )
 
 
 /******************************************************************************
+ * RegDisablePredefinedCacheEx (kernelbase.@)
+ *
+ * Disables the handle cache of all the predefined keys for the process.
+ */
+LSTATUS WINAPI RegDisablePredefinedCacheEx(void)
+{
+    DWORD i;
+
+    for (i = 0; i < ARRAY_SIZE(root_key_names); i++)
+        DisablePredefinedHandleTableInternal( (HKEY)(LONG_PTR)(LONG)(HandleToUlong(HKEY_SPECIAL_ROOT_FIRST) + i) );
+    return ERROR_SUCCESS;
+}
+
+
+/******************************************************************************
  * RegCreateKeyExW   (kernelbase.@)
  *
  * See RegCreateKeyExA.

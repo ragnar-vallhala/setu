@@ -637,7 +637,7 @@
 @ stdcall -import RegDeleteValueA(long str)
 @ stdcall -import RegDeleteValueW(long wstr)
 @ stdcall RegDisablePredefinedCache()
-# @ stub RegDisablePredefinedCacheEx
+@ stdcall -import RegDisablePredefinedCacheEx()
 @ stdcall RegDisableReflectionKey(ptr)
 @ stdcall RegEnableReflectionKey(ptr)
 @ stdcall RegEnumKeyA(long long ptr long)
