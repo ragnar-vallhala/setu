@@ -49,7 +49,7 @@
       "opened_process": true,
       "a.state": "STOPPED",
       "b.state": "RUNNING",
-      "process_alive": true,
+      "process_exited": true,
       "log": "SetuOracle_SvcDispatcher_2:ctl=1,type=0|SetuOracle_SvcDispatcher_2:set_stopped|dispatcher=1,err=0"
     },
     "share_first_restarted": {
@@ -58,8 +58,9 @@
       "log": "SetuOracle_SvcDispatcher_2:main,argc=1,args=|SetuOracle_SvcDispatcher_2:register=ok,err=0|SetuOracle_SvcDispatcher_2:set_running"
     },
     "share_both_stopped": {
-      "process_exited": true,
-      "log": "SetuOracle_SvcDispatcher_2:ctl=1,type=0|SetuOracle_SvcDispatcher_2:set_stopped|SetuOracle_SvcDispatcher_3:ctl=1,type=0|SetuOracle_SvcDispatcher_3:set_stopped|dispatcher=1,err=0"
+      "a_exited": true,
+      "b_exited": true,
+      "log": "SetuOracle_SvcDispatcher_2:ctl=1,type=0|SetuOracle_SvcDispatcher_2:set_stopped|SetuOracle_SvcDispatcher_3:ctl=1,type=0|SetuOracle_SvcDispatcher_3:set_stopped|dispatcher=1,err=0|dispatcher=1,err=0"
     },
     "noreport": {
       "ret": true,
@@ -78,5 +79,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "9ba713d099fea677d94ba8e64fb86af68d17c258b4079c8916bcca7ff4fdc2f0"
+  "source_sha256": "1d418812115799d6a200c648ce60a9cc190a891342979cdd08df26aa599e3e90"
 }

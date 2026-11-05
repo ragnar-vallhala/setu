@@ -146,22 +146,27 @@ int main(int argc, char **argv)
         o_svclog("log");
         oracle_case_end();
         DWORD pid = sta.dwProcessId;
-        /* Opened while both run, so it stays valid after the process ends. */
+        /* Opened while both run, so they stay valid after the processes end. */
         HANDLE proc = OpenProcess(SYNCHRONIZE, FALSE, pid);
+        HANDLE procb = OpenProcess(SYNCHRONIZE, FALSE, stb.dwProcessId);
         SERVICE_STATUS ss;
         ControlService(sa, SERVICE_CONTROL_STOP, &ss);
         svc_wait_state(sa, SERVICE_STOPPED);
         svc_query(sa, &sta);
         svc_query(sb, &stb);
+        /* Whether the process ends once its service stopped; waited for, so
+         * that the log holds everything the process wrote. */
+        BOOL exited = proc && WaitForSingleObject(proc, 20000) == WAIT_OBJECT_0;
         oracle_case("share_first_stopped");
         o_bool("opened_process", proc != NULL);
         o_str("a.state", svc_state_name(sta.dwCurrentState));
         o_str("b.state", svc_state_name(stb.dwCurrentState));
-        o_bool("process_alive", proc && WaitForSingleObject(proc, 0) == WAIT_TIMEOUT);
+        o_bool("process_exited", exited);
         o_svclog("log");
         oracle_case_end();
-        /* Restart the first one: it joins the running process. */
+        /* Restart the first one. */
         sta = svc_start_wait(sa, 0, NULL);
+        HANDLE proca2 = OpenProcess(SYNCHRONIZE, FALSE, sta.dwProcessId);
         oracle_case("share_first_restarted");
         o_str("a.state", svc_state_name(sta.dwCurrentState));
         o_bool("same_process", sta.dwProcessId == pid);
@@ -171,11 +176,15 @@ int main(int argc, char **argv)
         svc_wait_state(sa, SERVICE_STOPPED);
         ControlService(sb, SERVICE_CONTROL_STOP, &ss);
         svc_wait_state(sb, SERVICE_STOPPED);
-        if (proc) WaitForSingleObject(proc, 20000);
+        BOOL a_exited = proca2 && WaitForSingleObject(proca2, 20000) == WAIT_OBJECT_0;
+        BOOL b_exited = procb && WaitForSingleObject(procb, 20000) == WAIT_OBJECT_0;
         oracle_case("share_both_stopped");
-        o_bool("process_exited", proc && WaitForSingleObject(proc, 0) == WAIT_OBJECT_0);
+        o_bool("a_exited", a_exited);
+        o_bool("b_exited", b_exited);
         o_svclog_sorted("log");
         oracle_case_end();
+        if (proca2) CloseHandle(proca2);
+        if (procb) CloseHandle(procb);
         if (proc) CloseHandle(proc);
         CloseServiceHandle(sa);
         CloseServiceHandle(sb);
