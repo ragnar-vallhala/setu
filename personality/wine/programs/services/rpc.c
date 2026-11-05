@@ -1318,8 +1318,8 @@ DWORD __cdecl svcctl_ChangeServiceConfig2W( SC_RPC_HANDLE hService, SC_RPC_CONFI
         WINE_TRACE( "changing service %p sid type to %lu\n", service, config.sid->dwServiceSidType );
         /* only none, unrestricted and restricted exist, and drivers have no service SID */
         if (config.sid->dwServiceSidType != SERVICE_SID_TYPE_NONE &&
-            (config.sid->dwServiceSidType != SERVICE_SID_TYPE_UNRESTRICTED &&
-             config.sid->dwServiceSidType != SERVICE_SID_TYPE_RESTRICTED ||
+            ((config.sid->dwServiceSidType != SERVICE_SID_TYPE_UNRESTRICTED &&
+              config.sid->dwServiceSidType != SERVICE_SID_TYPE_RESTRICTED) ||
              !(service->service_entry->config.dwServiceType & SERVICE_WIN32)))
             return ERROR_INVALID_PARAMETER;
         service_lock( service->service_entry );
