@@ -315,7 +315,7 @@ static NTSTATUS open_key( HKEY *retkey, HKEY root, UNICODE_STRING *name, DWORD o
 
         InitializeObjectAttributes( &attr, name, 0, root, NULL );
         if (options & REG_OPTION_OPEN_LINK) attr.Attributes |= OBJ_OPENLINK;
-        status = NtOpenKeyEx( (HANDLE *)retkey, access, &attr, options );
+        status = NtOpenKeyEx( (HANDLE *)retkey, access, &attr, options & 0x1f );
         if (status == STATUS_PREDEFINED_HANDLE)
         {
             *retkey = get_perflib_key( *retkey );

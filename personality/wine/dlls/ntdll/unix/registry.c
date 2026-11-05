@@ -81,6 +81,7 @@ NTSTATUS WINAPI NtCreateKey( HANDLE *key, ACCESS_MASK access, const OBJECT_ATTRI
 
     *key = 0;
     if (attr->Length != sizeof(OBJECT_ATTRIBUTES)) return STATUS_INVALID_PARAMETER;
+    if (attr->ObjectName->Length & 1) return STATUS_INVALID_PARAMETER;
     if (!attr->ObjectName->Length && !attr->RootDirectory) return STATUS_OBJECT_PATH_SYNTAX_BAD;
     if ((ret = alloc_object_attributes( attr, &objattr, &len ))) return ret;
     objattr->attributes |= OBJ_OPENIF | OBJ_CASE_INSENSITIVE;
@@ -142,6 +143,7 @@ NTSTATUS WINAPI NtOpenKeyEx( HANDLE *key, ACCESS_MASK access, const OBJECT_ATTRI
 
     TRACE( "(%p,%s,%x,%p)\n", attr->RootDirectory, debugstr_us(attr->ObjectName), access, key );
 
+    if (options & ~0x1f) return STATUS_INVALID_PARAMETER_4;
     if (options & ~REG_OPTION_OPEN_LINK) FIXME( "options %x not implemented\n", options );
 
     attributes = attr->Attributes | OBJ_CASE_INSENSITIVE;
@@ -220,7 +222,7 @@ NTSTATUS WINAPI NtRenameKey( HANDLE key, UNICODE_STRING *name )
     TRACE( "(%p %s)\n", key, debugstr_us(name) );
 
     if (!name) return STATUS_ACCESS_VIOLATION;
-    if (!name->Buffer || !name->Length) return STATUS_INVALID_PARAMETER;
+    if (!name->Buffer || !name->Length || (name->Length & 1)) return STATUS_INVALID_PARAMETER;
 
     SERVER_START_REQ( rename_key )
     {
