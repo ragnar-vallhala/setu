@@ -1071,6 +1071,91 @@ DWORD __cdecl svcctl_SetServiceStatus(SC_RPC_HANDLE handle, SERVICE_STATUS *stat
     return ERROR_SUCCESS;
 }
 
+static DWORD change_failure_actions(struct sc_service_handle *service, const SERVICE_FAILURE_ACTIONSW *actions)
+{
+    struct service_entry *entry = service->service_entry;
+    WCHAR *reboot_msg = NULL, *command = NULL;
+    SC_ACTION *copy = NULL;
+    DWORD i;
+
+    if (actions->lpsaActions)
+    {
+        for (i = 0; i < actions->cActions; i++)
+        {
+            if (actions->lpsaActions[i].Type > SC_ACTION_RUN_COMMAND)
+                return ERROR_INVALID_PARAMETER;
+            /* a restart action needs the right to start the service */
+            if (actions->lpsaActions[i].Type == SC_ACTION_RESTART &&
+                !(service->hdr.access & SERVICE_START))
+                return ERROR_ACCESS_DENIED;
+        }
+        if (actions->cActions && !(copy = malloc(actions->cActions * sizeof(*copy))))
+            return ERROR_NOT_ENOUGH_MEMORY;
+        if (copy) memcpy(copy, actions->lpsaActions, actions->cActions * sizeof(*copy));
+    }
+    /* an empty string clears the value, NULL leaves it alone */
+    if (actions->lpRebootMsg && actions->lpRebootMsg[0] && !(reboot_msg = wcsdup(actions->lpRebootMsg)))
+        goto oom;
+    if (actions->lpCommand && actions->lpCommand[0] && !(command = wcsdup(actions->lpCommand)))
+        goto oom;
+
+    service_lock(entry);
+    if (actions->lpRebootMsg)
+    {
+        free(entry->failure_reboot_msg);
+        entry->failure_reboot_msg = reboot_msg;
+    }
+    if (actions->lpCommand)
+    {
+        free(entry->failure_command);
+        entry->failure_command = command;
+    }
+    /* without actions the reset period is ignored */
+    if (actions->lpsaActions)
+    {
+        free(entry->failure_actions);
+        entry->failure_actions = copy;
+        entry->failure_count = actions->cActions;
+        entry->failure_reset = actions->cActions ? actions->dwResetPeriod : 0;
+    }
+    save_service_config(entry);
+    service_unlock(entry);
+    return ERROR_SUCCESS;
+
+oom:
+    free(copy);
+    free(reboot_msg);
+    free(command);
+    return ERROR_NOT_ENOUGH_MEMORY;
+}
+
+static DWORD change_privileges(struct service_entry *entry, const SERVICE_RPC_REQUIRED_PRIVILEGES_INFO *info)
+{
+    const WCHAR *str = (const WCHAR *)info->pRequiredPrivileges, *p;
+    DWORD len = info->cbRequiredPrivileges / sizeof(WCHAR);
+    WCHAR *privileges = NULL;
+    LUID luid;
+
+    if (!str) return ERROR_SUCCESS;
+    if (len < 1 || str[len - 1]) return ERROR_INVALID_PARAMETER;
+
+    /* Windows keeps the old list, without failing, when a name is not a privilege */
+    for (p = str; p < str + len - 1 && *p; p += wcslen(p) + 1)
+        if (!LookupPrivilegeValueW(NULL, p, &luid)) return ERROR_SUCCESS;
+
+    if (str[0])
+    {
+        if (!(privileges = malloc(len * sizeof(WCHAR)))) return ERROR_NOT_ENOUGH_MEMORY;
+        memcpy(privileges, str, len * sizeof(WCHAR));
+    }
+    service_lock(entry);
+    free(entry->privileges);
+    entry->privileges = privileges;
+    save_service_config(entry);
+    service_unlock(entry);
+    return ERROR_SUCCESS;
+}
+
 DWORD __cdecl svcctl_ChangeServiceConfig2W( SC_RPC_HANDLE hService, SC_RPC_CONFIG_INFOW config )
 {
     struct sc_service_handle *service;
@@ -1078,6 +1163,9 @@ DWORD __cdecl svcctl_ChangeServiceConfig2W( SC_RPC_HANDLE hService, SC_RPC_CONFI
 
     if ((err = validate_service_handle(hService, SERVICE_CHANGE_CONFIG, &service)) != 0)
         return err;
+
+    if (is_marked_for_delete(service->service_entry))
+        return ERROR_SERVICE_MARKED_FOR_DELETE;
 
     switch (config.dwInfoLevel)
     {
@@ -1103,10 +1191,18 @@ DWORD __cdecl svcctl_ChangeServiceConfig2W( SC_RPC_HANDLE hService, SC_RPC_CONFI
         }
         break;
     case SERVICE_CONFIG_FAILURE_ACTIONS:
-        WINE_FIXME( "SERVICE_CONFIG_FAILURE_ACTIONS not implemented: period %lu msg %s cmd %s\n",
-                    config.actions->dwResetPeriod,
-                    wine_dbgstr_w(config.actions->lpRebootMsg),
-                    wine_dbgstr_w(config.actions->lpCommand) );
+        WINE_TRACE( "changing service %p failure actions: period %lu msg %s cmd %s count %lu\n", service,
+                    config.actions->dwResetPeriod, wine_dbgstr_w(config.actions->lpRebootMsg),
+                    wine_dbgstr_w(config.actions->lpCommand), config.actions->cActions );
+        err = change_failure_actions( service, config.actions );
+        break;
+    case SERVICE_CONFIG_FAILURE_ACTIONS_FLAG:
+        if (config.actionsflag->fFailureActionsOnNonCrashFailures > 1)
+            return ERROR_INVALID_PARAMETER;
+        service_lock( service->service_entry );
+        service->service_entry->failure_on_noncrash = config.actionsflag->fFailureActionsOnNonCrashFailures;
+        save_service_config( service->service_entry );
+        service_unlock( service->service_entry );
         break;
     case SERVICE_CONFIG_PRESHUTDOWN_INFO:
         WINE_TRACE( "changing service %p preshutdown timeout to %ld\n",
@@ -1129,8 +1225,20 @@ DWORD __cdecl svcctl_ChangeServiceConfig2W( SC_RPC_HANDLE hService, SC_RPC_CONFI
         service_unlock( service->service_entry );
         break;
     case SERVICE_CONFIG_SERVICE_SID_INFO:
-        WINE_FIXME( "SERVICE_CONFIG_SERVICE_SID_INFO not implemented: type %lu\n",
-                    config.sid->dwServiceSidType );
+        WINE_TRACE( "changing service %p sid type to %lu\n", service, config.sid->dwServiceSidType );
+        /* only none, unrestricted and restricted exist, and drivers have no service SID */
+        if (config.sid->dwServiceSidType != SERVICE_SID_TYPE_NONE &&
+            (config.sid->dwServiceSidType != SERVICE_SID_TYPE_UNRESTRICTED &&
+             config.sid->dwServiceSidType != SERVICE_SID_TYPE_RESTRICTED ||
+             !(service->service_entry->config.dwServiceType & SERVICE_WIN32)))
+            return ERROR_INVALID_PARAMETER;
+        service_lock( service->service_entry );
+        service->service_entry->sid_type = config.sid->dwServiceSidType;
+        save_service_config( service->service_entry );
+        service_unlock( service->service_entry );
+        break;
+    case SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO:
+        err = change_privileges( service->service_entry, config.privinfo );
         break;
     default:
         WINE_FIXME("level %lu not implemented\n", config.dwInfoLevel);
@@ -1140,10 +1248,58 @@ DWORD __cdecl svcctl_ChangeServiceConfig2W( SC_RPC_HANDLE hService, SC_RPC_CONFI
     return err;
 }
 
+static DWORD query_dword(struct sc_service_handle *service, DWORD value, BYTE *buffer, DWORD size, DWORD *needed)
+{
+    *needed = sizeof(DWORD);
+    if (size < *needed) return ERROR_INSUFFICIENT_BUFFER;
+    *(DWORD *)buffer = value;
+    return ERROR_SUCCESS;
+}
+
+static DWORD query_failure_actions(struct service_entry *entry, BYTE *buffer, DWORD size, DWORD *needed)
+{
+    struct service_failure_actions *fa = (struct service_failure_actions *)buffer;
+    DWORD reboot_len = entry->failure_reboot_msg ? wcslen(entry->failure_reboot_msg) + 1 : 0;
+    DWORD command_len = entry->failure_command ? wcslen(entry->failure_command) + 1 : 0;
+    WCHAR *str;
+
+    *needed = sizeof(*fa) + entry->failure_count * sizeof(SC_ACTION) + (reboot_len + command_len) * sizeof(WCHAR);
+    if (size < *needed) return ERROR_INSUFFICIENT_BUFFER;
+
+    fa->reset_period = entry->failure_reset;
+    fa->reboot_msg_len = reboot_len;
+    fa->command_len = command_len;
+    fa->count = entry->failure_count;
+    memcpy(fa + 1, entry->failure_actions, entry->failure_count * sizeof(SC_ACTION));
+    str = (WCHAR *)((SC_ACTION *)(fa + 1) + entry->failure_count);
+    memcpy(str, entry->failure_reboot_msg, reboot_len * sizeof(WCHAR));
+    memcpy(str + reboot_len, entry->failure_command, command_len * sizeof(WCHAR));
+    return ERROR_SUCCESS;
+}
+
+static DWORD query_privileges(struct service_entry *entry, BYTE *buffer, DWORD size, DWORD *needed)
+{
+    struct service_privileges *priv = (struct service_privileges *)buffer;
+    const WCHAR *p;
+    DWORD len = 0;
+
+    if ((p = entry->privileges))
+    {
+        while (*p) p += wcslen(p) + 1;
+        len = p - entry->privileges + 1;
+    }
+    *needed = sizeof(*priv) + len * sizeof(WCHAR);
+    if (size < *needed) return ERROR_INSUFFICIENT_BUFFER;
+    priv->len = len;
+    memcpy(priv + 1, entry->privileges, len * sizeof(WCHAR));
+    return ERROR_SUCCESS;
+}
+
 DWORD __cdecl svcctl_QueryServiceConfig2W( SC_RPC_HANDLE hService, DWORD level,
                                            BYTE *buffer, DWORD size, LPDWORD needed )
 {
     struct sc_service_handle *service;
+    struct service_entry *entry;
     DWORD err;
 
     memset(buffer, 0, size);
@@ -1151,6 +1307,8 @@ DWORD __cdecl svcctl_QueryServiceConfig2W( SC_RPC_HANDLE hService, DWORD level,
     if ((err = validate_service_handle(hService, SERVICE_QUERY_CONFIG, &service)) != 0)
         return err;
 
+    entry = service->service_entry;
+    service_lock(entry);
     switch (level)
     {
     case SERVICE_CONFIG_DESCRIPTION:
@@ -1158,16 +1316,15 @@ DWORD __cdecl svcctl_QueryServiceConfig2W( SC_RPC_HANDLE hService, DWORD level,
         struct service_description *desc = (struct service_description *)buffer;
         DWORD total_size = sizeof(*desc);
 
-        service_lock(service->service_entry);
-        if (service->service_entry->description)
-            total_size += lstrlenW(service->service_entry->description) * sizeof(WCHAR);
+        if (entry->description)
+            total_size += lstrlenW(entry->description) * sizeof(WCHAR);
 
         *needed = total_size;
         if (size >= total_size)
         {
-            if (service->service_entry->description)
+            if (entry->description)
             {
-                lstrcpyW( desc->description, service->service_entry->description );
+                lstrcpyW( desc->description, entry->description );
                 desc->size = total_size - FIELD_OFFSET(struct service_description, description);
             }
             else
@@ -1177,32 +1334,34 @@ DWORD __cdecl svcctl_QueryServiceConfig2W( SC_RPC_HANDLE hService, DWORD level,
             }
         }
         else err = ERROR_INSUFFICIENT_BUFFER;
-        service_unlock(service->service_entry);
     }
     break;
 
-    case SERVICE_CONFIG_PRESHUTDOWN_INFO:
-        service_lock(service->service_entry);
-
-        *needed = sizeof(SERVICE_PRESHUTDOWN_INFO);
-        if (size >= *needed)
-            ((LPSERVICE_PRESHUTDOWN_INFO)buffer)->dwPreshutdownTimeout =
-                service->service_entry->preshutdown_timeout;
-        else err = ERROR_INSUFFICIENT_BUFFER;
-
-        service_unlock(service->service_entry);
+    case SERVICE_CONFIG_FAILURE_ACTIONS:
+        err = query_failure_actions(entry, buffer, size, needed);
         break;
-
+    case SERVICE_CONFIG_FAILURE_ACTIONS_FLAG:
+        err = query_dword(service, entry->failure_on_noncrash, buffer, size, needed);
+        break;
+    case SERVICE_CONFIG_SERVICE_SID_INFO:
+        err = query_dword(service, entry->sid_type, buffer, size, needed);
+        break;
+    case SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO:
+        err = query_privileges(entry, buffer, size, needed);
+        break;
+    case SERVICE_CONFIG_PRESHUTDOWN_INFO:
+        err = query_dword(service, entry->preshutdown_timeout, buffer, size, needed);
+        break;
     case SERVICE_CONFIG_DELAYED_AUTO_START_INFO:
-        service_lock(service->service_entry);
-
-        *needed = sizeof(SERVICE_DELAYED_AUTO_START_INFO);
-        if (size >= *needed)
-            ((SERVICE_DELAYED_AUTO_START_INFO *)buffer)->fDelayedAutostart =
-                service->service_entry->delayed_autostart;
-        else err = ERROR_INSUFFICIENT_BUFFER;
-
-        service_unlock(service->service_entry);
+        err = query_dword(service, entry->delayed_autostart, buffer, size, needed);
+        break;
+    case SERVICE_CONFIG_TRIGGER_INFO:
+        /* triggers are not supported: the count of triggers is always 0 */
+        err = query_dword(service, 0, buffer, size, needed);
+        break;
+    case SERVICE_CONFIG_LAUNCH_PROTECTED:
+        /* SERVICE_LAUNCH_PROTECTED_NONE */
+        err = query_dword(service, 0, buffer, size, needed);
         break;
 
     default:
@@ -1210,6 +1369,7 @@ DWORD __cdecl svcctl_QueryServiceConfig2W( SC_RPC_HANDLE hService, DWORD level,
         err = ERROR_INVALID_LEVEL;
         break;
     }
+    service_unlock(entry);
     return err;
 }
 

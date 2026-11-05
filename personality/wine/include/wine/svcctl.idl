@@ -235,6 +235,23 @@ struct service_description
     WCHAR  description[1];
 };
 
+/* Not compatible with Windows: svcctl_QueryServiceConfig2W returns the failure actions
+ * flat, followed by SC_ACTION actions[count], the reboot message and the command.
+ * The lengths are in characters including the null, 0 for NULL. */
+struct service_failure_actions
+{
+    DWORD reset_period;
+    DWORD reboot_msg_len;
+    DWORD command_len;
+    DWORD count;
+};
+
+/* followed by the multi-string; len is in characters, 0 for none */
+struct service_privileges
+{
+    DWORD len;
+};
+
 typedef struct _SERVICE_RPC_REQUIRED_PRIVILEGES_INFO {
     DWORD cbRequiredPrivileges;
     [size_is(cbRequiredPrivileges)] BYTE *pRequiredPrivileges;

@@ -43,7 +43,7 @@ struct scmdatabase *active_database;
 
 DWORD service_pipe_timeout = 10000;
 DWORD service_kill_timeout = 60000;
-static DWORD default_preshutdown_timeout = 180000;
+static DWORD default_preshutdown_timeout = 10000;
 static DWORD autostart_delay = 120000;
 static void *environment = NULL;
 static HKEY service_current_key = NULL;
@@ -129,10 +129,63 @@ void free_service_entry(struct service_entry *entry)
     free(entry->config.lpServiceStartName);
     free(entry->config.lpDisplayName);
     free(entry->description);
+    free(entry->failure_reboot_msg);
+    free(entry->failure_command);
+    free(entry->failure_actions);
+    free(entry->privileges);
     free(entry->dependOnServices);
     free(entry->dependOnGroups);
     if (entry->process) release_process(entry->process);
     free(entry);
+}
+
+/* FailureActions holds a SERVICE_FAILURE_ACTIONS with 32-bit null pointers, then the actions */
+struct failure_actions_value
+{
+    DWORD reset_period;
+    DWORD reboot_msg;
+    DWORD command;
+    DWORD count;
+    DWORD actions;
+};
+
+static void load_failure_actions(HKEY hKey, struct service_entry *entry)
+{
+    struct failure_actions_value *value;
+    DWORD size = 0, type;
+
+    if (RegQueryValueExW(hKey, L"FailureActions", NULL, &type, NULL, &size) || type != REG_BINARY ||
+        size < sizeof(*value) || !(value = malloc(size)))
+        return;
+    if (!RegQueryValueExW(hKey, L"FailureActions", NULL, NULL, (BYTE *)value, &size) &&
+        value->count && value->count <= (size - sizeof(*value)) / sizeof(SC_ACTION) &&
+        (entry->failure_actions = malloc(value->count * sizeof(SC_ACTION))))
+    {
+        memcpy(entry->failure_actions, value + 1, value->count * sizeof(SC_ACTION));
+        entry->failure_count = value->count;
+        entry->failure_reset = value->reset_period;
+    }
+    free(value);
+}
+
+static DWORD save_failure_actions(HKEY hKey, struct service_entry *entry)
+{
+    struct failure_actions_value *value;
+    DWORD err, size;
+
+    if (!entry->failure_count)
+    {
+        err = RegDeleteValueW(hKey, L"FailureActions");
+        return err == ERROR_FILE_NOT_FOUND ? ERROR_SUCCESS : err;
+    }
+    size = sizeof(*value) + entry->failure_count * sizeof(SC_ACTION);
+    if (!(value = calloc(1, size))) return ERROR_NOT_ENOUGH_MEMORY;
+    value->reset_period = entry->failure_reset;
+    value->count = entry->failure_count;
+    memcpy(value + 1, entry->failure_actions, entry->failure_count * sizeof(SC_ACTION));
+    err = RegSetValueExW(hKey, L"FailureActions", 0, REG_BINARY, (const BYTE *)value, size);
+    free(value);
+    return err;
 }
 
 static DWORD load_service_config(HKEY hKey, struct service_entry *entry)
@@ -151,7 +204,20 @@ static DWORD load_service_config(HKEY hKey, struct service_entry *entry)
     if ((err = load_reg_dword(hKey, L"Start", &entry->config.dwStartType))) return err;
     if ((err = load_reg_dword(hKey, L"ErrorControl", &entry->config.dwErrorControl))) return err;
     if ((err = load_reg_dword(hKey, L"Tag", &entry->config.dwTagId))) return err;
-    if ((err = load_reg_dword(hKey, L"PreshutdownTimeout", &entry->preshutdown_timeout))) return err;
+    if (!RegQueryValueExW(hKey, L"PreshutdownTimeout", NULL, NULL, NULL, NULL) &&
+        (err = load_reg_dword(hKey, L"PreshutdownTimeout", &entry->preshutdown_timeout))) return err;
+    if ((err = load_reg_string(hKey, L"RebootMessage", FALSE, &entry->failure_reboot_msg))) return err;
+    if ((err = load_reg_string(hKey, L"FailureCommand", FALSE, &entry->failure_command))) return err;
+    if ((err = load_reg_dword(hKey, L"FailureActionsOnNonCrashFailures", &value))) return err;
+    entry->failure_on_noncrash = !!value;
+    if ((err = load_reg_dword(hKey, L"ServiceSidType", &entry->sid_type))) return err;
+    if ((err = load_reg_multisz(hKey, L"RequiredPrivileges", FALSE, &entry->privileges))) return err;
+    if (entry->privileges && !entry->privileges[0])
+    {
+        free(entry->privileges);
+        entry->privileges = NULL;
+    }
+    load_failure_actions(hKey, entry);
 
     if (load_reg_dword(hKey, L"WOW64", &value) == 0 && value == 1)
         entry->is_wow64 = TRUE;
@@ -232,6 +298,22 @@ DWORD save_service_config(struct service_entry *entry)
     if ((err = reg_set_dword_value(hKey, L"ErrorControl", entry->config.dwErrorControl))) goto cleanup;
     if ((err = reg_set_dword_value(hKey, L"Type", entry->config.dwServiceType))) goto cleanup;
     if ((err = reg_set_dword_value(hKey, L"PreshutdownTimeout", entry->preshutdown_timeout))) goto cleanup;
+    if ((err = reg_set_string_value(hKey, L"RebootMessage", entry->failure_reboot_msg, FALSE))) goto cleanup;
+    if ((err = reg_set_string_value(hKey, L"FailureCommand", entry->failure_command, FALSE))) goto cleanup;
+    if ((err = reg_set_multisz_value(hKey, L"RequiredPrivileges", entry->privileges))) goto cleanup;
+    if ((err = save_failure_actions(hKey, entry))) goto cleanup;
+    if (entry->failure_on_noncrash)
+        err = reg_set_dword_value(hKey, L"FailureActionsOnNonCrashFailures", 1);
+    else
+        err = RegDeleteValueW(hKey, L"FailureActionsOnNonCrashFailures");
+    if (err != 0 && err != ERROR_FILE_NOT_FOUND)
+        goto cleanup;
+    if (entry->sid_type)
+        err = reg_set_dword_value(hKey, L"ServiceSidType", entry->sid_type);
+    else
+        err = RegDeleteValueW(hKey, L"ServiceSidType");
+    if (err != 0 && err != ERROR_FILE_NOT_FOUND)
+        goto cleanup;
 
     if (entry->delayed_autostart)
         err = reg_set_dword_value(hKey, L"DelayedAutoStart", entry->delayed_autostart);

@@ -64,6 +64,14 @@ struct service_entry
     BOOL marked_for_delete;
     BOOL is_wow64;
     BOOL delayed_autostart;
+    DWORD failure_reset;               /* failure actions, see SERVICE_FAILURE_ACTIONSW */
+    LPWSTR failure_reboot_msg;
+    LPWSTR failure_command;
+    DWORD failure_count;
+    SC_ACTION *failure_actions;
+    BOOL failure_on_noncrash;          /* SERVICE_FAILURE_ACTIONS_FLAG */
+    DWORD sid_type;                    /* SERVICE_SID_INFO */
+    LPWSTR privileges;                 /* required privileges as a multi-string, NULL if none */
     struct list handles;
 };
 

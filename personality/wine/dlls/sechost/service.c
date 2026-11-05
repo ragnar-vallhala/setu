@@ -479,6 +479,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH ChangeServiceConfig2A( SC_HANDLE service, DWORD le
         SERVICE_DESCRIPTIONA *sd = info;
         SERVICE_DESCRIPTIONW sdw;
 
+        if (!sd) return TRUE;
+
         sdw.lpDescription = strdupAtoW( sd->lpDescription );
 
         r = ChangeServiceConfig2W( service, level, &sdw );
@@ -501,12 +503,20 @@ BOOL WINAPI DECLSPEC_HOTPATCH ChangeServiceConfig2A( SC_HANDLE service, DWORD le
         free( faw.lpRebootMsg );
         free( faw.lpCommand );
     }
-    else if (level == SERVICE_CONFIG_PRESHUTDOWN_INFO || level == SERVICE_CONFIG_DELAYED_AUTO_START_INFO)
+    else if (level == SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO)
     {
-        r = ChangeServiceConfig2W( service, level, info );
+        SERVICE_REQUIRED_PRIVILEGES_INFOA *pa = info;
+        SERVICE_REQUIRED_PRIVILEGES_INFOW pw;
+
+        pw.pmszRequiredPrivileges = strdup_multi_AtoW( pa->pmszRequiredPrivileges );
+        r = ChangeServiceConfig2W( service, level, &pw );
+        free( pw.pmszRequiredPrivileges );
     }
     else
-        SetLastError( ERROR_INVALID_PARAMETER );
+    {
+        /* the other levels have no strings */
+        r = ChangeServiceConfig2W( service, level, info );
+    }
 
     return r;
 }
@@ -518,6 +528,34 @@ BOOL WINAPI DECLSPEC_HOTPATCH ChangeServiceConfig2W( SC_HANDLE service, DWORD le
 {
     SERVICE_RPC_REQUIRED_PRIVILEGES_INFO rpc_privinfo;
     DWORD err;
+
+    TRACE( "%p %ld %p\n", service, level, info );
+
+    switch (level)
+    {
+    case SERVICE_CONFIG_DESCRIPTION:
+        /* Windows accepts a missing description and changes nothing */
+        if (!info) return TRUE;
+        break;
+    case SERVICE_CONFIG_FAILURE_ACTIONS:
+    case SERVICE_CONFIG_DELAYED_AUTO_START_INFO:
+    case SERVICE_CONFIG_FAILURE_ACTIONS_FLAG:
+    case SERVICE_CONFIG_SERVICE_SID_INFO:
+    case SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO:
+    case SERVICE_CONFIG_PRESHUTDOWN_INFO:
+        break;
+    case SERVICE_CONFIG_TRIGGER_INFO:
+        /* Windows rejects a trigger list without an array */
+        if (!info || !((SERVICE_TRIGGER_INFO *)info)->pTriggers)
+            return set_error( ERROR_INVALID_PARAMETER );
+        /* fall through */
+    case SERVICE_CONFIG_PREFERRED_NODE:
+    case SERVICE_CONFIG_LAUNCH_PROTECTED:
+        FIXME( "level %lu not implemented\n", level );
+        return set_error( ERROR_CALL_NOT_IMPLEMENTED );
+    default:
+        return set_error( ERROR_INVALID_LEVEL );
+    }
 
     __TRY
     {
@@ -814,8 +852,58 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfig2A( SC_HANDLE service, DWORD lev
                 else configA->lpDescription = NULL;
             }
             break;
-        case SERVICE_CONFIG_PRESHUTDOWN_INFO:
+        case SERVICE_CONFIG_FAILURE_ACTIONS:
+            if (buffer && bufferW)
+            {
+                SERVICE_FAILURE_ACTIONSA *configA = (SERVICE_FAILURE_ACTIONSA *)buffer;
+                SERVICE_FAILURE_ACTIONSW *configW = (SERVICE_FAILURE_ACTIONSW *)bufferW;
+                char *str = (char *)(configA + 1), *end = (char *)buffer + size;
+
+                configA->dwResetPeriod = configW->dwResetPeriod;
+                configA->cActions = configW->cActions;
+                configA->lpsaActions = NULL;
+                if (configW->lpsaActions)
+                {
+                    configA->lpsaActions = (SC_ACTION *)str;
+                    memcpy( str, configW->lpsaActions, configW->cActions * sizeof(SC_ACTION) );
+                    str += configW->cActions * sizeof(SC_ACTION);
+                }
+                configA->lpRebootMsg = NULL;
+                if (configW->lpRebootMsg)
+                {
+                    configA->lpRebootMsg = str;
+                    str += WideCharToMultiByte( CP_ACP, 0, configW->lpRebootMsg, -1, str, end - str, NULL, NULL );
+                }
+                configA->lpCommand = NULL;
+                if (configW->lpCommand)
+                {
+                    configA->lpCommand = str;
+                    WideCharToMultiByte( CP_ACP, 0, configW->lpCommand, -1, str, end - str, NULL, NULL );
+                }
+            }
+            break;
+        case SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO:
+            if (buffer && bufferW)
+            {
+                SERVICE_REQUIRED_PRIVILEGES_INFOA *configA = (SERVICE_REQUIRED_PRIVILEGES_INFOA *)buffer;
+                SERVICE_REQUIRED_PRIVILEGES_INFOW *configW = (SERVICE_REQUIRED_PRIVILEGES_INFOW *)bufferW;
+
+                configA->pmszRequiredPrivileges = NULL;
+                if (configW->pmszRequiredPrivileges)
+                {
+                    configA->pmszRequiredPrivileges = (char *)(configA + 1);
+                    WideCharToMultiByte( CP_ACP, 0, configW->pmszRequiredPrivileges,
+                                         multisz_size( configW->pmszRequiredPrivileges ) / sizeof(WCHAR),
+                                         configA->pmszRequiredPrivileges, size - sizeof(*configA), NULL, NULL );
+                }
+            }
+            break;
         case SERVICE_CONFIG_DELAYED_AUTO_START_INFO:
+        case SERVICE_CONFIG_FAILURE_ACTIONS_FLAG:
+        case SERVICE_CONFIG_SERVICE_SID_INFO:
+        case SERVICE_CONFIG_PRESHUTDOWN_INFO:
+        case SERVICE_CONFIG_TRIGGER_INFO:
+        case SERVICE_CONFIG_LAUNCH_PROTECTED:
             if (buffer && bufferW && *ret_size <= size)
                 memcpy(buffer, bufferW, *ret_size);
             break;
@@ -835,8 +923,10 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfig2A( SC_HANDLE service, DWORD lev
 BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfig2W( SC_HANDLE service, DWORD level, BYTE *buffer,
                                                     DWORD size, DWORD *ret_size )
 {
-    BYTE *bufptr;
-    DWORD err;
+    /* MS-SCMR limits the buffer to 8 KiB; services.exe returns its own flat layout */
+    static const DWORD raw_size = 8 * 1024;
+    DWORD err, need, raw_need = 0;
+    BYTE *raw;
 
     TRACE( "%p %lu %p %lu %p\n", service, level, buffer, size, ret_size );
 
@@ -845,22 +935,21 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfig2W( SC_HANDLE service, DWORD lev
         SetLastError(ERROR_INVALID_ADDRESS);
         return FALSE;
     }
+    /* Windows fails larger buffers in RPC */
+    if (size > raw_size) return set_error( RPC_X_BAD_STUB_DATA );
 
     switch (level)
     {
     case SERVICE_CONFIG_DESCRIPTION:
-        if (!(bufptr = malloc( size )))
-        {
-            SetLastError( ERROR_NOT_ENOUGH_MEMORY );
-            return FALSE;
-        }
-        break;
-
-    case SERVICE_CONFIG_PRESHUTDOWN_INFO:
+    case SERVICE_CONFIG_FAILURE_ACTIONS:
     case SERVICE_CONFIG_DELAYED_AUTO_START_INFO:
-        bufptr = buffer;
+    case SERVICE_CONFIG_FAILURE_ACTIONS_FLAG:
+    case SERVICE_CONFIG_SERVICE_SID_INFO:
+    case SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO:
+    case SERVICE_CONFIG_PRESHUTDOWN_INFO:
+    case SERVICE_CONFIG_TRIGGER_INFO:
+    case SERVICE_CONFIG_LAUNCH_PROTECTED:
         break;
-
     default:
         FIXME("Level %ld not implemented\n", level);
         SetLastError(ERROR_INVALID_LEVEL);
@@ -869,14 +958,15 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfig2W( SC_HANDLE service, DWORD lev
 
     if (!ret_size)
     {
-        if (level == SERVICE_CONFIG_DESCRIPTION) free( bufptr );
         SetLastError(ERROR_INVALID_ADDRESS);
         return FALSE;
     }
 
+    if (!(raw = malloc( raw_size ))) return set_error( ERROR_NOT_ENOUGH_MEMORY );
+
     __TRY
     {
-        err = svcctl_QueryServiceConfig2W( service, level, bufptr, size, ret_size );
+        err = svcctl_QueryServiceConfig2W( service, level, raw, raw_size, &raw_need );
     }
     __EXCEPT(rpc_filter)
     {
@@ -884,52 +974,101 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfig2W( SC_HANDLE service, DWORD lev
     }
     __ENDTRY
 
+    if (err)
+    {
+        if (err == ERROR_INSUFFICIENT_BUFFER) *ret_size = raw_need;
+        free( raw );
+        return set_error( err );
+    }
+
     switch (level)
     {
     case SERVICE_CONFIG_DESCRIPTION:
     {
+        struct service_description *s = (struct service_description *)raw;
         SERVICE_DESCRIPTIONW *desc = (SERVICE_DESCRIPTIONW *)buffer;
-        struct service_description *s = (struct service_description *)bufptr;
 
-        if (err != ERROR_SUCCESS && err != ERROR_INSUFFICIENT_BUFFER)
-        {
-            free( bufptr );
-            SetLastError( err );
-            return FALSE;
-        }
-
-        /* adjust for potentially larger SERVICE_DESCRIPTIONW structure */
-        if (*ret_size == sizeof(*s))
-            *ret_size = sizeof(*desc);
+        need = sizeof(*desc) + s->size;
+        if (size < need) break;
+        if (!s->size) desc->lpDescription = NULL;
         else
-            *ret_size = *ret_size - FIELD_OFFSET(struct service_description, description) + sizeof(*desc);
-
-        if (size < *ret_size)
         {
-            free( bufptr );
-            SetLastError( ERROR_INSUFFICIENT_BUFFER );
-            return FALSE;
+            desc->lpDescription = (WCHAR *)(desc + 1);
+            memcpy( desc->lpDescription, s->description, s->size );
         }
-        if (desc)
-        {
-            if (!s->size) desc->lpDescription = NULL;
-            else
-            {
-                desc->lpDescription = (WCHAR *)(desc + 1);
-                memcpy( desc->lpDescription, s->description, s->size );
-            }
-        }
-        free( bufptr );
         break;
     }
-    case SERVICE_CONFIG_PRESHUTDOWN_INFO:
-    case SERVICE_CONFIG_DELAYED_AUTO_START_INFO:
-        return set_error( err );
+    case SERVICE_CONFIG_FAILURE_ACTIONS:
+    {
+        struct service_failure_actions *s = (struct service_failure_actions *)raw;
+        SERVICE_FAILURE_ACTIONSW *fa = (SERVICE_FAILURE_ACTIONSW *)buffer;
+        const SC_ACTION *actions = (const SC_ACTION *)(s + 1);
+        const WCHAR *str = (const WCHAR *)(actions + s->count);
+        BYTE *ptr = (BYTE *)(fa + 1);
 
+        need = sizeof(*fa) + s->count * sizeof(SC_ACTION) + (s->reboot_msg_len + s->command_len) * sizeof(WCHAR);
+        if (size < need) break;
+        fa->dwResetPeriod = s->reset_period;
+        fa->cActions = s->count;
+        fa->lpsaActions = NULL;
+        if (s->count)
+        {
+            fa->lpsaActions = (SC_ACTION *)ptr;
+            memcpy( ptr, actions, s->count * sizeof(SC_ACTION) );
+            ptr += s->count * sizeof(SC_ACTION);
+        }
+        fa->lpRebootMsg = NULL;
+        if (s->reboot_msg_len)
+        {
+            fa->lpRebootMsg = (WCHAR *)ptr;
+            memcpy( ptr, str, s->reboot_msg_len * sizeof(WCHAR) );
+            ptr += s->reboot_msg_len * sizeof(WCHAR);
+        }
+        fa->lpCommand = NULL;
+        if (s->command_len)
+        {
+            fa->lpCommand = (WCHAR *)ptr;
+            memcpy( ptr, str + s->reboot_msg_len, s->command_len * sizeof(WCHAR) );
+        }
+        break;
+    }
+    case SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO:
+    {
+        struct service_privileges *s = (struct service_privileges *)raw;
+        SERVICE_REQUIRED_PRIVILEGES_INFOW *priv = (SERVICE_REQUIRED_PRIVILEGES_INFOW *)buffer;
+
+        need = sizeof(*priv) + s->len * sizeof(WCHAR);
+        if (size < need) break;
+        priv->pmszRequiredPrivileges = NULL;
+        if (s->len)
+        {
+            priv->pmszRequiredPrivileges = (WCHAR *)(priv + 1);
+            memcpy( priv->pmszRequiredPrivileges, s + 1, s->len * sizeof(WCHAR) );
+        }
+        break;
+    }
+    case SERVICE_CONFIG_TRIGGER_INFO:
+    {
+        SERVICE_TRIGGER_INFO *info = (SERVICE_TRIGGER_INFO *)buffer;
+
+        need = sizeof(*info);
+        if (size < need) break;
+        info->cTriggers = *(DWORD *)raw;
+        info->pTriggers = NULL;
+        info->pReserved = NULL;
+        break;
+    }
     default:
+        /* a single DWORD */
+        need = sizeof(DWORD);
+        if (size < need) break;
+        *(DWORD *)buffer = *(DWORD *)raw;
         break;
     }
 
+    free( raw );
+    *ret_size = need;
+    if (size < need) return set_error( ERROR_INSUFFICIENT_BUFFER );
     return TRUE;
 }
 
