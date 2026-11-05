@@ -284,7 +284,8 @@ BOOL WINAPI GetServiceKeyNameA( SC_HANDLE hSCManager, LPCSTR lpDisplayName,
     {
         if (lpServiceName && *lpcchBuffer)
             lpServiceName[0] = 0;
-        *lpcchBuffer = sizeW*2;  /* we can only provide an upper estimation of string length */
+        /* only a too-small buffer reports a size (an upper estimate) */
+        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) *lpcchBuffer = sizeW*2;
         goto cleanup;
     }
 
@@ -330,7 +331,8 @@ BOOL WINAPI GetServiceDisplayNameA( SC_HANDLE hSCManager, LPCSTR lpServiceName,
     {
         if (lpDisplayName && *lpcchBuffer)
             lpDisplayName[0] = 0;
-        *lpcchBuffer = sizeW*2;  /* we can only provide an upper estimation of string length */
+        /* only a too-small buffer reports a size (an upper estimate) */
+        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) *lpcchBuffer = sizeW*2;
         goto cleanup;
     }
 
@@ -373,9 +375,65 @@ BOOL WINAPI EnumDependentServicesA( SC_HANDLE hService, DWORD dwServiceState,
                                     LPENUM_SERVICE_STATUSA lpServices, DWORD cbBufSize,
         LPDWORD pcbBytesNeeded, LPDWORD lpServicesReturned )
 {
-    FIXME("%p 0x%08lx %p 0x%08lx %p %p - stub\n", hService, dwServiceState,
+    ENUM_SERVICE_STATUSW *servicesW = NULL;
+    DWORD sizeW = 0, needW = 0, count = 0, total = 0, i, n, last_error = GetLastError();
+    char *p;
+
+    TRACE("%p 0x%08lx %p 0x%08lx %p %p\n", hService, dwServiceState,
           lpServices, cbBufSize, pcbBytesNeeded, lpServicesReturned);
 
+    if (!EnumDependentServicesW( hService, dwServiceState, NULL, 0, &sizeW, &count ))
+    {
+        if (GetLastError() != ERROR_MORE_DATA) return FALSE;
+        needW = sizeW;
+        if (!(servicesW = malloc( sizeW )))
+        {
+            SetLastError( ERROR_NOT_ENOUGH_MEMORY );
+            return FALSE;
+        }
+        if (!EnumDependentServicesW( hService, dwServiceState, servicesW, sizeW, &sizeW, &count ))
+        {
+            free( servicesW );
+            return FALSE;
+        }
+    }
+
+    for (i = 0; i < count; i++)
+    {
+        total += sizeof(*lpServices);
+        total += WideCharToMultiByte( CP_ACP, 0, servicesW[i].lpServiceName, -1, NULL, 0, NULL, NULL );
+        if (servicesW[i].lpDisplayName)
+            total += WideCharToMultiByte( CP_ACP, 0, servicesW[i].lpDisplayName, -1, NULL, 0, NULL, NULL );
+    }
     *lpServicesReturned = 0;
+    if (total > cbBufSize)
+    {
+        free( servicesW );
+        /* Windows reports the size the W function needs */
+        *pcbBytesNeeded = max( total, needW );
+        SetLastError( ERROR_MORE_DATA );
+        return FALSE;
+    }
+
+    p = (char *)(lpServices + count);
+    for (i = 0; i < count; i++)
+    {
+        n = WideCharToMultiByte( CP_ACP, 0, servicesW[i].lpServiceName, -1, p, total, NULL, NULL );
+        lpServices[i].lpServiceName = p;
+        p += n;
+        if (servicesW[i].lpDisplayName)
+        {
+            n = WideCharToMultiByte( CP_ACP, 0, servicesW[i].lpDisplayName, -1, p, total, NULL, NULL );
+            lpServices[i].lpDisplayName = p;
+            p += n;
+        }
+        else lpServices[i].lpDisplayName = NULL;
+        lpServices[i].ServiceStatus = servicesW[i].ServiceStatus;
+    }
+    *lpServicesReturned = count;
+    *pcbBytesNeeded = 0;
+    free( servicesW );
+    /* the sizing call above doesn't show in the last error */
+    SetLastError( last_error );
     return TRUE;
 }
