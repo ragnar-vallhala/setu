@@ -218,6 +218,17 @@ int fd_store_sd( int unix_fd, const struct security_descriptor *sd )
 #endif
 }
 
+/* the owner of a file without a stored security descriptor: the token's
+ * default owner (TokenOwner, Administrators for an elevated token) for the
+ * user's own files, as for the files it creates on Windows (Windows 10
+ * oracle: FileSecurity file_empty_dacl_owner_reads) */
+const struct sid *file_default_owner( uid_t uid )
+{
+    if (uid == getuid() && current && current->process->token)
+        return token_get_owner( current->token ? current->token : current->process->token );
+    return security_unix_uid_to_sid( uid );
+}
+
 /* the parent directory of a server-side file name, relative to the same root */
 char *get_parent_name( const char *name )
 {

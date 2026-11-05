@@ -419,13 +419,12 @@ static struct security_descriptor *file_get_sd( struct object *obj )
     /* Setu: a stored security descriptor takes precedence over the mode */
     if ((sd = file_sd_get( obj, unix_fd ))) return sd;
 
-    /* mode and uid the same? if so, no need to re-generate security descriptor */
+    /* mode, uid and owner the same? if so, no need to re-generate security descriptor */
     if (obj->sd && (st.st_mode & (S_IRWXU|S_IRWXO)) == (file->mode & (S_IRWXU|S_IRWXO)) &&
-        (st.st_uid == file->uid))
+        (st.st_uid == file->uid) && equal_sid( sd_get_owner( obj->sd ), file_default_owner( st.st_uid ) ))
         return obj->sd;
 
-    sd = mode_to_sd( st.st_mode,
-                     security_unix_uid_to_sid( st.st_uid ),
+    sd = mode_to_sd( st.st_mode, file_default_owner( st.st_uid ),
                      token_get_primary_group( current->process->token ));
     if (!sd) return obj->sd;
 

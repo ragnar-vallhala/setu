@@ -179,6 +179,7 @@ extern int is_file_executable( const char *name );
 extern struct security_descriptor *fd_get_stored_sd( int unix_fd );
 extern struct security_descriptor *path_get_stored_sd( int root_fd, const char *name );
 extern int fd_store_sd( int unix_fd, const struct security_descriptor *sd );
+extern const struct sid *file_default_owner( uid_t uid );
 extern int file_sd_check_open( int root_fd, const char *name, int flags, unsigned int options,
                                const struct security_descriptor *creator_sd, unsigned int *access,
                                unsigned int *granted, struct security_descriptor **new_sd );

@@ -349,11 +349,10 @@ static struct security_descriptor *dir_get_sd( struct object *obj )
     /* mode and uid the same? if so, no need to re-generate security descriptor */
     if (obj->sd &&
         (st.st_mode & (S_IRWXU|S_IRWXO)) == (dir->mode & (S_IRWXU|S_IRWXO)) &&
-        (st.st_uid == dir->uid))
+        (st.st_uid == dir->uid) && equal_sid( sd_get_owner( obj->sd ), file_default_owner( st.st_uid ) ))
         return obj->sd;
 
-    sd = mode_to_sd( st.st_mode,
-                     security_unix_uid_to_sid( st.st_uid ),
+    sd = mode_to_sd( st.st_mode, file_default_owner( st.st_uid ),
                      token_get_primary_group( current->process->token ));
     if (!sd) return obj->sd;
 
