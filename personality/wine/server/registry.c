@@ -1299,7 +1299,8 @@ static void set_value( struct key *key, const struct unicode_str *name,
 }
 
 /* get a key value */
-static void get_value( struct key *key, const struct unicode_str *name, int *type, data_size_t *len )
+static void get_value( struct key *key, const struct unicode_str *name, int *type, data_size_t *len,
+                       data_size_t *ret_namelen )
 {
     struct key_value *value;
     int index;
@@ -1312,9 +1313,20 @@ static void get_value( struct key *key, const struct unicode_str *name, int *typ
 
     if ((value = find_value( key, name, &index )))
     {
+        data_size_t max = get_reply_max_size();
+        data_size_t namelen = min( value->namelen, max );
+        data_size_t datalen = value->data ? min( value->len, max - namelen ) : 0;
+        char *data;
+
         *type = value->type;
         *len  = value->len;
-        if (value->data) set_reply_data( value->data, min( value->len, get_reply_max_size() ));
+        /* the stored name comes first: its case may differ from the one asked for */
+        *ret_namelen = namelen;
+        if (namelen + datalen && (data = set_reply_data_size( namelen + datalen )))
+        {
+            memcpy( data, value->name, namelen );
+            memcpy( data + namelen, value->data, datalen );
+        }
         if (debug_level > 1) dump_operation( key, value, "Get" );
     }
     else
@@ -2438,7 +2450,7 @@ DECL_HANDLER(get_key_value)
     reply->total = 0;
     if ((key = get_hkey_obj( req->hkey, KEY_QUERY_VALUE )))
     {
-        get_value( key, &name, &reply->type, &reply->total );
+        get_value( key, &name, &reply->type, &reply->total, &reply->namelen );
         release_object( key );
     }
 }

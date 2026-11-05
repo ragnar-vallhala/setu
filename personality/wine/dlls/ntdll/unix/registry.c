@@ -423,8 +423,10 @@ static NTSTATUS fill_key_value_info( KEY_VALUE_INFORMATION_CLASS info_class, voi
         if (length < fixed) break;
         keyinfo.TitleIndex = 0;
         keyinfo.Type       = type;
-        /* NT reports 0xffffffff for no data; Wine callers compute the data
-         * size as total - DataOffset, so keep the offset consistent instead */
+        /* Known difference: for a value without data Windows reports
+         * DataOffset 0xffffffff (oracle NtQueryValueKey_classes:empty_full).
+         * Wine callers (win32u, winebus, ...) compute the data size as
+         * total - DataOffset, so the offset is kept consistent instead. */
         keyinfo.DataOffset = data_off;
         keyinfo.DataLength = data_len;
         keyinfo.NameLength = name_len;
@@ -554,22 +556,29 @@ NTSTATUS WINAPI NtQueryValueKey( HANDLE handle, const UNICODE_STRING *name,
                                  void *info, DWORD length, DWORD *result_len )
 {
     unsigned int ret;
+    DWORD namelen = value_name_length( name ), size;
     char *tmp;
 
     TRACE( "(%p,%s,%d,%p,%d)\n", handle, debugstr_us(name), info_class, info, length );
 
     if (name->Length > MAX_VALUE_LENGTH) return STATUS_OBJECT_NAME_NOT_FOUND;
     if (!is_valid_value_info_class( info_class )) return STATUS_INVALID_PARAMETER;
-    if (!(tmp = malloc( length ? length : 1 ))) return STATUS_NO_MEMORY;
+    /* room for the stored name, then the data */
+    size = namelen + (info_class == KeyValueBasicInformation ? 0 : length);
+    if (!(tmp = malloc( size ? size : 1 ))) return STATUS_NO_MEMORY;
 
     SERVER_START_REQ( get_key_value )
     {
         req->hkey = wine_server_obj_handle( handle );
-        wine_server_add_data( req, name->Buffer, value_name_length( name ) );
-        if (info_class != KeyValueBasicInformation) wine_server_set_reply( req, tmp, length );
+        wine_server_add_data( req, name->Buffer, namelen );
+        wine_server_set_reply( req, tmp, size );
         if (!(ret = wine_server_call( req )))
+        {
+            /* Windows reports the name as stored, not as asked for */
+            const WCHAR *stored = reply->namelen == namelen ? (const WCHAR *)tmp : name->Buffer;
             ret = fill_key_value_info( info_class, info, length, result_len, reply->type,
-                                       name->Buffer, value_name_length( name ), tmp, reply->total );
+                                       stored, namelen, tmp + reply->namelen, reply->total );
+        }
     }
     SERVER_END_REQ;
     free( tmp );

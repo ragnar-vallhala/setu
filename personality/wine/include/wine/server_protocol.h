@@ -2682,7 +2682,10 @@ struct get_key_value_reply
     struct reply_header __header;
     int          type;
     data_size_t  total;
+    data_size_t  namelen;
+    /* VARARG(name,unicode_str,namelen); */
     /* VARARG(data,bytes); */
+    char __pad_20[4];
 };
 
 
@@ -7318,6 +7321,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 941
+#define SERVER_PROTOCOL_VERSION 942
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

@@ -612,6 +612,7 @@
     "advapi32/NtQueryValueKey_classes:full_less_than_header",
     "advapi32/NtQueryValueKey_classes:full_zero",
     "advapi32/NtQueryValueKey_classes:missing_partial",
+    "advapi32/NtQueryValueKey_classes:other_case_basic",
     "advapi32/NtQueryValueKey_classes:partial_align64_big",
     "advapi32/NtQueryValueKey_classes:partial_align64_zero",
     "advapi32/NtQueryValueKey_classes:partial_big",

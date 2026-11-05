@@ -2118,7 +2118,9 @@ struct process_info
 @REPLY
     int          type;         /* value type */
     data_size_t  total;        /* total length needed for data */
-    VARARG(data,bytes);        /* value data */
+    data_size_t  namelen;      /* length of the stored value name in bytes */
+    VARARG(name,unicode_str,namelen);  /* stored value name */
+    VARARG(data,bytes);                /* value data */
 @END
 
 

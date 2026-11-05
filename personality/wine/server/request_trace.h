@@ -1166,6 +1166,8 @@ static void dump_get_key_value_reply( const struct get_key_value_reply *req )
 {
     fprintf( stderr, " type=%d", req->type );
     fprintf( stderr, ", total=%u", req->total );
+    fprintf( stderr, ", namelen=%u", req->namelen );
+    dump_varargs_unicode_str( ", name=", min( cur_size, req->namelen ));
     dump_varargs_bytes( ", data=", cur_size );
 }
 
