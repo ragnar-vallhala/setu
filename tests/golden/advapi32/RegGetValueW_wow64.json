@@ -1,0 +1,73 @@
+{
+  "test": "advapi32/RegGetValueW_wow64",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "create64": 0,
+      "create32": 0
+    },
+    "hklm_default_view": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x00000064"
+    },
+    "hklm_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x00000064"
+    },
+    "hklm_32": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x00000032"
+    },
+    "hklm_both": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "value": "0xaaaaaaaa"
+    },
+    "hkcu_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x000000c0"
+    },
+    "hkcu_32": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x000000c0"
+    },
+    "no_subkey_32": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x000000c0"
+    },
+    "no_subkey_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x000000c0"
+    },
+    "from_32_parent_32": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x00000032"
+    },
+    "from_32_parent_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x00000032"
+    },
+    "from_32_parent_default": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "value": "0x00000032"
+    },
+    "cleanup": {
+      "open64_after": 2,
+      "open32_after": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "4873bac5fd3ee06c360d2c0e16ad9afa5656fc0bcf07ab088081b59cb351a593"
+}

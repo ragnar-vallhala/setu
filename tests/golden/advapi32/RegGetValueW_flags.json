@@ -1,0 +1,207 @@
+{
+  "test": "advapi32/RegGetValueW_flags",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "expand_with_sz_filter": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 34,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_with_expand_filter": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 34,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_with_expand_noexpand": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 36,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_with_sz_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 36,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_with_any": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 34,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_with_any_noexpand": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 36,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_sz_and_expand": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 34,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "sz_with_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "70006c00610069006e000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "sz_with_noexpand_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "70006c00610069006e000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "dword_noexpand": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "04030201cccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "zero_on_failure_mismatch": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "00000000000000000000000000000000"
+    },
+    "zero_on_failure_moredata": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 14,
+      "buffer": "00000000"
+    },
+    "zero_on_failure_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16,
+      "buffer": "00000000000000000000000000000000"
+    },
+    "zero_on_failure_success": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "04030201cccccccccccccccccccccccc"
+    },
+    "no_zero_mismatch": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "70006c00610069006e000000cccccccc"
+    },
+    "no_zero_moredata": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 14,
+      "buffer": "cccccccc"
+    },
+    "no_zero_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "zero_on_failure_expand_moredata": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 34,
+      "buffer": "0000000000000000"
+    },
+    "flags_zero": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "only_noexpand": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "only_zero_on_failure": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "buffer": "00000000000000000000000000000000"
+    },
+    "high_bit_set": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "04030201cccccccccccccccccccccccc"
+    },
+    "bit_0x00100000": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "04030201cccccccccccccccccccccccc"
+    },
+    "bit_0x00010000": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "04030201cccccccccccccccccccccccc"
+    },
+    "both_wow64_flags": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "no_type_pointer": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "size": 4,
+      "buffer": "04030201cccccccccccccccccccccccc"
+    },
+    "no_type_pointer_mismatch": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "size": 12,
+      "buffer": "70006c00610069006e000000cccccccc"
+    },
+    "data_without_size": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530
+    },
+    "no_data_no_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4
+    }
+  },
+  "errors": [],
+  "source_sha256": "7005e94c74980f7cf596fcd804771b3ea4556f2c67bebdeec04db0aae0b23680"
+}

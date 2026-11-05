@@ -1,0 +1,123 @@
+{
+  "test": "advapi32/RegGetValueW_subkey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "04000000"
+    },
+    "empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "04000000"
+    },
+    "direct_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "01000000"
+    },
+    "nested_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "02000000"
+    },
+    "missing_subkey": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 32
+    },
+    "missing_value_in_subkey": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 32
+    },
+    "subkey_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "02000000"
+    },
+    "trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "01000000"
+    },
+    "leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 32
+    },
+    "double_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "02000000"
+    },
+    "default_null_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "03000000"
+    },
+    "default_empty_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "03000000"
+    },
+    "default_unset_in_nested": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 32
+    },
+    "from_hkcu_full_path": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "01000000"
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 32
+    },
+    "parent_without_query_value_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "01000000"
+    },
+    "parent_without_query_value_own": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 32
+    }
+  },
+  "errors": [],
+  "source_sha256": "a0021ccf59fcb6c39d9fa2519c1bc779673cafa87a37664eb0091f3096a20536"
+}

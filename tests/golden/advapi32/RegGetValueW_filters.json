@@ -1,0 +1,1018 @@
+{
+  "test": "advapi32/RegGetValueW_filters",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "None_as_none": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4
+    },
+    "None0_as_none": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "None0_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0
+    },
+    "Sz_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_sz_or_multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Sz_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_expand_noexpand": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 8
+    },
+    "Exp_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_sz_or_multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Exp_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 8
+    },
+    "Bin4_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_binary": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_dword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_qword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin4_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 4
+    },
+    "Bin8_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_binary": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_dword": {
+      "ret": 1629,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_qword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin8_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 8
+    },
+    "Bin3_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_binary": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_dword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_qword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Bin3_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 3
+    },
+    "Dword_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_reg_dword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_dword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "Dword_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4
+    },
+    "DwordBE_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "DwordBE_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 5,
+      "size": 4
+    },
+    "Link_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Link_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 6,
+      "size": 6
+    },
+    "Multi_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_sz_or_multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Multi_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 10
+    },
+    "Qword_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_reg_qword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_qword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Qword_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8
+    },
+    "Res_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Res_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 8,
+      "size": 4
+    },
+    "Undef_as_none": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_sz": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_expand_noexpand": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_binary": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_reg_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_reg_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_dword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_qword": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_any": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_sz_or_multi": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    },
+    "Undef_as_unused_bits": {
+      "ret": 1630,
+      "last_error": "unchanged",
+      "type": 12,
+      "size": 4
+    }
+  },
+  "errors": [],
+  "source_sha256": "1e1dffb27ca87a6da24ed1cab7544f353651d1382301f549e1ffca95d5155cf6"
+}
