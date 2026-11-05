@@ -576,7 +576,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExW( HKEY hkey, LPCWSTR name, DWORD
     if ((access & KEY_WOW64_RES) == KEY_WOW64_RES) return ERROR_INVALID_PARAMETER;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
-    RtlInitUnicodeString( &nameW, name );
+    /* a name that does not fit in a UNICODE_STRING is too long */
+    if ((status = RtlInitUnicodeStringEx( &nameW, name ))) return RtlNtStatusToDosError( status );
     RtlInitUnicodeString( &classW, class );
 
     status = create_key( retkey, hkey, nameW, options, access, &classW, dispos );
@@ -614,7 +615,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExA( HKEY hkey, LPCSTR name, DWORD 
                              DWORD options, REGSAM access, SECURITY_ATTRIBUTES *sa,
                              PHKEY retkey, LPDWORD dispos )
 {
-    UNICODE_STRING classW;
+    UNICODE_STRING nameW, classW;
     ANSI_STRING nameA, classA;
     NTSTATUS status;
 
@@ -631,14 +632,14 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExA( HKEY hkey, LPCSTR name, DWORD 
     RtlInitAnsiString( &nameA, name );
     RtlInitAnsiString( &classA, class );
 
-    if (!(status = RtlAnsiStringToUnicodeString( &NtCurrentTeb()->StaticUnicodeString,
-                                                 &nameA, FALSE )))
+    if (!(status = RtlAnsiStringToUnicodeString( &nameW, &nameA, TRUE )))
     {
         if (!(status = RtlAnsiStringToUnicodeString( &classW, &classA, TRUE )))
         {
-            status = create_key( retkey, hkey, NtCurrentTeb()->StaticUnicodeString, options, access, &classW, dispos );
+            status = create_key( retkey, hkey, nameW, options, access, &classW, dispos );
             RtlFreeUnicodeString( &classW );
         }
+        RtlFreeUnicodeString( &nameW );
     }
     return RtlNtStatusToDosError( status );
 }
@@ -652,6 +653,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExA( HKEY hkey, LPCSTR name, DWORD 
 LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExW( HKEY hkey, LPCWSTR name, DWORD options, REGSAM access, PHKEY retkey )
 {
     UNICODE_STRING nameW;
+    NTSTATUS status;
 
     if (retkey && (!name || !name[0]) &&
         (HandleToUlong(hkey) >= HandleToUlong(HKEY_SPECIAL_ROOT_FIRST)) &&
@@ -669,7 +671,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExW( HKEY hkey, LPCWSTR name, DWORD o
     if ((access & KEY_WOW64_RES) == KEY_WOW64_RES) return ERROR_INVALID_PARAMETER;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
-    RtlInitUnicodeString( &nameW, name );
+    /* a name that does not fit in a UNICODE_STRING is too long */
+    if ((status = RtlInitUnicodeStringEx( &nameW, name ))) return RtlNtStatusToDosError( status );
     return RtlNtStatusToDosError( open_key( retkey, hkey, &nameW, options, access, FALSE ) );
 }
 
@@ -696,6 +699,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExW( HKEY hkey, LPCWSTR name, DWORD o
  */
 LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExA( HKEY hkey, LPCSTR name, DWORD options, REGSAM access, PHKEY retkey )
 {
+    UNICODE_STRING nameW;
     STRING nameA;
     NTSTATUS status;
 
@@ -718,11 +722,11 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExA( HKEY hkey, LPCSTR name, DWORD op
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
     RtlInitAnsiString( &nameA, name );
-    if (!(status = RtlAnsiStringToUnicodeString( &NtCurrentTeb()->StaticUnicodeString,
-                                                 &nameA, FALSE )))
+    if (!(status = RtlAnsiStringToUnicodeString( &nameW, &nameA, TRUE )))
     {
-        UNICODE_STRING nameW = NtCurrentTeb()->StaticUnicodeString;
-        status = open_key( retkey, hkey, &nameW, options, access, FALSE );
+        UNICODE_STRING str = nameW;  /* open_key() moves the buffer pointer */
+        status = open_key( retkey, hkey, &str, options, access, FALSE );
+        RtlFreeUnicodeString( &nameW );
     }
     return RtlNtStatusToDosError( status );
 }
