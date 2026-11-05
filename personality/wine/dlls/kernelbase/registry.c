@@ -881,7 +881,10 @@ LSTATUS WINAPI RegEnumKeyExW( HKEY hkey, DWORD index, LPWSTR name, LPDWORD name_
         if (ft) *ft = *(FILETIME *)&info->LastWriteTime;
 
         if (!name || len >= *name_len || (class && class_len && (cls_len >= *class_len)))
+        {
+            if (class_len) *class_len = 0;
             status = STATUS_BUFFER_OVERFLOW;
+        }
         else
         {
             *name_len = len;
@@ -889,7 +892,7 @@ LSTATUS WINAPI RegEnumKeyExW( HKEY hkey, DWORD index, LPWSTR name, LPDWORD name_
             name[len] = 0;
             if (class_len)
             {
-                *class_len = cls_len;
+                *class_len = class ? cls_len : 0;
                 if (class)
                 {
                     memcpy( class, buf_ptr + info->ClassOffset, info->ClassLength );
@@ -946,14 +949,26 @@ LSTATUS WINAPI RegEnumKeyExA( HKEY hkey, DWORD index, LPSTR name, LPDWORD name_l
                                    info->ClassLength );
         if (ft) *ft = *(FILETIME *)&info->LastWriteTime;
 
-        if (!name || len >= *name_len || (class && class_len && (cls_len >= *class_len)))
+        if (!name)
             status = STATUS_BUFFER_OVERFLOW;
         else
         {
-            *name_len = len;
-            RtlUnicodeToMultiByteN( name, len, NULL, info->Name, info->NameLength );
-            name[len] = 0;
-            if (class_len)
+            BOOL name_fits = len < *name_len;
+            BOOL class_fits = !(class && class_len) || cls_len < *class_len;
+            DWORD written;
+
+            if (name_fits)
+            {
+                *name_len = len;
+                RtlUnicodeToMultiByteN( name, len, NULL, info->Name, info->NameLength );
+                name[len] = 0;
+            }
+            else if (*name_len)
+            {
+                RtlUnicodeToMultiByteN( name, *name_len - 1, &written, info->Name, info->NameLength );
+                name[written] = 0;
+            }
+            if (class_len && class_fits)
             {
                 *class_len = cls_len;
                 if (class)
@@ -964,6 +979,13 @@ LSTATUS WINAPI RegEnumKeyExA( HKEY hkey, DWORD index, LPSTR name, LPDWORD name_l
                     class[cls_len] = 0;
                 }
             }
+            else if (class_len && *class_len)
+            {
+                RtlUnicodeToMultiByteN( class, *class_len - 1, &written,
+                                        (WCHAR *)(buf_ptr + info->ClassOffset), info->ClassLength );
+                class[written] = 0;
+            }
+            if (!name_fits || !class_fits) status = STATUS_BUFFER_OVERFLOW;
         }
     }
 
