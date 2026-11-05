@@ -868,7 +868,9 @@ NTSTATUS WINAPI NtReplaceKey( OBJECT_ATTRIBUTES *attr, HANDLE key, OBJECT_ATTRIB
     if (ret) return ret;
 
     /* The hive's current contents are kept in the old file; the new file is
-     * only used when the hive is next loaded, which Wine does not do. */
+     * only used when the hive is next loaded, which Wine does not do.
+     * Registry phase B (docs/ARCHITECTURE.md: Setu's own hive store) will
+     * swap in the new file on the next load of the hive. */
     FIXME( "%s is not loaded in place of the hive\n", debugstr_us(attr->ObjectName) );
     if (!(ret = NtCreateFile( &file, GENERIC_WRITE | SYNCHRONIZE, replace, &io, NULL, FILE_ATTRIBUTE_NORMAL,
                               0, FILE_OVERWRITE_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
