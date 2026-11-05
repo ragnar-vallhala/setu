@@ -190,7 +190,7 @@ int main(int argc, char **argv)
      * give the directory a known DACL first. */
     set_file_sd(L".", DACL_SECURITY_INFORMATION, L"D:P(A;OICI;FA;;;$U)(A;OICI;FA;;;SY)");
 
-    h = CreateFileW(L"f", GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
+    h = CreateFileW(L"f", GENERIC_WRITE | WRITE_DAC | READ_CONTROL, 0, NULL, CREATE_NEW, 0, NULL);
     WriteFile(h, "data", 4, NULL, NULL);
     PSECURITY_DESCRIPTOR sd = sd_from(SD1);
     ORACLE_CALL(r, SetKernelObjectSecurity(h, DACL_SECURITY_INFORMATION, sd));

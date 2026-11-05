@@ -386,6 +386,7 @@
     "advapi32/FileSecurity:file_dacl_missing_in_sd",
     "advapi32/FileSecurity:file_dacl_specific_mask",
     "advapi32/FileSecurity:file_empty_dacl",
+    "advapi32/FileSecurity:file_empty_dacl_owner_reads",
     "advapi32/FileSecurity:file_group_everyone",
     "advapi32/FileSecurity:file_group_system",
     "advapi32/FileSecurity:file_group_user",

@@ -5,41 +5,41 @@
   "complete": true,
   "cases": {
     "set_through_open_handle": {
-      "ret": false,
-      "last_error": 5
+      "ret": true,
+      "last_error": "unchanged"
     },
     "read_while_open": {
-      "sd_control": "0x00000004",
-      "sd": "D:(A;;FA;;;<user>)(A;;FA;;;SY)"
+      "sd_control": "0x00001004",
+      "sd": "D:P(D;;CC;;;<user>)(A;;FA;;;<user>)(A;;FR;;;BU)"
     },
     "read_after_close": {
-      "sd_control": "0x00000004",
-      "sd": "D:(A;;FA;;;<user>)(A;;FA;;;SY)"
+      "sd_control": "0x00001004",
+      "sd": "D:P(D;;CC;;;<user>)(A;;FA;;;<user>)(A;;FR;;;BU)"
     },
     "reopen_allowed": {
       "ret": "valid",
-      "matches": false
+      "matches": true
     },
     "reopen_denied": {
-      "ret": "valid",
-      "error": 0
+      "ret": "INVALID_HANDLE_VALUE",
+      "error": 5
     },
     "second_process": {
       "started": true,
-      "sd_matches": false,
-      "denied_open_failed": false,
+      "sd_matches": true,
+      "denied_open_failed": true,
       "allowed_open_ok": true
     },
     "after_rewrite": {
-      "matches": false
+      "matches": true
     },
     "after_rename": {
-      "matches": false
+      "matches": true
     },
     "hard_link": {
       "ret": true,
       "last_error": "unchanged",
-      "matches": false
+      "matches": true
     },
     "change_through_link": {
       "other_name_matches_new": true
@@ -50,5 +50,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "ad5a774730261e8e948552a1e455a0e6723d4cbfe70578d31c577b794c0640bf"
+  "source_sha256": "d103ac2bbf50197a6f538532e7a4dc04f6915ea5ac06438fbdaa46da34bbcd05"
 }
