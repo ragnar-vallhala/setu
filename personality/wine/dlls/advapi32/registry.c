@@ -68,10 +68,25 @@ LSTATUS WINAPI RegOverridePredefKey( HKEY hkey, HKEY override )
  *  Success: ERROR_SUCCESS
  *  Failure: nonzero error code defined in Winerror.h
  */
+/* RegCreateKeyA/W with no subkey name only accept a predefined key, which is returned as is */
+static LSTATUS create_key_no_subkey( HKEY hkey, PHKEY phkResult )
+{
+    if ((LONG_PTR)hkey == (LONG)HandleToUlong( hkey ) &&
+        HandleToUlong( hkey ) >= HandleToUlong( HKEY_CLASSES_ROOT ) &&
+        HandleToUlong( hkey ) <= HandleToUlong( HKEY_CURRENT_USER_LOCAL_SETTINGS ))
+    {
+        *phkResult = hkey;
+        return ERROR_SUCCESS;
+    }
+    return ERROR_BADKEY;
+}
+
 LSTATUS WINAPI RegCreateKeyW( HKEY hkey, LPCWSTR lpSubKey, PHKEY phkResult )
 {
     if (!phkResult)
         return ERROR_INVALID_PARAMETER;
+    if (!lpSubKey || !*lpSubKey)
+        return create_key_no_subkey( hkey, phkResult );
 
     return RegCreateKeyExW( hkey, lpSubKey, 0, NULL, REG_OPTION_NON_VOLATILE,
                             MAXIMUM_ALLOWED, NULL, phkResult, NULL );
@@ -87,6 +102,8 @@ LSTATUS WINAPI RegCreateKeyA( HKEY hkey, LPCSTR lpSubKey, PHKEY phkResult )
 {
     if (!phkResult)
         return ERROR_INVALID_PARAMETER;
+    if (!lpSubKey || !*lpSubKey)
+        return create_key_no_subkey( hkey, phkResult );
 
     return RegCreateKeyExA( hkey, lpSubKey, 0, NULL, REG_OPTION_NON_VOLATILE,
                             MAXIMUM_ALLOWED, NULL, phkResult, NULL );

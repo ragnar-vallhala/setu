@@ -1609,7 +1609,7 @@ DWORD WINAPI GetSecurityInfo( HANDLE handle, SE_OBJECT_TYPE type, SECURITY_INFOR
             if (SecurityInfo & SACL_SECURITY_INFORMATION)
                 access |= ACCESS_SYSTEM_SECURITY;
 
-            if ((ret = RegCreateKeyExW( handle, NULL, 0, NULL, 0, access, NULL, &key, NULL )))
+            if ((ret = RegCreateKeyExW( handle, L"", 0, NULL, 0, access, NULL, &key, NULL )))
                 return ret;
 
             handle = key;
