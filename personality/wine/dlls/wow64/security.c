@@ -107,6 +107,68 @@ NTSTATUS WINAPI wow64_NtAccessCheckAndAuditAlarm( UINT *args )
 }
 
 
+static OBJECT_TYPE_LIST *objtypelist_array_32to64( const OBJECT_TYPE_LIST32 *list32, ULONG count )
+{
+    OBJECT_TYPE_LIST *list;
+    ULONG i;
+
+    if (!list32) return NULL;
+    list = Wow64AllocateTemp( count * sizeof(*list) );
+    for (i = 0; i < count; i++) objtypelist_32to64( &list[i], &list32[i] );
+    return list;
+}
+
+
+/**********************************************************************
+ *           wow64_NtAccessCheckByType
+ */
+NTSTATUS WINAPI wow64_NtAccessCheckByType( UINT *args )
+{
+    SECURITY_DESCRIPTOR *sd32 = get_ptr( &args );
+    SID *self = get_ptr( &args );
+    HANDLE handle = get_handle( &args );
+    ACCESS_MASK access = get_ulong( &args );
+    OBJECT_TYPE_LIST32 *list32 = get_ptr( &args );
+    ULONG list_len = get_ulong( &args );
+    GENERIC_MAPPING *mapping = get_ptr( &args );
+    PRIVILEGE_SET *privs = get_ptr( &args );
+    ULONG *retlen = get_ptr( &args );
+    ACCESS_MASK *access_granted = get_ptr( &args );
+    NTSTATUS *access_status = get_ptr( &args );
+
+    SECURITY_DESCRIPTOR sd;
+
+    return NtAccessCheckByType( secdesc_32to64( &sd, sd32 ), self, handle, access,
+                                objtypelist_array_32to64( list32, list_len ), list_len, mapping,
+                                privs, retlen, access_granted, access_status );
+}
+
+
+/**********************************************************************
+ *           wow64_NtAccessCheckByTypeResultList
+ */
+NTSTATUS WINAPI wow64_NtAccessCheckByTypeResultList( UINT *args )
+{
+    SECURITY_DESCRIPTOR *sd32 = get_ptr( &args );
+    SID *self = get_ptr( &args );
+    HANDLE handle = get_handle( &args );
+    ACCESS_MASK access = get_ulong( &args );
+    OBJECT_TYPE_LIST32 *list32 = get_ptr( &args );
+    ULONG list_len = get_ulong( &args );
+    GENERIC_MAPPING *mapping = get_ptr( &args );
+    PRIVILEGE_SET *privs = get_ptr( &args );
+    ULONG *retlen = get_ptr( &args );
+    ACCESS_MASK *access_granted = get_ptr( &args );
+    NTSTATUS *access_status = get_ptr( &args );
+
+    SECURITY_DESCRIPTOR sd;
+
+    return NtAccessCheckByTypeResultList( secdesc_32to64( &sd, sd32 ), self, handle, access,
+                                          objtypelist_array_32to64( list32, list_len ), list_len, mapping,
+                                          privs, retlen, access_granted, access_status );
+}
+
+
 /**********************************************************************
  *           wow64_NtAccessCheckByTypeAndAuditAlarm
  */
@@ -131,13 +193,12 @@ NTSTATUS WINAPI wow64_NtAccessCheckByTypeAndAuditAlarm( UINT *args )
 
     UNICODE_STRING subsystem, typename, objname;
     SECURITY_DESCRIPTOR sd;
-    OBJECT_TYPE_LIST obj_list;
 
     return NtAccessCheckByTypeAndAuditAlarm( unicode_str_32to64( &subsystem, subsystem32 ), handle,
                                              unicode_str_32to64( &typename, typename32 ),
                                              unicode_str_32to64( &objname, objname32 ),
                                              secdesc_32to64( &sd, sd32 ), sid, access, audit_type, flags,
-                                             objtypelist_32to64( &obj_list, list32 ), list_len,
+                                             objtypelist_array_32to64( list32, list_len ), list_len,
                                              mapping, creation, access_granted, access_status, onclose );
 }
 

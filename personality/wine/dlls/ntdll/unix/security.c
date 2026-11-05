@@ -404,6 +404,7 @@ NTSTATUS WINAPI NtQueryInformationToken( HANDLE token, TOKEN_INFORMATION_CLASS c
 
     case TokenGroups:
     case TokenLogonSid:
+    case TokenRestrictedSids:
     {
         /* reply buffer is always shorter than output one */
         void *buffer = malloc( length );
@@ -414,6 +415,7 @@ NTSTATUS WINAPI NtQueryInformationToken( HANDLE token, TOKEN_INFORMATION_CLASS c
         {
             req->handle = wine_server_obj_handle( token );
             req->attr_mask = (class == TokenLogonSid) ? SE_GROUP_LOGON_ID : 0;
+            req->restricted = (class == TokenRestrictedSids);
             wine_server_set_reply( req, buffer, length );
             status = wine_server_call( req );
 
@@ -611,16 +613,21 @@ NTSTATUS WINAPI NtQueryInformationToken( HANDLE token, TOKEN_INFORMATION_CLASS c
 
     case TokenIntegrityLevel:
         {
-            /* report always "S-1-16-12288" (high mandatory level) for now */
-            static const SID high_level = {SID_REVISION, 1, {SECURITY_MANDATORY_LABEL_AUTHORITY},
-                                                            {SECURITY_MANDATORY_HIGH_RID}};
-
+            SID level = {SID_REVISION, 1, {SECURITY_MANDATORY_LABEL_AUTHORITY}, {SECURITY_MANDATORY_HIGH_RID}};
             TOKEN_MANDATORY_LABEL *tml = info;
             PSID psid = tml + 1;
 
+            SERVER_START_REQ( get_token_info )
+            {
+                req->handle = wine_server_obj_handle( token );
+                status = wine_server_call( req );
+                if (!status) level.SubAuthority[0] = reply->integrity;
+            }
+            SERVER_END_REQ;
+            if (status) break;
             tml->Label.Sid = psid;
             tml->Label.Attributes = SE_GROUP_INTEGRITY | SE_GROUP_INTEGRITY_ENABLED;
-            memcpy( psid, &high_level, sizeof(SID) );
+            memcpy( psid, &level, sizeof(SID) );
         }
         break;
 
@@ -717,9 +724,23 @@ NTSTATUS WINAPI NtSetInformationToken( HANDLE token, TOKEN_INFORMATION_CLASS cla
         break;
 
     case TokenIntegrityLevel:
-        FIXME( "TokenIntegrityLevel stub!\n" );
-        ret = STATUS_SUCCESS;
+    {
+        const TOKEN_MANDATORY_LABEL *tml = info;
+        const SID *sid;
+
+        if (length < sizeof(*tml)) return STATUS_INFO_LENGTH_MISMATCH;
+        if (!(sid = tml->Label.Sid) || ((SID *)sid)->Revision != SID_REVISION ||
+            ((SID *)sid)->SubAuthorityCount > SID_MAX_SUB_AUTHORITIES)
+            return STATUS_INVALID_PARAMETER;
+        SERVER_START_REQ( set_token_integrity )
+        {
+            req->handle = wine_server_obj_handle( token );
+            wine_server_add_data( req, sid, offsetof( SID, SubAuthority[sid->SubAuthorityCount] ) );
+            ret = wine_server_call( req );
+        }
+        SERVER_END_REQ;
         break;
+    }
 
     default:
         FIXME( "unimplemented class %u\n", class );
@@ -780,7 +801,8 @@ NTSTATUS WINAPI NtAdjustPrivilegesToken( HANDLE token, BOOLEAN disable, TOKEN_PR
         ret = wine_server_call( req );
         if (prev)
         {
-            if (retlen) *retlen = reply->len + FIELD_OFFSET( TOKEN_PRIVILEGES, Privileges );
+            if (retlen) *retlen = max( reply->len + FIELD_OFFSET( TOKEN_PRIVILEGES, Privileges ),
+                                       sizeof(TOKEN_PRIVILEGES) );
             prev->PrivilegeCount = reply->len / sizeof(LUID_AND_ATTRIBUTES);
         }
     }
@@ -796,18 +818,31 @@ NTSTATUS WINAPI NtFilterToken( HANDLE token, ULONG flags, TOKEN_GROUPS *disable_
                                TOKEN_PRIVILEGES *privileges, TOKEN_GROUPS *restrict_sids, HANDLE *new_token )
 {
     data_size_t privileges_len = 0;
-    data_size_t sids_len = 0;
-    SID *sids = NULL;
+    data_size_t sids_len = 0, restrict_len = 0;
+    SID *sids = NULL, *rsids = NULL;
     unsigned int status;
 
     TRACE( "%p %#x %p %p %p %p\n", token, flags, disable_sids, privileges,
            restrict_sids, new_token );
 
-    if (flags)
-        FIXME( "flags %#x unsupported\n", flags );
-
     if (restrict_sids)
-        FIXME( "support for restricting sids not yet implemented\n" );
+    {
+        DWORD len, i;
+        BYTE *tmp;
+
+        for (i = 0; i < restrict_sids->GroupCount; i++)
+        {
+            SID *sid = restrict_sids->Groups[i].Sid;
+            restrict_len += offsetof( SID, SubAuthority[sid->SubAuthorityCount] );
+        }
+        if (!(rsids = malloc( restrict_len ? restrict_len : 1 ))) return STATUS_NO_MEMORY;
+        for (i = 0, tmp = (BYTE *)rsids; i < restrict_sids->GroupCount; i++, tmp += len)
+        {
+            SID *sid = restrict_sids->Groups[i].Sid;
+            len = offsetof( SID, SubAuthority[sid->SubAuthorityCount] );
+            memcpy( tmp, sid, len );
+        }
+    }
 
     if (privileges)
         privileges_len = privileges->PrivilegeCount * sizeof(LUID_AND_ATTRIBUTES);
@@ -824,7 +859,11 @@ NTSTATUS WINAPI NtFilterToken( HANDLE token, ULONG flags, TOKEN_GROUPS *disable_
         }
 
         sids = malloc( sids_len );
-        if (!sids) return STATUS_NO_MEMORY;
+        if (!sids)
+        {
+            free( rsids );
+            return STATUS_NO_MEMORY;
+        }
 
         for (i = 0, tmp = (BYTE *)sids; i < disable_sids->GroupCount; i++, tmp += len)
         {
@@ -839,14 +878,17 @@ NTSTATUS WINAPI NtFilterToken( HANDLE token, ULONG flags, TOKEN_GROUPS *disable_
         req->handle          = wine_server_obj_handle( token );
         req->flags           = flags;
         req->privileges_size = privileges_len;
-        wine_server_add_data( req, privileges->Privileges, privileges_len );
+        req->disable_sids_size = sids_len;
+        if (privileges_len) wine_server_add_data( req, privileges->Privileges, privileges_len );
         wine_server_add_data( req, sids, sids_len );
+        wine_server_add_data( req, rsids, restrict_len );
         status = wine_server_call( req );
         if (!status) *new_token = wine_server_ptr_handle( reply->new_handle );
     }
     SERVER_END_REQ;
 
     free( sids );
+    free( rsids );
     return status;
 }
 
@@ -883,28 +925,63 @@ NTSTATUS WINAPI NtImpersonateAnonymousToken( HANDLE thread )
 }
 
 
-/***********************************************************************
- *             NtAccessCheck  (NTDLL.@)
- */
-NTSTATUS WINAPI NtAccessCheck( PSECURITY_DESCRIPTOR descr, HANDLE token, ACCESS_MASK access,
-                               GENERIC_MAPPING *mapping, PRIVILEGE_SET *privs, ULONG *retlen,
-                               ULONG *access_granted, NTSTATUS *access_status)
+/* an object type list element as the server takes it */
+struct server_object_type
+{
+    unsigned short level;
+    unsigned short pad;
+    GUID           guid;
+};
+
+/* access check with an optional object type list; with results, one granted
+ * mask and status per element */
+static NTSTATUS access_check( PSECURITY_DESCRIPTOR descr, PSID self, HANDLE token, ACCESS_MASK access,
+                              OBJECT_TYPE_LIST *types, ULONG type_count, int use_types,
+                              GENERIC_MAPPING *mapping, PRIVILEGE_SET *privs, ULONG *retlen,
+                              ACCESS_MASK *access_granted, NTSTATUS *access_status, int result_list )
 {
     struct object_attributes *objattr;
-    data_size_t len;
+    struct server_object_type *list = NULL;
+    data_size_t len, results_len = 0;
     OBJECT_ATTRIBUTES attr;
     unsigned int status;
-    ULONG priv_len;
-
-    TRACE( "(%p, %p, %08x, %p, %p, %p, %p, %p)\n",
-           descr, token, access, mapping, privs, retlen, access_granted, access_status );
+    ULONG priv_len, i;
+    void *buffer;
 
     if (!privs || !retlen) return STATUS_ACCESS_VIOLATION;
     priv_len = *retlen;
+    if (priv_len < offsetof( PRIVILEGE_SET, Privilege )) priv_len = offsetof( PRIVILEGE_SET, Privilege );
+
+    if (use_types)
+    {
+        if (!types || !type_count) return STATUS_INVALID_PARAMETER;
+        if (!(list = calloc( type_count, sizeof(*list) ))) return STATUS_NO_MEMORY;
+        for (i = 0; i < type_count; i++)
+        {
+            list[i].level = types[i].Level;
+            if (!types[i].ObjectType)
+            {
+                free( list );
+                return STATUS_INVALID_PARAMETER;
+            }
+            list[i].guid = *types[i].ObjectType;
+        }
+        results_len = 2 * type_count * sizeof(unsigned int);
+    }
 
     /* reuse the object attribute SD marshalling */
     InitializeObjectAttributes( &attr, NULL, 0, 0, descr );
-    if ((status = alloc_object_attributes( &attr, &objattr, &len ))) return status;
+    if ((status = alloc_object_attributes( &attr, &objattr, &len )))
+    {
+        free( list );
+        return status;
+    }
+    if (!(buffer = malloc( priv_len + results_len )))
+    {
+        free( list );
+        free( objattr );
+        return STATUS_NO_MEMORY;
+    }
 
     SERVER_START_REQ( access_check )
     {
@@ -914,28 +991,151 @@ NTSTATUS WINAPI NtAccessCheck( PSECURITY_DESCRIPTOR descr, HANDLE token, ACCESS_
         req->mapping.write = mapping->GenericWrite;
         req->mapping.exec = mapping->GenericExecute;
         req->mapping.all = mapping->GenericAll;
+        req->sd_size = objattr->sd_len;
+        req->self_size = self ? offsetof( SID, SubAuthority[((SID *)self)->SubAuthorityCount] ) : 0;
+        req->type_count = use_types ? type_count : -1;
         wine_server_add_data( req, objattr + 1, objattr->sd_len );
-        wine_server_set_reply( req, privs->Privilege, priv_len - offsetof( PRIVILEGE_SET, Privilege ) );
+        if (self) wine_server_add_data( req, self, offsetof( SID, SubAuthority[((SID *)self)->SubAuthorityCount] ) );
+        if (list) wine_server_add_data( req, list, type_count * sizeof(*list) );
+        wine_server_set_reply( req, buffer, priv_len - offsetof( PRIVILEGE_SET, Privilege ) + results_len );
 
         status = wine_server_call( req );
 
         if (status == STATUS_SUCCESS)
         {
-            *retlen = max( offsetof( PRIVILEGE_SET, Privilege ) + reply->privileges_len, sizeof(PRIVILEGE_SET) );
-            if (priv_len >= *retlen)
+            ULONG needed = max( offsetof( PRIVILEGE_SET, Privilege ) + reply->privileges_len, sizeof(PRIVILEGE_SET) );
+            /* the length is only written back when the buffer is too small */
+            if (priv_len < needed) *retlen = needed;
+            if (priv_len >= needed)
             {
                 privs->PrivilegeCount = reply->privileges_len / sizeof(LUID_AND_ATTRIBUTES);
-                *access_status = reply->access_status;
-                *access_granted = reply->access_granted;
+                privs->Control = 0;
+                memcpy( privs->Privilege, buffer, reply->privileges_len );
+                if (result_list)
+                {
+                    const unsigned int *res = (const unsigned int *)((char *)buffer + reply->privileges_len);
+                    for (i = 0; i < type_count; i++)
+                    {
+                        access_granted[i] = res[2 * i];
+                        access_status[i] = res[2 * i + 1];
+                    }
+                }
+                else
+                {
+                    *access_status = reply->access_status;
+                    *access_granted = reply->access_granted;
+                }
             }
             else status = STATUS_BUFFER_TOO_SMALL;
         }
     }
     SERVER_END_REQ;
+    free( buffer );
+    free( list );
     free( objattr );
     return status;
 }
 
+
+/***********************************************************************
+ *             NtAccessCheck  (NTDLL.@)
+ */
+NTSTATUS WINAPI NtAccessCheck( PSECURITY_DESCRIPTOR descr, HANDLE token, ACCESS_MASK access,
+                               GENERIC_MAPPING *mapping, PRIVILEGE_SET *privs, ULONG *retlen,
+                               ULONG *access_granted, NTSTATUS *access_status)
+{
+    TRACE( "(%p, %p, %08x, %p, %p, %p, %p, %p)\n",
+           descr, token, access, mapping, privs, retlen, access_granted, access_status );
+
+    return access_check( descr, NULL, token, access, NULL, 0, FALSE, mapping, privs, retlen,
+                         access_granted, access_status, FALSE );
+}
+
+
+/***********************************************************************
+ *             NtAccessCheckByType  (NTDLL.@)
+ */
+NTSTATUS WINAPI NtAccessCheckByType( PSECURITY_DESCRIPTOR descr, PSID self, HANDLE token, ACCESS_MASK access,
+                                     OBJECT_TYPE_LIST *types, ULONG type_count, GENERIC_MAPPING *mapping,
+                                     PRIVILEGE_SET *privs, ULONG *retlen, ACCESS_MASK *access_granted,
+                                     NTSTATUS *access_status )
+{
+    TRACE( "(%p, %p, %p, %08x, %p, %u, %p, %p, %p, %p, %p)\n", descr, self, token, access, types,
+           type_count, mapping, privs, retlen, access_granted, access_status );
+
+    return access_check( descr, self, token, access, types, type_count, types != NULL, mapping, privs,
+                         retlen, access_granted, access_status, FALSE );
+}
+
+
+/***********************************************************************
+ *             NtAccessCheckByTypeResultList  (NTDLL.@)
+ */
+NTSTATUS WINAPI NtAccessCheckByTypeResultList( PSECURITY_DESCRIPTOR descr, PSID self, HANDLE token,
+                                               ACCESS_MASK access, OBJECT_TYPE_LIST *types, ULONG type_count,
+                                               GENERIC_MAPPING *mapping, PRIVILEGE_SET *privs, ULONG *retlen,
+                                               ACCESS_MASK *access_granted, NTSTATUS *access_status )
+{
+    TRACE( "(%p, %p, %p, %08x, %p, %u, %p, %p, %p, %p, %p)\n", descr, self, token, access, types,
+           type_count, mapping, privs, retlen, access_granted, access_status );
+
+    return access_check( descr, self, token, access, types, type_count, TRUE, mapping, privs,
+                         retlen, access_granted, access_status, TRUE );
+}
+
+
+/* the access check of the audit alarm functions: the caller must be
+ * impersonating, and generic rights are mapped first */
+static NTSTATUS alarm_access_check( PSECURITY_DESCRIPTOR descr, PSID self, ACCESS_MASK access,
+                                    OBJECT_TYPE_LIST *types, ULONG type_count, int use_types,
+                                    GENERIC_MAPPING *mapping, ACCESS_MASK *access_granted,
+                                    NTSTATUS *access_status, BOOLEAN *onclose )
+{
+    char buffer[offsetof( PRIVILEGE_SET, Privilege[4] )];
+    ULONG len = sizeof(buffer);
+    HANDLE token;
+    NTSTATUS status;
+
+    if (!mapping || !access_granted || !access_status) return STATUS_ACCESS_VIOLATION;
+    status = NtOpenThreadToken( GetCurrentThread(), TOKEN_QUERY, TRUE, &token );
+    if (status == STATUS_NO_TOKEN) return STATUS_NO_IMPERSONATION_TOKEN;
+    if (status) return status;
+    /* the process needs SeAuditPrivilege (MS docs: AccessCheckAndAuditAlarm) */
+    {
+        PRIVILEGE_SET privs;
+        BOOLEAN held = FALSE;
+        HANDLE process_token;
+
+        privs.PrivilegeCount = 1;
+        privs.Control = PRIVILEGE_SET_ALL_NECESSARY;
+        privs.Privilege[0].Luid.LowPart = SE_AUDIT_PRIVILEGE;
+        privs.Privilege[0].Luid.HighPart = 0;
+        privs.Privilege[0].Attributes = 0;
+        if (!NtOpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &process_token ))
+        {
+            if (NtPrivilegeCheck( process_token, &privs, &held )) held = FALSE;
+            NtClose( process_token );
+        }
+        if (!held)
+        {
+            NtClose( token );
+            return STATUS_PRIVILEGE_NOT_HELD;
+        }
+    }
+    if (access & (GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE | GENERIC_ALL))
+    {
+        if (access & GENERIC_READ) access |= mapping->GenericRead;
+        if (access & GENERIC_WRITE) access |= mapping->GenericWrite;
+        if (access & GENERIC_EXECUTE) access |= mapping->GenericExecute;
+        if (access & GENERIC_ALL) access |= mapping->GenericAll;
+        access &= ~(GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE | GENERIC_ALL);
+    }
+    status = access_check( descr, self, token, access, types, type_count, use_types, mapping,
+                           (PRIVILEGE_SET *)buffer, &len, access_granted, access_status, FALSE );
+    NtClose( token );
+    if (onclose) *onclose = FALSE;
+    return status;
+}
 
 /***********************************************************************
  *             NtAccessCheckAndAuditAlarm  (NTDLL.@)
@@ -947,10 +1147,13 @@ NTSTATUS WINAPI NtAccessCheckAndAuditAlarm( UNICODE_STRING *subsystem, HANDLE ha
                                             ACCESS_MASK *access_granted, NTSTATUS *access_status,
                                             BOOLEAN *onclose )
 {
-    FIXME( "(%s, %p, %s, %p, 0x%08x, %p, %d, %p, %p, %p), stub\n",
+    TRACE( "(%s, %p, %s, %p, 0x%08x, %p, %d, %p, %p, %p)\n",
            debugstr_us(subsystem), handle, debugstr_us(typename), descr, access,
            mapping, creation, access_granted, access_status, onclose );
-    return STATUS_NOT_IMPLEMENTED;
+
+    /* no audit events are generated */
+    return alarm_access_check( descr, NULL, access, NULL, 0, FALSE, mapping, access_granted,
+                               access_status, onclose );
 }
 
 
@@ -966,11 +1169,13 @@ NTSTATUS WINAPI NtAccessCheckByTypeAndAuditAlarm( UNICODE_STRING *subsystem, HAN
                                                   ACCESS_MASK *access_granted, NTSTATUS *access_status,
                                                   BOOLEAN *onclose )
 {
-    FIXME( "(%s, %p, %s, %s, %p, 0x%08x, %u, %x, %p, %u, %p, %d, %p, %p, %p), stub\n",
+    TRACE( "(%s, %p, %s, %s, %p, 0x%08x, %u, %x, %p, %u, %p, %d, %p, %p, %p)\n",
            debugstr_us(subsystem), handle, debugstr_us(typename), debugstr_us(objectname),
            descr, access, audit_type, flags, obj_list, list_len,
            mapping, creation, access_granted, access_status, onclose );
-    return STATUS_NOT_IMPLEMENTED;
+
+    return alarm_access_check( descr, sid, access, obj_list, list_len, obj_list != NULL, mapping,
+                               access_granted, access_status, onclose );
 }
 
 
@@ -979,8 +1184,9 @@ NTSTATUS WINAPI NtAccessCheckByTypeAndAuditAlarm( UNICODE_STRING *subsystem, HAN
  */
 NTSTATUS WINAPI NtCloseObjectAuditAlarm( UNICODE_STRING *subsystem, HANDLE handle, BOOLEAN onclose )
 {
-    FIXME( "%s %p %u: stub\n", debugstr_us(subsystem), handle, onclose );
-    return STATUS_NOT_IMPLEMENTED;
+    TRACE( "%s %p %u\n", debugstr_us(subsystem), handle, onclose );
+    /* no audit events are generated */
+    return STATUS_SUCCESS;
 }
 
 

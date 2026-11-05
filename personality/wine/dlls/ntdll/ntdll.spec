@@ -133,9 +133,9 @@
 @ stdcall -syscall=0x0002 NtAcceptConnectPort(ptr long ptr long ptr ptr)
 @ stdcall -syscall=0x0000 NtAccessCheck(ptr long long ptr ptr ptr ptr ptr)
 @ stdcall -syscall=0x0029 NtAccessCheckAndAuditAlarm(ptr long ptr ptr ptr long ptr long ptr ptr ptr)
-# @ stub NtAccessCheckByType
+@ stdcall -syscall NtAccessCheckByType(ptr ptr long long ptr long ptr ptr ptr ptr ptr)
 @ stdcall -syscall=0x0059 NtAccessCheckByTypeAndAuditAlarm(ptr long ptr ptr ptr ptr long long long ptr long ptr long ptr ptr ptr)
-# @ stub NtAccessCheckByTypeResultList
+@ stdcall -syscall NtAccessCheckByTypeResultList(ptr ptr long long ptr long ptr ptr ptr ptr ptr)
 # @ stub NtAccessCheckByTypeResultListAndAuditAlarm
 # @ stub NtAccessCheckByTypeResultListAndAuditAlarmByHandle
 @ stdcall -syscall=0x0047 NtAddAtom(ptr long ptr)
@@ -1034,8 +1034,8 @@
 @ stdcall RtlSetSaclSecurityDescriptor(ptr long ptr long)
 @ stdcall RtlSetSearchPathMode(long)
 # @ stub RtlSetSecurityDescriptorRMControl
-@ stub RtlSetSecurityObject
-# @ stub RtlSetSecurityObjectEx
+@ stdcall RtlSetSecurityObject(long ptr ptr ptr long)
+@ stdcall RtlSetSecurityObjectEx(long ptr ptr long ptr long)
 @ stdcall RtlSetThreadErrorMode(long ptr)
 # @ stub RtlSetThreadIsCritical
 @ stdcall RtlSetThreadPreferredUILanguages(long ptr ptr)
@@ -1209,9 +1209,9 @@
 @ stdcall -private ZwAcceptConnectPort(ptr long ptr long ptr ptr) NtAcceptConnectPort
 @ stdcall -private ZwAccessCheck(ptr long long ptr ptr ptr ptr ptr) NtAccessCheck
 @ stdcall -private ZwAccessCheckAndAuditAlarm(ptr long ptr ptr ptr long ptr long ptr ptr ptr) NtAccessCheckAndAuditAlarm
-# @ stub ZwAccessCheckByType
+@ stdcall -private ZwAccessCheckByType(ptr ptr long long ptr long ptr ptr ptr ptr ptr) NtAccessCheckByType
 @ stdcall -private ZwAccessCheckByTypeAndAuditAlarm(ptr long ptr ptr ptr ptr long long long ptr long ptr long ptr ptr ptr) NtAccessCheckByTypeAndAuditAlarm
-# @ stub ZwAccessCheckByTypeResultList
+@ stdcall -private ZwAccessCheckByTypeResultList(ptr ptr long long ptr long ptr ptr ptr ptr ptr) NtAccessCheckByTypeResultList
 # @ stub ZwAccessCheckByTypeResultListAndAuditAlarm
 # @ stub ZwAccessCheckByTypeResultListAndAuditAlarmByHandle
 @ stdcall -private ZwAddAtom(ptr long ptr) NtAddAtom
