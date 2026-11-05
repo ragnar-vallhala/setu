@@ -1180,6 +1180,24 @@ found:
     return ERROR_SUCCESS;
 }
 
+/* A driver start is synchronous: it is done once the driver has loaded and reported. */
+static DWORD service_wait_for_startup(struct service_entry *service, struct process_entry *process)
+{
+    HANDLE handles[2] = { service->status_changed_event, process->process };
+    DWORD result;
+
+    result = WaitForMultipleObjects( 2, handles, FALSE, service_pipe_timeout );
+    if (result != WAIT_OBJECT_0)
+        return ERROR_SERVICE_REQUEST_TIMEOUT;
+
+    service_lock(service);
+    result = service->status.dwCurrentState;
+    service_unlock(service);
+
+    return (result == SERVICE_START_PENDING || result == SERVICE_RUNNING) ?
+           ERROR_SUCCESS : ERROR_SERVICE_REQUEST_TIMEOUT;
+}
+
 /******************************************************************************
  * process_send_start_message
  */
@@ -1252,8 +1270,10 @@ DWORD service_start(struct service_entry *service, DWORD service_argc, LPCWSTR *
     {
         err = process_send_start_message(process, shared_process, service->name, service_argv, service_argc);
 
-        /* StartService returns once the dispatcher has started the service thread; the service
-         * may stay START_PENDING or already have reported SERVICE_STOPPED */
+        /* For a Win32 service, StartService returns once the dispatcher has started the service
+         * thread; the service may stay START_PENDING or already have reported SERVICE_STOPPED */
+        if (err == ERROR_SUCCESS && (service->config.dwServiceType & SERVICE_DRIVER))
+            err = service_wait_for_startup(service, process);
 
         if (err != ERROR_SUCCESS)
         {
