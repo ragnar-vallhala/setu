@@ -607,9 +607,9 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExW( HKEY hkey, LPCWSTR name, DWORD
     if ((access & KEY_WOW64_RES) == KEY_WOW64_RES) return ERROR_INVALID_PARAMETER;
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
-    /* a name that does not fit in a UNICODE_STRING is too long */
+    /* a name or class that does not fit in a UNICODE_STRING is too long */
     if ((status = RtlInitUnicodeStringEx( &nameW, name ))) return RtlNtStatusToDosError( status );
-    RtlInitUnicodeString( &classW, class );
+    if ((status = RtlInitUnicodeStringEx( &classW, class ))) return RtlNtStatusToDosError( status );
 
     status = create_key( retkey, hkey, nameW, options, access, &classW, sa, dispos );
     /* A non-volatile key under a volatile one fails, but still reports
