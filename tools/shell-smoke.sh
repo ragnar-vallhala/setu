@@ -27,7 +27,30 @@
 #                  falling back to the main checkout's build)
 #   SETU_PREFIX    Wine prefix (default: build/shell-prefix)
 #   SETU_RES       screen size (default: 1280x800)
+#
+# The test runs with the host name "setu" (a private UTS namespace, entered
+# through unprivileged user namespaces), so the computer name the personality
+# reports (wineboot reads it from gethostname()) and the screenshots never
+# show the build machine's name.
 set -euo pipefail
+
+SMOKE_HOSTNAME=setu
+case "${SETU_SMOKE_NS:-}" in
+  "")
+    if unshare -Ur --uts true 2>/dev/null; then
+      # 1: a user namespace where we are root, to set the host name; 2: a
+      # nested one that maps us back to our own uid and gid.
+      exec env SETU_SMOKE_NS=1 SETU_SMOKE_UID="$(id -u)" SETU_SMOKE_GID="$(id -g)" \
+        unshare -Ur --uts "$0" "$@"
+    fi
+    echo "FAIL: cannot create a user + UTS namespace (unshare -Ur --uts), so the" \
+      "computer name would be this host's ($(hostname)); see /proc/sys/kernel/unprivileged_userns_clone" >&2
+    exit 1 ;;
+  1)
+    hostname "$SMOKE_HOSTNAME"
+    exec env SETU_SMOKE_NS=2 unshare -U --map-user="$SETU_SMOKE_UID" --map-group="$SETU_SMOKE_GID" "$0" "$@" ;;
+esac
+[ "$(hostname)" = "$SMOKE_HOSTNAME" ] || { echo "FAIL: host name is not $SMOKE_HOSTNAME" >&2; exit 1; }
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 UPDATE_DOCS=0
