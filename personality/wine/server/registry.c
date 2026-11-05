@@ -945,6 +945,69 @@ static int check_key_access( unsigned int access )
     return 1;
 }
 
+static const struct sid restricted_sid = { SID_REVISION, 1, SECURITY_NT_AUTHORITY, { SECURITY_RESTRICTED_CODE_RID } };
+
+/* The descriptor a key that has none of its own passes on to new subkeys:
+ * the user, SYSTEM and Administrators get full access and RESTRICTED gets
+ * read access, all inheritable, owned by the token's default owner
+ * (Windows 10 oracle: RegKeySecurity get_default_dacl). */
+static struct security_descriptor *key_base_sd( struct token *token )
+{
+    const struct sid *user = token_get_user( token ), *owner = token_get_owner( token );
+    const struct sid *group = token_get_primary_group( token );
+    const struct sid *sids[] = { user, &local_system_sid, &builtin_admins_sid, &restricted_sid };
+    const unsigned int masks[] = { KEY_ALL_ACCESS, KEY_ALL_ACCESS, KEY_ALL_ACCESS, KEY_READ };
+    struct security_descriptor *sd;
+    data_size_t dacl_len = sizeof(struct acl);
+    struct acl *dacl;
+    struct ace *ace;
+    unsigned int i;
+    char *ptr;
+
+    for (i = 0; i < ARRAY_SIZE(sids); i++) dacl_len += sizeof(struct ace) + sid_len( sids[i] );
+    if (!(sd = mem_alloc( sizeof(*sd) + sid_len( owner ) + sid_len( group ) + dacl_len ))) return NULL;
+    sd->control   = SE_DACL_PRESENT;
+    sd->owner_len = sid_len( owner );
+    sd->group_len = sid_len( group );
+    sd->sacl_len  = 0;
+    sd->dacl_len  = dacl_len;
+    ptr = (char *)(sd + 1);
+    ptr = mem_append( ptr, owner, sd->owner_len );
+    ptr = mem_append( ptr, group, sd->group_len );
+    dacl = (struct acl *)ptr;
+    dacl->revision = ACL_REVISION;
+    dacl->pad1     = 0;
+    dacl->size     = dacl_len;
+    dacl->count    = ARRAY_SIZE(sids);
+    dacl->pad2     = 0;
+    for (i = 0, ace = ace_first( dacl ); i < ARRAY_SIZE(sids); i++)
+        ace = ace_next( set_ace( ace, sids[i], ACCESS_ALLOWED_ACE_TYPE,
+                                 OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE, masks[i] ));
+    return sd;
+}
+
+/* A new key gets the parent's inheritable ACEs and the creator's explicit
+ * ones (Windows 10 oracle: RegKeySecurity child_inherited_dacl). */
+static int init_new_key_sd( struct key *key, const struct security_descriptor *creator )
+{
+    struct key *parent = get_parent( key );
+    struct token *token = current->token ? current->token : current->process->token;
+    struct security_descriptor *base = NULL, *sd;
+    const struct security_descriptor *psd;
+
+    if (!parent || !token) return 1;
+    if (!(psd = parent->obj.sd) && !(psd = base = key_base_sd( token ))) return 0;
+    sd = sd_inherit_map( psd, creator, 1, token, &key_type.mapping );
+    free( base );
+    if (!sd) return 0;
+    /* a new key's SACL is marked auto-inherited even when it has none
+     * (Windows 10 oracle: RegKeySecurity get_label, get_sacl_with_access) */
+    sd->control |= SE_SACL_AUTO_INHERITED;
+    free( key->obj.sd );
+    key->obj.sd = sd;
+    return 1;
+}
+
 /* create a subkey */
 static struct key *create_key( struct key *parent, const struct unicode_str *name,
                                unsigned int options, unsigned int access, unsigned int attributes,
@@ -973,6 +1036,12 @@ static struct key *create_key( struct key *parent, const struct unicode_str *nam
     }
     else
     {
+        if (!init_new_key_sd( key, sd ))
+        {
+            unlink_named_object( &key->obj );
+            release_object( key );
+            return NULL;
+        }
         if (parent) touch_key( get_parent( key ), REG_NOTIFY_CHANGE_NAME );
         if (debug_level > 1) dump_operation( key, NULL, "Create" );
     }
