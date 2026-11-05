@@ -1837,17 +1837,19 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegQueryValueExA( HKEY hkey, LPCSTR name, LPDWO
 
         if (is_string(info->Type))
         {
-            DWORD len;
+            DWORD len, raw = total_size - info_size;
 
-            RtlUnicodeToMultiByteSize( &len, (WCHAR *)(buf_ptr + info_size),
-                                       total_size - info_size );
+            RtlUnicodeToMultiByteSize( &len, (WCHAR *)(buf_ptr + info_size), raw );
+            /* NT converts in place: when the Unicode data fits in the caller's
+             * buffer it is read there first, so the bytes past the ANSI string
+             * keep the tail of the Unicode data */
+            if (data && raw <= datalen) memcpy( data, buf_ptr + info_size, raw );
             if (data && len)
             {
                 if (len > datalen) status = STATUS_BUFFER_OVERFLOW;
                 else
                 {
-                    RtlUnicodeToMultiByteN( (char*)data, len, NULL, (WCHAR *)(buf_ptr + info_size),
-                                            total_size - info_size );
+                    RtlUnicodeToMultiByteN( (char*)data, len, NULL, (WCHAR *)(buf_ptr + info_size), raw );
                     /* if the type is REG_SZ and data is not 0-terminated
                      * and there is enough space in the buffer NT appends a \0 */
                     if (len < datalen && data[len-1]) data[len] = 0;
@@ -2355,18 +2357,32 @@ LSTATUS WINAPI RegEnumValueA( HKEY hkey, DWORD index, LPSTR value, LPDWORD val_c
 
     if (status) goto done;
 
-    if (is_string(info->Type))
+    /* a name that cannot fit even as Unicode fails before any data is copied */
+    if (info->NameLength > *val_count * sizeof(WCHAR))
     {
-        DWORD len;
-        RtlUnicodeToMultiByteSize( &len, (WCHAR *)(buf_ptr + info->DataOffset),
-                                   total_size - info->DataOffset );
+        status = STATUS_BUFFER_OVERFLOW;
+        if (is_string(info->Type))
+        {
+            DWORD len;
+            RtlUnicodeToMultiByteSize( &len, (WCHAR *)(buf_ptr + info->DataOffset),
+                                       total_size - info->DataOffset );
+            /* NT still applies its terminator rule to the untouched buffer */
+            if (data && len && len < *count && data[len-1]) data[len] = 0;
+            info->DataLength = len;
+        }
+    }
+    else if (is_string(info->Type))
+    {
+        DWORD len, raw = total_size - info->DataOffset;
+        RtlUnicodeToMultiByteSize( &len, (WCHAR *)(buf_ptr + info->DataOffset), raw );
+        /* converted in place, as in RegQueryValueExA */
+        if (data && raw <= *count) memcpy( data, buf_ptr + info->DataOffset, raw );
         if (data && len)
         {
             if (len > *count) status = STATUS_BUFFER_OVERFLOW;
             else
             {
-                RtlUnicodeToMultiByteN( (char*)data, len, NULL, (WCHAR *)(buf_ptr + info->DataOffset),
-                                        total_size - info->DataOffset );
+                RtlUnicodeToMultiByteN( (char*)data, len, NULL, (WCHAR *)(buf_ptr + info->DataOffset), raw );
                 /* if the type is REG_SZ and data is not 0-terminated
                  * and there is enough space in the buffer NT appends a \0 */
                 if (len < *count && data[len-1]) data[len] = 0;
