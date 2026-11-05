@@ -1126,6 +1126,12 @@ DWORD __cdecl svcctl_SetServiceStatus(SC_RPC_HANDLE handle, SERVICE_STATUS *stat
     if ((err = validate_service_handle(handle, SERVICE_SET_STATUS, &service)) != 0)
         return err;
 
+    /* an unknown state, type or accepted control is refused */
+    if (status->dwCurrentState < SERVICE_STOPPED || status->dwCurrentState > SERVICE_PAUSED ||
+        (status->dwServiceType & ~(SERVICE_WIN32 | SERVICE_DRIVER | SERVICE_INTERACTIVE_PROCESS | 0xc0)) ||
+        (status->dwControlsAccepted & ~0x7fff))
+        return ERROR_INVALID_DATA;
+
     service_lock(service->service_entry);
 
     /* FIXME: be a bit more discriminant about what parts of the status we set
@@ -1860,6 +1866,8 @@ DWORD __cdecl svcctl_ControlService(
 
     if (!service_accepts_control(service->service_entry, dwControl))
     {
+        /* the current status is returned with the error */
+        if (lpServiceStatus) *lpServiceStatus = service->service_entry->status;
         service_unlock(service->service_entry);
         return ERROR_INVALID_SERVICE_CONTROL;
     }

@@ -1037,6 +1037,15 @@ static DWORD service_start_process(struct service_entry *service_entry, struct p
         struct service_entry *winedevice_entry;
         WCHAR *group;
 
+        /* a driver given as \??\X:\path must exist */
+        if (!wcsncmp(service_entry->config.lpBinaryPathName, L"\\??\\", 4) &&
+            GetFileAttributesW(service_entry->config.lpBinaryPathName + 4) == INVALID_FILE_ATTRIBUTES)
+        {
+            err = GetLastError();
+            service_unlock(service_entry);
+            return err;
+        }
+
         if ((err = get_winedevice_binary_path(service_entry, &path, &is_wow64)))
         {
             service_unlock(service_entry);
@@ -1082,6 +1091,11 @@ static DWORD service_start_process(struct service_entry *service_entry, struct p
 found:
         service_entry->status.dwCurrentState = SERVICE_START_PENDING;
         service_entry->status.dwControlsAccepted = 0;
+        /* the status a start begins with: no exit code yet, a two second wait hint */
+        service_entry->status.dwWin32ExitCode = NO_ERROR;
+        service_entry->status.dwServiceSpecificExitCode = 0;
+        service_entry->status.dwCheckPoint = 0;
+        service_entry->status.dwWaitHint = 2000;
         ResetEvent(service_entry->status_changed_event);
 
         service_entry->process = grab_process(process);
@@ -1133,6 +1147,11 @@ found:
 
     service_entry->status.dwCurrentState = SERVICE_START_PENDING;
     service_entry->status.dwControlsAccepted = 0;
+    /* the status a start begins with: no exit code yet, a two second wait hint */
+    service_entry->status.dwWin32ExitCode = NO_ERROR;
+    service_entry->status.dwServiceSpecificExitCode = 0;
+    service_entry->status.dwCheckPoint = 0;
+    service_entry->status.dwWaitHint = 2000;
     ResetEvent(service_entry->status_changed_event);
 
     scmdatabase_add_process(service_entry->db, process);
@@ -1159,23 +1178,6 @@ found:
 
     *new_process = process;
     return ERROR_SUCCESS;
-}
-
-static DWORD service_wait_for_startup(struct service_entry *service, struct process_entry *process)
-{
-    HANDLE handles[2] = { service->status_changed_event, process->process };
-    DWORD result;
-
-    result = WaitForMultipleObjects( 2, handles, FALSE, service_pipe_timeout );
-    if (result != WAIT_OBJECT_0)
-        return ERROR_SERVICE_REQUEST_TIMEOUT;
-
-    service_lock(service);
-    result = service->status.dwCurrentState;
-    service_unlock(service);
-
-    return (result == SERVICE_START_PENDING || result == SERVICE_RUNNING) ?
-           ERROR_SUCCESS : ERROR_SERVICE_REQUEST_TIMEOUT;
 }
 
 /******************************************************************************
@@ -1250,8 +1252,8 @@ DWORD service_start(struct service_entry *service, DWORD service_argc, LPCWSTR *
     {
         err = process_send_start_message(process, shared_process, service->name, service_argv, service_argc);
 
-        if (err == ERROR_SUCCESS)
-            err = service_wait_for_startup(service, process);
+        /* StartService returns once the dispatcher has started the service thread; the service
+         * may stay START_PENDING or already have reported SERVICE_STOPPED */
 
         if (err != ERROR_SUCCESS)
         {
