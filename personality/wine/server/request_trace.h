@@ -1210,6 +1210,18 @@ static void dump_save_registry_request( const struct save_registry_request *req 
     fprintf( stderr, ", file=%04x", req->file );
 }
 
+static void dump_restore_registry_request( const struct restore_registry_request *req )
+{
+    fprintf( stderr, " hkey=%04x", req->hkey );
+    fprintf( stderr, ", file=%04x", req->file );
+    fprintf( stderr, ", flags=%08x", req->flags );
+}
+
+static void dump_replace_registry_request( const struct replace_registry_request *req )
+{
+    fprintf( stderr, " hkey=%04x", req->hkey );
+}
+
 static void dump_set_registry_notification_request( const struct set_registry_notification_request *req )
 {
     fprintf( stderr, " hkey=%04x", req->hkey );
@@ -3715,6 +3727,8 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_load_registry_request,
     (dump_func)dump_unload_registry_request,
     (dump_func)dump_save_registry_request,
+    (dump_func)dump_restore_registry_request,
+    (dump_func)dump_replace_registry_request,
     (dump_func)dump_set_registry_notification_request,
     (dump_func)dump_rename_key_request,
     (dump_func)dump_create_timer_request,
@@ -4031,6 +4045,8 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     NULL,
     (dump_func)dump_get_key_value_reply,
     (dump_func)dump_enum_key_value_reply,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -4355,6 +4371,8 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "load_registry",
     "unload_registry",
     "save_registry",
+    "restore_registry",
+    "replace_registry",
     "set_registry_notification",
     "rename_key",
     "create_timer",
@@ -4708,6 +4726,7 @@ static const struct
     { "PROCESS_NOT_IN_JOB",          STATUS_PROCESS_NOT_IN_JOB },
     { "QUOTA_EXCEEDED",              STATUS_QUOTA_EXCEEDED },
     { "RANGE_NOT_LOCKED",            STATUS_RANGE_NOT_LOCKED },
+    { "REGISTRY_IO_FAILED",          STATUS_REGISTRY_IO_FAILED },
     { "REPARSE_POINT_NOT_RESOLVED",  STATUS_REPARSE_POINT_NOT_RESOLVED },
     { "SECTION_TOO_BIG",             STATUS_SECTION_TOO_BIG },
     { "SEMAPHORE_LIMIT_EXCEEDED",    STATUS_SEMAPHORE_LIMIT_EXCEEDED },

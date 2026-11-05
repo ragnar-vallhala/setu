@@ -137,6 +137,11 @@ struct key_value
 /* the root of the registry tree */
 static struct key *root_key;
 
+/* set while RegRestoreKey replaces a key's contents: that fires no
+ * notification of its own, and the restored subkeys are stable even
+ * under a volatile key */
+static int restoring_key;
+
 static const timeout_t ticks_1601_to_1970 = (timeout_t)86400 * (369 * 365 + 89) * TICKS_PER_SEC;
 static const timeout_t save_period = 30 * -TICKS_PER_SEC;  /* delay between periodic saves */
 static struct timeout_user *save_timeout_user;  /* saving timer */
@@ -761,7 +766,7 @@ static struct key *create_key_object( struct object *parent, const struct unicod
 
             if (options & REG_OPTION_CREATE_LINK) key->flags |= KEY_SYMLINK;
             if (options & REG_OPTION_VOLATILE) key->flags |= KEY_VOLATILE;
-            else if (parent && (get_parent( key )->flags & KEY_VOLATILE))
+            else if (parent && !restoring_key && (get_parent( key )->flags & KEY_VOLATILE))
             {
                 set_error( STATUS_CHILD_MUST_BE_VOLATILE );
                 unlink_named_object( &key->obj );
@@ -801,6 +806,7 @@ static void check_notify( struct key *key, unsigned int change, int not_subtree 
 {
     struct list *ptr, *next;
 
+    if (restoring_key) return;
     LIST_FOR_EACH_SAFE( ptr, next, &key->notify_list )
     {
         struct notify *n = LIST_ENTRY( ptr, struct notify, entry );
@@ -1860,15 +1866,78 @@ static void load_keys( struct key *key, const char *filename, FILE *f, int prefi
 }
 
 /* load a part of the registry from a file */
-static void load_registry( struct key *key, obj_handle_t handle )
+/* hives loaded with NtLoadKey, and the file each came from */
+struct loaded_hive
+{
+    struct list  entry;
+    struct key  *key;
+    dev_t        dev;
+    ino_t        ino;
+    int          replace_pending; /* RegReplaceKey was called for it */
+};
+
+static struct list loaded_hives = LIST_INIT( loaded_hives );
+
+static struct loaded_hive *find_loaded_hive( const struct key *key )
+{
+    struct loaded_hive *hive;
+
+    LIST_FOR_EACH_ENTRY( hive, &loaded_hives, struct loaded_hive, entry )
+        if (hive->key == key) return hive;
+    return NULL;
+}
+
+/* Checks that a file can be loaded as a hive (an empty one is an empty hive),
+ * and returns its identity. */
+static int check_hive_file( obj_handle_t handle, dev_t *dev, ino_t *ino )
+{
+    static const char header[] = "WINE REGISTRY Version 2";
+    char buffer[sizeof(header) - 1];
+    struct file *file;
+    struct stat st;
+    int fd, ret = 0;
+
+    if (!(file = get_file_obj( current->process, handle, FILE_READ_DATA ))) return 0;
+    fd = get_file_unix_fd( file );
+    if (fd == -1 || fstat( fd, &st ) == -1) file_set_error();
+    else if (st.st_size && (pread( fd, buffer, sizeof(buffer), 0 ) != sizeof(buffer) ||
+                            memcmp( buffer, header, sizeof(buffer) )))
+        set_error( STATUS_REGISTRY_IO_FAILED );
+    else
+    {
+        *dev = st.st_dev;
+        *ino = st.st_ino;
+        ret = 1;
+    }
+    release_object( file );
+    return ret;
+}
+
+/* An empty file (as NtLoadKey creates for a missing one) is an empty hive.
+ * Returns the file's identity in dev and ino. */
+static void load_registry( struct key *key, obj_handle_t handle, dev_t *dev, ino_t *ino )
 {
     struct file *file;
+    struct stat st;
     int fd;
 
     if (!(file = get_file_obj( current->process, handle, FILE_READ_DATA ))) return;
     fd = dup( get_file_unix_fd( file ) );
     release_object( file );
-    if (fd != -1)
+    if (fd == -1) return;
+    if (fstat( fd, &st ) == -1)
+    {
+        file_set_error();
+        close( fd );
+        return;
+    }
+    *dev = st.st_dev;
+    *ino = st.st_ino;
+    if (!st.st_size)
+    {
+        close( fd );
+        return;
+    }
     {
         FILE *f = fdopen( fd, "r" );
         if (f)
@@ -1876,7 +1945,11 @@ static void load_registry( struct key *key, obj_handle_t handle )
             load_keys( key, NULL, f, -1 );
             fclose( f );
         }
-        else file_set_error();
+        else
+        {
+            file_set_error();
+            close( fd );
+        }
     }
 }
 
@@ -2399,6 +2472,8 @@ DECL_HANDLER(delete_key_value)
 DECL_HANDLER(load_registry)
 {
     struct key *key, *parent = NULL;
+    dev_t dev = 0;
+    ino_t ino = 0;
     struct unicode_str name;
     const struct security_descriptor *sd;
     const struct object_attributes *objattr = get_req_object_attributes( &sd, &name, NULL );
@@ -2415,11 +2490,61 @@ DECL_HANDLER(load_registry)
         if (!(parent = get_hkey_obj( objattr->rootdir, 0 ))) return;
     }
 
+    /* A hive is loaded as a direct subkey of HKEY_USERS or HKEY_LOCAL_MACHINE. */
+    if (!parent || get_parent( parent ) != root_key)
+    {
+        set_error( STATUS_ACCESS_DENIED );
+        goto done;
+    }
+    {
+        data_size_t i;
+
+        for (i = 0; i < name.len / sizeof(WCHAR); i++)
+            if (name.str[i] == '\\')
+            {
+                set_error( STATUS_OBJECT_NAME_NOT_FOUND );
+                goto done;
+            }
+    }
+
+    if (!check_hive_file( req->file, &dev, &ino )) goto done;
+
+    if ((key = open_key( parent, &name, KEY_WOW64_64KEY, OBJ_CASE_INSENSITIVE )))
+    {
+        /* The name is in use: loading the same file there again succeeds. */
+        struct loaded_hive *hive = find_loaded_hive( key );
+
+        if (!hive || hive->dev != dev || hive->ino != ino) set_error( STATUS_ACCESS_DENIED );
+        release_object( key );
+        goto done;
+    }
+    clear_error();
+
     if ((key = create_key( parent, &name, 0, KEY_WOW64_64KEY, 0, sd )))
     {
-        load_registry( key, req->file );
+        struct loaded_hive *hive;
+
+        load_registry( key, req->file, &dev, &ino );
+        if (get_error())
+        {
+            /* Nothing of a file that is not a hive stays loaded. */
+            unsigned int status = get_error();
+
+            clear_error();
+            delete_key( key, 1 );
+            set_error( status == STATUS_NOT_REGISTRY_FILE ? STATUS_REGISTRY_IO_FAILED : status );
+        }
+        else if ((hive = mem_alloc( sizeof(*hive) )))
+        {
+            hive->key = (struct key *)grab_object( key );
+            hive->dev = dev;
+            hive->ino = ino;
+            hive->replace_pending = 0;
+            list_add_tail( &loaded_hives, &hive->entry );
+        }
         release_object( key );
     }
+done:
     if (parent) release_object( parent );
 }
 
@@ -2438,14 +2563,25 @@ DECL_HANDLER(unload_registry)
 
     if ((key = open_key( parent, &name, KEY_WOW64_64KEY, req->attributes )))
     {
-        if (key->obj.handle_count)
+        struct loaded_hive *hive = find_loaded_hive( key );
+
+        /* Only a key loaded with NtLoadKey can be unloaded. */
+        if (!hive)
+            set_error( STATUS_INVALID_PARAMETER );
+        else if (key->obj.handle_count)
             set_error( STATUS_CANNOT_DELETE );
         else if (key->obj.is_permanent)
             set_error( STATUS_ACCESS_DENIED );
         else
+        {
             delete_key( key, 1 );     /* FIXME */
+            list_remove( &hive->entry );
+            release_object( hive->key );
+            free( hive );
+        }
         release_object( key );
     }
+    else set_error( STATUS_INVALID_PARAMETER );
     if (parent) release_object( parent );
 }
 
@@ -2465,6 +2601,121 @@ DECL_HANDLER(save_registry)
         save_registry( key, req->file );
         release_object( key );
     }
+}
+
+/* does a key below this one have open handles? */
+static int subkeys_open( const struct key *key )
+{
+    int i;
+
+    for (i = 0; i <= key->last_subkey; i++)
+        if (key->subkeys[i]->obj.handle_count || subkeys_open( key->subkeys[i] )) return 1;
+    return 0;
+}
+
+/* replace the values and subkeys of a key by the contents of a file written by save_registry */
+static void restore_registry( struct key *key, obj_handle_t handle )
+{
+    struct file *file;
+    char header[32];
+    FILE *f;
+    int fd;
+
+    if (!(file = get_file_obj( current->process, handle, FILE_READ_DATA ))) return;
+    fd = dup( get_file_unix_fd( file ) );
+    release_object( file );
+    if (fd == -1)
+    {
+        file_set_error();
+        return;
+    }
+    if (!(f = fdopen( fd, "r" )))
+    {
+        file_set_error();
+        close( fd );
+        return;
+    }
+
+    /* check the file before anything is changed */
+    if (!fgets( header, sizeof(header), f ) || strncmp( header, "WINE REGISTRY Version 2", 23 ))
+        set_error( STATUS_REGISTRY_IO_FAILED );
+    else
+    {
+        while (key->last_subkey >= 0)
+            if (!delete_key( key->subkeys[key->last_subkey], 1 )) goto done;
+        while (key->last_value >= 0)
+        {
+            struct unicode_str name;
+
+            name.str = key->values[key->last_value].name;
+            name.len = key->values[key->last_value].namelen;
+            delete_value( key, &name );
+            if (get_error()) goto done;
+        }
+        rewind( f );
+        load_keys( key, NULL, f, 0 );
+    }
+done:
+    fclose( f );
+}
+
+/* RegRestoreKey fires nothing on the restored key itself; watchers of its
+ * parent (and the parent's ancestors, for a subtree watch) see a name change. */
+static void restore_registry_notify( struct key *key, obj_handle_t handle )
+{
+    struct key *parent;
+
+    restoring_key++;
+    restore_registry( key, handle );
+    restoring_key--;
+    if (get_error() || !(parent = get_parent( key ))) return;
+    check_notify( parent, REG_NOTIFY_CHANGE_NAME, 1 );
+    for (parent = get_parent( parent ); parent; parent = get_parent( parent ))
+        check_notify( parent, REG_NOTIFY_CHANGE_NAME, 0 );
+}
+
+/* restore a registry branch from a file */
+DECL_HANDLER(restore_registry)
+{
+    struct key *key;
+
+    if (!thread_single_check_privilege( current, SeRestorePrivilege ))
+    {
+        set_error( STATUS_PRIVILEGE_NOT_HELD );
+        return;
+    }
+
+    if ((key = get_hkey_obj( req->hkey, 0 )))
+    {
+        struct key *parent = get_parent( key );
+
+        /* REG_WHOLE_HIVE_VOLATILE restores a whole hive, so only a hive root takes it */
+        if ((req->flags & REG_WHOLE_HIVE_VOLATILE) && (!parent || get_parent( parent ) != root_key))
+            set_error( STATUS_INVALID_PARAMETER );
+        else if (!(req->flags & REG_FORCE_RESTORE) && subkeys_open( key ))
+            set_error( STATUS_CANNOT_DELETE );
+        else
+            restore_registry_notify( key, req->file );
+        release_object( key );
+    }
+}
+
+/* RegReplaceKey: only a hive loaded with NtLoadKey, and only once while it is loaded */
+DECL_HANDLER(replace_registry)
+{
+    struct loaded_hive *hive;
+    struct key *key;
+
+    if (!thread_single_check_privilege( current, SeRestorePrivilege ))
+    {
+        set_error( STATUS_PRIVILEGE_NOT_HELD );
+        return;
+    }
+    if (!(key = get_hkey_obj( req->hkey, 0 ))) return;
+    if (!(hive = find_loaded_hive( key ))) set_error( STATUS_INVALID_PARAMETER );
+    else if (hive->replace_pending) set_error( STATUS_ACCESS_DENIED );
+    else hive->replace_pending = 1;
+    release_object( key );
 }
 
 /* add a registry key change notification */

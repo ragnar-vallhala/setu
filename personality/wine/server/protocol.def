@@ -2165,6 +2165,20 @@ struct process_info
 @END
 
 
+/* Replace a registry branch by the contents of a file */
+@REQ(restore_registry)
+    obj_handle_t hkey;         /* key to restore into */
+    obj_handle_t file;         /* file to restore from */
+    unsigned int flags;        /* REG_FORCE_RESTORE etc. */
+@END
+
+
+/* Mark a loaded hive's file to be replaced when the hive is next loaded */
+@REQ(replace_registry)
+    obj_handle_t hkey;         /* root key of the loaded hive */
+@END
+
+
 /* Add a registry key change notification */
 @REQ(set_registry_notification)
     obj_handle_t hkey;         /* key to watch for changes */

@@ -753,10 +753,12 @@ NTSTATUS WINAPI NtLoadKeyEx( const OBJECT_ATTRIBUTES *attr, OBJECT_ATTRIBUTES *f
     if (roothandle) FIXME("roothandle is not filled\n");
     if (iostatus) FIXME("iostatus is not filled\n");
 
-    if (!(ret = get_nt_and_unix_names( &new_attr, &nt_name, &unix_name, FILE_OPEN, FALSE )))
+    /* A missing file is created: it is loaded as an empty hive. */
+    ret = get_nt_and_unix_names( &new_attr, &nt_name, &unix_name, FILE_OPEN_IF, FALSE );
+    if (!ret || ret == STATUS_NO_SUCH_FILE)
     {
         ret = open_unix_file( &key, unix_name, GENERIC_READ | SYNCHRONIZE,
-                              &new_attr, 0, 0, FILE_OPEN, 0, NULL, 0 );
+                              &new_attr, 0, 0, FILE_OPEN_IF, 0, NULL, 0 );
     }
     free( unix_name );
     free( nt_name.Buffer );
@@ -830,8 +832,19 @@ NTSTATUS WINAPI NtSaveKey( HANDLE key, HANDLE file )
  */
 NTSTATUS WINAPI NtRestoreKey( HANDLE key, HANDLE file, ULONG flags )
 {
-    FIXME( "(%p,%p,0x%08x) stub\n", key, file, flags );
-    return STATUS_SUCCESS;
+    unsigned int ret;
+
+    TRACE( "(%p,%p,0x%08x)\n", key, file, flags );
+
+    SERVER_START_REQ( restore_registry )
+    {
+        req->hkey  = wine_server_obj_handle( key );
+        req->file  = wine_server_obj_handle( file );
+        req->flags = flags;
+        ret = wine_server_call( req );
+    }
+    SERVER_END_REQ;
+    return ret;
 }
 
 
@@ -840,8 +853,31 @@ NTSTATUS WINAPI NtRestoreKey( HANDLE key, HANDLE file, ULONG flags )
  */
 NTSTATUS WINAPI NtReplaceKey( OBJECT_ATTRIBUTES *attr, HANDLE key, OBJECT_ATTRIBUTES *replace )
 {
-    FIXME( "(%s,%p,%s),stub!\n", debugstr_us(attr->ObjectName), key, debugstr_us(replace->ObjectName) );
-    return STATUS_SUCCESS;
+    IO_STATUS_BLOCK io;
+    unsigned int ret;
+    HANDLE file;
+
+    TRACE( "(%s,%p,%s)\n", debugstr_us(attr->ObjectName), key, debugstr_us(replace->ObjectName) );
+
+    SERVER_START_REQ( replace_registry )
+    {
+        req->hkey = wine_server_obj_handle( key );
+        ret = wine_server_call( req );
+    }
+    SERVER_END_REQ;
+    if (ret) return ret;
+
+    /* The hive's current contents are kept in the old file; the new file is
+     * only used when the hive is next loaded, which Wine does not do. */
+    FIXME( "%s is not loaded in place of the hive\n", debugstr_us(attr->ObjectName) );
+    if (!(ret = NtCreateFile( &file, GENERIC_WRITE | SYNCHRONIZE, replace, &io, NULL, FILE_ATTRIBUTE_NORMAL,
+                              0, FILE_OVERWRITE_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+                              NULL, 0 )))
+    {
+        ret = NtSaveKey( key, file );
+        NtClose( file );
+    }
+    return ret;
 }
 
 /******************************************************************************

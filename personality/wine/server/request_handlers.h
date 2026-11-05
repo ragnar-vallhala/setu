@@ -106,6 +106,8 @@ DECL_HANDLER(delete_key_value);
 DECL_HANDLER(load_registry);
 DECL_HANDLER(unload_registry);
 DECL_HANDLER(save_registry);
+DECL_HANDLER(restore_registry);
+DECL_HANDLER(replace_registry);
 DECL_HANDLER(set_registry_notification);
 DECL_HANDLER(rename_key);
 DECL_HANDLER(create_timer);
@@ -426,6 +428,8 @@ static const req_handler req_handlers[REQ_NB_REQUESTS] =
     (req_handler)req_load_registry,
     (req_handler)req_unload_registry,
     (req_handler)req_save_registry,
+    (req_handler)req_restore_registry,
+    (req_handler)req_replace_registry,
     (req_handler)req_set_registry_notification,
     (req_handler)req_rename_key,
     (req_handler)req_create_timer,
@@ -1268,6 +1272,12 @@ C_ASSERT( sizeof(struct unload_registry_request) == 24 );
 C_ASSERT( offsetof(struct save_registry_request, hkey) == 12 );
 C_ASSERT( offsetof(struct save_registry_request, file) == 16 );
 C_ASSERT( sizeof(struct save_registry_request) == 24 );
+C_ASSERT( offsetof(struct restore_registry_request, hkey) == 12 );
+C_ASSERT( offsetof(struct restore_registry_request, file) == 16 );
+C_ASSERT( offsetof(struct restore_registry_request, flags) == 20 );
+C_ASSERT( sizeof(struct restore_registry_request) == 24 );
+C_ASSERT( offsetof(struct replace_registry_request, hkey) == 12 );
+C_ASSERT( sizeof(struct replace_registry_request) == 16 );
 C_ASSERT( offsetof(struct set_registry_notification_request, hkey) == 12 );
 C_ASSERT( offsetof(struct set_registry_notification_request, event) == 16 );
 C_ASSERT( offsetof(struct set_registry_notification_request, subtree) == 20 );

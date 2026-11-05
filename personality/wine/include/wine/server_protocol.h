@@ -2762,6 +2762,32 @@ struct save_registry_reply
 
 
 
+struct restore_registry_request
+{
+    struct request_header __header;
+    obj_handle_t hkey;
+    obj_handle_t file;
+    unsigned int flags;
+};
+struct restore_registry_reply
+{
+    struct reply_header __header;
+};
+
+
+
+struct replace_registry_request
+{
+    struct request_header __header;
+    obj_handle_t hkey;
+};
+struct replace_registry_reply
+{
+    struct reply_header __header;
+};
+
+
+
 struct set_registry_notification_request
 {
     struct request_header __header;
@@ -6423,6 +6449,8 @@ enum request
     REQ_load_registry,
     REQ_unload_registry,
     REQ_save_registry,
+    REQ_restore_registry,
+    REQ_replace_registry,
     REQ_set_registry_notification,
     REQ_rename_key,
     REQ_create_timer,
@@ -6746,6 +6774,8 @@ union generic_request
     struct load_registry_request load_registry_request;
     struct unload_registry_request unload_registry_request;
     struct save_registry_request save_registry_request;
+    struct restore_registry_request restore_registry_request;
+    struct replace_registry_request replace_registry_request;
     struct set_registry_notification_request set_registry_notification_request;
     struct rename_key_request rename_key_request;
     struct create_timer_request create_timer_request;
@@ -7067,6 +7097,8 @@ union generic_reply
     struct load_registry_reply load_registry_reply;
     struct unload_registry_reply unload_registry_reply;
     struct save_registry_reply save_registry_reply;
+    struct restore_registry_reply restore_registry_reply;
+    struct replace_registry_reply replace_registry_reply;
     struct set_registry_notification_reply set_registry_notification_reply;
     struct rename_key_reply rename_key_reply;
     struct create_timer_reply create_timer_reply;

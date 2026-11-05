@@ -2695,15 +2695,31 @@ LSTATUS WINAPI RegRestoreKeyW( HKEY hkey, LPCWSTR lpFile, DWORD dwFlags )
 {
     TRACE("(%p,%s,%ld)\n",hkey,debugstr_w(lpFile),dwFlags);
 
+    UNICODE_STRING nameW;
+    OBJECT_ATTRIBUTES attr;
+    IO_STATUS_BLOCK io;
+    NTSTATUS status;
+    HANDLE handle;
+
     /* It seems to do this check before the hkey check */
     if (!lpFile || !*lpFile)
         return ERROR_INVALID_PARAMETER;
 
-    FIXME("(%p,%s,%ld): stub\n",hkey,debugstr_w(lpFile),dwFlags);
+    if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
-    /* Check for file existence */
+    if ((status = RtlDosPathNameToNtPathName_U_WithStatus( lpFile, &nameW, NULL, NULL )))
+        return RtlNtStatusToDosError( status );
 
-    return ERROR_SUCCESS;
+    InitializeObjectAttributes( &attr, &nameW, OBJ_CASE_INSENSITIVE, 0, NULL );
+    status = NtOpenFile( &handle, GENERIC_READ | SYNCHRONIZE, &attr, &io, FILE_SHARE_READ,
+                         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT );
+    RtlFreeUnicodeString( &nameW );
+    if (!status)
+    {
+        status = NtRestoreKey( hkey, handle, dwFlags );
+        NtClose( handle );
+    }
+    return RtlNtStatusToDosError( status );
 }
 
 

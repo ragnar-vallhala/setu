@@ -589,9 +589,38 @@ LSTATUS WINAPI RegSaveKeyA( HKEY hkey, LPCSTR file, LPSECURITY_ATTRIBUTES sa )
 LSTATUS WINAPI RegReplaceKeyW( HKEY hkey, LPCWSTR lpSubKey, LPCWSTR lpNewFile,
                                LPCWSTR lpOldFile )
 {
-    FIXME("(%p,%s,%s,%s): stub\n", hkey, debugstr_w(lpSubKey),
-          debugstr_w(lpNewFile),debugstr_w(lpOldFile));
-    return ERROR_SUCCESS;
+    UNICODE_STRING new_name, old_name;
+    OBJECT_ATTRIBUTES new_attr, old_attr;
+    NTSTATUS status;
+    HKEY subkey;
+    LSTATUS ret;
+
+    TRACE("(%p,%s,%s,%s)\n", hkey, debugstr_w(lpSubKey), debugstr_w(lpNewFile), debugstr_w(lpOldFile));
+
+    if (!lpNewFile || !lpOldFile) return ERROR_INVALID_PARAMETER;
+
+    /* only the root of a loaded hive can be replaced */
+    if ((ret = RegOpenKeyExW( hkey, lpSubKey, 0, KEY_READ, &subkey )))
+        return ret == ERROR_FILE_NOT_FOUND ? ERROR_INVALID_PARAMETER : ret;
+
+    if (!RtlDosPathNameToNtPathName_U( lpNewFile, &new_name, NULL, NULL ))
+    {
+        RegCloseKey( subkey );
+        return ERROR_INVALID_PARAMETER;
+    }
+    if (!RtlDosPathNameToNtPathName_U( lpOldFile, &old_name, NULL, NULL ))
+    {
+        RtlFreeUnicodeString( &new_name );
+        RegCloseKey( subkey );
+        return ERROR_INVALID_PARAMETER;
+    }
+    InitializeObjectAttributes( &new_attr, &new_name, OBJ_CASE_INSENSITIVE, 0, NULL );
+    InitializeObjectAttributes( &old_attr, &old_name, OBJ_CASE_INSENSITIVE, 0, NULL );
+    status = NtReplaceKey( &new_attr, subkey, &old_attr );
+    RtlFreeUnicodeString( &new_name );
+    RtlFreeUnicodeString( &old_name );
+    RegCloseKey( subkey );
+    return RtlNtStatusToDosError( status );
 }
 
 
