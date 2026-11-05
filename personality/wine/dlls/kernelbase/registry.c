@@ -2788,15 +2788,7 @@ LSTATUS WINAPI RegSetKeySecurity( HKEY hkey, SECURITY_INFORMATION SecurityInfo,
 {
     TRACE("(%p,%ld,%p)\n",hkey,SecurityInfo,pSecurityDesc);
 
-    /* It seems to perform this check before the hkey check */
-    if ((SecurityInfo & OWNER_SECURITY_INFORMATION) ||
-        (SecurityInfo & GROUP_SECURITY_INFORMATION) ||
-        (SecurityInfo & DACL_SECURITY_INFORMATION) ||
-        (SecurityInfo & SACL_SECURITY_INFORMATION)) {
-        /* Param OK */
-    } else
-        return ERROR_INVALID_PARAMETER;
-
+    /* Nothing to set is not an error. */
     if (!pSecurityDesc)
         return ERROR_INVALID_PARAMETER;
 
