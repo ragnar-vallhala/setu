@@ -1,0 +1,107 @@
+{
+  "test": "advapi32/AccessCheckAndAuditAlarm",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "not_impersonating": {
+      "ret": false,
+      "last_error": 1309,
+      "granted_untouched": true
+    },
+    "not_impersonating_denied": {
+      "ret": false,
+      "last_error": 1309,
+      "granted_untouched": true
+    },
+    "impersonate_self": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "granted": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "granted_both": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "denied": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "generic_read": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "generic_all": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "maximum_allowed": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "creation_flag": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "null_dacl": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "empty_dacl": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "owner_rc": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "no_owner": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "system_security": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "with_audit_sacl": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "close_alarm": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "by_type_alarm": {
+      "ret": false,
+      "last_error": 1314
+    },
+    "identification_level": {
+      "ret": false,
+      "last_error": 1314,
+      "granted_untouched": true
+    },
+    "after_revert": {
+      "ret": false,
+      "last_error": 1309,
+      "granted_untouched": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "a2f264d67f6c3f7a6952801783e53937d40eff55dfb69fde86fd7038e46cfb8f"
+}

@@ -1,0 +1,268 @@
+{
+  "test": "advapi32/FileSecurityAccess",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "full_read": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120089"
+    },
+    "full_write": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120196"
+    },
+    "full_max": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x001f01ff"
+    },
+    "full_all": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x001f01ff"
+    },
+    "ro_read": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120089"
+    },
+    "ro_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "ro_read_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "ro_append": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "ro_max": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00170089"
+    },
+    "ro_delete": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00110080"
+    },
+    "ro_write_attributes": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "ro_read_attributes": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00100080"
+    },
+    "ro_zero_access": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00100080"
+    },
+    "ro_create_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "ro_open_always_read": {
+      "ret": "valid",
+      "last_error": 183,
+      "granted": "0x00120089"
+    },
+    "ro_truncate": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "deny_read_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "deny_read_generic_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "deny_read_write": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120196"
+    },
+    "deny_read_max": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x001f01fe"
+    },
+    "deny_write_group_write": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "deny_write_group_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "allow_then_deny_read": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120089"
+    },
+    "empty_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "empty_read_control": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "empty_write_dac": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "empty_max": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "empty_read_attributes": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "empty_attributes": {
+      "attrs": "0x00000020"
+    },
+    "empty_getsecurity": {
+      "sd_control": "0x00001004",
+      "sd": "D:P"
+    },
+    "empty_fix_with_write_dac": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "empty_after_fix_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "null_dacl_all": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x001f01ff"
+    },
+    "null_dacl_max": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x001f01ff"
+    },
+    "handle_survives_dacl_change": {
+      "ret": true,
+      "last_error": "unchanged",
+      "read": 4
+    },
+    "reopen_after_dacl_change": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "reopen_after_dacl_change_rc": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "reopen_after_dacl_change_wdac": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "delete_ro_parent_has_delete_child": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_no_delete_no_delete_child": {
+      "ret": false,
+      "last_error": 5
+    },
+    "delete_has_delete": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "delete_denied_delete": {
+      "ret": false,
+      "last_error": 5
+    },
+    "rename_no_delete": {
+      "ret": false,
+      "last_error": 5
+    },
+    "rename_full": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "open_for_delete_no_delete": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "create_in_no_add_file": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "mkdir_in_no_add_file": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "create_in_no_add_subdir": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120196"
+    },
+    "mkdir_in_no_add_subdir": {
+      "ret": false,
+      "last_error": 5
+    },
+    "list_denied": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "find_exact_name_in_denied": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "open_child_of_unlistable": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120089"
+    },
+    "open_dir_denied_list": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "open_dir_denied_list_traverse": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x001000a0"
+    },
+    "locked_read": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "locked_read_backup_no_priv": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "enable_backup": {
+      "ret": true
+    },
+    "locked_read_backup": {
+      "ret": "valid",
+      "last_error": 0,
+      "granted": "0x00120089"
+    },
+    "locked_read_backup_no_flag": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    },
+    "locked_write_backup": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 5
+    }
+  },
+  "errors": [],
+  "source_sha256": "49f9b4935f0d90dc09ae85bebd9599c25d7d0d44978197fa0596c215ae3ee3f4"
+}

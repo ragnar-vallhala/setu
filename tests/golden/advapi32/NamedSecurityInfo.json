@@ -1,0 +1,118 @@
+{
+  "test": "advapi32/NamedSecurityInfo",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "initial_child": {
+      "sd_control": "0x00000004",
+      "sd": "D:(A;;FA;;;<user>)(A;;FR;;;BU)"
+    },
+    "initial_explicit_unprotected": {
+      "sd_control": "0x00000004",
+      "sd": "D:(A;;FA;;;BG)"
+    },
+    "get_named_pointers": {
+      "ret": 0,
+      "owner_set": true,
+      "group_set": false,
+      "dacl_set": true,
+      "sacl_set": false,
+      "ace_count": 2
+    },
+    "get_named_missing": {
+      "ret": 2
+    },
+    "get_named_missing_path": {
+      "ret": 3
+    },
+    "get_named_no_outputs": {
+      "ret": 87
+    },
+    "set_parent_dacl": {
+      "ret": 0,
+      "sd_control": "0x00001404",
+      "sd": "D:PAI(A;OICI;FA;;;<user>)(A;OICI;FX;;;BG)(A;CI;FR;;;AU)"
+    },
+    "child_after_named_set": {
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;ID;FA;;;<user>)(A;ID;FX;;;BG)"
+    },
+    "subdir_after_named_set": {
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;OICIID;FA;;;<user>)(A;OICIID;FX;;;BG)(A;CIID;FR;;;AU)"
+    },
+    "grandchild_after_named_set": {
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;ID;FA;;;<user>)(A;ID;FX;;;BG)"
+    },
+    "explicit_after_named_set": {
+      "sd_control": "0x00001404",
+      "sd": "D:PAI(A;;FA;;;BG)"
+    },
+    "child_set_unprotected": {
+      "ret": 0,
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;;FR;;;BA)(A;ID;FA;;;<user>)(A;ID;FX;;;BG)"
+    },
+    "child_set_protected": {
+      "ret": 0,
+      "sd_control": "0x00001404",
+      "sd": "D:PAI(A;;FR;;;BA)"
+    },
+    "child_set_unprotect_flag": {
+      "ret": 0,
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;;FR;;;BA)(A;ID;FA;;;<user>)(A;ID;FX;;;BG)"
+    },
+    "child_set_sddl_protected": {
+      "ret": 0,
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;;FA;;;<user>)(A;ID;FA;;;<user>)(A;ID;FX;;;BG)"
+    },
+    "child_set_empty_unprotected": {
+      "ret": 0,
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;ID;FA;;;<user>)(A;ID;FX;;;BG)"
+    },
+    "handle_set_parent": {
+      "ret": 0,
+      "sd_control": "0x00001404",
+      "sd": "D:PAI(A;OICI;FA;;;<user>)(A;OICI;FR;;;BU)"
+    },
+    "subdir_after_handle_set": {
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;OICIID;FA;;;<user>)(A;OICIID;FR;;;BU)"
+    },
+    "grandchild_after_handle_set": {
+      "sd_control": "0x00000404",
+      "sd": "D:AI(A;ID;FA;;;<user>)(A;ID;FR;;;BU)"
+    },
+    "set_entries": {
+      "ret": 0,
+      "sd": "D:(D;;FR;;;BU)(A;OICI;GA;;;<user>)"
+    },
+    "set_entries_merge_grant": {
+      "ret": 0,
+      "sd": "D:(D;;CCSW;;;BU)(A;;FX;;;BU)(A;OICI;GA;;;<user>)"
+    },
+    "explicit_entries": {
+      "ret": 0,
+      "count": 3,
+      "e0_access": "0x00000009",
+      "e0_mode": 3,
+      "e0_inherit": "0x00000000",
+      "e1_access": "0x001200a0",
+      "e1_mode": 1,
+      "e1_inherit": "0x00000000",
+      "e2_access": "0x10000000",
+      "e2_mode": 1,
+      "e2_inherit": "0x00000003"
+    },
+    "set_named_missing": {
+      "ret": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "233e841e5e4a65fb0b464c150fb2973ba59a9d0973498bc8dfe942bc4dec426e"
+}

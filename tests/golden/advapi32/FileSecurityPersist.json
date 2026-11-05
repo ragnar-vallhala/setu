@@ -1,0 +1,54 @@
+{
+  "test": "advapi32/FileSecurityPersist",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "set_through_open_handle": {
+      "ret": false,
+      "last_error": 5
+    },
+    "read_while_open": {
+      "sd_control": "0x00000004",
+      "sd": "D:(A;;FA;;;<user>)(A;;FA;;;SY)"
+    },
+    "read_after_close": {
+      "sd_control": "0x00000004",
+      "sd": "D:(A;;FA;;;<user>)(A;;FA;;;SY)"
+    },
+    "reopen_allowed": {
+      "ret": "valid",
+      "matches": false
+    },
+    "reopen_denied": {
+      "ret": "valid",
+      "error": 0
+    },
+    "second_process": {
+      "started": true,
+      "sd_matches": false,
+      "denied_open_failed": false,
+      "allowed_open_ok": true
+    },
+    "after_rewrite": {
+      "matches": false
+    },
+    "after_rename": {
+      "matches": false
+    },
+    "hard_link": {
+      "ret": true,
+      "last_error": "unchanged",
+      "matches": false
+    },
+    "change_through_link": {
+      "other_name_matches_new": true
+    },
+    "recreated": {
+      "sd_control": "0x00000004",
+      "sd": "D:(A;;FA;;;<user>)"
+    }
+  },
+  "errors": [],
+  "source_sha256": "ad5a774730261e8e948552a1e455a0e6723d4cbfe70578d31c577b794c0640bf"
+}

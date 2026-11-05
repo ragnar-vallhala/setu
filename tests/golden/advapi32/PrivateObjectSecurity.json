@@ -1,0 +1,398 @@
+{
+  "test": "advapi32/PrivateObjectSecurity",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "default_object": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "default_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "creator_dacl_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FR;;;WD)"
+    },
+    "creator_owner_group_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:<user>G:BAD:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "creator_null_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:NO_ACCESS_CONTROL"
+    },
+    "creator_empty_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:"
+    },
+    "creator_generic_mapped": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)(A;OICI;FR;;;BA)"
+    },
+    "inherit_object": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;SY)(A;;FR;;;WD)(A;;FA;;;BA)(A;;CC;;;AU)"
+    },
+    "inherit_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;OICI;FA;;;SY)(A;OIIO;FR;;;WD)(A;CI;FX;;;BU)(A;;FA;;;BA)(A;OICIIO;GA;;;CO)(A;;CC;;;AU)"
+    },
+    "inherit_parent_no_inheritable_obj": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "inherit_parent_empty_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "inherit_parent_null_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "inherit_parent_ci_only_obj": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "inherit_parent_oi_only_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;OIIO;FA;;;WD)"
+    },
+    "inherit_parent_oinp_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "inherit_parent_deny_order": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FR;;;WD)(D;;FW;;;WD)"
+    },
+    "inherit_creator_owner_obj": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)"
+    },
+    "inherit_creator_owner_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;OICIIO;FA;;;CO)"
+    },
+    "inherit_creator_group_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FR;;;<dom>-513)(A;OICIIO;GR;;;CG)"
+    },
+    "inherit_creator_owner_explicit_owner": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:SYD:(A;;FA;;;BA)"
+    },
+    "inherit_parent_already_inherited": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)"
+    },
+    "inherit_parent_protected": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)"
+    },
+    "creator_overrides_inheritance": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FR;;;WD)"
+    },
+    "creator_null_dacl_with_parent": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:NO_ACCESS_CONTROL"
+    },
+    "creator_no_dacl_with_parent": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:<user>G:BAD:(A;;FA;;;SY)(A;;FR;;;WD)(A;;FA;;;<user>)(A;;CC;;;AU)"
+    },
+    "ex_auto_inherit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008404",
+      "sd": "O:BAG:<dom>-513D:AI(A;;FR;;;WD)(A;ID;FA;;;SY)(A;ID;FR;;;WD)(A;ID;FA;;;BA)(A;ID;CC;;;AU)"
+    },
+    "ex_auto_inherit_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008404",
+      "sd": "O:BAG:<dom>-513D:AI(A;;FR;;;WD)(A;OICIID;FA;;;SY)(A;OIIOID;FR;;;WD)(A;CIID;FX;;;BU)(A;ID;FA;;;BA)(A;OICIIOID;GA;;;CO)(A;ID;CC;;;AU)"
+    },
+    "ex_auto_inherit_protected": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00009404",
+      "sd": "O:BAG:<dom>-513D:PAI(A;;FR;;;WD)"
+    },
+    "ex_auto_inherit_no_creator": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008404",
+      "sd": "O:BAG:<dom>-513D:AI(A;ID;FA;;;SY)(A;ID;FR;;;WD)(A;ID;FA;;;BA)(A;ID;CC;;;AU)"
+    },
+    "ex_auto_inherit_creator_inherited_aces": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008404",
+      "sd": "O:BAG:<dom>-513D:AI(A;;FR;;;WD)(A;ID;FA;;;SY)(A;ID;FR;;;WD)(A;ID;FA;;;BA)(A;ID;CC;;;AU)"
+    },
+    "ex_no_flags": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;SY)(A;;FR;;;WD)(A;;FA;;;BA)(A;;CC;;;AU)"
+    },
+    "ex_default_for_object": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FR;;;WD)"
+    },
+    "ex_default_owner_from_parent": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:BUD:(A;;FA;;;WD)"
+    },
+    "creator_owner_other_sid": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:SYG:SYD:(A;;FA;;;WD)"
+    },
+    "creator_owner_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:SYD:(A;;FA;;;WD)"
+    },
+    "creator_owner_users": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BUG:SYD:(A;;FA;;;WD)"
+    },
+    "ex_avoid_owner_check": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:SYG:SYD:(A;;FA;;;WD)"
+    },
+    "creator_group_any": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:<user>G:SYD:(A;;FA;;;WD)"
+    },
+    "creator_sacl_no_privilege": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008014",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)S:(AU;SA;FA;;;WD)"
+    },
+    "ex_sacl_avoid_privilege": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008014",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)S:(AU;SA;FA;;;WD)"
+    },
+    "parent_sacl_inheritable": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008014",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)S:(AU;SA;FA;;;WD)"
+    },
+    "creator_label": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008814",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)S:AI(ML;;NW;;;LW)"
+    },
+    "parent_label_inheritable": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008814",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;WD)S:AI(ML;ID;NW;;;LW)"
+    },
+    "objtype_a": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(OA;CI;RP;;22000000-0000-0000-0000-000000000000;WD)(OA;CIIO;WP;;33000000-0000-0000-0000-000000000000;WD)(A;CI;CC;;;BA)"
+    },
+    "objtype_b": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(OA;CIIO;RP;;22000000-0000-0000-0000-000000000000;WD)(OA;CI;WP;;33000000-0000-0000-0000-000000000000;WD)(A;CI;CC;;;BA)"
+    },
+    "objtype_none": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(OA;CIIO;RP;;22000000-0000-0000-0000-000000000000;WD)(OA;CIIO;WP;;33000000-0000-0000-0000-000000000000;WD)(A;CI;CC;;;BA)"
+    },
+    "token_null": {
+      "ret": false,
+      "last_error": 1008
+    },
+    "token_impersonation": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "get_size_query": {
+      "ret": false,
+      "last_error": 122,
+      "len": 48
+    },
+    "get_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "len": 48,
+      "control": "0x00008004",
+      "sd": "D:(A;;FA;;;WD)"
+    },
+    "get_owner": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008000",
+      "sd": "O:<user>"
+    },
+    "get_all": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:<user>G:BAD:(A;;FA;;;WD)"
+    },
+    "set_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:<user>G:BAD:(A;;FR;;;BU)"
+    },
+    "set_dacl_generic": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:<user>G:BAD:(A;;FA;;;BU)"
+    },
+    "set_owner_other": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:SYG:BAD:(A;;FA;;;BU)"
+    },
+    "set_owner_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:BAD:(A;;FA;;;BU)"
+    },
+    "set_group": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008004",
+      "sd": "O:BAG:SYD:(A;;FA;;;BU)"
+    },
+    "set_ex_auto_inherit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008404",
+      "sd": "O:BAG:SYD:AI(A;;FR;;;BU)"
+    },
+    "convert_matching": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008c04",
+      "sd": "O:SYG:SYD:AI(A;ID;FA;;;SY)(A;ID;FR;;;WD)"
+    },
+    "convert_extra_explicit": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008c04",
+      "sd": "O:SYG:SYD:AI(A;;FX;;;BU)(A;ID;FA;;;SY)(A;ID;FR;;;WD)"
+    },
+    "convert_no_match": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00009c04",
+      "sd": "O:SYG:SYD:PAI(A;;FX;;;BU)"
+    },
+    "convert_container": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008c04",
+      "sd": "O:SYG:SYD:AI(A;OICIID;FA;;;SY)(A;OIIOID;FR;;;WD)"
+    },
+    "convert_protected": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00009c04",
+      "sd": "O:SYG:SYD:PAI(A;;FA;;;SY)(A;;FR;;;WD)"
+    },
+    "convert_null_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00009c04",
+      "sd": "O:SYG:SYD:PAINO_ACCESS_CONTROL"
+    },
+    "convert_no_parent": {
+      "ret": true,
+      "last_error": "unchanged",
+      "control": "0x00008c04",
+      "sd": "O:SYG:SYD:AI(A;;FA;;;SY)"
+    }
+  },
+  "errors": [],
+  "source_sha256": "b4366c018e84a7d217b9ff56619efe686431462d4dd65252d63cf94d83e39aaf"
+}

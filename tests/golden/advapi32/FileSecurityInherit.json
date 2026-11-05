@@ -1,0 +1,112 @@
+{
+  "test": "advapi32/FileSecurityInherit",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "parent_set": {
+      "ret": true,
+      "last_error": "unchanged",
+      "sd_control": "0x00001004",
+      "sd": "D:P(A;OICI;FA;;;<user>)(A;OI;FR;;;WD)(A;CI;FX;;;BU)(A;OICIIO;GA;;;CO)(A;OICINP;0x1200a9;;;AU)(A;OICIIO;GR;;;CG)(A;;FA;;;SY)"
+    },
+    "child_file": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FR;;;WD)(A;;FA;;;BA)(A;;0x1200a9;;;AU)(A;;FR;;;<dom>-513)"
+    },
+    "child_dir": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;OICI;FA;;;<user>)(A;OIIO;FR;;;WD)(A;CI;FX;;;BU)(A;;FA;;;BA)(A;OICIIO;GA;;;CO)(A;;0x1200a9;;;AU)(A;;FR;;;<dom>-513)(A;OICIIO;GR;;;CG)"
+    },
+    "grandchild_file": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FR;;;WD)(A;;FA;;;BA)(A;;FR;;;<dom>-513)"
+    },
+    "grandchild_dir": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;OICI;FA;;;<user>)(A;OIIO;FR;;;WD)(A;CI;FX;;;BU)(A;;FA;;;BA)(A;OICIIO;GA;;;CO)(A;;FR;;;<dom>-513)(A;OICIIO;GR;;;CG)"
+    },
+    "child_file_explicit_dacl": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FR;;;BG)"
+    },
+    "child_file_protected_dacl": {
+      "sd_control": "0x00001004",
+      "sd": "O:BAG:<dom>-513D:P(A;;FA;;;<user>)"
+    },
+    "child_file_null_dacl": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:NO_ACCESS_CONTROL"
+    },
+    "child_file_owner_admins": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FR;;;WD)(A;;FA;;;BA)(A;;0x1200a9;;;AU)(A;;FR;;;<dom>-513)"
+    },
+    "child_file_generic_dacl": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BG)"
+    },
+    "child_dir_explicit_dacl": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;OICI;FR;;;BG)"
+    },
+    "child_dir_protected_dacl": {
+      "sd_control": "0x00001004",
+      "sd": "O:BAG:<dom>-513D:P(A;OICI;FA;;;<user>)"
+    },
+    "child_of_protected_dir": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)"
+    },
+    "child_file_owner_system": {
+      "ret": "valid",
+      "last_error": 0
+    },
+    "no_inheritable_child_file": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "no_inheritable_child_dir": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "moved_into_p": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;<logon>)"
+    },
+    "copied_into_p": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FR;;;WD)(A;;FA;;;BA)(A;;0x1200a9;;;AU)(A;;FR;;;<dom>-513)"
+    },
+    "moved_into_q": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FR;;;WD)(A;;FA;;;BA)(A;;0x1200a9;;;AU)(A;;FR;;;<dom>-513)"
+    },
+    "create_always_existing": {
+      "sd_control": "0x00001004",
+      "sd": "O:BAG:<dom>-513D:P(A;;FA;;;<user>)(A;;FR;;;BG)"
+    },
+    "create_always_existing_with_sd": {
+      "sd_control": "0x00001004",
+      "sd": "O:BAG:<dom>-513D:P(A;;FA;;;<user>)(A;;FR;;;BG)"
+    },
+    "truncate_existing": {
+      "sd_control": "0x00001004",
+      "sd": "O:BAG:<dom>-513D:P(A;;FA;;;<user>)(A;;FR;;;BG)"
+    },
+    "recreated_after_delete": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FR;;;WD)(A;;FA;;;BA)(A;;0x1200a9;;;AU)(A;;FR;;;<dom>-513)"
+    },
+    "child_after_parent_change": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FR;;;WD)(A;;FA;;;BA)(A;;0x1200a9;;;AU)(A;;FR;;;<dom>-513)"
+    },
+    "new_child_after_parent_change": {
+      "sd_control": "0x00000004",
+      "sd": "O:BAG:<dom>-513D:(A;;FA;;;<user>)(A;;FA;;;SY)"
+    }
+  },
+  "errors": [],
+  "source_sha256": "ed87ceaf9bf262a262d646f3b3b975de09dcaaacd3a2c25868d2fec0ec0d1706"
+}

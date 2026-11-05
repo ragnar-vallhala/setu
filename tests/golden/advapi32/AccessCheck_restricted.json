@@ -1,0 +1,451 @@
+{
+  "test": "advapi32/AccessCheck_restricted",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "make_deny_only_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": false,
+      "restricted_sids": 0,
+      "disabled0_attrs": "0x00000010"
+    },
+    "deny_only_allow_admins": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_allow_admins_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000004",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_deny_admins": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_deny_admins_other": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_owner_admins": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_owner_admins_max": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_allow_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_deny_only_user": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": false,
+      "restricted_sids": 0,
+      "disabled0_attrs": "not in groups"
+    },
+    "deny_only_user_allow_user": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_user_deny_user": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_user_owner": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_only_user_owner_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_deny_only_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": false,
+      "restricted_sids": 0,
+      "disabled0_attrs": "0x00000010"
+    },
+    "deny_only_everyone_allow": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_deny_only_absent": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": false,
+      "restricted_sids": 0,
+      "disabled0_attrs": "not in groups"
+    },
+    "deny_only_absent_allow_system": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_restrict_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": true,
+      "restricted_sids": 1
+    },
+    "restrict_wd_allow_wd": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_allow_user": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_split": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_split_both": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_split_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_deny_wd": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_deny_user": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_deny_user_other": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_null_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000007",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_owner_user": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_owner_user_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_owner_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_wd_allow_rc_only": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_restrict_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": true,
+      "restricted_sids": 1
+    },
+    "restrict_rc_allow_wd": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_rc_allow_both": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_rc_allow_both_w": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_rc_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_rc_deny_rc": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_restrict_user_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": true,
+      "restricted_sids": 2
+    },
+    "restrict_ua_allow_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_ua_allow_everyone": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_ua_mix_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_restrict_system": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": true,
+      "restricted_sids": 1
+    },
+    "restrict_sy_allow_both": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restrict_sy_allow_sy_only": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_write_restricted": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": true,
+      "restricted_sids": 1
+    },
+    "write_restricted_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "write_restricted_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "write_restricted_write_ok": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "write_restricted_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "write_restricted_wdac": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "write_restricted_delete": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_deny_and_restrict": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": true,
+      "restricted_sids": 2,
+      "disabled0_attrs": "0x00000010"
+    },
+    "both_allow_admins": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "both_allow_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_disable_max_privilege": {
+      "ret": true,
+      "last_error": "unchanged",
+      "is_restricted": false,
+      "restricted_sids": 0
+    },
+    "disable_max_privilege_count": {
+      "count": 1
+    },
+    "disable_max_privilege_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "make_restrict_twice": {
+      "ret": false,
+      "last_error": 87
+    },
+    "own_token_not_restricted": {
+      "is_restricted": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "ea9dc4f6fcb7df870007b77196bf590cb09aac1bf8e64b59334a662b1fc51e24"
+}

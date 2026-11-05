@@ -1,0 +1,223 @@
+{
+  "test": "advapi32/AccessCheck_errors",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "primary_token": {
+      "ret": false,
+      "last_error": 1309
+    },
+    "identification_token": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "duplicate_anonymous": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "anonymous_token": {
+      "ret": false,
+      "last_error": 1346
+    },
+    "delegation_token": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "token_query_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "token_without_query": {
+      "ret": false,
+      "last_error": 5
+    },
+    "null_token": {
+      "ret": false,
+      "last_error": 6
+    },
+    "pseudo_process_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "event_handle": {
+      "ret": false,
+      "last_error": 6
+    },
+    "duplicated_primary": {
+      "ret": false,
+      "last_error": 1309
+    },
+    "desired_generic_read": {
+      "ret": false,
+      "last_error": 1360
+    },
+    "desired_generic_all": {
+      "ret": false,
+      "last_error": 1360
+    },
+    "desired_generic_with_max": {
+      "ret": false,
+      "last_error": 1360
+    },
+    "desired_generic_null_dacl": {
+      "ret": false,
+      "last_error": 1360
+    },
+    "desired_generic_primary": {
+      "ret": false,
+      "last_error": 1360
+    },
+    "desired_generic_primary_token": {
+      "ret": false,
+      "last_error": 1360
+    },
+    "no_owner": {
+      "ret": false,
+      "last_error": 1338
+    },
+    "no_group": {
+      "ret": false,
+      "last_error": 1338
+    },
+    "no_owner_no_group": {
+      "ret": false,
+      "last_error": 1338
+    },
+    "no_owner_null_dacl": {
+      "ret": false,
+      "last_error": 1338
+    },
+    "no_owner_max": {
+      "ret": false,
+      "last_error": 1338
+    },
+    "no_owner_primary_token": {
+      "ret": false,
+      "last_error": 1309
+    },
+    "absolute_empty_sd": {
+      "ret": false,
+      "last_error": 1338,
+      "granted_untouched": true
+    },
+    "absolute_no_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true
+    },
+    "absolute_null_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true
+    },
+    "absolute_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true
+    },
+    "absolute_allow_denied": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "absolute_dacl_not_present": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000004",
+      "status": true
+    },
+    "pslen_zero": {
+      "ret": false,
+      "last_error": 122,
+      "privset_len": 20,
+      "granted_untouched": true
+    },
+    "pslen_header_minus_one": {
+      "ret": false,
+      "last_error": 122,
+      "privset_len": 20,
+      "granted_untouched": true
+    },
+    "pslen_8": {
+      "ret": false,
+      "last_error": 122,
+      "privset_len": 20,
+      "granted_untouched": true
+    },
+    "pslen_header": {
+      "ret": true,
+      "last_error": "unchanged",
+      "privset_len": 20,
+      "granted_untouched": false,
+      "granted": "0x00000001",
+      "status": true
+    },
+    "pslen_large": {
+      "ret": true,
+      "last_error": "unchanged",
+      "privset_len": 256,
+      "granted_untouched": false,
+      "granted": "0x00000001",
+      "status": true
+    },
+    "pslen_zero_denied": {
+      "ret": false,
+      "last_error": 122,
+      "privset_len": 20,
+      "granted_untouched": true
+    },
+    "pslen_zero_null_dacl": {
+      "ret": false,
+      "last_error": 122,
+      "privset_len": 20,
+      "granted_untouched": true
+    },
+    "pslen_zero_no_owner": {
+      "ret": false,
+      "last_error": 1338,
+      "privset_len": 0,
+      "granted_untouched": true
+    },
+    "pslen_zero_generic": {
+      "ret": false,
+      "last_error": 1360,
+      "privset_len": 0,
+      "granted_untouched": true
+    },
+    "denied_last_error": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "granted_last_error": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "6d05ff6221d6674f8a96345e33d6183373a81ec5e66d1dd3ff396a9d7951f011"
+}

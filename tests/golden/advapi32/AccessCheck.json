@@ -1,0 +1,597 @@
+{
+  "test": "advapi32/AccessCheck",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "no_dacl_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "no_dacl_all": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x0000000f",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "no_dacl_high_bits": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "no_dacl_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x0000000f",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "null_dacl_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "null_dacl_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x0000000f",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "null_dacl_max_plus": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x0000001f",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "null_dacl_zero": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "empty_dacl_read": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "empty_dacl_max": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "empty_dacl_zero": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "protected_empty_dacl": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_everyone_both": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_everyone_more": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_user": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_users": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_authenticated": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_system": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_anonymous": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_guests": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_restricted_code": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_creator_owner": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_self": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_then_allow": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_then_allow_other": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_then_allow_both": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_then_deny": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_then_deny_both": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_partial_then_deny": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "accumulate_two_aces": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "accumulate_three_aces": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000007",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "accumulate_missing": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_other_sid": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_user_allow_group": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_group_allow_user": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_group_allow_user_w": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "deny_zero_mask": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "inherit_only_allow": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "inherit_only_deny": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "oici_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "inherited_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "inherited_deny_first": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "explicit_deny_after_inherited_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "audit_flags_on_allow": {
+      "sddl": "parse failed"
+    },
+    "ace_generic_read": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "ace_generic_read_w": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "ace_generic_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "ace_generic_exec": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "ace_generic_all": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "ace_generic_all_std": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "ace_deny_generic_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "ace_deny_generic_write_r": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "file_ace_fr": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00120089",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "file_ace_fr_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "file_ace_gr": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "file_ace_fa": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x001f01ff",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "file_ace_ga_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x10000000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "file_ace_gr_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x80000000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_allow_deny": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_deny_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_deny_all": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_no_match": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_plus_granted": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_plus_missing": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_std_rights": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x001f0003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "max_accumulate": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "desired_zero_allowed": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "desired_std_read_control": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "desired_synchronize": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "desired_high_bit": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "allow_all_bits": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "35267ae5112336c206d960ea072113152c0eb67c041cfda2b9dc74f7f89613b1"
+}

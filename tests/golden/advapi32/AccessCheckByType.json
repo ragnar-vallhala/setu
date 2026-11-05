@@ -1,0 +1,304 @@
+{
+  "test": "advapi32/AccessCheckByType",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "plain_no_list": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "plain_root_list": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "plain_full_list": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000030",
+      "status": true
+    },
+    "plain_full_denied": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "plain_max_full": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000030",
+      "status": true
+    },
+    "oa_root_no_list": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "oa_root_root_list": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "oa_propset_root_list": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "oa_propset_full": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "oa_prop_full": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "oa_both_props_full": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "oa_unknown_guid": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "oa_no_type": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "oa_inherited_type_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "od_prop_then_allow": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "od_unknown_then_allow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "od_root_then_allow": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "oa_propset_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000031",
+      "status": true
+    },
+    "self_given": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "self_null": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "self_object_ace": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "self_other_sid": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false
+    },
+    "list_plain": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000010",
+      "status0": 0,
+      "granted1": "0x00000010",
+      "status1": 0,
+      "granted2": "0x00000010",
+      "status2": 0,
+      "granted3": "0x00000010",
+      "status3": 0
+    },
+    "list_oa_propset": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000010",
+      "status0": 0,
+      "granted1": "0x00000010",
+      "status1": 0,
+      "granted2": "0x00000010",
+      "status2": 0,
+      "granted3": "0x00000010",
+      "status3": 0
+    },
+    "list_oa_prop": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000000",
+      "status0": 5,
+      "granted1": "0x00000000",
+      "status1": 5,
+      "granted2": "0x00000010",
+      "status2": 0,
+      "granted3": "0x00000000",
+      "status3": 5
+    },
+    "list_oa_both_props": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000010",
+      "status0": 0,
+      "granted1": "0x00000010",
+      "status1": 0,
+      "granted2": "0x00000010",
+      "status2": 0,
+      "granted3": "0x00000010",
+      "status3": 0
+    },
+    "list_od_prop": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000000",
+      "status0": 5,
+      "granted1": "0x00000000",
+      "status1": 5,
+      "granted2": "0x00000000",
+      "status2": 5,
+      "granted3": "0x00000010",
+      "status3": 0
+    },
+    "list_od_propset": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000000",
+      "status0": 5,
+      "granted1": "0x00000000",
+      "status1": 5,
+      "granted2": "0x00000000",
+      "status2": 5,
+      "granted3": "0x00000000",
+      "status3": 5
+    },
+    "list_allow_then_od": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000010",
+      "status0": 0,
+      "granted1": "0x00000010",
+      "status1": 0,
+      "granted2": "0x00000010",
+      "status2": 0,
+      "granted3": "0x00000010",
+      "status3": 0
+    },
+    "list_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000010",
+      "status0": 0,
+      "granted1": "0x00000010",
+      "status1": 0,
+      "granted2": "0x00000030",
+      "status2": 0,
+      "granted3": "0x00000010",
+      "status3": 0
+    },
+    "list_max_od": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000020",
+      "status0": 0,
+      "granted1": "0x00000020",
+      "status1": 0,
+      "granted2": "0x00000030",
+      "status2": 0,
+      "granted3": "0x00000020",
+      "status3": 0
+    },
+    "list_nothing": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00000000",
+      "status0": 5,
+      "granted1": "0x00000000",
+      "status1": 5,
+      "granted2": "0x00000000",
+      "status2": 5,
+      "granted3": "0x00000000",
+      "status3": 5
+    },
+    "list_owner": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted0": "0x00020000",
+      "status0": 0,
+      "granted1": "0x00020000",
+      "status1": 0,
+      "granted2": "0x00020000",
+      "status2": 0,
+      "granted3": "0x00020000",
+      "status3": 0
+    },
+    "list_starts_level1": {
+      "ret": false,
+      "last_error": 87
+    },
+    "list_level_jump": {
+      "ret": false,
+      "last_error": 87
+    },
+    "list_two_roots": {
+      "ret": false,
+      "last_error": 87
+    },
+    "list_duplicate_guid": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000010",
+      "status": true
+    },
+    "list_bad_level": {
+      "ret": false,
+      "last_error": 87
+    },
+    "generic_desired": {
+      "ret": false,
+      "last_error": 1360
+    },
+    "primary_token": {
+      "ret": false,
+      "last_error": 1309
+    }
+  },
+  "errors": [],
+  "source_sha256": "fbbb78d7e1e5fcd082fadca1067056449f23c87491155591d02e047140e4efbc"
+}

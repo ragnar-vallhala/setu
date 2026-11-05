@@ -1,0 +1,370 @@
+{
+  "test": "advapi32/AccessCheck_owner",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "user_owner_empty_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_empty_wdac": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00040000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_empty_both": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_empty_wo": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_empty_delete": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_empty_sync": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_empty_specific": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_empty_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_allow_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060003",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_allow_mixed": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_allow_mixed_wo": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_deny_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_deny_wdac": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00040000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_deny_wdac_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00040000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_deny_all_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_deny_all_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "user_owner_deny_rc_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "admins_owner_empty_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "admins_owner_empty_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "everyone_owner_empty_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "users_owner_empty_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "system_owner_empty_rc": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "system_owner_empty_max": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "group_is_user_empty_rc": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "group_is_admins_max": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_specific": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_specific_rc": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_specific_wdac": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_specific_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_rc_wdac": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_wo": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00080000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_allow_wo_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00080000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_deny_wdac": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_deny_wdac_rc": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_deny_wdac_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_deny_then_allow": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_inherit_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_inherit_only_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_not_owner": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_not_owner_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000004",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_admins_owner": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "owner_rights_plus_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "creator_owner_allow": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "creator_owner_allow_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00060000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "203d5787b2f6e0f0afbd8be3744bf34511db8f43b3a29e2de6cc4df7e7c22f99"
+}

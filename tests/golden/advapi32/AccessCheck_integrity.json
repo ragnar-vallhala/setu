@@ -1,0 +1,385 @@
+{
+  "test": "advapi32/AccessCheck_integrity",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "own_token_level": {
+      "level": "0x00003000"
+    },
+    "own_label_high_nw_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "own_label_system_nw_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "own_label_system_nw_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "set_medium": {
+      "ret": true,
+      "last_error": 0,
+      "level": "0x00002000"
+    },
+    "set_low": {
+      "ret": true,
+      "last_error": 0,
+      "level": "0x00001000"
+    },
+    "set_untrusted": {
+      "ret": true,
+      "last_error": 0,
+      "level": "0x00000000"
+    },
+    "raise_to_system": {
+      "ret": false,
+      "last_error": 1314,
+      "level": "0x00003000"
+    },
+    "raise_medium_to_high": {
+      "ret": false,
+      "last_error": 1314,
+      "level": "0x00002000"
+    },
+    "nolabel_medium_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_exec": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000004",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_untrusted_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_wdac": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_delete": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_null_dacl_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "nolabel_low_null_dacl_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_read": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_exec": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000004",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_wdac": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_wo": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_delete": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_rc": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_raised_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_system_token_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nr_medium_read": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nr_medium_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nr_medium_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000004",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nx_medium_exec": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nx_medium_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nwnrnx_medium_max": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nwnrnx_medium_rc": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nopolicy_medium_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "me_nw_medium_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "lw_nw_low_write": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "lw_nw_untrusted_write": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "lw_nwnr_untrusted_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000004",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "me_nw_low_dacl_read_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000001",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_empty_dacl": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_owner": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00020000",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_owner_wdac": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_medium_null_dacl_max": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000005",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "hi_nw_inherit_only_label": {
+      "ret": true,
+      "last_error": "unchanged",
+      "granted": "0x00000002",
+      "status": true,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "label_with_audit_ace": {
+      "ret": true,
+      "last_error": 5,
+      "granted": "0x00000000",
+      "status": false,
+      "privset_len": 256,
+      "priv_count": 0
+    },
+    "restricted_copy_level": {
+      "level": "0x00003000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "c84f44151d8bef377170f3d79c9d2484e4e62aead8bd0d69940f896616715882"
+}

@@ -1,0 +1,125 @@
+{
+  "test": "advapi32/MapGenericMask",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "read": {
+      "in": "0x80000000",
+      "out": "0x00000001"
+    },
+    "write": {
+      "in": "0x40000000",
+      "out": "0x00000002"
+    },
+    "execute": {
+      "in": "0x20000000",
+      "out": "0x00000004"
+    },
+    "all": {
+      "in": "0x10000000",
+      "out": "0x0000000f"
+    },
+    "read_write": {
+      "in": "0xc0000000",
+      "out": "0x00000003"
+    },
+    "all_four": {
+      "in": "0xf0000000",
+      "out": "0x0000000f"
+    },
+    "specific_kept": {
+      "in": "0x00000030",
+      "out": "0x00000030"
+    },
+    "generic_plus_specific": {
+      "in": "0x80000030",
+      "out": "0x00000031"
+    },
+    "standard_kept": {
+      "in": "0x40120000",
+      "out": "0x00120002"
+    },
+    "maximum_allowed_kept": {
+      "in": "0x82000000",
+      "out": "0x02000001"
+    },
+    "system_security_kept": {
+      "in": "0x21000000",
+      "out": "0x01000004"
+    },
+    "reserved_bits_kept": {
+      "in": "0x86000000",
+      "out": "0x06000001"
+    },
+    "mapping_has_generic": {
+      "in": "0x80000000",
+      "out": "0x00000003"
+    },
+    "mapping_zero": {
+      "in": "0x90000000",
+      "out": "0x00000000"
+    },
+    "nothing": {
+      "in": "0x00000000",
+      "out": "0x00000000"
+    },
+    "file_read": {
+      "in": "0x80000000",
+      "out": "0x00120089"
+    },
+    "file_all": {
+      "in": "0x10000000",
+      "out": "0x001f01ff"
+    },
+    "eff_allow_user": {
+      "ret": 0,
+      "rights": "0x00000003"
+    },
+    "eff_allow_everyone_for_user": {
+      "ret": 0,
+      "rights": "0x00000003"
+    },
+    "eff_allow_everyone": {
+      "ret": 0,
+      "rights": "0x00000003"
+    },
+    "eff_deny_then_allow": {
+      "ret": 0,
+      "rights": "0x00000006"
+    },
+    "eff_allow_then_deny": {
+      "ret": 1336
+    },
+    "eff_two_allows": {
+      "ret": 0,
+      "rights": "0x00000003"
+    },
+    "eff_inherit_only": {
+      "ret": 0,
+      "rights": "0x00000002"
+    },
+    "eff_admins_for_admins": {
+      "ret": 0,
+      "rights": "0x00000003"
+    },
+    "eff_system_for_user": {
+      "ret": 0,
+      "rights": "0x00000000"
+    },
+    "eff_empty": {
+      "ret": 0,
+      "rights": "0x00000000"
+    },
+    "eff_null_dacl": {
+      "ret": 0,
+      "rights": "0x03ffffff"
+    },
+    "eff_generic": {
+      "ret": 0,
+      "rights": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "cd92abbdd46e41ff2e143c458d32de29c2628fe509a8031984c5bd7f6536a930"
+}

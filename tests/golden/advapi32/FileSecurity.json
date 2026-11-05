@@ -1,0 +1,318 @@
+{
+  "test": "advapi32/FileSecurity",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "file_protected_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;;FA;;;<user>)(A;;FR;;;WD)"
+    },
+    "file_dacl_generic": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;;FA;;;<user>)(A;;FR;;;WD)"
+    },
+    "file_dacl_specific_mask": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;;FA;;;<user>)(A;;FR;;;BU)(D;;DC;;;AN)"
+    },
+    "file_dacl_deny_first_kept": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;;FA;;;<user>)(D;;FW;;;BG)"
+    },
+    "file_null_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000004",
+      "after": "D:NO_ACCESS_CONTROL"
+    },
+    "file_empty_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P"
+    },
+    "file_empty_dacl_owner_reads": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:BAD:P(A;;FA;;;<user>)"
+    },
+    "file_dacl_inherit_flags_on_file": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;OICI;FA;;;<user>)(A;OICIIO;GR;;;WD)"
+    },
+    "file_dacl_inherited_flag_kept": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "dir_protected_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;OICI;FA;;;<user>)(A;OICIIO;GA;;;CO)(A;CI;FR;;;WD)(A;OINP;FX;;;BU)"
+    },
+    "dir_auto_inherited_flags": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "D:P(A;OICI;FA;;;<user>)(A;OICI;FA;;;SY)"
+    },
+    "file_owner_user": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:<user>G:<dom>-513D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_owner_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:BAG:<dom>-513D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_owner_system": {
+      "ret": false,
+      "last_error": 1307,
+      "after_control": "0x00001004",
+      "after": "O:BAG:<dom>-513D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_owner_everyone": {
+      "ret": false,
+      "last_error": 1307,
+      "after_control": "0x00001004",
+      "after": "O:BAG:<dom>-513D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "enable_restore": {
+      "ret": true
+    },
+    "file_owner_system_restore_priv": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:SYG:<dom>-513D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_owner_back_to_user": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:<user>G:<dom>-513D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_group_system": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:<user>G:SYD:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_group_everyone": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:<user>G:WDD:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_group_user": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:<user>G:<user>D:P(A;;FA;;;<user>)(A;ID;FR;;;WD)"
+    },
+    "file_owner_group_dacl": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:<user>G:BAD:P(A;;FA;;;<user>)(A;;FR;;;BA)"
+    },
+    "file_owner_missing_in_sd": {
+      "ret": false,
+      "last_error": 1338,
+      "after_control": "0x00001004",
+      "after": "O:<user>G:BAD:P(A;;FA;;;<user>)(A;;FR;;;BA)"
+    },
+    "file_dacl_missing_in_sd": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000004",
+      "after": "O:<user>G:BAD:NO_ACCESS_CONTROL"
+    },
+    "dir_owner_admins": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00001004",
+      "after": "O:BAG:BAD:P(A;OICI;FA;;;<user>)(A;OICI;FA;;;SY)"
+    },
+    "file_sacl_no_priv": {
+      "ret": false,
+      "last_error": 1314,
+      "after_control": "0x00000004",
+      "after": "D:NO_ACCESS_CONTROL"
+    },
+    "file_sacl_read_no_priv": {
+      "ret": false,
+      "last_error": 5,
+      "after_error": 1314
+    },
+    "enable_security": {
+      "ret": true
+    },
+    "file_sacl_with_priv": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000010",
+      "after": "S:(AU;SAFA;FA;;;WD)"
+    },
+    "file_sacl_protected": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00002010",
+      "after": "S:P(AU;FA;FW;;;BU)"
+    },
+    "file_sacl_empty": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000010",
+      "after": "S:NO_ACCESS_CONTROL"
+    },
+    "file_label_low": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000010",
+      "after": "S:(ML;;NW;;;LW)"
+    },
+    "file_label_high": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000010",
+      "after": "S:(ML;;NWNR;;;HI)"
+    },
+    "file_label_system": {
+      "ret": false,
+      "last_error": 1299,
+      "after_control": "0x00000010",
+      "after": "S:(ML;;NWNR;;;HI)"
+    },
+    "file_label_medium": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000010",
+      "after": "S:(ML;;NW;;;ME)"
+    },
+    "file_label_none": {
+      "ret": true,
+      "last_error": "unchanged",
+      "after_control": "0x00000010",
+      "after": "S:NO_ACCESS_CONTROL"
+    },
+    "get_size_query": {
+      "ret": false,
+      "last_error": 122,
+      "need_nonzero": true,
+      "exact_ret": true,
+      "exact_need_same": true
+    },
+    "get_nothing": {
+      "ret": false,
+      "last_error": 5
+    },
+    "get_missing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "set_missing": {
+      "ret": false,
+      "last_error": 2
+    },
+    "set_missing_path": {
+      "ret": false,
+      "last_error": 3
+    },
+    "subsets": {
+      "owner_control": "0x00000000",
+      "owner": "O:<user>",
+      "group_control": "0x00000000",
+      "group": "G:BA",
+      "dacl_control": "0x00001004",
+      "dacl": "D:P(A;;FA;;;<user>)(A;;FR;;;WD)",
+      "label_control": "0x00000010",
+      "label": "S:NO_ACCESS_CONTROL"
+    },
+    "handle_get_read_control": {
+      "open": "valid",
+      "ret": 0,
+      "sd": "O:<user>G:BAD:P(A;;FA;;;<user>)(A;;FR;;;WD)"
+    },
+    "handle_get_without_read_control": {
+      "open": "valid",
+      "ret": 5
+    },
+    "handle_get_sacl_without_ass": {
+      "open": "valid",
+      "ret": 5
+    },
+    "handle_set_dacl_write_dac": {
+      "open": "valid",
+      "ret": 5,
+      "after_control": "0x00001004",
+      "after": "D:P(A;;FA;;;<user>)(A;;FR;;;WD)"
+    },
+    "handle_set_dacl_no_write_dac": {
+      "open": "valid",
+      "ret": 5,
+      "after_control": "0x00001004",
+      "after": "D:P(A;;FA;;;<user>)(A;;FR;;;WD)"
+    },
+    "handle_set_owner_write_owner": {
+      "open": "valid",
+      "ret": 0,
+      "after_control": "0x00000000",
+      "after": "O:BA"
+    },
+    "handle_set_owner_write_dac_only": {
+      "open": "valid",
+      "ret": 5,
+      "after_control": "0x00000000",
+      "after": "O:BA"
+    },
+    "handle_set_group_write_owner": {
+      "open": "valid",
+      "ret": 0,
+      "after_control": "0x00000000",
+      "after": "G:BU"
+    },
+    "handle_set_dir_dacl": {
+      "open": "valid",
+      "ret": 0,
+      "after_control": "0x00001404",
+      "after": "D:PAI(A;OICI;FA;;;<user>)(A;OICI;FR;;;BU)"
+    },
+    "handle_set_label": {
+      "open": "valid",
+      "ret": 0,
+      "after_control": "0x00000810",
+      "after": "S:AI(ML;;NW;;;LW)"
+    },
+    "handle_get_sacl_with_ass": {
+      "open": "valid",
+      "ret": 0,
+      "sd": "S:AI"
+    },
+    "handle_set_sacl_with_ass": {
+      "open": "valid",
+      "ret": 0,
+      "after_control": "0x00000810",
+      "after": "S:AI(AU;FA;FA;;;BA)"
+    }
+  },
+  "errors": [],
+  "source_sha256": "856c418af001ddf3a8ed212f4c7eb15968dd694557ecd5dffdd3fb09ae3140a4"
+}
