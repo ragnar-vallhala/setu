@@ -307,12 +307,23 @@ class WindowsTarget(Target):
         before any test program starts, avoids the jump."""
         if self.c["revert"] == "none":
             return
-        now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        r = self.ssh("powershell -NoProfile -NonInteractive -Command "
-                     f"\"Set-Date -Date ([DateTime]::Parse('{now}')) | Out-Null\"", timeout=60)
-        if r.returncode != 0:
+        # PowerShell can take minutes to start on a loaded host. A clock that
+        # couldn't be set is only a warning: dropping the VM for it would stop
+        # the whole run.
+        for timeout in (90, 240):
+            now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            try:
+                r = self.ssh("powershell -NoProfile -NonInteractive -Command "
+                             f"\"Set-Date -Date ([DateTime]::Parse('{now}')) | Out-Null\"",
+                             timeout=timeout)
+            except subprocess.TimeoutExpired:
+                print(f"windows: warning: setting the guest clock timed out after {timeout}s")
+                continue
+            if r.returncode == 0:
+                return
             print(f"windows: warning: could not set the guest clock: "
                   f"{r.stderr.decode(errors='replace').strip()}")
+            return
 
     def _upload(self, tests: list[Test]) -> None:
         """Fresh C:\\setu-oracle\\{bin,work} holding the given test programs."""
