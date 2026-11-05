@@ -58,13 +58,16 @@ static CRITICAL_SECTION_DEBUG ndr_context_debug =
 };
 static CRITICAL_SECTION ndr_context_cs = { &ndr_context_debug, -1, 0, 0, 0, 0 };
 
+/* Only handles in the list are valid, so a bogus pointer is never dereferenced.
+ * Called with ndr_context_cs held. */
 static struct context_handle_entry *get_context_entry(NDR_CCONTEXT CContext)
 {
-    struct context_handle_entry *che = CContext;
+    struct context_handle_entry *che;
 
-    if (che->magic != NDR_CONTEXT_HANDLE_MAGIC)
-        return NULL;
-    return che;
+    LIST_FOR_EACH_ENTRY(che, &context_handle_list, struct context_handle_entry, entry)
+        if (che == CContext && che->magic == NDR_CONTEXT_HANDLE_MAGIC)
+            return che;
+    return NULL;
 }
 
 static struct context_handle_entry *context_entry_from_guid(LPCGUID uuid)
@@ -107,8 +110,9 @@ void WINAPI NDRCContextMarshall(NDR_CCONTEXT CContext, void *pBuff)
     {
         EnterCriticalSection(&ndr_context_cs);
         che = get_context_entry(CContext);
-        memcpy(pBuff, &che->wire_data, sizeof (ndr_context_handle));
+        if (che) memcpy(pBuff, &che->wire_data, sizeof (ndr_context_handle));
         LeaveCriticalSection(&ndr_context_cs);
+        if (!che) RpcRaiseException(RPC_X_SS_CONTEXT_MISMATCH);
     }
     else
     {

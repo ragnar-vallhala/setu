@@ -152,6 +152,7 @@ static DWORD map_exception_code( DWORD exception_code )
         return ERROR_INVALID_PARAMETER;
     case RPC_S_INVALID_BINDING:
     case RPC_X_SS_IN_NULL_CONTEXT:
+    case RPC_X_SS_CONTEXT_MISMATCH:  /* a handle that was never opened */
         return ERROR_INVALID_HANDLE;
     default:
         return exception_code;
