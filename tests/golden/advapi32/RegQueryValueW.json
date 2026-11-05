@@ -40,10 +40,22 @@
       "buffer": "0000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
     },
     "expand_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 4,
+      "buffer": "780079007a00000055005f004f005200410043004c0045005f00580025000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_long": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 23,
+      "buffer": "3c0030003100320033003400350036003700380039006100620063006400650066006700680069006a003e000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_long_small": {
       "ret": 234,
       "last_error": "unchanged",
-      "cb": 257,
-      "buffer": "0000500041005400480025000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      "cb": 23,
+      "buffer": "3c0030003100320033003400350036003700380039006100620063006400650066006700680069006a000000cccc"
     },
     "dword": {
       "ret": 13,
@@ -117,5 +129,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "91765388f6e4c2dfe3bae274494b4af5c282d52713ac4f4fc44c5e1f6da93f58"
+  "source_sha256": "20814680d1d333f6bf9174eef2de1a1289aad0653463bf3e1c365c6518a59eb3"
 }

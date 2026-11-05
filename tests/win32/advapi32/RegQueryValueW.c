@@ -41,7 +41,11 @@ int main(void)
     root = oracle_reg_root();
     def(L"sz", REG_SZ, L"hello", 12);
     def(L"unset", REG_NONE, NULL, 0);
-    def(L"exp", REG_EXPAND_SZ, L"%PATH%", 14);
+    /* the test's own variables, so sizes do not depend on the machine */
+    SetEnvironmentVariableW(L"SETU_ORACLE_X", L"xyz");
+    SetEnvironmentVariableW(L"SETU_ORACLE_LONG", L"0123456789abcdefghij");
+    def(L"exp", REG_EXPAND_SZ, L"%SETU_ORACLE_X%", 32);
+    def(L"explong", REG_EXPAND_SZ, L"<%SETU_ORACLE_LONG%>", 42);
     def(L"dw", REG_DWORD, "\1\2\3\4", 4);
     def(L"bin", REG_BINARY, "\1\2\3", 3);
     def(L"nonul", REG_SZ, L"abc", 6);
@@ -56,6 +60,8 @@ int main(void)
     q_case("sz_zero_buffer", root, L"sz", 1, 0);
     q_case("unset_default", root, L"unset", 1, 64);
     q_case("expand_sz", root, L"exp", 1, 64);
+    q_case("expand_long", root, L"explong", 1, 64);
+    q_case("expand_long_small", root, L"explong", 1, 44);
     q_case("dword", root, L"dw", 1, 64);
     q_case("binary", root, L"bin", 1, 64);
     q_case("no_nul", root, L"nonul", 1, 64);
