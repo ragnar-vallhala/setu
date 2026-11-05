@@ -31,26 +31,6 @@
 WINE_DEFAULT_DEBUG_CHANNEL(service);
 
 /******************************************************************************
- * LockServiceDatabase  [ADVAPI32.@]
- */
-SC_LOCK WINAPI LockServiceDatabase( SC_HANDLE manager )
-{
-    /* this function is a no-op in Vista and above */
-    TRACE("%p\n", manager);
-    return (SC_LOCK)0xdeadbeef;
-}
-
-/******************************************************************************
- * UnlockServiceDatabase  [ADVAPI32.@]
- */
-BOOL WINAPI UnlockServiceDatabase( SC_LOCK lock )
-{
-    /* this function is a no-op in Vista and above */
-    TRACE("%p\n", lock);
-    return TRUE;
-}
-
-/******************************************************************************
  * EnumServicesStatusA [ADVAPI32.@]
  */
 BOOL WINAPI
@@ -324,30 +304,6 @@ cleanup:
     free(lpServiceNameW);
     free(lpDisplayNameW);
     return ret;
-}
-
-/******************************************************************************
- * QueryServiceLockStatusA [ADVAPI32.@]
- */
-BOOL WINAPI QueryServiceLockStatusA( SC_HANDLE hSCManager,
-                                     LPQUERY_SERVICE_LOCK_STATUSA lpLockStatus,
-                                     DWORD cbBufSize, LPDWORD pcbBytesNeeded)
-{
-    FIXME("%p %p %08lx %p\n", hSCManager, lpLockStatus, cbBufSize, pcbBytesNeeded);
-
-    return FALSE;
-}
-
-/******************************************************************************
- * QueryServiceLockStatusW [ADVAPI32.@]
- */
-BOOL WINAPI QueryServiceLockStatusW( SC_HANDLE hSCManager,
-                                     LPQUERY_SERVICE_LOCK_STATUSW lpLockStatus,
-                                     DWORD cbBufSize, LPDWORD pcbBytesNeeded)
-{
-    FIXME("%p %p %08lx %p\n", hSCManager, lpLockStatus, cbBufSize, pcbBytesNeeded);
-
-    return FALSE;
 }
 
 /******************************************************************************

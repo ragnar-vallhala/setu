@@ -1391,6 +1391,124 @@ BOOL process_send_control(struct process_entry *process, BOOL shared_process, co
     return r;
 }
 
+static void find_dependents(struct scmdatabase *db, struct service_entry *target,
+                            struct service_entry **list, DWORD *count, DWORD max);
+
+/* Waits until a service that was just started leaves START_PENDING. */
+static void wait_while_start_pending(struct service_entry *service)
+{
+    ULONGLONG end = GetTickCount64() + service_pipe_timeout;
+    DWORD state;
+
+    for (;;)
+    {
+        service_lock(service);
+        state = service->status.dwCurrentState;
+        service_unlock(service);
+        if (state != SERVICE_START_PENDING || GetTickCount64() > end) break;
+        Sleep(10);
+    }
+}
+
+static DWORD start_with_dependencies(struct service_entry *service, DWORD argc, LPCWSTR *argv, DWORD depth);
+
+/* Starts a dependency that isn't running; it must be running afterwards. */
+static DWORD start_dependency(struct service_entry *dep, DWORD depth)
+{
+    DWORD state, err;
+
+    if (dep->config.dwStartType == SERVICE_DISABLED || is_marked_for_delete(dep))
+        return ERROR_SERVICE_DEPENDENCY_FAIL;
+    service_lock(dep);
+    state = dep->status.dwCurrentState;
+    service_unlock(dep);
+    if (state == SERVICE_STOPPED)
+    {
+        if ((err = start_with_dependencies(dep, 0, NULL, depth + 1)))
+            return err == ERROR_SERVICE_DEPENDENCY_DELETED ? err : ERROR_SERVICE_DEPENDENCY_FAIL;
+        wait_while_start_pending(dep);
+    }
+    service_lock(dep);
+    state = dep->status.dwCurrentState;
+    service_unlock(dep);
+    return state == SERVICE_STOPPED ? ERROR_SERVICE_DEPENDENCY_FAIL : ERROR_SUCCESS;
+}
+
+/* StartService starts the services (and load order groups) a service
+ * depends on first, as on Windows: a missing one fails the start with
+ * ERROR_SERVICE_DEPENDENCY_DELETED, one that can't run (disabled, failing)
+ * with ERROR_SERVICE_DEPENDENCY_FAIL. */
+static DWORD start_with_dependencies(struct service_entry *service, DWORD argc, LPCWSTR *argv, DWORD depth)
+{
+    struct scmdatabase *db = service->db;
+    struct service_entry *dep;
+    const WCHAR *p;
+    DWORD err;
+
+    if (depth > 32) return ERROR_CIRCULAR_DEPENDENCY;
+
+    for (p = service->dependOnServices; p && *p; p += lstrlenW(p) + 1)
+    {
+        scmdatabase_lock(db);
+        dep = grab_service(scmdatabase_find_service(db, p));
+        scmdatabase_unlock(db);
+        if (!dep) return ERROR_SERVICE_DEPENDENCY_DELETED;
+        err = dep == service ? ERROR_CIRCULAR_DEPENDENCY : start_dependency(dep, depth);
+        release_service(dep);
+        if (err) return err;
+    }
+
+    for (p = service->dependOnGroups; p && *p; p += lstrlenW(p) + 1)
+    {
+        struct service_entry **members;
+        DWORD count = 0, max = 0, i;
+        BOOL running = FALSE;
+
+        scmdatabase_lock(db);
+        LIST_FOR_EACH_ENTRY(dep, &db->services, struct service_entry, entry) max++;
+        if (!(members = malloc(max * sizeof(*members) + 1)))
+        {
+            scmdatabase_unlock(db);
+            return ERROR_NOT_ENOUGH_SERVER_MEMORY;
+        }
+        LIST_FOR_EACH_ENTRY(dep, &db->services, struct service_entry, entry)
+            if (dep != service && dep->config.lpLoadOrderGroup && !wcsicmp(dep->config.lpLoadOrderGroup, p))
+                members[count++] = grab_service(dep);
+        scmdatabase_unlock(db);
+        /* the group dependency holds when one of its members runs */
+        for (i = 0; i < count; i++)
+        {
+            if (!start_dependency(members[i], depth)) running = TRUE;
+            release_service(members[i]);
+        }
+        free(members);
+        if (!running) return ERROR_SERVICE_DEPENDENCY_FAIL;
+    }
+
+    return service_start(service, argc, argv);
+}
+
+/* Whether a service that depends on 'target' (directly or not) is active. */
+static BOOL dependents_running(struct service_entry *target)
+{
+    struct scmdatabase *db = target->db;
+    struct service_entry **list, *entry;
+    DWORD count = 0, max = 0, i;
+    BOOL ret = FALSE;
+
+    scmdatabase_lock(db);
+    LIST_FOR_EACH_ENTRY(entry, &db->services, struct service_entry, entry) max++;
+    if ((list = malloc(max * sizeof(*list) + 1)))
+    {
+        find_dependents(db, target, list, &count, max);
+        for (i = 0; i < count; i++)
+            if (list[i]->status.dwCurrentState != SERVICE_STOPPED) ret = TRUE;
+        free(list);
+    }
+    scmdatabase_unlock(db);
+    return ret;
+}
+
 DWORD __cdecl svcctl_StartServiceW(
     SC_RPC_HANDLE hService,
     DWORD dwNumServiceArgs,
@@ -1404,13 +1522,15 @@ DWORD __cdecl svcctl_StartServiceW(
     if ((err = validate_service_handle(hService, SERVICE_START, &service)) != 0)
         return err;
 
-    if (service->service_entry->config.dwStartType == SERVICE_DISABLED)
+    /* Windows answers ERROR_SERVICE_DISABLED for a service marked for deletion too */
+    if (service->service_entry->config.dwStartType == SERVICE_DISABLED ||
+        is_marked_for_delete(service->service_entry))
         return ERROR_SERVICE_DISABLED;
 
     if (!scmdatabase_lock_startup(service->service_entry->db, 3000))
         return ERROR_SERVICE_DATABASE_LOCKED;
 
-    err = service_start(service->service_entry, dwNumServiceArgs, lpServiceArgVectors);
+    err = start_with_dependencies(service->service_entry, dwNumServiceArgs, lpServiceArgVectors, 0);
 
     scmdatabase_unlock_startup(service->service_entry->db);
     return err;
@@ -1455,6 +1575,9 @@ DWORD __cdecl svcctl_ControlService(
 
     if ((result = validate_service_handle(hService, access_required, &service)) != 0)
         return result;
+
+    if (dwControl == SERVICE_CONTROL_STOP && dependents_running(service->service_entry))
+        return ERROR_DEPENDENT_SERVICES_RUNNING;
 
     service_lock(service->service_entry);
 
@@ -1544,22 +1667,72 @@ DWORD __cdecl svcctl_CloseServiceHandle(
     return ERROR_SUCCESS;
 }
 
+/* The database lock (LockServiceDatabase). It lasts until it is unlocked or
+ * its owner goes away; closing the SCM handle it was taken with doesn't
+ * release it. Only one can exist at a time. */
+static struct sc_lock *database_lock;
+static ULONGLONG database_lock_time;
+
 void __RPC_USER SC_RPC_LOCK_rundown(SC_RPC_LOCK hLock)
 {
+    struct sc_lock *lock = hLock;
+    struct scmdatabase *db = lock->db;
+
+    scmdatabase_lock(db);
+    if (database_lock == lock) database_lock = NULL;
+    free(lock);
+    scmdatabase_unlock(db);
 }
 
-DWORD __cdecl svcctl_LockServiceDatabase(SC_RPC_HANDLE manager, SC_RPC_LOCK *lock)
+DWORD __cdecl svcctl_LockServiceDatabase(SC_RPC_HANDLE handle, SC_RPC_LOCK *lock)
 {
-    TRACE("(%p, %p)\n", manager, lock);
+    struct sc_manager_handle *manager;
+    struct sc_lock *l;
+    DWORD err;
 
-    *lock = (SC_RPC_LOCK)0xdeadbeef;
+    TRACE("(%p, %p)\n", handle, lock);
+
+    if ((err = validate_scm_handle(handle, SC_MANAGER_LOCK, &manager)) != ERROR_SUCCESS)
+        return err;
+
+    scmdatabase_lock(manager->db);
+    if (database_lock)
+    {
+        scmdatabase_unlock(manager->db);
+        return ERROR_SERVICE_DATABASE_LOCKED;
+    }
+    if (!(l = malloc(sizeof(*l))))
+    {
+        scmdatabase_unlock(manager->db);
+        return ERROR_NOT_ENOUGH_SERVER_MEMORY;
+    }
+    l->db = manager->db;
+    database_lock = l;
+    database_lock_time = GetTickCount64();
+    scmdatabase_unlock(manager->db);
+
+    *lock = l;
     return ERROR_SUCCESS;
 }
 
 DWORD __cdecl svcctl_UnlockServiceDatabase(SC_RPC_LOCK *lock)
 {
+    struct sc_lock *l = *lock;
+    struct scmdatabase *db;
+
     TRACE("(&%p)\n", *lock);
 
+    if (!l) return ERROR_INVALID_SERVICE_LOCK;
+    db = l->db;
+    scmdatabase_lock(db);
+    if (database_lock != l)
+    {
+        scmdatabase_unlock(db);
+        return ERROR_INVALID_SERVICE_LOCK;
+    }
+    database_lock = NULL;
+    free(l);
+    scmdatabase_unlock(db);
     *lock = NULL;
     return ERROR_SUCCESS;
 }
@@ -2080,26 +2253,173 @@ DWORD __cdecl svcctl_SCSetServiceBitsW(void)
     return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-DWORD __cdecl svcctl_EnumDependentServicesW(
-    SC_RPC_HANDLE service,
-    DWORD state,
-    BYTE *services,
-    DWORD buf_size,
-    DWORD *needed_size,
-    DWORD *services_ret)
+static BOOL depends_on(const struct service_entry *service, const struct service_entry *target)
 {
-    WINE_FIXME("\n");
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    const WCHAR *p;
+
+    if (!service->dependOnServices) return FALSE;
+    for (p = service->dependOnServices; *p; p += lstrlenW(p) + 1)
+        if (!wcsicmp(p, target->name)) return TRUE;
+    return FALSE;
+}
+
+static BOOL in_list(struct service_entry **list, DWORD count, const struct service_entry *service)
+{
+    DWORD i;
+    for (i = 0; i < count; i++) if (list[i] == service) return TRUE;
+    return FALSE;
+}
+
+/* Adds the services that depend on 'target', directly or not, to 'list'. */
+static void find_dependents(struct scmdatabase *db, struct service_entry *target,
+                            struct service_entry **list, DWORD *count, DWORD max)
+{
+    struct service_entry *service;
+
+    LIST_FOR_EACH_ENTRY(service, &db->services, struct service_entry, entry)
+    {
+        if (service == target || !depends_on(service, target) || in_list(list, *count, service)) continue;
+        if (*count < max) list[(*count)++] = service;
+        find_dependents(db, service, list, count, max);
+    }
+}
+
+/* Appends 'service' to 'order' after those of its dependencies that are in 'set'. */
+static void start_order_visit(struct service_entry *service, struct service_entry **set, DWORD set_count,
+                              struct service_entry **order, DWORD *count, DWORD depth)
+{
+    DWORD i;
+
+    if (in_list(order, *count, service)) return;
+    if (depth < set_count)  /* dependency cycles end here */
+        for (i = 0; i < set_count; i++)
+            if (set[i] != service && depends_on(service, set[i]))
+                start_order_visit(set[i], set, set_count, order, count, depth + 1);
+    if (!in_list(order, *count, service)) order[(*count)++] = service;
+}
+
+/* Fills 'list' with the dependents of 'target' in reverse start order (a
+ * service comes before the ones it depends on), as EnumDependentServices
+ * returns them. */
+static void collect_dependents(struct scmdatabase *db, struct service_entry *target,
+                               struct service_entry **list, DWORD *count, DWORD max)
+{
+    struct service_entry **set, **order, *service;
+    DWORD set_count = 0, order_count = 0, i;
+
+    *count = 0;
+    if (!(set = malloc(2 * max * sizeof(*set) + 1))) return;
+    order = set + max;
+    find_dependents(db, target, set, &set_count, max);
+    /* visit in database order so that independent services keep it */
+    LIST_FOR_EACH_ENTRY(service, &db->services, struct service_entry, entry)
+        if (in_list(set, set_count, service))
+            start_order_visit(service, set, set_count, order, &order_count, 0);
+    for (i = 0; i < order_count; i++) list[i] = order[order_count - 1 - i];
+    *count = order_count;
+    free(set);
+}
+
+DWORD __cdecl svcctl_EnumDependentServicesW(
+    SC_RPC_HANDLE handle,
+    DWORD state,
+    BYTE *buffer,
+    DWORD size,
+    DWORD *needed,
+    DWORD *returned)
+{
+    struct sc_service_handle *service;
+    struct service_entry **list, *entry;
+    struct enum_service_status *s;
+    DWORD err, i, count = 0, max = 0, total_size = 0, num = 0, offset, sz;
+
+    WINE_TRACE("(%p, 0x%lx, %p, %lu, %p, %p)\n", handle, state, buffer, size, needed, returned);
+
+    if ((err = validate_service_handle(handle, SERVICE_ENUMERATE_DEPENDENTS, &service)) != ERROR_SUCCESS)
+        return err;
+    if (!state || (state & ~SERVICE_STATE_ALL))
+        return ERROR_INVALID_PARAMETER;
+
+    scmdatabase_lock(service->service_entry->db);
+    LIST_FOR_EACH_ENTRY(entry, &service->service_entry->db->services, struct service_entry, entry)
+        max++;
+    if (!(list = malloc(max * sizeof(*list) + 1)))
+    {
+        scmdatabase_unlock(service->service_entry->db);
+        return ERROR_NOT_ENOUGH_SERVER_MEMORY;
+    }
+    collect_dependents(service->service_entry->db, service->service_entry, list, &count, max);
+
+    for (i = 0; i < count; i++)
+    {
+        if (!map_state(list[i]->status.dwCurrentState, state)) continue;
+        total_size += sizeof(*s);
+        total_size += (lstrlenW(list[i]->name) + 1) * sizeof(WCHAR);
+        if (list[i]->config.lpDisplayName)
+            total_size += (lstrlenW(list[i]->config.lpDisplayName) + 1) * sizeof(WCHAR);
+        num++;
+    }
+    *returned = 0;
+    *needed = total_size;
+    if (total_size > size)
+    {
+        free(list);
+        scmdatabase_unlock(service->service_entry->db);
+        return ERROR_MORE_DATA;
+    }
+
+    s = (struct enum_service_status *)buffer;
+    offset = num * sizeof(*s);
+    for (i = 0; i < count; i++)
+    {
+        entry = list[i];
+        if (!map_state(entry->status.dwCurrentState, state)) continue;
+        sz = (lstrlenW(entry->name) + 1) * sizeof(WCHAR);
+        memcpy(buffer + offset, entry->name, sz);
+        s->service_name = offset;
+        offset += sz;
+        if (!entry->config.lpDisplayName) s->display_name = 0;
+        else
+        {
+            sz = (lstrlenW(entry->config.lpDisplayName) + 1) * sizeof(WCHAR);
+            memcpy(buffer + offset, entry->config.lpDisplayName, sz);
+            s->display_name = offset;
+            offset += sz;
+        }
+        s->service_status = entry->status;
+        s++;
+    }
+    *returned = num;
+    *needed = 0;
+    free(list);
+    scmdatabase_unlock(service->service_entry->db);
+    return ERROR_SUCCESS;
 }
 
 DWORD __cdecl svcctl_QueryServiceLockStatusW(
-    SC_RPC_HANDLE scmanager,
+    SC_RPC_HANDLE handle,
     QUERY_SERVICE_LOCK_STATUSW *status,
     DWORD buf_size,
     DWORD *needed_size)
 {
-    WINE_FIXME("\n");
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    struct sc_manager_handle *manager;
+    const WCHAR *owner;
+    DWORD err;
+
+    TRACE("(%p, %p, %lu, %p)\n", handle, status, buf_size, needed_size);
+
+    if ((err = validate_scm_handle(handle, SC_MANAGER_QUERY_LOCK_STATUS, &manager)) != ERROR_SUCCESS)
+        return err;
+
+    scmdatabase_lock(manager->db);
+    owner = database_lock ? L"LocalSystem" : L"";
+    status->fIsLocked = database_lock != NULL;
+    status->dwLockDuration = database_lock ? (GetTickCount64() - database_lock_time) / 1000 : 0;
+    scmdatabase_unlock(manager->db);
+    status->lpLockOwner = wcsdup(owner);
+    /* the size Windows reports to callers (observed: 38 bytes when unlocked) */
+    *needed_size = sizeof(*status) + (lstrlenW(owner) + 1) * sizeof(WCHAR) + 12;
+    return ERROR_SUCCESS;
 }
 
 DWORD __cdecl svcctl_SCSetServiceBitsA(void)

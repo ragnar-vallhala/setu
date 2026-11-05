@@ -124,6 +124,7 @@
 @ stub LocalRpcBindingSetAuthInfoEx
 @ stub LookupAccountNameLocalA
 @ stub LookupAccountNameLocalW
+@ stdcall LockServiceDatabase(ptr)
 @ stdcall LookupAccountSidLocalA(ptr ptr ptr ptr ptr ptr) advapi32.LookupAccountSidLocalA
 @ stdcall LookupAccountSidLocalW(ptr ptr ptr ptr ptr ptr) advapi32.LookupAccountSidLocalW
 @ stdcall LsaAddAccountRights(ptr ptr ptr long) advapi32.LsaAddAccountRights
@@ -174,6 +175,8 @@
 @ stdcall QueryServiceConfigA(long ptr long ptr)
 @ stdcall QueryServiceConfigW(long ptr long ptr)
 @ stub QueryServiceDynamicInformation
+@ stdcall QueryServiceLockStatusA(long ptr long ptr)
+@ stdcall QueryServiceLockStatusW(long ptr long ptr)
 @ stdcall QueryServiceObjectSecurity(long long ptr long ptr)
 @ stdcall QueryServiceStatus(long ptr)
 @ stdcall QueryServiceStatusEx(long long ptr long ptr)
@@ -206,3 +209,4 @@
 @ stdcall TraceSetInformation(int64 long ptr long)
 @ stub UnsubscribeServiceChangeNotifications
 @ stub WaitServiceState
+@ stdcall UnlockServiceDatabase(ptr)

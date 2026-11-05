@@ -421,7 +421,7 @@
 @ stdcall -import IsValidSecurityDescriptor(ptr)
 @ stdcall -import IsValidSid(ptr)
 @ stdcall -import IsWellKnownSid(ptr long)
-@ stdcall LockServiceDatabase(ptr)
+@ stdcall -import LockServiceDatabase(ptr)
 @ stdcall LogonUserA(str str str long long ptr)
 # @ stub LogonUserExA
 # @ stub LogonUserExExW
@@ -598,8 +598,8 @@
 @ stdcall -import QueryServiceConfigA(long ptr long ptr)
 @ stdcall -import QueryServiceConfigW(long ptr long ptr)
 # @ stub QueryServiceDynamicInformation
-@ stdcall QueryServiceLockStatusA(long ptr long ptr)
-@ stdcall QueryServiceLockStatusW(long ptr long ptr)
+@ stdcall -import QueryServiceLockStatusA(long ptr long ptr)
+@ stdcall -import QueryServiceLockStatusW(long ptr long ptr)
 @ stdcall -import QueryServiceObjectSecurity(long long ptr long ptr)
 @ stdcall -import QueryServiceStatus(long ptr)
 @ stdcall -import QueryServiceStatusEx (long long ptr long ptr)
@@ -828,7 +828,7 @@
 # @ stub TrusteeAccessToObjectA
 # @ stub TrusteeAccessToObjectW
 # @ stub UninstallApplication
-@ stdcall UnlockServiceDatabase (ptr)
+@ stdcall -import UnlockServiceDatabase(ptr)
 # @ stub UnregisterIdleTask
 @ stdcall UnregisterTraceGuids(int64) ntdll.EtwUnregisterTraceGuids
 @ stub UpdateTraceA

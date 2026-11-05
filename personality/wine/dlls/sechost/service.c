@@ -1097,6 +1097,151 @@ BOOL WINAPI DECLSPEC_HOTPATCH ControlService( SC_HANDLE service, DWORD control, 
 }
 
 /******************************************************************************
+ *     LockServiceDatabase   (sechost.@)
+ */
+SC_LOCK WINAPI LockServiceDatabase( SC_HANDLE manager )
+{
+    SC_RPC_LOCK lock = NULL;
+    DWORD err;
+
+    TRACE( "%p\n", manager );
+
+    if (!manager)
+    {
+        SetLastError( ERROR_INVALID_HANDLE );
+        return NULL;
+    }
+
+    __TRY
+    {
+        err = svcctl_LockServiceDatabase( manager, &lock );
+    }
+    __EXCEPT(rpc_filter)
+    {
+        err = map_exception_code( GetExceptionCode() );
+    }
+    __ENDTRY
+
+    /* Windows sets the last error on success too */
+    SetLastError( err );
+    return err ? NULL : (SC_LOCK)lock;
+}
+
+/******************************************************************************
+ *     UnlockServiceDatabase   (sechost.@)
+ */
+BOOL WINAPI UnlockServiceDatabase( SC_LOCK lock )
+{
+    SC_RPC_LOCK hlock = lock;
+    DWORD err;
+
+    TRACE( "%p\n", lock );
+
+    if (!lock) return set_error( ERROR_INVALID_SERVICE_LOCK );
+
+    __TRY
+    {
+        err = svcctl_UnlockServiceDatabase( &hlock );
+    }
+    __EXCEPT(rpc_filter)
+    {
+        err = map_exception_code( GetExceptionCode() );
+        if (err == ERROR_INVALID_HANDLE) err = ERROR_INVALID_SERVICE_LOCK;
+    }
+    __ENDTRY
+
+    return set_error( err );
+}
+
+/* QueryServiceLockStatus reports a size a bit larger than what it fills. */
+static DWORD query_lock_status( SC_HANDLE manager, QUERY_SERVICE_LOCK_STATUSW *status, DWORD *needed )
+{
+    DWORD err;
+
+    memset( status, 0, sizeof(*status) );
+    __TRY
+    {
+        err = svcctl_QueryServiceLockStatusW( manager, status, 0, needed );
+    }
+    __EXCEPT(rpc_filter)
+    {
+        err = map_exception_code( GetExceptionCode() );
+    }
+    __ENDTRY
+    return err;
+}
+
+/******************************************************************************
+ *     QueryServiceLockStatusW   (sechost.@)
+ */
+BOOL WINAPI QueryServiceLockStatusW( SC_HANDLE manager, QUERY_SERVICE_LOCK_STATUSW *ret,
+                                     DWORD size, DWORD *needed )
+{
+    QUERY_SERVICE_LOCK_STATUSW status;
+    DWORD err, need = 0;
+
+    TRACE( "%p %p %lu %p\n", manager, ret, size, needed );
+
+    if (!manager) return set_error( ERROR_INVALID_HANDLE );
+    if (!needed) return set_error( ERROR_INVALID_ADDRESS );
+
+    if ((err = query_lock_status( manager, &status, &need )))
+    {
+        *needed = 0;
+        return set_error( err );
+    }
+
+    if (size < need || !ret)
+    {
+        *needed = need;
+        MIDL_user_free( status.lpLockOwner );
+        return set_error( ERROR_INSUFFICIENT_BUFFER );
+    }
+    ret->fIsLocked = status.fIsLocked;
+    ret->dwLockDuration = status.dwLockDuration;
+    ret->lpLockOwner = (WCHAR *)(ret + 1);
+    lstrcpynW( ret->lpLockOwner, status.lpLockOwner ? status.lpLockOwner : L"",
+               (size - sizeof(*ret)) / sizeof(WCHAR) );
+    MIDL_user_free( status.lpLockOwner );
+    return TRUE;
+}
+
+/******************************************************************************
+ *     QueryServiceLockStatusA   (sechost.@)
+ */
+BOOL WINAPI QueryServiceLockStatusA( SC_HANDLE manager, QUERY_SERVICE_LOCK_STATUSA *ret,
+                                     DWORD size, DWORD *needed )
+{
+    QUERY_SERVICE_LOCK_STATUSW status;
+    DWORD err, need = 0;
+
+    TRACE( "%p %p %lu %p\n", manager, ret, size, needed );
+
+    if (!manager) return set_error( ERROR_INVALID_HANDLE );
+    if (!needed) return set_error( ERROR_INVALID_ADDRESS );
+
+    if ((err = query_lock_status( manager, &status, &need )))
+    {
+        *needed = 0;
+        return set_error( err );
+    }
+
+    if (size < need || !ret)
+    {
+        *needed = need;
+        MIDL_user_free( status.lpLockOwner );
+        return set_error( ERROR_INSUFFICIENT_BUFFER );
+    }
+    ret->fIsLocked = status.fIsLocked;
+    ret->dwLockDuration = status.dwLockDuration;
+    ret->lpLockOwner = (char *)(ret + 1);
+    WideCharToMultiByte( CP_ACP, 0, status.lpLockOwner ? status.lpLockOwner : L"", -1,
+                         ret->lpLockOwner, size - sizeof(*ret), NULL, NULL );
+    MIDL_user_free( status.lpLockOwner );
+    return TRUE;
+}
+
+/******************************************************************************
  *     QueryServiceStatus   (sechost.@)
  */
 BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceStatus( SC_HANDLE service, SERVICE_STATUS *status )
@@ -1254,10 +1399,94 @@ BOOL WINAPI EnumDependentServicesW( SC_HANDLE hService, DWORD dwServiceState,
                                     LPENUM_SERVICE_STATUSW lpServices, DWORD cbBufSize,
                                     LPDWORD pcbBytesNeeded, LPDWORD lpServicesReturned )
 {
-    FIXME("%p 0x%08lx %p 0x%08lx %p %p - stub\n", hService, dwServiceState,
-          lpServices, cbBufSize, pcbBytesNeeded, lpServicesReturned);
+    struct enum_service_status *entry;
+    DWORD err, i, count = 0, buflen, offset, total_size = 0;
+    const WCHAR *str;
+    BYTE *buf;
+
+    TRACE( "%p 0x%08lx %p 0x%08lx %p %p\n", hService, dwServiceState,
+           lpServices, cbBufSize, pcbBytesNeeded, lpServicesReturned );
+
+    if (!hService) return set_error( ERROR_INVALID_HANDLE );
+    if (!pcbBytesNeeded || !lpServicesReturned) return set_error( ERROR_INVALID_ADDRESS );
+
+    /* the wire entries are smaller than ENUM_SERVICE_STATUSW: ask for as
+     * much as the caller's buffer holds, and at least one entry */
+    buflen = max( cbBufSize, sizeof(ENUM_SERVICE_STATUSW) );
+    if (!(buf = malloc( buflen ))) return set_error( ERROR_NOT_ENOUGH_MEMORY );
+
+    __TRY
+    {
+        err = svcctl_EnumDependentServicesW( hService, dwServiceState, buf, buflen, pcbBytesNeeded, &count );
+    }
+    __EXCEPT(rpc_filter)
+    {
+        err = map_exception_code( GetExceptionCode() );
+    }
+    __ENDTRY
 
     *lpServicesReturned = 0;
+    if (err == ERROR_MORE_DATA)
+    {
+        /* retry with room for everything to compute the exact size */
+        DWORD need = *pcbBytesNeeded;
+        free( buf );
+        buflen = need;
+        if (!(buf = malloc( buflen ))) return set_error( ERROR_NOT_ENOUGH_MEMORY );
+        __TRY
+        {
+            err = svcctl_EnumDependentServicesW( hService, dwServiceState, buf, buflen, pcbBytesNeeded, &count );
+        }
+        __EXCEPT(rpc_filter)
+        {
+            err = map_exception_code( GetExceptionCode() );
+        }
+        __ENDTRY
+    }
+    if (err != ERROR_SUCCESS)
+    {
+        free( buf );
+        return set_error( err );
+    }
+
+    entry = (struct enum_service_status *)buf;
+    for (i = 0; i < count; i++, entry++)
+    {
+        total_size += sizeof(*lpServices);
+        total_size += (wcslen( (const WCHAR *)(buf + entry->service_name) ) + 1) * sizeof(WCHAR);
+        if (entry->display_name)
+            total_size += (wcslen( (const WCHAR *)(buf + entry->display_name) ) + 1) * sizeof(WCHAR);
+    }
+    if (total_size > cbBufSize)
+    {
+        free( buf );
+        *pcbBytesNeeded = total_size;
+        return set_error( ERROR_MORE_DATA );
+    }
+
+    offset = count * sizeof(*lpServices);
+    entry = (struct enum_service_status *)buf;
+    for (i = 0; i < count; i++, entry++)
+    {
+        DWORD str_size;
+        str = (const WCHAR *)(buf + entry->service_name);
+        str_size = (wcslen( str ) + 1) * sizeof(WCHAR);
+        lpServices[i].lpServiceName = (WCHAR *)((char *)lpServices + offset);
+        memcpy( lpServices[i].lpServiceName, str, str_size );
+        offset += str_size;
+        if (!entry->display_name) lpServices[i].lpDisplayName = NULL;
+        else
+        {
+            str = (const WCHAR *)(buf + entry->display_name);
+            str_size = (wcslen( str ) + 1) * sizeof(WCHAR);
+            lpServices[i].lpDisplayName = (WCHAR *)((char *)lpServices + offset);
+            memcpy( lpServices[i].lpDisplayName, str, str_size );
+            offset += str_size;
+        }
+        lpServices[i].ServiceStatus = entry->service_status;
+    }
+    *lpServicesReturned = count;
+    free( buf );
     return TRUE;
 }
 
