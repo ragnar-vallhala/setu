@@ -2350,9 +2350,32 @@ DECL_HANDLER(create_key)
     struct unicode_str name;
     const struct security_descriptor *sd;
     const struct object_attributes *objattr = get_req_object_attributes( &sd, &name, NULL );
+    int privileged = 0;
 
     if (!objattr) return;
     if (!check_key_access( access )) return;
+
+    /* REG_OPTION_VOLATILE, _CREATE_LINK, _BACKUP_RESTORE, _OPEN_LINK and _DONT_VIRTUALIZE */
+    if (req->options & ~0x1f)
+    {
+        set_error( STATUS_INVALID_PARAMETER );
+        return;
+    }
+    if (req->options & REG_OPTION_BACKUP_RESTORE)
+    {
+        /* backup grants read access and restore grants write access, whatever the DACL says */
+        int backup = thread_single_check_privilege( current, SeBackupPrivilege );
+        int restore = thread_single_check_privilege( current, SeRestorePrivilege );
+
+        if (!backup && !restore)
+        {
+            set_error( STATUS_ACCESS_DENIED );
+            return;
+        }
+        if (backup) access |= KEY_READ | ACCESS_SYSTEM_SECURITY;
+        if (restore) access |= KEY_WRITE | DELETE | WRITE_DAC | WRITE_OWNER | ACCESS_SYSTEM_SECURITY;
+        privileged = 1;
+    }
 
     if (!is_wow64_process( current->process )) access = (access & ~KEY_WOW64_32KEY) | KEY_WOW64_64KEY;
 
@@ -2371,7 +2394,7 @@ DECL_HANDLER(create_key)
             key->classlen = (classlen / sizeof(WCHAR)) * sizeof(WCHAR);
             if (!(key->class = memdup( class, key->classlen ))) key->classlen = 0;
         }
-        if (get_error() == STATUS_OBJECT_NAME_EXISTS)
+        if (get_error() == STATUS_OBJECT_NAME_EXISTS && !privileged)
             reply->hkey = alloc_handle( current->process, key, access, objattr->attributes );
         else
             reply->hkey = alloc_handle_no_access_check( current->process, key,
