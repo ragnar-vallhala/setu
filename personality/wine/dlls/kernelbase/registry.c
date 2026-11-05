@@ -47,7 +47,7 @@
 WINE_DEFAULT_DEBUG_CHANNEL(reg);
 
 #define HKEY_SPECIAL_ROOT_FIRST   HKEY_CLASSES_ROOT
-#define HKEY_SPECIAL_ROOT_LAST    HKEY_DYN_DATA
+#define HKEY_SPECIAL_ROOT_LAST    HKEY_CURRENT_USER_LOCAL_SETTINGS
 
 static const WCHAR * const root_key_names[] =
 {
@@ -57,7 +57,8 @@ static const WCHAR * const root_key_names[] =
     L"\\Registry\\User",
     NULL,         /* HKEY_PERFORMANCE_DATA is not a real key */
     L"\\Registry\\Machine\\System\\CurrentControlSet\\Hardware Profiles\\Current",
-    L"\\Registry\\DynData"
+    L"\\Registry\\DynData",
+    NULL,         /* HKEY_CURRENT_USER_LOCAL_SETTINGS is under HKEY_CURRENT_USER */
 };
 
 static HKEY special_root_keys[ARRAY_SIZE(root_key_names)];
@@ -458,6 +459,18 @@ static HKEY create_special_root_hkey( HKEY hkey, DWORD access )
         if (RtlOpenCurrentUser( access, (HANDLE *)&hkey )) return 0;
         TRACE( "HKEY_CURRENT_USER -> %p\n", hkey );
     }
+    else if (HandleToUlong(hkey) == HandleToUlong(HKEY_CURRENT_USER_LOCAL_SETTINGS))
+    {
+        UNICODE_STRING name = RTL_CONSTANT_STRING( L"Software\\Classes\\Local Settings" );
+        HANDLE user;
+        NTSTATUS status;
+
+        if (RtlOpenCurrentUser( MAXIMUM_ALLOWED, &user )) return 0;
+        status = create_key( &hkey, user, name, 0, access, NULL, NULL, NULL );
+        NtClose( user );
+        if (status) return 0;
+        TRACE( "HKEY_CURRENT_USER_LOCAL_SETTINGS -> %p\n", hkey );
+    }
     else
     {
         UNICODE_STRING name;
@@ -492,6 +505,7 @@ static inline HKEY get_special_root_hkey( HKEY hkey )
         case (LONG)(LONG_PTR)HKEY_USERS:
         case (LONG)(LONG_PTR)HKEY_CURRENT_CONFIG:
         case (LONG)(LONG_PTR)HKEY_DYN_DATA:
+        case (LONG)(LONG_PTR)HKEY_CURRENT_USER_LOCAL_SETTINGS:
             if (special_root_keys[index])
                 return special_root_keys[index];
             return create_special_root_hkey( hkey, MAXIMUM_ALLOWED );
@@ -1168,7 +1182,14 @@ LSTATUS WINAPI RegQueryInfoKeyA( HKEY hkey, LPSTR class, LPDWORD class_len, LPDW
 LSTATUS WINAPI DECLSPEC_HOTPATCH RegCloseKey( HKEY hkey )
 {
     if (!hkey) return ERROR_INVALID_HANDLE;
-    if (hkey >= (HKEY)0x80000000) return ERROR_SUCCESS;
+    /* closing a predefined key does nothing; other values in that range are invalid */
+    if ((LONG_PTR)hkey == (LONG)HandleToUlong(hkey) && (HandleToUlong(hkey) & 0x80000000))
+    {
+        if ((HandleToUlong(hkey) >= HandleToUlong(HKEY_SPECIAL_ROOT_FIRST) &&
+             HandleToUlong(hkey) <= HandleToUlong(HKEY_SPECIAL_ROOT_LAST)) || is_perf_key( hkey ))
+            return ERROR_SUCCESS;
+        return ERROR_INVALID_HANDLE;
+    }
     return RtlNtStatusToDosError( NtClose( hkey ) );
 }
 
