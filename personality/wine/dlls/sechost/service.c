@@ -1450,6 +1450,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH EnumServicesStatusExW( SC_HANDLE manager, SC_ENUM_
     if (level != SC_ENUM_PROCESS_INFO) return set_error( ERROR_INVALID_LEVEL );
     if (!manager) return set_error( ERROR_INVALID_HANDLE );
     if (!needed || !returned) return set_error( ERROR_INVALID_ADDRESS );
+    /* MS-SCMR limits the buffer to 256 KiB; Windows fails larger ones in RPC */
+    if (size > 256 * 1024) return set_error( RPC_X_BAD_STUB_DATA );
 
     /* make sure we pass a valid pointer */
     buflen = max( size, sizeof(*services) );

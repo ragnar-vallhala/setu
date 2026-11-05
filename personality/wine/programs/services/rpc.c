@@ -2028,7 +2028,8 @@ DWORD __cdecl svcctl_EnumServicesStatusW(
 
     WINE_TRACE("(%p, 0x%lx, 0x%lx, %p, %lu, %p, %p, %p)\n", hmngr, type, state, buffer, size, needed, returned, resume);
 
-    if (!type || !state)
+    /* SERVICE_TYPE_ALL is 0x3ff; the state is a combination of SERVICE_ACTIVE and SERVICE_INACTIVE */
+    if (!type || (type & ~0x3ff) || !state || (state & ~SERVICE_STATE_ALL))
         return ERROR_INVALID_PARAMETER;
 
     if ((err = validate_scm_handle(hmngr, SC_MANAGER_ENUMERATE_SERVICE, &manager)) != ERROR_SUCCESS)
@@ -2104,7 +2105,7 @@ static BOOL match_group(const WCHAR *g1, const WCHAR *g2)
 {
     if (!g2) return TRUE;
     if (!g2[0] && (!g1 || !g1[0])) return TRUE;
-    if (g1 && !lstrcmpW(g1, g2)) return TRUE;
+    if (g1 && !wcsicmp(g1, g2)) return TRUE;
     return FALSE;
 }
 
@@ -2148,7 +2149,8 @@ DWORD __cdecl svcctl_EnumServicesStatusExW(
     if (resume_handle)
         FIXME("resume handle not supported\n");
 
-    if (!type || !state)
+    /* SERVICE_TYPE_ALL is 0x3ff; the state is a combination of SERVICE_ACTIVE and SERVICE_INACTIVE */
+    if (!type || (type & ~0x3ff) || !state || (state & ~SERVICE_STATE_ALL))
         return ERROR_INVALID_PARAMETER;
 
     if ((err = validate_scm_handle(hmngr, SC_MANAGER_ENUMERATE_SERVICE, &manager)) != ERROR_SUCCESS)
@@ -2156,7 +2158,8 @@ DWORD __cdecl svcctl_EnumServicesStatusExW(
 
     scmdatabase_lock(manager->db);
 
-    if (group && !find_service_by_group(manager->db, group))
+    /* group "" selects the services without a group */
+    if (group && group[0] && !find_service_by_group(manager->db, group))
     {
         scmdatabase_unlock(manager->db);
         return ERROR_SERVICE_DOES_NOT_EXIST;
