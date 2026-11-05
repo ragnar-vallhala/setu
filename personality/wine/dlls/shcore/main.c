@@ -2112,9 +2112,20 @@ DWORD WINAPI SHQueryValueExW(HKEY hkey, const WCHAR *name, DWORD *reserved, DWOR
 
     ret = RegQueryValueExW(hkey, name, reserved, &value_type, buff, &data_len);
     if (ret != ERROR_SUCCESS && ret != ERROR_MORE_DATA)
+    {
+        if (type) *type = REG_NONE;
         return ret;
+    }
 
-    if (buff_len && value_type == REG_EXPAND_SZ)
+    if (buff_len && value_type == REG_SZ)
+    {
+        /* strings are returned terminated, as by RegGetValueW: data that
+         * fits without its terminator is too big, and a short buffer is
+         * told the size of the terminated string */
+        data_len = *buff_len;
+        ret = RegGetValueW(hkey, NULL, name, RRF_RT_REG_SZ, NULL, buff, &data_len);
+    }
+    else if (buff_len && value_type == REG_EXPAND_SZ)
     {
         DWORD length;
         WCHAR *value;
