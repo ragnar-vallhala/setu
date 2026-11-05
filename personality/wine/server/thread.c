@@ -1670,6 +1670,7 @@ void kill_thread( struct thread *thread, int violent_death )
     }
     kill_console_processes( thread, 0 );
     abandon_mutexes( thread );
+    registry_thread_exit( thread );
     signal_sync( thread->sync );
     if (violent_death) send_thread_signal( thread, SIGQUIT );
     cleanup_thread( thread );

@@ -276,6 +276,7 @@ extern unsigned short supported_machines[8];
 extern unsigned short native_machine;
 extern void init_registry(void);
 extern void flush_registry(void);
+extern void registry_thread_exit( struct thread *thread );
 
 static inline int is_machine_32bit( unsigned short machine )
 {

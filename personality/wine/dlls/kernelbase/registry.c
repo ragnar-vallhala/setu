@@ -2883,6 +2883,11 @@ LSTATUS WINAPI RegNotifyChangeKeyValue( HKEY hkey, BOOL fWatchSubTree,
     TRACE("(%p,%i,%ld,%p,%i)\n", hkey, fWatchSubTree, fdwNotifyFilter,
           hEvent, fAsync);
 
+    if (fdwNotifyFilter & ~(REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_ATTRIBUTES | REG_NOTIFY_CHANGE_LAST_SET |
+                            REG_NOTIFY_CHANGE_SECURITY | REG_NOTIFY_THREAD_AGNOSTIC))
+        return ERROR_INVALID_PARAMETER;
+    if (fAsync && !hEvent) return ERROR_INVALID_PARAMETER;
+
     status = NtNotifyChangeKey( hkey, hEvent, NULL, NULL, &iosb,
                                 fdwNotifyFilter, fWatchSubTree, NULL, 0,
                                 fAsync);

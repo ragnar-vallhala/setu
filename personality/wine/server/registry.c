@@ -58,7 +58,19 @@ struct notify
     unsigned int      filter;   /* which events to notify on */
     obj_handle_t      hkey;     /* hkey associated with this notification */
     struct process   *process;  /* process in which the hkey is valid */
+    struct thread    *thread;   /* thread whose exit completes it (not REG_NOTIFY_THREAD_AGNOSTIC) */
+    struct list       thread_entry; /* entry in thread_notifies, if thread is set */
 };
+
+/* notifications that complete when the thread that registered them exits */
+static struct list thread_notifies = LIST_INIT( thread_notifies );
+
+static void notify_set_thread( struct notify *notify, struct thread *thread )
+{
+    if (notify->thread) list_remove( &notify->thread_entry );
+    notify->thread = thread;
+    if (thread) list_add_tail( &thread_notifies, &notify->thread_entry );
+}
 
 static const WCHAR key_name[] = {'K','e','y'};
 
@@ -175,6 +187,7 @@ static int key_link_name( struct object *obj, struct object_name *name, struct o
 static void key_unlink_name( struct object *obj, struct object_name *name );
 static int key_close_handle( struct object *obj, struct process *process, obj_handle_t handle );
 static void key_destroy( struct object *obj );
+static int key_set_sd( struct object *obj, const struct security_descriptor *sd, unsigned int set_info );
 
 static const struct object_ops key_ops =
 {
@@ -190,7 +203,7 @@ static const struct object_ops key_ops =
     default_get_sync,        /* get_sync */
     key_map_access,          /* map_access */
     key_get_sd,              /* get_sd */
-    default_set_sd,          /* set_sd */
+    key_set_sd,              /* set_sd */
     key_get_full_name,       /* get_full_name */
     key_lookup_name,         /* lookup_name */
     key_link_name,           /* link_name */
@@ -405,8 +418,22 @@ static void do_notification( struct key *key, struct notify *notify, int del )
 
     if (del)
     {
+        notify_set_thread( notify, NULL );
         list_remove( &notify->entry );
         free( notify );
+    }
+}
+
+/* The thread that registered a notification exited: its events are signalled. */
+void registry_thread_exit( struct thread *thread )
+{
+    struct notify *notify, *next;
+
+    LIST_FOR_EACH_ENTRY_SAFE( notify, next, &thread_notifies, struct notify, thread_entry )
+    {
+        if (notify->thread != thread) continue;
+        notify_set_thread( notify, NULL );
+        do_notification( NULL, notify, 0 );
     }
 }
 
@@ -790,6 +817,21 @@ static void touch_key( struct key *key, unsigned int change )
     for (key = get_parent( key ); key; key = get_parent( key )) check_notify( key, change, 0 );
 }
 
+/* A security descriptor change fires REG_NOTIFY_CHANGE_SECURITY and
+ * REG_NOTIFY_CHANGE_ATTRIBUTES, but not LAST_SET: the write time is unchanged. */
+static int key_set_sd( struct object *obj, const struct security_descriptor *sd, unsigned int set_info )
+{
+    struct key *key = (struct key *)obj;
+    unsigned int change = REG_NOTIFY_CHANGE_SECURITY | REG_NOTIFY_CHANGE_ATTRIBUTES;
+
+    if (!default_set_sd( obj, sd, set_info )) return 0;
+    if (!set_info) return 1;
+
+    check_notify( key, change, 1 );
+    for (key = get_parent( key ); key; key = get_parent( key )) check_notify( key, change, 0 );
+    return 1;
+}
+
 /* get the wow6432node key if any, grabbing it and releasing the original key */
 static struct key *grab_wow6432node( struct key *key )
 {
@@ -1107,6 +1149,11 @@ static int delete_key( struct key *key, int recurse )
     }
 
     if (debug_level > 1) dump_operation( key, NULL, "Delete" );
+
+    /* Notifications armed on the deleted key itself fire whatever their filter. */
+    while (!list_empty( &key->notify_list ))
+        do_notification( key, LIST_ENTRY( list_head( &key->notify_list ), struct notify, entry ), 1 );
+
     key->flags |= KEY_DELETED;
     unlink_named_object( &key->obj );
     touch_key( parent, REG_NOTIFY_CHANGE_NAME );
@@ -2442,12 +2489,15 @@ DECL_HANDLER(set_registry_notification)
                     notify->filter  = req->filter;
                     notify->hkey    = req->hkey;
                     notify->process = current->process;
+                    notify->thread  = NULL;
                     list_add_head( &key->notify_list, &notify->entry );
                 }
             }
             if (notify)
             {
                 struct event **new_array;
+
+                notify_set_thread( notify, (req->filter & REG_NOTIFY_THREAD_AGNOSTIC) ? NULL : current );
 
                 if ((new_array = realloc( notify->events, (notify->event_count + 1) * sizeof(*notify->events) )))
                 {
