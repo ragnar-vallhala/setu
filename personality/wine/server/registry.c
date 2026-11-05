@@ -1191,7 +1191,7 @@ static int delete_key( struct key *key, int recurse )
     }
     else if (key->last_subkey >= 0)  /* we can only delete a key that has no subkeys */
     {
-        set_error( STATUS_ACCESS_DENIED );
+        set_error( STATUS_CANNOT_DELETE );
         return 0;
     }
 
@@ -1203,6 +1203,8 @@ static int delete_key( struct key *key, int recurse )
 
     key->flags |= KEY_DELETED;
     unlink_named_object( &key->obj );
+    /* everyone waiting for changes to the deleted key is woken up */
+    check_notify( key, ~0u, 1 );
     touch_key( parent, REG_NOTIFY_CHANGE_NAME );
     return 1;
 }
