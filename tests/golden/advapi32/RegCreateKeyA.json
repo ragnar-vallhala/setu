@@ -1,0 +1,204 @@
+{
+  "test": "advapi32/RegCreateKeyA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "createa_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "createa_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "createa_multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "createa_null_subkey": {
+      "ret": 1010,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "createa_empty_subkey": {
+      "ret": 1010,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "createa_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "createa_invalid_parent": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "createw_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "createw_existing_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "createw_null_subkey": {
+      "ret": 1010,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "createw_empty_subkey": {
+      "ret": 1010,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "createw_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "createw_invalid_parent": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "opena_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "opena_multi_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "opena_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "opena_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "opena_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "opena_invalid_parent": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "openw_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "openw_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "openw_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "openw_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "openw_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "openw_null_parent": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "openw_hkcu_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_parent": true,
+      "is_predefined_range": true
+    },
+    "createw_hkcu_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_parent": true
+    },
+    "createw_under_readonly_parent": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "openw_under_readonly_parent": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true,
+      "same_as_parent": false,
+      "set_value": 0,
+      "query_info": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "caa78708c735f9967928dba6e3e3e156244889b05273eee7434eab50d1f9e3f3"
+}

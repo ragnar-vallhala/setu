@@ -1,0 +1,34 @@
+{
+  "test": "advapi32/RegEnumKeyEx_modify",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "delete_while_enumerating_forward": {
+      "seen": "ka,kc,ke",
+      "remaining": "kb,kd,kf"
+    },
+    "delete_index_zero_repeatedly": {
+      "seen": "ka,kb,kc,kd,ke,kf",
+      "remaining": ""
+    },
+    "delete_while_enumerating_backward": {
+      "seen": "kf,ke,kd,kc,kb,ka",
+      "remaining": ""
+    },
+    "add_while_enumerating": {
+      "seen": "ka,kb,kb,kc,kd,z_last"
+    },
+    "second_handle_sees_changes": {
+      "keys": "kb,kc,new",
+      "subkeys": 3
+    },
+    "index_after_delete_last": {
+      "index1": 259,
+      "index0": 0,
+      "index0_name": "ka"
+    }
+  },
+  "errors": [],
+  "source_sha256": "0554d59e8e122babbfbc19830df13e14a1edc2388655c86c48b4bda6de0d5675"
+}

@@ -1,0 +1,69 @@
+{
+  "test": "advapi32/RegWow64_flags",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_both_flags": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "in_32": 2,
+      "in_64": 2
+    },
+    "open_both_flags": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "delete_both_flags": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "in_32": 2,
+      "in_64": 2
+    },
+    "hkcr_clsid_32": {
+      "create": 0,
+      "open_32": 0,
+      "open_64": 2,
+      "open_hkcr_wow6432node_path": 0,
+      "open_hklm_classes_wow6432node_path": 0,
+      "open_hklm_wow6432node_classes_path": 0
+    },
+    "hkcu_flags_shared": {
+      "create_32": 0,
+      "open_64": 0,
+      "open_none": 0
+    },
+    "query_reflection": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disabled": 1
+    },
+    "disable_reflection": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "query_ret": 0,
+      "disabled": 1
+    },
+    "enable_reflection": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "query_reflection_32": {
+      "ret": 0
+    },
+    "query_reflection_hklm": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "query_reflection_invalid": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "disable_reflection_hkcu_key": {
+      "ret": 0,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "8784ed2b5c1fcc5a25b1b23736aa63678f7c9754e3be5ba16b34db18653b54f6"
+}

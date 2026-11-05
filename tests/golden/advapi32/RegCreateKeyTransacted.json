@@ -1,0 +1,81 @@
+{
+  "test": "advapi32/RegCreateKeyTransacted",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_null_transaction": {
+      "ret": 6700,
+      "last_error": "unchanged",
+      "disposition": 2863311530
+    },
+    "create_invalid_transaction": {
+      "ret": 6700,
+      "last_error": "unchanged",
+      "disposition": 2863311530
+    },
+    "create_made_up_transaction": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "disposition": 2863311530
+    },
+    "create_event_as_transaction": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "disposition": 2863311530
+    },
+    "open_null_transaction": {
+      "ret": 6700,
+      "last_error": "unchanged"
+    },
+    "delete_null_transaction": {
+      "ret": 6700,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "ktm_available": {
+      "available": true
+    },
+    "create_transaction": {
+      "tx": "valid"
+    },
+    "create_in_tx": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1
+    },
+    "visible_before_commit": {
+      "open_outside": 2
+    },
+    "open_inside_before_commit": {
+      "ret": 0
+    },
+    "commit": {
+      "ok": true,
+      "open_outside_after": 0
+    },
+    "create_in_committed_tx": {
+      "ret": 6701,
+      "last_error": "unchanged",
+      "disposition": 2863311530
+    },
+    "create_in_tx_to_roll_back": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1
+    },
+    "rollback": {
+      "ok": true,
+      "open_outside_after": 2
+    },
+    "delete_in_tx": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_outside_before_commit": 0,
+      "commit_ok": true,
+      "open_outside_after_commit": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "e6381111b95bb3b4fa1321b0ba9d9cdaced6e801b2f6f6bd8028c33e7327f96e"
+}

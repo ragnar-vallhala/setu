@@ -1,0 +1,90 @@
+{
+  "test": "advapi32/RegEnumKeyEx_lastwrite",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "creation_time_in_window": {
+      "nonzero": true,
+      "after_start": true,
+      "before_end": true
+    },
+    "enum_time_equals_query_info": {
+      "equal": true
+    },
+    "set_value_on_child": {
+      "parent": "same",
+      "child": "later"
+    },
+    "set_same_value_again": {
+      "parent": "same",
+      "child": "same"
+    },
+    "query_value": {
+      "parent": "same",
+      "child": "same"
+    },
+    "delete_value": {
+      "parent": "same",
+      "child": "later"
+    },
+    "delete_missing_value": {
+      "parent": "same",
+      "child": "same"
+    },
+    "create_grandchild": {
+      "parent": "same",
+      "child": "later"
+    },
+    "open_existing_grandchild_with_create": {
+      "parent": "same",
+      "child": "same"
+    },
+    "set_value_on_grandchild": {
+      "parent": "same",
+      "child": "same"
+    },
+    "delete_grandchild": {
+      "parent": "same",
+      "child": "later"
+    },
+    "flush_child": {
+      "parent": "same",
+      "child": "same"
+    },
+    "enumerate_child": {
+      "parent": "same",
+      "child": "same"
+    },
+    "create_sibling": {
+      "parent": "later",
+      "child": "same"
+    },
+    "delete_sibling": {
+      "parent": "later",
+      "child": "same"
+    },
+    "set_value_on_parent": {
+      "parent": "later",
+      "child": "same"
+    },
+    "create_volatile_grandchild": {
+      "parent": "same",
+      "child": "later"
+    },
+    "rename_grandchild": {
+      "parent": "same",
+      "child": "later"
+    },
+    "delete_tree_of_child_contents": {
+      "parent": "same",
+      "child": "later"
+    },
+    "rename_key_own_time": {
+      "renamed": "same",
+      "parent": "later"
+    }
+  },
+  "errors": [],
+  "source_sha256": "9187c692b9f6c6dce8f2737ce0e0089068fdd325d4d87a3c22aa79ae7e9b8312"
+}

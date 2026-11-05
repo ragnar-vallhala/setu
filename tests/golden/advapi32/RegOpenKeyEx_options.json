@@ -1,0 +1,136 @@
+{
+  "test": "advapi32/RegOpenKeyEx_options",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "options_0": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_volatile_bit": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_create_link_bit": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_backup_restore": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_open_link": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_dont_virtualize": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_0x20": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_0x80000000": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_all_bits": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "options_open_link_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "result": "NULL"
+    },
+    "fail_missing_result": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "result": "NULL"
+    },
+    "fail_bad_parent_result": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "result": "NULL"
+    },
+    "fail_null_parent_result": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "result": "NULL"
+    },
+    "fail_leading_backslash_result": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "result": "NULL"
+    },
+    "create_fail_bad_parent_result": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "result": "NULL",
+      "disposition": 2863311530
+    },
+    "create_fail_leading_backslash_result": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "result": "NULL",
+      "disposition": 2863311530
+    },
+    "create_fail_bad_options_result": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "result": "NULL",
+      "disposition": 2863311530
+    },
+    "open_twice_distinct": {
+      "distinct": true,
+      "second_still_works": 0,
+      "subkeys": 1
+    },
+    "relative_open": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "relative_open_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "relative_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "relative_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "result": "key"
+    },
+    "relative_parent_dotdot": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "result": "NULL"
+    },
+    "null_result_pointer": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "create_null_result_pointer": {
+      "ret": 1010,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "8d2b421144f3daa1cfc2bbd262a63f0e7724df6f3242c53a46533cd6eec3b820"
+}

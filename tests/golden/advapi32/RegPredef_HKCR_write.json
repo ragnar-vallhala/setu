@@ -1,0 +1,79 @@
+{
+  "test": "advapi32/RegPredef_HKCR_write",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_new_top_level_child": {
+      "ret": 0,
+      "disposition": 1,
+      "in_hklm": 0,
+      "in_hkcu": 2
+    },
+    "create_under_lm_only": {
+      "ret": 0,
+      "disposition": 1,
+      "in_hklm": 0,
+      "in_hkcu": 2
+    },
+    "create_under_cu_only": {
+      "ret": 0,
+      "disposition": 1,
+      "in_hklm": 0,
+      "in_hkcu": 2
+    },
+    "create_under_both": {
+      "ret": 0,
+      "disposition": 1,
+      "in_hklm": 0,
+      "in_hkcu": 2
+    },
+    "open_existing_lm_with_create": {
+      "ret": 0,
+      "disposition": 2,
+      "in_hklm": 0,
+      "in_hkcu": 2
+    },
+    "open_existing_cu_with_create": {
+      "ret": 0,
+      "disposition": 2,
+      "in_hklm": 0,
+      "in_hkcu": 0
+    },
+    "set_value_lm_only": {
+      "open": 0,
+      "ret": 0,
+      "value_in_hklm": 0,
+      "value_in_hkcu": 2
+    },
+    "set_value_cu_only": {
+      "open": 0,
+      "ret": 0,
+      "value_in_hklm": 2,
+      "value_in_hkcu": 0
+    },
+    "set_value_both": {
+      "open": 0,
+      "ret": 0,
+      "value_in_hklm": 2,
+      "value_in_hkcu": 0
+    },
+    "delete_new_under_both": {
+      "ret": 0,
+      "in_hklm": 2,
+      "in_hkcu": 2
+    },
+    "delete_key_in_both_stores": {
+      "ret": 0,
+      "in_hklm": 0,
+      "in_hkcu": 2
+    },
+    "delete_key_in_both_stores_again": {
+      "ret": 0,
+      "in_hklm": 2,
+      "in_hkcu": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "3ae43194f265e0d533730c20829478fd97b95bc5b39a58d5df701378ff535258"
+}

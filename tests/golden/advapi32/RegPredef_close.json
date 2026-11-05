@@ -1,0 +1,60 @@
+{
+  "test": "advapi32/RegPredef_close",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "hkcu": {
+      "close": 0,
+      "close_last_error": "unchanged",
+      "close_again": 0,
+      "query_info_after": 0,
+      "open_software_after": 0
+    },
+    "hklm": {
+      "close": 0,
+      "close_last_error": "unchanged",
+      "close_again": 0,
+      "query_info_after": 0,
+      "open_software_after": 0
+    },
+    "hkcr": {
+      "close": 0,
+      "close_last_error": "unchanged",
+      "close_again": 0,
+      "query_info_after": 0,
+      "open_software_after": 0
+    },
+    "hku": {
+      "close": 0,
+      "close_last_error": "unchanged",
+      "close_again": 0,
+      "query_info_after": 0,
+      "open_software_after": 2
+    },
+    "hkcc": {
+      "close": 0,
+      "close_last_error": "unchanged",
+      "close_again": 0,
+      "query_info_after": 0,
+      "open_software_after": 0
+    },
+    "hkpd": {
+      "close": 0,
+      "last_error": "unchanged"
+    },
+    "open_empty_then_close": {
+      "open": 0,
+      "same_handle": true,
+      "close": 0,
+      "hkcu_query_after": 0
+    },
+    "normal_key_close_twice": {
+      "open": 0,
+      "close1": 0,
+      "close2": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "3d8aea08c2f90bbf9f69583f65f849229015c12d4f5f87b6a1a7d60cfd384453"
+}

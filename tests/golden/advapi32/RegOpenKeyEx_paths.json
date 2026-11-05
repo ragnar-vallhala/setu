@@ -1,0 +1,120 @@
+{
+  "test": "advapi32/RegOpenKeyEx_paths",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "plain": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkeys": 0
+    },
+    "mixed_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkeys": 0
+    },
+    "forward_slashes": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "dot_component": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "dotdot_component": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "double_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkeys": 1
+    },
+    "trailing_backslashes": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkeys": 1
+    },
+    "lone_backslash": {
+      "ret": 161,
+      "last_error": "unchanged"
+    },
+    "only_backslashes": {
+      "ret": 161,
+      "last_error": "unchanged"
+    },
+    "leading_space": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "trailing_space": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "space_component": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "through_value_name": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "tab_instead_of_backslash": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "unicode_backslash_lookalike": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "fullwidth_backslash": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "create_forward_slashes": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "root": "<a>|<a/b/c>",
+      "a": "<b>"
+    },
+    "create_dot_component": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "root": "<a>|<a/b/c>",
+      "a": "<b>|<.>"
+    },
+    "create_dotdot_component": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "root": "<a>|<a/b/c>",
+      "a": "<b>|<.>|<..>"
+    },
+    "create_trailing_space": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "root": "<a>|<a >|<a/b/c>",
+      "a": "<b>|<.>|<..>"
+    },
+    "create_space_component": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "root": "<a>|<a >|<a/b/c>",
+      "a": "<b>|< >|<.>|<..>"
+    },
+    "create_named_like_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "root": "<a>|<a >|<a/b/c>",
+      "a": "<b>|< >|<.>|<..>|<val>"
+    }
+  },
+  "errors": [],
+  "source_sha256": "69cfdf76b26ac2009dff77a3bb24a52493d959564982a279d4d92c339d647d11"
+}

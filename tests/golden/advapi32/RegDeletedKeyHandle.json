@@ -1,0 +1,135 @@
+{
+  "test": "advapi32/RegDeletedKeyHandle",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "delete_leaf": {
+      "notify_armed": 0,
+      "ret": 0,
+      "last_error": "unchanged",
+      "notify_signaled": true
+    },
+    "ops_on_deleted_leaf": {
+      "query_info": 1018,
+      "query_info_subkeys": 0,
+      "enum_key": 1018,
+      "enum_value": 1018,
+      "query_value": 1018,
+      "set_value": 1018,
+      "delete_value": 1018,
+      "open_null_subkey": 1018,
+      "open_child": 1018,
+      "create_empty_subkey": 1018,
+      "create_child": 1018,
+      "delete_self_again": 1018,
+      "delete_tree_null": 1018,
+      "flush": 1018,
+      "get_security": 1018,
+      "notify": 1018,
+      "copy_tree_from": 1018,
+      "rename_self": 1018
+    },
+    "recreated_same_name": {
+      "distinct_handle": true,
+      "old_handle_query_info": 1018,
+      "new_handle_query_info": 0,
+      "new_values": 1
+    },
+    "close_deleted": {
+      "close": 0
+    },
+    "delete_self": {
+      "ret": 0
+    },
+    "ops_on_self_deleted": {
+      "query_info": 1018,
+      "query_info_subkeys": 0,
+      "enum_key": 1018,
+      "enum_value": 1018,
+      "query_value": 1018,
+      "set_value": 1018,
+      "delete_value": 1018,
+      "open_null_subkey": 1018,
+      "open_child": 1018,
+      "create_empty_subkey": 1018,
+      "create_child": 1018,
+      "delete_self_again": 1018,
+      "delete_tree_null": 1018,
+      "flush": 1018,
+      "get_security": 1018,
+      "notify": 1018,
+      "copy_tree_from": 1018,
+      "rename_self": 1018
+    },
+    "delete_tree": {
+      "ret": 0
+    },
+    "ops_on_tree_deleted_mid": {
+      "query_info": 1018,
+      "query_info_subkeys": 0,
+      "enum_key": 1018,
+      "enum_value": 1018,
+      "query_value": 1018,
+      "set_value": 1018,
+      "delete_value": 1018,
+      "open_null_subkey": 1018,
+      "open_child": 1018,
+      "create_empty_subkey": 1018,
+      "create_child": 1018,
+      "delete_self_again": 1018,
+      "delete_tree_null": 1018,
+      "flush": 1018,
+      "get_security": 1018,
+      "notify": 1018,
+      "copy_tree_from": 1018,
+      "rename_self": 1018
+    },
+    "ops_on_tree_deleted_low": {
+      "query_info": 1018,
+      "query_info_subkeys": 0,
+      "enum_key": 1018,
+      "enum_value": 1018,
+      "query_value": 1018,
+      "set_value": 1018,
+      "delete_value": 1018,
+      "open_null_subkey": 1018,
+      "open_child": 1018,
+      "create_empty_subkey": 1018,
+      "create_child": 1018,
+      "delete_self_again": 1018,
+      "delete_tree_null": 1018,
+      "flush": 1018,
+      "get_security": 1018,
+      "notify": 1018,
+      "copy_tree_from": 1018,
+      "rename_self": 1018
+    },
+    "ops_on_child_of_emptied": {
+      "query_info": 1018,
+      "query_info_subkeys": 0,
+      "enum_key": 1018,
+      "enum_value": 1018,
+      "query_value": 1018,
+      "set_value": 1018,
+      "delete_value": 1018,
+      "open_null_subkey": 1018,
+      "open_child": 1018,
+      "create_empty_subkey": 1018,
+      "create_child": 1018,
+      "delete_self_again": 1018,
+      "delete_tree_null": 1018,
+      "flush": 1018,
+      "get_security": 1018,
+      "notify": 1018,
+      "copy_tree_from": 1018,
+      "rename_self": 1018
+    },
+    "emptied_key_alive": {
+      "query_info": 0,
+      "subkeys": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "37cd571be20602d67e9bbaad27b601ff9d56f6c0674b6e64cd43cbe444bd01e8"
+}

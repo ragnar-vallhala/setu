@@ -1,0 +1,120 @@
+{
+  "test": "advapi32/RegDeleteKeyA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "delete_leaf": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_leaf_again": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_non_leaf": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "exists_after": 0
+    },
+    "delete_deep_leaf_path": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_missing_parent": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_cp1252_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "exists_after": 0
+    },
+    "delete_double_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_empty_subkey_self": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_empty_subkey_self_again": {
+      "ret": 1018,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_null_subkey": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "exists_after": 0
+    },
+    "delete_via_readonly_parent": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_invalid_parent": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "exists_after": 0
+    },
+    "delete_ex_64key": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_ex_32key": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_ex_zero_sam": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_ex_reserved_1": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "exists_after": 0
+    },
+    "delete_ex_access_bits_in_sam": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_after": 2
+    },
+    "delete_ex_both_views": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "exists_after": 0
+    },
+    "delete_root_itself_has_children": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "exists_after": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "b6e521ee751b8eff5312c1455ff6d8fbc17ecd1b5cab5c982c3d294a7c14b5c0"
+}

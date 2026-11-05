@@ -1,0 +1,137 @@
+{
+  "test": "advapi32/RegInvalidHandles",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "null_handle": {
+      "open": 6,
+      "open_null_sub": 6,
+      "create": 6,
+      "delete_key": 6,
+      "enum_key": 6,
+      "query_info": 6,
+      "query_value": 6,
+      "flush": 6,
+      "delete_tree": 6,
+      "notify": 6
+    },
+    "made_up_handle": {
+      "open": 6,
+      "open_null_sub": 6,
+      "create": 6,
+      "delete_key": 6,
+      "enum_key": 6,
+      "query_info": 6,
+      "query_value": 6,
+      "flush": 6,
+      "delete_tree": 6,
+      "notify": 6
+    },
+    "invalid_handle_value": {
+      "open": 6,
+      "open_null_sub": 6,
+      "create": 6,
+      "delete_key": 6,
+      "enum_key": 6,
+      "query_info": 6,
+      "query_value": 6,
+      "flush": 6,
+      "delete_tree": 6,
+      "notify": 6
+    },
+    "predefined_0x80000007": {
+      "open": 0,
+      "open_null_sub": 0,
+      "create": 0,
+      "delete_key": 2,
+      "enum_key": 0,
+      "query_info": 0,
+      "query_value": 2,
+      "flush": 0,
+      "delete_tree": 2,
+      "notify": 0
+    },
+    "predefined_0x80000010": {
+      "open": 6,
+      "open_null_sub": 6,
+      "create": 6,
+      "delete_key": 6,
+      "enum_key": 6,
+      "query_info": 6,
+      "query_value": 6,
+      "flush": 6,
+      "delete_tree": 6,
+      "notify": 6
+    },
+    "predefined_0x8000ffff": {
+      "open": 6,
+      "open_null_sub": 6,
+      "create": 6,
+      "delete_key": 6,
+      "enum_key": 6,
+      "query_info": 6,
+      "query_value": 6,
+      "flush": 6,
+      "delete_tree": 6,
+      "notify": 6
+    },
+    "event_handle": {
+      "open": 6,
+      "open_null_sub": 6,
+      "create": 6,
+      "delete_key": 6,
+      "enum_key": 6,
+      "query_info": 6,
+      "query_value": 6,
+      "flush": 6,
+      "delete_tree": 6,
+      "notify": 6
+    },
+    "close_event_handle": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "event_still_open_after_regclosekey": {
+      "set_event_ok": false
+    },
+    "closed_key_handle": {
+      "open": 6,
+      "open_null_sub": 6,
+      "create": 6,
+      "delete_key": 6,
+      "enum_key": 6,
+      "query_info": 6,
+      "query_value": 6,
+      "flush": 6,
+      "delete_tree": 6,
+      "notify": 6
+    },
+    "close_null": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "close_made_up": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "close_invalid_handle_value": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "close_predefined_0x80000010": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "close_valid": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "close_again": {
+      "ret": 6,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "df40b87776d6524922459b3089dbe1049fc7adf9b1133985268d0903344b475d"
+}

@@ -1,0 +1,40 @@
+{
+  "test": "advapi32/RegCopyTreeA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "copy_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "dest": ".{v,café}[b{v},café{}[inner{v}]]"
+    },
+    "copy_cp1252_subkey_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "dest": ".{v}[inner{v}]"
+    },
+    "copy_missing_subkey": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "dest": ".{v}[inner{v}]"
+    },
+    "copy_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "dest": ".{v,café}[b{v},café{}[inner{v}],inner{v}]"
+    },
+    "copy_invalid_src": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "dest": ".{v,café}[b{v},café{}[inner{v}],inner{v}]"
+    },
+    "copy_invalid_dest": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "dest": ".{v,café}[b{v},café{}[inner{v}],inner{v}]"
+    }
+  },
+  "errors": [],
+  "source_sha256": "b0aa1e38e30734daa4e01b2a861cbd1f86021aba8a3a5400baae598a9156b125"
+}

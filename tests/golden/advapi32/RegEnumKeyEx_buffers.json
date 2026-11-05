@@ -1,0 +1,177 @@
+{
+  "test": "advapi32/RegEnumKeyEx_buffers",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "name_cap_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 7,
+      "name_buf": "Charlie"
+    },
+    "name_cap_8_exact_plus_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 7,
+      "name_buf": "Charlie"
+    },
+    "name_cap_7_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 7,
+      "name_buf": "####################"
+    },
+    "name_cap_3": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name_buf": "####################"
+    },
+    "name_cap_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 1,
+      "name_buf": "####################"
+    },
+    "name_cap_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 0,
+      "name_buf": "####################"
+    },
+    "class_cap_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 7,
+      "name_buf": "Charlie",
+      "class_len": 8,
+      "class_buf": "MyClass1"
+    },
+    "class_cap_9_exact_plus_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 7,
+      "name_buf": "Charlie",
+      "class_len": 8,
+      "class_buf": "MyClass1"
+    },
+    "class_cap_8_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_buf": "####################",
+      "class_len": 0,
+      "class_buf": "####################"
+    },
+    "class_cap_2": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_buf": "####################",
+      "class_len": 0,
+      "class_buf": "####################"
+    },
+    "class_cap_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_buf": "####################",
+      "class_len": 0,
+      "class_buf": "####################"
+    },
+    "class_size_without_buffer": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 7,
+      "name_buf": "Charlie",
+      "class_len": 0
+    },
+    "class_and_name_too_small": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name_buf": "####################",
+      "class_len": 0,
+      "class_buf": "####################"
+    },
+    "with_time": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 7,
+      "name_buf": "Charlie",
+      "time_written": true
+    },
+    "with_time_name_too_small": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name_buf": "####################",
+      "time_written": true
+    },
+    "reserved_nonnull": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_buf": "####################"
+    },
+    "index_1_past_end": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_buf": "####################"
+    },
+    "index_past_end_small_buffer": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "name_len": 1,
+      "name_buf": "####################",
+      "time_written": false
+    },
+    "index_max": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_buf": "####################"
+    },
+    "no_class_key_class_cap_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "Delta",
+      "class_len": 0,
+      "class_buf": ""
+    },
+    "no_class_key_class_cap_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_buf": "####################",
+      "class_len": 0,
+      "class_buf": "####################"
+    },
+    "name_255_cap_255": {
+      "ret": 234,
+      "name_len": 255
+    },
+    "name_255_cap_256": {
+      "ret": 0,
+      "name_len": 255
+    },
+    "regenumkeyw_cap_7": {
+      "ret": 234,
+      "buf": "####################"
+    },
+    "regenumkeyw_cap_8": {
+      "ret": 0,
+      "buf": "Charlie"
+    },
+    "name_null_buffer": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 64
+    }
+  },
+  "errors": [],
+  "source_sha256": "bebcaa1b26bfb34444bbf726970d6929c05403d358e38177bfc4793ceb34e88f"
+}

@@ -1,0 +1,90 @@
+{
+  "test": "advapi32/RegConnectRegistry",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "null_hklm": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": false,
+      "non_null": true,
+      "open_software": 0,
+      "close": 0
+    },
+    "null_hku": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": false,
+      "non_null": true,
+      "open_software": 2,
+      "close": 0
+    },
+    "null_hkcu": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": false,
+      "non_null": true,
+      "open_software": 0,
+      "marker": 0,
+      "marker_ok": true,
+      "close": 0
+    },
+    "null_hkcr": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": false,
+      "non_null": true,
+      "open_software": 0,
+      "close": 0
+    },
+    "null_hkcc": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": true,
+      "non_null": true,
+      "open_software": 0
+    },
+    "empty_hklm": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": false,
+      "non_null": true,
+      "open_software": 0,
+      "close": 0
+    },
+    "empty_hkcu": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": false,
+      "non_null": true,
+      "open_software": 0,
+      "marker": 0,
+      "marker_ok": true,
+      "close": 0
+    },
+    "null_normal_key": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "null_invalid_key": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "null_undefined_predefined": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "a_null_hklm": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "same_as_predefined": false
+    },
+    "a_empty_hku": {
+      "ret": 0,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "cfa24f33a49cb406655d5655331b719cb67a6b405d8e16ce5000983a5d2eb10e"
+}

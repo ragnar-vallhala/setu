@@ -1,0 +1,130 @@
+{
+  "test": "advapi32/RegEnumKeyExA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "acp": {
+      "acp": 1252
+    },
+    "w_order": {
+      "cafe": 0,
+      "greek": 2,
+      "euro": 3,
+      "plain": 1
+    },
+    "plain_cap_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_bytes": "506c61696e"
+    },
+    "plain_cap_6_exact_plus_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_bytes": "506c61696e"
+    },
+    "plain_cap_5_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_bytes": "506c6169"
+    },
+    "plain_cap_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 0,
+      "name_bytes": "232323232323232323232323232323232323232323232323"
+    },
+    "plain_with_class": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_bytes": "506c61696e",
+      "class_len": 10,
+      "class_bytes": "506c61696e436c617373"
+    },
+    "plain_class_cap_10_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_bytes": "506c61696e",
+      "class_len": 10,
+      "class_bytes": "506c61696e436c6173"
+    },
+    "plain_class_cap_11": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_bytes": "506c61696e",
+      "class_len": 10,
+      "class_bytes": "506c61696e436c617373"
+    },
+    "cafe_cp1252": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 4,
+      "name_bytes": "636166e9",
+      "class_len": 5,
+      "class_bytes": "436ce47373"
+    },
+    "cafe_cap_4_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 4,
+      "name_bytes": "636166"
+    },
+    "greek_unmappable": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name_bytes": "61df3f",
+      "class_len": 1,
+      "class_bytes": "3f"
+    },
+    "greek_cap_3": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name_bytes": "61df"
+    },
+    "euro_cp1252_0x80": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 1,
+      "name_bytes": "80"
+    },
+    "past_end": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_bytes": "232323232323232323232323232323232323232323232323"
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name_len": 64,
+      "name_bytes": "232323232323232323232323232323232323232323232323"
+    },
+    "regenumkeya_ok": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": "Plain"
+    },
+    "regenumkeya_cap_5": {
+      "ret": 234,
+      "buf": "Plai"
+    },
+    "regenumkeya_greek": {
+      "ret": 0,
+      "buf": "61df3f"
+    },
+    "regenumkeya_past_end": {
+      "ret": 259,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "e315f1ebff0f0fa44e32efafd12905ef90cf46bd7a00e5459ef78405b276b49b"
+}

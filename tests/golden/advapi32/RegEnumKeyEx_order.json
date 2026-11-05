@@ -1,0 +1,60 @@
+{
+  "test": "advapi32/RegEnumKeyEx_order",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "prefixes": {
+      "order": "a|ab|ab |ab-|ab.|ab0|abc|abcd|ab_|ab~",
+      "count": 10,
+      "final_ret": 259
+    },
+    "digits": {
+      "order": "+1|-1|0|01|100|1a|1A0|20|3|9",
+      "count": 10,
+      "final_ret": 259
+    },
+    "ascii_punctuation": {
+      "order": "\\u0001| x|!|#|$|%|&|'|(|)|,|;|=|@|Z|]|_|`|{|}|~|\\u007f",
+      "count": 22,
+      "final_ret": 259
+    },
+    "latin1_and_turkish": {
+      "order": "Ete|i|j|ss|\\u00aa|\\u00b5|\\u00e6|\\u00c6x|\\u00c9TA|\\u00e9t\\u00e9|\\u00d7|\\u00f8|\\u00df|\\u00f7|\\u0130|\\u0131|\\u00ff",
+      "count": 17,
+      "final_ret": 259
+    },
+    "greek_cyrillic_cjk_surrogates": {
+      "order": "k2|\\u03b1|\\u0391b|\\u03c3x|\\u03c2|\\u0430|\\u0410b|\\u212a|\\u3042|\\u4e2d|\\ud800\\udc00|\\ud83d\\ude00|\\ue000|\\uff41|\\uff21b|\\ufffd",
+      "count": 16,
+      "final_ret": 259
+    },
+    "many_reverse_created": {
+      "order": "ka0|ka26|kb1|kb27|kc2|kc28|kd29|kd3|ke30|ke4|kf31|kf5|kg32|kg6|kh33|kh7|ki34|ki8|kj35|kj9|kk10|kk36|kl11|kl37|km12|km38|kn13|kn39|ko14|kp15|kq16|kr17|ks18|kt19|ku20|kv21|kw22|kx23|ky24|kz25",
+      "count": 40,
+      "final_ret": 259
+    },
+    "after_recreate_other_case": {
+      "order": "ALPHA|charlie|mike|tango",
+      "count": 4,
+      "final_ret": 259
+    },
+    "after_rename": {
+      "order": "ALPHA|bravo|charlie|mike",
+      "count": 4,
+      "final_ret": 259
+    },
+    "after_case_only_rename": {
+      "order": "ALPHA|bravo|charlie|mike",
+      "count": 4,
+      "final_ret": 259
+    },
+    "volatile_mixed_in": {
+      "order": "ALPHA|bravo|charlie|mike|delta|Zulu",
+      "count": 6,
+      "final_ret": 259
+    }
+  },
+  "errors": [],
+  "source_sha256": "44745d2ec029c92cd565f58fe917041c5755ae72ebf8f5442267b406e92a0bea"
+}

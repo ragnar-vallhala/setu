@@ -1,0 +1,72 @@
+{
+  "test": "advapi32/RegOpenCurrentUser",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "read": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "is_predefined_hkcu": false,
+      "marker": 0,
+      "marker_value_ok": true,
+      "set_value": 5,
+      "close": 0
+    },
+    "all_access": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "is_predefined_hkcu": false,
+      "marker": 0,
+      "marker_value_ok": true,
+      "set_value": 0,
+      "close": 0
+    },
+    "query_value_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "is_predefined_hkcu": false,
+      "marker": 0,
+      "marker_value_ok": true,
+      "set_value": 5,
+      "close": 0
+    },
+    "zero_access": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "maximum_allowed": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "is_predefined_hkcu": false,
+      "marker": 0,
+      "marker_value_ok": true,
+      "set_value": 0,
+      "close": 0
+    },
+    "hkcu_after_close": {
+      "marker": 0
+    },
+    "user_classes_root": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "is_predefined_hkcr": false,
+      "sees_hkcu_classes_key": 0,
+      "close": 0
+    },
+    "user_classes_root_options_1": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "user_classes_root_null_token": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "user_classes_root_bad_token": {
+      "ret": 6,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "fcc5ac3c98abbf72a9929c45c716decdab6eb112c5933bc3311d502329e050a0"
+}

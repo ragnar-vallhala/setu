@@ -1,0 +1,25 @@
+{
+  "test": "advapi32/RegCreateKeyEx_threads",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "same_name_race": {
+      "exactly_one_created_every_round": true,
+      "opened_existing": 175,
+      "failed": 0,
+      "keys": 25
+    },
+    "distinct_names": {
+      "failed": 0,
+      "subkeys_of_d": 200
+    },
+    "delete_race": {
+      "winner_every_round": true,
+      "other_errors": 0,
+      "victim_open_after": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "e1487a169369a901a2ad527440bc6997e49b214aba4ca4db02e685d74ffce2f6"
+}

@@ -1,0 +1,81 @@
+{
+  "test": "advapi32/RegCreateKeyEx_security",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "no_inherit": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "inheritable": false
+    },
+    "inherit_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "inheritable": true
+    },
+    "inherit_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "inheritable": true
+    },
+    "sd_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "inheritable": false,
+      "dacl": "D:P(A;;KA;;;WD)(A;;KR;;;BU)"
+    },
+    "sd_existing_ignored": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "inheritable": false,
+      "dacl": "D:P(A;;KA;;;WD)(A;;KR;;;BU)"
+    },
+    "sd_null_dacl": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "inheritable": false,
+      "dacl": "D:NO_ACCESS_CONTROL"
+    },
+    "sd_inherit_flags_ace": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "inheritable": false,
+      "dacl": "D:P(A;CI;KA;;;WD)"
+    },
+    "nlength_zero": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "inheritable": true
+    },
+    "nlength_huge": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "inheritable": true
+    },
+    "child_inherits_ci_ace": {
+      "dacl": "D:(A;CI;KA;;;WD)"
+    },
+    "default_sd": {
+      "get": 0,
+      "query_info": 0,
+      "info_len_nonzero": true,
+      "info_len_ge_get_len": false,
+      "self_relative": true,
+      "dacl_present": true,
+      "dacl_protected": false,
+      "dacl_auto_inherited": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "04e8ba6761e44120bdc2188bb85e74dddf34e487a1c74cb35851eac2e386468b"
+}

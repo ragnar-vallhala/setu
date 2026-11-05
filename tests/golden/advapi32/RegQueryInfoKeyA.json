@@ -1,0 +1,162 @@
+{
+  "test": "advapi32/RegQueryInfoKeyA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "class_cap_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "class_len": 6,
+      "class_bytes": "4b6c61737365",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "class_cap_7_exact_plus_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "class_len": 6,
+      "class_bytes": "4b6c61737365",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "class_cap_6_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "class_len": 5,
+      "class_bytes": "4b6c617373",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "class_cap_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "class_len": 0,
+      "class_bytes": "",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "class_cap_0": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "class_len": 6,
+      "class_bytes": "2323232323232323232323232323232323232323",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "class_null_buffer_cap_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "class_len": 6,
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "class_null_buffer_null_len": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "unicode_names_a": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "class_len": 4,
+      "class_bytes": "3f3fb53f",
+      "subkeys": 2,
+      "max_subkey_len": 5,
+      "max_class_len": 3,
+      "values": 1,
+      "max_value_name_len": 6,
+      "max_value_data": 6
+    },
+    "unicode_class_cap_4_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "class_len": 3,
+      "class_bytes": "3f3fb5",
+      "subkeys": 2,
+      "max_subkey_len": 5,
+      "max_class_len": 3,
+      "values": 1,
+      "max_value_name_len": 6,
+      "max_value_data": 6
+    },
+    "unicode_class_cap_5": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "class_len": 4,
+      "class_bytes": "3f3fb53f",
+      "subkeys": 2,
+      "max_subkey_len": 5,
+      "max_class_len": 3,
+      "values": 1,
+      "max_value_name_len": 6,
+      "max_value_data": 6
+    },
+    "unicode_names_w": {
+      "class_len": 4,
+      "max_subkey_len": 5,
+      "max_class_len": 3,
+      "max_value_name_len": 6,
+      "max_value_data": 6
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "class_len": 0,
+      "class_bytes": "2323232323232323232323232323232323232323",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "enumerate_only_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "class_len": 0,
+      "class_bytes": "2323232323232323232323232323232323232323",
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0,
+      "values": 0,
+      "max_value_name_len": 0,
+      "max_value_data": 0
+    },
+    "reserved_non_null": {
+      "ret": 87,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "856eb6bebefc8a72190220fa7f69c9979196df1755ee7942f8121742c7dd3628"
+}

@@ -1,0 +1,151 @@
+{
+  "test": "advapi32/NtKey_create",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_plain": {
+      "status": "0x00000000",
+      "disposition": 1,
+      "children": "plain"
+    },
+    "create_plain_again": {
+      "status": "0x00000000",
+      "disposition": 2,
+      "children": "plain"
+    },
+    "create_plain_upper_no_ci": {
+      "status": "0x00000000",
+      "disposition": 2,
+      "children": "plain"
+    },
+    "create_embedded_nul": {
+      "status": "0x00000000",
+      "disposition": 1,
+      "children": "ab\\u0000cd|plain"
+    },
+    "create_trailing_backslash": {
+      "status": "0x00000000",
+      "disposition": 1,
+      "children": "ab\\u0000cd|plain|trail"
+    },
+    "create_leading_backslash_relative": {
+      "status": "0xc000003b",
+      "disposition": 43690,
+      "children": "ab\\u0000cd|plain|trail"
+    },
+    "create_multi_level_missing_parent": {
+      "status": "0xc0000034",
+      "disposition": 43690,
+      "children": "ab\\u0000cd|plain|trail"
+    },
+    "create_double_backslash": {
+      "status": "0xc0000034",
+      "disposition": 43690,
+      "children": "ab\\u0000cd|plain|trail"
+    },
+    "create_odd_length": {
+      "status": "0xc000000d",
+      "disposition": 43690,
+      "children": "ab\\u0000cd|plain|trail"
+    },
+    "create_length_gt_max": {
+      "status": "0x00000000",
+      "disposition": 1,
+      "children": "ab\\u0000cd|lenmax|plain|trail"
+    },
+    "create_empty_name": {
+      "status": "0x00000000",
+      "disposition": 2,
+      "children": "ab\\u0000cd|lenmax|plain|trail"
+    },
+    "create_partial_length": {
+      "status": "0x00000000",
+      "disposition": 1,
+      "children": "ab\\u0000cd|lenmax|partial|plain|trail"
+    },
+    "create_volatile": {
+      "status": "0x00000000",
+      "disposition": 1,
+      "children": "ab\\u0000cd|lenmax|partial|plain|trail|vol"
+    },
+    "create_bad_options": {
+      "status": "0xc000000d",
+      "disposition": 43690,
+      "children": "ab\\u0000cd|lenmax|partial|plain|trail|vol"
+    },
+    "create_null_root_relative_name": {
+      "status": "0xc000003b",
+      "disposition": 43690,
+      "children": "ab\\u0000cd|lenmax|partial|plain|trail|vol"
+    },
+    "create_absolute_with_root": {
+      "status": "0xc000003b",
+      "disposition": 43690,
+      "children": "ab\\u0000cd|lenmax|partial|plain|trail|vol"
+    },
+    "open_plain": {
+      "status": "0x00000000"
+    },
+    "open_upper_no_ci": {
+      "status": "0x00000000"
+    },
+    "open_embedded_nul": {
+      "status": "0x00000000"
+    },
+    "open_ab_only": {
+      "status": "0xc0000034"
+    },
+    "open_trailing_backslash": {
+      "status": "0x00000000"
+    },
+    "open_empty_name": {
+      "status": "0x00000000"
+    },
+    "open_missing": {
+      "status": "0xc0000034"
+    },
+    "open_missing_parent": {
+      "status": "0xc0000034"
+    },
+    "open_absolute_hklm_software": {
+      "status": "0x00000000"
+    },
+    "open_absolute_lowercase": {
+      "status": "0x00000000"
+    },
+    "open_absolute_lowercase_no_ci": {
+      "status": "0x00000000"
+    },
+    "open_registry_root": {
+      "status": "0x00000000"
+    },
+    "open_absolute_trailing_backslash": {
+      "status": "0x00000000"
+    },
+    "open_relative_without_root": {
+      "status": "0xc000003b"
+    },
+    "open_object_dir_not_key": {
+      "status": "0xc0000024"
+    },
+    "openex_plain": {
+      "status": "0x00000000"
+    },
+    "openex_backup_restore_no_priv": {
+      "status": "0x00000000"
+    },
+    "openex_bad_options": {
+      "status": "0xc00000f2"
+    },
+    "nt_delete": {
+      "with_children": "0xc0000121",
+      "leaf": "0x00000000",
+      "leaf_twice": "0x00000000",
+      "read_only_handle": "0xc0000022",
+      "delete_access_only": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "9071582ef6ccebcbed7327469a24193037bfc0e6a2f32c30c484bf3c5c39573f"
+}

@@ -1,0 +1,57 @@
+{
+  "test": "advapi32/RegOverridePredefKey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "override_hklm": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "hklm_sees_target_child": 0,
+      "hklm_software_hidden": 2
+    },
+    "write_through_override": {
+      "set": 0,
+      "visible_in_target": 0
+    },
+    "after_closing_target_handle": {
+      "hklm_sees_target_child": 0
+    },
+    "restore_hklm": {
+      "ret": 0,
+      "hklm_software_back": 0,
+      "target_child_gone": 2
+    },
+    "restore_hklm_twice": {
+      "ret": 0
+    },
+    "override_hkcr_with_hkcu": {
+      "ret": 6,
+      "hkcr_sees_software": 2
+    },
+    "override_target_deleted": {
+      "query_info": 1018
+    },
+    "override_target_deleted_restored": {
+      "hku_default": 0
+    },
+    "override_performance_data": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "override_non_predefined": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "override_with_invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "override_undefined_predefined": {
+      "ret": 6,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "ff2d0f5d9cae72beb2c2af5937f6d9eefb8dc20361c505e72deb5bf0e1b4a520"
+}

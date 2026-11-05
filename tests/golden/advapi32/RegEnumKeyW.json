@@ -1,0 +1,94 @@
+{
+  "test": "advapi32/RegEnumKeyW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "index0": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": "bravo"
+    },
+    "index1": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": "Echo"
+    },
+    "index2_end": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "buf": "####################"
+    },
+    "cap_5_no_nul_room": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "buf": "####################"
+    },
+    "cap_6_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": "bravo"
+    },
+    "cap_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "buf": "####################"
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "buf": "####################"
+    },
+    "query_value_only_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "buf": "####################"
+    },
+    "enumerate_only_handle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "buf": "bravo"
+    },
+    "hkcu_has_software": {
+      "found": true,
+      "nonempty": true,
+      "final_ret": 259
+    },
+    "hklm_has_software": {
+      "found": true,
+      "nonempty": true,
+      "final_ret": 259
+    },
+    "hklm_has_system": {
+      "found": true,
+      "nonempty": true,
+      "final_ret": 259
+    },
+    "hku_has_default": {
+      "found": true,
+      "nonempty": true,
+      "final_ret": 259
+    },
+    "hkcc_has_software": {
+      "found": true,
+      "nonempty": true,
+      "final_ret": 259
+    },
+    "hkcr_has_dot_txt": {
+      "found": true,
+      "nonempty": true,
+      "final_ret": 259
+    },
+    "hkcr_has_clsid": {
+      "found": true,
+      "nonempty": true,
+      "final_ret": 259
+    },
+    "null_buffer": {
+      "ret": 234,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "2685cdc886a49804f36c91006949d3f5eabbf9f4348d62ea1d37705169b0de54"
+}

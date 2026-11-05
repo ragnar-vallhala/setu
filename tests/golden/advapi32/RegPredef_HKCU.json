@@ -1,0 +1,49 @@
+{
+  "test": "advapi32/RegPredef_HKCU",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "hkcu_value_visible_in_hku_sid": {
+      "have_sid": true,
+      "ret": 0,
+      "same_value": true
+    },
+    "hku_sid_write_visible_in_hkcu": {
+      "write": 0,
+      "read": 0,
+      "same_value": true
+    },
+    "hkcu_classes_is_hku_sid_classes": {
+      "create": 0,
+      "read": 0,
+      "same_value": true
+    },
+    "hkcu_local_settings_open": {
+      "ret": 0,
+      "query_info": 0
+    },
+    "hkcu_local_settings_create": {
+      "ret": 0,
+      "visible_in_hku_sid_classes_local_settings": 0
+    },
+    "open_hkcu_null": {
+      "ret": 0,
+      "same_handle": true
+    },
+    "open_hkcu_empty": {
+      "ret": 0,
+      "same_handle": true
+    },
+    "create_hkcu_empty": {
+      "ret": 0,
+      "disposition": 2,
+      "same_handle": false
+    },
+    "open_hkcu_software_lowercase": {
+      "ret": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "b19c34d48e0ba66f81fb1f4f799bb7367aae3691537dc04f92df3d78e96a4f26"
+}

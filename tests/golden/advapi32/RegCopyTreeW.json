@@ -1,0 +1,102 @@
+{
+  "test": "advapi32/RegCopyTreeW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "source": {
+      "src": "src<SrcClass>{@:4=01000000,d:4=02000000,sz:1=680069000000,bin:3=010203,none:0=,odd:74565=aa}[a<AClass>{av:4=03000000}[b{}],z{},vol{vv:4=04000000}]"
+    },
+    "copy_null_subkey_to_empty": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "d1{}"
+    },
+    "copy_volatility": {
+      "d1_vol_nonvolatile_child": 2,
+      "d1_a_nonvolatile_child": 2
+    },
+    "copy_subkey": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "d2<DestClass>{}"
+    },
+    "copy_subkey_again_merge": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "d2<DestClass>{}"
+    },
+    "copy_into_populated_merge": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "d3{d:4=63000000,keep:4=05000000}[a<Existing>{av:4=64000000,own:4=06000000},x{}]"
+    },
+    "copy_empty_subkey_string": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "d4{}"
+    },
+    "copy_missing_subkey": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "dest": "d4{}"
+    },
+    "copy_other_case_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "dest": "d4{}"
+    },
+    "source_query_value_only": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "d5{}"
+    },
+    "source_enumerate_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "dest": "d5{}"
+    },
+    "dest_read_only": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "d6{}"
+    },
+    "dest_set_value_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "dest": "d7{}"
+    },
+    "dest_create_sub_key_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "dest": "d8{}"
+    },
+    "copy_into_volatile_dest": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "dest": "dv{}"
+    },
+    "invalid_source": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "dest": "d9{}"
+    },
+    "invalid_dest": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "dest": "d9{}"
+    },
+    "null_dest": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "dest": "d9{}"
+    },
+    "null_dest_with_subkey": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "dest": "d9{}"
+    }
+  },
+  "errors": [],
+  "source_sha256": "52f690eca813ca07edc063456885f8e293ab63b7092d7ab9f449ce40daffa83a"
+}

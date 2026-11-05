@@ -1,0 +1,111 @@
+{
+  "test": "advapi32/RegQueryInfoKey_maxlens",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "empty": {
+      "ret": 0,
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0
+    },
+    "one_3": {
+      "ret": 0,
+      "subkeys": 1,
+      "max_subkey_len": 3,
+      "max_class_len": 2
+    },
+    "add_10": {
+      "ret": 0,
+      "subkeys": 2,
+      "max_subkey_len": 10,
+      "max_class_len": 10
+    },
+    "add_20": {
+      "ret": 0,
+      "subkeys": 3,
+      "max_subkey_len": 20,
+      "max_class_len": 10
+    },
+    "delete_longest": {
+      "ret": 0,
+      "subkeys": 2,
+      "max_subkey_len": 20,
+      "max_class_len": 10
+    },
+    "delete_second_longest": {
+      "ret": 0,
+      "subkeys": 1,
+      "max_subkey_len": 20,
+      "max_class_len": 10
+    },
+    "delete_all": {
+      "ret": 0,
+      "subkeys": 0,
+      "max_subkey_len": 0,
+      "max_class_len": 0
+    },
+    "after_delete_all_add_5": {
+      "ret": 0,
+      "subkeys": 1,
+      "max_subkey_len": 5,
+      "max_class_len": 0
+    },
+    "add_30": {
+      "ret": 0,
+      "subkeys": 2,
+      "max_subkey_len": 30,
+      "max_class_len": 0
+    },
+    "rename_longest_to_short": {
+      "ret": 0,
+      "subkeys": 2,
+      "max_subkey_len": 30,
+      "max_class_len": 0
+    },
+    "rename_short_to_40": {
+      "ret": 0,
+      "subkeys": 2,
+      "max_subkey_len": 40,
+      "max_class_len": 0
+    },
+    "add_volatile_45": {
+      "ret": 0,
+      "subkeys": 3,
+      "max_subkey_len": 44,
+      "max_class_len": 11
+    },
+    "add_surrogates": {
+      "ret": 0,
+      "subkeys": 5,
+      "max_subkey_len": 44,
+      "max_class_len": 11
+    },
+    "add_255": {
+      "ret": 0,
+      "subkeys": 6,
+      "max_subkey_len": 255,
+      "max_class_len": 11
+    },
+    "delete_255": {
+      "ret": 0,
+      "subkeys": 5,
+      "max_subkey_len": 255,
+      "max_class_len": 11
+    },
+    "grandchild_added": {
+      "ret": 0,
+      "subkeys": 5,
+      "max_subkey_len": 255,
+      "max_class_len": 11
+    },
+    "hkcu_plausible": {
+      "ret": 0,
+      "has_subkeys": true,
+      "max_len_at_least_8": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "1e5ede0fbeacf4ee6c277455f8019df1075f208d760069c2fde16dd6c5d9cbd0"
+}

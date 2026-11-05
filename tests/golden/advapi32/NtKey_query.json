@@ -1,0 +1,143 @@
+{
+  "test": "advapi32/NtKey_query",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "basic": {
+      "status": "0x00000000",
+      "len": 24,
+      "name_length": 8,
+      "name": "Node",
+      "title_index": 0,
+      "time_nonzero": true
+    },
+    "node": {
+      "status": "0x00000000",
+      "len": 50,
+      "class_offset": 32,
+      "class_length": 18,
+      "name_length": 8,
+      "class": "NodeClass"
+    },
+    "full": {
+      "status": "0x00000000",
+      "len": 62,
+      "class_offset": 44,
+      "class_length": 18,
+      "subkeys": 2,
+      "max_name_len": 16,
+      "max_class_len": 4,
+      "values": 1,
+      "max_value_name_len": 14,
+      "max_value_data_len": 14
+    },
+    "name": {
+      "status": "0x00000000",
+      "path": "\\REGISTRY\\USER\\<SID>\\SOFTWARE\\SetuOracle\\advapi32_NtKey_query\\Node"
+    },
+    "cached": {
+      "status": "0x00000000",
+      "len": 40,
+      "subkeys": 2,
+      "max_name_len": 16,
+      "values": 1,
+      "max_value_name_len": 14,
+      "max_value_data_len": 14,
+      "name_length": 8
+    },
+    "class_5": {
+      "status": "0x00000000",
+      "len": 12
+    },
+    "class_6": {
+      "status": "0x00000000",
+      "len": 4
+    },
+    "class_7": {
+      "status": "0x00000000",
+      "len": 4
+    },
+    "class_8": {
+      "status": "0x00000000",
+      "len": 4
+    },
+    "class_9": {
+      "status": "0xc000000d"
+    },
+    "class_10": {
+      "status": "0xc000000d"
+    },
+    "class_99": {
+      "status": "0xc000000d"
+    },
+    "basic_buffer_0": {
+      "status": "0xc0000023",
+      "len": 24,
+      "head_after_time": "cccccccccccccccccccccccccccccccc",
+      "time_bytes_untouched": true
+    },
+    "basic_buffer_4": {
+      "status": "0xc0000023",
+      "len": 24,
+      "head_after_time": "cccccccccccccccccccccccccccccccc",
+      "time_bytes_untouched": true
+    },
+    "basic_buffer_16": {
+      "status": "0x80000005",
+      "len": 24,
+      "head_after_time": "0000000008000000cccccccccccccccc",
+      "time_bytes_untouched": false
+    },
+    "basic_buffer_20": {
+      "status": "0x80000005",
+      "len": 24,
+      "head_after_time": "00000000080000004e006f00cccccccc",
+      "time_bytes_untouched": false
+    },
+    "basic_buffer_24": {
+      "status": "0x00000000",
+      "len": 24,
+      "head_after_time": "00000000080000004e006f0064006500",
+      "time_bytes_untouched": false
+    },
+    "name_buffer_6": {
+      "status": "0x80000005",
+      "len_plausible": true
+    },
+    "full_buffer_44": {
+      "status": "0x80000005",
+      "len": 62
+    },
+    "enum_node_0": {
+      "status": "0x00000000",
+      "len": 44,
+      "name": "ChildOne",
+      "class_offset": 40,
+      "class_length": 4
+    },
+    "enum_node_1": {
+      "status": "0x00000000",
+      "len": 30,
+      "name": "Kid",
+      "class_offset": 4294967295,
+      "class_length": 0
+    },
+    "enum_node_2": {
+      "status": "0x8000001a"
+    },
+    "enum_basic_buffer_8": {
+      "status": "0xc0000023",
+      "len": 32
+    },
+    "enum_name_class": {
+      "status": "0xc000000d"
+    },
+    "enum_full_class": {
+      "status": "0x00000000",
+      "len": 48
+    }
+  },
+  "errors": [],
+  "source_sha256": "e9085932b2222bbf1109a07d28253a1b335b56eaa339ae4d6bb88eb8cc6acf39"
+}

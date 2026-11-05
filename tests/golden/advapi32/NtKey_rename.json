@@ -1,0 +1,87 @@
+{
+  "test": "advapi32/NtKey_rename",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "available": {
+      "ntrenamekey": true
+    },
+    "plain": {
+      "status": "0x00000000",
+      "children": "beta"
+    },
+    "case_only": {
+      "status": "0xc0000121",
+      "children": "beta"
+    },
+    "same_name": {
+      "status": "0xc0000121",
+      "children": "beta"
+    },
+    "onto_existing": {
+      "status": "0xc0000121",
+      "children": "beta|gamma"
+    },
+    "onto_existing_other_case": {
+      "status": "0xc0000121",
+      "children": "beta|gamma"
+    },
+    "with_backslash": {
+      "status": "0xc000000d",
+      "children": "beta|gamma"
+    },
+    "empty": {
+      "status": "0xc000000d",
+      "children": "beta|gamma"
+    },
+    "odd_length": {
+      "status": "0xc000000d",
+      "children": "beta|gamma"
+    },
+    "name_256": {
+      "status": "0x00000000",
+      "children": "gamma|LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
+    },
+    "name_257": {
+      "status": "0xc000000d",
+      "children": "gamma|LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
+    },
+    "back_to_short": {
+      "status": "0x00000000",
+      "children": "beta|gamma"
+    },
+    "with_children": {
+      "status": "0x00000000",
+      "children": "beta|forest|gamma"
+    },
+    "children_kept": {
+      "children_of_forest": "sub1",
+      "open_deep_by_new_path": 0,
+      "value": 0,
+      "value_data": 7
+    },
+    "read_only_handle": {
+      "status": "0xc0000022",
+      "children": "beta|forest|gamma"
+    },
+    "write_handle": {
+      "status": "0x00000000",
+      "children": "beta|epsilon|forest"
+    },
+    "deleted_key": {
+      "status": "0xc000017c",
+      "children": "beta|epsilon|forest"
+    },
+    "predefined_hkcu": {
+      "status": "0xc0000008",
+      "children": "beta|epsilon|forest"
+    },
+    "null_handle": {
+      "status": "0xc0000008",
+      "children": "beta|epsilon|forest"
+    }
+  },
+  "errors": [],
+  "source_sha256": "f0ab0b699924780a37f7e24bf1bcf7ecb9748f90a12d095368a046ab6ed32685"
+}

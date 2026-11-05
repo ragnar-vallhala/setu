@@ -1,0 +1,119 @@
+{
+  "test": "advapi32/RegDeleteTreeW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "deep_40_levels": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "wide_300_children": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "null_subkey_empties_key": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "keys_below": 0,
+      "values_total": 0
+    },
+    "empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "keys_below": 0,
+      "values_total": 0
+    },
+    "null_subkey_on_empty_key": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "keys_below": 0,
+      "values_total": 0
+    },
+    "readonly_handle_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "keys_below": 0,
+      "values_total": 0
+    },
+    "readonly_handle_null": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "keys_below": 0,
+      "values_total": 0
+    },
+    "enum_query_delete_handle_null": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "keys_below": 0,
+      "values_total": 0
+    },
+    "open_handle_inside": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "open_handle_inside_after": {
+      "set_value": 1018,
+      "close": 0
+    },
+    "volatile_children": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "missing_parent": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "lock_set": {
+      "ret": 0
+    },
+    "partial_locked_subkey": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "keys_below": 2,
+      "values_total": 1
+    },
+    "partial_locked_remaining": {
+      "children": "locked,z9"
+    },
+    "after_unlock": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "b6abd3297483636d1c6de064f9dcb4e513990fe960ec20712abb6501e03e5598"
+}

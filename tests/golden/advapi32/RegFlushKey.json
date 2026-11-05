@@ -1,0 +1,79 @@
+{
+  "test": "advapi32/RegFlushKey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "nonvolatile": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "volatile": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "readonly_handle": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "no_access_handle": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "hkcu": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "hklm": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "hkcr": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "hku": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "hkcc": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "hkpd": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "null": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "made_up": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged"
+    },
+    "child_after_parent_closed": {
+      "close_parent": 0,
+      "set_value_child": 0,
+      "create_grandchild": 0,
+      "close_child": 0
+    },
+    "duplicate_handle": {
+      "duplicated": true,
+      "close_original": 0,
+      "query_via_duplicate": 0,
+      "close_duplicate_with_regclosekey": 0,
+      "closehandle_after": false
+    },
+    "closehandle_on_key": {
+      "closehandle": true,
+      "regclosekey_after": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "f3ae62cb0e30ffc51b6c3f09cd49f34e18bbd49e3a345ad6eaf0706aeb7e4a67"
+}

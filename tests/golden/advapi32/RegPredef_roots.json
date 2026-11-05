@@ -1,0 +1,126 @@
+{
+  "test": "advapi32/RegPredef_roots",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "hklm": {
+      "open_null": 0,
+      "open_null_same_handle": true,
+      "open_empty": 0,
+      "open_empty_same_handle": true,
+      "query_info": 0,
+      "has_subkeys": true,
+      "create_volatile_at_root": 87,
+      "create_nonvolatile_at_root": 87,
+      "set_value_at_root": 0,
+      "delete_value_at_root": 0
+    },
+    "hku": {
+      "open_null": 0,
+      "open_null_same_handle": true,
+      "open_empty": 0,
+      "open_empty_same_handle": true,
+      "query_info": 0,
+      "has_subkeys": true,
+      "create_volatile_at_root": 87,
+      "create_nonvolatile_at_root": 87,
+      "set_value_at_root": 0,
+      "delete_value_at_root": 0
+    },
+    "hkcc": {
+      "open_null": 0,
+      "open_null_same_handle": true,
+      "open_empty": 0,
+      "open_empty_same_handle": true,
+      "query_info": 0,
+      "has_subkeys": true,
+      "create_volatile_at_root": 0,
+      "disposition": 1,
+      "delete_at_root": 0,
+      "create_nonvolatile_at_root": 0,
+      "delete_nonvolatile_at_root": 0,
+      "set_value_at_root": 0,
+      "delete_value_at_root": 0
+    },
+    "hkcu": {
+      "open_null": 0,
+      "open_null_same_handle": true,
+      "open_empty": 0,
+      "open_empty_same_handle": true,
+      "query_info": 0,
+      "has_subkeys": true,
+      "create_volatile_at_root": 0,
+      "disposition": 1,
+      "delete_at_root": 0,
+      "create_nonvolatile_at_root": 0,
+      "delete_nonvolatile_at_root": 0,
+      "set_value_at_root": 0,
+      "delete_value_at_root": 0
+    },
+    "hklm_software": {
+      "open": 0
+    },
+    "hklm_system": {
+      "open": 0
+    },
+    "hklm_system_ccs": {
+      "open": 0
+    },
+    "hklm_system_ccs_control": {
+      "open": 0
+    },
+    "hklm_system_ccs_services": {
+      "open": 0
+    },
+    "hklm_hardware": {
+      "open": 0
+    },
+    "hklm_software_microsoft_windows_cv": {
+      "open": 0
+    },
+    "hklm_software_microsoft_windows_nt_cv": {
+      "open": 0
+    },
+    "hklm_software_classes": {
+      "open": 0
+    },
+    "hklm_software_wow6432node": {
+      "open": 0
+    },
+    "hklm_hw_profiles_current": {
+      "open": 0
+    },
+    "hku_default": {
+      "open": 0
+    },
+    "hku_localsystem": {
+      "open": 0
+    },
+    "hkcu_software": {
+      "open": 0
+    },
+    "hkcu_software_microsoft": {
+      "open": 0
+    },
+    "hkcu_environment": {
+      "open": 0
+    },
+    "hkcu_control_panel": {
+      "open": 0
+    },
+    "hkcc_software": {
+      "open": 0
+    },
+    "hkcc_system": {
+      "open": 0
+    },
+    "hkcc_alias_of_hw_profile_current": {
+      "create": 0,
+      "read_via_hklm": 0,
+      "same_value": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "e998980a4e9a31503e607c0b3daae6dbabc1969f4f7f4eac4152565bfdbc60b0"
+}

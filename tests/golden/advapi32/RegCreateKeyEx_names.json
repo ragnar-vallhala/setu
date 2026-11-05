@@ -1,0 +1,263 @@
+{
+  "test": "advapi32/RegCreateKeyEx_names",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "plain": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "plain",
+      "grandchildren": ""
+    },
+    "trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "tb",
+      "grandchildren": ""
+    },
+    "two_trailing_backslashes": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "tb2",
+      "grandchildren": ""
+    },
+    "leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "children": "",
+      "grandchildren": ""
+    },
+    "double_backslash_middle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "a",
+      "grandchildren": "b"
+    },
+    "triple_backslash_middle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "a",
+      "grandchildren": "b"
+    },
+    "only_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "children": "",
+      "grandchildren": ""
+    },
+    "only_two_backslashes": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "children": "",
+      "grandchildren": ""
+    },
+    "space_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": " ",
+      "grandchildren": ""
+    },
+    "leading_trailing_spaces": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "  sp  ",
+      "grandchildren": ""
+    },
+    "space_component": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "x",
+      "grandchildren": " "
+    },
+    "dot": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": ".",
+      "grandchildren": ""
+    },
+    "dotdot": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "..",
+      "grandchildren": ""
+    },
+    "dot_component": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "x",
+      "grandchildren": "."
+    },
+    "dotdot_component": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "x",
+      "grandchildren": ".."
+    },
+    "trailing_dot": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "td.",
+      "grandchildren": ""
+    },
+    "wildcards": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "w*?",
+      "grandchildren": ""
+    },
+    "forward_slash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "f/s",
+      "grandchildren": ""
+    },
+    "colon": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "c:d",
+      "grandchildren": ""
+    },
+    "quote_lt_gt_pipe": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "q\"<>|",
+      "grandchildren": ""
+    },
+    "tab": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "t\\u0009ab",
+      "grandchildren": ""
+    },
+    "newline": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "n\\u000al",
+      "grandchildren": ""
+    },
+    "control_01": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "c\\u0001",
+      "grandchildren": ""
+    },
+    "del_7f": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "d\\u007f",
+      "grandchildren": ""
+    },
+    "nbsp": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "n\\u00a0b",
+      "grandchildren": ""
+    },
+    "ideographic_space": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "i\\u3000s",
+      "grandchildren": ""
+    },
+    "bom_char": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "\\ufeffbom",
+      "grandchildren": ""
+    },
+    "lone_high_surrogate": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "h\\ud800",
+      "grandchildren": ""
+    },
+    "lone_low_surrogate": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "l\\udc00",
+      "grandchildren": ""
+    },
+    "surrogate_pair": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "p\\ud83d\\ude00",
+      "grandchildren": ""
+    },
+    "noncharacter_ffff": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "x\\uffff",
+      "grandchildren": ""
+    },
+    "long_multi_level": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "children": "l1",
+      "grandchildren": "l2"
+    },
+    "open_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_two_trailing_backslashes": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_double_backslash": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged"
+    },
+    "open_only_backslash": {
+      "ret": 161,
+      "last_error": "unchanged"
+    },
+    "open_dot_component": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "open_trailing_space": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "open_forward_slash": {
+      "ret": 2,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "e6be51f57cf26ec921fab74293e8db2bc448da37494cc36c62c2b855fe2eb47b"
+}

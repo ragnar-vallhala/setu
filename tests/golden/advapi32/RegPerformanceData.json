@@ -1,0 +1,63 @@
+{
+  "test": "advapi32/RegPerformanceData",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "global": {
+      "first_ret": 234,
+      "final_ret": 0,
+      "needed_more_than_1k": true,
+      "type": 3,
+      "signature_PERF": true,
+      "little_endian": 1,
+      "version": 1,
+      "total_le_size": true,
+      "has_objects": true,
+      "header_le_total": true
+    },
+    "counter_009": {
+      "final_ret": 0,
+      "type": 7,
+      "starts_with_1": true
+    },
+    "performance_text_counter": {
+      "final_ret": 0,
+      "type": 7,
+      "starts_with_1": true
+    },
+    "global_4_byte_buffer": {
+      "ret": 234,
+      "last_error": "unchanged"
+    },
+    "global_size_query": {
+      "ret": 234
+    },
+    "query_info": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkeys": 0
+    },
+    "enum_key": {
+      "ret": 259
+    },
+    "open_subkey": {
+      "ret": 6
+    },
+    "create_subkey": {
+      "ret": 6
+    },
+    "set_value": {
+      "ret": 6
+    },
+    "query_unknown_value_no_buffer": {
+      "ret": 234
+    },
+    "close": {
+      "ret": 0,
+      "last_error": 31
+    }
+  },
+  "errors": [],
+  "source_sha256": "6274b06782641d2a4eb6eeb174fc931e39f1897f18b9a06894071d184f41286c"
+}

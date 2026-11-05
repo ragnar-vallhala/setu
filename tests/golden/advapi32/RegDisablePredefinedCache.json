@@ -1,0 +1,53 @@
+{
+  "test": "advapi32/RegDisablePredefinedCache",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "before": {
+      "hkcu_open": 0,
+      "hklm_open": 0,
+      "hkcr_open": 0,
+      "hkcu_query_info": 0
+    },
+    "disable": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_disable": {
+      "hkcu_open": 0,
+      "hklm_open": 0,
+      "hkcr_open": 0,
+      "hkcu_query_info": 0
+    },
+    "disable_again": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "disable_ex": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "disable_ex_again": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_disable_ex": {
+      "hkcu_open": 0,
+      "hklm_open": 0,
+      "hkcr_open": 0,
+      "hkcu_query_info": 0
+    },
+    "close_hkcu_after_disable": {
+      "close": 0
+    },
+    "after_close_hkcu": {
+      "hkcu_open": 0,
+      "hklm_open": 0,
+      "hkcr_open": 0,
+      "hkcu_query_info": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "94750b579263ebbb01f290109c16d456b76e7bb17c2d0c38877ef41668ba7d69"
+}

@@ -1,0 +1,75 @@
+{
+  "test": "advapi32/RegWow64_views",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "hklm_software": {
+      "create_32": 0,
+      "open_32view": 0,
+      "open_64view": 2,
+      "open_default_view": 2,
+      "open_wow6432node_path_64view": 0
+    },
+    "hklm_software_lowercase": {
+      "create_32": 0,
+      "open_32view": 0,
+      "open_64view": 2,
+      "open_default_view": 2,
+      "open_wow6432node_path_64view": 0
+    },
+    "hklm_system_shared": {
+      "create_32": 0,
+      "open_32view": 0,
+      "open_64view": 0,
+      "open_default_view": 0,
+      "open_wow6432node_path_64view": 2
+    },
+    "hklm_classes_clsid": {
+      "create_32": 0,
+      "open_32view": 0,
+      "open_64view": 2,
+      "open_default_view": 2,
+      "open_wow6432node_path_64view": 0
+    },
+    "hklm_classes_other": {
+      "create_32": 0,
+      "open_32view": 0,
+      "open_64view": 0,
+      "open_default_view": 0,
+      "open_wow6432node_path_64view": 2
+    },
+    "hkcu_software_shared": {
+      "create_32": 0,
+      "open_32view": 0,
+      "open_64view": 0,
+      "open_default_view": 0,
+      "open_wow6432node_path_64view": 2
+    },
+    "separate_values_per_view": {
+      "tag_32": 32,
+      "tag_64": 64
+    },
+    "relative_from_32view_handle": {
+      "open_software_32": 0,
+      "open_child": 0,
+      "child_tag": 32,
+      "open_child_64flag": 0,
+      "child_64flag_tag": 32
+    },
+    "software_32view_lists_wow6432node": {
+      "found": false
+    },
+    "explicit_wow6432node_with_32flag": {
+      "open": 0,
+      "open_double": 2
+    },
+    "cleanup_done": {
+      "software_32": 2,
+      "software_64": 2,
+      "clsid_32": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "26be08dd41a2e132f53100e8d493b4b2a5887b1f4e8186e2009e190914aee4f5"
+}

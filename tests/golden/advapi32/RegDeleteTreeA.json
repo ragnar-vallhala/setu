@@ -1,0 +1,72 @@
+{
+  "test": "advapi32/RegDeleteTreeA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "subtree": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "subkeys": 1,
+      "values": 1
+    },
+    "whole": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "subkeys": 0,
+      "values": 0
+    },
+    "empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "subkeys": 0,
+      "values": 0
+    },
+    "cp1252_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "open_after": 2
+    },
+    "leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "subkeys": 0,
+      "values": 0
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "subkeys": 0,
+      "values": 0
+    },
+    "null_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "open_after": 0,
+      "subkeys": 0,
+      "values": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "08c7a1a98523e142ded8a07f5445433792db13e2912d8df58df51eb2124f6b26"
+}

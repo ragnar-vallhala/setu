@@ -1,0 +1,209 @@
+{
+  "test": "advapi32/RegCreateKeyEx_options",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "nonvolatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "nonvolatile_is_nonvolatile": {
+      "open": 0,
+      "nonvolatile_child": 0
+    },
+    "volatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "volatile_is_volatile": {
+      "open": 0,
+      "nonvolatile_child": 1021
+    },
+    "volatile_on_existing_nonvolatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "existing_nonvolatile_stays": {
+      "open": 0,
+      "nonvolatile_child": 0
+    },
+    "nonvolatile_on_existing_volatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "existing_volatile_stays": {
+      "open": 0,
+      "nonvolatile_child": 1021
+    },
+    "volatile_under_volatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "nonvolatile_under_volatile": {
+      "ret": 1021,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": false
+    },
+    "volatile_under_nonvolatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "volatile_multi_level_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "multi_level_intermediate_volatile": {
+      "open": 0,
+      "nonvolatile_child": 1021
+    },
+    "multi_level_leaf_volatile": {
+      "open": 0,
+      "nonvolatile_child": 1021
+    },
+    "open_link_option_normal_key": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "open_link_option_new_key": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "dont_virtualize": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "option_0x20": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "option_0x100": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "option_0x80000000": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "volatile_plus_0x40": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "reserved_1": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "reserved_1_existing": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "backup_restore_no_priv_existing": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "backup_restore_no_priv_new": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "backup_restore_volatile_no_priv": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "enable_backup_restore_privileges": {
+      "backup": true,
+      "restore": true
+    },
+    "backup_restore_with_priv_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "backup_restore_with_priv_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "backup_restore_with_priv_read_sam": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true,
+      "set_value": 0,
+      "query_info": 0
+    },
+    "null_disposition": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "keys_after": {
+      "keys": "br2,dv,nodisp,nv,ol,vm1,vol"
+    }
+  },
+  "errors": [],
+  "source_sha256": "8e959239a4e6b56dbf3d40e5633058920f7a109be7725fed5f076026068fd4c9"
+}

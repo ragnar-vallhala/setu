@@ -1,0 +1,221 @@
+{
+  "test": "advapi32/RegCreateKeyEx_access",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_all_access": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "granted": "0x000f003f"
+    },
+    "create_existing_zero": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "create_new_zero": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "granted": "0x00000000"
+    },
+    "create_read": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00020019"
+    },
+    "create_write": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00020006"
+    },
+    "create_new_query_value_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "granted": "0x00000001"
+    },
+    "create_generic_read": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00020019"
+    },
+    "create_generic_write": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00020006"
+    },
+    "create_generic_execute": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00020039"
+    },
+    "create_generic_all": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x000f003f"
+    },
+    "create_maximum_allowed": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x000f003f"
+    },
+    "create_access_system_security": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x01000000"
+    },
+    "create_wow64_64key_bit": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00020019"
+    },
+    "create_wow64_32key_bit": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00020019"
+    },
+    "create_both_wow64_bits": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "create_undefined_bit_0x80": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "create_undefined_bit_0x400": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "create_standard_rights_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00060000"
+    },
+    "create_synchronize": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "create_delete_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "granted": "0x00010000"
+    },
+    "open_zero": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "open_all_access": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x000f003f"
+    },
+    "open_read": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00020019"
+    },
+    "open_execute": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00020019"
+    },
+    "open_write": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00020006"
+    },
+    "open_enumerate_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00000008"
+    },
+    "open_notify_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00000010"
+    },
+    "open_create_link": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00000020"
+    },
+    "open_generic_read": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00020019"
+    },
+    "open_generic_write": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00020006"
+    },
+    "open_generic_execute": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00020039"
+    },
+    "open_generic_all": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x000f003f"
+    },
+    "open_maximum_allowed": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x000f003f"
+    },
+    "open_maximum_allowed_read": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x000f003f"
+    },
+    "open_access_system_security": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x01000000"
+    },
+    "open_wow64_32key_bit": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "granted": "0x00020019"
+    },
+    "open_wow64_res_both": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "open_undefined_bit_0x80": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "open_high_undefined_bits": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "open_hkcu_empty_query_value": {
+      "ret": 0,
+      "same_handle": true,
+      "query_object_status": "0xc0000008"
+    },
+    "open_hkcu_null_read": {
+      "ret": 0,
+      "same_handle": true,
+      "query_object_status": "0xc0000008"
+    }
+  },
+  "errors": [],
+  "source_sha256": "bba643a2abee5005ba81c031470d5eac88caacb6d305bd7fd81d933b1f6831af"
+}

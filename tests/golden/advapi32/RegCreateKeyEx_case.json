@@ -1,0 +1,370 @@
+{
+  "test": "advapi32/RegCreateKeyEx_case",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "ascii_lower_upper": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "abc",
+      "delete_b": 0
+    },
+    "ascii_mixed": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "MiXeD",
+      "delete_b": 0
+    },
+    "digits_symbols": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "a_1-[",
+      "delete_b": 0
+    },
+    "bracket_vs_brace": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "a[|a{",
+      "delete_b": 0
+    },
+    "at_vs_backtick": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "a@|a`",
+      "delete_b": 0
+    },
+    "latin1_e_acute": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "caf\\u00e9",
+      "delete_b": 0
+    },
+    "latin1_y_diaeresis": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u00ff",
+      "delete_b": 0
+    },
+    "latin1_a_ring": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u00e5",
+      "delete_b": 0
+    },
+    "angstrom_sign_vs_a_ring": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u00c5|\\u212b",
+      "delete_b": 0
+    },
+    "micro_vs_greek_mu_upper": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u00b5|\\u039c",
+      "delete_b": 0
+    },
+    "micro_vs_greek_mu_lower": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u00b5|\\u03bc",
+      "delete_b": 0
+    },
+    "sharp_s_vs_capital_sharp_s": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u00df|\\u1e9e",
+      "delete_b": 0
+    },
+    "sharp_s_vs_ss": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "STRASSE|stra\\u00dfe",
+      "delete_b": 0
+    },
+    "turkish_i_vs_I": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "i",
+      "delete_b": 0
+    },
+    "turkish_dotted_I_vs_i": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "i|\\u0130",
+      "delete_b": 0
+    },
+    "turkish_dotted_I_vs_I": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "I|\\u0130",
+      "delete_b": 0
+    },
+    "turkish_dotless_i_vs_I": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "I|\\u0131",
+      "delete_b": 0
+    },
+    "turkish_dotless_i_vs_i": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "i|\\u0131",
+      "delete_b": 0
+    },
+    "greek_sigma_vs_capital": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u03c3",
+      "delete_b": 0
+    },
+    "greek_final_sigma_vs_capital": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u03a3|\\u03c2",
+      "delete_b": 0
+    },
+    "greek_final_sigma_vs_sigma": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u03c3|\\u03c2",
+      "delete_b": 0
+    },
+    "greek_accented_alpha": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u03ac",
+      "delete_b": 0
+    },
+    "greek_iota_subscript": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u0345|\\u0399",
+      "delete_b": 0
+    },
+    "long_s_vs_S": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "S|\\u017f",
+      "delete_b": 0
+    },
+    "kelvin_vs_k": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "k|\\u212a",
+      "delete_b": 0
+    },
+    "kelvin_vs_K": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "K|\\u212a",
+      "delete_b": 0
+    },
+    "ohm_vs_omega": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u03c9|\\u2126",
+      "delete_b": 0
+    },
+    "titlecase_dz": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u01c4|\\u01c5",
+      "delete_b": 0
+    },
+    "titlecase_dz_lower": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u01c6",
+      "delete_b": 0
+    },
+    "cyrillic_a": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u0430",
+      "delete_b": 0
+    },
+    "cyrillic_yo": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u0451",
+      "delete_b": 0
+    },
+    "armenian_ayb": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u0561",
+      "delete_b": 0
+    },
+    "georgian_an_mkhedruli": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u10d0|\\u1c90",
+      "delete_b": 0
+    },
+    "cherokee_a": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u13a0|\\uab70",
+      "delete_b": 0
+    },
+    "glagolitic_az": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u2c30",
+      "delete_b": 0
+    },
+    "latin_ext_a_dot_below": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u1ea1",
+      "delete_b": 0
+    },
+    "latin_ext_b_turned_alpha": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\u0252|\\u2c70",
+      "delete_b": 0
+    },
+    "roman_numeral_one": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u2170",
+      "delete_b": 0
+    },
+    "circled_a": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\u24d0",
+      "delete_b": 0
+    },
+    "fullwidth_a": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\uff41",
+      "delete_b": 0
+    },
+    "fullwidth_vs_ascii": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "a|\\uff41",
+      "delete_b": 0
+    },
+    "deseret_long_i": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "\\ud801\\udc00|\\ud801\\udc28",
+      "delete_b": 0
+    },
+    "precomposed_vs_combining": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "e\\u0301|\\u00e9",
+      "delete_b": 0
+    },
+    "ligature_fi_vs_FI": {
+      "ret": 0,
+      "disposition": 1,
+      "open_b": 0,
+      "keys": 2,
+      "stored": "FI|\\ufb01",
+      "delete_b": 0
+    },
+    "lone_surrogates_case": {
+      "ret": 0,
+      "disposition": 2,
+      "open_b": 0,
+      "keys": 1,
+      "stored": "\\ud801",
+      "delete_b": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "c738ab3845b7751ebd9a59345b3644dd005bfac8d892369a3f223e14939b11d0"
+}

@@ -1,0 +1,207 @@
+{
+  "test": "advapi32/RegCreateKeyExA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_new": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
+    "create_existing_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
+    "create_multi_level": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "create_double_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
+    "create_null_subkey": {
+      "ret": 1010,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "create_with_class": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_existing_new_class": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": true
+    },
+    "class_kept_from_first_create": {
+      "ret": 0,
+      "class": "ClassA",
+      "class_len": 6
+    },
+    "create_empty_class": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "class_empty": {
+      "ret": 0,
+      "class": "",
+      "class_len": 0
+    },
+    "create_invalid_hkey": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "create_null_hkey": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "create_volatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_nonvolatile_under_volatile": {
+      "ret": 1021,
+      "last_error": "unchanged",
+      "disposition": 2,
+      "got_key": false
+    },
+    "create_cp1252_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "cp1252_name_as_unicode": {
+      "open_w": 0
+    },
+    "open_cp1252_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "create_name_255": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_name_256": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1,
+      "got_key": true
+    },
+    "create_name_299": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "disposition": 2863311530,
+      "got_key": false
+    },
+    "open_name_255": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_name_299": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "open_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_lower_multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "open_missing_parent": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "open_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "open_trailing_backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "got_key": true
+    },
+    "open_invalid_hkey": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "got_key": false
+    },
+    "open_options_1": {
+      "ret": 0,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "82b74ae8bfca857baa78fc8fb7ae4aad4b999418340ee4a2e60e6b06d054566d"
+}

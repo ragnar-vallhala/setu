@@ -1,0 +1,157 @@
+{
+  "test": "advapi32/RegQueryInfoKey_class",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "no_class": {
+      "create": 0,
+      "disposition": 1,
+      "query": 0,
+      "class_len": 0,
+      "class": ""
+    },
+    "empty_class": {
+      "create": 0,
+      "disposition": 1,
+      "query": 0,
+      "class_len": 0,
+      "class": ""
+    },
+    "simple_class": {
+      "create": 0,
+      "disposition": 1,
+      "query": 0,
+      "class_len": 6,
+      "class": "Simple"
+    },
+    "recreate_other_class": {
+      "create": 0,
+      "disposition": 2,
+      "query": 0,
+      "class_len": 6,
+      "class": "Simple"
+    },
+    "recreate_null_class": {
+      "create": 0,
+      "disposition": 2,
+      "query": 0,
+      "class_len": 6,
+      "class": "Simple"
+    },
+    "recreate_no_class_key_with_class": {
+      "create": 0,
+      "disposition": 2,
+      "query": 0,
+      "class_len": 0,
+      "class": ""
+    },
+    "class_with_spaces_backslash": {
+      "create": 0,
+      "disposition": 1,
+      "query": 0,
+      "class_len": 7,
+      "class": " a\\b c "
+    },
+    "class_non_ascii": {
+      "create": 0,
+      "disposition": 1,
+      "query": 0,
+      "class_len": 5,
+      "class": "éα中😀"
+    },
+    "class_255": {
+      "create": 0,
+      "disposition": 1,
+      "query": 0,
+      "class_len": 255
+    },
+    "class_256": {
+      "create": 0,
+      "disposition": 1,
+      "query": 0,
+      "class_len": 256
+    },
+    "class_32767": {
+      "create": 206,
+      "disposition": 0
+    },
+    "parent_max_class_len": {
+      "ret": 0,
+      "subkeys": 7,
+      "max_class_len": 256
+    },
+    "parent_max_class_len_after_delete": {
+      "ret": 0,
+      "subkeys": 6,
+      "max_class_len": 256
+    },
+    "enum_class_0": {
+      "ret": 0,
+      "name": "a",
+      "class_len": 0,
+      "class": ""
+    },
+    "enum_class_1": {
+      "ret": 0,
+      "name": "b",
+      "class_len": 0,
+      "class": ""
+    },
+    "enum_class_2": {
+      "ret": 0,
+      "name": "c",
+      "class_len": 6,
+      "class": "Simple"
+    },
+    "enum_class_3": {
+      "ret": 0,
+      "name": "d",
+      "class_len": 7,
+      "class": " a\\b c "
+    },
+    "enum_class_4": {
+      "ret": 0,
+      "name": "e",
+      "class_len": 5,
+      "class": "éα中😀"
+    },
+    "enum_class_5": {
+      "ret": 0,
+      "name": "f",
+      "class_len": 255
+    },
+    "query_cap_0": {
+      "ret": 0,
+      "class_len": 0,
+      "buf": "############"
+    },
+    "query_cap_1": {
+      "ret": 234,
+      "class_len": 6,
+      "buf": "############"
+    },
+    "query_cap_5": {
+      "ret": 234,
+      "class_len": 6,
+      "buf": "############"
+    },
+    "query_cap_6": {
+      "ret": 122,
+      "class_len": 5,
+      "buf": "############"
+    },
+    "query_cap_7": {
+      "ret": 0,
+      "class_len": 6,
+      "buf": "Simple"
+    },
+    "query_cap_100": {
+      "ret": 0,
+      "class_len": 6,
+      "buf": "Simple"
+    }
+  },
+  "errors": [],
+  "source_sha256": "2457703f0acdf35050b7adf200eca6f87f78ecbf146a960d2d5ba0423edeee74"
+}

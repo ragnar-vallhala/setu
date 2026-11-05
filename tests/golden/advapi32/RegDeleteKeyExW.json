@@ -1,0 +1,105 @@
+{
+  "test": "advapi32/RegDeleteKeyExW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "created": {
+      "k64.view64": 0,
+      "k64.view32": 2,
+      "k64.wow6432node_path": 2,
+      "k32.view64": 2,
+      "k32.view32": 0,
+      "k32.wow6432node_path": 0,
+      "both.view64": 0,
+      "both.view32": 0,
+      "both.wow6432node_path": 0,
+      "plain.view64": 0,
+      "plain.view32": 2,
+      "plain.wow6432node_path": 2
+    },
+    "delete_k64_with_32key_flag": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "after.view64": 0,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_k64_with_64key_flag": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "after.view64": 2,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_k32_with_no_flag": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "after.view64": 2,
+      "after.view32": 0,
+      "after.wow6432node_path": 0
+    },
+    "delete_k32_with_32key_flag": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "after.view64": 2,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_both_with_32key_flag": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "after.view64": 0,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_both_with_64key_flag": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "after.view64": 2,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_plain_with_both_flags": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "after.view64": 0,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_plain_with_no_flag": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "after.view64": 2,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_reserved_nonzero": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "after.view64": 0,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_with_access_bits": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "after.view64": 2,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "delete_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "after.view64": 2,
+      "after.view32": 2,
+      "after.wow6432node_path": 2
+    },
+    "hkcu_created_32_deleted_64": {
+      "open64_before": 0,
+      "ret": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "5cdf57b99fdb019645c99fd3bcbd8616e2160fbe94cfc46758b48538cfdf7602"
+}

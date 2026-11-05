@@ -1,0 +1,119 @@
+{
+  "test": "advapi32/RegPredef_HKCR",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "top": {
+      "open": 0,
+      "who_ret": 2,
+      "lm_only_ret": 2,
+      "cu_only_ret": 2,
+      "info_subkeys": 3,
+      "info_values": 0,
+      "enum_subkeys": "both,cuonly,lmonly",
+      "enum_values": ""
+    },
+    "lm_only_key": {
+      "open": 0,
+      "who_ret": 0,
+      "who": 1,
+      "lm_only_ret": 2,
+      "cu_only_ret": 2,
+      "info_subkeys": 0,
+      "info_values": 1,
+      "enum_subkeys": "",
+      "enum_values": "who"
+    },
+    "cu_only_key": {
+      "open": 0,
+      "who_ret": 0,
+      "who": 2,
+      "lm_only_ret": 2,
+      "cu_only_ret": 2,
+      "info_subkeys": 0,
+      "info_values": 1,
+      "enum_subkeys": "",
+      "enum_values": "who"
+    },
+    "both_key": {
+      "open": 0,
+      "who_ret": 0,
+      "who": 2,
+      "lm_only_ret": 0,
+      "cu_only_ret": 0,
+      "info_subkeys": 3,
+      "info_values": 3,
+      "enum_subkeys": "cusub,lmsub,shared",
+      "enum_values": "cu_only,lm_only,who"
+    },
+    "both_key_other_case": {
+      "open": 0,
+      "who_ret": 0,
+      "who": 2,
+      "lm_only_ret": 0,
+      "cu_only_ret": 0,
+      "info_subkeys": 3,
+      "info_values": 3,
+      "enum_subkeys": "cusub,lmsub,shared",
+      "enum_values": "cu_only,lm_only,who"
+    },
+    "both_shared_subkey": {
+      "open": 0,
+      "who_ret": 0,
+      "who": 2,
+      "lm_only_ret": 2,
+      "cu_only_ret": 2,
+      "info_subkeys": 0,
+      "info_values": 1,
+      "enum_subkeys": "",
+      "enum_values": "who"
+    },
+    "both_lm_subkey": {
+      "open": 0,
+      "who_ret": 2,
+      "lm_only_ret": 2,
+      "cu_only_ret": 2,
+      "info_subkeys": 0,
+      "info_values": 0,
+      "enum_subkeys": "",
+      "enum_values": ""
+    },
+    "both_cu_subkey": {
+      "open": 0,
+      "who_ret": 2,
+      "lm_only_ret": 2,
+      "cu_only_ret": 2,
+      "info_subkeys": 0,
+      "info_values": 0,
+      "enum_subkeys": "",
+      "enum_values": ""
+    },
+    "missing": {
+      "open": 2
+    },
+    "relative_open_through_hkcr_handle": {
+      "lmonly": 0,
+      "cuonly": 0
+    },
+    "hkcr_root_enum_contains_once": {
+      "found": 1
+    },
+    "handle_after_cu_copy_deleted": {
+      "query": 1018
+    },
+    "reopen_after_cu_copy_deleted": {
+      "open": 0,
+      "who_ret": 0,
+      "who": 1,
+      "lm_only_ret": 2,
+      "cu_only_ret": 2,
+      "info_subkeys": 0,
+      "info_values": 1,
+      "enum_subkeys": "",
+      "enum_values": "who"
+    }
+  },
+  "errors": [],
+  "source_sha256": "1fc64ff3cca4d3f600e09b618893a217cd6d7610f8cfdddce44ae8e780c8e2e0"
+}

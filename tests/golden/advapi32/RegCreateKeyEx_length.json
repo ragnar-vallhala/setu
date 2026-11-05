@@ -1,0 +1,160 @@
+{
+  "test": "advapi32/RegCreateKeyEx_length",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "component_1": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "reopen": 0,
+      "max_subkey_len": 1,
+      "enum": 0,
+      "enum_len": 1,
+      "enum_256_buffer": 0,
+      "delete": 0
+    },
+    "component_254": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "reopen": 0,
+      "max_subkey_len": 254,
+      "enum": 0,
+      "enum_len": 254,
+      "enum_256_buffer": 0,
+      "delete": 0
+    },
+    "component_255": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "reopen": 0,
+      "max_subkey_len": 255,
+      "enum": 0,
+      "enum_len": 255,
+      "enum_256_buffer": 0,
+      "delete": 0
+    },
+    "component_256": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "reopen": 0,
+      "max_subkey_len": 256,
+      "enum": 0,
+      "enum_len": 256,
+      "enum_256_buffer": 234,
+      "delete": 0
+    },
+    "component_257": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_260": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_280": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_297": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_298": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_299": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_300": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_512": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "component_32767": {
+      "ret": 206,
+      "last_error": "unchanged"
+    },
+    "component_32768": {
+      "ret": 206,
+      "last_error": "unchanged"
+    },
+    "component_65535": {
+      "ret": 206,
+      "last_error": "unchanged"
+    },
+    "open_missing_255": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "open_missing_256": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "open_missing_300": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "open_missing_32768": {
+      "ret": 206,
+      "last_error": "unchanged"
+    },
+    "second_component_too_long_256": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "path_10x255": {
+      "path_chars": 2559,
+      "ret": 0,
+      "last_error": "unchanged",
+      "levels_created": 10
+    },
+    "path_100x255": {
+      "path_chars": 25599,
+      "ret": 0,
+      "last_error": "unchanged",
+      "levels_created": 100
+    },
+    "path_127x255": {
+      "path_chars": 32511,
+      "ret": 0,
+      "last_error": "unchanged",
+      "levels_created": 127
+    },
+    "path_128x255": {
+      "path_chars": 32767,
+      "ret": 206,
+      "last_error": "unchanged",
+      "levels_created": 0
+    },
+    "path_130x255": {
+      "path_chars": 33279,
+      "ret": 206,
+      "last_error": "unchanged",
+      "levels_created": 0
+    },
+    "path_513x1": {
+      "path_chars": 1025,
+      "ret": 87,
+      "last_error": "unchanged",
+      "levels_created": 506
+    },
+    "path_600x1": {
+      "path_chars": 1199,
+      "ret": 87,
+      "last_error": "unchanged",
+      "levels_created": 506
+    },
+    "depth_one_per_call": {
+      "depth_reached": 506,
+      "failing_ret": 87
+    }
+  },
+  "errors": [],
+  "source_sha256": "e2275060e95b1981cf7ed37f3ce6684178e32a005b608d583ff9626efa160f01"
+}

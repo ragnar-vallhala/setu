@@ -1,0 +1,131 @@
+{
+  "test": "advapi32/RegRenameKey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "available": {
+      "available": true
+    },
+    "rename_simple": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "beta,delta,gamma,zeta"
+    },
+    "rename_with_children": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "children_follow_rename": {
+      "aaa": "child"
+    },
+    "rename_case_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_same_name": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_onto_existing": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_onto_existing_other_case": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_new_with_backslash": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_new_empty": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_new_null": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "children": "aaa,delta,gamma,zeta"
+    },
+    "rename_to_255_chars": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,<255 chars>,zeta"
+    },
+    "rename_255_back": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,<255 chars>,zeta"
+    },
+    "rename_to_256_chars": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,<255 chars>,zeta"
+    },
+    "rename_self_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "aaa,eta,gamma,<255 chars>"
+    },
+    "rename_self_empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,<255 chars>,theta"
+    },
+    "handle_after_rename": {
+      "set_value": 0,
+      "query_info": 0,
+      "values": 2
+    },
+    "rename_via_readonly_parent": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,iota,<255 chars>"
+    },
+    "rename_self_readonly_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,iota,<255 chars>"
+    },
+    "rename_volatile": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,iota,<255 chars>,vol2"
+    },
+    "rename_invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,iota,<255 chars>,vol2"
+    },
+    "rename_leading_backslash": {
+      "ret": 161,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,iota,<255 chars>,vol2"
+    },
+    "rename_multi_level_source": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "children": "kid"
+    },
+    "rename_with_dot_new_name": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "children": "aaa,gamma,iota,<255 chars>,vol2"
+    }
+  },
+  "errors": [],
+  "source_sha256": "144b58a7d2bc273341160f8010200e73f0681f3dab89538ac48e3e5bcf2a8179"
+}
