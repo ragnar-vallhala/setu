@@ -148,7 +148,7 @@ static NTSTATUS open_file( LPCWSTR name, DWORD access, HANDLE *file )
 
     if ((status = RtlDosPathNameToNtPathName_U_WithStatus( name, &file_nameW, NULL, NULL ))) return status;
     InitializeObjectAttributes( &attr, &file_nameW, OBJ_CASE_INSENSITIVE, 0, NULL );
-    status = NtCreateFile( file, access|SYNCHRONIZE, &attr, &io, NULL, FILE_FLAG_BACKUP_SEMANTICS,
+    status = NtCreateFile( file, access, &attr, &io, NULL, FILE_FLAG_BACKUP_SEMANTICS,
                            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, FILE_OPEN,
                            FILE_OPEN_FOR_BACKUP_INTENT, NULL, 0 );
     RtlFreeUnicodeString( &file_nameW );
@@ -906,7 +906,11 @@ BOOL WINAPI SetTokenInformation( HANDLE token, TOKEN_INFORMATION_CLASS class, LP
           "Unknown",
           info, len);
 
-    return set_ntstatus( NtSetInformationToken( token, class, info, len ));
+    if (!set_ntstatus( NtSetInformationToken( token, class, info, len ))) return FALSE;
+    /* setting the integrity level clears the last error (Windows 10 oracle:
+     * AccessCheck_integrity set_*) */
+    if (class == TokenIntegrityLevel) SetLastError( ERROR_SUCCESS );
+    return TRUE;
 }
 
 
@@ -990,7 +994,8 @@ BOOL WINAPI GetFileSecurityW( LPCWSTR name, SECURITY_INFORMATION info,
 
     TRACE( "(%s,%ld,%p,%ld,%p)\n", debugstr_w(name), info, descr, len, ret_len );
 
-    if (info & (OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION))
+    if (info & (OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION |
+                LABEL_SECURITY_INFORMATION))
         access |= READ_CONTROL;
     if (info & SACL_SECURITY_INFORMATION)
         access |= ACCESS_SYSTEM_SECURITY;
@@ -1048,8 +1053,15 @@ BOOL WINAPI GetPrivateObjectSecurity( PSECURITY_DESCRIPTOR obj_descr, SECURITY_I
         SetSecurityDescriptorSacl(&desc, present, pacl, defaulted);
     }
 
-    *ret_len = len;
-    return MakeSelfRelativeSD(&desc, ret_descr, ret_len);
+    /* the length needed is returned whether or not it fits */
+    *ret_len = 0;
+    RtlMakeSelfRelativeSD( &desc, NULL, ret_len );
+    if (*ret_len > len)
+    {
+        SetLastError( ERROR_INSUFFICIENT_BUFFER );
+        return FALSE;
+    }
+    return set_ntstatus( RtlMakeSelfRelativeSD( &desc, ret_descr, &len ));
 }
 
 /******************************************************************************
@@ -1168,7 +1180,9 @@ BOOL WINAPI SetFileSecurityW( LPCWSTR name, SECURITY_INFORMATION info, PSECURITY
 
     TRACE( "(%s, 0x%lx, %p)\n", debugstr_w(name), info, descr );
 
-    if (info & (OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION)) access |= WRITE_OWNER;
+    /* a label is set with WRITE_OWNER (MS docs: SECURITY_INFORMATION) */
+    if (info & (OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION))
+        access |= WRITE_OWNER;
     if (info & SACL_SECURITY_INFORMATION) access |= ACCESS_SYSTEM_SECURITY;
     if (info & DACL_SECURITY_INFORMATION) access |= WRITE_DAC;
 
@@ -1195,8 +1209,7 @@ BOOL WINAPI SetPrivateObjectSecurity( SECURITY_INFORMATION info, PSECURITY_DESCR
                                       PSECURITY_DESCRIPTOR *obj_descr, PGENERIC_MAPPING mapping,
                                       HANDLE token )
 {
-    FIXME( "0x%08lx %p %p %p %p - stub\n", info, descr, obj_descr, mapping, token );
-    return TRUE;
+    return set_ntstatus( RtlSetSecurityObject( info, descr, obj_descr, mapping, token ));
 }
 
 /*************************************************************************
@@ -1206,8 +1219,7 @@ BOOL WINAPI SetPrivateObjectSecurityEx( SECURITY_INFORMATION info, PSECURITY_DES
                                         PSECURITY_DESCRIPTOR *obj_descr, ULONG flags,
                                         PGENERIC_MAPPING mapping, HANDLE token )
 {
-    FIXME( "0x%08lx %p %p %lu %p %p - stub\n", info, descr, obj_descr, flags, mapping, token );
-    return TRUE;
+    return set_ntstatus( RtlSetSecurityObjectEx( info, descr, obj_descr, flags, mapping, token ));
 }
 
 /******************************************************************************
@@ -1278,10 +1290,23 @@ BOOL WINAPI AccessCheckAndAuditAlarmW( LPCWSTR subsystem, LPVOID id, LPWSTR type
                                        PGENERIC_MAPPING mapping, BOOL creation,
                                        LPDWORD granted, LPBOOL status, LPBOOL on_close )
 {
-    FIXME( "stub (%s,%p,%s,%s,%p,%08lx,%p,%x,%p,%p,%p)\n", debugstr_w(subsystem),
+    UNICODE_STRING subsystem_str, type_str, name_str;
+    NTSTATUS access_status;
+    BOOLEAN close = FALSE;
+    BOOL ret;
+
+    TRACE( "(%s,%p,%s,%s,%p,%08lx,%p,%x,%p,%p,%p)\n", debugstr_w(subsystem),
            id, debugstr_w(type_name), debugstr_w(name), descr, access, mapping,
            creation, granted, status, on_close );
-    return TRUE;
+
+    RtlInitUnicodeString( &subsystem_str, subsystem );
+    RtlInitUnicodeString( &type_str, type_name );
+    RtlInitUnicodeString( &name_str, name );
+    ret = set_ntstatus( NtAccessCheckAndAuditAlarm( &subsystem_str, id, &type_str, &name_str, descr, access,
+                                                    mapping, creation, granted, &access_status, &close ));
+    if (ret) *status = set_ntstatus( access_status );
+    if (ret && on_close) *on_close = close;
+    return ret;
 }
 
 /******************************************************************************
@@ -1291,9 +1316,69 @@ BOOL WINAPI AccessCheckByType( PSECURITY_DESCRIPTOR descr, PSID sid, HANDLE toke
                                POBJECT_TYPE_LIST types, DWORD types_len, PGENERIC_MAPPING mapping,
                                PPRIVILEGE_SET priv, LPDWORD priv_len, LPDWORD granted, LPBOOL status )
 {
-    FIXME("stub\n");
-    *status = TRUE;
-    return !*status;
+    NTSTATUS access_status;
+    BOOL ret = set_ntstatus( NtAccessCheckByType( descr, sid, token, access, types, types_len, mapping,
+                                                  priv, priv_len, granted, &access_status ));
+    if (ret) *status = set_ntstatus( access_status );
+    return ret;
+}
+
+/******************************************************************************
+ * AccessCheckByTypeResultList    (kernelbase.@)
+ */
+BOOL WINAPI AccessCheckByTypeResultList( PSECURITY_DESCRIPTOR descr, PSID sid, HANDLE token, DWORD access,
+                                         POBJECT_TYPE_LIST types, DWORD types_len, PGENERIC_MAPPING mapping,
+                                         PPRIVILEGE_SET priv, LPDWORD priv_len, LPDWORD granted, LPDWORD status )
+{
+    NTSTATUS *statuses;
+    DWORD i;
+    BOOL ret;
+
+    if (!types || !types_len)
+    {
+        SetLastError( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    if (!(statuses = HeapAlloc( GetProcessHeap(), 0, types_len * sizeof(*statuses) )))
+    {
+        SetLastError( ERROR_OUTOFMEMORY );
+        return FALSE;
+    }
+    ret = set_ntstatus( NtAccessCheckByTypeResultList( descr, sid, token, access, types, types_len, mapping,
+                                                       priv, priv_len, granted, statuses ));
+    /* the status list holds Win32 error codes */
+    if (ret) for (i = 0; i < types_len; i++) status[i] = RtlNtStatusToDosError( statuses[i] );
+    HeapFree( GetProcessHeap(), 0, statuses );
+    return ret;
+}
+
+/******************************************************************************
+ * AccessCheckByTypeAndAuditAlarmW    (kernelbase.@)
+ */
+BOOL WINAPI AccessCheckByTypeAndAuditAlarmW( LPCWSTR subsystem, LPVOID id, LPCWSTR type_name, LPCWSTR name,
+                                             PSECURITY_DESCRIPTOR descr, PSID sid, DWORD access,
+                                             AUDIT_EVENT_TYPE audit_type, DWORD flags, POBJECT_TYPE_LIST types,
+                                             DWORD types_len, PGENERIC_MAPPING mapping, BOOL creation,
+                                             LPDWORD granted, LPBOOL status, LPBOOL on_close )
+{
+    UNICODE_STRING subsystem_str, type_str, name_str;
+    NTSTATUS access_status;
+    BOOLEAN close = FALSE;
+    BOOL ret;
+
+    TRACE( "(%s,%p,%s,%s,%p,%p,%08lx,%u,%lx,%p,%lu,%p,%x,%p,%p,%p)\n", debugstr_w(subsystem), id,
+           debugstr_w(type_name), debugstr_w(name), descr, sid, access, audit_type, flags, types,
+           types_len, mapping, creation, granted, status, on_close );
+
+    RtlInitUnicodeString( &subsystem_str, subsystem );
+    RtlInitUnicodeString( &type_str, type_name );
+    RtlInitUnicodeString( &name_str, name );
+    ret = set_ntstatus( NtAccessCheckByTypeAndAuditAlarm( &subsystem_str, id, &type_str, &name_str, descr, sid,
+                                                          access, audit_type, flags, types, types_len, mapping,
+                                                          creation, granted, &access_status, &close ));
+    if (ret) *status = set_ntstatus( access_status );
+    if (ret && on_close) *on_close = close;
+    return ret;
 }
 
 /******************************************************************************
