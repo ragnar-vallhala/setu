@@ -1,0 +1,75 @@
+{
+  "test": "advapi32/RegSetValueExA_names",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "default_null": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 1,
+      "values": 1
+    },
+    "default_empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 2,
+      "values": 1
+    },
+    "mixed_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 3,
+      "values": 2
+    },
+    "upper_overwrites": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 4,
+      "values": 2
+    },
+    "high_ansi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 5,
+      "values": 3
+    },
+    "high_ansi_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 6,
+      "values": 3
+    },
+    "names_seen_as_unicode": {
+      "names": "|MixedCase|café"
+    },
+    "name_16383": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 16383,
+      "enum_longest": 16383,
+      "delete_ret": 0
+    },
+    "name_16384": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "q_ret": 2,
+      "enum_longest": 9
+    },
+    "name_32767": {
+      "ret": 8,
+      "last_error": "unchanged",
+      "q_ret": 87,
+      "enum_longest": 9
+    }
+  },
+  "errors": [],
+  "source_sha256": "10bc64cebe591b9d7d5a3caff6db38c48c9846aeadae10f40b57aeb2dffa56eb"
+}

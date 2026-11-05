@@ -1,0 +1,155 @@
+{
+  "test": "advapi32/RegSetValueExW_names",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "default_null_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 1
+    },
+    "default_empty_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 2
+    },
+    "default_null_and_empty_same": {
+      "null_ret": 0,
+      "empty_ret": 0,
+      "null_value": 2,
+      "empty_value": 2,
+      "names": ""
+    },
+    "mixed_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 3
+    },
+    "upper_case_overwrites": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 4
+    },
+    "case_preserved_after_overwrite": {
+      "names": "|MixedCase"
+    },
+    "lower_case_query": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 5
+    },
+    "backslash": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 6
+    },
+    "leading_trailing_space": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 7
+    },
+    "only_space": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 8
+    },
+    "non_ascii": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 9
+    },
+    "non_ascii_upper": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 10
+    },
+    "cjk": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 11
+    },
+    "tab_and_newline": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 12
+    },
+    "percent": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 13
+    },
+    "all_names": {
+      "names": "|MixedCase|a\\b| sp | |été|中文|t\tn\n|%PATH%"
+    },
+    "name_255": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 255,
+      "info_values": 10,
+      "info_max_name": 255,
+      "enum_longest": 255,
+      "delete_ret": 0
+    },
+    "name_256": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 256,
+      "info_values": 10,
+      "info_max_name": 256,
+      "enum_longest": 256,
+      "delete_ret": 0
+    },
+    "name_16383": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "q_ret": 0,
+      "q_value": 16383,
+      "info_values": 10,
+      "info_max_name": 16383,
+      "enum_longest": 16383,
+      "delete_ret": 0
+    },
+    "name_16384": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "q_ret": 2,
+      "info_values": 9,
+      "info_max_name": 16383,
+      "enum_longest": 9
+    },
+    "name_32767": {
+      "ret": 206,
+      "last_error": "unchanged",
+      "q_ret": 206,
+      "info_values": 9,
+      "info_max_name": 16383,
+      "enum_longest": 9
+    },
+    "name_32768": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "q_ret": 206,
+      "info_values": 9,
+      "info_max_name": 16383,
+      "enum_longest": 9
+    }
+  },
+  "errors": [],
+  "source_sha256": "1ca81244b62ff090b9b14e2c8d4917a4ae4b3f1df4feae31b2fa581fe261f8ae"
+}

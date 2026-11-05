@@ -1,0 +1,122 @@
+{
+  "test": "advapi32/RegSetValueExW_errors",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "reserved_nonzero": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "reserved_high": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "null_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "minus_one_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "closed_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "query_only_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "set_only_handle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_ret": 0,
+      "exists_type": 4,
+      "exists_size": 4
+    },
+    "create_sub_key_only_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "key_write_handle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_ret": 0,
+      "exists_type": 4,
+      "exists_size": 4
+    },
+    "wow64_32_flag_handle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_ret": 0,
+      "exists_type": 4,
+      "exists_size": 4
+    },
+    "deleted_key_handle": {
+      "ret": 1018,
+      "last_error": "unchanged",
+      "query_ret": 1018
+    },
+    "null_data_binary_4": {
+      "ret": 998,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "null_data_dword_4": {
+      "ret": 998,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "null_data_sz_2": {
+      "ret": 998,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "null_data_multi_4": {
+      "ret": 998,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "null_data_none_0": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "exists_ret": 0,
+      "exists_type": 0,
+      "exists_size": 0
+    },
+    "key_read_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "open_set_value_only": {
+      "open_ret": 0,
+      "query_via_set_only": 5
+    },
+    "null_data_huge": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    },
+    "data_huge_size": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "exists_ret": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "d5e7f8f3e60060dc0c80e3561f569ee1bd8be716f0a175885793770d479ce654"
+}

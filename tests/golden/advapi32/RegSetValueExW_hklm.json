@@ -1,0 +1,57 @@
+{
+  "test": "advapi32/RegSetValueExW_hklm",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create": {
+      "create64": 0,
+      "create32": 0
+    },
+    "set_64": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "read64_ret": 0,
+      "read64_value": "0x00000064",
+      "read32_ret": 2,
+      "read32_value": "0xaaaaaaaa"
+    },
+    "set_32_separate": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "read64_ret": 0,
+      "read64_value": "0x00000064",
+      "read32_ret": 0,
+      "read32_value": "0x00000032"
+    },
+    "default_value": {
+      "ret": 0,
+      "read64_ret": 0,
+      "read64_value": "0x00000def",
+      "read32_ret": 2,
+      "read32_value": "0xaaaaaaaa"
+    },
+    "volatile_key_value": {
+      "create_ret": 0,
+      "ret": 0,
+      "read_ret": 0,
+      "read_value": "0x00000064"
+    },
+    "readonly_handle": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "delete_64_keeps_32": {
+      "ret": 0,
+      "read64_ret": 2,
+      "read64_value": "0xaaaaaaaa",
+      "read32_ret": 0,
+      "read32_value": "0x00000032"
+    },
+    "cleanup": {
+      "open_after": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "4fc01aaea5225bd0ebccd1077f4d06df20e238c9922340e53754444ffd810c9a"
+}
