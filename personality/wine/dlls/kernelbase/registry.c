@@ -785,7 +785,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExA( HKEY hkey, LPCSTR name, DWORD op
  *  Since Wine does not currently allow threads to impersonate other users,
  *  this stub should work fine.
  */
-LSTATUS WINAPI RegOpenCurrentUser( REGSAM access, PHKEY retkey )
+static LSTATUS open_current_user( REGSAM access, PHKEY retkey )
 {
     void *data[20];
     TOKEN_USER *info = (TOKEN_USER *)data;
@@ -821,6 +821,16 @@ LSTATUS WINAPI RegOpenCurrentUser( REGSAM access, PHKEY retkey )
     }
 
     return RegOpenKeyExA( HKEY_CURRENT_USER, "", 0, access, retkey );
+}
+
+LSTATUS WINAPI RegOpenCurrentUser( REGSAM access, PHKEY retkey )
+{
+    DWORD err = GetLastError();
+    LSTATUS ret = open_current_user( access, retkey );
+
+    /* the token lookups must not leak into the caller's last error */
+    SetLastError( err );
+    return ret;
 }
 
 
@@ -3027,10 +3037,28 @@ LSTATUS WINAPI RegNotifyChangeKeyValue( HKEY hkey, BOOL fWatchSubTree,
  */
 LSTATUS WINAPI RegOpenUserClassesRoot( HANDLE hToken, DWORD dwOptions, REGSAM samDesired, PHKEY phkResult )
 {
-    FIXME("(%p, 0x%lx, 0x%lx, %p) semi-stub\n", hToken, dwOptions, samDesired, phkResult);
+    static const WCHAR classesW[] = L"\\Software\\Classes";
+    void *data[20];
+    TOKEN_USER *info = (TOKEN_USER *)data;
+    WCHAR buffer[200];
+    UNICODE_STRING string = { 0, sizeof(buffer) - sizeof(classesW), buffer };
+    DWORD len, err = GetLastError();
+    LSTATUS ret;
 
-    *phkResult = HKEY_CLASSES_ROOT;
-    return ERROR_SUCCESS;
+    TRACE("(%p, 0x%lx, 0x%lx, %p)\n", hToken, dwOptions, samDesired, phkResult);
+
+    if (dwOptions || !hToken) return ERROR_INVALID_PARAMETER;
+
+    /* only the user's classes, not the HKEY_CLASSES_ROOT merged view */
+    if (!GetTokenInformation( hToken, TokenUser, info, sizeof(data), &len ))
+    {
+        ret = GetLastError();
+        SetLastError( err );
+        return ret;
+    }
+    if (RtlConvertSidToUnicodeString( &string, info->User.Sid, FALSE )) return ERROR_INVALID_PARAMETER;
+    memcpy( buffer + string.Length / sizeof(WCHAR), classesW, sizeof(classesW) );
+    return RegOpenKeyExW( HKEY_USERS, buffer, 0, samDesired, phkResult );
 }
 
 
