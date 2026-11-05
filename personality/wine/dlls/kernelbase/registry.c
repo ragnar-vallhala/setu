@@ -994,6 +994,19 @@ LSTATUS WINAPI RegEnumKeyExA( HKEY hkey, DWORD index, LPSTR name, LPDWORD name_l
 }
 
 
+/* RegQueryInfoKey clears the counts it was given when it fails */
+static void clear_key_info( DWORD *class_len, DWORD *subkeys, DWORD *max_subkey, DWORD *max_class,
+                            DWORD *values, DWORD *max_value, DWORD *max_data )
+{
+    if (class_len) *class_len = 0;
+    if (subkeys) *subkeys = 0;
+    if (max_subkey) *max_subkey = 0;
+    if (max_class) *max_class = 0;
+    if (values) *values = 0;
+    if (max_value) *max_value = 0;
+    if (max_data) *max_data = 0;
+}
+
 /******************************************************************************
  * RegQueryInfoKeyW   (kernelbase.@)
  *
@@ -1038,7 +1051,11 @@ LSTATUS WINAPI RegQueryInfoKeyW( HKEY hkey, LPWSTR class, LPDWORD class_len, LPD
 
     if (class && !class_len && is_version_nt()) return ERROR_INVALID_PARAMETER;
     if (reserved) return ERROR_INVALID_PARAMETER;
-    if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
+    if (!(hkey = get_special_root_hkey( hkey )))
+    {
+        status = STATUS_INVALID_HANDLE;
+        goto done;
+    }
 
     status = NtQueryKey( hkey, KeyFullInformation, buffer, sizeof(buffer), &total_size );
     if (status && status != STATUS_BUFFER_OVERFLOW) goto done;
@@ -1107,6 +1124,8 @@ LSTATUS WINAPI RegQueryInfoKeyW( HKEY hkey, LPWSTR class, LPDWORD class_len, LPD
     }
 
  done:
+    if (status && status != STATUS_BUFFER_OVERFLOW && status != STATUS_BUFFER_TOO_SMALL)
+        clear_key_info( class_len, subkeys, max_subkey, max_class, values, max_value, max_data );
     if (buf_ptr != buffer) HeapFree( GetProcessHeap(), 0, buf_ptr );
     return RtlNtStatusToDosError( status );
 }
@@ -1150,7 +1169,12 @@ LSTATUS WINAPI RegQueryInfoKeyA( HKEY hkey, LPSTR class, LPDWORD class_len, LPDW
            reserved, subkeys, max_subkey, values, max_value, max_data, security, modif );
 
     if (class && !class_len && is_version_nt()) return ERROR_INVALID_PARAMETER;
-    if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
+    if (reserved) return ERROR_INVALID_PARAMETER;
+    if (!(hkey = get_special_root_hkey( hkey )))
+    {
+        status = STATUS_INVALID_HANDLE;
+        goto done;
+    }
 
     status = NtQueryKey( hkey, KeyFullInformation, buffer, sizeof(buffer), &total_size );
     if (status && status != STATUS_BUFFER_OVERFLOW) goto done;
@@ -1202,6 +1226,8 @@ LSTATUS WINAPI RegQueryInfoKeyA( HKEY hkey, LPSTR class, LPDWORD class_len, LPDW
     }
 
  done:
+    if (status && status != STATUS_BUFFER_OVERFLOW && status != STATUS_BUFFER_TOO_SMALL)
+        clear_key_info( class_len, subkeys, max_subkey, max_class, values, max_value, max_data );
     if (buf_ptr != buffer) HeapFree( GetProcessHeap(), 0, buf_ptr );
     return RtlNtStatusToDosError( status );
 }
