@@ -265,40 +265,56 @@ LSTATUS WINAPI RegQueryMultipleValuesA( HKEY hkey, PVALENTA val_list, DWORD num_
 LSTATUS WINAPI RegQueryMultipleValuesW( HKEY hkey, PVALENTW val_list, DWORD num_vals,
                                         LPWSTR lpValueBuf, LPDWORD ldwTotsize )
 {
+    struct { DWORD type, len, offset; } *vals;
+    DWORD maxBytes = *ldwTotsize, total = 0;
+    LSTATUS status = ERROR_SUCCESS;
+    BYTE *buf = (BYTE *)lpValueBuf;
     unsigned int i;
-    DWORD maxBytes = *ldwTotsize;
-    LSTATUS status;
-    LPSTR bufptr = (LPSTR)lpValueBuf;
-    *ldwTotsize = 0;
 
     TRACE("(%p,%p,%ld,%p,%p=%ld)\n", hkey, val_list, num_vals, lpValueBuf, ldwTotsize, *ldwTotsize);
 
-    for(i=0; i < num_vals; ++i)
+    /* a size without a buffer is an error */
+    if (!buf && maxBytes)
     {
-        val_list[i].ve_valuelen=0;
-        status = RegQueryValueExW(hkey, val_list[i].ve_valuename, NULL, NULL, NULL, &val_list[i].ve_valuelen);
-        if(status != ERROR_SUCCESS)
-        {
-            return status;
-        }
-
-        if(lpValueBuf != NULL && *ldwTotsize + val_list[i].ve_valuelen <= maxBytes)
-        {
-            status = RegQueryValueExW(hkey, val_list[i].ve_valuename, NULL, &val_list[i].ve_type,
-                                      (LPBYTE)bufptr, &val_list[i].ve_valuelen);
-            if(status != ERROR_SUCCESS)
-            {
-                return status;
-            }
-
-            val_list[i].ve_valueptr = (DWORD_PTR)bufptr;
-
-            bufptr += val_list[i].ve_valuelen;
-        }
-
-        *ldwTotsize += val_list[i].ve_valuelen;
+        *ldwTotsize = 0;
+        return ERROR_NOACCESS;
     }
-    return lpValueBuf != NULL && *ldwTotsize <= maxBytes ? ERROR_SUCCESS : ERROR_MORE_DATA;
+    if (!(vals = calloc( num_vals ? num_vals : 1, sizeof(*vals) ))) return ERROR_NOT_ENOUGH_MEMORY;
+
+    /* the sizes are all read first, so a missing value leaves the buffer
+     * untouched; each value starts DWORD-aligned */
+    for (i = 0; i < num_vals; ++i)
+    {
+        vals[i].len = 0;
+        status = RegQueryValueExW( hkey, val_list[i].ve_valuename, NULL, &vals[i].type, NULL, &vals[i].len );
+        if (status) break;
+        vals[i].offset = (total + 3) & ~3;
+        total = vals[i].offset + vals[i].len;
+    }
+
+    /* the values that fit are copied, but the entries are only filled in
+     * when all of them do */
+    for (i = 0; !status && buf && i < num_vals; ++i)
+    {
+        if (vals[i].offset + vals[i].len > maxBytes) break;
+        /* the alignment padding before a value is zeroed */
+        if (i) memset( buf + vals[i - 1].offset + vals[i - 1].len, 0,
+                       vals[i].offset - vals[i - 1].offset - vals[i - 1].len );
+        status = RegQueryValueExW( hkey, val_list[i].ve_valuename, NULL, &vals[i].type,
+                                   buf + vals[i].offset, &vals[i].len );
+    }
+
+    if (status) total = 0;
+    else if (!buf || total > maxBytes) status = ERROR_MORE_DATA;
+    else for (i = 0; i < num_vals; ++i)
+    {
+        val_list[i].ve_type = vals[i].type;
+        val_list[i].ve_valuelen = vals[i].len;
+        val_list[i].ve_valueptr = (DWORD_PTR)(buf + vals[i].offset);
+    }
+    free( vals );
+    *ldwTotsize = total;
+    return status;
 }
 
 
