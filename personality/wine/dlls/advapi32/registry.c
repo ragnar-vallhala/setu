@@ -394,9 +394,10 @@ LSTATUS WINAPI RegQueryMultipleValuesW( HKEY hkey, PVALENTW val_list, DWORD num_
  */
 LONG WINAPI RegQueryReflectionKey( HKEY hkey, BOOL *is_reflection_disabled )
 {
-    FIXME( "%p, %p stub\n", hkey, is_reflection_disabled );
+    /* registry reflection no longer exists; every key reports it disabled */
+    TRACE( "%p, %p\n", hkey, is_reflection_disabled );
     *is_reflection_disabled = TRUE;
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    return ERROR_SUCCESS;
 }
 
 
@@ -856,8 +857,9 @@ LONG WINAPI RegCopyTreeA( HKEY hsrc, const char *subkey, HKEY hdst )
  */
 LONG WINAPI RegEnableReflectionKey(HKEY base)
 {
-    FIXME("%p: stub\n", base);
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    /* registry reflection no longer exists; this does nothing */
+    TRACE("%p\n", base);
+    return ERROR_SUCCESS;
 }
 
 
@@ -867,6 +869,6 @@ LONG WINAPI RegEnableReflectionKey(HKEY base)
  */
 LONG WINAPI RegDisableReflectionKey(HKEY base)
 {
-    FIXME("%p: stub\n", base);
+    TRACE("%p\n", base);
     return ERROR_SUCCESS;
 }
