@@ -132,6 +132,7 @@ struct key_value
 #define MIN_VALUES   8   /* min. number of allocated values per key */
 
 #define MAX_NAME_LEN  256    /* max. length of a key name */
+#define MAX_KEY_DEPTH 512    /* max. number of levels, counting the root key */
 #define MAX_VALUE_LEN 16383  /* max. length of a value name */
 
 /* the root of the registry tree */
@@ -727,6 +728,15 @@ static void key_destroy( struct object *obj )
 }
 
 /* allocate a key object */
+/* number of levels from the root key down to this key (the root is level 1) */
+static unsigned int get_key_depth( const struct key *key )
+{
+    unsigned int depth = 0;
+
+    for (; key; key = get_parent( key )) depth++;
+    return depth;
+}
+
 static struct key *create_key_object( struct object *parent, const struct unicode_str *name,
                                       unsigned int attributes, unsigned int options, timeout_t modif,
                                       const struct security_descriptor *sd )
@@ -764,6 +774,13 @@ static struct key *create_key_object( struct object *parent, const struct unicod
             key->max_data    = 0;
             list_init( &key->notify_list );
 
+            if (get_key_depth( key ) > MAX_KEY_DEPTH)
+            {
+                set_error( STATUS_INVALID_PARAMETER );
+                unlink_named_object( &key->obj );
+                release_object( key );
+                return NULL;
+            }
             if (options & REG_OPTION_CREATE_LINK) key->flags |= KEY_SYMLINK;
             if (options & REG_OPTION_VOLATILE) key->flags |= KEY_VOLATILE;
             else if (parent && !restoring_key && (get_parent( key )->flags & KEY_VOLATILE))
