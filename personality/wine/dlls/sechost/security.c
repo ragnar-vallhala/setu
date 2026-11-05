@@ -614,7 +614,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH ConvertSecurityDescriptorToStringSecurityDescripto
         return FALSE;
     if ((flags & DACL_SECURITY_INFORMATION) && !print_dacl(sd, NULL, &len))
         return FALSE;
-    if ((flags & SACL_SECURITY_INFORMATION) && !print_sacl(sd, NULL, &len))
+    if ((flags & (SACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION)) && !print_sacl(sd, NULL, &len))
         return FALSE;
 
     wstr = wptr = LocalAlloc( 0, (len + 1) * sizeof(WCHAR) );
@@ -633,7 +633,7 @@ BOOL WINAPI DECLSPEC_HOTPATCH ConvertSecurityDescriptorToStringSecurityDescripto
         LocalFree(wstr);
         return FALSE;
     }
-    if ((flags & SACL_SECURITY_INFORMATION) && !print_sacl(sd, &wptr, NULL))
+    if ((flags & (SACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION)) && !print_sacl(sd, &wptr, NULL))
     {
         LocalFree(wstr);
         return FALSE;
@@ -923,23 +923,28 @@ static DWORD parse_ace_flag( const WCHAR *string )
     return 0;
 }
 
-static DWORD parse_ace_right( const WCHAR **string_ptr )
+static BOOL parse_ace_right( const WCHAR **string_ptr, DWORD *right )
 {
     const WCHAR *string = *string_ptr;
     unsigned int i;
 
+    /* a numeric mask may be zero (Windows 10 oracle: AccessCheck deny_zero_mask) */
     if (iswdigit( string[0] ))
-        return wcstoul( string, (WCHAR **)string_ptr, 0 );
+    {
+        *right = wcstoul( string, (WCHAR **)string_ptr, 0 );
+        return TRUE;
+    }
 
     for (i = 0; i < ARRAY_SIZE(ace_rights); ++i)
     {
         if (!wcsncmp( string, ace_rights[i].str, 2 ))
         {
             *string_ptr += 2;
-            return ace_rights[i].value;
+            *right = ace_rights[i].value;
+            return TRUE;
         }
     }
-    return 0;
+    return FALSE;
 }
 
 static BOOL parse_ace_flags( const WCHAR **string_ptr, BYTE *flags )
@@ -973,8 +978,8 @@ static DWORD parse_ace_rights( const WCHAR **string_ptr )
 
     while (*string != ';')
     {
-        DWORD right = parse_ace_right( &string );
-        if (!right) return 0;
+        DWORD right;
+        if (!parse_ace_right( &string, &right )) return 0;
         rights |= right;
     }
 
@@ -1071,8 +1076,12 @@ static BOOL parse_acl( const WCHAR *string, DWORD *flags, BOOL *null_acl, ACL *a
             goto err;
         string++;
 
-        /* Parse ACE flags */
-        if (!parse_ace_flags( &string, &ace_flags ))
+        /* Parse ACE flags; the audit flags belong to audit and alarm ACEs only
+         * (Windows 10 oracle: AccessCheck audit_flags_on_allow) */
+        if (!parse_ace_flags( &string, &ace_flags ) ||
+            ((ace_flags & (SUCCESSFUL_ACCESS_ACE_FLAG | FAILED_ACCESS_ACE_FLAG)) &&
+             type != SYSTEM_AUDIT_ACE_TYPE && type != SYSTEM_ALARM_ACE_TYPE &&
+             type != ACCESS_AUDIT_OBJECT_ACE_TYPE && type != ACCESS_ALARM_OBJECT_ACE_TYPE))
         {
             SetLastError( ERROR_INVALID_FLAGS );
             return FALSE;
