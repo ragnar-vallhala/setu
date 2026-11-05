@@ -1898,19 +1898,24 @@ static void apply_restrictions( DWORD dwFlags, DWORD dwType, DWORD cbData, PLONG
         case REG_QWORD: dwMask = RRF_RT_REG_QWORD; break;
         }
 
+        /* RRF_RT_ANY takes every type, including undefined ones */
+        if ((dwFlags & RRF_RT_ANY) == RRF_RT_ANY) return;
+
         if (dwFlags & dwMask)
         {
-            /* Type is not restricted, check for size mismatch */
+            /* Type is not restricted, check for size mismatch: REG_BINARY
+             * read as RRF_RT_DWORD or RRF_RT_QWORD must not be larger than
+             * the number; shorter data is accepted */
             if (dwType == REG_BINARY)
             {
-                DWORD cbExpect = 0;
+                DWORD cbMax = 0;
 
                 if ((dwFlags & RRF_RT_ANY) == RRF_RT_DWORD)
-                    cbExpect = 4;
+                    cbMax = 4;
                 else if ((dwFlags & RRF_RT_ANY) == RRF_RT_QWORD)
-                    cbExpect = 8;
+                    cbMax = 8;
 
-                if (cbExpect && cbData != cbExpect)
+                if (cbMax && cbData > cbMax)
                     *ret = ERROR_DATATYPE_MISMATCH;
             }
         }
@@ -1978,6 +1983,8 @@ static LONG get_string_value( HKEY hkey, const WCHAR *name, DWORD flags, DWORD *
         }
         required += sizeof(WCHAR);
     }
+    /* data that needed no terminator keeps its odd trailing byte */
+    if (terminated == (stored & ~(sizeof(WCHAR) - 1))) terminated = stored;
 
     if (*type == REG_EXPAND_SZ && !(flags & RRF_NOEXPAND))
     {
@@ -1990,6 +1997,22 @@ static LONG get_string_value( HKEY hkey, const WCHAR *name, DWORD flags, DWORD *
             memcpy( data, buf, terminated );
             ExpandEnvironmentStringsW( buf, data, size / sizeof(WCHAR) );
         }
+        else if (data && size >= terminated && size >= sizeof(WCHAR))
+        {
+            /* the stored string fits but its expansion does not: the
+             * buffer receives as much of the expansion as fits, terminated */
+            WCHAR *tmp = HeapAlloc( GetProcessHeap(), 0, expanded );
+            DWORD chars = size / sizeof(WCHAR) - 1;
+
+            if (tmp)
+            {
+                ExpandEnvironmentStringsW( buf, tmp, expanded / sizeof(WCHAR) );
+                memcpy( data, tmp, chars * sizeof(WCHAR) );
+                ((WCHAR *)data)[chars] = 0;
+                HeapFree( GetProcessHeap(), 0, tmp );
+            }
+            ret = ERROR_MORE_DATA;
+        }
         else if (data) ret = ERROR_MORE_DATA;
         *ret_size = required;
     }
@@ -2000,8 +2023,10 @@ static LONG get_string_value( HKEY hkey, const WCHAR *name, DWORD flags, DWORD *
     }
     else
     {
+        /* when the stored data fit the buffer and ended with a null (or
+         * an odd byte), the size reported is the exact terminated size */
         if (data) ret = ERROR_MORE_DATA;
-        *ret_size = required;
+        *ret_size = (data && size >= stored && !unterminated) ? terminated : required;
     }
 
     HeapFree( GetProcessHeap(), 0, buf );
@@ -2051,9 +2076,13 @@ LSTATUS WINAPI RegGetValueW( HKEY hKey, LPCWSTR pszSubKey, LPCWSTR pszValue,
     if (pvData && !pcbData)
         return ERROR_INVALID_PARAMETER;
 
-    /* At least one RRF_RT_* type restriction is required. */
+    /* At least one RRF_RT_* type restriction is required; the buffer is
+     * still zeroed with RRF_ZEROONFAILURE. */
     if (!(dwFlags & RRF_RT_ANY))
+    {
+        if (pvData && (dwFlags & RRF_ZEROONFAILURE)) ZeroMemory(pvData, *pcbData);
         return ERROR_INVALID_PARAMETER;
+    }
 
     if ((dwFlags & RRF_WOW64_MASK) == RRF_WOW64_MASK)
         return ERROR_INVALID_PARAMETER;
