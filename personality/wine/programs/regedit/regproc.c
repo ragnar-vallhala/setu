@@ -279,10 +279,11 @@ static BOOL convert_hex_csv_to_hex(struct parser *parser, WCHAR **str)
         *d++ = wc;
         parser->data_size++;
 
+        /* Spaces may follow a byte, before its comma. */
+        while (*end == ' ' || *end == '\t') end++;
         if (*end && *end != ',')
         {
-            while (*end == ' ' || *end == '\t') end++;
-            if (*end && *end != ';') return FALSE;
+            if (*end != ';') return FALSE;
             return TRUE;
         }
 
@@ -642,8 +643,12 @@ static WCHAR *key_name_state(struct parser *parser, WCHAR *pos)
 {
     WCHAR *p = pos, *key_end;
 
+    /* A rejected key line also ends the previous key: its values are dropped. */
     if (*p == ' ' || *p == '\t' || !(key_end = wcsrchr(p, ']')))
+    {
+        close_key(parser);
         goto done;
+    }
 
     *key_end = 0;
 
@@ -919,6 +924,18 @@ static WCHAR *set_value_state(struct parser *parser, WCHAR *pos)
     return pos;
 }
 
+/* code page of a non-Unicode file: a UTF-8 byte order mark selects UTF-8 */
+static UINT line_codepage = CP_ACP;
+
+static WCHAR *line_to_wide(const char *line)
+{
+    int len = MultiByteToWideChar(line_codepage, 0, line, -1, NULL, 0);
+    WCHAR *lineW = malloc(len * sizeof(WCHAR));
+
+    MultiByteToWideChar(line_codepage, 0, line, -1, lineW, len);
+    return lineW;
+}
+
 static WCHAR *get_lineA(FILE *fp)
 {
     static WCHAR *lineW;
@@ -955,7 +972,7 @@ static WCHAR *get_lineA(FILE *fp)
             if (!(count = fread(buf + len, 1, size - len - 1, fp)))
             {
                 next = NULL;
-                lineW = GetWideString(buf);
+                lineW = line_to_wide(buf);
                 return lineW;
             }
             buf[len + count] = 0;
@@ -966,7 +983,7 @@ static WCHAR *get_lineA(FILE *fp)
         next = p + 1;
         if (*p == '\r' && *(p + 1) == '\n') next++;
         *p = 0;
-        lineW = GetWideString(line);
+        lineW = line_to_wide(line);
         return lineW;
     }
 
@@ -1040,6 +1057,20 @@ BOOL import_registry_file(FILE *reg_file)
 
     if (!reg_file || (fread(s, 2, 1, reg_file) != 1))
         return FALSE;
+
+    line_codepage = CP_ACP;
+    if (s[0] == 0xef && s[1] == 0xbb)
+    {
+        /* skip a UTF-8 byte order mark: the file is then read as UTF-8 */
+        BYTE b;
+
+        if (fread(&b, 1, 1, reg_file) == 1 && b == 0xbf)
+        {
+            line_codepage = CP_UTF8;
+            if (fread(s, 2, 1, reg_file) != 1) return FALSE;
+        }
+        else fseek(reg_file, 2, SEEK_SET);
+    }
 
     parser.is_unicode = (s[0] == 0xff && s[1] == 0xfe);
     get_line = parser.is_unicode ? get_lineW : get_lineA;
@@ -1195,8 +1226,10 @@ static void export_string_data(WCHAR **buf, WCHAR *data, size_t size)
     size_t len = 0, line_len;
     WCHAR *str;
 
-    if (size)
-        len = size / sizeof(WCHAR) - 1;
+    /* the string ends at its terminating null, or with the data; an odd
+     * trailing byte is dropped */
+    len = size / sizeof(WCHAR);
+    if (len && !data[len - 1]) len--;
     str = REGPROC_escape_string(data, len, &line_len);
     *buf = malloc((line_len + 3) * sizeof(WCHAR));
     swprintf(*buf, line_len + 3, L"\"%s\"", str);
@@ -1451,12 +1484,10 @@ static BOOL export_key(WCHAR *file_name, WCHAR *path, BOOL unicode)
     WCHAR *subkey;
     FILE *fp;
 
+    /* Windows regedit exports nothing and reports nothing for a key whose
+     * root is not a full root key name (such as HKCU). */
     if (!(key_class = parse_key_name(path, &subkey)))
-    {
-        if (subkey) *(subkey - 1) = 0;
-        output_message(STRING_INVALID_SYSTEM_KEY, path);
         return FALSE;
-    }
 
     if (!(key = open_export_key(key_class, subkey, path)))
         return FALSE;
