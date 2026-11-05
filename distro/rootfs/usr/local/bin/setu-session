@@ -40,6 +40,14 @@ log "WAYLAND_DISPLAY=$WAYLAND_DISPLAY DISPLAY=$DISPLAY WINEPREFIX=$WINEPREFIX"
 # Start the personality: make sure the prefix (the C: drive and registry)
 # exists, then keep a wineserver running for the whole session. The image
 # build pre-creates the prefix for the setu user, so this is quick.
+# A new prefix gets the system volume as its C: (the image build does this
+# for the setu user), when this user may write to it.
+SETU_CDRIVE=/var/lib/setu/volumes/c
+if [ ! -d "$WINEPREFIX/dosdevices" ] && [ -w "$SETU_CDRIVE" ]; then
+    mkdir -p "$WINEPREFIX/dosdevices"
+    ln -s "$SETU_CDRIVE" "$WINEPREFIX/dosdevices/c:"
+    ln -s / "$WINEPREFIX/dosdevices/z:"
+fi
 if [ ! -f "$WINEPREFIX/system.reg" ]; then
     log "creating prefix"
     wineboot -i
@@ -61,6 +69,13 @@ log "desktop: setu $SETU_RES"
 wine reg add 'HKCU\Software\Wine\Explorer' /v Desktop /d setu /f >/dev/null 2>&1
 wine reg add 'HKCU\Software\Wine\Explorer\Desktops' /v setu /d "$SETU_RES" /f >/dev/null 2>&1
 
+# Drive letters D: and up follow the system table (services/fs).
+SYNC_PID=
+if [ -x /usr/local/bin/setu-drives-sync ] && [ -d /run/setu/dosdevices ]; then
+    /usr/local/bin/setu-drives-sync &
+    SYNC_PID=$!
+fi
+
 SETU_SHELL=${SETU_SHELL:-/opt/setu/shell/setu-shell.exe}
 if [ -f "$SETU_SHELL" ]; then
     log "starting shell: $SETU_SHELL"
@@ -71,5 +86,6 @@ else
 fi
 rc=$?
 log "shell exited ($rc)"
+[ -n "$SYNC_PID" ] && kill "$SYNC_PID" 2>/dev/null
 wineserver -k
 exit $rc

@@ -11,6 +11,7 @@ udev
 linux-image-amd64
 grub-efi-amd64
 initramfs-tools
+e2fsprogs
 kmod
 sudo
 openssh-server

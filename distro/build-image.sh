@@ -18,7 +18,9 @@
 #   --shell FILE        setu-shell.exe to install as /opt/setu/shell/setu-shell.exe
 #   --suite NAME        Debian suite (default: trixie, the current stable)
 #   --mirror URL        Debian mirror (default: http://deb.debian.org/debian)
-#   --size SIZE         disk size (default: 8G)
+#   --size SIZE         disk size (default: 12G; the C: volume gets what the
+#                       root file system doesn't)
+#   --root-size SIZE    Linux root partition (default: 6GiB)
 #   --out FILE          output image (default: build/distro/setu-dev.qcow2)
 #   --cpus N, --mem MB  builder VM resources (default: 4, 4096)
 #   --keep-work         keep build/distro/work after the build
@@ -35,7 +37,8 @@ PERSONALITY=""
 SHELL_EXE=""
 SUITE=trixie
 MIRROR=http://deb.debian.org/debian
-SIZE=8G
+SIZE=12G
+ROOT_SIZE=6GiB
 OUT=$REPO/build/distro/setu-dev.qcow2
 CPUS=4
 MEM=4096
@@ -51,6 +54,7 @@ while [ $# -gt 0 ]; do
         --suite) SUITE=$2; shift ;;
         --mirror) MIRROR=$2; shift ;;
         --size) SIZE=$2; shift ;;
+        --root-size) ROOT_SIZE=$2; shift ;;
         --out) OUT=$2; shift ;;
         --cpus) CPUS=$2; shift ;;
         --mem) MEM=$2; shift ;;
@@ -74,7 +78,7 @@ if [ -n "$SHELL_EXE" ]; then
     [ -f "$SHELL_EXE" ] || die "--shell: $SHELL_EXE not found"
     SHELL_EXE=$(cd "$(dirname "$SHELL_EXE")" && pwd)/$(basename "$SHELL_EXE")
 fi
-for t in qemu-system-x86_64 qemu-img curl sha512sum mkfs.vfat mcopy; do
+for t in qemu-system-x86_64 qemu-img curl sha512sum mkfs.vfat mcopy make; do
     command -v $t >/dev/null || die "missing host tool: $t"
 done
 [ -w /dev/kvm ] || die "/dev/kvm is not writable (the builder VM needs KVM)"
@@ -104,6 +108,11 @@ mkdir -p "$WORK"
 qemu-img create -q -f qcow2 -F qcow2 -b "$DL/$CLOUD_IMG" "$WORK/builder.qcow2" 12G
 qemu-img create -q -f raw "$WORK/target.raw" "$SIZE"
 
+# Setu's own system files that live outside distro/ (the drive-letter
+# service, services/fs), installed into a staging tree the builder copies.
+make -s -C "$REPO/services/fs" install DESTDIR="$WORK/overlay" \
+    || die "cannot build services/fs (needs mingw-w64: tools/bootstrap-toolchain.sh)"
+
 cat > "$WORK/meta-data" <<EOF
 instance-id: setu-builder-$(date +%s)
 local-hostname: setu-builder
@@ -117,6 +126,7 @@ write_files:
       MIRROR=$MIRROR
       WINE_MODE=$WINE_MODE
       IMAGE_HOSTNAME=setu
+      ROOT_SIZE=$ROOT_SIZE
       HAVE_SHELL=$([ -n "$SHELL_EXE" ] && echo 1 || echo 0)
 runcmd:
   - [sh, -c, "mkdir -p /mnt/distro && mount -t 9p -o trans=virtio,version=9p2000.L,ro distro /mnt/distro && bash /mnt/distro/builder/build-rootfs.sh > /dev/ttyS1 2>&1 || echo SETU_BUILD_FAILED > /dev/ttyS1; sync; poweroff -f"]
@@ -125,7 +135,8 @@ mkfs.vfat -n CIDATA -C "$WORK/seed.img" 1024 >/dev/null
 mcopy -i "$WORK/seed.img" "$WORK/user-data" "$WORK/meta-data" ::
 
 # 3. Run the builder VM until it powers itself off.
-SHARES=(-virtfs "local,path=$HERE,mount_tag=distro,security_model=none,readonly=on")
+SHARES=(-virtfs "local,path=$HERE,mount_tag=distro,security_model=none,readonly=on"
+        -virtfs "local,path=$WORK/overlay,mount_tag=overlay,security_model=none,readonly=on")
 [ "$WINE_MODE" = setu ] && SHARES+=(-virtfs "local,path=$PERSONALITY,mount_tag=personality,security_model=none,readonly=on")
 [ -n "$SHELL_EXE" ] && SHARES+=(-virtfs "local,path=$(dirname "$SHELL_EXE"),mount_tag=shell,security_model=none,readonly=on")
 
