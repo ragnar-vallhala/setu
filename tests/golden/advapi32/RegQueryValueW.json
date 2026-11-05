@@ -1,0 +1,121 @@
+{
+  "test": "advapi32/RegQueryValueW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_big": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 12,
+      "buffer": "680065006c006c006f000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "sz_size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 12
+    },
+    "sz_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 12,
+      "buffer": "680065006c006c006f000000cccc"
+    },
+    "sz_minus_2": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "cb": 12,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "sz_zero_buffer": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "cb": 12,
+      "buffer": "cccc"
+    },
+    "unset_default": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 2,
+      "buffer": "0000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_sz": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "cb": 257,
+      "buffer": "0000500041005400480025000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "dword": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "cb": 4,
+      "buffer": "01020304cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "binary": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "cb": 3,
+      "buffer": "010203cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "no_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 8,
+      "buffer": "6100620063000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "no_nul_exact": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "cb": 8,
+      "buffer": "cccccccccccccccc"
+    },
+    "empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 0,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "nested": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 10,
+      "buffer": "64006500650070000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "missing_subkey": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "cb": 64,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "null_subkey_own_default": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 16,
+      "buffer": "72006f006f0074006400650066000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "empty_subkey_own_default": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 16,
+      "buffer": "72006f006f0074006400650066000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "subkey_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 12,
+      "buffer": "680065006c006c006f000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "cb": 64,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "buffer_without_size": {
+      "ret": 87,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "91765388f6e4c2dfe3bae274494b4af5c282d52713ac4f4fc44c5e1f6da93f58"
+}

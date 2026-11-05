@@ -1,0 +1,109 @@
+{
+  "test": "advapi32/RegDeleteValueW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 5
+    },
+    "already_deleted": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after": 5
+    },
+    "missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after": 5
+    },
+    "other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 4
+    },
+    "path_like_name": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 3
+    },
+    "default_unset_null": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after": 3
+    },
+    "default_unset_empty": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after": 3
+    },
+    "default_set_null": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 3
+    },
+    "default_set_empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 3
+    },
+    "readonly_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "values_after": 3
+    },
+    "query_only_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "values_after": 3
+    },
+    "set_only_handle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 2
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "values_after": 2
+    },
+    "null_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "values_after": 2
+    },
+    "ansi_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 1
+    },
+    "ansi_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after": 1
+    },
+    "ansi_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 0
+    },
+    "ansi_default_null_unset": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after": 0
+    },
+    "ansi_default_empty_set": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after": 0
+    },
+    "deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "7ac3aa2ed3a4b7012950430044aa0b8d812203db3872036b912977d583d2967a"
+}

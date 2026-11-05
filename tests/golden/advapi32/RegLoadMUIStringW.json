@@ -1,0 +1,148 @@
+{
+  "test": "advapi32/RegLoadMUIStringW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exports": {
+      "w": true,
+      "a": true
+    },
+    "plain_big": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "plain_exact": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "plain_small": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "plain_small_truncate": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "plain_odd_size": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "plain_zero_buffer": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccc"
+    },
+    "plain_null_buffer": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530
+    },
+    "plain_no_cb": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "plain_truncate_no_cb": {
+      "ret": 13,
+      "last_error": 13,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "plain_flags_2": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand_sz": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "no_such_dll": {
+      "ret": 2,
+      "last_error": 2,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "no_such_dll_expand": {
+      "ret": 2,
+      "last_error": 2,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "bad_no_comma": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "bad_no_minus": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "at_only": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "multi_sz": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "dword": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "empty": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "no_nul": {
+      "ret": 13,
+      "last_error": 13,
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "default_unset": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "cb": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "ansi_plain": {
+      "ret": 120,
+      "last_error": "unchanged",
+      "cb": 2863311530
+    }
+  },
+  "errors": [],
+  "source_sha256": "257b2ca16175df3b832f6d88c8bf9d75f32c524ea46514e7a6570b25b2d70514"
+}

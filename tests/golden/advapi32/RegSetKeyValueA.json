@@ -1,0 +1,127 @@
+{
+  "test": "advapi32/RegSetKeyValueA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 1,
+      "qw_size": 12,
+      "qw_data": "680065006c006c006f000000"
+    },
+    "sz_no_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 1,
+      "qw_size": 12,
+      "qw_data": "680065006c006c006f000000"
+    },
+    "expand": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 2,
+      "qw_size": 8,
+      "qw_data": "2500580025000000"
+    },
+    "multi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 7,
+      "qw_size": 12,
+      "qw_data": "610000006200630000000000"
+    },
+    "binary_unconverted": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 3,
+      "qw_size": 6,
+      "qw_data": "68656c6c6f00"
+    },
+    "dword": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 4,
+      "qw_size": 4,
+      "qw_data": "34120000"
+    },
+    "missing_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 1,
+      "qw_size": 4,
+      "qw_data": "78000000"
+    },
+    "nested_missing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 4,
+      "qw_size": 4,
+      "qw_data": "34120000"
+    },
+    "default_null": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 1,
+      "qw_size": 8,
+      "qw_data": "6400650066000000"
+    },
+    "default_empty": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 1,
+      "qw_size": 10,
+      "qw_data": "64006500660032000000"
+    },
+    "empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 4,
+      "qw_size": 4,
+      "qw_data": "34120000"
+    },
+    "high_ansi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 1,
+      "qw_size": 10,
+      "qw_data": "630061006600e9000000"
+    },
+    "sz_zero_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "qw_ret": 0,
+      "qw_type": 1,
+      "qw_size": 0,
+      "qw_data": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "d0e09938409073dc96f64c9357f5ab2815c09b15b646814729abaea8c1133e43"
+}

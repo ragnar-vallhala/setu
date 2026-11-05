@@ -1,0 +1,106 @@
+{
+  "test": "advapi32/RegDeleteKeyValueW",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "again_missing_value": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "missing_subkey": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "default_null": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "default_empty_already_gone": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "nested": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "null_subkey_own": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "empty_subkey_own": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "readonly_parent": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "set_value_only_parent": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "ansi_existing": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "ansi_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "ansi_null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    },
+    "ansi_missing_subkey": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "key_still_opens": 0,
+      "value_query": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "472981361aa17a7dcb8b53550c8581407e753dd753abd05ac3132c9e855d03e5"
+}

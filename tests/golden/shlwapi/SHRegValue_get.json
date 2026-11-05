@@ -1,0 +1,159 @@
+{
+  "test": "shlwapi/SHRegValue_get",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exports": {
+      "all": true
+    },
+    "set_creates_subkey": {
+      "ret": 0
+    },
+    "get_subkey_sz": {
+      "ret": 0,
+      "type": 1,
+      "size": 12,
+      "buffer": "680065006c006c006f000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "get_null_subkey": {
+      "ret": 0,
+      "type": 1,
+      "size": 8,
+      "buffer": "74006f0070000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "get_expand_big": {
+      "ret": 0,
+      "type": 1,
+      "size": 38,
+      "buffer": "3c0030003100320033003400350036003700380039003e0000005f005300480025003e000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "get_expand_size_only": {
+      "ret": 0,
+      "type": 1,
+      "size": 38
+    },
+    "get_expand_raw_size": {
+      "ret": 0,
+      "type": 1,
+      "size": 38,
+      "buffer": "3c0030003100320033003400350036003700380039003e0000005f005300480025003e000000cccc"
+    },
+    "get_expand_small": {
+      "ret": 234,
+      "type": 1,
+      "size": 38,
+      "buffer": "cccccccccccccccccccc"
+    },
+    "get_expand_undefined_var": {
+      "ret": 0,
+      "type": 1,
+      "size": 42,
+      "buffer": "250053004500540055005f004f005200410043004c0045005f004e004f004e0045005f00580025000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "get_no_nul": {
+      "ret": 0,
+      "type": 1,
+      "size": 8,
+      "buffer": "6100620063000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "get_no_nul_exact": {
+      "ret": 234,
+      "type": 1,
+      "size": 10,
+      "buffer": "cccccccccccccccc"
+    },
+    "get_dword": {
+      "ret": 0,
+      "type": 4,
+      "size": 4,
+      "buffer": "01020304cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "get_missing": {
+      "ret": 2,
+      "type": 0,
+      "size": 128,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "get_missing_subkey": {
+      "ret": 2,
+      "type": 2863311530,
+      "size": 128,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "query_expand_big": {
+      "ret": 0,
+      "type": 1,
+      "size": 38,
+      "buffer": "3c0030003100320033003400350036003700380039003e0000005f005300480025003e000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "query_expand_size_only": {
+      "ret": 0,
+      "type": 1,
+      "size": 38
+    },
+    "query_expand_small": {
+      "ret": 234,
+      "type": 1,
+      "size": 38,
+      "buffer": "cccccccccccccccccccc"
+    },
+    "query_no_nul": {
+      "ret": 0,
+      "type": 1,
+      "size": 8,
+      "buffer": "6100620063000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "query_sz_small": {
+      "ret": 234,
+      "type": 1,
+      "size": 10,
+      "buffer": "cccccccccccc"
+    },
+    "rgv_sz_as_sz": {
+      "ret": 0,
+      "type": 1,
+      "size": 8,
+      "data": "74006f0070000000"
+    },
+    "rgv_sz_as_dword": {
+      "ret": 1630,
+      "type": 1,
+      "size": 8
+    },
+    "rgv_expand_as_sz": {
+      "ret": 0,
+      "type": 1,
+      "size": 38,
+      "data": "3c0030003100320033003400350036003700380039003e0000005f005300480025003e000000"
+    },
+    "rgv_expand_noexpand": {
+      "ret": 0,
+      "type": 2,
+      "size": 38,
+      "data": "3c00250053004500540055005f004f005200410043004c0045005f005300480025003e000000"
+    },
+    "rgv_dword_any": {
+      "ret": 0,
+      "type": 4,
+      "size": 4,
+      "data": "01020304"
+    },
+    "rgv_missing_any": {
+      "ret": 2,
+      "type": 0,
+      "size": 64
+    },
+    "delete_value_in_subkey": {
+      "ret": 0
+    },
+    "delete_value_again": {
+      "ret": 2
+    },
+    "delete_missing_subkey": {
+      "ret": 2
+    }
+  },
+  "errors": [],
+  "source_sha256": "246ef8357293b3c5772b0de9f218c21bf7ba4c4eb2265a8e73adcd511f2d1ed9"
+}

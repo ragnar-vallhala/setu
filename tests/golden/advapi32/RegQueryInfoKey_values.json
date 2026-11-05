@@ -1,0 +1,110 @@
+{
+  "test": "advapi32/RegQueryInfoKey_values",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "empty_key": {
+      "ret": 0,
+      "values": 0,
+      "max_name": 0,
+      "max_data": 0,
+      "a_ret": 0,
+      "a_values": 0,
+      "a_max_name": 0,
+      "a_max_data": 0
+    },
+    "one_value": {
+      "ret": 0,
+      "values": 1,
+      "max_name": 3,
+      "max_data": 4,
+      "a_ret": 0,
+      "a_values": 1,
+      "a_max_name": 3,
+      "a_max_data": 4
+    },
+    "longer_name_bigger_data": {
+      "ret": 0,
+      "values": 2,
+      "max_name": 10,
+      "max_data": 20,
+      "a_ret": 0,
+      "a_values": 2,
+      "a_max_name": 10,
+      "a_max_data": 20
+    },
+    "data_shrunk": {
+      "ret": 0,
+      "values": 2,
+      "max_name": 10,
+      "max_data": 20,
+      "a_ret": 0,
+      "a_values": 2,
+      "a_max_name": 10,
+      "a_max_data": 20
+    },
+    "longest_deleted": {
+      "ret": 0,
+      "values": 1,
+      "max_name": 10,
+      "max_data": 20,
+      "a_ret": 0,
+      "a_values": 1,
+      "a_max_name": 10,
+      "a_max_data": 20
+    },
+    "default_value_added": {
+      "ret": 0,
+      "values": 2,
+      "max_name": 10,
+      "max_data": 20,
+      "a_ret": 0,
+      "a_values": 2,
+      "a_max_name": 10,
+      "a_max_data": 20
+    },
+    "sz_22_bytes": {
+      "ret": 0,
+      "values": 3,
+      "max_name": 10,
+      "max_data": 22,
+      "a_ret": 0,
+      "a_values": 3,
+      "a_max_name": 10,
+      "a_max_data": 22
+    },
+    "non_ascii_name_12": {
+      "ret": 0,
+      "values": 5,
+      "max_name": 12,
+      "max_data": 22,
+      "a_ret": 0,
+      "a_values": 5,
+      "a_max_name": 12,
+      "a_max_data": 22
+    },
+    "binary_100": {
+      "ret": 0,
+      "values": 6,
+      "max_name": 12,
+      "max_data": 100,
+      "a_ret": 0,
+      "a_values": 6,
+      "a_max_name": 12,
+      "a_max_data": 100
+    },
+    "all_deleted": {
+      "ret": 0,
+      "values": 0,
+      "max_name": 0,
+      "max_data": 0,
+      "a_ret": 0,
+      "a_values": 0,
+      "a_max_name": 0,
+      "a_max_data": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "f3053198d8ddb514960e090d168ae51645c651ded024b0e9fd8d95e8e0ef57f4"
+}

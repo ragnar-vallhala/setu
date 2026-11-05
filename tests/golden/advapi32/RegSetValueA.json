@@ -1,0 +1,97 @@
+{
+  "test": "advapi32/RegSetValueA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 12,
+      "q_data": "680065006c006c006f000000"
+    },
+    "cb_zero": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 12,
+      "q_data": "680065006c006c006f000000"
+    },
+    "cb_too_small": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 12,
+      "q_data": "680065006c006c006f000000"
+    },
+    "cb_too_big": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 6,
+      "q_data": "680069000000"
+    },
+    "expand_sz_rejected": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "subkey_open": 2
+    },
+    "dword_rejected": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "subkey_open": 2
+    },
+    "null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 8,
+      "q_data": "6f0077006e000000"
+    },
+    "empty_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 10,
+      "q_data": "6f0077006e0032000000"
+    },
+    "null_data": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "subkey_open": 2
+    },
+    "high_ansi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 10,
+      "q_data": "630061006600e9000000"
+    },
+    "nested": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "subkey_open": 0,
+      "q_ret": 0,
+      "q_type": 1,
+      "q_size": 10,
+      "q_data": "64006500650070000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "e4f4fe44c84dd72de455fdd09d3451a14268a68832ab3cfe35860727c624e1c2"
+}

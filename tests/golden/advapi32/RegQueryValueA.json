@@ -1,0 +1,97 @@
+{
+  "test": "advapi32/RegQueryValueA",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_big": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 6,
+      "buffer": "68656c6c6f006c006f000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "sz_size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 6
+    },
+    "sz_ansi_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 6,
+      "buffer": "68656c6c6f00cccc"
+    },
+    "sz_5": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "cb": 6,
+      "buffer": "cccccccccccccc"
+    },
+    "sz_unicode_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 6,
+      "buffer": "68656c6c6f006c006f000000cccc"
+    },
+    "sz_zero": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "cb": 6,
+      "buffer": "cccc"
+    },
+    "unset": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 1,
+      "buffer": "00cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "unset_size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 1
+    },
+    "dword": {
+      "ret": 13,
+      "last_error": "unchanged",
+      "cb": 4,
+      "buffer": "01020304cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "expand": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "cb": 258,
+      "buffer": "0050415448250000480025000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "no_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 4,
+      "buffer": "6162630063000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "no_nul_size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 4
+    },
+    "high_ansi": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 5,
+      "buffer": "636166e90000e9000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "cb": 64,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "null_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "cb": 1,
+      "buffer": "00cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "0a6ef6c5082f4e8f8e8bf7f8c4d8377ab985e9846a3f9dda6ce80a7e85323189"
+}
