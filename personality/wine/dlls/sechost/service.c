@@ -331,9 +331,9 @@ SC_HANDLE WINAPI DECLSPEC_HOTPATCH OpenServiceW( SC_HANDLE manager, const WCHAR 
     }
     __ENDTRY
 
-    if (!err) return handle;
+    /* success clears the last error */
     SetLastError( err );
-    return 0;
+    return err ? NULL : handle;
 }
 
 /******************************************************************************
@@ -416,9 +416,9 @@ SC_HANDLE WINAPI DECLSPEC_HOTPATCH CreateServiceW( SC_HANDLE manager, const WCHA
     }
     __ENDTRY
 
-    if (!err) return handle;
+    /* success clears the last error */
     SetLastError( err );
-    return NULL;
+    return err ? NULL : handle;
 }
 
 /******************************************************************************
@@ -609,6 +609,9 @@ BOOL WINAPI DECLSPEC_HOTPATCH ChangeServiceConfigW( SC_HANDLE service, DWORD ser
     }
     __ENDTRY
 
+    /* Windows leaves the last error at 0 after switching to an account other than LocalSystem */
+    if (!err && username && username[0] && wcsicmp( username, L"LocalSystem" ))
+        SetLastError( ERROR_SUCCESS );
     return set_error( err );
 }
 
@@ -658,7 +661,18 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfigA( SC_HANDLE service, QUERY_SERV
 
     MAP_STR( lpBinaryPathName );
     MAP_STR( lpLoadOrderGroup );
-    MAP_STR( lpDependencies );
+    if (configW->lpDependencies)
+    {
+        const WCHAR *w = configW->lpDependencies;
+        DWORD len, sz;
+
+        while (*w) w += wcslen( w ) + 1;
+        len = w - configW->lpDependencies + 1;
+        if (!(sz = WideCharToMultiByte( CP_ACP, 0, configW->lpDependencies, len, p, n, NULL, NULL ))) goto done;
+        config->lpDependencies = p;
+        p += sz;
+        n -= sz;
+    }
     MAP_STR( lpServiceStartName );
     MAP_STR( lpDisplayName );
 #undef MAP_STR
@@ -752,6 +766,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceConfigW( SC_HANDLE service, QUERY_SERV
     move_string_to_buffer( &bufpos, &ret_config->lpBinaryPathName );
     move_string_to_buffer( &bufpos, &ret_config->lpLoadOrderGroup );
     move_string_to_buffer( &bufpos, &ret_config->lpDependencies );
+    /* services.exe ends each dependency with '/'; make it a multi-string */
+    for (WCHAR *p = ret_config->lpDependencies; *p; p++) if (*p == '/') *p = 0;
     move_string_to_buffer( &bufpos, &ret_config->lpServiceStartName );
     move_string_to_buffer( &bufpos, &ret_config->lpDisplayName );
 

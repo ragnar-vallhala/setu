@@ -130,7 +130,11 @@ static inline BOOL is_marked_for_delete(struct service_entry *service)
 
 static inline DWORD mark_for_delete(struct service_entry *service)
 {
+    DWORD one = 1;
+
     service->marked_for_delete = TRUE;
+    /* Windows records the pending deletion in the service's key */
+    RegSetKeyValueW(service->db->root_key, service->name, L"DeleteFlag", REG_DWORD, &one, sizeof(one));
     return ERROR_SUCCESS;
 }
 

@@ -275,13 +275,19 @@ DWORD __cdecl svcctl_OpenSCManagerW(
 
     WINE_TRACE("(%s, %s, %lx)\n", wine_dbgstr_w(MachineName), wine_dbgstr_w(DatabaseName), dwAccessMask);
 
-    if (DatabaseName != NULL && DatabaseName[0])
+    /* database names compare without case; an empty name is not valid */
+    if (DatabaseName != NULL)
     {
-        if (lstrcmpW(DatabaseName, SERVICES_FAILED_DATABASEW) == 0)
+        if (!wcsicmp(DatabaseName, SERVICES_FAILED_DATABASEW))
             return ERROR_DATABASE_DOES_NOT_EXIST;
-        if (lstrcmpW(DatabaseName, SERVICES_ACTIVE_DATABASEW) != 0)
+        if (wcsicmp(DatabaseName, SERVICES_ACTIVE_DATABASEW))
             return ERROR_INVALID_NAME;
     }
+
+    /* rights that are not defined for the manager are refused */
+    if (dwAccessMask & ~(SC_MANAGER_ALL_ACCESS | ACCESS_SYSTEM_SECURITY | MAXIMUM_ALLOWED | GENERIC_ALL |
+                         GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE | STANDARD_RIGHTS_ALL))
+        return ERROR_ACCESS_DENIED;
 
     if (!(manager = malloc(sizeof(*manager))))
         return ERROR_NOT_ENOUGH_SERVER_MEMORY;
@@ -460,6 +466,12 @@ DWORD __cdecl svcctl_OpenServiceW(
         return err;
     if (!validate_service_name(lpServiceName))
         return ERROR_INVALID_NAME;
+    /* a service handle needs at least one defined right (SERVICE_SET_STATUS is
+     * Wine's own, for the dispatcher in sechost) */
+    if (!dwDesiredAccess || (dwDesiredAccess & ~(SERVICE_ALL_ACCESS | SERVICE_SET_STATUS | ACCESS_SYSTEM_SECURITY |
+                                                 MAXIMUM_ALLOWED | GENERIC_ALL | GENERIC_READ | GENERIC_WRITE |
+                                                 GENERIC_EXECUTE | STANDARD_RIGHTS_ALL)))
+        return ERROR_ACCESS_DENIED;
 
     scmdatabase_lock(manager->db);
     entry = grab_service(scmdatabase_find_service(manager->db, lpServiceName));
@@ -543,6 +555,40 @@ static DWORD parse_dependencies(const WCHAR *dependencies, struct service_entry 
     return ERROR_SUCCESS;
 }
 
+/* Windows stores an absolute driver path in NT form. */
+static WCHAR *make_image_path(DWORD type, const WCHAR *path)
+{
+    WCHAR *ret;
+
+    if (!(type & SERVICE_DRIVER) || !path || !iswalpha(path[0]) || path[1] != ':' || path[2] != '\\')
+        return wcsdup(path);
+    if ((ret = malloc((lstrlenW(path) + 5) * sizeof(WCHAR))))
+    {
+        lstrcpyW(ret, L"\\??\\");
+        lstrcatW(ret, path);
+    }
+    return ret;
+}
+
+/* ".\\LocalSystem" is stored as "LocalSystem". */
+static WCHAR *make_account_name(const WCHAR *name)
+{
+    if (name && !wcsicmp(name, L".\\LocalSystem")) return wcsdup(L"LocalSystem");
+    return wcsdup(name);
+}
+
+/* Tags are numbered from 1 within a load order group. */
+static DWORD next_tag(struct scmdatabase *db, const WCHAR *group)
+{
+    struct service_entry *service;
+    DWORD tag = 0;
+
+    LIST_FOR_EACH_ENTRY(service, &db->services, struct service_entry, entry)
+        if (service->config.lpLoadOrderGroup && !wcsicmp(service->config.lpLoadOrderGroup, group))
+            tag = max(tag, service->config.dwTagId);
+    return tag + 1;
+}
+
 static DWORD create_serviceW(
     SC_RPC_HANDLE hSCManager,
     LPCWSTR lpServiceName,
@@ -571,6 +617,9 @@ static DWORD create_serviceW(
     if ((err = validate_scm_handle(hSCManager, SC_MANAGER_CREATE_SERVICE, &manager)) != ERROR_SUCCESS)
         return err;
 
+    /* the Windows RPC interface refuses names over 256 characters */
+    if ((lpServiceName && wcslen(lpServiceName) > 256) || (lpDisplayName && wcslen(lpDisplayName) > 256))
+        return RPC_X_BAD_STUB_DATA;
     if (!validate_service_name(lpServiceName))
         return ERROR_INVALID_NAME;
     if (!check_multisz((LPCWSTR)lpDependencies, dwDependenciesSize) || !lpServiceName[0] || !lpBinaryPathName[0])
@@ -589,19 +638,31 @@ static DWORD create_serviceW(
         return err;
     }
 
+    /* Checks Windows makes on creation only: boot-start services, error
+     * control values past SERVICE_ERROR_CRITICAL, a tag without a load
+     * order group, an empty account name. */
+    if (dwStartType == SERVICE_BOOT_START || dwErrorControl > SERVICE_ERROR_CRITICAL ||
+        (lpdwTagId && (!lpLoadOrderGroup || !lpLoadOrderGroup[0])))
+    {
+        free_service_entry(entry);
+        return ERROR_INVALID_PARAMETER;
+    }
+    if (lpServiceStartName && !lpServiceStartName[0])
+    {
+        free_service_entry(entry);
+        return ERROR_INVALID_SERVICE_ACCOUNT;
+    }
+
     entry->is_wow64 = is_wow64;
     entry->config.dwServiceType = entry->status.dwServiceType = dwServiceType;
     entry->config.dwStartType = dwStartType;
     entry->config.dwErrorControl = dwErrorControl;
-    entry->config.lpBinaryPathName = wcsdup(lpBinaryPathName);
+    entry->config.lpBinaryPathName = make_image_path(dwServiceType, lpBinaryPathName);
     entry->config.lpLoadOrderGroup = wcsdup(lpLoadOrderGroup);
-    entry->config.lpServiceStartName = wcsdup(lpServiceStartName);
-    entry->config.lpDisplayName = wcsdup(lpDisplayName);
-
-    if (lpdwTagId)      /* TODO: In most situations a non-NULL TagId will generate an ERROR_INVALID_PARAMETER. */
-        entry->config.dwTagId = *lpdwTagId;
-    else
-        entry->config.dwTagId = 0;
+    entry->config.lpServiceStartName = make_account_name(lpServiceStartName);
+    /* without a display name, the service name is used */
+    entry->config.lpDisplayName = wcsdup(lpDisplayName && lpDisplayName[0] ? lpDisplayName : lpServiceName);
+    entry->config.dwTagId = 0;
 
     /* other fields NULL*/
 
@@ -614,6 +675,9 @@ static DWORD create_serviceW(
 
     scmdatabase_lock(manager->db);
 
+    if (lpdwTagId)
+        *lpdwTagId = entry->config.dwTagId = next_tag(manager->db, lpLoadOrderGroup);
+
     if ((found = scmdatabase_find_service(manager->db, lpServiceName)))
     {
         err = is_marked_for_delete(found) ? ERROR_SERVICE_MARKED_FOR_DELETE : ERROR_SERVICE_EXISTS;
@@ -622,7 +686,8 @@ static DWORD create_serviceW(
         return err;
     }
 
-    if (scmdatabase_find_service_by_displayname(manager->db, get_display_name(entry)))
+    /* display names may repeat, but may not equal another service's key name */
+    if ((found = scmdatabase_find_service(manager->db, get_display_name(entry))) && found != entry)
     {
         scmdatabase_unlock(manager->db);
         free_service_entry(entry);
@@ -686,6 +751,47 @@ DWORD __cdecl svcctl_DeleteService(
     return err;
 }
 
+/* The image path is reported with environment variables expanded. */
+static WCHAR *expand_path(const WCHAR *path)
+{
+    DWORD size;
+    WCHAR *ret;
+
+    if (!path || !(size = ExpandEnvironmentStringsW(path, NULL, 0))) return wcsdup(path);
+    if ((ret = malloc(size * sizeof(WCHAR)))) ExpandEnvironmentStringsW(path, ret, size);
+    return ret;
+}
+
+/* The dependency list goes over RPC as one string with each entry ended
+ * by '/', which cannot appear in a service name; sechost turns it back
+ * into a multi-string.  Groups are marked with a leading '+'. */
+static WCHAR *dependencies_string(const struct service_entry *entry)
+{
+    const WCHAR *p;
+    WCHAR *ret, *q;
+    DWORD len = 0;
+
+    for (p = entry->dependOnServices; p && *p; p += lstrlenW(p) + 1) len += lstrlenW(p) + 1;
+    for (p = entry->dependOnGroups; p && *p; p += lstrlenW(p) + 1) len += lstrlenW(p) + 2;
+    if (!len || !(ret = malloc((len + 1) * sizeof(WCHAR)))) return NULL;
+    q = ret;
+    for (p = entry->dependOnServices; p && *p; p += lstrlenW(p) + 1)
+    {
+        lstrcpyW(q, p);
+        q += lstrlenW(p);
+        *q++ = '/';
+    }
+    for (p = entry->dependOnGroups; p && *p; p += lstrlenW(p) + 1)
+    {
+        *q++ = '+';
+        lstrcpyW(q, p);
+        q += lstrlenW(p);
+        *q++ = '/';
+    }
+    *q = 0;
+    return ret;
+}
+
 DWORD __cdecl svcctl_QueryServiceConfigW(
         SC_RPC_HANDLE hService,
         QUERY_SERVICE_CONFIGW *config,
@@ -704,15 +810,22 @@ DWORD __cdecl svcctl_QueryServiceConfigW(
     config->dwServiceType = service->service_entry->config.dwServiceType;
     config->dwStartType = service->service_entry->config.dwStartType;
     config->dwErrorControl = service->service_entry->config.dwErrorControl;
-    config->lpBinaryPathName = wcsdup(service->service_entry->config.lpBinaryPathName);
+    config->lpBinaryPathName = expand_path(service->service_entry->config.lpBinaryPathName);
     config->lpLoadOrderGroup = wcsdup(service->service_entry->config.lpLoadOrderGroup);
     config->dwTagId = service->service_entry->config.dwTagId;
-    config->lpDependencies = NULL; /* TODO */
+    config->lpDependencies = dependencies_string(service->service_entry);
     config->lpServiceStartName = wcsdup(service->service_entry->config.lpServiceStartName);
     config->lpDisplayName = wcsdup(service->service_entry->config.lpDisplayName);
     service_unlock(service->service_entry);
 
     return ERROR_SUCCESS;
+}
+
+static BOOL depends_on_self(const WCHAR *deps, const WCHAR *name)
+{
+    for (; *deps; deps += lstrlenW(deps) + 1)
+        if (!wcsicmp(deps, name)) return TRUE;
+    return FALSE;
 }
 
 DWORD __cdecl svcctl_ChangeServiceConfigW(
@@ -751,12 +864,39 @@ DWORD __cdecl svcctl_ChangeServiceConfigW(
         return ERROR_SERVICE_MARKED_FOR_DELETE;
     }
 
-    if (lpDisplayName != NULL &&
-        (entry = scmdatabase_find_service_by_displayname(service->service_entry->db, lpDisplayName)) &&
+    /* display names may repeat, but may not equal another service's key name */
+    if (lpDisplayName != NULL && lpDisplayName[0] &&
+        (entry = scmdatabase_find_service(service->service_entry->db, lpDisplayName)) &&
         (entry != service->service_entry))
     {
         service_unlock(service->service_entry);
         return ERROR_DUPLICATE_SERVICE_NAME;
+    }
+
+    if (dwErrorControl != SERVICE_NO_CHANGE && dwErrorControl > SERVICE_ERROR_CRITICAL)
+    {
+        service_unlock(service->service_entry);
+        return ERROR_INVALID_PARAMETER;
+    }
+
+    /* a service cannot be changed between a driver and a Win32 service */
+    if (dwServiceType != SERVICE_NO_CHANGE &&
+        !(dwServiceType & SERVICE_DRIVER) != !(service->service_entry->config.dwServiceType & SERVICE_DRIVER))
+    {
+        service_unlock(service->service_entry);
+        return ERROR_INVALID_PARAMETER;
+    }
+
+    if (lpServiceStartName != NULL && !lpServiceStartName[0])
+    {
+        service_unlock(service->service_entry);
+        return ERROR_INVALID_SERVICE_ACCOUNT;
+    }
+
+    if (lpDependencies && depends_on_self((LPCWSTR)lpDependencies, service->service_entry->name))
+    {
+        service_unlock(service->service_entry);
+        return ERROR_CIRCULAR_DEPENDENCY;
     }
 
     new_entry = *service->service_entry;
@@ -776,20 +916,18 @@ DWORD __cdecl svcctl_ChangeServiceConfigW(
     if (lpLoadOrderGroup != NULL)
         new_entry.config.lpLoadOrderGroup = (LPWSTR)lpLoadOrderGroup;
 
-    if (lpdwTagId != NULL)
-        WINE_FIXME("Changing tag id not supported\n");
-
     if (lpServiceStartName != NULL)
         new_entry.config.lpServiceStartName = (LPWSTR)lpServiceStartName;
 
     if (lpPassword != NULL)
         WINE_FIXME("Setting password not supported\n");
 
+    /* an empty display name resets it to the key name */
     if (lpDisplayName != NULL)
-        new_entry.config.lpDisplayName = (LPWSTR)lpDisplayName;
+        new_entry.config.lpDisplayName = lpDisplayName[0] ? (LPWSTR)lpDisplayName : new_entry.name;
 
-    err = parse_dependencies((LPCWSTR)lpDependencies, &new_entry);
-    if (err != ERROR_SUCCESS)
+    /* without a list, the dependencies are left alone */
+    if (lpDependencies && (err = parse_dependencies((LPCWSTR)lpDependencies, &new_entry)) != ERROR_SUCCESS)
     {
         service_unlock(service->service_entry);
         return err;
@@ -810,10 +948,14 @@ DWORD __cdecl svcctl_ChangeServiceConfigW(
         new_entry.config.lpLoadOrderGroup = wcsdup(lpLoadOrderGroup);
 
     if (lpServiceStartName != NULL)
-        new_entry.config.lpServiceStartName = wcsdup(lpServiceStartName);
+        new_entry.config.lpServiceStartName = make_account_name(lpServiceStartName);
 
     if (lpDisplayName != NULL)
-        new_entry.config.lpDisplayName = wcsdup(lpDisplayName);
+        new_entry.config.lpDisplayName = wcsdup(new_entry.config.lpDisplayName);
+
+    /* a tag is assigned within the (new) load order group */
+    if (lpdwTagId != NULL && new_entry.config.lpLoadOrderGroup && new_entry.config.lpLoadOrderGroup[0])
+        *lpdwTagId = new_entry.config.dwTagId = next_tag(service->service_entry->db, new_entry.config.lpLoadOrderGroup);
 
     /* try to save to Registry, commit or rollback depending on success */
     err = save_service_config(&new_entry);

@@ -515,6 +515,8 @@ BOOL validate_service_config(struct service_entry *entry)
     case SERVICE_FILE_SYSTEM_DRIVER:
     case SERVICE_WIN32_OWN_PROCESS:
     case SERVICE_WIN32_SHARE_PROCESS:
+    case 0x40 | SERVICE_WIN32_OWN_PROCESS: /* SERVICE_USER_OWN_PROCESS */
+    case 0x40 | SERVICE_WIN32_SHARE_PROCESS: /* SERVICE_USER_SHARE_PROCESS */
         /* No problem */
         break;
     case SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS:
@@ -546,7 +548,9 @@ BOOL validate_service_config(struct service_entry *entry)
         return FALSE;
     }
 
-    if (entry->config.lpServiceStartName == NULL)
+    /* drivers and user services (0x40) have no account unless one is given */
+    if (entry->config.lpServiceStartName == NULL && (entry->config.dwServiceType & SERVICE_WIN32) &&
+        !(entry->config.dwServiceType & 0x40))
         entry->config.lpServiceStartName = wcsdup(L"LocalSystem");
 
     return TRUE;
@@ -572,7 +576,8 @@ struct service_entry *scmdatabase_find_service_by_displayname(struct scmdatabase
 
     LIST_FOR_EACH_ENTRY(service, &db->services, struct service_entry, entry)
     {
-        if (service->config.lpDisplayName && wcsicmp(name, service->config.lpDisplayName) == 0)
+        /* a service without a display name shows its key name */
+        if (!wcsicmp(name, service->config.lpDisplayName ? service->config.lpDisplayName : service->name))
             return service;
     }
 
