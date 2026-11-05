@@ -495,7 +495,8 @@ done:
     return ret;
 } 
 
-static const WCHAR * const WellKnownPrivNames[SE_MAX_WELL_KNOWN_PRIVILEGE + 1] =
+/* indexed by the privilege's LUID; the ones after SeCreateGlobalPrivilege came with later Windows versions */
+static const WCHAR * const WellKnownPrivNames[] =
 {
     NULL,
     NULL,
@@ -528,12 +529,19 @@ static const WCHAR * const WellKnownPrivNames[SE_MAX_WELL_KNOWN_PRIVILEGE + 1] =
     L"SeManageVolumePrivilege",
     L"SeImpersonatePrivilege",
     L"SeCreateGlobalPrivilege",
+    L"SeTrustedCredManAccessPrivilege",
+    L"SeRelabelPrivilege",
+    L"SeIncreaseWorkingSetPrivilege",
+    L"SeTimeZonePrivilege",
+    L"SeCreateSymbolicLinkPrivilege",
+    L"SeDelegateSessionUserImpersonatePrivilege",
 };
+#define MAX_KNOWN_PRIVILEGE (ARRAY_SIZE(WellKnownPrivNames) - 1)
 
 const WCHAR *get_wellknown_privilege_name(const LUID *luid)
 {
     if (luid->HighPart || luid->LowPart < SE_MIN_WELL_KNOWN_PRIVILEGE ||
-            luid->LowPart > SE_MAX_WELL_KNOWN_PRIVILEGE || !WellKnownPrivNames[luid->LowPart])
+            luid->LowPart > MAX_KNOWN_PRIVILEGE || !WellKnownPrivNames[luid->LowPart])
         return NULL;
 
     return WellKnownPrivNames[luid->LowPart];
@@ -561,7 +569,7 @@ LookupPrivilegeValueW( LPCWSTR lpSystemName, LPCWSTR lpName, PLUID lpLuid )
         SetLastError(ERROR_NO_SUCH_PRIVILEGE);
         return FALSE;
     }
-    for( i=SE_MIN_WELL_KNOWN_PRIVILEGE; i<=SE_MAX_WELL_KNOWN_PRIVILEGE; i++ )
+    for( i=SE_MIN_WELL_KNOWN_PRIVILEGE; i<=MAX_KNOWN_PRIVILEGE; i++ )
     {
         if( !WellKnownPrivNames[i] )
             continue;
@@ -717,7 +725,7 @@ LookupPrivilegeNameW( LPCWSTR lpSystemName, PLUID lpLuid, LPWSTR lpName,
         return FALSE;
     }
     if (lpLuid->HighPart || (lpLuid->LowPart < SE_MIN_WELL_KNOWN_PRIVILEGE ||
-     lpLuid->LowPart > SE_MAX_WELL_KNOWN_PRIVILEGE))
+     lpLuid->LowPart > MAX_KNOWN_PRIVILEGE))
     {
         SetLastError(ERROR_NO_SUCH_PRIVILEGE);
         return FALSE;
