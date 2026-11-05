@@ -1241,21 +1241,29 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegSetValueExW( HKEY hkey, LPCWSTR name, DWORD 
                                                  DWORD type, const BYTE *data, DWORD count )
 {
     UNICODE_STRING nameW;
+    NTSTATUS status;
 
     /* no need for version check, not implemented on win9x anyway */
 
+    if (reserved) return ERROR_INVALID_PARAMETER;
+    /* a size of 2GB or more is refused before the data is looked at */
+    if (count >= 0x7fffffff) return ERROR_INVALID_PARAMETER;
     if ((data && ((ULONG_PTR)data >> 16) == 0) || (!data && count)) return ERROR_NOACCESS;
 
-    if (count && is_string(type))
+    if (count >= sizeof(WCHAR) && !(count % sizeof(WCHAR)) && is_string(type))
     {
         LPCWSTR str = (LPCWSTR)data;
-        /* if user forgot to count terminating null, add it (yes NT does this) */
+        /* if user forgot to count terminating null, add it (yes NT does this);
+         * odd sizes are stored as given */
         if (str[count / sizeof(WCHAR) - 1] && !str[count / sizeof(WCHAR)])
             count += sizeof(WCHAR);
     }
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
-    RtlInitUnicodeString( &nameW, name );
+    /* names longer than 32767 characters are invalid; one of exactly 32767
+     * does not fit a counted string (ERROR_FILENAME_EXCED_RANGE) */
+    if (name && wcslen( name ) > 32767) return ERROR_INVALID_PARAMETER;
+    if ((status = RtlInitUnicodeStringEx( &nameW, name ))) return RtlNtStatusToDosError( status );
     return RtlNtStatusToDosError( NtSetValueKey( hkey, &nameW, 0, type, data, count ) );
 }
 
@@ -1309,6 +1317,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegSetValueExA( HKEY hkey, LPCSTR name, DWORD r
         status = NtSetValueKey( hkey, &nameW, 0, type, data, count );
         RtlFreeUnicodeString( &nameW );
     }
+    else status = STATUS_NO_MEMORY;  /* a name too long to convert */
     HeapFree( GetProcessHeap(), 0, dataW );
     return RtlNtStatusToDosError( status );
 }
@@ -1685,7 +1694,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegQueryValueExW( HKEY hkey, LPCWSTR name, LPDW
 
     if (!(hkey = get_special_root_hkey( hkey ))) return ERROR_INVALID_HANDLE;
 
-    RtlInitUnicodeString( &name_str, name );
+    /* a name of 32767 characters or more does not fit a counted string */
+    if ((status = RtlInitUnicodeStringEx( &name_str, name ))) return RtlNtStatusToDosError( status );
 
     if (data) total_size = min( sizeof(buffer), *count + info_size );
     else
