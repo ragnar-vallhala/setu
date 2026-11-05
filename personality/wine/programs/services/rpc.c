@@ -77,6 +77,9 @@ struct sc_manager_handle       /* service control manager handle */
 struct sc_notify_handle
 {
     struct sc_handle hdr;
+    struct list entry;          /* in the service handle's list of pending notifications,
+                                 * or in scm_notifies */
+    struct sc_manager_handle *manager; /* for service creation and deletion notifications */
     HANDLE event;
     DWORD notify_mask;
     LONG ref;
@@ -89,8 +92,11 @@ struct sc_service_handle       /* service handle */
     struct list entry;
     BOOL status_notified;
     struct service_entry *service_entry;
-    struct sc_notify_handle *notify;
+    struct list notifies;       /* pending notifications: several may wait on one handle */
 };
+
+/* SERVICE_NOTIFY_CREATED and SERVICE_NOTIFY_DELETED registrations, under the database lock */
+static struct list scm_notifies = LIST_INIT(scm_notifies);
 
 static void sc_notify_retain(struct sc_notify_handle *notify)
 {
@@ -312,6 +318,17 @@ static void SC_RPC_HANDLE_destroy(SC_RPC_HANDLE handle)
         case SC_HTYPE_MANAGER:
         {
             struct sc_manager_handle *manager = (struct sc_manager_handle *)hdr;
+            struct sc_notify_handle *notify, *next;
+
+            scmdatabase_lock(manager->db);
+            LIST_FOR_EACH_ENTRY_SAFE(notify, next, &scm_notifies, struct sc_notify_handle, entry)
+            {
+                if (notify->manager != manager) continue;
+                list_remove(&notify->entry);
+                SetEvent(notify->event);
+                sc_notify_release(notify);
+            }
+            scmdatabase_unlock(manager->db);
             free(manager);
             break;
         }
@@ -320,10 +337,14 @@ static void SC_RPC_HANDLE_destroy(SC_RPC_HANDLE handle)
             struct sc_service_handle *service = (struct sc_service_handle *)hdr;
             service_lock(service->service_entry);
             list_remove(&service->entry);
-            if (service->notify)
             {
-                SetEvent(service->notify->event);
-                sc_notify_release(service->notify);
+                struct sc_notify_handle *notify, *next;
+                LIST_FOR_EACH_ENTRY_SAFE(notify, next, &service->notifies, struct sc_notify_handle, entry)
+                {
+                    list_remove(&notify->entry);
+                    SetEvent(notify->event);
+                    sc_notify_release(notify);
+                }
             }
             service_unlock(service->service_entry);
             release_service(service->service_entry);
@@ -437,7 +458,7 @@ static DWORD create_handle_for_service(struct service_entry *entry, DWORD dwDesi
 
     service->hdr.type = SC_HTYPE_SERVICE;
     service->hdr.access = dwDesiredAccess;
-    service->notify = NULL;
+    list_init(&service->notifies);
     service->status_notified = FALSE;
     RtlMapGenericMask(&service->hdr.access, &g_svc_generic);
 
@@ -701,6 +722,7 @@ static DWORD create_serviceW(
         free_service_entry(entry);
         return err;
     }
+    notify_scm_change(manager->db, entry->name, TRUE);
     scmdatabase_unlock(manager->db);
 
     return create_handle_for_service(entry, dwDesiredAccess, phService);
@@ -730,6 +752,8 @@ DWORD __cdecl svcctl_CreateServiceW(
         lpPassword, dwPasswordSize, phService, FALSE);
 }
 
+static void notify_delete_pending(struct service_entry *service);
+
 DWORD __cdecl svcctl_DeleteService(
     SC_RPC_HANDLE hService)
 {
@@ -742,7 +766,10 @@ DWORD __cdecl svcctl_DeleteService(
     service_lock(service->service_entry);
 
     if (!is_marked_for_delete(service->service_entry))
-        err = mark_for_delete(service->service_entry);
+    {
+        if (!(err = mark_for_delete(service->service_entry)))
+            notify_delete_pending(service->service_entry);
+    }
     else
         err = ERROR_SERVICE_MARKED_FOR_DELETE;
 
@@ -980,7 +1007,7 @@ static void fill_status_process(SERVICE_STATUS_PROCESS *status, struct service_e
     status->dwServiceFlags  = 0;
 }
 
-static void fill_notify(struct sc_notify_handle *notify, struct service_entry *service)
+static void fill_notify(struct sc_notify_handle *notify, struct service_entry *service, DWORD triggered)
 {
     SC_RPC_NOTIFY_PARAMS_LIST *list;
     SERVICE_NOTIFY_STATUS_CHANGE_PARAMS_2 *cparams;
@@ -997,7 +1024,7 @@ static void fill_notify(struct sc_notify_handle *notify, struct service_entry *s
     cparams->dwNotifyMask = notify->notify_mask;
     fill_status_process(&cparams->ServiceStatus, service);
     cparams->dwNotificationStatus = ERROR_SUCCESS;
-    cparams->dwNotificationTriggered = 1 << (cparams->ServiceStatus.dwCurrentState - SERVICE_STOPPED);
+    cparams->dwNotificationTriggered = triggered;
     cparams->pszServiceNames = NULL;
 
     list->cElements = 1;
@@ -1018,16 +1045,73 @@ void notify_service_state(struct service_entry *service)
     mask = 1 << (service->status.dwCurrentState - SERVICE_STOPPED);
     LIST_FOR_EACH_ENTRY(service_handle, &service->handles, struct sc_service_handle, entry)
     {
-        struct sc_notify_handle *notify = service_handle->notify;
-        if (notify && (notify->notify_mask & mask))
+        struct sc_notify_handle *notify, *next;
+        BOOL fired = FALSE;
+
+        LIST_FOR_EACH_ENTRY_SAFE(notify, next, &service_handle->notifies, struct sc_notify_handle, entry)
         {
-            fill_notify(notify, service);
+            if (!(notify->notify_mask & mask)) continue;
+            list_remove(&notify->entry);
+            fill_notify(notify, service, mask);
             sc_notify_release(notify);
-            service_handle->notify = NULL;
-            service_handle->status_notified = TRUE;
+            fired = TRUE;
         }
-        else
-            service_handle->status_notified = FALSE;
+        service_handle->status_notified = fired;
+    }
+}
+
+/* Fires the SCM handles' notifications: a created service's name comes with a '/' prefix.
+ * Called with the database locked. */
+void notify_scm_change(struct scmdatabase *db, const WCHAR *name, BOOL created)
+{
+    DWORD mask = created ? SERVICE_NOTIFY_CREATED : SERVICE_NOTIFY_DELETED;
+    struct sc_notify_handle *notify, *next;
+    SC_RPC_NOTIFY_PARAMS_LIST *list;
+    SERVICE_NOTIFY_STATUS_CHANGE_PARAMS_2 *cparams;
+
+    LIST_FOR_EACH_ENTRY_SAFE(notify, next, &scm_notifies, struct sc_notify_handle, entry)
+    {
+        if (notify->manager->db != db || !(notify->notify_mask & mask)) continue;
+        list_remove(&notify->entry);
+
+        if ((list = calloc(1, sizeof(*list))) && (cparams = calloc(1, sizeof(*cparams))))
+        {
+            cparams->dwNotifyMask = notify->notify_mask;
+            cparams->dwNotificationStatus = ERROR_SUCCESS;
+            cparams->dwNotificationTriggered = mask;
+            if ((cparams->pszServiceNames = malloc((wcslen(name) + 2) * sizeof(WCHAR))))
+            {
+                cparams->pszServiceNames[0] = '/';
+                wcscpy(cparams->pszServiceNames + (created ? 1 : 0), name);
+            }
+            list->cElements = 1;
+            list->NotifyParamsArray[0].dwInfoLevel = 2;
+            list->NotifyParamsArray[0].params = cparams;
+            InterlockedExchangePointer((void **)&notify->params_list, list);
+        }
+        else free(list);
+
+        SetEvent(notify->event);
+        sc_notify_release(notify);
+    }
+}
+
+/* DeleteService fires SERVICE_NOTIFY_DELETE_PENDING on every handle. */
+static void notify_delete_pending(struct service_entry *service)
+{
+    struct sc_service_handle *service_handle;
+
+    LIST_FOR_EACH_ENTRY(service_handle, &service->handles, struct sc_service_handle, entry)
+    {
+        struct sc_notify_handle *notify, *next;
+
+        LIST_FOR_EACH_ENTRY_SAFE(notify, next, &service_handle->notifies, struct sc_notify_handle, entry)
+        {
+            if (!(notify->notify_mask & SERVICE_NOTIFY_DELETE_PENDING)) continue;
+            list_remove(&notify->entry);
+            fill_notify(notify, service, SERVICE_NOTIFY_DELETE_PENDING);
+            sc_notify_release(notify);
+        }
     }
 }
 
@@ -2213,11 +2297,9 @@ DWORD __cdecl svcctl_NotifyServiceStatusChange(
     if (err != ERROR_SUCCESS)
         return err;
 
-    if (manager)
-    {
-        WARN("Need support for service creation/deletion notifications\n");
-        return ERROR_CALL_NOT_IMPLEMENTED;
-    }
+    /* an SCM handle only reports created and deleted services */
+    if (manager && (params.params->dwNotifyMask & ~(SERVICE_NOTIFY_CREATED | SERVICE_NOTIFY_DELETED)))
+        return ERROR_INVALID_HANDLE;
 
     notify = calloc(1, sizeof(*notify));
     if (!notify)
@@ -2230,25 +2312,30 @@ DWORD __cdecl svcctl_NotifyServiceStatusChange(
 
     notify->notify_mask = params.params->dwNotifyMask;
 
-    service_lock(service->service_entry);
-
-    if (service->notify)
+    if (manager)
     {
-        service_unlock(service->service_entry);
-        sc_notify_release(notify);
-        return ERROR_ALREADY_REGISTERED;
+        notify->manager = manager;
+        scmdatabase_lock(manager->db);
+        sc_notify_retain(notify);
+        list_add_tail(&scm_notifies, &notify->entry);
+        sc_notify_retain(notify);
+        *hNotify = &notify->hdr;
+        scmdatabase_unlock(manager->db);
+        return ERROR_SUCCESS;
     }
+
+    service_lock(service->service_entry);
 
     mask = 1 << (service->service_entry->status.dwCurrentState - SERVICE_STOPPED);
     if (!service->status_notified && (notify->notify_mask & mask))
     {
-        fill_notify(notify, service->service_entry);
+        fill_notify(notify, service->service_entry, mask);
         service->status_notified = TRUE;
     }
     else
     {
         sc_notify_retain(notify);
-        service->notify = notify;
+        list_add_tail(&service->notifies, &notify->entry);
     }
 
     sc_notify_retain(notify);

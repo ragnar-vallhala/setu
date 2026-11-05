@@ -93,6 +93,7 @@ void scmdatabase_unlock(struct scmdatabase *db);
 
 DWORD service_create(LPCWSTR name, struct service_entry **entry);
 BOOL validate_service_name(LPCWSTR name);
+void notify_scm_change(struct scmdatabase *db, const WCHAR *name, BOOL created);
 BOOL validate_service_config(struct service_entry *entry);
 DWORD save_service_config(struct service_entry *entry);
 void free_service_entry(struct service_entry *entry);

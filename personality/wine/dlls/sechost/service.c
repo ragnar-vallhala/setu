@@ -1717,6 +1717,11 @@ static DWORD WINAPI notify_thread(void *user)
                 sizeof(SERVICE_STATUS_PROCESS));
         data->notify_buffer->dwNotificationTriggered = cparams->dwNotificationTriggered;
         data->notify_buffer->pszServiceNames = NULL;
+        /* a multi-string the caller frees with LocalFree */
+        if (cparams->pszServiceNames &&
+            (data->notify_buffer->pszServiceNames = LocalAlloc( LMEM_ZEROINIT,
+                    (wcslen( cparams->pszServiceNames ) + 2) * sizeof(WCHAR) )))
+            wcscpy( data->notify_buffer->pszServiceNames, cparams->pszServiceNames );
 
         QueueUserAPC((PAPCFUNC)data->notify_buffer->pfnNotifyCallback,
                 data->calling_thread, (ULONG_PTR)data->notify_buffer);
@@ -1759,6 +1764,12 @@ DWORD WINAPI DECLSPEC_HOTPATCH NotifyServiceStatusChangeW( SC_HANDLE service, DW
 
     TRACE( "%p 0x%lx %p\n", service, mask, notify_buffer );
 
+    /* Windows returns these without setting the last error */
+    if (!service || !mask || !notify_buffer ||
+        (notify_buffer->dwVersion != 1 /* SERVICE_NOTIFY_STATUS_CHANGE_1 */ &&
+         notify_buffer->dwVersion != SERVICE_NOTIFY_STATUS_CHANGE))
+        return ERROR_INVALID_PARAMETER;
+
     if (!(data = calloc( 1, sizeof(*data) )))
         return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -1795,7 +1806,7 @@ DWORD WINAPI DECLSPEC_HOTPATCH NotifyServiceStatusChangeW( SC_HANDLE service, DW
         WARN("NotifyServiceStatusChange server call failed: %lu\n", err);
         LeaveCriticalSection( &service_cs );
         CloseHandle( data->calling_thread );
-        CloseHandle( data->ready_evt );
+        if (data->ready_evt) CloseHandle( data->ready_evt );
         free( data );
         return err;
     }

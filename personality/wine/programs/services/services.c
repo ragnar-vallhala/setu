@@ -701,6 +701,7 @@ void release_service(struct service_entry *service)
     if (InterlockedDecrement(&service->ref_count) == 0 && is_marked_for_delete(service))
     {
         scmdatabase_remove_service(db, service);
+        notify_scm_change(db, service->name, FALSE);
         free_service_entry(service);
     }
     scmdatabase_unlock(db);
