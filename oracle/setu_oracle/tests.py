@@ -14,6 +14,7 @@ from pathlib import Path
 from .config import BUILD_DIR, TESTS_DIR, Config
 
 INCLUDE_DIR = TESTS_DIR / "include"
+_LOCAL_INCLUDE = re.compile(r'^\s*#\s*include\s+"([^"]+\.h)"', re.M)
 BIN_DIR = BUILD_DIR / "bin"
 
 
@@ -31,11 +32,24 @@ class Test:
         """File-system friendly id: kernel32__CreateFileW."""
         return self.id.replace("/", "__")
 
+    def local_headers(self) -> list[Path]:
+        """Headers next to the tests (outside include/) that this source includes
+        with #include "..." , e.g. tests/win32/reg/regtool.h."""
+        found = []
+        for m in _LOCAL_INCLUDE.finditer(self.source.read_text(errors="replace")):
+            p = (self.source.parent / m.group(1)).resolve()
+            if p.is_file() and p.parent != INCLUDE_DIR.resolve() and p not in found:
+                found.append(p)
+        return found
+
     def source_sha256(self) -> str:
-        """Hash of the test source plus the shared header: detects stale golden files."""
+        """Hash of the test source plus the shared header (and any local header it
+        includes): detects stale golden files."""
         h = hashlib.sha256()
         h.update(self.source.read_bytes())
         for hdr in sorted(INCLUDE_DIR.glob("*.h")):
+            h.update(hdr.read_bytes())
+        for hdr in self.local_headers():
             h.update(hdr.read_bytes())
         return h.hexdigest()
 
@@ -68,7 +82,7 @@ def build(cfg: Config, tests: list[Test], force: bool = False) -> list[Test]:
     built = 0
     for t in tests:
         t.exe.parent.mkdir(parents=True, exist_ok=True)
-        newest = max([t.source.stat().st_mtime] + [h.stat().st_mtime for h in headers])
+        newest = max([t.source.stat().st_mtime] + [h.stat().st_mtime for h in headers + t.local_headers()])
         if not force and t.exe.exists() and t.exe.stat().st_mtime >= newest:
             continue
         cmd = [cc, *cfg["build"]["cflags"], f"-I{INCLUDE_DIR}", "-o", str(t.exe), str(t.source),
