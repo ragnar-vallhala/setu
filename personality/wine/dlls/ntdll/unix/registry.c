@@ -384,59 +384,116 @@ NTSTATUS WINAPI NtSetInformationKey( HANDLE key, int class, void *info, ULONG le
 }
 
 
-/* fill the key value info structure for a specific info class */
-static void copy_key_value_info( KEY_VALUE_INFORMATION_CLASS info_class, void *info,
-                                 DWORD length, int type, int name_len, int data_len )
+/* lay out a key value info structure for a specific info class the way NT does:
+ * below the fixed header size nothing is written and STATUS_BUFFER_TOO_SMALL is
+ * returned; otherwise the whole header is filled in (with the full lengths),
+ * followed by as much of the name and data as fits. In the full information class the data starts at the next 8-byte
+ * boundary after the name (padding zeroed). The required size is always
+ * returned in *result_len. */
+static NTSTATUS fill_key_value_info( KEY_VALUE_INFORMATION_CLASS info_class, void *info, DWORD length,
+                                     DWORD *result_len, int type, const WCHAR *name, DWORD name_len,
+                                     const void *data, DWORD data_len )
 {
+    char *buf = info;
+    DWORD fixed, total, data_off, name_off = 0;
+
     switch (info_class)
     {
     case KeyValueBasicInformation:
     {
         KEY_VALUE_BASIC_INFORMATION keyinfo;
+        fixed = name_off = offsetof( KEY_VALUE_BASIC_INFORMATION, Name );
+        total = data_off = fixed + name_len;
+        data_len = 0;
+        if (length < fixed) break;
         keyinfo.TitleIndex = 0;
         keyinfo.Type       = type;
         keyinfo.NameLength = name_len;
-        length = min( length, (char *)keyinfo.Name - (char *)&keyinfo );
-        memcpy( info, &keyinfo, length );
+        memcpy( info, &keyinfo, fixed );
         break;
     }
 
     case KeyValueFullInformation:
+    case KeyValueFullInformationAlign64:
     {
         KEY_VALUE_FULL_INFORMATION keyinfo;
+        fixed = name_off = offsetof( KEY_VALUE_FULL_INFORMATION, Name );
+        data_off = data_len ? (fixed + name_len + 7) & ~7 : fixed + name_len;
+        total = data_off + data_len;
+        if (length < fixed) break;
         keyinfo.TitleIndex = 0;
         keyinfo.Type       = type;
-        keyinfo.DataOffset = (char *)keyinfo.Name - (char *)&keyinfo + name_len;
+        /* NT reports 0xffffffff for no data; Wine callers compute the data
+         * size as total - DataOffset, so keep the offset consistent instead */
+        keyinfo.DataOffset = data_off;
         keyinfo.DataLength = data_len;
         keyinfo.NameLength = name_len;
-        length = min( length, (char *)keyinfo.Name - (char *)&keyinfo );
-        memcpy( info, &keyinfo, length );
+        memcpy( info, &keyinfo, fixed );
         break;
     }
 
     case KeyValuePartialInformation:
     {
         KEY_VALUE_PARTIAL_INFORMATION keyinfo;
+        fixed = name_off = data_off = offsetof( KEY_VALUE_PARTIAL_INFORMATION, Data );
+        total = fixed + data_len;
+        name_len = 0;
+        if (length < fixed) break;
         keyinfo.TitleIndex = 0;
         keyinfo.Type       = type;
         keyinfo.DataLength = data_len;
-        length = min( length, (char *)keyinfo.Data - (char *)&keyinfo );
-        memcpy( info, &keyinfo, length );
+        memcpy( info, &keyinfo, fixed );
         break;
     }
 
     case KeyValuePartialInformationAlign64:
     {
         KEY_VALUE_PARTIAL_INFORMATION_ALIGN64 keyinfo;
+        fixed = name_off = data_off = offsetof( KEY_VALUE_PARTIAL_INFORMATION_ALIGN64, Data );
+        total = fixed + data_len;
+        name_len = 0;
+        if (length < fixed) break;
         keyinfo.Type       = type;
         keyinfo.DataLength = data_len;
-        length = min( length, (char *)keyinfo.Data - (char *)&keyinfo );
-        memcpy( info, &keyinfo, length );
+        memcpy( info, &keyinfo, fixed );
         break;
     }
 
     default:
-        break;
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    *result_len = total;
+    if (length < fixed) return STATUS_BUFFER_TOO_SMALL;
+    if (name_len) memcpy( buf + name_off, name, min( length - name_off, name_len ) );
+    if (data_off > name_off + name_len && length > name_off + name_len)
+        memset( buf + name_off + name_len, 0, min( length, data_off ) - (name_off + name_len) );
+    if (length > data_off) memcpy( buf + data_off, data, min( length - data_off, data_len ) );
+    return length < total ? STATUS_BUFFER_OVERFLOW : STATUS_SUCCESS;
+}
+
+/* length of a value name without trailing NUL characters, which NT drops
+ * (embedded ones are kept) */
+static USHORT value_name_length( const UNICODE_STRING *name )
+{
+    USHORT len = name->Length & ~1;
+    while (len && !name->Buffer[len / sizeof(WCHAR) - 1]) len -= sizeof(WCHAR);
+    return len;
+}
+
+static BOOL is_valid_value_info_class( KEY_VALUE_INFORMATION_CLASS info_class )
+{
+    switch (info_class)
+    {
+    case KeyValueBasicInformation:
+    case KeyValueFullInformation:
+    case KeyValuePartialInformation:
+    case KeyValueFullInformationAlign64:
+    case KeyValuePartialInformationAlign64:
+        return TRUE;
+    default:
+        FIXME( "Information class %d not implemented\n", info_class );
+        return FALSE;
     }
 }
 
@@ -448,38 +505,43 @@ NTSTATUS WINAPI NtEnumerateValueKey( HANDLE handle, ULONG index, KEY_VALUE_INFOR
                                      void *info, DWORD length, DWORD *result_len )
 {
     unsigned int ret;
-    void *ptr;
-    size_t fixed_size;
+    DWORD size;
+    char *tmp;
 
     TRACE( "(%p,%u,%d,%p,%d)\n", handle, index, info_class, info, length );
 
-    /* compute the length we want to retrieve */
-    switch (info_class)
+    if (!is_valid_value_info_class( info_class )) return STATUS_INVALID_PARAMETER;
+    /* The name and data are fetched into a scratch buffer and laid out
+     * afterwards. The server truncates the reported name length along with
+     * the reply, so fetch again in full when the reply ends inside the name. */
+    size = length;
+    for (;;)
     {
-    case KeyValueBasicInformation:   ptr = ((KEY_VALUE_BASIC_INFORMATION *)info)->Name; break;
-    case KeyValueFullInformation:    ptr = ((KEY_VALUE_FULL_INFORMATION *)info)->Name; break;
-    case KeyValuePartialInformation: ptr = ((KEY_VALUE_PARTIAL_INFORMATION *)info)->Data; break;
-    default:
-        FIXME( "Information class %d not implemented\n", info_class );
-        return STATUS_INVALID_PARAMETER;
-    }
-    fixed_size = (char *)ptr - (char *)info;
-
-    SERVER_START_REQ( enum_key_value )
-    {
-        req->hkey       = wine_server_obj_handle( handle );
-        req->index      = index;
-        req->info_class = info_class;
-        if (length > fixed_size) wine_server_set_reply( req, ptr, length - fixed_size );
-        if (!(ret = wine_server_call( req )))
+        if (!(tmp = malloc( size ? size : 1 ))) return STATUS_NO_MEMORY;
+        SERVER_START_REQ( enum_key_value )
         {
-            copy_key_value_info( info_class, info, length, reply->type, reply->namelen,
-                                 wine_server_reply_size(reply) - reply->namelen );
-            *result_len = fixed_size + reply->total;
-            if (length < *result_len) ret = STATUS_BUFFER_OVERFLOW;
+            req->hkey       = wine_server_obj_handle( handle );
+            req->index      = index;
+            req->info_class = KeyValueFullInformation;
+            wine_server_set_reply( req, tmp, size );
+            if (!(ret = wine_server_call( req )))
+            {
+                if (reply->namelen == wine_server_reply_size( reply ) &&
+                    reply->namelen < reply->total && size < reply->total)
+                {
+                    size = reply->total;
+                    ret = STATUS_MORE_ENTRIES;
+                }
+                else ret = fill_key_value_info( info_class, info, length, result_len, reply->type,
+                                                (WCHAR *)tmp, reply->namelen, tmp + reply->namelen,
+                                                reply->total - reply->namelen );
+            }
         }
+        SERVER_END_REQ;
+        if (ret != STATUS_MORE_ENTRIES) break;
+        free( tmp );
     }
-    SERVER_END_REQ;
+    free( tmp );
     return ret;
 }
 
@@ -492,68 +554,25 @@ NTSTATUS WINAPI NtQueryValueKey( HANDLE handle, const UNICODE_STRING *name,
                                  void *info, DWORD length, DWORD *result_len )
 {
     unsigned int ret;
-    UCHAR *data_ptr;
-    unsigned int fixed_size, min_size;
+    char *tmp;
 
     TRACE( "(%p,%s,%d,%p,%d)\n", handle, debugstr_us(name), info_class, info, length );
 
     if (name->Length > MAX_VALUE_LENGTH) return STATUS_OBJECT_NAME_NOT_FOUND;
-
-    /* compute the length we want to retrieve */
-    switch(info_class)
-    {
-    case KeyValueBasicInformation:
-    {
-        KEY_VALUE_BASIC_INFORMATION *basic_info = info;
-        min_size = FIELD_OFFSET(KEY_VALUE_BASIC_INFORMATION, Name);
-        fixed_size = min_size + name->Length;
-        if (min_size < length)
-            memcpy(basic_info->Name, name->Buffer, min(length - min_size, name->Length));
-        data_ptr = NULL;
-        break;
-    }
-
-    case KeyValueFullInformation:
-    {
-        KEY_VALUE_FULL_INFORMATION *full_info = info;
-        min_size = FIELD_OFFSET(KEY_VALUE_FULL_INFORMATION, Name);
-        fixed_size = min_size + name->Length;
-        if (min_size < length)
-            memcpy(full_info->Name, name->Buffer, min(length - min_size, name->Length));
-        data_ptr = (UCHAR *)full_info->Name + name->Length;
-        break;
-    }
-
-    case KeyValuePartialInformation:
-        min_size = fixed_size = FIELD_OFFSET(KEY_VALUE_PARTIAL_INFORMATION, Data);
-        data_ptr = ((KEY_VALUE_PARTIAL_INFORMATION *)info)->Data;
-        break;
-
-    case KeyValuePartialInformationAlign64:
-        min_size = fixed_size = FIELD_OFFSET(KEY_VALUE_PARTIAL_INFORMATION_ALIGN64, Data);
-        data_ptr = ((KEY_VALUE_PARTIAL_INFORMATION_ALIGN64 *)info)->Data;
-        break;
-
-    default:
-        FIXME( "Information class %d not implemented\n", info_class );
-        return STATUS_INVALID_PARAMETER;
-    }
+    if (!is_valid_value_info_class( info_class )) return STATUS_INVALID_PARAMETER;
+    if (!(tmp = malloc( length ? length : 1 ))) return STATUS_NO_MEMORY;
 
     SERVER_START_REQ( get_key_value )
     {
         req->hkey = wine_server_obj_handle( handle );
-        wine_server_add_data( req, name->Buffer, name->Length );
-        if (length > fixed_size && data_ptr) wine_server_set_reply( req, data_ptr, length - fixed_size );
+        wine_server_add_data( req, name->Buffer, value_name_length( name ) );
+        if (info_class != KeyValueBasicInformation) wine_server_set_reply( req, tmp, length );
         if (!(ret = wine_server_call( req )))
-        {
-            copy_key_value_info( info_class, info, length, reply->type,
-                                 name->Length, reply->total );
-            *result_len = fixed_size + (info_class == KeyValueBasicInformation ? 0 : reply->total);
-            if (length < min_size) ret = STATUS_BUFFER_TOO_SMALL;
-            else if (length < *result_len) ret = STATUS_BUFFER_OVERFLOW;
-        }
+            ret = fill_key_value_info( info_class, info, length, result_len, reply->type,
+                                       name->Buffer, value_name_length( name ), tmp, reply->total );
     }
     SERVER_END_REQ;
+    free( tmp );
     return ret;
 }
 
@@ -580,13 +599,14 @@ NTSTATUS WINAPI NtSetValueKey( HANDLE key, const UNICODE_STRING *name, ULONG ind
     TRACE( "(%p,%s,%d,%p,%d)\n", key, debugstr_us(name), type, data, count );
 
     if (name->Length > MAX_VALUE_LENGTH) return STATUS_INVALID_PARAMETER;
+    if (name->Length & 1) return STATUS_INVALID_PARAMETER;
 
     SERVER_START_REQ( set_key_value )
     {
         req->hkey    = wine_server_obj_handle( key );
         req->type    = type;
-        req->namelen = name->Length;
-        wine_server_add_data( req, name->Buffer, name->Length );
+        req->namelen = value_name_length( name );
+        wine_server_add_data( req, name->Buffer, req->namelen );
         wine_server_add_data( req, data, count );
         ret = wine_server_call( req );
     }
@@ -609,7 +629,7 @@ NTSTATUS WINAPI NtDeleteValueKey( HANDLE key, const UNICODE_STRING *name )
     SERVER_START_REQ( delete_key_value )
     {
         req->hkey = wine_server_obj_handle( key );
-        wine_server_add_data( req, name->Buffer, name->Length );
+        wine_server_add_data( req, name->Buffer, value_name_length( name ) );
         ret = wine_server_call( req );
     }
     SERVER_END_REQ;

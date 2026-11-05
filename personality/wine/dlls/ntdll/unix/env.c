@@ -1135,13 +1135,16 @@ static void add_registry_variables( WCHAR **env, SIZE_T *pos, SIZE_T *size, HAND
     {
         status = NtEnumerateValueKey( key, index++, KeyValueFullInformation,
                                       buffer, sizeof(buffer) - sizeof(WCHAR), &info_size );
-        if (status != STATUS_SUCCESS && status != STATUS_BUFFER_OVERFLOW) break;
+        /* the data is not returned at all when it doesn't fit: skip such values */
+        if (status == STATUS_BUFFER_OVERFLOW) continue;
+        if (status != STATUS_SUCCESS) break;
 
-        value = data = buffer + info->DataOffset / sizeof(WCHAR);
         datalen = info->DataLength / sizeof(WCHAR);
         namelen = info->NameLength / sizeof(WCHAR);
+        if (!datalen) continue;
+        value = data = buffer + info->DataOffset / sizeof(WCHAR);
 
-        if (datalen && !data[datalen - 1]) datalen--;  /* don't count terminating null if any */
+        if (!data[datalen - 1]) datalen--;  /* don't count terminating null if any */
         if (!datalen) continue;
         data[datalen] = 0;
         if (info->Type == REG_EXPAND_SZ) value = expand_value( *env, *pos, data, datalen );
