@@ -199,6 +199,29 @@ int main(void)
         COPY_CASE("null_dest_with_subkey", root, L"src\\z", NULL, L"d9");
         RegCloseKey(d9);
     }
+    {   /* A class only on a nested key, and a classless source into a read-only destination. */
+        HKEY n = mk(L"nc", NULL, 0);
+        setd(n, L"top", 7);
+        HKEY nk = mk(L"nc\\inner", L"InnerClass", 0);
+        setd(nk, L"iv", 8);
+        HKEY lf = mk(L"nc\\inner\\leaf", NULL, 0);
+        setd(lf, L"lv", 9);
+        RegCloseKey(lf);
+        RegCloseKey(nk);
+        RegCloseKey(mk(L"nc\\plain", NULL, 0));
+        HKEY d10 = mk(L"d10", NULL, 0);
+        COPY_CASE("copy_nested_class", n, NULL, d10, L"d10");
+        RegCloseKey(d10);
+        HKEY d11 = mk(L"d11", NULL, 0), dd;
+        RegOpenKeyExW(root, L"d11", 0, KEY_READ, &dd);
+        COPY_CASE("classless_dest_read_only", root, L"nc\\inner\\leaf", dd, L"d11");
+        RegCloseKey(dd);
+        RegCloseKey(d11);
+        HKEY d12 = mk(L"d12", NULL, 0);
+        COPY_CASE("classless_with_values", root, L"nc\\inner\\leaf", d12, L"d12");
+        RegCloseKey(d12);
+        RegCloseKey(n);
+    }
 
     RegCloseKey(s);
     RegCloseKey(root);
