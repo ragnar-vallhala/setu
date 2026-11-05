@@ -1,0 +1,100 @@
+{
+  "test": "advapi32/NtEnumerateValueKey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "basic_big": {
+      "status": "0x00000000",
+      "result_length": 18,
+      "buffer": "000000000300000006000000560061006c00cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "basic_exact": {
+      "status": "0x00000000",
+      "result_length": 18,
+      "buffer": "000000000300000006000000560061006c00cccccccc"
+    },
+    "basic_header_only": {
+      "status": "0x80000005",
+      "result_length": 18,
+      "buffer": "000000000300000006000000cccccccc"
+    },
+    "basic_short": {
+      "status": "0xc0000023",
+      "result_length": 18,
+      "buffer": "cccccccccccccccc"
+    },
+    "basic_zero": {
+      "status": "0xc0000023",
+      "result_length": 18,
+      "buffer": "cccccccc"
+    },
+    "full_big": {
+      "status": "0x00000000",
+      "result_length": 35,
+      "buffer": "0000000003000000200000000300000006000000560061006c00000000000000112233cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "full_one_short": {
+      "status": "0x80000005",
+      "result_length": 35,
+      "buffer": "0000000003000000200000000300000006000000560061006c000000cccccccc"
+    },
+    "full_header_only": {
+      "status": "0x80000005",
+      "result_length": 35,
+      "buffer": "0000000003000000200000000300000006000000cccccccc"
+    },
+    "full_zero": {
+      "status": "0xc0000023",
+      "result_length": 35,
+      "buffer": "cccccccc"
+    },
+    "partial_big": {
+      "status": "0x00000000",
+      "result_length": 15,
+      "buffer": "000000000300000003000000112233cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "partial_exact": {
+      "status": "0x00000000",
+      "result_length": 15,
+      "buffer": "000000000300000003000000112233cccccccc"
+    },
+    "partial_header_only": {
+      "status": "0x80000005",
+      "result_length": 15,
+      "buffer": "000000000300000003000000cccccccc"
+    },
+    "partial_zero": {
+      "status": "0xc0000023",
+      "result_length": 15,
+      "buffer": "cccccccc"
+    },
+    "default_basic": {
+      "status": "0x00000000",
+      "result_length": 12,
+      "buffer": "000000000100000000000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "default_full": {
+      "status": "0x00000000",
+      "result_length": 28,
+      "buffer": "00000000010000001800000004000000000000000000000064000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "past_end": {
+      "status": "0x8000001a",
+      "result_length": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "past_end_zero_buffer": {
+      "status": "0x8000001a",
+      "result_length": 2863311530,
+      "buffer": "cccccccc"
+    },
+    "class_99": {
+      "status": "0xc000000d",
+      "result_length": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "273b05fc19353521d3dc7caa19146a5c273640541f1c693c0aab5d32e7d1d72e"
+}

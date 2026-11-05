@@ -1,0 +1,62 @@
+{
+  "test": "advapi32/NtSetValueKey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "plain": {
+      "status": "0x00000000",
+      "values": "3:abc:4:4"
+    },
+    "length_shorter_than_string": {
+      "status": "0x00000000",
+      "values": "2:ab:4:4"
+    },
+    "embedded_nul_in_name": {
+      "status": "0x00000000",
+      "values": "5:ab\\x0000cd:4:4"
+    },
+    "odd_name_length": {
+      "status": "0xc000000d",
+      "values": ""
+    },
+    "zero_length_name": {
+      "status": "0x00000000",
+      "values": "0::4:4"
+    },
+    "null_buffer_zero_length": {
+      "status": "0x00000000",
+      "values": "0::4:4"
+    },
+    "title_index_nonzero": {
+      "status": "0x00000000",
+      "values": "1:t:4:4"
+    },
+    "undefined_type": {
+      "status": "0x00000000",
+      "values": "1:u:305419896:4"
+    },
+    "sz_odd_data": {
+      "status": "0x00000000",
+      "values": "1:s:1:5"
+    },
+    "null_data_zero": {
+      "status": "0x00000000",
+      "values": "1:n:3:0"
+    },
+    "trailing_nul_counted": {
+      "status": "0x00000000",
+      "values": "4:name:4:4"
+    },
+    "backslash_name": {
+      "status": "0x00000000",
+      "values": "3:a\\b:4:4"
+    },
+    "null_data_nonzero": {
+      "status": "0xc0000005",
+      "values": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "d07e35c1a41951bb3276401aed1d0f54e6f7958b4ea8664ec4464ed4ccc004e2"
+}

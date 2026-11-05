@@ -1,0 +1,150 @@
+{
+  "test": "advapi32/NtQueryValueKey_classes",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "basic_big": {
+      "status": "0x00000000",
+      "result_length": 18,
+      "buffer": "000000000300000006000000560061006c00cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "basic_exact": {
+      "status": "0x00000000",
+      "result_length": 18,
+      "buffer": "000000000300000006000000560061006c00cccccccc"
+    },
+    "basic_header_only": {
+      "status": "0x80000005",
+      "result_length": 18,
+      "buffer": "000000000300000006000000cccccccc"
+    },
+    "basic_less_than_header": {
+      "status": "0xc0000023",
+      "result_length": 18,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "basic_zero": {
+      "status": "0xc0000023",
+      "result_length": 18,
+      "buffer": "cccccccc"
+    },
+    "full_big": {
+      "status": "0x00000000",
+      "result_length": 37,
+      "buffer": "0000000003000000200000000500000006000000560061006c000000000000001122334455cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "full_header_plus_name": {
+      "status": "0x80000005",
+      "result_length": 37,
+      "buffer": "0000000003000000200000000500000006000000560061006c00cccccccc"
+    },
+    "full_header_only": {
+      "status": "0x80000005",
+      "result_length": 37,
+      "buffer": "0000000003000000200000000500000006000000cccccccc"
+    },
+    "full_less_than_header": {
+      "status": "0xc0000023",
+      "result_length": 37,
+      "buffer": "cccccccccccccccccccccccccccc"
+    },
+    "full_zero": {
+      "status": "0xc0000023",
+      "result_length": 37,
+      "buffer": "cccccccc"
+    },
+    "partial_big": {
+      "status": "0x00000000",
+      "result_length": 17,
+      "buffer": "0000000003000000050000001122334455cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "partial_exact": {
+      "status": "0x00000000",
+      "result_length": 17,
+      "buffer": "0000000003000000050000001122334455cccccccc"
+    },
+    "partial_one_short": {
+      "status": "0x80000005",
+      "result_length": 17,
+      "buffer": "00000000030000000500000011223344cccccccc"
+    },
+    "partial_header_only": {
+      "status": "0x80000005",
+      "result_length": 17,
+      "buffer": "000000000300000005000000cccccccc"
+    },
+    "partial_less_than_header": {
+      "status": "0xc0000023",
+      "result_length": 17,
+      "buffer": "cccccccccccccccccccccccccccccc"
+    },
+    "partial_zero": {
+      "status": "0xc0000023",
+      "result_length": 17,
+      "buffer": "cccccccc"
+    },
+    "full_align64_big": {
+      "status": "0x00000000",
+      "result_length": 37,
+      "buffer": "0000000003000000200000000500000006000000560061006c000000000000001122334455cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "full_align64_zero": {
+      "status": "0xc0000023",
+      "result_length": 37,
+      "buffer": "cccccccc"
+    },
+    "partial_align64_big": {
+      "status": "0x00000000",
+      "result_length": 13,
+      "buffer": "03000000050000001122334455cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "partial_align64_zero": {
+      "status": "0xc0000023",
+      "result_length": 13,
+      "buffer": "cccccccc"
+    },
+    "class_5": {
+      "status": "0xc000000d",
+      "result_length": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "class_6": {
+      "status": "0xc000000d",
+      "result_length": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "class_99": {
+      "status": "0xc000000d",
+      "result_length": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "empty_partial": {
+      "status": "0x00000000",
+      "result_length": 12,
+      "buffer": "000000000400000000000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "empty_full": {
+      "status": "0x00000000",
+      "result_length": 30,
+      "buffer": "0000000004000000ffffffff000000000a00000045006d00700074007900cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "missing_partial": {
+      "status": "0xc0000034",
+      "result_length": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "other_case_basic": {
+      "status": "0x00000000",
+      "result_length": 18,
+      "buffer": "000000000300000006000000560061006c00cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "default_unset": {
+      "status": "0xc0000034",
+      "result_length": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "d3559004de072383cc549474e1b3656113899ad16f92b1fac4cecac30867c9c9"
+}

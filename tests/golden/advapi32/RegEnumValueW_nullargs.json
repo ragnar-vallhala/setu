@@ -1,0 +1,113 @@
+{
+  "test": "advapi32/RegEnumValueW_nullargs",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "all": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name": "Val",
+      "type": 1,
+      "data_len": 10,
+      "data": "61006200630064000000"
+    },
+    "no_type": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name": "Val",
+      "data_len": 10,
+      "data": "61006200630064000000"
+    },
+    "no_data_no_len": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name": "Val",
+      "type": 1
+    },
+    "no_data_with_len": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name": "Val",
+      "type": 1,
+      "data_len": 10
+    },
+    "data_without_len": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "type": 2863311530,
+      "data": "cccccccccccccccccccc"
+    },
+    "reserved_nonnull": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "type": 2863311530,
+      "data_len": 32,
+      "data": "cccccccccccccccccccc"
+    },
+    "null_name_buffer": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "type": 2863311530,
+      "data_len": 32,
+      "data": "cccccccccccccccccccc"
+    },
+    "null_name_len": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "data_len": 32,
+      "data": "cccccccccccccccccccc"
+    },
+    "set_value_only_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "type": 0,
+      "data_len": 32,
+      "data": "cccccccccccccccccccc"
+    },
+    "enumerate_sub_keys_only_handle": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "type": 0,
+      "data_len": 32,
+      "data": "cccccccccccccccccccc"
+    },
+    "query_value_only_handle": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 3,
+      "name": "Val",
+      "type": 1,
+      "data_len": 10,
+      "data": "61006200630064000000"
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "type": 0,
+      "data_len": 32,
+      "data": "cccccccccccccccccccc"
+    },
+    "null_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "type": 2863311530,
+      "data_len": 32,
+      "data": "cccccccccccccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "ae3295a609d46a97ba6e9c2130f68f18b53df09ccd6d44b3f1aba223dec1cb12"
+}

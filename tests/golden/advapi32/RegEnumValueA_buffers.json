@@ -1,0 +1,144 @@
+{
+  "test": "advapi32/RegEnumValueA_buffers",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "big": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "48656c6c6f00cccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "616263646500640065000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "name_exact_with_nul": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "48656c6c6f00cc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "616263646500640065000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "name_exact_without_nul": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "48656c6c00cc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "616263646500640065000000cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "name_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 1,
+      "name_buf": "cccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "cccccccccccc00cccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "name_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 0,
+      "name_buf": "cc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "cccccccccccc00cccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "data_ansi_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "48656c6c6f00cccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "616263646500cccc"
+    },
+    "data_ansi_minus_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "name_buf": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "cccccccccccccc"
+    },
+    "data_between": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "48656c6c6f00cccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "616263646500cccccccccc"
+    },
+    "data_unicode_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "48656c6c6f00cccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "616263646500640065000000cccc"
+    },
+    "data_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "name_buf": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "cccccc"
+    },
+    "data_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "name_buf": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "cccc"
+    },
+    "data_size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "name_len": 5,
+      "name_buf": "48656c6c6f00cccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 1,
+      "data_len": 6
+    },
+    "both_small": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 2,
+      "name_buf": "cccccc",
+      "type": 1,
+      "data_len": 6,
+      "data_buf": "cccccccc"
+    },
+    "binary_minus_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 32,
+      "name_buf": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "type": 3,
+      "data_len": 6,
+      "data_buf": "cccccccccccccc"
+    },
+    "binary_name_small": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "name_len": 2,
+      "name_buf": "cccccc",
+      "type": 3,
+      "data_len": 6,
+      "data_buf": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "6e8cd95e0bfccd3534f1287381be3c53b213ddc68437635379b4ea26c5b2af2c"
+}

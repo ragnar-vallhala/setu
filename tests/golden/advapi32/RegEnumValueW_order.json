@@ -1,0 +1,46 @@
+{
+  "test": "advapi32/RegEnumValueW_order",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "creation_order": {
+      "order": "zeta|Alpha|mid|beta|Zed|_u|10|9|a b|é|e|F"
+    },
+    "default_added_last": {
+      "order": "zeta|Alpha|mid|beta|Zed|_u|10|9|a b|é|e|F|(default)"
+    },
+    "overwrite_same_type": {
+      "order": "zeta|Alpha|mid|beta|Zed|_u|10|9|a b|é|e|F|(default)"
+    },
+    "overwrite_new_type": {
+      "order": "zeta|Alpha|mid|beta|Zed|_u|10|9|a b|é|e|F|(default)"
+    },
+    "overwrite_other_case": {
+      "order": "zeta|Alpha|mid|beta|Zed|_u|10|9|a b|é|e|F|(default)"
+    },
+    "delete_and_recreate": {
+      "order": "Alpha|mid|beta|Zed|_u|10|9|a b|é|e|F|(default)|zeta"
+    },
+    "delete_first": {
+      "order": "mid|beta|Zed|_u|10|9|a b|é|e|F|(default)|zeta"
+    },
+    "index_equal_to_count": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "len": 64
+    },
+    "index_max": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "len": 64
+    },
+    "empty_key": {
+      "ret": 259,
+      "last_error": "unchanged",
+      "len": 8
+    }
+  },
+  "errors": [],
+  "source_sha256": "550ace4c9c966289b224dc64e55673b1269dbfec5bc09323be768414dd317776"
+}

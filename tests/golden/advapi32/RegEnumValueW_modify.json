@@ -1,0 +1,33 @@
+{
+  "test": "advapi32/RegEnumValueW_modify",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "delete_current_increasing_index": {
+      "seen": "v0,v2,v4",
+      "left": 3
+    },
+    "delete_at_index_0": {
+      "seen": "v0,v1,v2,v3,v4,v5",
+      "left": 0
+    },
+    "add_during_enumeration": {
+      "seen": "v0,v1,v2,added0,added1",
+      "count": 5
+    },
+    "change_data_between_calls": {
+      "name_before": "v1",
+      "data_before": 1,
+      "ret_after": 0,
+      "name_after": "v1",
+      "type_after": 1,
+      "size_after": 8
+    },
+    "second_handle_sees_changes": {
+      "seen": "v0,v1,v2,added0,added1,via2"
+    }
+  },
+  "errors": [],
+  "source_sha256": "325639848e5fa6e3b9aa92ddc821d823aa65419e96c2593101d118202f7a59a7"
+}
