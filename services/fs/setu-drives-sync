@@ -1,0 +1,64 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# setu-drives-sync: keep the drive letters of a running personality (one
+# WINEPREFIX) equal to the system drive table /run/setu/dosdevices
+# (setu-drives, services/fs/README.md).
+#
+# Letters D: to Y: follow the table; C: (the system volume, linked straight
+# from the prefix) and Z: (the personality's view of the Unix root) are the
+# prefix's own. The prefix's dosdevices directory is the personality's
+# current state (its mount manager rewrites it on every change), so each
+# pass compares the two directories and sends the differences to the mount
+# manager with setu-mountctl.exe. setu-session runs this in the background;
+# it polls once a second.
+#
+# Usage: setu-drives-sync [--once]
+# Environment: WINEPREFIX (required), SETU_MOUNTCTL (default
+# /opt/setu/bin/setu-mountctl.exe), SETU_DRIVE_TABLE (default /run/setu/dosdevices).
+
+TABLE=${SETU_DRIVE_TABLE:-/run/setu/dosdevices}
+CTL=${SETU_MOUNTCTL:-/opt/setu/bin/setu-mountctl.exe}
+PFX=${WINEPREFIX:?WINEPREFIX is not set}/dosdevices
+LETTERS="d e f g h i j k l m n o p q r s t u v w x y"
+
+log() { echo "setu-drives-sync: $*"; }
+
+# drive_type DEVICE: the Windows drive type for a block device
+drive_type() {
+    k=$(basename "$1")
+    case $k in sr*) echo cdrom; return ;; esac
+    s=/sys/class/block/$k
+    [ -f "$s/partition" ] && s=$s/..
+    if [ "$(cat "$s/removable" 2>/dev/null)" = 1 ]; then echo removable; else echo fixed; fi
+}
+
+sync_once() {
+    for l in $LETTERS; do
+        want=$(readlink "$TABLE/$l:" 2>/dev/null)
+        have=$(readlink "$PFX/$l:" 2>/dev/null)
+        if [ "$want" = "$have" ] && { [ -n "$want" ] || [ ! -L "$PFX/$l::" ]; }; then
+            continue
+        fi
+        if [ -n "$have" ] || [ -L "$PFX/$l::" ]; then
+            wine "$CTL" remove "$l" >/dev/null 2>&1 && log "$l: removed" || log "$l: remove failed"
+            # the mount manager leaves the device link behind
+            rm -f "$PFX/$l::"
+        fi
+        if [ -n "$want" ]; then
+            dev=$(readlink "$TABLE/$l::" 2>/dev/null)
+            type=fixed
+            [ -n "$dev" ] && type=$(drive_type "$dev")
+            if wine "$CTL" define "$l" "$type" "$want" $dev >/dev/null 2>&1; then
+                log "$l: -> $want ($type${dev:+, $dev})"
+            else
+                log "$l: define failed"
+            fi
+        fi
+    done
+}
+
+[ -d "$PFX" ] || { log "no $PFX"; exit 1; }
+sync_once
+[ "${1:-}" = --once ] && exit 0
+while sleep 1; do sync_once; done

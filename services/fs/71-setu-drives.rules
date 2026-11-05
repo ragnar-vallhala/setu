@@ -1,0 +1,14 @@
+# Setu drive letters (services/fs/README.md): every block device that holds a
+# file system gets a drive letter through setu-volume@<kernel name>.service,
+# except the EFI system partition and Setu's own partitions (setu-root, and
+# setu-c, which is C:, a fixed letter). "uaccess" lets the session's mount
+# manager read the device for the volume label, serial number and file system
+# name; it has to come before 73-seat-late.rules.
+ACTION=="remove", GOTO="setu_drives_end"
+SUBSYSTEM!="block", GOTO="setu_drives_end"
+KERNEL!="sd*|vd*|xvd*|nvme*|mmcblk*|sr*", GOTO="setu_drives_end"
+ENV{ID_FS_USAGE}!="filesystem", GOTO="setu_drives_end"
+ENV{ID_PART_ENTRY_TYPE}=="c12a7328-f81f-11d2-ba4b-00a0c93ec93b", GOTO="setu_drives_end"
+ENV{ID_PART_ENTRY_NAME}=="setu-*", GOTO="setu_drives_end"
+TAG+="uaccess", TAG+="systemd", ENV{SYSTEMD_WANTS}+="setu-volume@%k.service"
+LABEL="setu_drives_end"

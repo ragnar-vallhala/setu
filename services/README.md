@@ -8,7 +8,7 @@ Planned components (see docs/ARCHITECTURE.md §3.3):
 |---|---|
 | `registryd/` | Registry phase B: transactional backing store behind the wineserver registry protocol |
 | `scm/` | Service Control Manager extensions and the `setu-system.service` systemd unit |
-| `fs/` | Filesystem semantics: ext4-casefold volume setup, drive-letter / mount service, DOS attribute and NT ACL xattr mapping |
+| `fs/` | Filesystem semantics: the ext4-casefold C: volume and the drive-letter service (started, see fs/README.md); DOS attribute and NT ACL xattr mapping |
 | `identity/` | SID ↔ Linux uid/gid mapping |
 
 Every behaviour here is specified by oracle tests in `tests/win32/` (registry:

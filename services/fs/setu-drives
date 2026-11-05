@@ -1,0 +1,131 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# setu-drives: the system drive-letter table (services/fs/README.md).
+#
+# The table is /run/setu/dosdevices, in the format of Wine's dosdevices
+# directory: "x:" is a symlink to the directory that backs drive X: and
+# "x::" a symlink to its block device. Fixed letters come from
+# /etc/setu/drives.conf (C: is the system volume). Other volumes get the
+# first free letter from D: when they appear and lose it when they go away.
+# Each user session follows the table with setu-drives-sync.
+#
+#   setu-drives start          create the table with the fixed letters
+#                              (setu-drives.service, at boot)
+#   setu-drives add KNAME      mount /dev/KNAME under /run/setu/volumes and
+#                              give it a letter (setu-volume@KNAME.service,
+#                              started by udev: 71-setu-drives.rules)
+#   setu-drives remove KNAME   drop its letter and unmount it (the same unit
+#                              stopping, when the device goes away)
+#   setu-drives list           print the table
+set -eu
+
+TABLE=/run/setu/dosdevices
+VOLUMES=/run/setu/volumes
+CONF=${SETU_DRIVES_CONF:-/etc/setu/drives.conf}
+LOCK=/run/setu/drives.lock
+LETTERS="d e f g h i j k l m n o p q r s t u v w x y"
+
+log() { echo "setu-drives: $*"; }
+die() { echo "setu-drives: $*" >&2; exit 1; }
+
+# fixed LETTER: the table entry LETTER comes from drives.conf
+fixed() { [ -f "$CONF" ] && sed 's/#.*//' "$CONF" | awk -v l="$1" '$1 == l { f = 1 } END { exit !f }'; }
+
+with_lock() { # run "$@" holding the table lock
+    mkdir -p /run/setu
+    exec 9>"$LOCK"
+    flock 9
+    "$@"
+}
+
+start() {
+    mkdir -p "$TABLE" "$VOLUMES"
+    for f in "$TABLE"/*; do [ -L "$f" ] && rm -f "$f"; done
+    [ -f "$CONF" ] || die "no $CONF"
+    sed 's/#.*//' "$CONF" | while read -r letter path; do
+        [ -n "$letter" ] || continue
+        case $letter in [a-z]) ;; *) die "$CONF: bad drive letter '$letter'" ;; esac
+        [ "$path" = - ] && continue        # reserved, not in the table
+        [ -d "$path" ] || { log "warning: $letter: $path is not a directory"; continue; }
+        ln -sfn "$path" "$TABLE/$letter:"
+        log "$letter: -> $path (fixed)"
+    done
+}
+
+mounted_at() { # DEVICE: where it is mounted already, if anywhere
+    awk -v d="$1" '$1 == d { print $2; exit }' /proc/self/mounts
+}
+
+add() {
+    kname=$1 dev=/dev/$1
+    [ -b "$dev" ] || die "$dev is not a block device"
+    for f in "$TABLE"/*::; do
+        [ "$(readlink "$f" 2>/dev/null)" = "$dev" ] && { log "$dev already has ${f##*/}"; return 0; }
+    done
+    if m=$(mounted_at "$dev") && [ -n "$m" ]; then
+        log "$dev is mounted at $m already; no letter"
+        return 0
+    fi
+    fstype=$(udevadm info --query=property --name="$dev" | sed -n 's/^ID_FS_TYPE=//p')
+    [ -n "$fstype" ] || die "$dev: no file system"
+
+    letter=
+    for l in $LETTERS; do
+        [ -e "$TABLE/$l:" ] || [ -L "$TABLE/$l:" ] || fixed "$l" && continue
+        letter=$l; break
+    done
+    [ -n "$letter" ] || die "$dev: no free drive letter"
+
+    # The Windows user owns the system volume; give them the files of volumes
+    # that have no Unix owners of their own.
+    uid=$(stat -c %u "$(readlink "$TABLE/c:")" 2>/dev/null || echo 0)
+    gid=$(stat -c %g "$(readlink "$TABLE/c:")" 2>/dev/null || echo 0)
+    opts=nosuid,nodev
+    case $fstype in
+        vfat)     opts=$opts,uid=$uid,gid=$gid,fmask=0022,dmask=0022,iocharset=utf8,flush ;;
+        exfat)    opts=$opts,uid=$uid,gid=$gid,fmask=0022,dmask=0022,iocharset=utf8 ;;
+        ntfs|ntfs3) fstype=ntfs3; opts=$opts,uid=$uid,gid=$gid,fmask=0022,dmask=0022,iocharset=utf8 ;;
+        iso9660|udf) opts=$opts,ro ;;
+    esac
+    mnt=$VOLUMES/$kname
+    mkdir -p "$mnt"
+    if ! mount -t "$fstype" -o "$opts" "$dev" "$mnt"; then
+        rmdir "$mnt" 2>/dev/null || true
+        die "$dev: mount -t $fstype failed"
+    fi
+    ln -sfn "$dev" "$TABLE/$letter::"
+    ln -sfn "$mnt" "$TABLE/$letter:"
+    log "$letter: -> $mnt ($dev, $fstype)"
+}
+
+remove() {
+    kname=$1 dev=/dev/$1
+    for f in "$TABLE"/*::; do
+        [ "$(readlink "$f" 2>/dev/null)" = "$dev" ] || continue
+        l=${f##*/}; l=${l%::}
+        rm -f "$TABLE/$l:" "$TABLE/$l::"
+        log "$l: removed ($dev)"
+    done
+    mnt=$VOLUMES/$kname
+    if mountpoint -q "$mnt" 2>/dev/null; then
+        umount "$mnt" 2>/dev/null || umount -l "$mnt"
+    fi
+    rmdir "$mnt" 2>/dev/null || true
+}
+
+list() {
+    for f in "$TABLE"/?:; do
+        [ -L "$f" ] || continue
+        l=${f##*/}
+        printf '%s %s %s\n' "$(echo "$l" | tr a-z A-Z)" "$(readlink "$f")" "$(readlink "$f:" 2>/dev/null || echo -)"
+    done
+}
+
+case ${1:-} in
+    start) with_lock start ;;
+    add) [ $# = 2 ] || die "usage: setu-drives add KNAME"; with_lock add "$2" ;;
+    remove) [ $# = 2 ] || die "usage: setu-drives remove KNAME"; with_lock remove "$2" ;;
+    list) list ;;
+    *) sed -n '2,/^set -eu/{/^set -eu/d;s/^# \{0,1\}//;p}' "$0"; exit 2 ;;
+esac

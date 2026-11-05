@@ -1,0 +1,14 @@
+# The system drive-letter table /run/setu/dosdevices (services/fs/README.md):
+# the fixed letters at boot; setu-volume@.service adds the others.
+[Unit]
+Description=Setu drive-letter table
+After=local-fs.target
+Before=setu-session.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/setu-drives start
+
+[Install]
+WantedBy=multi-user.target

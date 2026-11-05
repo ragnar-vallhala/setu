@@ -1,0 +1,13 @@
+# One volume with a drive letter: started by udev (71-setu-drives.rules) when
+# the block device appears, stopped by systemd when it goes away (BindsTo).
+[Unit]
+Description=Setu drive letter for /dev/%I
+BindsTo=dev-%i.device
+After=dev-%i.device setu-drives.service
+Requires=setu-drives.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/setu-drives add %I
+ExecStop=/usr/local/sbin/setu-drives remove %I
