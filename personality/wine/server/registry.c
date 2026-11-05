@@ -1009,6 +1009,26 @@ static struct key *create_key_recursive( struct key *root, const struct unicode_
 }
 
 /* query information about a key or a subkey */
+/* get the subkey at an enumeration index: the stable subkeys come first and
+ * the volatile ones after them, each group in name order */
+static struct key *get_enum_subkey( struct key *key, int index )
+{
+    int i, stable = 0, want_volatile;
+
+    for (i = 0; i <= key->last_subkey; i++)
+        if (!(key->subkeys[i]->flags & KEY_VOLATILE)) stable++;
+    if (stable == key->last_subkey + 1) return key->subkeys[index];
+
+    want_volatile = index >= stable;
+    if (want_volatile) index -= stable;
+    for (i = 0; i <= key->last_subkey; i++)
+    {
+        if (!!(key->subkeys[i]->flags & KEY_VOLATILE) != want_volatile) continue;
+        if (!index--) return key->subkeys[i];
+    }
+    return NULL;
+}
+
 static void enum_key( struct key *key, int index, int info_class, struct enum_key_reply *reply )
 {
     int i;
@@ -1030,7 +1050,7 @@ static void enum_key( struct key *key, int index, int info_class, struct enum_ke
             set_error( STATUS_NO_MORE_ENTRIES );
             return;
         }
-        key = key->subkeys[index];
+        key = get_enum_subkey( key, index );
     }
 
     namelen = key->obj.name->len;
