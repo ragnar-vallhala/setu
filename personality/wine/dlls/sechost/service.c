@@ -1839,7 +1839,7 @@ static DWORD WINAPI notify_thread(void *user)
 DWORD WINAPI DECLSPEC_HOTPATCH NotifyServiceStatusChangeW( SC_HANDLE service, DWORD mask,
                                                            SERVICE_NOTIFYW *notify_buffer )
 {
-    DWORD err;
+    DWORD err, last_error = GetLastError();
     BOOL b_dummy = FALSE;
     GUID g_dummy = {0};
     struct notify_data *data;
@@ -1899,6 +1899,8 @@ DWORD WINAPI DECLSPEC_HOTPATCH NotifyServiceStatusChangeW( SC_HANDLE service, DW
 
     LeaveCriticalSection( &service_cs );
 
+    /* the error is the return value; what the RPC left in the last error depends on timing */
+    SetLastError( last_error );
     return ERROR_SUCCESS;
 }
 
