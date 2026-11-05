@@ -1,0 +1,53 @@
+{
+  "test": "advapi32/RegNotifyChangeKeyValue_restore",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "save_source": {
+      "ret": 0
+    },
+    "restore_watched_key": {
+      "name.restore": 0,
+      "name.signalled": false,
+      "attributes.restore": 0,
+      "attributes.signalled": false,
+      "last_set.restore": 0,
+      "last_set.signalled": false,
+      "security.restore": 0,
+      "security.signalled": false
+    },
+    "restore_child_of_watched_no_subtree": {
+      "name.restore": 0,
+      "name.signalled": true,
+      "attributes.restore": 0,
+      "attributes.signalled": false,
+      "last_set.restore": 0,
+      "last_set.signalled": false,
+      "security.restore": 0,
+      "security.signalled": false
+    },
+    "restore_child_of_watched_subtree": {
+      "name.restore": 0,
+      "name.signalled": true,
+      "attributes.restore": 0,
+      "attributes.signalled": false,
+      "last_set.restore": 0,
+      "last_set.signalled": false,
+      "security.restore": 0,
+      "security.signalled": false
+    },
+    "load_hive": {
+      "ret": 0
+    },
+    "watch_loaded_root_then_close": {
+      "notify": 0,
+      "signalled_by_close": true
+    },
+    "unload_hive": {
+      "ret": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "b84ca54fbf821a558fc42c313497e9ae40a2392e04fa55a1865540b3d8734e45"
+}

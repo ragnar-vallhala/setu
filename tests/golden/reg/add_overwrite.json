@@ -1,0 +1,112 @@
+{
+  "test": "reg/add_overwrite",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_initial": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:74006500780074000000;"
+    },
+    "sz_to_dword": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=4:05000000;"
+    },
+    "dword_to_binary": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=3:0102;"
+    },
+    "binary_to_multi": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=7:78000000790000000000;"
+    },
+    "multi_to_expand": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=2:2500540045004d00500025000000;"
+    },
+    "expand_to_none": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=0:0000;"
+    },
+    "default_sz": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:6400650066000000;a=0:0000;"
+    },
+    "default_dword": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=4:01000000;a=0:0000;"
+    },
+    "default_qword": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=11:1000000000000000;a=0:0000;"
+    },
+    "default_no_data": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:0000;a=0:0000;"
+    },
+    "value_other_case": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:0000;a=1:750070007000650072000000;"
+    },
+    "key_other_case": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]@=1:0000;a=1:750070007000650072000000;b=1:7600690061005f00750070007000650072000000;"
+    },
+    "into_volatile_key": {
+      "exit": 0,
+      "out": "The operation completed successfully.\r\r\n",
+      "err": "",
+      "tree": "[]a=1:78000000;"
+    },
+    "subkey_of_volatile_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Cannot create a stable subkey under a volatile parent key.\r\r\n",
+      "tree": "[]a=1:78000000;"
+    },
+    "into_read_only_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Access is denied.\r\r\n",
+      "tree": "[]a=1:6f007200690067000000;"
+    },
+    "subkey_of_read_only_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Access is denied.\r\r\n",
+      "tree": "[]a=1:6f007200690067000000;"
+    },
+    "delete_in_read_only_key": {
+      "exit": 1,
+      "out": "",
+      "err": "ERROR: Access is denied.\r\r\n",
+      "tree": "[]a=1:6f007200690067000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "bfef83182ee4cbb49d14850b7ec15f53c12810ea0a0adef7bbb68926f6180adf"
+}

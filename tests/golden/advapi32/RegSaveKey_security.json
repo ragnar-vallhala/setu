@@ -1,0 +1,79 @@
+{
+  "test": "advapi32/RegSaveKey_security",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "set_protected_dacl": {
+      "ret": 0
+    },
+    "source_protected": {
+      "open": 0,
+      "get": 0,
+      "protected": true,
+      "present": true,
+      "aces": 2,
+      "inherited_aces": 0,
+      "everyone_mask": "0x00020019",
+      "user_mask": "0x000f003f"
+    },
+    "source_inherited": {
+      "open": 0,
+      "get": 0,
+      "protected": false,
+      "present": true,
+      "aces": 4,
+      "inherited_aces": 0,
+      "everyone_mask": "0x00000000",
+      "user_mask": "0x000f003f"
+    },
+    "save": {
+      "ret": 0
+    },
+    "target_before_restore": {
+      "open": 0,
+      "get": 0,
+      "protected": false,
+      "present": true,
+      "aces": 4,
+      "inherited_aces": 0,
+      "everyone_mask": "0x00000000",
+      "user_mask": "0x000f003f"
+    },
+    "restore": {
+      "ret": 0
+    },
+    "target_after_restore": {
+      "open": 0,
+      "get": 0,
+      "protected": false,
+      "present": true,
+      "aces": 4,
+      "inherited_aces": 0,
+      "everyone_mask": "0x00000000",
+      "user_mask": "0x000f003f"
+    },
+    "restored_protected": {
+      "open": 0,
+      "get": 0,
+      "protected": true,
+      "present": true,
+      "aces": 2,
+      "inherited_aces": 0,
+      "everyone_mask": "0x00020019",
+      "user_mask": "0x000f003f"
+    },
+    "restored_inherited": {
+      "open": 0,
+      "get": 0,
+      "protected": false,
+      "present": true,
+      "aces": 4,
+      "inherited_aces": 0,
+      "everyone_mask": "0x00000000",
+      "user_mask": "0x000f003f"
+    }
+  },
+  "errors": [],
+  "source_sha256": "bbdc779b20dcf67b1584c0d386017b0bec8547cc72e1f27c4ad33d5a69475533"
+}
