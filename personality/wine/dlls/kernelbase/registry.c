@@ -3375,27 +3375,37 @@ LSTATUS WINAPI RegDeleteTreeA( HKEY hkey, const char *subkey )
 }
 
 
-/******************************************************************************
- * RegCopyTreeW (kernelbase.@)
- *
- */
-LSTATUS WINAPI RegCopyTreeW( HKEY hsrc, const WCHAR *subkey, HKEY hdst )
+/* a key class is at most 32767 characters */
+#define MAX_CLASS_CHARS 32768
+
+/* get the class of a key; *cls is NULL when the key has none */
+static LSTATUS get_key_class( HKEY hkey, WCHAR **cls )
+{
+    DWORD len = MAX_CLASS_CHARS;
+    LSTATUS ret;
+
+    *cls = NULL;
+    if (!(*cls = HeapAlloc( GetProcessHeap(), 0, MAX_CLASS_CHARS * sizeof(WCHAR) )))
+        return ERROR_NOT_ENOUGH_MEMORY;
+    ret = RegQueryInfoKeyW( hkey, *cls, &len, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL );
+    if (ret || !len)
+    {
+        HeapFree( GetProcessHeap(), 0, *cls );
+        *cls = NULL;
+    }
+    return ret;
+}
+
+/* copy the values and subkeys of hsrc to hdst; subkeys keep their class */
+static LSTATUS copy_tree( HKEY hsrc, HKEY hdst )
 {
     DWORD name_size, max_name;
     DWORD value_size, max_value;
     DWORD max_subkey, i, type;
-    WCHAR *name_buf = NULL;
+    WCHAR *name_buf = NULL, *cls;
     BYTE *value_buf = NULL;
-    HKEY hkey;
+    HKEY hkey, hchild;
     LONG ret;
-
-    TRACE( "(%p, %s, %p)\n", hsrc, debugstr_w(subkey), hdst );
-
-    if (subkey)
-    {
-        ret = RegOpenKeyExW( hsrc, subkey, 0, KEY_READ, &hsrc );
-        if (ret) return ret;
-    }
 
     ret = RegQueryInfoKeyW( hsrc, NULL, NULL, NULL, NULL, &max_subkey,
                             NULL, NULL, &max_name, &max_value, NULL, NULL );
@@ -3434,10 +3444,21 @@ LSTATUS WINAPI RegCopyTreeW( HKEY hsrc, const WCHAR *subkey, HKEY hdst )
         ret = RegEnumKeyExW( hsrc, i, name_buf, &name_size, NULL, NULL, NULL, NULL );
         if (ret == ERROR_NO_MORE_ITEMS) break;
         if (ret) goto cleanup;
-        ret = RegCreateKeyExW( hdst, name_buf, 0, NULL, 0, KEY_WRITE, NULL, &hkey, NULL );
+        ret = RegOpenKeyExW( hsrc, name_buf, 0, KEY_READ, &hchild );
         if (ret) goto cleanup;
-        ret = RegCopyTreeW( hsrc, name_buf, hkey );
-        RegCloseKey( hkey );
+        if ((ret = get_key_class( hchild, &cls )))
+        {
+            RegCloseKey( hchild );
+            goto cleanup;
+        }
+        ret = RegCreateKeyExW( hdst, name_buf, 0, cls, 0, KEY_WRITE, NULL, &hkey, NULL );
+        HeapFree( GetProcessHeap(), 0, cls );
+        if (!ret)
+        {
+            ret = copy_tree( hchild, hkey );
+            RegCloseKey( hkey );
+        }
+        RegCloseKey( hchild );
         if (ret) goto cleanup;
     }
 
@@ -3446,6 +3467,43 @@ LSTATUS WINAPI RegCopyTreeW( HKEY hsrc, const WCHAR *subkey, HKEY hdst )
 cleanup:
     HeapFree( GetProcessHeap(), 0, name_buf );
     HeapFree( GetProcessHeap(), 0, value_buf );
+    return ret;
+}
+
+
+/******************************************************************************
+ * RegCopyTreeW (kernelbase.@)
+ *
+ */
+LSTATUS WINAPI RegCopyTreeW( HKEY hsrc, const WCHAR *subkey, HKEY hdst )
+{
+    WCHAR *cls;
+    LONG ret;
+
+    TRACE( "(%p, %s, %p)\n", hsrc, debugstr_w(subkey), hdst );
+
+    /* the destination must be queryable before anything is read or written */
+    ret = RegQueryInfoKeyW( hdst, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL );
+    if (ret) return ret;
+
+    if (subkey)
+    {
+        ret = RegOpenKeyExW( hsrc, subkey, 0, KEY_READ, &hsrc );
+        if (ret) return ret;
+    }
+
+    /* the destination key already exists, so a class on the source key
+     * cannot be copied, and Windows refuses the whole copy */
+    if (!(ret = get_key_class( hsrc, &cls )))
+    {
+        if (cls)
+        {
+            HeapFree( GetProcessHeap(), 0, cls );
+            ret = ERROR_INVALID_PARAMETER;
+        }
+        else ret = copy_tree( hsrc, hdst );
+    }
+
     if (subkey)
         RegCloseKey( hsrc );
     return ret;
