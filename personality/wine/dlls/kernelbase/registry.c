@@ -1727,8 +1727,10 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegQueryValueExW( HKEY hkey, LPCWSTR name, LPDW
             /* if the type is REG_SZ and data is not 0-terminated
              * and there is enough space in the buffer NT appends a \0,
              * at a WCHAR boundary: with odd-sized data the last byte is
-             * overwritten (the reported size is unchanged) */
-            if (total_size - info_size <= *count-sizeof(WCHAR) && is_string(info->Type))
+             * overwritten (the reported size is unchanged); a lone
+             * character is not terminated */
+            if (total_size - info_size > sizeof(WCHAR) &&
+                total_size - info_size <= *count-sizeof(WCHAR) && is_string(info->Type))
             {
                 WCHAR *ptr = (WCHAR *)(data + (total_size - info_size) / sizeof(WCHAR) * sizeof(WCHAR));
                 if (ptr > (WCHAR *)data && ptr[-1]) *ptr = 0;
@@ -1742,8 +1744,10 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegQueryValueExW( HKEY hkey, LPCWSTR name, LPDW
     if (count) *count = total_size - info_size;
 
  done:
-    /* A missing value reports REG_NONE as its type; data and size are left alone. */
-    if (status == STATUS_OBJECT_NAME_NOT_FOUND && type) *type = REG_NONE;
+    /* When the query fails (missing value, bad or closed handle, no
+     * KEY_QUERY_VALUE access, deleted key) the type reads REG_NONE;
+     * data and size are left alone. */
+    if (status && status != STATUS_BUFFER_OVERFLOW && type) *type = REG_NONE;
     if (buf_ptr != buffer) HeapFree( GetProcessHeap(), 0, buf_ptr );
     return RtlNtStatusToDosError(status);
 }
@@ -2265,6 +2269,8 @@ LSTATUS WINAPI RegEnumValueW( HKEY hkey, DWORD index, LPWSTR value, LPDWORD val_
         if (type) *type = REG_NONE;
         if (!data && count) *count = 0;
     }
+    /* any other failure (bad handle, no KEY_QUERY_VALUE access) clears the type too */
+    else if (status && status != STATUS_BUFFER_OVERFLOW && type) *type = REG_NONE;
     if (status) goto done;
 
     if (info->NameLength/sizeof(WCHAR) >= *val_count)
@@ -2284,11 +2290,13 @@ LSTATUS WINAPI RegEnumValueW( HKEY hkey, DWORD index, LPWSTR value, LPDWORD val_
             goto overflow;
         }
         memcpy( data, buf_ptr + info->DataOffset, total_size - info->DataOffset );
-        if (total_size - info->DataOffset <= *count-sizeof(WCHAR) && is_string(info->Type))
+        if (total_size - info->DataOffset > sizeof(WCHAR) &&
+            total_size - info->DataOffset <= *count-sizeof(WCHAR) && is_string(info->Type))
         {
             /* if the type is REG_SZ and data is not 0-terminated
-             * and there is enough space in the buffer NT appends a \0 */
-            WCHAR *ptr = (WCHAR *)(data + total_size - info->DataOffset);
+             * and there is enough space in the buffer NT appends a \0,
+             * at a WCHAR boundary as in RegQueryValueExW */
+            WCHAR *ptr = (WCHAR *)(data + (total_size - info->DataOffset) / sizeof(WCHAR) * sizeof(WCHAR));
             if (ptr > (WCHAR *)data && ptr[-1]) *ptr = 0;
         }
     }
