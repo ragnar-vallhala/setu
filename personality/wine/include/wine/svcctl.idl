@@ -800,12 +800,14 @@ typedef [switch_type(DWORD)] union _SC_RPC_SERVICE_CONTROL_OUT_PARAMSW {
     );
 
     /* Function 51 */
+    /* Not compatible with Windows: the reason parameters are passed flat */
     DWORD svcctl_ControlServiceExW(
         [in] SC_RPC_HANDLE service,
         [in] DWORD control,
         [in] DWORD info_level,
-        [in, switch_is(info_level)] SC_RPC_SERVICE_CONTROL_IN_PARAMSW *in_params,
-        [out, switch_is(info_level)] SC_RPC_SERVICE_CONTROL_OUT_PARAMSW *out_params
+        [in] DWORD reason,
+        [in, string, unique] LPCWSTR comment,
+        [out] SERVICE_STATUS_PROCESS *status
     );
 
     /* Not compatible with Windows function 52 */

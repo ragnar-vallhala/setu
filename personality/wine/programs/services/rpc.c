@@ -2425,14 +2425,32 @@ DWORD __cdecl svcctl_ControlServiceExA(
 }
 
 DWORD __cdecl svcctl_ControlServiceExW(
-    SC_RPC_HANDLE service,
+    SC_RPC_HANDLE handle,
     DWORD control,
     DWORD info_level,
-    SC_RPC_SERVICE_CONTROL_IN_PARAMSW *in_params,
-    SC_RPC_SERVICE_CONTROL_OUT_PARAMSW *out_params)
+    DWORD reason,
+    LPCWSTR comment,
+    SERVICE_STATUS_PROCESS *status_process)
 {
-    WINE_FIXME("\n");
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    struct sc_service_handle *service;
+    SERVICE_STATUS status;
+    DWORD err;
+
+    WINE_TRACE("(%p, %lu, %lu, %#lx, %s, %p)\n", handle, control, info_level, reason, wine_dbgstr_w(comment),
+               status_process);
+
+    if (info_level != SERVICE_CONTROL_STATUS_REASON_INFO)
+        return ERROR_INVALID_LEVEL;
+
+    err = svcctl_ControlService(handle, control, &status);
+
+    if (!validate_service_handle(handle, 0, &service))
+    {
+        service_lock(service->service_entry);
+        fill_status_process(status_process, service->service_entry);
+        service_unlock(service->service_entry);
+    }
+    return err;
 }
 
 DWORD __cdecl svcctl_unknown52(void)

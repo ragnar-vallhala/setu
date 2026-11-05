@@ -1381,6 +1381,84 @@ BOOL WINAPI QueryServiceLockStatusA( SC_HANDLE manager, QUERY_SERVICE_LOCK_STATU
 }
 
 /******************************************************************************
+ *     ControlServiceExW   (sechost.@)
+ */
+/* A stop reason has exactly one of the planned, unplanned and custom flags,
+ * and a major and minor code from the documented ranges. */
+static BOOL valid_stop_reason( DWORD reason )
+{
+    DWORD flags = reason & 0xf0000000, major = reason & 0x00ff0000, minor = reason & 0x0000ffff;
+
+    if (reason & 0x0f000000) return FALSE;
+    if (flags == SERVICE_STOP_REASON_FLAG_CUSTOM)
+        return major >= SERVICE_STOP_REASON_MAJOR_MIN_CUSTOM && minor >= SERVICE_STOP_REASON_MINOR_MIN_CUSTOM;
+    if (flags != SERVICE_STOP_REASON_FLAG_PLANNED && flags != SERVICE_STOP_REASON_FLAG_UNPLANNED) return FALSE;
+    return major > SERVICE_STOP_REASON_MAJOR_MIN && major < SERVICE_STOP_REASON_MAJOR_MAX &&
+           minor > SERVICE_STOP_REASON_MINOR_MIN && minor < SERVICE_STOP_REASON_MINOR_MAX;
+}
+
+BOOL WINAPI DECLSPEC_HOTPATCH ControlServiceExW( SC_HANDLE service, DWORD control, DWORD level, void *data )
+{
+    SERVICE_CONTROL_STATUS_REASON_PARAMSW *params = data;
+    SERVICE_STATUS_PROCESS status;
+    DWORD err;
+
+    TRACE( "%p %lu %lu %p\n", service, control, level, data );
+
+    if (level != SERVICE_CONTROL_STATUS_REASON_INFO) return set_error( ERROR_INVALID_LEVEL );
+    if (!params) return set_error( ERROR_INVALID_PARAMETER );
+    if (control == SERVICE_CONTROL_STOP &&
+        (!valid_stop_reason( params->dwReason ) || (params->pszComment && wcslen( params->pszComment ) > 128)))
+        return set_error( ERROR_INVALID_PARAMETER );
+
+    memset( &status, 0, sizeof(status) );
+    __TRY
+    {
+        err = svcctl_ControlServiceExW( service, control, level, params->dwReason, params->pszComment, &status );
+    }
+    __EXCEPT(rpc_filter)
+    {
+        err = map_exception_code( GetExceptionCode() );
+    }
+    __ENDTRY
+
+    if (!err || err == ERROR_SERVICE_NOT_ACTIVE || err == ERROR_SERVICE_CANNOT_ACCEPT_CTRL ||
+        err == ERROR_INVALID_SERVICE_CONTROL)
+        params->ServiceStatus = status;
+    return set_error( err );
+}
+
+/******************************************************************************
+ *     ControlServiceExA   (sechost.@)
+ */
+BOOL WINAPI DECLSPEC_HOTPATCH ControlServiceExA( SC_HANDLE service, DWORD control, DWORD level, void *data )
+{
+    SERVICE_CONTROL_STATUS_REASON_PARAMSA *params = data;
+    SERVICE_CONTROL_STATUS_REASON_PARAMSW paramsW;
+    WCHAR *comment = NULL;
+    BOOL ret;
+
+    TRACE( "%p %lu %lu %p\n", service, control, level, data );
+
+    if (level != SERVICE_CONTROL_STATUS_REASON_INFO) return set_error( ERROR_INVALID_LEVEL );
+    if (!params) return set_error( ERROR_INVALID_PARAMETER );
+
+    if (params->pszComment)
+    {
+        int len = MultiByteToWideChar( CP_ACP, 0, params->pszComment, -1, NULL, 0 );
+        if (!(comment = malloc( len * sizeof(WCHAR) ))) return set_error( ERROR_NOT_ENOUGH_MEMORY );
+        MultiByteToWideChar( CP_ACP, 0, params->pszComment, -1, comment, len );
+    }
+    paramsW.dwReason = params->dwReason;
+    paramsW.pszComment = comment;
+    paramsW.ServiceStatus = params->ServiceStatus;
+    ret = ControlServiceExW( service, control, level, &paramsW );
+    params->ServiceStatus = paramsW.ServiceStatus;
+    free( comment );
+    return ret;
+}
+
+/******************************************************************************
  *     QueryServiceStatus   (sechost.@)
  */
 BOOL WINAPI DECLSPEC_HOTPATCH QueryServiceStatus( SC_HANDLE service, SERVICE_STATUS *status )
