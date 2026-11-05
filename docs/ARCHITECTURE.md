@@ -113,21 +113,42 @@ personality, or as host-side daemons where that fits better.
   enforces it on `CreateFile` / `AccessCheck`. Coarse POSIX permissions are
   derived from it, so the Linux side gives defence in depth. Windows users and
   groups (SIDs) map to Linux uids and gids through a small identity service.
-  * *Decision (Milestone 2):* the attribute is **`user.setu.sd`**: one format
-    byte (`1`) followed by the descriptor (owner, group, DACL, SACL) in the
-    self-relative layout of [MS-DTYP] 2.4.6. The wineserver reads and writes it
-    (`server/filesec.c`); a file without it keeps Wine's mode-derived descriptor
-    and is not access-checked, so the host's existing files behave as before.
-  * *Why `user.*`:* the personality runs as an ordinary user, and writing
-    `security.*` or `trusted.*` attributes needs `CAP_SYS_ADMIN`. `user.*`
-    works unprivileged on ext4, btrfs, xfs and tmpfs, and survives copies that
-    keep xattrs. The cost is that the host user can edit or remove it, so it is
-    a Windows-side access model, not a Linux security boundary; the POSIX bits
-    stay the boundary. A future privileged service can move it to
-    `security.*` without changing the format.
-  * *Why not `user.NTACL`:* Samba's attribute has its own NDR-encoded layout
-    with hashes; sharing the name but not the format would confuse Samba on
-    the same files.
+  * *Decision (Milestone 2, owner):* the attribute is **`security.NTACL`**,
+    holding one format byte (`1`) and the descriptor (owner, group, DACL,
+    SACL) in the self-relative layout of [MS-DTYP] 2.4.6. The wineserver
+    (`server/filesec.c`) reads it and checks access on open; a file without it
+    keeps Wine's mode-derived descriptor and is not access-checked, so the
+    host's existing files behave as before. A new file inherits from its
+    parent's stored descriptor; the user's own files are owned by the token's
+    default owner (Administrators for Setu's elevated token), as on Windows.
+  * *Who writes it:* reading a `security.*` attribute needs no privilege, so
+    the wineserver reads it directly. Writing one needs `CAP_SYS_ADMIN`, and
+    the wineserver stays unprivileged: it passes the file's open descriptor
+    over a unix socket to **`setu-ntacld`** (`services/fs/`), a
+    socket-activated systemd service whose only capability is
+    `CAP_SYS_ADMIN`, running as a dynamic user under a strict sandbox. The
+    helper takes no paths and opens no files; it writes or removes only
+    `security.NTACL`, only on a regular file or directory owned by the
+    caller's uid (`SO_PEERCRED`), only on a file system mounted under the
+    Setu volumes (`/var/lib/setu/volumes/`, `/run/setu/volumes/`), and only a
+    well-formed value. Protocol: `services/fs/setu-ntacl.h`.
+  * *Fallback:* where there is no helper (developer machines, GitHub CI, the
+    oracle) or the helper answers `EXDEV`/`ENOTSUP` (not a Setu volume, no
+    security attributes), the same value goes to **`user.setu.sd`**, which an
+    ordinary user may write, so the oracle suite runs everywhere. Reads try
+    `security.NTACL` first. A file that already has a `security.NTACL` the
+    server can't rewrite fails with access denied rather than getting a
+    `user.setu.sd` the first one would hide; after a helper write a stale
+    `user.setu.sd` is removed.
+  * *What it protects:* with `security.NTACL`, Linux tools and other users
+    with write access to a file can't change or strip its descriptor (only the
+    helper or root can). It is still not a boundary against the file's own
+    Unix owner, who can ask the helper directly or change the POSIX bits; the
+    POSIX bits stay the Linux boundary.
+  * *Samba:* Samba's `vfs_acl_xattr` uses the same attribute name with its
+    own NDR-encoded value. Setu does not write that format and ignores values
+    it can't parse, so a Setu volume should not also be exported with
+    `vfs_acl_xattr`.
   * The owner's own POSIX `rw` (and `x` for directories) bits are always kept,
     so the host user never loses access to their files; deriving tighter POSIX
     bits from the descriptor is still to do.
