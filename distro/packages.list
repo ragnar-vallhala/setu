@@ -12,6 +12,7 @@ linux-image-amd64
 grub-efi-amd64
 initramfs-tools
 e2fsprogs
+attr  # getfattr/setfattr: NT security descriptors are xattrs (services/fs, distro/tests/ntacl-smoke.sh)
 kmod
 sudo
 openssh-server

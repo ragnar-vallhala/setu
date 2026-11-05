@@ -132,7 +132,7 @@ chroot $T /bin/bash -euo pipefail <<'EOF'
 useradd -m -s /bin/bash -G sudo,video,render,input,audio setu
 echo setu:setu | chpasswd
 passwd -l root
-systemctl enable systemd-networkd systemd-resolved ssh setu-session.service setu-drives.service
+systemctl enable systemd-networkd systemd-resolved ssh setu-session.service setu-drives.service setu-ntacld.socket
 # Until NT ACLs exist (services/fs), C: belongs to the one Windows user.
 chown setu:setu /var/lib/setu/volumes/c
 systemctl set-default graphical.target
