@@ -190,6 +190,10 @@ extern int file_sd_set( struct object *obj, int unix_fd, const struct security_d
 extern struct security_descriptor *sd_inherit( const struct security_descriptor *parent,
                                                const struct security_descriptor *creator,
                                                int is_container, struct token *token );
+extern struct security_descriptor *sd_inherit_map( const struct security_descriptor *parent,
+                                                   const struct security_descriptor *creator,
+                                                   int is_container, struct token *token,
+                                                   const struct generic_map *map );
 
 /* file mapping functions */
 

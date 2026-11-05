@@ -567,12 +567,13 @@ int file_sd_set( struct object *obj, int unix_fd, const struct security_descript
 
 /* the ACE (or ACEs) a new object inherits from a parent ACE, or how many bytes they need */
 static data_size_t emit_ace( const struct ace *ace, unsigned char inh, const struct sid *owner,
-                             const struct sid *group, struct ace *out );
+                             const struct sid *group, const struct generic_map *map, struct ace *out );
 
 /* the ACEs a new object gets from one parent ACE; they are marked inherited
  * only when the parent's ACL is auto-inherited */
 static data_size_t inherit_ace( const struct ace *ace, int is_container, int auto_inherit,
-                                const struct sid *owner, const struct sid *group, struct ace *out )
+                                const struct sid *owner, const struct sid *group,
+                                const struct generic_map *map, struct ace *out )
 {
     unsigned char flags = ace->flags, inh;
 
@@ -598,14 +599,14 @@ static data_size_t inherit_ace( const struct ace *ace, int is_container, int aut
         inh = (flags & ~VALID_INHERIT_FLAGS) | INHERITED_ACE;
     }
     if (!auto_inherit) inh &= ~INHERITED_ACE;
-    return emit_ace( ace, inh, owner, group, out );
+    return emit_ace( ace, inh, owner, group, map, out );
 }
 
 /* an ACE with the given flags: if it is effective, creator SIDs are replaced
  * and generic rights mapped, and a changed ACE that still propagates is
  * followed by an inherit-only copy of the original */
 static data_size_t emit_ace( const struct ace *ace, unsigned char inh, const struct sid *owner,
-                             const struct sid *group, struct ace *out )
+                             const struct sid *group, const struct generic_map *map, struct ace *out )
 {
     const struct sid *sid = (const struct sid *)(ace + 1);
     const struct sid *eff_sid = sid;
@@ -630,7 +631,7 @@ static data_size_t emit_ace( const struct ace *ace, unsigned char inh, const str
     if (out)
     {
         set_ace( out, eff_sid, ace->type, inh & ~(OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | NO_PROPAGATE_INHERIT_ACE),
-                 map_access( mask, &file_mapping ) );
+                 map_access( mask, map ) );
         out = ace_next( out );
     }
     /* and, if it still propagates, an inherit-only copy of the original */
@@ -644,7 +645,7 @@ static data_size_t emit_ace( const struct ace *ace, unsigned char inh, const str
 
 /* an explicit ACE of the creator's ACL; ACE types this code doesn't know are copied */
 static data_size_t explicit_ace( const struct ace *ace, const struct sid *owner, const struct sid *group,
-                                 struct ace *out )
+                                 const struct generic_map *map, struct ace *out )
 {
     /* generic rights are mapped in place (Windows 10 oracle: FileSecurityInherit
      * child_file_generic_dacl, PrivateObjectSecurity creator_generic_mapped) */
@@ -654,14 +655,15 @@ static data_size_t explicit_ace( const struct ace *ace, const struct sid *owner,
         if (!(ace->flags & INHERIT_ONLY_ACE) &&
             (ace->type == ACCESS_ALLOWED_ACE_TYPE || ace->type == ACCESS_DENIED_ACE_TYPE ||
              ace->type == SYSTEM_AUDIT_ACE_TYPE))
-            out->mask = map_access( ace->mask, &file_mapping );
+            out->mask = map_access( ace->mask, map );
     }
     return ace->size;
 }
 
 /* the creator's explicit ACEs followed by the ACEs inherited from the parent's ACL */
 static struct acl *build_acl( const struct acl *explicit, const struct acl *parent, int is_container,
-                              int auto_inherit, const struct sid *owner, const struct sid *group )
+                              int auto_inherit, const struct sid *owner, const struct sid *group,
+                              const struct generic_map *map )
 {
     const struct ace *ace;
     struct acl *acl;
@@ -671,10 +673,10 @@ static struct acl *build_acl( const struct acl *explicit, const struct acl *pare
 
     if (explicit)
         for (i = 0, ace = ace_first( explicit ); i < explicit->count; i++, ace = ace_next( ace ))
-            if (!(ace->flags & INHERITED_ACE)) size += explicit_ace( ace, owner, group, NULL );
+            if (!(ace->flags & INHERITED_ACE)) size += explicit_ace( ace, owner, group, map, NULL );
     if (parent)
         for (i = 0, ace = ace_first( parent ); i < parent->count; i++, ace = ace_next( ace ))
-            size += inherit_ace( ace, is_container, auto_inherit, owner, group, NULL );
+            size += inherit_ace( ace, is_container, auto_inherit, owner, group, map, NULL );
     if (size > MAX_ACL_LEN) return NULL;
     if (!(acl = mem_alloc( size ))) return NULL;
     acl->revision = ACL_REVISION;
@@ -686,11 +688,11 @@ static struct acl *build_acl( const struct acl *explicit, const struct acl *pare
         for (i = 0, ace = ace_first( explicit ); i < explicit->count; i++, ace = ace_next( ace ))
         {
             if (ace->flags & INHERITED_ACE) continue;
-            out = (struct ace *)((char *)out + explicit_ace( ace, owner, group, out ));
+            out = (struct ace *)((char *)out + explicit_ace( ace, owner, group, map, out ));
         }
     if (parent)
         for (i = 0, ace = ace_first( parent ); i < parent->count; i++, ace = ace_next( ace ))
-            out = (struct ace *)((char *)out + inherit_ace( ace, is_container, auto_inherit, owner, group, out ));
+            out = (struct ace *)((char *)out + inherit_ace( ace, is_container, auto_inherit, owner, group, map, out ));
     for (ace = ace_first( acl ); (char *)ace < (char *)acl + size; ace = ace_next( ace )) count++;
     acl->count = count;
     return acl;
@@ -703,17 +705,19 @@ static int acl_inherits( const struct acl *acl, int is_container )
 
     if (!acl) return FALSE;
     for (i = 0, ace = ace_first( acl ); i < acl->count; i++, ace = ace_next( ace ))
-        if (inherit_ace( ace, is_container, 0, &world_sid, &world_sid, NULL )) return TRUE;
+        if (inherit_ace( ace, is_container, 0, &world_sid, &world_sid, &file_mapping, NULL )) return TRUE;
     return FALSE;
 }
 
 /* The security descriptor of a new object. Owner and group come from the
  * creator's descriptor or the token. Each ACL holds the creator's explicit
  * ACEs followed by the ACEs inherited from the parent, unless the creator's
- * ACL is protected; with neither, the DACL is the token's default DACL. */
-struct security_descriptor *sd_inherit( const struct security_descriptor *parent,
-                                        const struct security_descriptor *creator,
-                                        int is_container, struct token *token )
+ * ACL is protected; with neither, the DACL is the token's default DACL.
+ * Generic rights are mapped with the given mapping. */
+struct security_descriptor *sd_inherit_map( const struct security_descriptor *parent,
+                                            const struct security_descriptor *creator,
+                                            int is_container, struct token *token,
+                                            const struct generic_map *map )
 {
     const struct sid *owner = creator ? sd_get_owner( creator ) : NULL;
     const struct sid *group = creator ? sd_get_group( creator ) : NULL;
@@ -748,14 +752,14 @@ struct security_descriptor *sd_inherit( const struct security_descriptor *parent
     if (cdacl_present && (!cdacl || (creator->control & SE_DACL_PROTECTED) || !acl_inherits( pdacl, is_container ) ||
                           !(parent->control & SE_DACL_AUTO_INHERITED)))
     {
-        if (cdacl && !(dacl = build_acl( cdacl, NULL, is_container, 0, owner, group ))) return NULL;
+        if (cdacl && !(dacl = build_acl( cdacl, NULL, is_container, 0, owner, group, map ))) return NULL;
         dacl_src = dacl;
         control |= creator->control & SE_DACL_PROTECTED;
     }
     else if (acl_inherits( pdacl, is_container ))
     {
         int ai = !!(parent->control & SE_DACL_AUTO_INHERITED);
-        if (!(dacl = build_acl( cdacl_present ? cdacl : NULL, pdacl, is_container, ai, owner, group ))) return NULL;
+        if (!(dacl = build_acl( cdacl_present ? cdacl : NULL, pdacl, is_container, ai, owner, group, map ))) return NULL;
         dacl_src = dacl;
         if (ai) control |= SE_DACL_AUTO_INHERITED;
     }
@@ -763,7 +767,7 @@ struct security_descriptor *sd_inherit( const struct security_descriptor *parent
     {
         /* the token's default DACL, generic rights mapped */
         const struct acl *def = token_get_default_dacl( token );
-        if (def && !(dacl = build_acl( def, NULL, is_container, 0, owner, group ))) return NULL;
+        if (def && !(dacl = build_acl( def, NULL, is_container, 0, owner, group, map ))) return NULL;
         dacl_src = dacl;
     }
 
@@ -777,7 +781,7 @@ struct security_descriptor *sd_inherit( const struct security_descriptor *parent
     else if (acl_inherits( psacl, is_container ))
     {
         if (!(sacl = build_acl( csacl_present ? csacl : NULL, psacl, is_container,
-                                !!(parent->control & SE_SACL_AUTO_INHERITED), owner, group )))
+                                !!(parent->control & SE_SACL_AUTO_INHERITED), owner, group, map )))
         {
             free( dacl );
             return NULL;
@@ -804,6 +808,14 @@ struct security_descriptor *sd_inherit( const struct security_descriptor *parent
     free( dacl );
     free( sacl );
     return sd;
+}
+
+/* the security descriptor of a new file or directory */
+struct security_descriptor *sd_inherit( const struct security_descriptor *parent,
+                                        const struct security_descriptor *creator,
+                                        int is_container, struct token *token )
+{
+    return sd_inherit_map( parent, creator, is_container, token, &file_mapping );
 }
 
 #define BACKUP_RIGHTS  (READ_CONTROL | ACCESS_SYSTEM_SECURITY | FILE_GENERIC_READ | FILE_TRAVERSE)
