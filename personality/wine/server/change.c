@@ -343,6 +343,9 @@ static struct security_descriptor *dir_get_sd( struct object *obj )
     if (unix_fd == -1 || fstat( unix_fd, &st ) == -1)
         return obj->sd;
 
+    /* Setu: a stored security descriptor takes precedence over the mode */
+    if ((sd = file_sd_get( obj, unix_fd ))) return sd;
+
     /* mode and uid the same? if so, no need to re-generate security descriptor */
     if (obj->sd &&
         (st.st_mode & (S_IRWXU|S_IRWXO)) == (dir->mode & (S_IRWXU|S_IRWXO)) &&
@@ -368,13 +371,17 @@ static int dir_set_sd( struct object *obj, const struct security_descriptor *sd,
     const struct sid *owner;
     struct stat st;
     mode_t mode;
-    int unix_fd;
+    int unix_fd, ret;
 
     assert( obj->ops == &dir_ops );
 
     unix_fd = get_dir_unix_fd( dir );
 
     if (unix_fd == -1 || fstat( unix_fd, &st ) == -1) return 1;
+
+    /* Setu: store the full security descriptor; the mode is left alone.
+     * Fall back to the mode if the file system has no user xattrs. */
+    if ((ret = file_sd_set( obj, unix_fd, sd, set_info )) >= 0) return ret;
 
     if (set_info & OWNER_SECURITY_INFORMATION)
     {

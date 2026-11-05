@@ -174,6 +174,22 @@ extern struct security_descriptor *mode_to_sd( mode_t mode, const struct sid *us
 extern mode_t sd_to_mode( const struct security_descriptor *sd, const struct sid *owner );
 extern int is_file_executable( const char *name );
 
+/* Setu: stored file security descriptors (filesec.c) */
+
+extern struct security_descriptor *fd_get_stored_sd( int unix_fd );
+extern struct security_descriptor *path_get_stored_sd( int root_fd, const char *name );
+extern int fd_store_sd( int unix_fd, const struct security_descriptor *sd );
+extern int file_sd_check_open( int root_fd, const char *name, int flags, unsigned int options,
+                               const struct security_descriptor *creator_sd, unsigned int *access,
+                               unsigned int *granted, struct security_descriptor **new_sd );
+extern void file_sd_store_new( int unix_fd, const struct security_descriptor *sd );
+extern struct security_descriptor *file_sd_get( struct object *obj, int unix_fd );
+extern int file_sd_set( struct object *obj, int unix_fd, const struct security_descriptor *sd,
+                        unsigned int set_info );
+extern struct security_descriptor *sd_inherit( const struct security_descriptor *parent,
+                                               const struct security_descriptor *creator,
+                                               int is_container, struct token *token );
+
 /* file mapping functions */
 
 struct memory_view;

@@ -212,9 +212,10 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
                                    struct unicode_str nt_name,
                                    unsigned int access, unsigned int sharing, int create,
                                    unsigned int options, unsigned int attrs,
-                                   const struct security_descriptor *sd )
+                                   const struct security_descriptor *sd, unsigned int *granted )
 {
     struct object *obj = NULL;
+    struct security_descriptor *new_sd = NULL;
     struct fd *fd;
     int flags;
     char *name;
@@ -266,9 +267,24 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
 
     access = map_access( access, &file_type.mapping );
 
+    /* Setu: NT access check against stored security descriptors, and the
+     * security descriptor of a new file */
+    *granted = 0;
+    if (!file_sd_check_open( root ? get_unix_fd( root ) : -1, name, flags, options, sd,
+                             &access, granted, &new_sd ))
+        goto done;
+    if (new_sd)
+    {
+        /* the stored SD decides access; keep the owner's Unix rights */
+        if (options & FILE_DIRECTORY_FILE) mode = (attrs & FILE_ATTRIBUTE_READONLY) ? 0555 : 0777;
+        else mode = (attrs & FILE_ATTRIBUTE_READONLY) ? 0444 : 0666;
+        if (is_file_executable( name )) mode |= (mode & 0444) >> 2;
+    }
+
     /* FIXME: should set error to STATUS_OBJECT_NAME_COLLISION if file existed before */
     fd = open_fd( root, name, nt_name, flags | O_NONBLOCK, &mode, access, sharing, options );
     if (!fd) goto done;
+    if (new_sd) file_sd_store_new( get_unix_fd( fd ), new_sd );
 
     if (S_ISDIR(mode))
         obj = create_dir_obj( fd, access, mode );
@@ -280,6 +296,7 @@ static struct object *create_file( struct fd *root, const char *nameptr, data_si
     release_object( fd );
 
 done:
+    free( new_sd );
     free( name );
     return obj;
 }
@@ -399,6 +416,9 @@ static struct security_descriptor *file_get_sd( struct object *obj )
     if (unix_fd == -1 || fstat( unix_fd, &st ) == -1)
         return obj->sd;
 
+    /* Setu: a stored security descriptor takes precedence over the mode */
+    if ((sd = file_sd_get( obj, unix_fd ))) return sd;
+
     /* mode and uid the same? if so, no need to re-generate security descriptor */
     if (obj->sd && (st.st_mode & (S_IRWXU|S_IRWXO)) == (file->mode & (S_IRWXU|S_IRWXO)) &&
         (st.st_uid == file->uid))
@@ -502,13 +522,17 @@ static int file_set_sd( struct object *obj, const struct security_descriptor *sd
     const struct sid *owner;
     struct stat st;
     mode_t mode;
-    int unix_fd;
+    int unix_fd, ret;
 
     assert( obj->ops == &file_ops );
 
     unix_fd = get_file_unix_fd( file );
 
     if (unix_fd == -1 || fstat( unix_fd, &st ) == -1) return 1;
+
+    /* Setu: store the full security descriptor; the mode is left alone.
+     * Fall back to the mode if the file system has no user xattrs. */
+    if ((ret = file_sd_set( obj, unix_fd, sd, set_info )) >= 0) return ret;
 
     if (set_info & OWNER_SECURITY_INFORMATION)
     {
@@ -560,6 +584,7 @@ static struct object *file_open_file( struct object *obj, unsigned int access,
     struct file *file = (struct file *)obj;
     struct object *new_file = NULL;
     struct unicode_str nt_name;
+    unsigned int granted;
     char *unix_name;
 
     assert( obj->ops == &file_ops );
@@ -570,7 +595,7 @@ static struct object *file_open_file( struct object *obj, unsigned int access,
         if (!strncmp( unix_name, "/proc/", 6 )) options &= ~FILE_OPEN_REPARSE_POINT;
         get_nt_name( file->fd, &nt_name );
         new_file = create_file( NULL, unix_name, strlen(unix_name), nt_name, access,
-                                sharing, FILE_OPEN, options, 0, NULL );
+                                sharing, FILE_OPEN, options, 0, NULL, &granted );
         free( unix_name );
     }
     else set_error( STATUS_OBJECT_TYPE_MISMATCH );
@@ -650,6 +675,7 @@ DECL_HANDLER(create_file)
     const struct object_attributes *objattr = get_req_object_attributes( &sd, &nt_name, NULL );
     const char *name;
     data_size_t name_len;
+    unsigned int granted;
 
     if (!objattr) return;
 
@@ -667,9 +693,12 @@ DECL_HANDLER(create_file)
 
     reply->handle = 0;
     if ((file = create_file( root_fd, name, name_len, nt_name, req->access, req->sharing,
-                             req->create, req->options, req->attrs, sd )))
+                             req->create, req->options, req->attrs, sd, &granted )))
     {
-        reply->handle = alloc_handle( current->process, file, req->access, objattr->attributes );
+        if (granted)  /* decided by the stored security descriptor */
+            reply->handle = alloc_handle_no_access_check( current->process, file, granted, objattr->attributes );
+        else
+            reply->handle = alloc_handle( current->process, file, req->access, objattr->attributes );
         release_object( file );
     }
     if (root_fd) release_object( root_fd );
