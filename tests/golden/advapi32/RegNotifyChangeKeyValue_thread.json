@@ -1,0 +1,41 @@
+{
+  "test": "advapi32/RegNotifyChangeKeyValue_thread",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "thread_exit_last_set": {
+      "register": 0,
+      "signalled_after_thread_exit": true,
+      "signalled_after_change": false
+    },
+    "thread_exit_agnostic_last_set": {
+      "register": 0,
+      "signalled_after_thread_exit": false,
+      "signalled_after_change": true
+    },
+    "thread_exit_name": {
+      "register": 0,
+      "signalled_after_thread_exit": true,
+      "signalled_after_change": false
+    },
+    "thread_exit_agnostic_name": {
+      "register": 0,
+      "signalled_after_thread_exit": false,
+      "signalled_after_change": false
+    },
+    "close_on_other_thread": {
+      "register": 0,
+      "signalled": true
+    },
+    "exited_thread_and_live_thread": {
+      "register_exited": 0,
+      "register_live": 0,
+      "exited_signalled_early": true,
+      "live_signalled_early": false,
+      "live_signalled_after_change": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "59605be890a91598fe328d62292c2e05fd4567f950402a716ac90e50fde94162"
+}

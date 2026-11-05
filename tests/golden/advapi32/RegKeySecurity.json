@@ -1,0 +1,194 @@
+{
+  "test": "advapi32/RegKeySecurity",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "get_owner": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008000",
+      "sd.owner": "S-1-5-32-544",
+      "sd.group_present": false,
+      "sd.dacl": "absent",
+      "sd.sacl": "absent"
+    },
+    "get_group": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008000",
+      "sd.owner": null,
+      "sd.group_present": true,
+      "sd.dacl": "absent",
+      "sd.sacl": "absent"
+    },
+    "get_default_dacl": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008004",
+      "sd.owner": null,
+      "sd.group_present": false,
+      "sd.dacl": "0/0x03/0x000f003f/user;0/0x03/0x000f003f/S-1-5-18;0/0x03/0x000f003f/S-1-5-32-544;0/0x03/0x00020019/S-1-5-12",
+      "sd.sacl": "absent"
+    },
+    "get_owner_dacl": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008004",
+      "sd.owner": "S-1-5-32-544",
+      "sd.group_present": false,
+      "sd.dacl": "0/0x03/0x000f003f/user;0/0x03/0x000f003f/S-1-5-18;0/0x03/0x000f003f/S-1-5-32-544;0/0x03/0x00020019/S-1-5-12",
+      "sd.sacl": "absent"
+    },
+    "get_none": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008000",
+      "sd.owner": null,
+      "sd.group_present": false,
+      "sd.dacl": "absent",
+      "sd.sacl": "absent"
+    },
+    "get_label": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008800",
+      "sd.owner": null,
+      "sd.group_present": false,
+      "sd.dacl": "absent",
+      "sd.sacl": "absent"
+    },
+    "get_small_buffer": {
+      "ret": 122,
+      "last_error": "unchanged",
+      "size_grew": true
+    },
+    "get_sacl_without_access": {
+      "size_query": 5,
+      "size_nonzero": false,
+      "ret": 5,
+      "last_error": "unchanged",
+      "size_matches": true
+    },
+    "open_with_system_security": {
+      "privilege_enabled": true,
+      "ret": 0
+    },
+    "get_sacl_with_access": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008800",
+      "sd.owner": null,
+      "sd.group_present": false,
+      "sd.dacl": "absent",
+      "sd.sacl": "absent"
+    },
+    "open_system_security_privilege_disabled": {
+      "ret": 5
+    },
+    "set_protected_dacl": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "get_after_set_dacl": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00009004",
+      "sd.owner": null,
+      "sd.group_present": false,
+      "sd.dacl": "0/0x02/0x00020019/user;0/0x02/0x000f003f/S-1-5-32-544",
+      "sd.sacl": "absent"
+    },
+    "create_child_after_dacl": {
+      "ret": 0
+    },
+    "child_inherited_dacl": {
+      "size_query": 122,
+      "size_nonzero": true,
+      "ret": 0,
+      "last_error": "unchanged",
+      "size_matches": false,
+      "sd.control": "0x00008004",
+      "sd.owner": null,
+      "sd.group_present": false,
+      "sd.dacl": "0/0x02/0x00020019/user;0/0x02/0x000f003f/S-1-5-32-544",
+      "sd.sacl": "absent"
+    },
+    "set_empty_dacl": {
+      "ret": 0
+    },
+    "open_empty_dacl_read": {
+      "ret": 5
+    },
+    "open_empty_dacl_read_control": {
+      "ret": 0
+    },
+    "open_empty_dacl_write_dac": {
+      "ret": 0
+    },
+    "restore_null_dacl": {
+      "ret": 0
+    },
+    "get_null_dacl": {
+      "size_query": 5,
+      "size_nonzero": false,
+      "ret": 5,
+      "last_error": "unchanged",
+      "size_matches": true
+    },
+    "set_null_sd": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "set_no_info": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "set_sacl_without_access": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "get_without_read_control": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "set_without_write_dac": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "get_predefined_hkcu_owner": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "get_null_key": {
+      "ret": 6,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "4cbc668c5ff266b9c67e92366fb79ee240724c913ebcda37a6655acfe00abdb8"
+}

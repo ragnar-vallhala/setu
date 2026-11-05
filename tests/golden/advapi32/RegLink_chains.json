@@ -1,0 +1,102 @@
+{
+  "test": "advapi32/RegLink_chains",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "make_l1": {
+      "ret": 0
+    },
+    "make_l2": {
+      "ret": 0
+    },
+    "open_chain_2": {
+      "open": 0,
+      "marker": 0,
+      "marker_data": "target"
+    },
+    "open_chain_2_subkey": {
+      "open": 0,
+      "marker": 0,
+      "marker_data": "target sub"
+    },
+    "open_chain_2_itself": {
+      "open": 0,
+      "marker": 2
+    },
+    "open_chain_10": {
+      "open": 0,
+      "marker": 0,
+      "marker_data": "target"
+    },
+    "make_self": {
+      "ret": 0
+    },
+    "open_self_loop": {
+      "open": 2
+    },
+    "open_self_loop_itself": {
+      "open": 0,
+      "marker": 2
+    },
+    "open_two_link_loop": {
+      "open": 2
+    },
+    "open_uppercase_target": {
+      "open": 0,
+      "marker": 0,
+      "marker_data": "target"
+    },
+    "make_with_nul": {
+      "ret": 0
+    },
+    "open_target_with_counted_nul": {
+      "open": 2
+    },
+    "make_to_missing_then_create": {
+      "ret": 0
+    },
+    "open_before_target_exists": {
+      "open": 2
+    },
+    "open_after_target_created": {
+      "open": 0,
+      "marker": 0,
+      "marker_data": "later"
+    },
+    "make_volatile_link": {
+      "ret": 0
+    },
+    "open_volatile_link": {
+      "open": 0,
+      "marker": 0,
+      "marker_data": "target"
+    },
+    "create_child_through_volatile_link": {
+      "ret": 0
+    },
+    "delete_subkey_through_link": {
+      "ret": 0
+    },
+    "victim_after_delete": {
+      "open": 2
+    },
+    "delete_key_named_by_link": {
+      "ret": 5
+    },
+    "l2_after_delete_attempt": {
+      "open": 0,
+      "marker": 2
+    },
+    "target_after_delete_attempt": {
+      "open": 0,
+      "marker": 0,
+      "marker_data": "target"
+    },
+    "cleanup": {
+      "links_not_deleted": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "14c200e21ecf65caac64d3655e48bdb1ee7726603a37de56f87ca81e05146f4a"
+}

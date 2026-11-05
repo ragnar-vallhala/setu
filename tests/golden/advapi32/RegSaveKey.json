@@ -1,0 +1,121 @@
+{
+  "test": "advapi32/RegSaveKey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "original": {
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:00010203fafbfcfdfeff000000000000;dw=4:04030201;multi=7:61000000620000000000;none=0:;odd=17185:000102;qw=11:8877665544332211;sz=1:73007400720069006e0067000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=2:2500580025000000;"
+    },
+    "save_without_backup_privilege": {
+      "ret": 1314,
+      "last_error": "unchanged"
+    },
+    "file_after_failed_save": {
+      "exists": true
+    },
+    "enable_backup_privilege": {
+      "ok": true
+    },
+    "save": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "file_after_save": {
+      "exists": true
+    },
+    "save_existing_file": {
+      "ret": 183,
+      "last_error": "unchanged"
+    },
+    "save_bad_dir": {
+      "ret": 3,
+      "last_error": "unchanged"
+    },
+    "save_ex_standard": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "save_ex_latest": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "save_ex_no_compression": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "save_ex_flags_zero": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "save_ex_flags_bad": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "save_empty_file": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "save_query_value_handle": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "save_null_key": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "restore_without_restore_privilege": {
+      "ret": 1314,
+      "last_error": "unchanged"
+    },
+    "enable_restore_privilege": {
+      "ok": true
+    },
+    "restore": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "scratch_after_restore": {
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:00010203fafbfcfdfeff000000000000;dw=4:04030201;multi=7:61000000620000000000;none=0:;odd=17185:000102;qw=11:8877665544332211;sz=1:73007400720069006e0067000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=2:2500580025000000;"
+    },
+    "restore_latest_format": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "scratch2_after_restore": {
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:00010203fafbfcfdfeff000000000000;dw=4:04030201;multi=7:61000000620000000000;none=0:;odd=17185:000102;qw=11:8877665544332211;sz=1:73007400720069006e0067000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=2:2500580025000000;"
+    },
+    "restore_with_open_subkey": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "restore_force_with_open_subkey": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "scratch3_after_restore": {
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:00010203fafbfcfdfeff000000000000;dw=4:04030201;multi=7:61000000620000000000;none=0:;odd=17185:000102;qw=11:8877665544332211;sz=1:73007400720069006e0067000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=2:2500580025000000;"
+    },
+    "restore_missing_file": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "restore_junk_file": {
+      "ret": 1016,
+      "last_error": "unchanged"
+    },
+    "scratch_after_junk": {
+      "tree": "[]@=1:640065006600610075006c0074000000;bin=3:00010203fafbfcfdfeff000000000000;dw=4:04030201;multi=7:61000000620000000000;none=0:;odd=17185:000102;qw=11:8877665544332211;sz=1:73007400720069006e0067000000; [\\one]v1=1:6f006e0065000000; [\\one\\two]v2=2:2500580025000000;"
+    },
+    "restore_bad_flags": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "restore_null_key": {
+      "ret": 6,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "b316a14c0dc6fd56bf543c0abb58aa96defee34c0f8323b940951595b67813a2"
+}

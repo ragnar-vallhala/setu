@@ -1,0 +1,166 @@
+{
+  "test": "advapi32/RegNotifyChangeKeyValue",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "name_no_change": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "name_create_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "name_delete_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "name_set_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "name_delete_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "name_set_security": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "last_set_set_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "last_set_same_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "last_set_delete_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "last_set_create_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "last_set_delete_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "last_set_set_security": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "last_set_query_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "last_set_open_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "last_set_flush": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "attributes_set_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "attributes_create_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "attributes_set_security": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "security_set_security": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "security_set_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "security_create_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "all_set_value": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "subtree_false_value_in_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "subtree_true_value_in_subkey": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "filter_zero": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "filter_unknown_bit": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "filter_thread_agnostic_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "filter_thread_agnostic_last_set": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "event": "signaled"
+    },
+    "async_null_event": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "null_key": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "bogus_key": {
+      "ret": 6,
+      "last_error": "unchanged"
+    },
+    "bogus_event": {
+      "ret": 6,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "33bb063dd14633ce57e5c216064d666d7d5ffd66b2feb27cd8e808055cf7de2b"
+}

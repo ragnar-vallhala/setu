@@ -1,0 +1,133 @@
+{
+  "test": "advapi32/RegLink",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create_link": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "disposition": 1
+    },
+    "set_symbolic_link_value": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "open_through_link": {
+      "open": 0,
+      "last_error": "unchanged",
+      "marker": 0,
+      "marker_data": "in target",
+      "linkvalue": 2,
+      "subkeys": 1,
+      "values": 1
+    },
+    "open_link_itself": {
+      "open": 0,
+      "last_error": "unchanged",
+      "marker": 2,
+      "linkvalue": 0,
+      "linkvalue_type": 6,
+      "linkvalue_under_base": true,
+      "linkvalue_rest": "\\target",
+      "subkeys": 0,
+      "values": 1
+    },
+    "open_subkey_through_link": {
+      "open": 0,
+      "last_error": "unchanged",
+      "marker": 2,
+      "linkvalue": 2,
+      "subkeys": 0,
+      "values": 0
+    },
+    "open_target_with_open_link_option": {
+      "open": 0,
+      "last_error": "unchanged",
+      "marker": 0,
+      "marker_data": "in target",
+      "linkvalue": 2,
+      "subkeys": 1,
+      "values": 1
+    },
+    "create_subkey_through_link": {
+      "ret": 0
+    },
+    "subkey_appears_in_target": {
+      "open": 0
+    },
+    "create_link_again": {
+      "ret": 183,
+      "last_error": "unchanged"
+    },
+    "create_plain_over_link": {
+      "ret": 0,
+      "disposition": 2
+    },
+    "create_link_over_plain_key": {
+      "ret": 183,
+      "last_error": "unchanged"
+    },
+    "enum_parent": {
+      "subkeys": "link,target"
+    },
+    "open_dangling": {
+      "open": 2,
+      "last_error": "unchanged"
+    },
+    "open_dangling_itself": {
+      "open": 0,
+      "last_error": "unchanged",
+      "marker": 2,
+      "linkvalue": 0,
+      "linkvalue_type": 6,
+      "linkvalue_under_base": true,
+      "linkvalue_rest": "\\nowhere",
+      "subkeys": 0,
+      "values": 1
+    },
+    "set_link_wrong_type": {
+      "ret": 5
+    },
+    "set_other_value_on_link": {
+      "ret": 5
+    },
+    "open_badlink_itself": {
+      "open": 0,
+      "last_error": "unchanged",
+      "marker": 2,
+      "linkvalue": 2,
+      "subkeys": 0,
+      "values": 0
+    },
+    "open_badlink": {
+      "open": 2,
+      "last_error": "unchanged"
+    },
+    "set_link_value_on_plain_key": {
+      "ret": 0
+    },
+    "open_plain_with_link_value": {
+      "open": 0,
+      "last_error": "unchanged",
+      "marker": 2,
+      "linkvalue": 0,
+      "linkvalue_type": 6,
+      "linkvalue_under_base": true,
+      "linkvalue_rest": "\\target",
+      "subkeys": 0,
+      "values": 1
+    },
+    "ntdeletekey_available": {
+      "available": true
+    },
+    "delete_link": {
+      "ret": 0
+    },
+    "target_survives_link_delete": {
+      "open": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "7d663896f1dfac67238ba178b9611f59a05f6995f640b2845a2713862e5e8880"
+}

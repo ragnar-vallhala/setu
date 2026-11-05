@@ -1,0 +1,149 @@
+{
+  "test": "advapi32/RegLoadKey",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "make_hives": {
+      "save1": 0,
+      "save2": 0,
+      "save3": 0
+    },
+    "load_without_privileges": {
+      "ret": 1314,
+      "last_error": "unchanged"
+    },
+    "load_restore_privilege_only": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "load_into_hkcu": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "load_into_ordinary_key": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "load_nested_name": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "load_missing_file": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "load_junk_file": {
+      "ret": 1016,
+      "last_error": "unchanged"
+    },
+    "load_hku": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "loaded_contents": {
+      "hive": " subkeys=0"
+    },
+    "load_same_name_again": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "load_same_file_other_name": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "unload_with_open_handle": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "unload": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "after_unload": {
+      "hive": "open failed 2"
+    },
+    "unload_again": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "reload": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "reloaded_contents": {
+      "hive": "a=alpha;b=beta subkeys=1"
+    },
+    "unload_without_privileges": {
+      "ret": 1314,
+      "last_error": "unchanged"
+    },
+    "unload_reloaded": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "load_hklm": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "hklm_contents": {
+      "hive": "a=alpha;b=beta subkeys=1"
+    },
+    "unload_hklm": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "unload_ordinary_key": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "unload_missing": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "replace_not_loaded": {
+      "ret": 87,
+      "last_error": "unchanged"
+    },
+    "replace_missing_new_file": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "replace_loaded_hive": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "files_after_replace": {
+      "old_exists": true,
+      "new_exists": true
+    },
+    "unload_replaced": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "files_after_unload": {
+      "old_exists": true,
+      "new_exists": true,
+      "loaded_file_exists": true
+    },
+    "loadappkey_available": {
+      "available": true
+    },
+    "loadappkey_new_file": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "file_exists": true
+    },
+    "loadappkey_reopen": {
+      "ret": 0,
+      "query": 0,
+      "data": "app"
+    },
+    "loadappkey_saved_hive": {
+      "ret": 0,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "5850fdf3ab4e4064a73fe9c082392289c5030ae3cbb48c9f031782658ae6eb3d"
+}

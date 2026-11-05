@@ -1,0 +1,93 @@
+{
+  "test": "advapi32/RegNotifyChangeKeyValue_handles",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "close_handle_signals": {
+      "ret": 0,
+      "event": "signaled"
+    },
+    "delete_key_last_set": {
+      "ret": 0,
+      "delete": 0,
+      "event": "signaled"
+    },
+    "delete_key_name": {
+      "ret": 0,
+      "event": "signaled"
+    },
+    "notify_on_deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged",
+      "event": "timeout"
+    },
+    "subtree_child_deleted": {
+      "event": "signaled"
+    },
+    "one_shot": {
+      "first": "signaled",
+      "second_without_rearm": "timeout"
+    },
+    "rearm": {
+      "ret": 0,
+      "event": "signaled"
+    },
+    "change_before_arming": {
+      "event": "timeout"
+    },
+    "two_on_one_handle_value_change": {
+      "ret1": 0,
+      "ret2": 0,
+      "event_last_set": "signaled",
+      "event_name": "signaled"
+    },
+    "two_on_one_handle_then_subkey": {
+      "event_name": "signaled"
+    },
+    "two_handles_both_fire": {
+      "event1": "signaled",
+      "event2": "signaled"
+    },
+    "access_key_notify": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "access_key_query_value": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "access_key_set_value": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "access_key_read": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "access_key_write": {
+      "ret": 5,
+      "last_error": "unchanged"
+    },
+    "sync_blocks_until_change": {
+      "before_change": "timeout",
+      "after_change": "signaled",
+      "ret": 0
+    },
+    "sync_name_filter": {
+      "after_value_change": "signaled",
+      "after_subkey_create": "signaled",
+      "ret": 0
+    },
+    "sync_subtree": {
+      "after_subkey_value": "timeout",
+      "ret": 4294967295
+    },
+    "sync_close_handle": {
+      "after_close": "signaled",
+      "ret": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "d9e359ab6e531209183f61272cfbc73158e163acb8012ee04b65f6dee1099bb8"
+}

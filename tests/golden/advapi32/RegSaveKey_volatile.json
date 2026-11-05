@@ -1,0 +1,41 @@
+{
+  "test": "advapi32/RegSaveKey_volatile",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "save_with_volatile_subkey": {
+      "ret": 0,
+      "tree": "[]a=1:61006c007000680061000000; [\\stable]b=1:62006500740061000000; [\\vol]inside=1:76006f006c006100740069006c0065000000;"
+    },
+    "restore_mixed": {
+      "ret": 0,
+      "tree": "[]a=1:61006c007000680061000000; [\\stable]b=1:62006500740061000000;"
+    },
+    "restored_subkey_is_not_volatile": {
+      "disposition": 2
+    },
+    "save_volatile_key_itself": {
+      "ret": 0,
+      "tree": "[]inside=1:76006f006c006100740069006c0065000000;"
+    },
+    "restore_over_existing": {
+      "ret": 0,
+      "tree": "[]a=1:61006c007000680061000000; [\\stable]b=1:62006500740061000000;"
+    },
+    "restore_whole_hive_volatile_ordinary_key": {
+      "ret": 87,
+      "tree": "[]"
+    },
+    "restore_no_lazy_flush": {
+      "ret": 0,
+      "tree": "[]a=1:61006c007000680061000000; [\\stable]b=1:62006500740061000000;"
+    },
+    "restore_into_volatile_key": {
+      "ret": 0,
+      "tree": "[]a=1:61006c007000680061000000; [\\stable]b=1:62006500740061000000;"
+    }
+  },
+  "errors": [],
+  "source_sha256": "0688a1e9d582a623ceedaf37e6482d0416f0d88aebdf3fbbfc6139e4681619d8"
+}
