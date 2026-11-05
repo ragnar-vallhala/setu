@@ -20,13 +20,21 @@
 
 /*
  * A file's or directory's full security descriptor (owner, group, DACL,
- * SACL) is stored in the extended attribute "user.setu.sd": one format byte
- * (1) followed by the descriptor in the self-relative layout of [MS-DTYP]
- * 2.4.6 SECURITY_DESCRIPTOR. The "user." namespace is used because the
- * personality runs as an ordinary user and writing "security.*" attributes
- * needs CAP_SYS_ADMIN. Files without the attribute keep Wine's behaviour:
- * their security descriptor is derived from the Unix mode, and no NT access
- * check is made when they are opened.
+ * SACL) is stored in an extended attribute: one format byte (1) followed by
+ * the descriptor in the self-relative layout of [MS-DTYP] 2.4.6
+ * SECURITY_DESCRIPTOR (docs/ARCHITECTURE.md §3.3).
+ *
+ * The attribute is "security.NTACL". Anyone may read a "security.*"
+ * attribute, so the server reads it itself; writing one needs CAP_SYS_ADMIN,
+ * so the server hands the file's descriptor to the setu-ntacld helper
+ * (services/fs/README.md) over a unix socket and the helper writes it. The
+ * wineserver itself stays unprivileged. Where there is no helper (developer
+ * machines, CI) or the file is not on a Setu volume, the descriptor goes to
+ * "user.setu.sd" instead, which an ordinary user may write.
+ *
+ * Files without either attribute keep Wine's behaviour: their security
+ * descriptor is derived from the Unix mode, and no NT access check is made
+ * when they are opened.
  */
 
 #include "config.h"
@@ -38,8 +46,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/uio.h>
+#include <sys/un.h>
 #include <unistd.h>
 #ifdef HAVE_SYS_XATTR_H
 #include <sys/xattr.h>
@@ -57,9 +68,32 @@
 #include "process.h"
 #include "security.h"
 
-#define XATTR_SD_NAME   "user.setu.sd"
-#define XATTR_SD_FORMAT 1
-#define XATTR_SD_MAX    65536
+#define XATTR_NTACL_NAME "security.NTACL"
+#define XATTR_SD_NAME    "user.setu.sd"
+#define XATTR_SD_FORMAT  1
+#define XATTR_SD_MAX     65536
+
+/* The setu-ntacld protocol (services/fs/setu-ntacl.h, kept in step by hand):
+ * a SOCK_SEQPACKET message of a request header and its data, with the file's
+ * descriptor in SCM_RIGHTS; the reply is an errno value. */
+#define NTACL_SOCKET    "/run/setu/ntacl.sock"
+#define NTACL_MAGIC     0x4c43414e  /* "NACL" */
+#define NTACL_VERSION   1
+#define NTACL_OP_SET    1
+
+struct ntacl_request
+{
+    unsigned int   magic;
+    unsigned short version;
+    unsigned short op;
+    unsigned int   len;
+};
+
+struct ntacl_reply
+{
+    unsigned int   magic;
+    int            error;
+};
 
 /* [MS-DTYP] 2.4.6 self-relative security descriptor header */
 struct sd_relative
@@ -165,16 +199,108 @@ static unsigned char *build_stored_sd( const struct security_descriptor *sd, siz
     return buf;
 }
 
+#ifdef HAVE_SYS_XATTR_H
+
+/* read one of the attributes: of unix_fd, or of name relative to the cwd */
+static struct security_descriptor *read_stored_sd( int unix_fd, const char *name, const char *attr )
+{
+    unsigned char buf[XATTR_SD_MAX];
+    ssize_t len;
+
+    if (name) len = getxattr( name, attr, buf, sizeof(buf) );
+    else len = fgetxattr( unix_fd, attr, buf, sizeof(buf) );
+    if (len <= 0) return NULL;
+    /* a security.NTACL in another format (Samba's) is not ours: ignore it */
+    return parse_stored_sd( buf, len );
+}
+
+static struct security_descriptor *get_stored_sd( int unix_fd, const char *name )
+{
+    struct security_descriptor *sd;
+
+    if ((sd = read_stored_sd( unix_fd, name, XATTR_NTACL_NAME ))) return sd;
+    return read_stored_sd( unix_fd, name, XATTR_SD_NAME );
+}
+
+#ifdef __linux__
+static int ntacl_fd = -1;
+
+static int ntacl_connect(void)
+{
+    const char *path = getenv( "SETU_NTACL_SOCKET" );
+    struct sockaddr_un addr;
+    struct timeval tv = { 5, 0 };
+    int fd;
+
+    if (!path || !path[0]) path = NTACL_SOCKET;
+    if (strlen( path ) >= sizeof(addr.sun_path)) return -1;
+    memset( &addr, 0, sizeof(addr) );
+    addr.sun_family = AF_UNIX;
+    strcpy( addr.sun_path, path );
+    if ((fd = socket( AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0 )) == -1) return -1;
+    setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv) );
+    setsockopt( fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv) );
+    if (connect( fd, (struct sockaddr *)&addr, sizeof(addr) ) == -1)
+    {
+        close( fd );
+        return -1;
+    }
+    return fd;
+}
+
+/* ask setu-ntacld to write security.NTACL of unix_fd; returns 0, the
+ * helper's errno value, or -1 when there is no helper */
+static int ntacl_set( int unix_fd, const void *data, size_t len )
+{
+    struct ntacl_request req = { NTACL_MAGIC, NTACL_VERSION, NTACL_OP_SET, len };
+    struct ntacl_reply reply;
+    struct iovec iov[2];
+    union { struct cmsghdr hdr; char buf[CMSG_SPACE(sizeof(int))]; } control;
+    struct msghdr msg;
+    struct cmsghdr *cmsg;
+    int attempt;
+
+    iov[0].iov_base = &req;
+    iov[0].iov_len  = sizeof(req);
+    iov[1].iov_base = (void *)data;
+    iov[1].iov_len  = len;
+    for (attempt = 0; attempt < 2; attempt++)
+    {
+        /* a connection that broke (the helper restarted) is made again once */
+        if (ntacl_fd == -1 && (ntacl_fd = ntacl_connect()) == -1) return -1;
+
+        memset( &msg, 0, sizeof(msg) );
+        memset( &control, 0, sizeof(control) );
+        msg.msg_iov = iov;
+        msg.msg_iovlen = 2;
+        msg.msg_control = control.buf;
+        msg.msg_controllen = sizeof(control.buf);
+        cmsg = CMSG_FIRSTHDR( &msg );
+        cmsg->cmsg_level = SOL_SOCKET;
+        cmsg->cmsg_type = SCM_RIGHTS;
+        cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+        memcpy( CMSG_DATA(cmsg), &unix_fd, sizeof(int) );
+
+        if (sendmsg( ntacl_fd, &msg, MSG_NOSIGNAL ) == (ssize_t)(sizeof(req) + len) &&
+            recv( ntacl_fd, &reply, sizeof(reply), 0 ) == sizeof(reply) && reply.magic == NTACL_MAGIC)
+            return reply.error;
+        close( ntacl_fd );
+        ntacl_fd = -1;
+    }
+    return EIO;
+}
+#else
+static int ntacl_set( int unix_fd, const void *data, size_t len ) { return -1; }
+#endif
+
+#endif  /* HAVE_SYS_XATTR_H */
+
 /* read the stored security descriptor of an open file, NULL if there is none */
 struct security_descriptor *fd_get_stored_sd( int unix_fd )
 {
 #ifdef HAVE_SYS_XATTR_H
-    unsigned char buf[XATTR_SD_MAX];
-    ssize_t len;
-
     if (unix_fd == -1) return NULL;
-    if ((len = fgetxattr( unix_fd, XATTR_SD_NAME, buf, sizeof(buf) )) <= 0) return NULL;
-    return parse_stored_sd( buf, len );
+    return get_stored_sd( unix_fd, NULL );
 #else
     return NULL;
 #endif
@@ -184,18 +310,16 @@ struct security_descriptor *fd_get_stored_sd( int unix_fd )
 struct security_descriptor *path_get_stored_sd( int root_fd, const char *name )
 {
 #ifdef HAVE_SYS_XATTR_H
-    unsigned char buf[XATTR_SD_MAX];
-    ssize_t len;
+    struct security_descriptor *sd;
 
     if (root_fd != -1)
     {
         if (!name[0] || !strcmp( name, "." )) return fd_get_stored_sd( root_fd );
         if (fchdir( root_fd ) == -1) return NULL;
     }
-    len = getxattr( name, XATTR_SD_NAME, buf, sizeof(buf) );
+    sd = get_stored_sd( -1, name );
     if (root_fd != -1) fchdir( server_dir_fd );
-    if (len <= 0) return NULL;
-    return parse_stored_sd( buf, len );
+    return sd;
 #else
     return NULL;
 #endif
@@ -205,12 +329,29 @@ struct security_descriptor *path_get_stored_sd( int root_fd, const char *name )
 int fd_store_sd( int unix_fd, const struct security_descriptor *sd )
 {
 #ifdef HAVE_SYS_XATTR_H
+    struct security_descriptor *ntacl;
     unsigned char *buf;
     size_t len;
-    int ret = 0;
+    int ret;
 
     if (!(buf = build_stored_sd( sd, &len ))) return ENOMEM;
-    if (fsetxattr( unix_fd, XATTR_SD_NAME, buf, len, 0 ) == -1) ret = errno;
+    ret = ntacl_set( unix_fd, buf, len );
+    if (!ret)
+    {
+        /* a fallback copy from before would only be stale */
+        fremovexattr( unix_fd, XATTR_SD_NAME );
+    }
+    else if (ret == -1 || ret == EXDEV || ret == ENOTSUP || ret == EOPNOTSUPP)
+    {
+        /* no helper, or not a Setu volume: the fallback attribute, unless a
+         * security.NTACL we can't change would hide it */
+        if ((ntacl = read_stored_sd( unix_fd, NULL, XATTR_NTACL_NAME )))
+        {
+            free( ntacl );
+            ret = EPERM;
+        }
+        else ret = fsetxattr( unix_fd, XATTR_SD_NAME, buf, len, 0 ) == -1 ? errno : 0;
+    }
     free( buf );
     return ret;
 #else
