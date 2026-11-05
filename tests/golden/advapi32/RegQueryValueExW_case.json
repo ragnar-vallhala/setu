@@ -1,0 +1,106 @@
+{
+  "test": "advapi32/RegQueryValueExW_case",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "ascii": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after_set_other": 1,
+      "first_name": "abc"
+    },
+    "latin1_e_acute": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after_set_other": 1,
+      "first_name": "é"
+    },
+    "latin1_y_diaeresis": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after_set_other": 1,
+      "first_name": "ÿ"
+    },
+    "greek_sigma": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after_set_other": 1,
+      "first_name": "σ"
+    },
+    "greek_final_sigma": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "ς"
+    },
+    "cyrillic": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after_set_other": 1,
+      "first_name": "ж"
+    },
+    "sharp_s_vs_ss": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "ß"
+    },
+    "sharp_s_vs_capital": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "ß"
+    },
+    "dotless_i": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "ı"
+    },
+    "dotted_capital_i": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "İ"
+    },
+    "fullwidth": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after_set_other": 1,
+      "first_name": "ａ"
+    },
+    "kelvin_sign": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "K"
+    },
+    "micro_vs_mu": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "µ"
+    },
+    "georgian": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "ა"
+    },
+    "cherokee": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "values_after_set_other": 2,
+      "first_name": "ꭰ"
+    },
+    "roman_numeral": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "values_after_set_other": 1,
+      "first_name": "ⅰ"
+    }
+  },
+  "errors": [],
+  "source_sha256": "8a274aa267cd5429a86e30916597a9727341a39e2366e03aa01a28c751e25aee"
+}

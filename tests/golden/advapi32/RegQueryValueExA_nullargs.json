@@ -1,0 +1,95 @@
+{
+  "test": "advapi32/RegQueryValueExA_nullargs",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "all_null_exists": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "all_null_missing": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "type_only_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "size_only_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "size": 3
+    },
+    "data_without_size_sz": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "data_without_size_dw": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "data_without_type_sz": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "size": 3,
+      "buffer": "686900000000cccccccccccc"
+    },
+    "reserved_nonnull": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "default_null_unset": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "default_null_set": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 3,
+      "buffer": "686900000000cccccccccccc"
+    },
+    "default_empty_set": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 3,
+      "buffer": "686900000000cccccccccccc"
+    },
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "null_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "buffer": "cccccccccccccccccccccccc"
+    },
+    "name_other_case": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 3,
+      "buffer": "686900000000cccccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "189db20942dd53ac81f036400b9d569967d4aafb7c53add07e8d5b9fa262cb23"
+}

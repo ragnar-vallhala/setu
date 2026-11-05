@@ -1,0 +1,103 @@
+{
+  "test": "advapi32/RegQueryValueExW_nullargs",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "all_null_exists": {
+      "ret": 0,
+      "last_error": "unchanged"
+    },
+    "all_null_missing": {
+      "ret": 2,
+      "last_error": "unchanged"
+    },
+    "type_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1
+    },
+    "type_only_missing": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0
+    },
+    "size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "size": 6
+    },
+    "size_only_nonzero_in": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "size": 4
+    },
+    "data_without_size": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "data_without_size_missing": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "data_without_type": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "size": 4,
+      "buffer": "05000000cccccccccccccccccccccccc"
+    },
+    "reserved_nonnull": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "reserved": "0x55555555",
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "reserved_nonnull_missing": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16,
+      "reserved": "0x55555555",
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "reserved_nonnull_size_only": {
+      "ret": 87,
+      "last_error": "unchanged",
+      "size": 0,
+      "reserved": "0x55555555"
+    },
+    "empty_value_size_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 0
+    },
+    "empty_value_data": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 0,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "empty_value_data_zero_buf": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 0,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "default_unset_type_only": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "0cf925b05c650fbc75c1189a22f62b59d7ec6cc4db447bb077456f2e501f1008"
+}

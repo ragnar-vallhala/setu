@@ -1,0 +1,143 @@
+{
+  "test": "advapi32/RegQueryValueExA_moredata",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_ansi_exact_6": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "68656c6c6f00cccccccc"
+    },
+    "sz_5_no_room_for_nul": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "cccccccccccccccccc"
+    },
+    "sz_4": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "cccccccccccccccc"
+    },
+    "sz_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "cccccccccc"
+    },
+    "sz_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "cccccccc"
+    },
+    "sz_7": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "68656c6c6f00cccccccccc"
+    },
+    "sz_11": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "68656c6c6f00cccccccccccccccccc"
+    },
+    "sz_12_unicode_size": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "68656c6c6f006c006f000000cccccccc"
+    },
+    "sz_nonul_5": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "cccccccccccccccccc"
+    },
+    "sz_nonul_6": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "68656c6c6f00cccccccc"
+    },
+    "sz_nonul_4": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "cccccccccccccccc"
+    },
+    "sz_nonul_10": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 6,
+      "buffer": "68656c6c6f00cccccccccccccccc"
+    },
+    "expand_5": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 6,
+      "buffer": "cccccccccccccccccc"
+    },
+    "expand_6": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 6,
+      "buffer": "68656c6c6f00cccccccc"
+    },
+    "multi_7": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 7,
+      "buffer": "61620063640000cccccccc"
+    },
+    "multi_6": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 7,
+      "buffer": "cccccccccccccccccccc"
+    },
+    "multi_3": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 7,
+      "buffer": "cccccccccccccc"
+    },
+    "binary_4": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 5,
+      "buffer": "cccccccccccccccc"
+    },
+    "binary_5": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 5,
+      "buffer": "680065006ccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "248ae21ba963cdd6e23db733574917595466c323de71d7eee29d5b60448df565"
+}

@@ -1,0 +1,213 @@
+{
+  "test": "advapi32/RegQueryValueExW_moredata",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "sz_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "680065006c006c006f000000cccccccc"
+    },
+    "sz_minus_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccccccccccccccccccccccccc"
+    },
+    "sz_minus_2_no_room_for_nul": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccccccccccccccccccccccc"
+    },
+    "sz_half": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccccccccccccccc"
+    },
+    "sz_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccccc"
+    },
+    "sz_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccc"
+    },
+    "sz_nonul_exact": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccccccccccccccccccccccc"
+    },
+    "sz_nonul_plus_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccccccccccccccccccccccccc"
+    },
+    "sz_nonul_plus_2": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "680065006c006c006f000000cccccccc"
+    },
+    "sz_nonul_minus_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 12,
+      "buffer": "cccccccccccccccccccccccccc"
+    },
+    "expand_minus_2": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 12,
+      "buffer": "cccccccccccccccccccccccccccc"
+    },
+    "expand_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 2,
+      "size": 12,
+      "buffer": "cccccccc"
+    },
+    "multi_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 14,
+      "buffer": "6100620000006300640000000000cccccccc"
+    },
+    "multi_minus_2": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 14,
+      "buffer": "cccccccccccccccccccccccccccccccc"
+    },
+    "multi_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 7,
+      "size": 14,
+      "buffer": "cccccccccc"
+    },
+    "binary_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 7,
+      "buffer": "01020304050607cccccccc"
+    },
+    "binary_minus_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 7,
+      "buffer": "cccccccccccccccccccc"
+    },
+    "binary_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 3,
+      "size": 7,
+      "buffer": "cccccccc"
+    },
+    "dword_exact": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "44332211cccccccc"
+    },
+    "dword_3": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "cccccccccccccc"
+    },
+    "dword_1": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "cccccccccc"
+    },
+    "dword_0": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "buffer": "cccccccc"
+    },
+    "qword_7": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8,
+      "buffer": "cccccccccccccccccccccc"
+    },
+    "qword_4": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 11,
+      "size": 8,
+      "buffer": "cccccccccccccccc"
+    },
+    "empty_sz_0": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 0,
+      "buffer": "cccccccc"
+    },
+    "empty_sz_4": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 1,
+      "size": 0,
+      "buffer": "cccccccccccccccc"
+    },
+    "none_2": {
+      "ret": 234,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 3,
+      "buffer": "cccccccccccc"
+    },
+    "missing_0": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 0,
+      "buffer": "cccccccc"
+    },
+    "missing_4": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 4,
+      "buffer": "cccccccccccccccc"
+    }
+  },
+  "errors": [],
+  "source_sha256": "0fca779f365346ea9cb78e553ca4d1be3a2530be7f41c737809f5c05b10f6ab7"
+}

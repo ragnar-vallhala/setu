@@ -1,0 +1,103 @@
+{
+  "test": "advapi32/RegQueryValueExW_handles",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "invalid_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "null_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "type": 2863311530,
+      "size": 16
+    },
+    "closed_handle": {
+      "ret": 6,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "query_value_only": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "09000000"
+    },
+    "set_value_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "enumerate_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "notify_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "key_write": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "read_control_only": {
+      "ret": 5,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "maximum_allowed": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "09000000"
+    },
+    "generic_read": {
+      "ret": 0,
+      "last_error": "unchanged",
+      "type": 4,
+      "size": 4,
+      "data": "09000000"
+    },
+    "value_path_through_parent": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "default_of_subkey_by_name": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "deleted_key": {
+      "ret": 1018,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    },
+    "deleted_key_default": {
+      "ret": 1018,
+      "last_error": "unchanged",
+      "type": 0,
+      "size": 16
+    }
+  },
+  "errors": [],
+  "source_sha256": "25f778765b09ed7e11506f478e3dc6317726f3aef440ae973f85313637824a00"
+}
