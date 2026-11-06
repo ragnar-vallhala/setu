@@ -35,6 +35,23 @@
 #     output        console: regex its output must match
 #     timeout       seconds to wait for the window (default 60)
 #     alive         seconds it must stay running (default 10)
+#   runtimes        runtimes from [runtime.*] the app needs in its prefix
+#
+# Runtimes: Wine add-ons the owner approved for test prefixes. They are put
+# in the prefix's Wine download cache ($XDG_CACHE_HOME/wine), where
+# wineboot finds and installs them; apps without them run with mscoree
+# disabled, so no download prompt can appear.
+
+[runtime.wine-mono]
+# the version and sha256 personality/wine/dlls/appwiz.cpl/addons.c expects
+# (MONO_VERSION, MONO_SHA); owner approval 2026-11-06 (setu-m3 #27)
+version = "10.4.1"
+url = "https://dl.winehq.org/wine/wine-mono/10.4.1/wine-mono-10.4.1-x86.msi"
+sha256 = "071f4b2887e1c97a11d791ff3d65be9429eed6dec4c2708888bfd546ba358e23"
+size = 85504000
+file = "wine-mono-10.4.1-x86.msi"
+licence = "MIT, parts GPL / LGPL"
+licence_url = "https://wiki.winehq.org/Mono"
 
 [[app]]
 name = "winsw"
@@ -144,8 +161,34 @@ files = ['C:\Program Files\KeePass Password Safe 2\KeePass.exe']
 uninstall_name = '^KeePass Password Safe'
 lnk = 'KeePass.*\.lnk$'
 uninstall_args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+# a .NET Framework app
+runtimes = ["wine-mono"]
 [app.launch]
 exe = 'C:\Program Files\KeePass Password Safe 2\KeePass.exe'
+args = []
+window = 'KeePass'
+timeout = 120
+
+# KeePass 1.x (Classic Edition): the native C++ line, still maintained;
+# covered by the KeePass approval (setu-m3 #26)
+[[app]]
+name = "keepass-classic"
+version = "1.44"
+url = "https://sourceforge.net/projects/keepass/files/KeePass%201.x/1.44/KeePass-1.44-Setup.exe/download"
+sha256 = ""
+size = 0
+licence = "GPL-2.0-or-later"
+licence_url = "https://keepass.info/help/v1/license.html"
+homepage = "https://keepass.info/download.html"
+kind = "inno"
+install_args = ["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"]
+silent_docs = "https://keepass.info/help/v1/setup.html"
+files = ['C:\Program Files (x86)\KeePass Password Safe\KeePass.exe']
+uninstall_name = '^KeePass Password Safe 1'
+lnk = 'KeePass.*\.lnk$'
+uninstall_args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+[app.launch]
+exe = 'C:\Program Files (x86)\KeePass Password Safe\KeePass.exe'
 args = []
 window = 'KeePass'
 
@@ -198,8 +241,8 @@ timeout = 120
 name = "libreoffice"
 version = "26.8.2"
 url = "https://download.documentfoundation.org/libreoffice/stable/26.8.2/win/x86_64/LibreOffice_26.8.2_Win_x86-64.msi"
-sha256 = ""
-size = 0
+sha256 = "ff4b911403b67ee9e6249f820f9782c44bb32c94fdaa45b0da53a8e419e5307a"
+size = 375934976
 licence = "MPL-2.0"
 licence_url = "https://www.libreoffice.org/about-us/licenses/"
 homepage = "https://download.documentfoundation.org/libreoffice/stable/"
@@ -237,16 +280,18 @@ lnk = 'GIMP.*\.lnk$'
 uninstall_args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
 [app.launch]
 exe = 'C:\Program Files\GIMP 3\bin\gimp-3.2.exe'
-args = ["--no-splash", "%SAMPLE_SVG%"]
-window = 'GIMP'
+# no file: an SVG opens an import dialog first; the main window is
+# behind the first-run "Welcome to GIMP" dialog
+args = ["--no-splash"]
+window = '\|GNU Image Manipulation Program$'
 timeout = 300
 
 [[app]]
 name = "inkscape"
 version = "1.4.4"
-url = "https://media.inkscape.org/media/resources/sigs/inkscape-1.4.4_2026-05-05_dcaf3e7-x64.signed.msi"
-sha256 = ""
-size = 0
+url = "https://inkscape.org/gallery/item/59504/inkscape-1.4.4_2026-05-05_dcaf3e7-x64.signed_xMx7DJV.msi"
+sha256 = "2fa033e95113ae83d6430b2479e7e63e4266d0632a5b03f99ee3db9360e3b8b8"
+size = 170323968
 licence = "GNU GPL (version 2 text on the licence page)"
 licence_url = "https://inkscape.org/about/license/"
 homepage = "https://inkscape.org/release/inkscape-1.4.4/windows/64-bit/msi/"
@@ -261,5 +306,5 @@ lnk = 'Inkscape.*\.lnk$'
 [app.launch]
 exe = 'C:\Program Files\Inkscape\bin\inkscape.exe'
 args = ["%SAMPLE_SVG%"]
-window = 'Inkscape'
+window = 'sample\.svg - Inkscape'
 timeout = 300
