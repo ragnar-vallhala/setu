@@ -1,0 +1,235 @@
+{
+  "test": "user32/sys_metrics",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load_user32": {
+      "ret": "valid",
+      "gdi32": true
+    },
+    "screen_dpi": {
+      "logpixelsy": 96
+    },
+    "cycaption": {
+      "value": 19
+    },
+    "cxsize": {
+      "value": 18
+    },
+    "cysize": {
+      "value": 18
+    },
+    "cysmcaption": {
+      "value": 16
+    },
+    "cxsmsize": {
+      "value": 13
+    },
+    "cysmsize": {
+      "value": 15
+    },
+    "cxborder": {
+      "value": 1
+    },
+    "cyborder": {
+      "value": 1
+    },
+    "cxedge": {
+      "value": 2
+    },
+    "cyedge": {
+      "value": 2
+    },
+    "cxfixedframe": {
+      "value": 3
+    },
+    "cyfixedframe": {
+      "value": 3
+    },
+    "cxsizeframe": {
+      "value": 4
+    },
+    "cysizeframe": {
+      "value": 4
+    },
+    "cxpaddedborder": {
+      "value": 0
+    },
+    "cymenu": {
+      "value": 19
+    },
+    "cxmenusize": {
+      "value": 18
+    },
+    "cymenusize": {
+      "value": 18
+    },
+    "cxmenucheck": {
+      "value": 13
+    },
+    "cxvscroll": {
+      "value": 16
+    },
+    "cyhscroll": {
+      "value": 16
+    },
+    "cyvthumb": {
+      "value": 16
+    },
+    "cxhthumb": {
+      "value": 16
+    },
+    "cxicon": {
+      "value": 32
+    },
+    "cxsmicon": {
+      "value": 16
+    },
+    "cxmintrack": {
+      "value": 112
+    },
+    "cymintrack": {
+      "value": 27
+    },
+    "cxmin": {
+      "value": 112
+    },
+    "cymin": {
+      "value": 27
+    },
+    "cxfocusborder": {
+      "value": 1
+    },
+    "ncm_sizes": {
+      "ret": true,
+      "last_error": "unchanged",
+      "border": 1,
+      "scroll_width": 16,
+      "scroll_height": 16,
+      "caption_width": 18,
+      "caption_height": 18,
+      "smcaption_width": 13,
+      "smcaption_height": 15,
+      "menu_width": 18,
+      "menu_height": 18,
+      "padded_border": 0
+    },
+    "ncm_caption_font": {
+      "caption_face": "MS Shell Dlg",
+      "caption_height": -11,
+      "caption_weight": 700,
+      "caption_italic": 0,
+      "caption_charset": 0
+    },
+    "ncm_smcaption_font": {
+      "smcaption_face": "MS Shell Dlg",
+      "smcaption_height": -11,
+      "smcaption_weight": 400,
+      "smcaption_italic": 0,
+      "smcaption_charset": 0
+    },
+    "ncm_menu_font": {
+      "menu_face": "MS Shell Dlg",
+      "menu_height": -11,
+      "menu_weight": 400,
+      "menu_italic": 0,
+      "menu_charset": 0
+    },
+    "ncm_status_font": {
+      "status_face": "MS Shell Dlg",
+      "status_height": -11,
+      "status_weight": 400,
+      "status_italic": 0,
+      "status_charset": 0
+    },
+    "ncm_message_font": {
+      "message_face": "MS Shell Dlg",
+      "message_height": -11,
+      "message_weight": 400,
+      "message_italic": 0,
+      "message_charset": 0
+    },
+    "icon_title_font": {
+      "ret": true,
+      "icon_face": "MS Shell Dlg",
+      "icon_height": -11,
+      "icon_weight": 400,
+      "icon_italic": 0,
+      "icon_charset": 0
+    },
+    "flat_menu_gradient_captions": {
+      "flat_ret": true,
+      "flat": 1,
+      "gradient_ret": true,
+      "gradient": 1
+    },
+    "default_gui_font": {
+      "ret": true,
+      "size": 92,
+      "gui_face": "MS Shell Dlg",
+      "gui_height": -11,
+      "gui_weight": 400,
+      "gui_italic": 0,
+      "gui_charset": 0
+    },
+    "adjust_overlapped": {
+      "ret": true,
+      "last_error": "unchanged",
+      "left": 4,
+      "top": 23,
+      "right": 4,
+      "bottom": 4
+    },
+    "adjust_overlapped_menu": {
+      "ret": true,
+      "last_error": "unchanged",
+      "left": 4,
+      "top": 42,
+      "right": 4,
+      "bottom": 4
+    },
+    "adjust_dialog": {
+      "ret": true,
+      "last_error": "unchanged",
+      "left": 3,
+      "top": 22,
+      "right": 3,
+      "bottom": 3
+    },
+    "adjust_caption_only": {
+      "ret": true,
+      "last_error": "unchanged",
+      "left": 3,
+      "top": 22,
+      "right": 3,
+      "bottom": 3
+    },
+    "adjust_toolwindow": {
+      "ret": true,
+      "last_error": "unchanged",
+      "left": 4,
+      "top": 20,
+      "right": 4,
+      "bottom": 4
+    },
+    "adjust_border": {
+      "ret": true,
+      "last_error": "unchanged",
+      "left": 1,
+      "top": 1,
+      "right": 1,
+      "bottom": 1
+    },
+    "adjust_clientedge": {
+      "ret": true,
+      "last_error": "unchanged",
+      "left": 6,
+      "top": 25,
+      "right": 6,
+      "bottom": 6
+    }
+  },
+  "errors": [],
+  "source_sha256": "e2b293f2d80805517d52d08c88e95dc3d68e189a5307407c8bdd8a0410e10d28"
+}
