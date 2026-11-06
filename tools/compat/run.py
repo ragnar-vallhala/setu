@@ -235,8 +235,8 @@ class Stage(Exception):
 
 
 class AppRun:
-    def __init__(self, app, args, wine):
-        self.app, self.args, self.wine = app, args, wine
+    def __init__(self, app, args, wine, runtimes):
+        self.app, self.args, self.wine, self.runtimes = app, args, wine, runtimes
         self.wineserver = os.path.join(os.path.dirname(wine), "wineserver")
         self.name = app["name"]
         self.prefix = os.path.join(PREFIXES, re.sub(r"[^A-Za-z0-9_.-]", "_", self.name))
@@ -259,8 +259,10 @@ class AppRun:
         home = os.path.join(self.prefix, "home")
         e.update(HOME=home, XDG_DATA_HOME=home + "/.local/share", XDG_CONFIG_HOME=home + "/.config",
                  XDG_CACHE_HOME=home + "/.cache")
+        # without wine-mono in the prefix, mscoree stays off: no download prompt
+        off = "mshtml" if "wine-mono" in self.app.get("runtimes", []) else "mscoree,mshtml"
         e.update(WINEPREFIX=self.prefix, DISPLAY=self.display, WINEDEBUG="err+all",
-                 WINEDLLOVERRIDES="mscoree,mshtml=;winemenubuilder.exe=d",
+                 WINEDLLOVERRIDES=off + "=;winemenubuilder.exe=d",
                  TZ="UTC", LANG="en_US.UTF-8", LC_ALL="en_US.UTF-8")
         return e
 
@@ -361,16 +363,25 @@ class AppRun:
         return status == "pass"
 
     # -- stages
+    @staticmethod
+    def fetch(url, dest):
+        if not os.path.exists(dest):
+            part = dest + ".part"
+            r = subprocess.run(["curl", "-sfL", "--retry", "2", "--connect-timeout", "30", "-m", "3600", "-o", part, url])
+            if r.returncode:
+                raise Stage("download of %s failed (curl exit %d)" % (url, r.returncode))
+            os.replace(part, dest)
+
     def s_download(self):
         a = self.app
         os.makedirs(CACHE, exist_ok=True)
+        for name in a.get("runtimes", []):
+            rt = self.runtimes[name]
+            self.fetch(rt["url"], os.path.join(CACHE, rt["file"]))
+            if sha256(os.path.join(CACHE, rt["file"])) != rt["sha256"]:
+                raise Stage("sha256 mismatch for runtime %s" % name)
         self.installer = os.path.join(CACHE, cache_name(a))
-        if not os.path.exists(self.installer):
-            part = self.installer + ".part"
-            r = subprocess.run(["curl", "-sfL", "--retry", "2", "--connect-timeout", "30", "-m", "3600", "-o", part, a["url"]])
-            if r.returncode:
-                raise Stage("download of %s failed (curl exit %d)" % (a["url"], r.returncode))
-            os.replace(part, self.installer)
+        self.fetch(a["url"], self.installer)
         got = sha256(self.installer)
         if not a.get("sha256"):
             if not self.args.pin:
@@ -383,10 +394,20 @@ class AppRun:
     def s_prefix(self):
         shutil.rmtree(self.prefix, ignore_errors=True)
         os.makedirs(os.path.join(self.prefix, "home"))
+        if self.app.get("runtimes"):
+            # wineboot installs add-ons it finds in its download cache
+            wcache = os.path.join(self.prefix, "home", ".cache", "wine")
+            os.makedirs(wcache)
+            for name in self.app["runtimes"]:
+                f = self.runtimes[name]["file"]
+                os.symlink(os.path.join(CACHE, f), os.path.join(wcache, f))
         rc = self.wine_run(["wineboot", "--init"], "prefix.log", 300)
         subprocess.run([self.wineserver, "-w"], env=self.env(), timeout=300)
         if not os.path.exists(os.path.join(self.prefix, "system.reg")):
             raise Stage("wineboot --init failed (exit %s)" % rc)
+        if "wine-mono" in self.app.get("runtimes", []) and \
+                not os.path.isdir(os.path.join(self.prefix, "drive_c", "windows", "mono")):
+            raise Stage("wineboot did not install wine-mono%s" % self.evidence("prefix.log"))
         for argv in (["reg", "add", r"HKCU\Software\Wine\Explorer", "/v", "Desktop", "/d", "setu", "/f"],
                      ["reg", "add", r"HKCU\Software\Wine\Explorer\Desktops", "/v", "setu", "/d", RES, "/f"]):
             self.wine_run(argv, "prefix.log", 60)
@@ -814,10 +835,12 @@ def main():
     ap.add_argument("--html-only", action="store_true", help="rebuild index.html from results.json")
     ap.add_argument("--update-docs", action="store_true", help="rewrite the results table in docs/COMPAT.md")
     ap.add_argument("--markdown", action="store_true", help="with --html-only: print the markdown table")
+    ap.add_argument("--manifest", default=os.path.join(HERE, "apps.toml"), help="manifest (default: apps.toml)")
     ap.add_argument("--fresh", action="store_true", help="drop earlier results of apps not run now")
     args = ap.parse_args()
 
-    manifest = tomllib.load(open(os.path.join(HERE, "apps.toml"), "rb"))["app"]
+    toml = tomllib.load(open(args.manifest, "rb"))
+    manifest, runtimes = toml["app"], toml.get("runtime", {})
     names = [a["name"] for a in manifest]
     if args.html_only:
         data = json.load(open(RESULTS))
@@ -842,7 +865,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.j) as pool:
-        results = list(pool.map(lambda a: AppRun(a, args, wine).run(), apps))
+        results = list(pool.map(lambda a: AppRun(a, args, wine, runtimes).run(), apps))
 
     old = {}
     if os.path.exists(RESULTS) and not args.fresh:
