@@ -39,7 +39,8 @@ mount_9p() { # tag dir
 
 log "installing builder tools"
 apt-get update -qq
-tools="mmdebstrap dosfstools e2fsprogs fdisk attr"
+# python3-numpy/-pil: distro/artwork/wallpaper.py draws the wallpaper
+tools="mmdebstrap dosfstools e2fsprogs fdisk attr python3-numpy python3-pil"
 [ "$KIND" = iso ] && tools="$tools squashfs-tools xorriso mtools grub-efi-amd64-bin"
 apt-get install -y -q --no-install-recommends $tools
 
@@ -157,6 +158,30 @@ if [ "${HAVE_SHELL:-0}" = 1 ]; then
     done
     umount /mnt/shell
 fi
+
+# The wallpaper (docs/DESIGN.md; distro/artwork/wallpaper.py), drawn here at
+# common display sizes. The personality's desktop shows a .bmp centred and
+# unscaled, so setu-session picks the one that matches the display
+# (/usr/share/setu/wallpapers/setu-WxH.bmp); the PNGs are the full-size
+# originals for anything that can scale (/usr/share/backgrounds/setu).
+log "drawing the wallpaper"
+mkdir -p $T/usr/share/setu/wallpapers $T/usr/share/backgrounds/setu
+wp_args=()
+for s in 1024x768 1280x720 1280x800 1280x1024 1366x768 1440x900 1536x864 1600x900 \
+         1680x1050 1920x1080 1920x1200 2560x1080 2560x1440 2560x1600 3440x1440 3840x2160; do
+    wp_args+=("$s" "$T/usr/share/setu/wallpapers/setu-$s.bmp")
+done
+wp_args+=(1920x1080 $T/usr/share/backgrounds/setu/setu-1920x1080.png
+          3840x2160 $T/usr/share/backgrounds/setu/setu-3840x2160.png)
+python3 $DISTRO/artwork/wallpaper.py "${wp_args[@]}" >/dev/null
+log "  $(du -sh $T/usr/share/setu/wallpapers | cut -f1) of .bmp, $(ls $T/usr/share/backgrounds/setu | wc -l) .png"
+
+# The boot splash (rootfs/usr/share/plymouth/themes/setu, selected in
+# /etc/plymouth/plymouthd.conf) goes into the initramfs; the fonts into
+# fontconfig's cache.
+log "initramfs with the boot splash; font cache"
+chroot $T update-initramfs -u -k all
+chroot $T fc-cache -s >/dev/null
 
 if [ "$KIND" = image ]; then
     chroot $T /bin/bash -euo pipefail <<'EOF'

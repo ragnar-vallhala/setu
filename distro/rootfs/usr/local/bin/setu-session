@@ -65,6 +65,58 @@ if [ -z "$SETU_RES" ]; then
     done
 fi
 SETU_RES=${SETU_RES:-1280x800}
+
+# Setu's look (docs/DESIGN.md) for this prefix, set before the first program
+# opens the desktop (the desktop reads its wallpaper when it starts).
+# Font smoothing: on, reported as ClearType (FontSmoothing=2,
+# FontSmoothingType=2: what Windows reports by default), drawn in grayscale
+# (no FontSmoothingOrientation: the personality then antialiases ClearType
+# text in grayscale; Xwayland draws in software, often scaled in a VM window,
+# where colour fringes look worse). SETU_FONT_SMOOTHING=rgb draws subpixel
+# RGB instead. Set once per prefix; programs may change them afterwards.
+look=$WINEPREFIX/.setu-look-1
+if [ ! -f "$look" ]; then
+    wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothing /t REG_SZ /d 2 /f >/dev/null 2>&1
+    wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingType /t REG_DWORD /d 2 /f >/dev/null 2>&1
+    if [ "$SETU_FONT_SMOOTHING" = rgb ]; then
+        wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingOrientation /t REG_DWORD /d 1 /f >/dev/null 2>&1
+    fi
+    : > "$look"
+fi
+# Wallpaper: Setu's (distro/artwork/wallpaper.py), drawn at common display
+# sizes. The desktop shows a .bmp centred and unscaled, so pick the one the
+# size of the display, else the smallest that covers it (its top left shows).
+# Only while the wallpaper is Setu's or unset: one a program or the user
+# chose stays.
+wallpaper_for() { # WxH
+    _dir=/usr/share/setu/wallpapers
+    [ -f "$_dir/setu-$1.bmp" ] && { echo "$_dir/setu-$1.bmp"; return; }
+    _w=${1%x*} _h=${1#*x} _best= _area=
+    for _f in "$_dir"/setu-*x*.bmp; do
+        [ -f "$_f" ] || continue
+        _s=${_f##*/setu-}; _s=${_s%.bmp}
+        [ "${_s%x*}" -ge "$_w" ] && [ "${_s#*x}" -ge "$_h" ] || continue
+        _a=$(( ${_s%x*} * ${_s#*x} ))
+        if [ -z "$_area" ] || [ "$_a" -lt "$_area" ]; then _best=$_f _area=$_a; fi
+    done
+    [ -n "$_best" ] || _best=$(ls "$_dir"/setu-*x*.bmp 2>/dev/null | tail -n1)
+    echo "$_best"
+}
+wp=$(wallpaper_for "$SETU_RES")
+if [ -n "$wp" ]; then
+    cur=$(wine reg query 'HKCU\Control Panel\Desktop' /v Wallpaper 2>/dev/null \
+          | tr -d '\r' | sed -n 's/^ *Wallpaper *REG_SZ *//p')
+    case $cur in
+        ''|*'\usr\share\setu\wallpapers\'*)
+            winwp="Z:$(echo "$wp" | tr / '\\')"
+            if [ "$cur" != "$winwp" ]; then
+                wine reg add 'HKCU\Control Panel\Desktop' /v Wallpaper /d "$winwp" /f >/dev/null 2>&1
+            fi
+            log "wallpaper: $wp" ;;
+        *) log "wallpaper: $cur (chosen in Windows)" ;;
+    esac
+fi
+
 log "desktop: setu $SETU_RES"
 wine reg add 'HKCU\Software\Wine\Explorer' /v Desktop /d setu /f >/dev/null 2>&1
 wine reg add 'HKCU\Software\Wine\Explorer\Desktops' /v setu /d "$SETU_RES" /f >/dev/null 2>&1
