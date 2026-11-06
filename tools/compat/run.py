@@ -536,18 +536,32 @@ class AppRun:
                                          stdout=self.launch_log, stderr=subprocess.STDOUT,
                                          stdin=subprocess.DEVNULL, cwd=os.path.dirname(exe))
         rx = re.compile(L["window"])
+        dismiss = [(re.compile(k), v) for k, v in L.get("dismiss", {}).items()]
+        dismissed, prompts = [], {}  # prompts: hwnd -> True if a button was clicked in it
         end = time.time() + L.get("timeout", 60)
         seen = []
         while time.time() < end:
             time.sleep(1)
             wins = self.app_windows()
             seen = ["%s|%s" % (w["cls"], w["title"]) for w in wins]
-            match = [w for w in wins if rx.search("%s|%s" % (w["cls"], w["title"]))]
+            # A first-run prompt can look like the main window (KeePass 1's
+            # main window is a dialog with the same title), so a window that
+            # matches a dismiss pattern only counts once no button was found
+            # in it.
+            for w in wins:
+                key = "%s|%s" % (w["cls"], w["title"])
+                for drx, button in dismiss:
+                    if drx.search(key) and w["hwnd"] not in prompts and len(prompts) < 5:
+                        prompts[w["hwnd"]] = self.probe("click", w["hwnd"], button).startswith("clicked")
+                        if prompts[w["hwnd"]]:
+                            dismissed.append("%s -> %s" % (w["title"], button))
+            match = [w for w in wins if rx.search("%s|%s" % (w["cls"], w["title"])) and not prompts.get(w["hwnd"])]
             if match:
                 self.main_window = match[0]
                 self.windows_seen = seen
-                return ("pass", "%s|%s %s" % (match[0]["cls"], match[0]["title"], "x".join(
-                    str(v) for v in (match[0]["rect"][2] - match[0]["rect"][0], match[0]["rect"][3] - match[0]["rect"][1]))))
+                return ("pass", "%s|%s %s%s" % (match[0]["cls"], match[0]["title"], "x".join(
+                    str(v) for v in (match[0]["rect"][2] - match[0]["rect"][0], match[0]["rect"][3] - match[0]["rect"][1])),
+                    "; answered first-run prompt: " + ", ".join(dismissed) if dismissed else ""))
             if self.launched.poll() is not None and not self.app_pids():
                 raise Stage("exited with code %s before showing a window%s" % (
                     self.launched.returncode, self.evidence("launch.log")))
@@ -555,7 +569,12 @@ class AppRun:
         if seen:
             raise Stage("no window matching /%s/ in %ds; visible: %s%s" % (
                 L["window"], L.get("timeout", 60), "; ".join(seen[:4]), self.evidence("launch.log")))
-        raise Stage("no visible window in %ds%s" % (L.get("timeout", 60), self.evidence("launch.log")))
+        hidden = ["%s|%s" % (w["cls"], w["title"]) for w in self.windows()
+                  if w["exe"].lower() not in SYSTEM_EXES]
+        procs = sorted({exe for _, _, exe in self.procs() if exe.lower() not in SYSTEM_EXES})
+        raise Stage("no visible window in %ds; processes: %s; hidden windows: %s%s" % (
+            L.get("timeout", 60), ", ".join(procs) or "none", "; ".join(hidden[:4]) or "none",
+            self.evidence("launch.log")))
 
     def s_screenshot(self):
         if self.app["launch"].get("console"):

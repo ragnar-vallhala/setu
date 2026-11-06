@@ -32,6 +32,8 @@
 #                   must match ("" for console programs)
 #     console       true: a console program; pass = exit code 0 and its
 #                   output matching `output`
+#     dismiss       first-run prompts without a Cancel button, which ignore
+#                   WM_CLOSE: { "regex on class|title" = "button text" }
 #     output        console: regex its output must match
 #     timeout       seconds to wait for the window (default 60)
 #     alive         seconds it must stay running (default 10)
@@ -166,7 +168,9 @@ runtimes = ["wine-mono"]
 [app.launch]
 exe = 'C:\Program Files\KeePass Password Safe 2\KeePass.exe'
 args = []
-window = 'KeePass'
+# the main window, not the first-run "Enable automatic update check?" task dialog
+window = '^(?!#32770\|)[^|]*\|KeePass$'
+dismiss = { '^#32770\|KeePass$' = "Disable" }
 timeout = 120
 
 # KeePass 1.x (Classic Edition): the native C++ line, still maintained;
@@ -190,7 +194,9 @@ uninstall_args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
 [app.launch]
 exe = 'C:\Program Files (x86)\KeePass Password Safe\KeePass.exe'
 args = []
-window = 'KeePass'
+# the main window is a dialog too, with the same title as the first-run prompt
+window = '^#32770\|KeePass$'
+dismiss = { '^#32770\|KeePass$' = "Disable" }
 
 [[app]]
 name = "winscp"
