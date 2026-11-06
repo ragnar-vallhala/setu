@@ -97,8 +97,12 @@ counted as the app's.
 Determinism: each app gets a new prefix at a fixed path, host name `setu`
 (a user + UTS namespace, as `tools/shell-smoke.sh` does), `TZ=UTC`,
 `en_US.UTF-8`, a fixed screen size, the same sample files, and a new
-Firefox profile. Mono and Gecko are disabled (`mscoree,mshtml=`), so no
-download prompt can appear. Logs run with `WINEDEBUG=err+all`; they are
+Firefox profile. Gecko is disabled (`mshtml=`), and so is Mono
+(`mscoree=`) unless the app lists the pinned wine-mono, so no download
+prompt can appear. First-run prompts that ignore `WM_CLOSE` (KeePass's
+update-check question, which has no Cancel button) are answered by
+clicking the button the manifest names (`dismiss`), and the result says
+so. Logs run with `WINEDEBUG=err+all`; they are
 trimmed (repeated lines collapsed, head and tail of long logs kept) and the
 first line that points at a failing API (an unimplemented function, a
 missing DLL, an unhandled exception, the first unexpected `err:`) is put in
@@ -113,9 +117,50 @@ never runs on push or pull requests.
 ## Latest results
 
 <!-- results:begin -->
-(not run yet)
+Setu `1beaa7262a0-dirty`, personality wine-11.0 (tree 76b2bcd5525), 2026-11-06 09:13 UTC: **11/11 installed, 10/11 launched, 10/11 pass every stage.**
+
+| App | Version | Verdict | download | prefix | install | files | registry | shortcut | launch | screenshot | alive | close | uninstall |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| winsw | 2.12.0 | Works | ✓ | ✓ | ✓ | ✓ | n/a | n/a | ✓ | n/a | n/a | n/a | n/a |
+| 7-zip | 26.05 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| notepad++ | 8.9.8.1 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| putty | 0.85 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| keepass | 2.62 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| keepass-classic | 1.44 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| winscp | 6.7 | Installs only | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | – | – | – | ✓ |
+| firefox | 159.0.1 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| libreoffice | 26.8.2 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| gimp | 3.2.8 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| inkscape | 1.4.4 | Works | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+Failures:
+
+- **winscp** launch: compat-probe could not list windows within 60s (session hung) [log: err:secur32:SECUR32_initSchannelSP no schannel support, expect problems]
 <!-- results:end -->
 
 ## Known blockers
 
-(filled from the latest run)
+First failing Windows API or behaviour for each app that does not work,
+as reported to the shell-api agent (`BUG-FOR shell-api …` in room
+setu-m3):
+
+- **WinSCP 6.7** (32-bit Delphi, under wow64): installs, registers and
+  uninstalls, but no window appears within 60 s, and in some runs the
+  whole session stops answering (compat-probe cannot even list windows
+  until the server is killed). With `+seh` the main
+  thread spends the time in user callbacks (about 424,000 wow64 callback
+  returns in 30 s, a window-message storm); the only `err:` lines are
+  comctl32's listview `unknown msg 109d` (`LVM_ENABLEGROUPVIEW`, a stub)
+  and `unknown msg 10bd`; a second start in the same prefix ended in an
+  unhandled Delphi exception (`0x0EEDFADE`). KeePass 2 sends 109d too and
+  works, so the listview stub may not be the cause. Reported 2026-11-06.
+
+Not Setu bugs, but worth knowing:
+
+- KeePass 2.62 is a .NET Framework app: it needs the wine-mono runtime
+  (pinned and installed into its prefix; it works with it).
+- KeePass 1.44 and 2.62 ask on first start whether to enable update
+  checks, in a dialog without a Cancel button; `run.py` answers it.
+- Downloads: SourceForge (KeePass, WinSCP) redirects to whichever mirror
+  it picks, and some are unreachable from some networks; rerun or set a
+  mirror if the download stage times out.
