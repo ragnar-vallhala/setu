@@ -363,12 +363,14 @@ static int grow_subkeys( struct key *key )
 /* save a registry and all its subkeys to a text file */
 static void save_subkeys( const struct key *key, const struct key *base, FILE *f )
 {
-    int i;
+    int i, stable_subkeys = 0;
 
     if (key->flags & KEY_VOLATILE) return;
-    /* save key if it has either some values or no subkeys, or needs special options */
-    /* keys with no values but subkeys are saved implicitly by saving the subkeys */
-    if ((key->last_value >= 0) || (key->last_subkey == -1) || key->class || (key->flags & KEY_SYMLINK))
+    for (i = 0; i <= key->last_subkey; i++)
+        if (!(key->subkeys[i]->flags & KEY_VOLATILE)) stable_subkeys++;
+    /* save key if it has either some values or no stable subkeys, or needs special options */
+    /* keys with no values but stable subkeys are saved implicitly by saving the subkeys */
+    if ((key->last_value >= 0) || !stable_subkeys || key->class || (key->flags & KEY_SYMLINK))
     {
         fprintf( f, "\n[" );
         if (key != base) dump_path( key, base, f );
