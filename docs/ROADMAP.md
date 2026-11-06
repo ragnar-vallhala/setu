@@ -38,12 +38,30 @@ that match real Windows, not in features that seem to work.
 
 ## Milestone 2: System services
 
-- Registry phase A complete for the advapi32 Reg* family (oracle coverage ~150
+Status 2026-11-06, against the interim Windows 10 22H2 oracle (310 tests,
+11,520 cases ratcheted, CI deterministic over two runs):
+
+- ✅ Registry phase A complete for the advapi32 Reg* family (oracle coverage ~150
   tests); `reg.exe` and `regedit` behave the same.
-- SCM: `CreateService` / `StartService` / `ControlService` oracle suite; a
+  142 registry tests: 116 advapi32/ntdll key and value tests (2,311 of 2,391
+  cases pass) and 26 `reg.exe`/`regedit` tests (all 476 cases pass).
+  Phase B, still open: descriptors in saved hives, the `RegReplaceKey` file
+  swap, `RegLoadAppKey`, real KTM transactions and HKCR merging.
+- ✅ SCM: `CreateService` / `StartService` / `ControlService` oracle suite; a
   third-party service installs and runs.
-- `C:` on an ext4-casefold volume in the distro image; drive-letter service.
-- NT ACL storage in xattrs with an `AccessCheck` oracle suite.
+  18 tests including `sc.exe` (547 of 569 cases pass). WinSW 2.12.0 (MIT,
+  pinned by sha256, downloaded at test time) installs, starts, stops and
+  uninstalls (`tests/thirdparty/winsw-service.sh`). Windows' required-buffer
+  size estimates are a known difference.
+- ✅ `C:` on an ext4-casefold volume in the distro image; drive-letter service.
+  `setu-drives` maps volumes and removable disks to letters
+  (`distro/tests/drives-smoke.sh`); `Z:` (the Linux root) stays visible for now.
+- ✅ NT ACL storage in xattrs with an `AccessCheck` oracle suite.
+  Descriptors live in `security.NTACL`, written by the narrow `setu-ntacld`
+  helper (`user.setu.sd` only as a no-root fallback); 16 security tests, all
+  769 cases pass (`distro/tests/ntacl-smoke.sh`). The wineserver still runs as
+  the session user, so processes of that user can change their own files'
+  descriptors through the helper; a system-account wineserver closes this.
 
 ## Milestone 3: Desktop
 
