@@ -1,0 +1,40 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-install STEP: Setu's own steps in the installer, run by Calamares
+# (shellprocess instances in /etc/calamares/settings.conf on the live system).
+#   cvol ROOT    on the live system, after the mount module: the C: volume,
+#                mounted at ROOT + SETU_CVOL_DIR, becomes the casefold
+#                system volume (setu-cvol-init)
+#   target       inside the installed system (chroot): the first-boot
+#                wizard's Calamares config replaces the installer's, and the
+#                wizard runs on the next boot instead of the session
+#   done ROOT    on the live system: records the end in the kernel log
+set -eu
+. /usr/lib/setu/layout.env
+log() { echo "setu-install: $*"; echo "setu-install: $*" > /dev/kmsg 2>/dev/null || true; }
+
+case ${1:-} in
+cvol)
+    ROOT=${2:?}
+    /usr/lib/setu/setu-cvol-init "$ROOT$SETU_CVOL_DIR" "$SETU_CVOL_LABEL"
+    log "C: volume ready at $SETU_CVOL_DIR"
+    ;;
+target)
+    rm -rf /etc/calamares
+    cp -a /usr/share/setu/firstboot/calamares /etc/calamares
+    systemctl disable setu-live-installer.service
+    systemctl enable setu-firstboot.service
+    # the session is enabled by the wizard, for the account it creates
+    systemctl disable setu-session.service 2>/dev/null || true
+    rm -f /var/lib/setu/firstboot.done
+    log "first-boot wizard set up"
+    ;;
+done)
+    ROOT=${2:?}
+    log "installation finished ($(findmnt -n -o SOURCE --mountpoint "$ROOT"))"
+    ;;
+*)
+    echo "usage: setu-install cvol ROOT | target | done ROOT" >&2
+    exit 2
+    ;;
+esac

@@ -1,0 +1,43 @@
+# Setu branding for Calamares: the installer and the first-boot wizard.
+# Artwork: Setu's own (make-artwork.sh). Docs: Calamares
+# src/branding/default/branding.desc (3.3).
+---
+componentName:  setu
+
+welcomeStyleCalamares: false
+welcomeExpandingLogo:  false
+
+# fill the screen: Calamares is the only window of the live session
+windowExpanding: fullscreen
+windowSize:      1024px,768px
+windowPlacement: center
+
+sidebar:    widget
+navigation: widget
+
+strings:
+    productName:         Setu
+    shortProductName:    Setu
+    version:             "0.3"
+    shortVersion:        "0.3"
+    versionedName:       Setu 0.3
+    shortVersionedName:  Setu 0.3
+    bootloaderEntryName: Setu
+    productUrl:          https://github.com/ragnar-vallhala/setu
+    supportUrl:          https://github.com/ragnar-vallhala/setu/issues
+    knownIssuesUrl:      https://github.com/ragnar-vallhala/setu/issues
+    releaseNotesUrl:     https://github.com/ragnar-vallhala/setu
+
+images:
+    productLogo:    "setu-logo.png"
+    productIcon:    "setu-logo.png"
+    productWelcome: "setu-welcome.png"
+
+# one picture while the installer works (no QML needed)
+slideshow: [ "setu-slide.png" ]
+
+style:
+   SidebarBackground:        "#0f4c5c"
+   SidebarText:              "#f4f1ea"
+   SidebarTextCurrent:       "#0a2f3a"
+   SidebarBackgroundCurrent: "#f2a541"

@@ -1,0 +1,11 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-installer-session: the live system's session program (labwc -S, from
+# setu-live-installer.service). Runs the installer, Calamares, with the
+# config in /etc/calamares. When it exits (cancelled), labwc exits and the
+# unit starts it again; at the end Calamares reboots (finished.conf).
+echo "setu-installer: starting Calamares (WAYLAND_DISPLAY=$WAYLAND_DISPLAY)"
+calamares -D 6
+rc=$?
+echo "setu-installer: Calamares exited ($rc)"
+exit $rc
