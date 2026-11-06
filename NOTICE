@@ -58,6 +58,12 @@ where a file lives in the tree.
    open-source .NET libraries published by Microsoft (WinForms, WPF); they
    come with Wine Mono as released and are not part of Setu's source.
 
+5. Third-party artwork in this tree: Lucide icons (ISC)
+   The line icons drawn by setu-shell and setu-files come from Lucide
+   (https://lucide.dev). Their SVG sources are in shell/icons/lucide/ with
+   Lucide's ISC licence (shell/icons/lucide/LICENSE); shell/icons/gen-icons.py
+   turns them into shell/src/setu-icons.h. Portions are from Feather (MIT).
+
 SPDX identifiers
 ----------------
   Setu code:          SPDX-License-Identifier: MIT OR Apache-2.0
