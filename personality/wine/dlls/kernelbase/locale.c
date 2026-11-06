@@ -8600,7 +8600,7 @@ static WCHAR *prepend_str( WCHAR *end, const WCHAR *str )
 static WCHAR *format_number( WCHAR *end, const WCHAR *value, const WCHAR *decimal_sep,
                              const WCHAR *thousand_sep, const WCHAR *grouping, UINT digits, BOOL lzero )
 {
-    BOOL round = FALSE, repeat = FALSE;
+    BOOL round = FALSE, repeat = FALSE, has_frac = FALSE;
     UINT i, len = 0, prev = ~0;
     const WCHAR *frac = NULL;
 
@@ -8642,7 +8642,11 @@ static WCHAR *format_number( WCHAR *end, const WCHAR *value, const WCHAR *decima
         }
         *(--end) = ch;
     }
-    if (*end) end = prepend_str( end, decimal_sep );
+    if (*end)
+    {
+        end = prepend_str( end, decimal_sep );
+        has_frac = TRUE;
+    }
 
     /* format integer part */
 
@@ -8654,6 +8658,8 @@ static WCHAR *format_number( WCHAR *end, const WCHAR *value, const WCHAR *decima
         len--;
     }
     if (len) lzero = FALSE;
+    /* a number with neither integer nor fractional digits is written as 0 */
+    else if (!has_frac) lzero = TRUE;
 
     /* leading 0s are ignored */
     while (grouping[0] == '0' && grouping[1] == ';')

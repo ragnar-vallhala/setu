@@ -88,6 +88,12 @@ int main(void)
         num("fmt_0_digits_round", L"en-US", 0, L"2.5", &f, 128);
         f.NumDigits = 2; f.LeadingZero = 0;
         num("fmt_no_leading_zero", L"en-US", 0, L"0.5", &f, 128);
+        num("fmt_no_leading_zero_zero", L"en-US", 0, L"0", &f, 128);
+        f.NumDigits = 0;
+        num("fmt_no_leading_zero_zero_0_digits", L"en-US", 0, L"0", &f, 128);
+        num("fmt_no_leading_zero_zero_point_0_digits", L"en-US", 0, L"0.0", &f, 128);
+        num("fmt_no_leading_zero_round_down_0_digits", L"en-US", 0, L"0.4", &f, 128);
+        f.NumDigits = 2;
         f.LeadingZero = 1; f.Grouping = 0;
         num("fmt_no_grouping", L"en-US", 0, L"1234567", &f, 128);
         f.Grouping = 32;

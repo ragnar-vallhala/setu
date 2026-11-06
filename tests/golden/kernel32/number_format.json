@@ -156,6 +156,26 @@
       "last_error": "unchanged",
       "out": ".50"
     },
+    "fmt_no_leading_zero_zero": {
+      "ret": 4,
+      "last_error": "unchanged",
+      "out": ".00"
+    },
+    "fmt_no_leading_zero_zero_0_digits": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "0"
+    },
+    "fmt_no_leading_zero_zero_point_0_digits": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "0"
+    },
+    "fmt_no_leading_zero_round_down_0_digits": {
+      "ret": 2,
+      "last_error": "unchanged",
+      "out": "0"
+    },
     "fmt_no_grouping": {
       "ret": 11,
       "last_error": "unchanged",
@@ -387,5 +407,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "691b5a49318b2c343c8aa2b97b5d6917b4d07702391bb8deae28a817595af91e"
+  "source_sha256": "99041b686c91964772da6bde576fa4768496c3316376ae739339a16c2cf8b247"
 }
