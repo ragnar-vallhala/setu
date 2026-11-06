@@ -11148,6 +11148,7 @@
     "shell32/shellfolder_enum:no_flags",
     "shell32/shellfolder_enum:nonfolders",
     "shell32/shellfolder_enum:setup",
+    "shell32/shellfolder_enum:this_pc_items",
     "shell32/shellfolder_names:attrs_file_all",
     "shell32/shellfolder_names:attrs_folder_all",
     "shell32/shellfolder_names:attrs_hidden",
