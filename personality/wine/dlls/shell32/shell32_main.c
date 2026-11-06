@@ -281,7 +281,7 @@ DWORD_PTR WINAPI SHGetFileInfoW(LPCWSTR path,DWORD dwFileAttributes,
         else
         {
             if (dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                lstrcatW (psfi->szTypeName, L"Folder");
+                lstrcatW (psfi->szTypeName, L"File folder");
             else 
             {
                 WCHAR sTemp[64];
@@ -297,8 +297,11 @@ DWORD_PTR WINAPI SHGetFileInfoW(LPCWSTR path,DWORD dwFileAttributes,
                 {
                     if (sTemp[0])
                     {
-                        lstrcpynW (psfi->szTypeName, sTemp, 64);
-                        lstrcatW (psfi->szTypeName, L" file");
+                        /* an unregistered extension is shown as "EXT File" */
+                        lstrcpynW (sTemp, PathFindExtensionW(szFullPath), 64);
+                        lstrcpynW (psfi->szTypeName, sTemp[0] == '.' ? sTemp + 1 : sTemp, 64);
+                        CharUpperW (psfi->szTypeName);
+                        lstrcatW (psfi->szTypeName, L" File");
                     }
                     else
                     {

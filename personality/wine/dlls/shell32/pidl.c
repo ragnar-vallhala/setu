@@ -2461,11 +2461,29 @@ void _ILGetFileType(LPCITEMIDLIST pidl, LPSTR pOut, UINT uOutSize)
                 && HCR_MapTypeToValueA(sTemp, pOut, uOutSize, FALSE ))
                 && sTemp[0])
             {
+                /* an unregistered extension is shown as "EXT File" */
+                _ILGetExtension (pidl, sTemp, 64);
                 lstrcpynA (pOut, sTemp, uOutSize - 6);
-                strcat (pOut, " file");
+                CharUpperA (pOut);
+                strcat (pOut, " File");
             }
         }
     }
+    else if (_ILIsFolder(pidl))
+        lstrcpynA(pOut, "File folder", uOutSize);
+    else if (_ILIsDesktop(pidl))
+        lstrcpynA(pOut, "", uOutSize);
+    else if (_ILIsDrive(pidl))
+    {
+        char root[4];
+
+        if (_ILGetDrive(pidl, root, sizeof(root)) && GetDriveTypeA(root) == DRIVE_FIXED)
+            lstrcpynA(pOut, "Local Disk", uOutSize);
+        else
+            lstrcpynA(pOut, "Folder", uOutSize);
+    }
+    else if (_ILIsSpecialFolder(pidl))
+        lstrcpynA(pOut, "System Folder", uOutSize);
     else
         lstrcpynA(pOut, "Folder", uOutSize);
 }
