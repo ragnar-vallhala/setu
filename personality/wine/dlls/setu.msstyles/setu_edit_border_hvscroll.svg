@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:5-32" width="5" height="20" version="1.1" viewBox="0 0 5 20" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ <rect x="0.5" y="0.5" width="4" height="4" rx="1" fill="#ffffff" stroke="#d1d1d1" stroke-width="1"/>
+ </g>
+ <g transform="translate(0 5)">
+ <rect x="0.5" y="0.5" width="4" height="4" rx="1" fill="#ffffff" stroke="#bdbdbd" stroke-width="1"/>
+ </g>
+ <g transform="translate(0 10)">
+ <rect x="0.5" y="0.5" width="4" height="4" rx="1" fill="#ffffff" stroke="#d1d1d1" stroke-width="1"/>
+ <rect x="0" y="3" width="5" height="2" fill="#1f6fb2"/>
+ </g>
+ <g transform="translate(0 15)">
+ <rect x="0.5" y="0.5" width="4" height="4" rx="1" fill="#f9f9f9" stroke="#e5e5e5" stroke-width="1"/>
+ </g>
+</svg>

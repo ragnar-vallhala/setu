@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:13-32" width="13" height="260" version="1.1" viewBox="0 0 13 260" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ <path d="M4.469 7.516L6.5 5.484L8.531 7.516" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 13)">
+ <path d="M4.469 7.516L6.5 5.484L8.531 7.516" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 26)">
+ <path d="M4.469 7.516L6.5 5.484L8.531 7.516" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 39)">
+ <path d="M4.469 7.516L6.5 5.484L8.531 7.516" fill="none" stroke="#a0a0a0" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 52)">
+ <path d="M4.469 5.484L6.5 7.516L8.531 5.484" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 65)">
+ <path d="M4.469 5.484L6.5 7.516L8.531 5.484" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 78)">
+ <path d="M4.469 5.484L6.5 7.516L8.531 5.484" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 91)">
+ <path d="M4.469 5.484L6.5 7.516L8.531 5.484" fill="none" stroke="#a0a0a0" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 104)">
+ <path d="M7.516 4.469L5.484 6.5L7.516 8.531" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 117)">
+ <path d="M7.516 4.469L5.484 6.5L7.516 8.531" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 130)">
+ <path d="M7.516 4.469L5.484 6.5L7.516 8.531" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 143)">
+ <path d="M7.516 4.469L5.484 6.5L7.516 8.531" fill="none" stroke="#a0a0a0" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 156)">
+ <path d="M5.484 4.469L7.516 6.5L5.484 8.531" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 169)">
+ <path d="M5.484 4.469L7.516 6.5L5.484 8.531" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 182)">
+ <path d="M5.484 4.469L7.516 6.5L5.484 8.531" fill="none" stroke="#1b1b1b" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 195)">
+ <path d="M5.484 4.469L7.516 6.5L5.484 8.531" fill="none" stroke="#a0a0a0" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 208)">
+ <path d="M4.469 7.516L6.5 5.484L8.531 7.516" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 221)">
+ <path d="M4.469 5.484L6.5 7.516L8.531 5.484" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 234)">
+ <path d="M7.516 4.469L5.484 6.5L7.516 8.531" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 247)">
+ <path d="M5.484 4.469L7.516 6.5L5.484 8.531" fill="none" stroke="#5f5f5f" stroke-width="1.016" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+</svg>

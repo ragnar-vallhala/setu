@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:7-32" width="7" height="84" version="1.1" viewBox="0 0 7 84" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ </g>
+ <g transform="translate(0 21)">
+ <rect x="1" y="1" width="5" height="19" rx="2" fill="#eaeaea"/>
+ </g>
+ <g transform="translate(0 42)">
+ <rect x="1" y="1" width="5" height="19" rx="2" fill="#d1d1d1"/>
+ </g>
+ <g transform="translate(0 63)">
+ </g>
+</svg>

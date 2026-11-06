@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:22-32" width="22" height="138" version="1.1" viewBox="0 0 22 138" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ <rect x="0.5" y="0.5" width="21" height="22" rx="4" fill="#ffffff" stroke="#d1d1d1" stroke-width="1"/>
+ </g>
+ <g transform="translate(0 23)">
+ <rect x="0.5" y="0.5" width="21" height="22" rx="4" fill="#eaeaea" stroke="#d1d1d1" stroke-width="1"/>
+ </g>
+ <g transform="translate(0 46)">
+ <rect x="0.5" y="0.5" width="21" height="22" rx="4" fill="#e0e0e0" stroke="#d1d1d1" stroke-width="1"/>
+ </g>
+ <g transform="translate(0 69)">
+ <rect x="0.5" y="0.5" width="21" height="22" rx="4" fill="#f9f9f9" stroke="#e5e5e5" stroke-width="1"/>
+ </g>
+ <g transform="translate(0 92)">
+ <rect x="0.5" y="0.5" width="21" height="22" rx="4" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="1"/>
+ </g>
+ <g transform="translate(0 115)">
+ <rect x="0.5" y="0.5" width="21" height="22" rx="4" fill="#2a7dc3" stroke="#2a7dc3" stroke-width="1"/>
+ </g>
+</svg>

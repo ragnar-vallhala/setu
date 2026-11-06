@@ -1424,6 +1424,7 @@ enable_secur32
 enable_security
 enable_sensapi
 enable_serialui
+enable_setu_msstyles
 enable_setupapi
 enable_sfc
 enable_sfc_os
@@ -23011,6 +23012,7 @@ wine_fn_config_makefile dlls/security enable_security
 wine_fn_config_makefile dlls/sensapi enable_sensapi
 wine_fn_config_makefile dlls/serialui enable_serialui
 wine_fn_config_makefile dlls/serialui/tests enable_tests
+wine_fn_config_makefile dlls/setu.msstyles enable_setu_msstyles
 wine_fn_config_makefile dlls/setupapi enable_setupapi
 wine_fn_config_makefile dlls/setupapi/tests enable_tests
 wine_fn_config_makefile dlls/setupx.dll16 enable_win16

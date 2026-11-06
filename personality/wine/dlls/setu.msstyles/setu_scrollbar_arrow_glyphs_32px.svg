@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:32-32" width="32" height="640" version="1.1" viewBox="0 0 32 640" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ <path d="M11 18.5L16 13.5L21 18.5" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 32)">
+ <path d="M11 18.5L16 13.5L21 18.5" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 64)">
+ <path d="M11 18.5L16 13.5L21 18.5" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 96)">
+ <path d="M11 18.5L16 13.5L21 18.5" fill="none" stroke="#a0a0a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 128)">
+ <path d="M11 13.5L16 18.5L21 13.5" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 160)">
+ <path d="M11 13.5L16 18.5L21 13.5" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 192)">
+ <path d="M11 13.5L16 18.5L21 13.5" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 224)">
+ <path d="M11 13.5L16 18.5L21 13.5" fill="none" stroke="#a0a0a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 256)">
+ <path d="M18.5 11L13.5 16L18.5 21" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 288)">
+ <path d="M18.5 11L13.5 16L18.5 21" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 320)">
+ <path d="M18.5 11L13.5 16L18.5 21" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 352)">
+ <path d="M18.5 11L13.5 16L18.5 21" fill="none" stroke="#a0a0a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 384)">
+ <path d="M13.5 11L18.5 16L13.5 21" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 416)">
+ <path d="M13.5 11L18.5 16L13.5 21" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 448)">
+ <path d="M13.5 11L18.5 16L13.5 21" fill="none" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 480)">
+ <path d="M13.5 11L18.5 16L13.5 21" fill="none" stroke="#a0a0a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 512)">
+ <path d="M11 18.5L16 13.5L21 18.5" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 544)">
+ <path d="M11 13.5L16 18.5L21 13.5" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 576)">
+ <path d="M18.5 11L13.5 16L18.5 21" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 608)">
+ <path d="M13.5 11L18.5 16L13.5 21" fill="none" stroke="#5f5f5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+</svg>

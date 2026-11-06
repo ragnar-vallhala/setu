@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:17-32" width="17" height="340" version="1.1" viewBox="0 0 17 340" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 17)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#eaeaea"/>
+ </g>
+ <g transform="translate(0 34)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#d1d1d1"/>
+ </g>
+ <g transform="translate(0 51)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 68)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 85)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#eaeaea"/>
+ </g>
+ <g transform="translate(0 102)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#d1d1d1"/>
+ </g>
+ <g transform="translate(0 119)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 136)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 153)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#eaeaea"/>
+ </g>
+ <g transform="translate(0 170)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#d1d1d1"/>
+ </g>
+ <g transform="translate(0 187)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 204)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 221)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#eaeaea"/>
+ </g>
+ <g transform="translate(0 238)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#d1d1d1"/>
+ </g>
+ <g transform="translate(0 255)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 272)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 289)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 306)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 323)">
+ <rect x="1" y="1" width="15" height="15" rx="3" fill="#ffffff"/>
+ </g>
+</svg>

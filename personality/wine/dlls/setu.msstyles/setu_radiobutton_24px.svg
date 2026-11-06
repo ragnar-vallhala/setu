@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:24-32" width="24" height="192" version="1.1" viewBox="0 0 24 192" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ <circle cx="12" cy="12" r="11.25" fill="#ffffff" stroke="#5f5f5f" stroke-width="1.5"/>
+ </g>
+ <g transform="translate(0 24)">
+ <circle cx="12" cy="12" r="11.25" fill="#f6f6f6" stroke="#1b1b1b" stroke-width="1.5"/>
+ </g>
+ <g transform="translate(0 48)">
+ <circle cx="12" cy="12" r="11.25" fill="#eaeaea" stroke="#1b1b1b" stroke-width="1.5"/>
+ </g>
+ <g transform="translate(0 72)">
+ <circle cx="12" cy="12" r="11.25" fill="#ffffff" stroke="#a0a0a0" stroke-width="1.5"/>
+ </g>
+ <g transform="translate(0 96)">
+ <circle cx="12" cy="12" r="11.25" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="1.5"/>
+ <circle cx="12" cy="12" r="5.25" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 120)">
+ <circle cx="12" cy="12" r="11.25" fill="#2a7dc3" stroke="#2a7dc3" stroke-width="1.5"/>
+ <circle cx="12" cy="12" r="6" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 144)">
+ <circle cx="12" cy="12" r="11.25" fill="#195e97" stroke="#195e97" stroke-width="1.5"/>
+ <circle cx="12" cy="12" r="4.5" fill="#ffffff"/>
+ </g>
+ <g transform="translate(0 168)">
+ <circle cx="12" cy="12" r="11.25" fill="#a0a0a0" stroke="#a0a0a0" stroke-width="1.5"/>
+ <circle cx="12" cy="12" r="5.25" fill="#ffffff"/>
+ </g>
+</svg>

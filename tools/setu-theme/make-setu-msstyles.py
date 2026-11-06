@@ -366,33 +366,31 @@ GLOBALS = """\
 "EdgeFillColor = 255 255 255\\r\\n"
 
 "\\r\\n[SysMetrics]\\r\\n"
-"; Sizes and fonts are what Windows 10 reports at 96 DPI (oracle test\\r\\n"
-"; user32/sys_metrics); Setu's look comes from drawing, not from metrics.\\r\\n"
+"; Sizes and fonts are the ones light.msstyles reports, so applications\\r\\n"
+"; see the same metrics; Setu's look comes from drawing (win32u draws the\\r\\n"
+"; window frames, and draws these faces with Inter when it is installed).\\r\\n"
 "ScrollbarWidth = 17\\r\\n"
 "ScrollbarHeight = 17\\r\\n"
-"CaptionBarWidth = 36\\r\\n"
-"CaptionBarHeight = 22\\r\\n"
-"SMCaptionBarWidth = 22\\r\\n"
-"SMCaptionBarHeight = 22\\r\\n"
-"MenuBarWidth = 19\\r\\n"
-"MenuBarHeight = 19\\r\\n"
 
 "\\r\\n; System colors (docs/DESIGN.md)\\r\\n"
 {colors}
 "\\r\\n; Nonclient metrics\\r\\n"
-"CaptionFont = Segoe UI, 9\\r\\n"
-"SmallCaptionFont = Segoe UI, 9\\r\\n"
-"MenuFont = Segoe UI, 9\\r\\n"
-"StatusFont = Segoe UI, 9\\r\\n"
-"MsgBoxFont = Segoe UI, 9\\r\\n"
-"IconTitleFont = Segoe UI, 9\\r\\n"
+"CaptionFont = Tahoma, 10, bold\\r\\n"
+"CaptionBarHeight = 25\\r\\n"
+"SmallCaptionFont = Tahoma, 8, bold\\r\\n"
+"SMCaptionBarHeight = 17\\r\\n"
+"SMCaptionBarWidth = 17\\r\\n"
+"MenuFont = Tahoma, 8\\r\\n"
+"StatusFont = Tahoma, 8\\r\\n"
+"MsgBoxFont = Tahoma, 8\\r\\n"
+"IconTitleFont = Tahoma, 8\\r\\n"
 
 "\\r\\n; Flat menus\\r\\n"
 "FlatMenus = true\\r\\n"
 """
 
-# System colours, in the theme's ini names. Kept in step with wine.inf's
-# [Control Panel\Colors] defaults.
+# System colours, in the theme's ini names. Kept in step with the defaults
+# compiled into win32u (dlls/win32u/sysparams.c).
 SYS_COLORS = [
     ("Scrollbar", T["window_bg"]),
     ("Background", T["accent_pressed"]),

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="bitmap:39-32" width="39" height="780" version="1.1" viewBox="0 0 39 780" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(0 0)">
+ <path d="M13.406 22.547L19.5 16.453L25.594 22.547" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 39)">
+ <path d="M13.406 22.547L19.5 16.453L25.594 22.547" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 78)">
+ <path d="M13.406 22.547L19.5 16.453L25.594 22.547" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 117)">
+ <path d="M13.406 22.547L19.5 16.453L25.594 22.547" fill="none" stroke="#a0a0a0" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 156)">
+ <path d="M13.406 16.453L19.5 22.547L25.594 16.453" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 195)">
+ <path d="M13.406 16.453L19.5 22.547L25.594 16.453" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 234)">
+ <path d="M13.406 16.453L19.5 22.547L25.594 16.453" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 273)">
+ <path d="M13.406 16.453L19.5 22.547L25.594 16.453" fill="none" stroke="#a0a0a0" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 312)">
+ <path d="M22.547 13.406L16.453 19.5L22.547 25.594" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 351)">
+ <path d="M22.547 13.406L16.453 19.5L22.547 25.594" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 390)">
+ <path d="M22.547 13.406L16.453 19.5L22.547 25.594" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 429)">
+ <path d="M22.547 13.406L16.453 19.5L22.547 25.594" fill="none" stroke="#a0a0a0" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 468)">
+ <path d="M16.453 13.406L22.547 19.5L16.453 25.594" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 507)">
+ <path d="M16.453 13.406L22.547 19.5L16.453 25.594" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 546)">
+ <path d="M16.453 13.406L22.547 19.5L16.453 25.594" fill="none" stroke="#1b1b1b" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 585)">
+ <path d="M16.453 13.406L22.547 19.5L16.453 25.594" fill="none" stroke="#a0a0a0" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 624)">
+ <path d="M13.406 22.547L19.5 16.453L25.594 22.547" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 663)">
+ <path d="M13.406 16.453L19.5 22.547L25.594 16.453" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 702)">
+ <path d="M22.547 13.406L16.453 19.5L22.547 25.594" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+ <g transform="translate(0 741)">
+ <path d="M16.453 13.406L22.547 19.5L16.453 25.594" fill="none" stroke="#5f5f5f" stroke-width="3.047" stroke-linecap="round" stroke-linejoin="round"/>
+ </g>
+</svg>
