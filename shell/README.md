@@ -7,14 +7,22 @@ Setu personality. It only uses public, documented APIs from user32, gdi32,
 shell32, ole32, advapi32 and kernel32, so it doubles as a test of the
 personality (docs/ARCHITECTURE.md §3.4).
 
-![Start menu](docs/startmenu-05-pinned.png)
+| | |
+|---|---|
+| ![Start menu, pinned apps](docs/startmenu-01-pinned.png) | ![Start menu, All apps](docs/startmenu-03-group.png) |
 
 ## What it does
 
-- **Taskbar** docked to the bottom of the primary monitor. It registers as an
-  appbar (`SHAppBarMessage`) and reserves the work area
-  (`SPI_SETWORKAREA`) when the appbar alone doesn't.
-- **Start menu** (start button, the Windows key on its own, or Ctrl+Esc):
+- **Taskbar** docked to the bottom of the primary monitor, 48 px. It
+  registers as an appbar (`SHAppBarMessage`) and reserves the work area
+  (`SPI_SETWORKAREA`) when the appbar alone doesn't. The Setu button and the
+  window buttons are centred; `TaskbarAlignment` = 1 (REG_DWORD) in
+  `HKCU\Software\Setu\Shell` puts them on the left (read at start and on
+  `--reload`).
+- **Start menu** (start button, the Windows key on its own, or Ctrl+Esc): a
+  floating panel above the taskbar with a search box, the pinned apps and an
+  **All apps** button; the user (opens the home folder) and a power button
+  (Sign out, Restart, Shut down) are at the bottom.
   - **All apps**, A to Z under letter headers: the built-ins (Files =
     `setu-files.exe`, else `explorer.exe`/`winefile.exe`; Notepad, Command
     Prompt, Registry Editor) plus every `.lnk` and `.url` under the per-user
@@ -36,14 +44,20 @@ personality (docs/ARCHITECTURE.md §3.4).
     anywhere, then folder name); Enter starts the best match. If nothing
     matches, Enter runs the text as a command (`ShellExecuteExW`; `.msi`
     files fall back to `msiexec /i` if they have no file association).
-  - **Pinned** row at the top (Files, Notepad, Command Prompt to start with):
+  - **Pinned** grid (6 columns, up to 24; Files, Notepad, Command Prompt to start with):
     right-click an app for Open, Pin/Unpin, Open file location
     (`setu-files.exe "<folder>"`, else `explorer /select`) and Uninstall
     (runs the `UninstallString`). Pins live in `HKCU\Software\Setu\Shell`,
     value `Pinned` (REG_MULTI_SZ, in order).
-  - **Keyboard**: arrows move through the pins and the list, Left/Right
-    collapse and expand groups, Enter opens, the Menu key or Shift+F10 opens
-    the context menu, Esc closes.
+  - **Keyboard**: arrows move through the pins; Up from the top row reaches
+    the All apps / Back button, and Enter there switches views. In the list,
+    arrows move through the rows and Left/Right collapse and expand groups.
+    Tab reaches the user and power buttons. Enter opens, the Menu key or
+    Shift+F10 opens the context menu, Esc closes.
+  - **Power**: Sign out is `ExitWindowsEx(EWX_LOGOFF)`; the shell exits with
+    0 on `WM_ENDSESSION`, which ends the session (distro/setu-session).
+    Restart and Shut down run `systemctl reboot` / `poweroff` through `Z:`
+    and are greyed out where there is no systemctl.
   - **Refresh**: when an installer adds or removes shortcuts or Uninstall
     entries, the menu updates within a second, open or not
     (`FindFirstChangeNotificationW` on both Programs folders,
@@ -53,12 +67,41 @@ personality (docs/ARCHITECTURE.md §3.4).
   taskbar rules (visible; `WS_EX_APPWINDOW` forces a button; owned or
   `WS_EX_TOOLWINDOW` windows get none). Click to activate, click the active
   one to minimize, click a minimized one to restore; right-click for
-  Minimize/Restore/Close. Refreshed by `RegisterShellHookWindow` messages
-  where that works, plus a timer.
-- **Clock** in the tray area. Sizes scale with DPI (per-monitor aware).
+  Minimize/Restore/Close. Each button is 40 px with a 24 px icon, a tooltip
+  with the title, and an accent pill under running apps (long for the
+  active one). Refreshed by `RegisterShellHookWindow` messages where that
+  works, plus a timer.
+- **Clock** (time over date) in the tray area. Sizes scale with DPI
+  (per-monitor aware).
 
-The look is our own: slate bar, a warm accent, and a bridge mark drawn with
-GDI. No Microsoft artwork, icons or fonts.
+## Look
+
+The shell and the file manager follow docs/DESIGN.md, Setu's own design:
+light surfaces, one accent colour, rounded corners. No Microsoft artwork,
+icons or fonts.
+
+- **Design tokens**: `src/setu-style.h` holds DESIGN.md's colours, radii and
+  sizes, read through one palette pointer (`ST`) so a dark palette can be
+  added later. It also has the drawing both programs share: anti-aliased
+  rounded rectangles, frames and soft shadows on a 32-bit DIB (from a
+  signed distance), text, and the line icons.
+- **Type**: Inter (body 9 pt, captions 9 pt semibold, titles 10.5 pt
+  semibold, large 14 pt semibold) when the system has it (the image installs
+  fonts-inter), else the system's message font.
+- **Icons**: [Lucide](https://lucide.dev) line icons (ISC licence,
+  `icons/lucide/LICENSE`). The unmodified SVGs are in `icons/lucide/`;
+  `icons/gen-icons.py` flattens them into stroke segments in
+  `src/setu-icons.h` (`python3 shell/icons/gen-icons.py >
+  shell/src/setu-icons.h` after adding one), and they are rasterized at the
+  size needed, 1.5 px strokes at 24 px. The Setu bridge mark on the start
+  button is drawn the same way.
+- **Start menu shadow**: Wine's virtual desktop has no translucent windows,
+  so the menu copies what is under it before it opens and draws the shadow
+  and the rounded corners over that copy. When the copy fails, it is a
+  window with a rounded region instead.
+
+Before/after screenshots of this restyle: `docs/m3-before/` holds the old
+look.
 
 ## Build
 
@@ -115,7 +158,8 @@ the start button opens the launcher with the built-ins and a test `.lnk`;
 launching Notepad adds a taskbar button; the run box starts regedit;
 real clicks on the Notepad button activate, minimize and restore it; and the
 desktop is repainted where the closed launcher and the minimized Notepad
-were (pixels sampled there must match the desktop background).
+were (pixels sampled there must match the desktop background); and the
+buttons are centred, and on the left with `TaskbarAlignment` = 1.
 Clicks are sent with `SendInput` by `shell/tests/setu-probe.exe`, which also
 lists the top-level windows (`setu-probe windows [all]`).
 Screenshots land in `build/shell/smoke/`.
@@ -138,7 +182,8 @@ a throwaway prefix (`build/startmenu-prefix`), with shortcuts and Uninstall
 entries pointing at `shell/tests/setu-testapp.exe`: discovery (both Programs
 folders, subfolders, groups, de-duplication, icons and glyphs, Other apps,
 hidden system components), the Windows key and typing to search, Enter on
-the best match, Ctrl+Esc, arrow keys and Esc, expanding a group, a shortcut
+the best match, Ctrl+Esc, arrow keys through the pins, the All apps button
+(by keyboard and by mouse) and the rows, Esc, expanding a group, a shortcut
 added and removed while the menu is open, right-click > Pin (and the
 registry value), right-click > Uninstall, the command fallback, and the pin
 after a restart. Keys and clicks are real input (`setu-probe key`, `type`,
@@ -153,9 +198,6 @@ Found while building the shell:
 - `SHChangeNotify` only reaches `SHChangeNotifyRegister` windows in the same
   process, so the menu relies on `FindFirstChangeNotificationW` to hear
   installers (reported to shell-api).
-- In the virtual desktop, a popup menu lying wholly inside another window
-  isn't painted, so the menu's context menu pops out over its right edge
-  (reported to shell-api).
 
 Fixed in the personality (checked by `setu-xproc`): the system-wide work area
 (`ABM_SETPOS`, `SPI_SETWORKAREA`), cross-process window and class icons,
@@ -185,14 +227,22 @@ learn.microsoft.com: *Using Application Desktop Toolbars*, *The Taskbar*
 ## Files (setu-files.exe)
 
 `src/setu-files.c` is Setu's file manager; the launcher's **Files** entry
-starts it. It's plain Win32 with the shell's warm-on-slate palette.
+starts it. It's plain Win32, drawn with `src/setu-style.h` like the shell.
 
 ![Files, details view](docs/files-01-details.png)
 
 - **Browsing**: a sidebar with Home, Desktop, Documents and Downloads (known
   folders), the drives and the Recycle Bin (with its item count). The list has
   a details view (name, size, type, modified; click a header to sort) and an
-  icons view. The address bar takes a path, `Drives` or `Recycle Bin`.
+  icons view. The address bar shows breadcrumbs (click one to go there);
+  click beside them, Tab, Ctrl+L, Alt+D or F4 to type a path, `Drives` or
+  `Recycle Bin`.
+- **Command bar**: New folder (Empty Recycle Bin in the bin), Cut, Copy,
+  Paste, Rename, Delete, Properties and the view switch, as icon buttons
+  with tooltips; Back, Forward, Up and Refresh sit next to the address bar.
+  Rows are 32 px and owner-drawn: the selection is the accent at 20 % with
+  a 1 px accent outline (lighter, without the outline, when the list doesn't
+  have the focus).
 - **Opening**: Enter or a double-click. Folders open in place; files go to
   `ShellExecuteExW` with the default verb. **Open with…** lists the handlers
   from the association registry (`AssocQueryStringW`, `OpenWithProgids`,
@@ -224,7 +274,9 @@ Ctrl+H (show hidden files) and Tab (moves between sidebar, list and address).
 
 **Test**: `tools/files-smoke.sh [--update-docs] [--keep]` runs under its own
 Xvfb with a fresh prefix (`build/files-prefix`). It sets `HOME`/`XDG_*` to
-`build/files-home`, so the Recycle Bin (the XDG trash) never touches yours. It
+`build/files-home`, so the Recycle Bin (the XDG trash) never touches yours,
+and keeps the machine's disks out of the prefix (Wine's mount manager would
+add them from udisks). It
 drives the window with real keys and mouse (`setu-files-probe.exe`) and with
 `WM_COPYDATA` commands, then reads the window's state file. It covers
 browsing, sorting, new folder, rename, copy/paste, cut/paste, drag and drop, an
