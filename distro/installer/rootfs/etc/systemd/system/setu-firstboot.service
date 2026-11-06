@@ -1,8 +1,9 @@
 # The first-boot wizard on an installed system: labwc on tty1 running
 # Calamares as root in OEM mode (setu-firstboot-session, config in
 # /etc/calamares). Its last job (setu-firstboot-finish) creates
-# /var/lib/setu/firstboot.done, enables setu-session.service for the new
-# account and disables this unit, so it never runs again.
+# /var/lib/setu/firstboot.done, picks the session or a password login for
+# tty1 and disables this unit, so it never runs again; when the unit stops,
+# setu-firstboot-handoff starts what was picked.
 [Unit]
 Description=Setu first-boot wizard (labwc + Calamares)
 ConditionKernelCommandLine=!boot=live
@@ -32,6 +33,7 @@ Environment=WLR_NO_HARDWARE_CURSORS=1
 Environment=XDG_SESSION_TYPE=wayland
 Environment=QT_QPA_PLATFORM=wayland
 ExecStart=/usr/bin/labwc -S /usr/lib/setu/setu-firstboot-session
+ExecStopPost=/usr/lib/setu/setu-firstboot-handoff
 # setu-firstboot-session restarts Calamares itself until the wizard has
 # finished; when it has, the unit stops and setu-session (After=) starts
 Restart=on-failure

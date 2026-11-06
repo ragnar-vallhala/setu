@@ -1,0 +1,13 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-firstboot-handoff: ExecStopPost of setu-firstboot.service. Once the
+# wizard has finished (and its unit is stopping, so tty1 is free), start
+# what setu-firstboot-finish chose for tty1: the Setu session (autologin)
+# or the password login. From the next boot on, the enabled one starts by
+# itself.
+[ -e /var/lib/setu/firstboot.done ] || exit 0
+if systemctl -q is-enabled setu-session.service; then
+    systemctl --no-block start setu-session.service
+else
+    systemctl --no-block start getty@tty1.service
+fi

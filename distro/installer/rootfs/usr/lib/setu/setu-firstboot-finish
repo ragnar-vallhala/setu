@@ -8,9 +8,13 @@
 #     (/etc/default/locale);
 #   * C: (the system volume) belongs to USER, the one Windows user for now
 #     (services/fs/README.md);
+#   * "Log in automatically" ticked (USER is in the autologin group, see
+#     users.conf): setu-session.service logs USER in on tty1, as on the dev
+#     image. Unticked: the normal getty login on tty1, and after the
+#     password /etc/profile.d/setu-session.sh starts the Setu session;
 #   * /var/lib/setu/firstboot.done is created and the wizard's unit
-#     disabled, so it never runs again; the session is enabled and started
-#     (it waits for the wizard's unit to stop).
+#     disabled, so it never runs again. When the wizard's unit stops,
+#     setu-firstboot-handoff starts the session or the login.
 set -eu
 USER_NAME=${1:?usage: setu-firstboot-finish USER}
 . /usr/lib/setu/layout.env
@@ -43,6 +47,13 @@ touch /var/lib/setu/firstboot.done
 rm -rf /etc/calamares
 systemctl daemon-reload
 systemctl disable setu-firstboot.service
-systemctl enable setu-session.service
-systemctl --no-block start setu-session.service
-log "done: $USER_NAME on $(cat /etc/hostname), $(grep -s '^LANG=' /etc/default/locale), keyboard $XKBLAYOUT, $(readlink /etc/localtime | sed 's|.*/zoneinfo/||')"
+if id -nG "$USER_NAME" | tr ' ' '\n' | grep -qx autologin; then
+    login=autologin
+    systemctl enable setu-session.service
+else
+    login=password
+    systemctl disable setu-session.service 2>/dev/null || true
+    systemctl enable getty@tty1.service
+fi
+ssh=$(systemctl is-enabled ssh.service 2>/dev/null || true)
+log "done: $USER_NAME on $(cat /etc/hostname), $(grep -s '^LANG=' /etc/default/locale), keyboard $XKBLAYOUT, $(readlink /etc/localtime | sed 's|.*/zoneinfo/||'), login: $login, ssh: $ssh"
