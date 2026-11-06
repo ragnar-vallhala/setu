@@ -69,6 +69,9 @@ Status 2026-11-06, against the interim Windows 10 22H2 oracle (310 tests,
   (`.lnk`, Start Menu folders), file associations.
 - Installer ISO (Calamares), first-boot wizard.
 - App compatibility dashboard: top-N apps installed and launched in CI.
+- Look and feel: a modern, flat, light design of Setu's own
+  (`docs/DESIGN.md`): control theme, window frames, Inter as the UI font,
+  restyled taskbar, start menu and file manager, wallpaper and branding.
 
 ## Milestone 4: Daily driver alpha
 
