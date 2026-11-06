@@ -1,0 +1,39 @@
+# labwc theme for the Setu session, in the docs/DESIGN.md colours (fonts and
+# corner radius: rc.xml). It only shows on windows that are not Windows
+# programs and that ask labwc for decorations, its menus and its window
+# switcher; the personality's desktop window is fullscreen and undecorated,
+# and Windows programs draw their own frames inside it.
+border.width: 1
+padding.width: 0
+window.titlebar.padding.width: 8
+window.titlebar.padding.height: 0
+window.label.text.justify: left
+
+window.active.border.color: #D1D1D1
+window.inactive.border.color: #D1D1D1
+window.active.title.bg.color: #FFFFFF
+window.inactive.title.bg.color: #F3F3F3
+window.active.label.text.color: #1B1B1B
+window.inactive.label.text.color: #5F5F5F
+window.active.button.unpressed.image.color: #1B1B1B
+window.inactive.button.unpressed.image.color: #5F5F5F
+window.button.width: 46
+window.button.height: 32
+window.button.hover.bg.color: #EAEAEA
+window.button.hover.bg.corner-radius: 0
+
+menu.border.width: 1
+menu.border.color: #D1D1D1
+menu.items.bg.color: #FFFFFF
+menu.items.text.color: #1B1B1B
+menu.items.active.bg.color: #EAEAEA
+menu.items.active.text.color: #1B1B1B
+menu.items.padding.x: 12
+menu.items.padding.y: 6
+menu.separator.color: #E5E5E5
+
+osd.bg.color: #FFFFFF
+osd.border.color: #D1D1D1
+osd.border.width: 1
+osd.label.text.color: #1B1B1B
+osd.window-switcher.item.active.border.color: #1F6FB2

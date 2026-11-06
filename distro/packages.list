@@ -29,6 +29,13 @@ mesa-utils-bin
 libgl1-mesa-dri
 fonts-dejavu-core
 
+# Setu's look (docs/DESIGN.md): fonts, cursors, boot splash. NOTICE §5.
+fontconfig            # fc-cache, fc-match; the personality enumerates fonts through libfontconfig
+fonts-inter           # the UI font (OFL-1.1); wine.inf maps the Windows UI face names to "Inter"
+fonts-jetbrains-mono  # the monospace font (OFL-1.1); substituted for Courier New/Consolas
+adwaita-icon-theme    # the X cursor theme "Adwaita" (labwc, Xwayland and the personality's system cursors)
+plymouth              # the boot splash (rootfs/usr/share/plymouth/themes/setu, script module)
+
 # Runtime libraries the Setu personality (Wine) loads directly or by dlopen
 libfreetype6
 libfontconfig1
