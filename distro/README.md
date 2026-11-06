@@ -40,6 +40,24 @@ distro/run-qemu.sh        # VNC 127.0.0.1:5911, serial log build/distro/run/seri
 Login: user `setu`, password `setu` (passwordless sudo; dev image only).
 SSH: `ssh -p 2230 setu@127.0.0.1`.
 
+### .NET: Wine Mono
+
+The image (and the ISO) has **Wine Mono 10.4.1**, the .NET Framework
+replacement that the personality's `mscoree.dll` loads (Wine 11.0 asks for
+that version in `dlls/appwiz.cpl/addons.c`). `build-image.sh` downloads
+`wine-mono-10.4.1-x86.tar.xz` from <https://dl.winehq.org/wine/wine-mono/10.4.1/>,
+checks it against a pinned SHA-256 (it has the same files as the MSI whose
+SHA-256 Wine pins), caches it in `build/distro/downloads` (never in git) and
+unpacks it into `/opt/setu/personality/share/wine/mono/wine-mono-10.4.1`.
+New prefixes find it there and don't ask to download it, so `setu-session`
+only turns off `mshtml` (Gecko, not bundled) in `WINEDLLOVERRIDES`.
+Licence: Wine Mono's own code is MIT; parts of it are under the GPL and the
+LGPL (Mono), and its components carry their own licences (MIT, MS-PL,
+zlib, BSD); see its `COPYING` and the source tarball next to the binary
+one. NOTICE §4. `msi-smoke.sh` and `install-smoke.sh` check it: they compile
+`tests/dotnet-hello.cs` in the guest with Wine Mono's own `mcs.exe` and run
+it.
+
 ### Installing a program: `distro/tests/msi-smoke.sh`
 
 The end-to-end check for "the shell boots in a VM": it boots the image with
@@ -135,7 +153,8 @@ written to the raw output disk, which the host truncates to its size.
 | `tests/msi-smoke.sh` | boots a snapshot, installs and runs an .msi over SSH, screendump |
 | `tests/drives-smoke.sh` | casefold C: and drive-letter hot-plug checks, then `msi-smoke.sh` |
 | `tests/install-smoke.sh` | installs from the ISO on a blank disk, runs the first-boot wizard, checks the result |
-| `tests/install-answers.conf` | test-only account and expected locale for `install-smoke.sh` |
+| `tests/install-answers.conf` | test-only account, checkbox answers and expected locale for `install-smoke.sh` |
+| `tests/dotnet-hello.cs` | the .NET program the smoke tests compile and run with Wine Mono |
 | `tests/lib.sh` | helpers shared by the smoke tests (boot, SSH, wine in the session, screendump, keys) |
 | `docs/` | screenshots of the booted session |
 
@@ -228,12 +247,35 @@ On the installed system `setu-firstboot.service` runs before the session
 with `/etc/calamares` = `installer/rootfs/usr/share/setu/firstboot/calamares/`
 (`dont-chroot: true`, `oem-setup: true`, no Cancel). Pages: Welcome
 (language), Location (time zone, system locale), Keyboard, Users (full name,
-login name, computer name, password; the account goes in `sudo`, root stays
-locked), Summary, **Set Up**. Its jobs are Calamares' own `locale`,
-`keyboard`, `localecfg` and `users`, then `setu-firstboot-finish USER`:
-`setu-session.service` gets `User=USER` and the chosen XKB layout
-(drop-ins), C: is chowned to USER, `firstboot.done` is created, the wizard's
-unit disabled and its config removed, and the session enabled and started.
+login name, computer name, password, "Log in automatically"; the account
+goes in `sudo`, root stays locked), Remote login (one checkbox, "Enable
+remote login (SSH)", off by default), Summary, **Set Up**. Its jobs are
+Calamares' own `locale`, `keyboard`, `localecfg` and `users`, our
+`remotelogin`, then `setu-firstboot-finish USER`: `setu-session.service` gets `User=USER`
+and the chosen XKB layout (drop-ins), C: is chowned to USER,
+`firstboot.done` is created, and the wizard's unit disabled and its config
+removed. When the unit stops, `setu-firstboot-handoff` starts the session
+or the login prompt.
+
+* **Log in automatically** (ticked by default): the account is in the
+  `autologin` group (Calamares' `autologinGroup`), so the finish script
+  enables `setu-session.service`, the tty1 autologin of the dev image.
+  Unticked: `setu-session.service` stays off and tty1 has the normal
+  `getty` login prompt; after the password, `/etc/profile.d/setu-session.sh`
+  starts the same session (`labwc -S setu-session`, same environment and
+  keyboard layout) in the login's logind session. Logging out of the
+  session (quitting labwc) goes back to the prompt. No greeter package: the
+  console login is already there and is all this needs.
+* **Enable remote login (SSH)**: `setu-install target` disables `ssh` on
+  the installed system (the live system and the dev image keep it on).
+  Calamares has no plain checkbox page, so the checkbox is a `netinstall`
+  group (`modules/netinstall.conf`) whose package is `openssh-server`
+  (already installed, and nothing is installed: there is no `packages`
+  job). netinstall records the ticked group's packages in Calamares'
+  GlobalStorage; the small Python job `modules/remotelogin/` finds
+  `openssh-server` there and runs `setu-firstboot-ssh`, which enables and
+  starts `ssh`. (A netinstall group's own `pre-install` script would be
+  simpler, but Calamares 3.3.14 never runs it.)
 
 Why Calamares and not a program of our own: it is already on the medium
 (the live system and the installed system are one squashfs), its users,
@@ -255,13 +297,21 @@ the buttons' Alt shortcuts, Tab between fields): Calamares has no
 unattended mode, and a test-only config would not test the real one. It
 waits for the end of each phase in the serial log (the units and
 `setu-install`/`setu-firstboot-finish` log there), types the account from
-the test-only answers file `tests/install-answers.conf`, then checks over
+the test-only answers file `tests/install-answers.conf` (with "Log in
+automatically" and "Enable remote login (SSH)" ticked), then checks over
 SSH as that account: the session's taskbar, hostname/locale/time
-zone/keyboard/groups/sudo, C: on the `setu-c` partition with the casefold
-flag (a file made by cmd found in another case), setu-ntacld (a DACL set
-from Windows lands in `security.NTACL` and is enforced), the wizard unit
-disabled and `live-boot` gone; then it reboots and checks the session comes
-back without the wizard. Screendumps of each stage: `docs/install-*.png`.
+zone/keyboard/groups/sudo, autologin and `ssh` enabled, C: on the `setu-c`
+partition with the casefold flag (a file made by cmd found in another
+case), setu-ntacld (a DACL set from Windows lands in `security.NTACL` and
+is enforced), .NET (Wine Mono compiles and runs `tests/dotnet-hello.cs`),
+the wizard unit disabled and `live-boot` gone; then it reboots and checks
+the session comes back without the wizard. Then it installs again on a new
+blank disk with both checkboxes unticked: the wizard must report a password
+login with `ssh` disabled (serial log) and the guest's SSH port must not
+answer; tty1 must show a text console (screendump), where the test logs in
+with the account's password, and the Setu desktop must come up
+(screendump). `--scenario answers|unticked` runs one of the two installs
+(about 7 minutes each). Screendumps of each stage: `docs/install-*.png`.
 The scratch disk and UEFI variables are deleted at the end.
 
 ![The Setu installer's welcome page: Setu branding, the language list, Next](docs/install-welcome.png)
@@ -272,7 +322,13 @@ The scratch disk and UEFI variables are deleted at the end.
 
 ![First boot: the users page with the name, login name, computer name and password filled in](docs/install-firstboot-users.png)
 
+![First boot: the remote login page with "Enable remote login (SSH)" ticked](docs/install-firstboot-remote.png)
+
 ![The installed system after the wizard: the Setu session as the new account](docs/install-session.png)
+
+![With "Log in automatically" unticked: the login prompt on tty1](docs/install-login.png)
+
+![The Setu session after logging in with the password on tty1](docs/install-password-session.png)
 
 The other stages: [summary](docs/install-summary.png),
 [finished](docs/install-finished.png), first boot
@@ -284,10 +340,10 @@ The other stages: [summary](docs/install-summary.png),
 ### Known gaps (installer)
 
 * UEFI only (no BIOS boot), no Secure Boot.
-* The wizard's "Log in automatically" checkbox has no effect: the Setu
-  session always logs the account in on tty1, as the dev image does.
-* `ssh` is enabled on the installed system, as in the dev image (the tests
-  use it); a release build would leave it off.
+* The password login is the text console's `login:` prompt, not a
+  graphical greeter.
+* The SSH checkbox looks like a package list (Calamares' `netinstall`
+  page), with one entry.
 * Calamares pulls in Qt 6 and parts of KDE Frameworks (part of the
   2.5 GB root file system) and stays installed, because the first-boot
   wizard is Calamares too.

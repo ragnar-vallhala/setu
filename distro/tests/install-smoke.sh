@@ -5,17 +5,24 @@
 #   1. boot the ISO; drive Calamares from the keyboard (QEMU sendkey):
 #      Welcome, Partitions ("erase disk", preselected), Summary, Install;
 #      wait for the end (serial log) and press Done, which reboots;
-#   2. boot the installed disk (the ISO is ejected): the first-boot wizard
+#   2. boot the installed disk (then eject the ISO): the first-boot wizard
 #      (Calamares in OEM mode) comes up; accept the language, time zone and
 #      keyboard pages, type the account and computer name from the answers
-#      file (tests/install-answers.conf) and press Set Up;
+#      file (tests/install-answers.conf), set "Log in automatically" and
+#      "Enable remote login (SSH)" as it says, and press Set Up;
 #   3. the Setu session starts for the new account: over SSH (as that
 #      account) check the shell's taskbar (setu-probe), the wizard's
-#      results (hostname, locale, time zone, keyboard, sudo), C: (the
-#      setu-c partition, ext4 with the casefold flag; a file made by cmd is
-#      found in another case), setu-ntacld (a DACL set from Windows lands in
-#      security.NTACL), and that the wizard is disabled;
+#      results (hostname, locale, time zone, keyboard, sudo, autologin,
+#      sshd), C: (the setu-c partition, ext4 with the casefold flag; a file
+#      made by cmd is found in another case), setu-ntacld (a DACL set from
+#      Windows lands in security.NTACL), .NET (the bundled Wine Mono), and
+#      that the wizard is disabled;
 #   4. reboot and check the session comes back without the wizard.
+# Then a second install on a new blank disk with both checkboxes unticked:
+#   5. the wizard reports a password login and sshd disabled (serial log),
+#      and the guest's SSH port does not answer; tty1 shows a login prompt
+#      (screendump: a text console); log in there with the account's
+#      password and check the Setu desktop comes up (screendump).
 # Screendumps of each stage go to distro/docs/install-*.png (--shots). The
 # scratch disk and UEFI variables are deleted at the end (unless --keep).
 #
@@ -26,6 +33,8 @@
 #   --disk-size N    the blank disk (default: 16G)
 #   --vnc N          VNC display (default: 24)
 #   --ssh-port N     host port for the guest's SSH (default: 2236)
+#   --scenario S     answers: as in the answers file (steps 1-4), unticked
+#                    (step 5 only), or both (default)
 #   --keep           leave the VM running and the disk in place
 #   -h, --help
 set -euo pipefail
@@ -40,6 +49,7 @@ DISK_SIZE=16G
 VNC=24
 SSH_PORT=2236
 KEEP=0
+SCENARIO=both
 
 usage() { sed -n '2,/^set -euo/{/^set -euo/d;s/^# \{0,1\}//;p}' "$0"; }
 while [ $# -gt 0 ]; do
@@ -50,6 +60,7 @@ while [ $# -gt 0 ]; do
         --disk-size) DISK_SIZE=$2; shift ;;
         --vnc) VNC=$2; shift ;;
         --ssh-port) SSH_PORT=$2; shift ;;
+        --scenario) SCENARIO=$2; shift ;;
         --keep) KEEP=1 ;;
         -h|--help) usage; exit 0 ;;
         *) echo "unknown option: $1 (see --help)" >&2; exit 2 ;;
@@ -62,6 +73,7 @@ mkdir -p "$OUT" "$RUN" "$SHOTS"
 . "$HERE/lib.sh"
 [ -f "$ISO" ] || fail "no ISO at $ISO (distro/build-iso.sh --shell build/shell/setu-shell.exe)"
 [ -f "$ANSWERS" ] || fail "no answers file $ANSWERS"
+case $SCENARIO in answers|unticked|both) ;; *) fail "--scenario must be answers, unticked or both" ;; esac
 . "$ANSWERS"
 TOOLCHAIN=${TOOLCHAIN:-$HOME/.local/setu-toolchain/bin}
 export PATH=$TOOLCHAIN:$PATH:/usr/sbin:/sbin
@@ -76,15 +88,18 @@ cleanup() {
 }
 trap cleanup EXIT
 shot() { screendump "$SHOTS/install-$1.png"; echo "  screenshot: install-$1.png"; }
+start=$SECONDS
 # page NAME: give the page time to draw, then a screendump
 page() { sleep "${2:-4}"; shot "$1"; }
 
+# install_disk: steps 1 and 2, with AUTOLOGIN and SSH as set
+install_disk() {
 # --- 0. a blank disk, fresh UEFI variables -----------------------------------
+KEEP=0 stop_vm
 rm -f "$DISK" "$RUN/OVMF_VARS.fd" "$RUN/serial.log"
 qemu-img create -q -f qcow2 "$DISK" "$DISK_SIZE"
 "$REPO/distro/run-qemu.sh" --image "$DISK" --cdrom "$ISO" --vnc "$VNC" --ssh-port "$SSH_PORT" \
     --run-dir "$RUN" --mem 4096 --daemonize
-start=$SECONDS
 
 # --- 1. the installer ----------------------------------------------------------
 wait_serial 'setu-installer: starting Calamares' 300 || fail "the live system did not start the installer (serial log: $RUN/serial.log)"
@@ -105,13 +120,17 @@ wait_serial 'setu-install: installation finished' 1800 \
 pass "installed in $((SECONDS - start))s"
 page finished 6
 from=$(serial_lines)
-sendkey alt-d                      # Done: "Restart now" is checked
-monitor 'eject -f cd0' >/dev/null || true
+# Done ("Restart now" is checked). The disk is first in the boot order, so
+# the installed system boots with the ISO still in; it is ejected once that
+# system is up (ejecting it earlier can pull the live system's squashfs
+# away while it is still shutting down).
+sendkey alt-d
 
 # --- 2. the first-boot wizard ---------------------------------------------------
 wait_serial 'setu-firstboot: starting the first-boot wizard' 300 "$from" \
     || { shot failed; fail "the installed system did not start the first-boot wizard (serial log: $RUN/serial.log)"; }
-pass "installed system booted into the first-boot wizard"
+monitor 'eject -f cd0' >/dev/null || true
+pass "installed system booted into the first-boot wizard (ISO ejected)"
 wait_serial 'All requirements have been checked' 120 "$from" || true
 page firstboot-welcome 2
 sendkey alt-n
@@ -132,14 +151,26 @@ sendkey tab
 type_text "$PASSWORD"
 sendkey tab
 type_text "$PASSWORD"
+# then the "Log in automatically" checkbox (ticked by default)
+[ "$AUTOLOGIN" = yes ] || sendkey tab spc
 page firstboot-users 2
+sendkey alt-n
+# the remote login page: one checkbox in a list (unticked by default),
+# which has the focus
+sleep 4
+[ "$SSH" = yes ] && sendkey spc
+page firstboot-remote 2
 sendkey alt-n
 page firstboot-summary 4
 sendkey alt-s
 wait_serial 'setu-firstboot: done' 300 "$from" \
     || { shot failed; fail "the first-boot wizard did not finish (serial log: $RUN/serial.log)"; }
 pass "first-boot wizard finished: $(tail -n +"$from" "$RUN/serial.log" | tr -d '\r' | grep -ao 'setu-firstboot: done.*' | head -1)"
+}
 
+if [ "$SCENARIO" != unticked ]; then
+[ "$AUTOLOGIN" = yes ] && [ "$SSH" = yes ] || fail "steps 3-4 expect AUTOLOGIN=yes and SSH=yes in $ANSWERS"
+install_disk
 # --- 3. the session, as the new account -----------------------------------------
 GUEST_USER=$LOGIN GUEST_PASS=$PASSWORD
 for i in $(seq 90); do gssh true 2>/dev/null && break; sleep 2; done
@@ -166,10 +197,12 @@ gssh "echo $(printf %q "$PASSWORD") | sudo -S -p '' true" || fail "sudo with the
 [ "$(gssh stat -c %U /var/lib/setu/volumes/c)" = "$LOGIN" ] || fail "C: does not belong to $LOGIN"
 gssh test -f /var/lib/setu/firstboot.done || fail "no /var/lib/setu/firstboot.done"
 [ "$(gssh systemctl is-enabled setu-firstboot.service)" = disabled ] || fail "setu-firstboot.service is still enabled"
-[ "$(gssh systemctl is-enabled setu-session.service)" = enabled ] || fail "setu-session.service is not enabled"
+[ "$(gssh systemctl is-enabled setu-session.service)" = enabled ] || fail "setu-session.service is not enabled (autologin)"
+gssh id -nG | tr ' ' '\n' | grep -qx autologin || fail "$LOGIN is not in the autologin group"
+[ "$(gssh systemctl is-enabled ssh.service)" = enabled ] || fail "ssh.service is not enabled"
 gssh test ! -e /etc/calamares || fail "/etc/calamares is still there"
 gssh "dpkg-query -W -f '\${Status}' live-boot 2>/dev/null | grep -q installed" && fail "live-boot is still installed"
-pass "wizard: $LOGIN ($groups) on $HOSTNAME, $LOCALE, $TIMEZONE, keyboard $KEYMAP; sudo works; wizard disabled"
+pass "wizard: $LOGIN ($groups) on $HOSTNAME, $LOCALE, $TIMEZONE, keyboard $KEYMAP; sudo works; autologin and sshd on; wizard disabled"
 
 # C: on its own casefold partition
 src=$(gssh findmnt -n -o SOURCE /var/lib/setu/volumes/c)
@@ -193,6 +226,7 @@ names=$(gssh "getfattr -d -m - --absolute-names /var/lib/setu/volumes/c/Test/acl
 echo "$names" | grep -qw security.NTACL || fail "no security.NTACL on C:\\Test\\acl ($names)"
 [ "$(nprobe open 'C:\Test\acl' write)" = "error 5" ] || fail "the DACL is not enforced"
 pass "setu-ntacld: a DACL set from Windows is in security.NTACL ($names) and enforced"
+check_dotnet
 
 # --- 4. the wizard never runs again ---------------------------------------------
 from=$(serial_lines)
@@ -203,5 +237,45 @@ install_guest_env
 wait_session
 tail -n +"$from" "$RUN/serial.log" | grep -aq 'setu-firstboot: starting' && fail "the first-boot wizard ran again"
 pass "after a reboot the session starts directly (no wizard)"
+
+fi
+
+# --- 5. both checkboxes unticked: password login, no sshd -------------------------
+if [ "$SCENARIO" != answers ]; then
+AUTOLOGIN=no SSH=no
+# the pages' screendumps go next to the run, not over the first install's
+docs=$SHOTS
+[ "$SCENARIO" = both ] && SHOTS=$OUT/unticked && mkdir -p "$SHOTS"
+install_disk
+SHOTS=$docs
+done_line=$(tail -n +"$from" "$RUN/serial.log" | tr -d '\r' | grep -ao 'setu-firstboot: done.*' | head -1)
+grep -q 'login: password, ssh: disabled' <<< "$done_line" || fail "the wizard did not set up a password login without sshd: $done_line"
+grep -aq 'remote login (SSH) enabled' <(tail -n +"$from" "$RUN/serial.log") && fail "sshd was enabled"
+sleep 10
+gssh true 2>/dev/null && fail "the guest answers SSH"
+pass "unticked: the wizard set up a password login and left sshd disabled (no SSH)"
+# Without SSH the screen is the only view: a screendump's mean brightness,
+# whole and of the bottom 5% (where the taskbar is). The text console is
+# black (mean ~0.00); the Setu desktop is a mid blue (~0.37) with a dark
+# taskbar (~0.13); labwc before the personality's desktop is black too.
+means() { local ppm=$RUN/mean.ppm; rm -f "$ppm"; monitor "screendump $ppm" >/dev/null; sleep 1
+          echo "$(convert "$ppm" -format '%[fx:mean]' info:) $(convert "$ppm" -gravity south \
+              -crop 100%x5%+0+0 +repage -format '%[fx:mean]' info:)"; rm -f "$ppm"; }
+console() { awk -v a="$1" 'BEGIN { exit !(a < 0.1) }'; }
+desktop() { awk -v a="$1" -v b="$2" 'BEGIN { exit !(a > 0.25 && b < 0.2) }'; }
+# tty1: the login prompt on the text console
+for i in $(seq 30); do m=$(means); console $m && break; sleep 2; done
+console $m || { shot failed; fail "tty1 is not a text console (screen means $m)"; }
+shot login
+type_text "$LOGIN"; sendkey ret
+sleep 3
+type_text "$PASSWORD"; sendkey ret
+# the first session creates the account's prefix (wineboot) before the shell
+for i in $(seq 90); do m=$(means); desktop $m && break; sleep 3; done
+desktop $m || { shot failed; fail "no Setu desktop and taskbar after logging in on tty1 (screen means $m)"; }
+sleep 5
+shot password-session
+pass "unticked: logged in on tty1 with the password, the Setu desktop and taskbar came up (screen means $m)"
+fi
 
 echo "install-smoke: PASS in $((SECONDS - start))s"
