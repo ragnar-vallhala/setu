@@ -24,7 +24,11 @@ installer branding, the wallpaper) uses these values; change them here first.
 - UI font: **Inter** (SIL OFL 1.1, Debian `fonts-inter`). Bundled in the
   image and mapped as the substitute for the Windows UI face names
   (`MS Shell Dlg`, `MS Shell Dlg 2`, `Tahoma`, `Segoe UI`, `MS Sans Serif`),
-  so unmodified apps get it.
+  so unmodified apps get it. This is done with Setu's font override list
+  (`HKCU\Software\Wine\Fonts\Overrides`), not FontSubstitutes: Windows
+  prefers an installed font over its substitute, and Wine ships Tahoma and
+  MS Sans Serif. Overrides apply only when Inter is installed; apps still see
+  the face names they asked for.
 - Monospace: **JetBrains Mono** or **Noto Sans Mono** (OFL), substituted for
   `Courier New`/`Consolas` only where an app asks for those names.
 - Sizes (at 96 DPI): body 9 pt (12 px), caption 9 pt semibold, titles 10.5 pt
@@ -67,9 +71,11 @@ added without touching drawing code.
 
 ## Window frames
 
-- Caption height 32 px, caption text left-aligned in `text` (semibold),
-  window icon 16 px before it.
-- Caption buttons 46 × 32 px, flat line glyphs (minimise, maximise/restore,
+- Caption height 30 px, caption text left-aligned in `text` (semibold),
+  window icon 16 px before it. The frame is drawn inside the metrics apps
+  can query (SM_CYCAPTION, the frame and padded-border sizes,
+  AdjustWindowRectEx), which stay at Windows 10's values; 30 px is what fits.
+- Caption buttons 46 × 29 px, flat line glyphs (minimise, maximise/restore,
   close) drawn as vectors in `text`; hover `surface-hover`, close hover
   `close-hover` with white glyph. No 3D button faces.
 - 1 px `border` around the window; rounded top corners where possible.
