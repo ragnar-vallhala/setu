@@ -11167,6 +11167,8 @@
     "shell32/shellfolder_names:desktop_parse_drive",
     "shell32/shellfolder_names:desktop_parse_missing",
     "shell32/shellfolder_names:desktop_parse_this_pc",
+    "shell32/shellfolder_names:names_case_differs",
+    "shell32/shellfolder_names:names_file",
     "shell32/shellfolder_names:names_folder",
     "shell32/shellfolder_names:names_multi_dot",
     "shell32/shellfolder_names:names_noext",

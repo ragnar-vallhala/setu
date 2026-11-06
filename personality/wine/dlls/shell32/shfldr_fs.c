@@ -756,7 +756,8 @@ static BOOL SHELL_FS_HideExtension(LPCWSTR szPath)
     HKEY hKey;
     DWORD dwData;
     DWORD dwDataSize = sizeof (DWORD);
-    BOOL doHide = FALSE; /* The default value is FALSE (win98 at least) */
+    BOOL doHide = TRUE; /* Windows hides the extensions of known file types by default */
+    LPWSTR ext = PathFindExtensionW(szPath);
 
     if (!RegCreateKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
                          0, 0, 0, KEY_ALL_ACCESS, 0, &hKey, 0)) {
@@ -765,9 +766,14 @@ static BOOL SHELL_FS_HideExtension(LPCWSTR szPath)
         RegCloseKey (hKey);
     }
 
-    if (!doHide) {
-        LPWSTR ext = PathFindExtensionW(szPath);
+    /* only a registered file type is a known one */
+    if (doHide) {
+        if (*ext == '\0' || RegOpenKeyExW(HKEY_CLASSES_ROOT, ext, 0, KEY_READ, &hKey))
+            return FALSE;
+        RegCloseKey(hKey);
+    }
 
+    if (!doHide) {
         if (*ext != '\0') {
             WCHAR classname[MAX_PATH];
             LONG classlen = sizeof(classname);
@@ -785,9 +791,9 @@ static BOOL SHELL_FS_HideExtension(LPCWSTR szPath)
     
 void SHELL_FS_ProcessDisplayFilename(LPWSTR szPath, DWORD dwFlags)
 {
-    /*FIXME: MSDN also mentions SHGDN_FOREDITING which is not yet handled. */
-    if (!(dwFlags & SHGDN_FORPARSING) &&
-        ((dwFlags & SHGDN_INFOLDER) || (dwFlags == SHGDN_NORMAL))) {
+    /* every name that is not for parsing hides a known extension, including
+     * the names for editing and for the address bar */
+    if (!(dwFlags & SHGDN_FORPARSING)) {
         if (SHELL_FS_HideExtension(szPath) && szPath[0] != '.')
             PathRemoveExtensionW(szPath);
     }
