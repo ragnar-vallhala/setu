@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Setu boot splash (Plymouth script module): the Setu mark and name in the
+# middle of a window-bg (#F3F3F3) screen, an accent spinner under it, and a
+# message line at the bottom (fsck progress, password prompts). Colours and
+# images: docs/DESIGN.md, distro/artwork/branding.py.
+
+Window.SetBackgroundTopColor(0.953, 0.953, 0.953);
+Window.SetBackgroundBottomColor(0.953, 0.953, 0.953);
+
+W = Window.GetWidth();
+H = Window.GetHeight();
+
+logo.image = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.x = Window.GetX() + W / 2 - logo.image.GetWidth() / 2;
+logo.y = Window.GetY() + H / 2 - logo.image.GetHeight() / 2 - H / 12;
+logo.sprite.SetPosition(logo.x, logo.y, 1);
+
+spinner.image = Image("spinner.png");
+spinner.sprite = Sprite(spinner.image);
+spinner.cx = Window.GetX() + W / 2;
+spinner.cy = logo.y + logo.image.GetHeight() + H / 10;
+spinner.angle = 0;
+
+fun refresh() {
+    spinner.angle += 0.12;
+    if (spinner.angle > 2 * Math.Pi) spinner.angle -= 2 * Math.Pi;
+    img = spinner.image.Rotate(spinner.angle);
+    spinner.sprite.SetImage(img);
+    spinner.sprite.SetPosition(spinner.cx - img.GetWidth() / 2, spinner.cy - img.GetHeight() / 2, 2);
+}
+Plymouth.SetRefreshFunction(refresh);
+
+# messages (e.g. "Checking disk..."): one line near the bottom, secondary text
+message.sprite = Sprite();
+fun show_message(text) {
+    message.image = Image.Text(text, 0.373, 0.373, 0.373);
+    message.sprite.SetImage(message.image);
+    message.sprite.SetPosition(Window.GetX() + W / 2 - message.image.GetWidth() / 2, Window.GetY() + H * 0.9, 3);
+}
+Plymouth.SetMessageFunction(show_message);
+
+# a password prompt (only for encrypted disks, which Setu does not set up
+# yet): the prompt and one bullet per typed character
+prompt.sprite = Sprite();
+bullets.sprite = Sprite();
+fun display_password(prompt_text, count) {
+    prompt.image = Image.Text(prompt_text, 0.106, 0.106, 0.106);
+    prompt.sprite.SetImage(prompt.image);
+    prompt.sprite.SetPosition(Window.GetX() + W / 2 - prompt.image.GetWidth() / 2, spinner.cy + 40, 4);
+    s = "";
+    for (i = 0; i < count; i++) s += "*";
+    bullets.image = Image.Text(s, 0.106, 0.106, 0.106);
+    bullets.sprite.SetImage(bullets.image);
+    bullets.sprite.SetPosition(Window.GetX() + W / 2 - bullets.image.GetWidth() / 2, spinner.cy + 64, 4);
+    prompt.sprite.SetOpacity(1);
+    bullets.sprite.SetOpacity(1);
+}
+Plymouth.SetDisplayPasswordFunction(display_password);
+
+fun display_normal() {
+    prompt.sprite.SetOpacity(0);
+    bullets.sprite.SetOpacity(0);
+}
+Plymouth.SetDisplayNormalFunction(display_normal);

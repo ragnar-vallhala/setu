@@ -1,5 +1,8 @@
 # Setu branding for Calamares: the installer and the first-boot wizard.
-# Artwork: Setu's own (make-artwork.sh). Docs: Calamares
+# Artwork: Setu's own (distro/artwork/branding.py, via make-artwork.sh).
+# Colours: docs/DESIGN.md (the sidebar in the taskbar colour, the current
+# step in the accent); the rest of the look is stylesheet.qss, which
+# Calamares loads from this directory. Docs: Calamares
 # src/branding/default/branding.desc (3.3).
 ---
 componentName:  setu
@@ -37,7 +40,7 @@ images:
 slideshow: [ "setu-slide.png" ]
 
 style:
-   SidebarBackground:        "#0f4c5c"
-   SidebarText:              "#f4f1ea"
-   SidebarTextCurrent:       "#0a2f3a"
-   SidebarBackgroundCurrent: "#f2a541"
+   SidebarBackground:        "#EEF1F5"
+   SidebarText:              "#1B1B1B"
+   SidebarTextCurrent:       "#FFFFFF"
+   SidebarBackgroundCurrent: "#1F6FB2"
