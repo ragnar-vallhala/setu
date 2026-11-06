@@ -1,0 +1,181 @@
+{
+  "test": "shell32/known_folder_redirect",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true,
+      "has_SHSetKnownFolderPath": true,
+      "has_SHSetFolderPathW": true
+    },
+    "initial": {
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%USERPROFILE%\\Videos",
+      "usf.guid_name.present": false
+    },
+    "set_missing_dir": {
+      "hr": "0x00000000",
+      "dir_exists_after": false,
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%SystemDrive%\\setu-oracle\\work\\shell32__known_folder_redirect\\redir\\vid",
+      "usf.guid_name.present": false
+    },
+    "get_missing_no_flags": {
+      "hr": "0x80070003",
+      "path": null,
+      "dir_exists_after": false
+    },
+    "get_missing_dont_verify": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir\\vid",
+      "dir_exists_after": false
+    },
+    "get_missing_default_path": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Videos",
+      "dir_exists_after": false
+    },
+    "folderpath_missing": {
+      "hr": "0x80070003",
+      "path": null,
+      "dir_exists_after": false
+    },
+    "folderpath_missing_dont_verify": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir\\vid",
+      "dir_exists_after": false
+    },
+    "folderpath_missing_type_default": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Videos",
+      "dir_exists_after": false
+    },
+    "get_missing_create": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir\\vid",
+      "dir_exists_after": true
+    },
+    "get_after_create": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir\\vid",
+      "dir_exists_after": true
+    },
+    "set_redir2": {
+      "hr": "0x00000000",
+      "dir_exists_after": false,
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%SystemDrive%\\setu-oracle\\work\\shell32__known_folder_redirect\\redir2",
+      "usf.guid_name.present": false
+    },
+    "folderpath_create": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir2",
+      "dir_exists_after": true
+    },
+    "subdir_no_create": {
+      "hr": "0x80070003",
+      "path": null,
+      "dir_exists_after": false
+    },
+    "subdir_create": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir2\\a\\b",
+      "dir_exists_after": true
+    },
+    "subdir_existing": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir2\\a\\b"
+    },
+    "subdir_null": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir2"
+    },
+    "set_with_create": {
+      "hr": "0x80070057",
+      "dir_exists_after": false,
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%SystemDrive%\\setu-oracle\\work\\shell32__known_folder_redirect\\redir2",
+      "usf.guid_name.present": false
+    },
+    "get_redir3": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir2"
+    },
+    "set_profile_videos": {
+      "hr": "0x00000000",
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%USERPROFILE%\\Videos",
+      "usf.guid_name.present": false
+    },
+    "set_profile_videos_dont_unexpand": {
+      "hr": "0x00000000",
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%USERPROFILE%\\Videos",
+      "usf.guid_name.present": false
+    },
+    "set_env_string": {
+      "hr": "0x00000000",
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%USERPROFILE%\\Videos",
+      "usf.guid_name.present": false
+    },
+    "get_after_env_string": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Videos"
+    },
+    "set_relative_path": {
+      "hr": "0x800700a1",
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%USERPROFILE%\\Videos",
+      "usf.guid_name.present": false
+    },
+    "set_empty_path": {
+      "hr": "0x800700a1",
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%USERPROFILE%\\Videos",
+      "usf.guid_name.present": false
+    },
+    "set_fixed_folder": {
+      "hr": "0x80070057"
+    },
+    "set_virtual_folder": {
+      "hr": "0x80070057"
+    },
+    "setfolderpath_csidl": {
+      "hr": "0x00000000",
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%SystemDrive%\\setu-oracle\\work\\shell32__known_folder_redirect\\redir2",
+      "usf.guid_name.present": false
+    },
+    "folderpath_after_setfolderpath": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir2"
+    },
+    "setfolderpath_fixed": {
+      "hr": "0x80070057"
+    },
+    "restored": {
+      "usf.legacy_name.present": true,
+      "usf.legacy_name.type": 2,
+      "usf.legacy_name.value": "%USERPROFILE%\\Videos",
+      "usf.guid_name.present": false
+    },
+    "get_restored": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\redir2"
+    }
+  },
+  "errors": [],
+  "source_sha256": "95cf3565f97e9362ebd728349269a8d8a31c242dfcadfbefb0dff76a0bb9be58"
+}

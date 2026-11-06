@@ -1,0 +1,182 @@
+{
+  "test": "shell32/shell_item",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "file": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "normal": "file",
+      "parent_parsing": "file.txt",
+      "desktop_parsing": "<cwd>\\d\\file.txt",
+      "parent_editing": "file",
+      "filesys": "<cwd>\\d\\file.txt",
+      "parent_relative": "file",
+      "attrs_hr": "0x00000001",
+      "attrs": "0x40400137"
+    },
+    "folder": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "normal": "d",
+      "parent_parsing": "d",
+      "desktop_parsing": "<cwd>\\d",
+      "parent_editing": "d",
+      "filesys": "<cwd>\\d",
+      "parent_relative": "d",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xf080013f"
+    },
+    "folder_trailing_backslash": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "normal": "d",
+      "parent_parsing": "d",
+      "desktop_parsing": "<cwd>\\d",
+      "parent_editing": "d",
+      "filesys": "<cwd>\\d",
+      "parent_relative": "d",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xf080013f"
+    },
+    "missing": {
+      "hr": "0x80070002",
+      "null_on_failure": true
+    },
+    "relative": {
+      "hr": "0x80070002",
+      "null_on_failure": true
+    },
+    "drive_root_attrs": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "attrs_hr": "0x00000001",
+      "attrs": "0xf080011d"
+    },
+    "this_pc": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "normal": "This PC",
+      "parent_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "desktop_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "parent_editing": "This PC",
+      "filesys_hr": "0x80070057",
+      "parent_relative": "This PC",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xb0000134"
+    },
+    "recycle_bin": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "normal": "Recycle Bin",
+      "parent_parsing": "::{645FF040-5081-101B-9F08-00AA002F954E}",
+      "desktop_parsing": "::{645FF040-5081-101B-9F08-00AA002F954E}",
+      "parent_editing": "Recycle Bin",
+      "filesys_hr": "0x80070057",
+      "parent_relative": "Recycle Bin",
+      "attrs_hr": "0x00000001",
+      "attrs": "0x20000114"
+    },
+    "empty": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "normal": "This PC",
+      "parent_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "desktop_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "parent_editing": "This PC",
+      "filesys_hr": "0x80070057",
+      "parent_relative": "This PC",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xb0000134"
+    },
+    "bogus_guid": {
+      "hr": "0x80070057",
+      "null_on_failure": true
+    },
+    "shell_documents": {
+      "hr": "0x00000000",
+      "null_on_failure": true,
+      "normal": "Documents",
+      "parent_parsing": "::{A8CDFF1C-4878-43BE-B5FD-F8091C1C60D0}",
+      "desktop_parsing": "<profile>\\Documents",
+      "parent_editing": "Documents",
+      "filesys": "<profile>\\Documents",
+      "parent_relative": "Documents",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xf080000d"
+    },
+    "compare": {
+      "same_hr": "0x00000000",
+      "same_order": 0,
+      "diff_hr": "0x00000001",
+      "diff_order_sign": -1,
+      "display_hr": "0x00000000",
+      "display_order": 0
+    },
+    "parent_chain": {
+      "first_three": "sub|d|shell32__shell_item",
+      "top_hr": "0x800401e5",
+      "ends_with_failure": true
+    },
+    "relative_name": {
+      "hr": "0x00000000",
+      "path": "<cwd>\\d\\sub\\x.bin",
+      "missing_hr": "0x80070002"
+    },
+    "bind_to_handler": {
+      "sfobject_hr": "0x00000000",
+      "enumitems_hr": "0x00000000",
+      "count": 2,
+      "names": "file.txt,sub",
+      "folder_stream_hr": "0x80004005"
+    },
+    "from_idlist_drives": {
+      "hr": "0x00000000",
+      "normal": "This PC",
+      "parent_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "desktop_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "parent_editing": "This PC",
+      "filesys_hr": "0x80070057",
+      "parent_relative": "This PC",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xb0000134",
+      "idlist_hr": "0x00000000",
+      "idlist_nonnull": true
+    },
+    "known_documents": {
+      "hr": "0x00000000",
+      "normal": "Documents",
+      "parent_parsing": "::{A8CDFF1C-4878-43BE-B5FD-F8091C1C60D0}",
+      "desktop_parsing": "<profile>\\Documents",
+      "parent_editing": "Documents",
+      "filesys": "<profile>\\Documents",
+      "parent_relative": "Documents",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xf080000d"
+    },
+    "known_computer": {
+      "hr": "0x00000000",
+      "normal": "This PC",
+      "parent_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "desktop_parsing": "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+      "parent_editing": "This PC",
+      "filesys_hr": "0x80070057",
+      "parent_relative": "This PC",
+      "attrs_hr": "0x00000001",
+      "attrs": "0xb0000134"
+    },
+    "in_known_folder_missing": {
+      "hr": "0x80070002"
+    },
+    "in_known_folder_documents": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Documents"
+    }
+  },
+  "errors": [],
+  "source_sha256": "dfa404ddcfa425b9adf39faa3985545ebff5904870ad2f2e340e3ed08ccb5e81"
+}

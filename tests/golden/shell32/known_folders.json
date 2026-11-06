@@ -1,0 +1,582 @@
+{
+  "test": "shell32/known_folders",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "path_desktop": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Desktop"
+    },
+    "path_documents": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Documents"
+    },
+    "path_downloads": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Downloads"
+    },
+    "path_music": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Music"
+    },
+    "path_pictures": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Pictures"
+    },
+    "path_videos": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Videos"
+    },
+    "path_favorites": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Favorites"
+    },
+    "path_links": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Links"
+    },
+    "path_saved_games": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Saved Games"
+    },
+    "path_contacts": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Contacts"
+    },
+    "path_searches": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Searches"
+    },
+    "path_objects3d": {
+      "hr": "0x00000000",
+      "path": "<profile>\\3D Objects"
+    },
+    "path_profile": {
+      "hr": "0x00000000",
+      "path": "<profile>"
+    },
+    "path_user_profiles": {
+      "hr": "0x00000000",
+      "path": "<profiles>"
+    },
+    "path_roaming_appdata": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming"
+    },
+    "path_local_appdata": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Local"
+    },
+    "path_local_appdata_low": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\LocalLow"
+    },
+    "path_user_program_files": {
+      "hr": "0x80070002",
+      "out_null": true
+    },
+    "path_user_program_files_common": {
+      "hr": "0x80070003",
+      "out_null": true
+    },
+    "path_start_menu": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu"
+    },
+    "path_programs": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "path_startup": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+    },
+    "path_admin_tools": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Administrative Tools"
+    },
+    "path_send_to": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\SendTo"
+    },
+    "path_recent": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Recent"
+    },
+    "path_templates": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Templates"
+    },
+    "path_quick_launch": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch"
+    },
+    "path_history": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Local\\Microsoft\\Windows\\History"
+    },
+    "path_internet_cache": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Local\\Microsoft\\Windows\\INetCache"
+    },
+    "path_cookies": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Local\\Microsoft\\Windows\\INetCookies"
+    },
+    "path_net_hood": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Network Shortcuts"
+    },
+    "path_print_hood": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Printer Shortcuts"
+    },
+    "path_cd_burning": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Local\\Microsoft\\Windows\\Burn\\Burn"
+    },
+    "path_common_start_menu": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu"
+    },
+    "path_common_programs": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "path_common_startup": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+    },
+    "path_common_admin_tools": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Administrative Tools"
+    },
+    "path_common_templates": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Templates"
+    },
+    "path_program_data": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData"
+    },
+    "path_public": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Public"
+    },
+    "path_public_desktop": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Public\\Desktop"
+    },
+    "path_public_documents": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Public\\Documents"
+    },
+    "path_public_downloads": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Public\\Downloads"
+    },
+    "path_public_music": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Public\\Music"
+    },
+    "path_public_pictures": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Public\\Pictures"
+    },
+    "path_public_videos": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Public\\Videos"
+    },
+    "path_program_files": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files"
+    },
+    "path_program_files_x64": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files"
+    },
+    "path_program_files_x86": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files (x86)"
+    },
+    "path_program_files_common": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files\\Common Files"
+    },
+    "path_program_files_common_x64": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files\\Common Files"
+    },
+    "path_program_files_common_x86": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files (x86)\\Common Files"
+    },
+    "path_windows": {
+      "hr": "0x00000000",
+      "path": "<windir>"
+    },
+    "path_system": {
+      "hr": "0x00000000",
+      "path": "<windir>\\system32"
+    },
+    "path_system_x86": {
+      "hr": "0x00000000",
+      "path": "<windir>\\SysWOW64"
+    },
+    "path_fonts": {
+      "hr": "0x00000000",
+      "path": "<windir>\\Fonts"
+    },
+    "path_resource_dir": {
+      "hr": "0x00000000",
+      "path": "<windir>\\resources"
+    },
+    "default_path_documents": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Documents"
+    },
+    "default_path_roaming_appdata": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming"
+    },
+    "default_path_programs": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "default_path_common_programs": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "default_path_program_files": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files"
+    },
+    "default_user_documents": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Default\\Documents"
+    },
+    "default_user_desktop": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Default\\Desktop"
+    },
+    "default_user_roaming_appdata": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Default\\AppData\\Roaming"
+    },
+    "default_user_local_appdata": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Default\\AppData\\Local"
+    },
+    "default_user_programs": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Default\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "default_user_profile": {
+      "hr": "0x00000000",
+      "path": "<profiles>\\Default"
+    },
+    "default_user_program_files": {
+      "hr": "0x00000000",
+      "path": "C:\\Program Files"
+    },
+    "default_user_common_programs": {
+      "hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "flag_dont_verify_documents": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Documents"
+    },
+    "flag_create_documents": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Documents"
+    },
+    "flag_no_alias_documents": {
+      "hr": "0x00000000",
+      "path": "<profile>\\Documents"
+    },
+    "flag_not_parent_relative_programs": {
+      "hr": "0x80070057",
+      "out_null": true
+    },
+    "flag_dont_unexpand_appdata": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming"
+    },
+    "flag_alias_only_documents": {
+      "hr": "0x80070057",
+      "out_null": true
+    },
+    "virtual_computer": {
+      "hr": "0x80004005",
+      "out_null": true
+    },
+    "virtual_recycle_bin": {
+      "hr": "0x80004005",
+      "out_null": true
+    },
+    "virtual_control_panel": {
+      "hr": "0x80004005",
+      "out_null": true
+    },
+    "virtual_apps_folder": {
+      "hr": "0x80004005",
+      "out_null": true
+    },
+    "virtual_libraries_documents": {
+      "hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Libraries\\Documents.library-ms"
+    },
+    "manager_create": {
+      "hr": "0x00000000"
+    },
+    "def_documents": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "Personal",
+      "def_relative_path": "Documents",
+      "def_has_parent": true,
+      "def_flags": "0x0000000c",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\Documents"
+    },
+    "def_desktop": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "Desktop",
+      "def_relative_path": "Desktop",
+      "def_has_parent": true,
+      "def_flags": "0x0000002c",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\Desktop"
+    },
+    "def_programs": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "Programs",
+      "def_relative_path": "Programs",
+      "def_has_parent": true,
+      "def_flags": "0x00000008",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "def_common_programs": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 3,
+      "definition_hr": "0x00000000",
+      "def_category": 3,
+      "def_name": "Common Programs",
+      "def_relative_path": "Programs",
+      "def_has_parent": true,
+      "def_flags": "0x00000008",
+      "path_hr": "0x00000000",
+      "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    "def_start_menu": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "Start Menu",
+      "def_relative_path": "Microsoft\\Windows\\Start Menu",
+      "def_has_parent": true,
+      "def_flags": "0x00000008",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu"
+    },
+    "def_startup": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "Startup",
+      "def_relative_path": "StartUp",
+      "def_has_parent": true,
+      "def_flags": "0x00000008",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+    },
+    "def_roaming_appdata": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "AppData",
+      "def_relative_path": "AppData\\Roaming",
+      "def_has_parent": true,
+      "def_flags": "0x00000000",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\AppData\\Roaming"
+    },
+    "def_local_appdata": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "Local AppData",
+      "def_relative_path": "AppData\\Local",
+      "def_has_parent": true,
+      "def_flags": "0x00000022",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\AppData\\Local"
+    },
+    "def_program_files": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 2,
+      "definition_hr": "0x00000000",
+      "def_category": 2,
+      "def_name": "ProgramFiles",
+      "def_relative_path": null,
+      "def_has_parent": false,
+      "def_flags": "0x00000008",
+      "path_hr": "0x00000000",
+      "path": "C:\\Program Files"
+    },
+    "def_windows": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 2,
+      "definition_hr": "0x00000000",
+      "def_category": 2,
+      "def_name": "Windows",
+      "def_relative_path": null,
+      "def_has_parent": false,
+      "def_flags": "0x00000000",
+      "path_hr": "0x00000000",
+      "path": "<windir>"
+    },
+    "def_computer": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 1,
+      "definition_hr": "0x00000000",
+      "def_category": 1,
+      "def_name": "MyComputerFolder",
+      "def_relative_path": null,
+      "def_has_parent": false,
+      "def_flags": "0x00000000",
+      "path_hr": "0x80004005"
+    },
+    "def_recycle_bin": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 1,
+      "definition_hr": "0x00000000",
+      "def_category": 1,
+      "def_name": "RecycleBinFolder",
+      "def_relative_path": null,
+      "def_has_parent": false,
+      "def_flags": "0x00000000",
+      "path_hr": "0x80004005"
+    },
+    "def_public_documents": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 3,
+      "definition_hr": "0x00000000",
+      "def_category": 3,
+      "def_name": "Common Documents",
+      "def_relative_path": "Documents",
+      "def_has_parent": true,
+      "def_flags": "0x00000008",
+      "path_hr": "0x00000000",
+      "path": "<profiles>\\Public\\Documents"
+    },
+    "def_downloads": {
+      "get_hr": "0x00000000",
+      "category_hr": "0x00000000",
+      "category": 4,
+      "definition_hr": "0x00000000",
+      "def_category": 4,
+      "def_name": "Downloads",
+      "def_relative_path": "Downloads",
+      "def_has_parent": true,
+      "def_flags": "0x0000002c",
+      "path_hr": "0x00000000",
+      "path": "<profile>\\Downloads"
+    },
+    "get_bogus": {
+      "hr": "0x80070002",
+      "out_null": true
+    },
+    "byname_personal": {
+      "hr": "0x00000000",
+      "is_documents": true,
+      "is_desktop": false,
+      "is_programs": false,
+      "is_roaming_appdata": false,
+      "is_common_programs": false
+    },
+    "byname_desktop": {
+      "hr": "0x00000000",
+      "is_documents": false,
+      "is_desktop": true,
+      "is_programs": false,
+      "is_roaming_appdata": false,
+      "is_common_programs": false
+    },
+    "byname_programs": {
+      "hr": "0x00000000",
+      "is_documents": false,
+      "is_desktop": false,
+      "is_programs": true,
+      "is_roaming_appdata": false,
+      "is_common_programs": false
+    },
+    "byname_appdata": {
+      "hr": "0x00000000",
+      "is_documents": false,
+      "is_desktop": false,
+      "is_programs": false,
+      "is_roaming_appdata": true,
+      "is_common_programs": false
+    },
+    "byname_common_programs": {
+      "hr": "0x00000000",
+      "is_documents": false,
+      "is_desktop": false,
+      "is_programs": false,
+      "is_roaming_appdata": false,
+      "is_common_programs": true
+    },
+    "byname_bogus": {
+      "hr": "0x80070002"
+    },
+    "find_exact_documents": {
+      "hr": "0x00000000",
+      "is_documents": true
+    },
+    "find_nearest_documents": {
+      "hr": "0x00000000",
+      "is_documents": true
+    },
+    "find_exact_child": {
+      "hr": "0x80070002"
+    },
+    "find_nearest_child": {
+      "hr": "0x00000000",
+      "is_documents": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "6e92a8c7dba10de6d4b3f8e86b3ab72569f04275650ea29344638cab5b2de168"
+}

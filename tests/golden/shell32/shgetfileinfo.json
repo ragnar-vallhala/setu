@@ -1,0 +1,369 @@
+{
+  "test": "shell32/shgetfileinfo",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "plain_txt_names": {
+      "ret": 1,
+      "display": "plain",
+      "type": "Text Document"
+    },
+    "plain_txt_attrs": {
+      "ret": 1,
+      "attrs": "0x40400177"
+    },
+    "plain_txt_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "registered_ext_names": {
+      "ret": 1,
+      "display": "doc",
+      "type": "Setu Oracle Five"
+    },
+    "registered_ext_attrs": {
+      "ret": 1,
+      "attrs": "0x40400177"
+    },
+    "registered_ext_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "unknown_ext_names": {
+      "ret": 1,
+      "display": "thing.unknownext",
+      "type": "UNKNOWNEXT File"
+    },
+    "unknown_ext_attrs": {
+      "ret": 1,
+      "attrs": "0x40400177"
+    },
+    "unknown_ext_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "no_ext_names": {
+      "ret": 1,
+      "display": "noext",
+      "type": "File"
+    },
+    "no_ext_attrs": {
+      "ret": 1,
+      "attrs": "0x40400177"
+    },
+    "no_ext_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "exe_names": {
+      "ret": 1,
+      "display": "prog",
+      "type": "Application"
+    },
+    "exe_attrs": {
+      "ret": 1,
+      "attrs": "0x40400177"
+    },
+    "exe_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "hidden_names": {
+      "ret": 1,
+      "display": "hidden",
+      "type": "Text Document"
+    },
+    "hidden_attrs": {
+      "ret": 1,
+      "attrs": "0x40480177"
+    },
+    "hidden_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "readonly_names": {
+      "ret": 1,
+      "display": "readonly",
+      "type": "Text Document"
+    },
+    "readonly_attrs": {
+      "ret": 1,
+      "attrs": "0x40440177"
+    },
+    "readonly_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "multi_dot_names": {
+      "ret": 1,
+      "display": "two.dots.tar.gz",
+      "type": "GZ File"
+    },
+    "multi_dot_attrs": {
+      "ret": 1,
+      "attrs": "0x40400177"
+    },
+    "multi_dot_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "folder_names": {
+      "ret": 1,
+      "display": "folder",
+      "type": "File folder"
+    },
+    "folder_attrs": {
+      "ret": 1,
+      "attrs": "0xf080017f"
+    },
+    "folder_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "empty_folder_names": {
+      "ret": 1,
+      "display": "emptyfolder",
+      "type": "File folder"
+    },
+    "empty_folder_attrs": {
+      "ret": 1,
+      "attrs": "0x7080017f"
+    },
+    "empty_folder_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "drive_root_type": {
+      "ret": 1,
+      "type": "Local Disk"
+    },
+    "drive_root_attrs": {
+      "ret": 1,
+      "attrs": "0xf080015d"
+    },
+    "drive_root_icon": {
+      "ret": 1,
+      "icon_index_valid": true,
+      "hicon": true
+    },
+    "missing_names": {
+      "ret": 0,
+      "display": "",
+      "type": ""
+    },
+    "missing_attrs": {
+      "ret": 0,
+      "attrs": "0x00000000"
+    },
+    "ufa_txt_names": {
+      "ret": 1,
+      "display": "nothing",
+      "type": "Text Document"
+    },
+    "ufa_txt_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_txt_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_registered_names": {
+      "ret": 1,
+      "display": "nothing",
+      "type": "Setu Oracle Five"
+    },
+    "ufa_registered_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_registered_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_unknown_names": {
+      "ret": 1,
+      "display": "nothing.qqqzz",
+      "type": "QQQZZ File"
+    },
+    "ufa_unknown_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_unknown_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_no_ext_names": {
+      "ret": 1,
+      "display": "nothing",
+      "type": "File"
+    },
+    "ufa_no_ext_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_no_ext_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_exe_names": {
+      "ret": 1,
+      "display": "nothing",
+      "type": "Application"
+    },
+    "ufa_exe_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_exe_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_dir_names": {
+      "ret": 1,
+      "display": "nothing_dir",
+      "type": "File folder"
+    },
+    "ufa_dir_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_dir_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_ext_only_names": {
+      "ret": 1,
+      "display": ".setuoracle5",
+      "type": "Setu Oracle Five"
+    },
+    "ufa_ext_only_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_ext_only_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_star_ext_names": {
+      "ret": 1,
+      "display": "*",
+      "type": "Setu Oracle Five"
+    },
+    "ufa_star_ext_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_star_ext_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_full_path_names": {
+      "ret": 1,
+      "display": "x",
+      "type": "Text Document"
+    },
+    "ufa_full_path_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_full_path_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "ufa_existing_dir_as_file_names": {
+      "ret": 1,
+      "display": "folder",
+      "type": "File"
+    },
+    "ufa_existing_dir_as_file_attrs": {
+      "ret": 1,
+      "attrs": "0x00000000"
+    },
+    "ufa_existing_dir_as_file_sysicon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "attr_specified_folder": {
+      "ret": 1,
+      "attrs": "0x7080014d"
+    },
+    "attr_specified_file": {
+      "ret": 1,
+      "attrs": "0x40000145"
+    },
+    "exetype_exe": {
+      "ret": "0x00004550"
+    },
+    "exetype_txt": {
+      "ret": "0x00000000"
+    },
+    "exetype_missing": {
+      "ret": "0x00000000"
+    },
+    "sysicon_file": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    },
+    "no_flags": {
+      "ret": 1
+    },
+    "pidl_desktop_names": {
+      "ret": 1,
+      "display": "Desktop",
+      "type": ""
+    },
+    "pidl_desktop_attrs": {
+      "ret": 1,
+      "attrs": "0xf0800048"
+    },
+    "pidl_drives_names": {
+      "ret": 1,
+      "display": "This PC",
+      "type": "System Folder"
+    },
+    "pidl_drives_attrs": {
+      "ret": 1,
+      "attrs": "0xb0000174"
+    },
+    "pidl_bitbucket_names": {
+      "ret": 1,
+      "display": "Recycle Bin",
+      "type": "System Folder"
+    },
+    "pidl_bitbucket_attrs": {
+      "ret": 1,
+      "attrs": "0x20000154"
+    },
+    "pidl_personal_names": {
+      "ret": 1,
+      "display": "Documents",
+      "type": "System Folder"
+    },
+    "pidl_controls_names": {
+      "ret": 1,
+      "display": "All Control Panel Items"
+    },
+    "pidl_desktop_icon": {
+      "ret_nonzero": true,
+      "icon_index_valid": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "74e24833a7d5a0b775d597d75752e95ae369f99db3c3fbae612c3f75f3ab1de2"
+}

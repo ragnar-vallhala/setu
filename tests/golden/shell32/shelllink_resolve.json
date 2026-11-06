@@ -1,0 +1,139 @@
+{
+  "test": "shell32/shelllink_resolve",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "create": {
+      "created": true
+    },
+    "resolve_empty_link": {
+      "hr": "0x00000000"
+    },
+    "resolve_unsaved_missing": {
+      "hr": "0x00000001"
+    },
+    "present_nosearch_notrack": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000000",
+      "path": "<cwd>\\setu_resolve_present.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "present_update": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000000",
+      "path": "<cwd>\\setu_resolve_present.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "present_noupdate": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000000",
+      "path": "<cwd>\\setu_resolve_present.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "present_plain": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000000",
+      "path": "<cwd>\\setu_resolve_present.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "present_changed_noupdate": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000000",
+      "path": "<cwd>\\setu_resolve_present.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "present_changed_update": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000000",
+      "path": "<cwd>\\setu_resolve_present.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "present_changed_after_update": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000000",
+      "path": "<cwd>\\setu_resolve_present.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "gone_nosearch_notrack": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000001",
+      "path": "<cwd>\\setu_resolve_gone.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "gone_nosearch_notrack_noupdate": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000001",
+      "path": "<cwd>\\setu_resolve_gone.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "gone_nolinkinfo": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000001",
+      "path": "<cwd>\\setu_resolve_gone.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "gone_update": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000001",
+      "path": "<cwd>\\setu_resolve_gone.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "file_became_dir": {
+      "load_hr": "0x00000000",
+      "hr": "0x8007000d",
+      "path": "<cwd>\\setu_resolve_dir_now",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "parent_dir_gone": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000001",
+      "path": "<cwd>\\sub\\setu_resolve_sub.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "missing_drive": {
+      "load_hr": "0x00000000",
+      "hr": "0x00000001",
+      "path": "Q:\\setu\\missing_drive.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    },
+    "missing_unc_host": {
+      "load_hr": "0x00000000",
+      "hr": "0x800705b4",
+      "path": "\\\\setu-no-such-host-name\\share\\x.exe",
+      "args": "--resolve-test",
+      "dirty": "0x00000001",
+      "lnk_rewritten": false
+    }
+  },
+  "errors": [],
+  "source_sha256": "11181c0611036b6ec1c6cb75499dc213218c45a1a9c5dc44df5332ee6c11dbb7"
+}

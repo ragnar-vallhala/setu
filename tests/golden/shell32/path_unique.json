@@ -1,0 +1,173 @@
+{
+  "test": "shell32/path_unique",
+  "schema": 1,
+  "exit_code": 5,
+  "complete": false,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "unique_long_empty_dir": {
+      "ret": true,
+      "out": "<cwd>\\u\\New Text Document (1).txt"
+    },
+    "unique_short_only": {
+      "ret": true,
+      "out": "<cwd>\\u\\short (1).txt"
+    },
+    "unique_long_noext": {
+      "ret": true,
+      "out": "<cwd>\\u\\New Folder (1)"
+    },
+    "unique_short_paren": {
+      "ret": true,
+      "out": "<cwd>\\u\\name (1).txt"
+    },
+    "unique_long_with_existing": {
+      "ret": true,
+      "out": "<cwd>\\u\\New Text Document (3).txt"
+    },
+    "unique_short_with_existing": {
+      "ret": true,
+      "out": "<cwd>\\u\\short (1).txt"
+    },
+    "unique_null_dir": {
+      "ret": true,
+      "out": "New Text Document (1).txt"
+    },
+    "unique_long_template_paren": {
+      "ret": true,
+      "out": "<cwd>\\u\\Copy (1) of x.txt"
+    },
+    "unique_small_buffer": {
+      "ret": false,
+      "out": ""
+    },
+    "yet_nothing_exists": {
+      "ret": true,
+      "out": "<cwd>\\Doc.txt"
+    },
+    "yet_exists": {
+      "ret": true,
+      "out": "<cwd>\\Doc.txt"
+    },
+    "yet_exists_2": {
+      "ret": true,
+      "out": "<cwd>\\Doc.txt"
+    },
+    "yet_exists_paren_template": {
+      "ret": true,
+      "out": "<cwd>\\Doc (1).txt"
+    },
+    "yet_short": {
+      "ret": true,
+      "out": "<cwd>\\y\\Doc (3).txt"
+    },
+    "yet_folder": {
+      "ret": true,
+      "out": "<cwd>\\Folder"
+    },
+    "yet_noext_missing": {
+      "ret": true,
+      "out": "<cwd>\\Brand new"
+    },
+    "cleanup_plain": {
+      "ret": "0x00000000",
+      "out": "report.txt"
+    },
+    "cleanup_invalid_chars": {
+      "ret": "0x00000002",
+      "out": "abcdefgh.txt"
+    },
+    "cleanup_slashes": {
+      "ret": "0x00000003",
+      "out": "a-bc.txt"
+    },
+    "cleanup_spaces": {
+      "ret": "0x00000000",
+      "out": "  spaced name .txt"
+    },
+    "cleanup_dir_given": {
+      "ret": "0x00000002",
+      "out": "ab.txt"
+    },
+    "cleanup_empty": {
+      "ret": "0x00000000",
+      "out": ""
+    },
+    "cleanup_only_invalid": {
+      "ret": "0x00000002",
+      "out": ""
+    },
+    "cleanup_dots": {
+      "ret": "0x00000000",
+      "out": ".."
+    },
+    "cleanup_trailing_dot": {
+      "ret": "0x00000000",
+      "out": "name."
+    },
+    "cleanup_control": {
+      "ret": "0x00000002",
+      "out": "ab.txt"
+    },
+    "cleanup_long_name": {
+      "ret": "0x80000008",
+      "out": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnop.txt"
+    },
+    "pathisexe": {
+      "e0": true,
+      "e1": true,
+      "e2": true,
+      "e3": true,
+      "e4": true,
+      "e5": true,
+      "e6": false,
+      "e7": true,
+      "e8": false,
+      "e9": false,
+      "e10": false,
+      "e11": false,
+      "e12": false
+    },
+    "resolve_found_in_dir": {
+      "ret": true,
+      "last_error": "unchanged",
+      "out": "<cwd>\\r\\found.txt"
+    },
+    "resolve_missing_in_dir": {
+      "ret": false,
+      "last_error": 2,
+      "out": "missing.txt"
+    },
+    "resolve_noext_tryexts": {
+      "ret": true,
+      "last_error": 18,
+      "out": "<cwd>\\r\\tool.exe"
+    },
+    "resolve_noext_bat": {
+      "ret": true,
+      "last_error": 18,
+      "out": "<cwd>\\r\\script.bat"
+    },
+    "resolve_noext_noflag": {
+      "ret": false,
+      "last_error": 2,
+      "out": "tool"
+    },
+    "resolve_verify_missing": {
+      "ret": false,
+      "last_error": 2,
+      "out": "missing.txt"
+    },
+    "resolve_verify_found": {
+      "ret": true,
+      "last_error": 2,
+      "out": "<cwd>\\r\\found.txt"
+    }
+  },
+  "errors": [
+    "output incomplete (no end line): crash, timeout or early exit"
+  ],
+  "source_sha256": "d4954e995926f1e4e600ac82208239b581a48e8b5969b02bfc518c9e82f1a21b"
+}

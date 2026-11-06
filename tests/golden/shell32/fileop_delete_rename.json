@@ -1,0 +1,382 @@
+{
+  "test": "shell32/fileop_delete_rename",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "delete_file": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_multi": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_wildcard": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_wildcard_in_dir": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dst/"
+    },
+    "delete_wildcard_filesonly": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_dir": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dst/"
+    },
+    "delete_dir_norecursion": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dst/"
+    },
+    "delete_dir_trailing_backslash": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dst/"
+    },
+    "delete_empty_dir": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5"
+    },
+    "delete_readonly": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_dir_with_readonly": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dst/"
+    },
+    "delete_hidden_system": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_in_use": {
+      "ret": "0x00000020",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_dir_in_use": {
+      "ret": "0x00000020",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_missing": {
+      "ret": "0x00000002",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_missing_and_present": {
+      "ret": "0x00000002",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_present_and_missing": {
+      "ret": "0x00000002",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_wildcard_no_match": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_missing_dir_path": {
+      "ret": "0x0000007c",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_relative": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "delete_ignores_pto": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_file": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/,z.txt:1"
+    },
+    "rename_dir": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir2/,dir2\\d.txt:4,dir2\\sub/,dir2\\sub\\e.txt:5,dst/"
+    },
+    "rename_case_only": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "A.TXT:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_onto_existing": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:1,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_onto_existing_dir": {
+      "ret": "0x00000080",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_into_other_dir": {
+      "ret": "0x00000073",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_into_missing_dir": {
+      "ret": "0x00000073",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/,nodir/"
+    },
+    "rename_wildcard_source": {
+      "ret": "0x00000072",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_wildcard_dest": {
+      "ret": "0x0000007b",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_multi_sources": {
+      "ret": "0x00000072",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_multidestfiles": {
+      "ret": "0x00000072",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_missing": {
+      "ret": "0x00000002",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_onto_itself": {
+      "ret": "0x00000071",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_rename_on_collision": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b (2).txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_relative_dest": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/,z.txt:1"
+    },
+    "rename_in_use": {
+      "ret": "0x00000020",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "rename_readonly": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/,z.txt:1"
+    },
+    "rename_invalid_char": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "mappings": false,
+      "tree": "b.txt:2,bad:1,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_empty_from": {
+      "ret": "0x00000000",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_func_zero": {
+      "ret": "0x00000057",
+      "last_error": "unchanged",
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_func_bogus": {
+      "ret": "0x00000057",
+      "last_error": "unchanged",
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_copy_null_to": {
+      "ret": "0x00000005",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_copy_empty_to": {
+      "ret": "0x00000071",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_move_null_to": {
+      "ret": "0x00000005",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_rename_null_to": {
+      "ret": "0x00000005",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_copy_missing_source": {
+      "ret": "0x00000002",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_move_missing_source": {
+      "ret": "0x00000002",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_copy_missing_drive": {
+      "ret": "0x0000007c",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_copy_to_missing_drive": {
+      "ret": "0x00000003",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_delete_missing_drive": {
+      "ret": "0x0000007c",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_delete_drive_root_wildcard_missing": {
+      "ret": "0x0000007c",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_copy_bad_name": {
+      "ret": "0x0000007b",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_delete_bad_name": {
+      "ret": "0x00000057",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    },
+    "err_delete_dot": {
+      "ret": "0x00000002",
+      "last_error": 0,
+      "aborted": 0,
+      "tree": "a.txt:1,b.txt:2,c.dat:3,dir/,dir\\d.txt:4,dir\\sub/,dir\\sub\\e.txt:5,dst/"
+    }
+  },
+  "errors": [],
+  "source_sha256": "f23358f98f916d125ace026d389c2c0ace0c0fe92e2f2fe5441d4084e965b174"
+}

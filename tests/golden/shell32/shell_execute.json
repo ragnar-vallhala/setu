@@ -1,0 +1,314 @@
+{
+  "test": "shell32/shell_execute",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "default_verb": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "open_verb": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "edit_verb_with_params": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child edit \"<cwd>\\doc.setuoracle1\" p1 \"p 2\"",
+      "child_cwd": "<cwd>"
+    },
+    "long_name_verb": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child long <cwd>\\doc.setuoracle1",
+      "child_cwd": "<cwd>"
+    },
+    "noarg_verb": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child noarg",
+      "child_cwd": "<cwd>"
+    },
+    "second_param_verb": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child second \"alpha\" \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "unquoted_verb_space_in_path": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child unquoted <cwd>\\dir with space\\my doc.setuoracle1",
+      "child_cwd": "<cwd>"
+    },
+    "open_space_in_path": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\dir with space\\my doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "absolute_path": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "missing_verb": {
+      "ret": false,
+      "last_error": 1155,
+      "hinstapp": 31,
+      "has_process": false,
+      "child_ran": false
+    },
+    "shell_default_verb_edit": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child edit2 \"<cwd>\\doc.setuoracle2\"",
+      "child_cwd": "<cwd>"
+    },
+    "only_custom_verb_default": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child custom \"<cwd>\\doc.setuoracle3\"",
+      "child_cwd": "<cwd>"
+    },
+    "only_custom_verb_open": {
+      "ret": false,
+      "last_error": 1155,
+      "hinstapp": 31,
+      "has_process": false,
+      "child_ran": false
+    },
+    "with_directory": {
+      "ret": false,
+      "last_error": 2,
+      "hinstapp": 2,
+      "has_process": false,
+      "child_ran": false
+    },
+    "with_absolute_directory": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "doenvsubst": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "classname": {
+      "ret": false,
+      "last_error": 2,
+      "hinstapp": 2,
+      "has_process": false,
+      "child_ran": false
+    },
+    "classname_progid": {
+      "ret": false,
+      "last_error": 2,
+      "hinstapp": 2,
+      "has_process": false,
+      "child_ran": false
+    },
+    "exe_direct_params": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child direct \"a b\" c",
+      "child_cwd": "<cwd>"
+    },
+    "exe_direct_open_verb": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child directopen",
+      "child_cwd": "<cwd>"
+    },
+    "exe_direct_absolute": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child abs",
+      "child_cwd": "<cwd>\\wd"
+    },
+    "missing_file": {
+      "ret": false,
+      "last_error": 2,
+      "hinstapp": 2,
+      "has_process": false,
+      "child_ran": false
+    },
+    "missing_exe": {
+      "ret": false,
+      "last_error": 2,
+      "hinstapp": 2,
+      "has_process": false,
+      "child_ran": false
+    },
+    "no_association": {
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": false,
+      "child_ran": false
+    },
+    "no_association_default": {
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": false,
+      "child_ran": false
+    },
+    "missing_directory": {
+      "child_exit": 0,
+      "ret": true,
+      "last_error": 0,
+      "hinstapp": 42,
+      "has_process": true,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "bad_cbsize": {
+      "ret": false,
+      "last_error": 5
+    },
+    "se_open_doc": {
+      "success": true,
+      "last_error": 0,
+      "child_ran": true,
+      "child_cmdline": "\"<exe>\" --child open \"<cwd>\\doc.setuoracle1\"",
+      "child_cwd": "<cwd>"
+    },
+    "se_missing_file": {
+      "success": false,
+      "ret": 2,
+      "last_error": 2,
+      "child_ran": false
+    },
+    "se_no_association": {
+      "success": true,
+      "last_error": 0,
+      "child_ran": false
+    },
+    "se_missing_verb": {
+      "success": false,
+      "ret": 31,
+      "last_error": 1155,
+      "child_ran": false
+    },
+    "find_doc": {
+      "ret": 31,
+      "last_error": 122,
+      "result": ""
+    },
+    "find_doc_with_dir": {
+      "ret": 2,
+      "last_error": 2,
+      "result": ""
+    },
+    "find_doc_default_edit": {
+      "ret": 31,
+      "last_error": 122,
+      "result": ""
+    },
+    "find_doc_custom_only": {
+      "ret": 31,
+      "last_error": 122,
+      "result": ""
+    },
+    "find_exe_itself": {
+      "ret": 42,
+      "last_error": 2,
+      "result": "<exe>"
+    },
+    "find_missing_file": {
+      "ret": 2,
+      "last_error": 2,
+      "result": ""
+    },
+    "find_no_association": {
+      "ret": 31,
+      "last_error": 122,
+      "result": ""
+    },
+    "find_missing_dir": {
+      "ret": 2,
+      "last_error": 2,
+      "result": ""
+    }
+  },
+  "errors": [],
+  "source_sha256": "ec5412c9909a5dbe04a593b58b826508ab66e4456382a457f052ba13268c130a"
+}

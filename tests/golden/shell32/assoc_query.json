@@ -1,0 +1,254 @@
+{
+  "test": "shell32/assoc_query",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "doc1_command_noverb": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child open \"%1\"",
+      "len_out": 73
+    },
+    "doc1_command_open": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child open \"%1\"",
+      "len_out": 73
+    },
+    "doc1_command_edit": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child edit \"%1\" %*",
+      "len_out": 76
+    },
+    "doc1_command_missing": {
+      "hr": "0x80070483",
+      "out_untouched": false
+    },
+    "doc1_executable_noverb": {
+      "hr": "0x00000000",
+      "out": "<exe>",
+      "len_out": 53
+    },
+    "doc1_executable_open": {
+      "hr": "0x00000000",
+      "out": "<exe>",
+      "len_out": 53
+    },
+    "doc1_executable_edit": {
+      "hr": "0x00000000",
+      "out": "<exe>",
+      "len_out": 53
+    },
+    "doc1_executable_missing": {
+      "hr": "0x80070483",
+      "out_untouched": false
+    },
+    "doc1_friendlydocname_noverb": {
+      "hr": "0x00000000",
+      "out": "Setu Oracle Document",
+      "len_out": 21
+    },
+    "doc1_friendlydocname_open": {
+      "hr": "0x00000000",
+      "out": "Setu Oracle Document",
+      "len_out": 21
+    },
+    "doc1_friendlydocname_edit": {
+      "hr": "0x00000000",
+      "out": "Setu Oracle Document",
+      "len_out": 21
+    },
+    "doc1_friendlydocname_missing": {
+      "hr": "0x00000000",
+      "out": "Setu Oracle Document",
+      "len_out": 21
+    },
+    "doc1_friendlyappname_noverb": {
+      "hr": "0x80070490",
+      "out_untouched": false
+    },
+    "doc1_friendlyappname_open": {
+      "hr": "0x80070490",
+      "out_untouched": false
+    },
+    "doc1_friendlyappname_edit": {
+      "hr": "0x80070490",
+      "out_untouched": false
+    },
+    "doc1_friendlyappname_missing": {
+      "hr": "0x80070483",
+      "out_untouched": false
+    },
+    "doc1_defaulticon_noverb": {
+      "hr": "0x00000000",
+      "out": "C:\\setu-icons\\doc.ico,2",
+      "len_out": 24
+    },
+    "doc1_defaulticon_open": {
+      "hr": "0x00000000",
+      "out": "C:\\setu-icons\\doc.ico,2",
+      "len_out": 24
+    },
+    "doc1_defaulticon_edit": {
+      "hr": "0x00000000",
+      "out": "C:\\setu-icons\\doc.ico,2",
+      "len_out": 24
+    },
+    "doc1_defaulticon_missing": {
+      "hr": "0x00000000",
+      "out": "C:\\setu-icons\\doc.ico,2",
+      "len_out": 24
+    },
+    "doc2_command_noverb": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child edit2 \"%1\"",
+      "len_out": 74
+    },
+    "doc2_executable_noverb": {
+      "hr": "0x00000000",
+      "out": "<exe>",
+      "len_out": 53
+    },
+    "doc2_friendlydocname_noverb": {
+      "hr": "0x00000000",
+      "out": "Doc2 Friendly Type",
+      "len_out": 19
+    },
+    "doc2_friendlyappname_noverb": {
+      "hr": "0x80070490",
+      "out_untouched": false
+    },
+    "doc2_command_open": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child open2 %1",
+      "len_out": 72
+    },
+    "doc3_command_noverb": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child custom \"%1\"",
+      "len_out": 75
+    },
+    "doc3_command_open": {
+      "hr": "0x80070483",
+      "out_untouched": false
+    },
+    "doc3_friendlydocname": {
+      "hr": "0x00000000",
+      "out": "SETUORACLE3 File",
+      "len_out": 17
+    },
+    "doc1_shellnewvalue": {
+      "hr": "0x80070057",
+      "out_untouched": false
+    },
+    "doc1_progid_direct": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child open \"%1\"",
+      "len_out": 73
+    },
+    "doc1_no_dot": {
+      "hr": "0x80070483",
+      "out_untouched": false
+    },
+    "doc1_upper_case_ext": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child open \"%1\"",
+      "len_out": 73
+    },
+    "doc1_full_path": {
+      "hr": "0x00000000",
+      "out": "<exe>",
+      "len_out": 53
+    },
+    "doc1_full_path_command": {
+      "hr": "0x00000000",
+      "out": "\"<exe>\" --child open \"%1\"",
+      "len_out": 73
+    },
+    "unknown_command": {
+      "hr": "0x00000000",
+      "out": "<windir>\\system32\\OpenWith.exe \"%1\"",
+      "len_out": 38
+    },
+    "unknown_executable": {
+      "hr": "0x00000000",
+      "out": "<windir>\\system32\\OpenWith.exe",
+      "len_out": 33
+    },
+    "unknown_friendlydocname": {
+      "hr": "0x00000000",
+      "out": "SETUNOASSOC File",
+      "len_out": 17
+    },
+    "unknown_ignoreunknown": {
+      "hr": "0x80070483",
+      "out_untouched": false
+    },
+    "unknown_friendlydocname_ignoreunknown": {
+      "hr": "0x00000000",
+      "out": "SETUNOASSOC File",
+      "len_out": 17
+    },
+    "empty_assoc": {
+      "hr": "0x80070057",
+      "out_untouched": true
+    },
+    "bogus_assocstr": {
+      "hr": "0x80070057",
+      "out_untouched": true
+    },
+    "size_query_null_buffer": {
+      "hr": "0x00000001",
+      "needed": 21
+    },
+    "short_buffer": {
+      "hr": "0x8007007a",
+      "n": 21,
+      "terminated": true,
+      "out": "Setu"
+    },
+    "short_buffer_notruncate": {
+      "hr": "0x80004003",
+      "n": 21,
+      "untouched": false
+    },
+    "size_query_executable": {
+      "hr": "0x00000001",
+      "needed_is_exe_len_plus_1": true
+    },
+    "txt_executable": {
+      "hr": "0x00000000",
+      "out": "<windir>\\system32\\NOTEPAD.EXE",
+      "len_out": 32
+    },
+    "txt_command": {
+      "hr": "0x00000000",
+      "out": "<windir>\\system32\\NOTEPAD.EXE %1",
+      "len_out": 35
+    },
+    "exe_command": {
+      "hr": "0x00000000",
+      "out": "\"%1\" %*",
+      "len_out": 8
+    },
+    "exe_friendlydocname": {
+      "hr": "0x00000000",
+      "out": "Application",
+      "len_out": 12
+    },
+    "folder_command": {
+      "hr": "0x00000000",
+      "out": "<windir>\\Explorer.exe",
+      "len_out": 24
+    },
+    "after_cleanup": {
+      "hr": "0x00000000",
+      "out": "<windir>\\system32\\OpenWith.exe \"%1\"",
+      "len_out": 38
+    }
+  },
+  "errors": [],
+  "source_sha256": "182867f292c4e17c2da30ccf5b48a3ad9f527d016511c8c886b542f9d299b5fc"
+}

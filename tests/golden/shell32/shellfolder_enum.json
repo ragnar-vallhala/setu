@@ -1,0 +1,129 @@
+{
+  "test": "shell32/shellfolder_enum",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "bind_folder": {
+      "bound": true
+    },
+    "folders": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 2,
+      "names": "empty/,sub/"
+    },
+    "nonfolders": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 6,
+      "names": "a.txt,b.dat,noext,readonly.txt,shortcut.lnk,system.txt"
+    },
+    "both": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 8,
+      "names": "a.txt,b.dat,empty/,noext,readonly.txt,shortcut.lnk,sub/,system.txt"
+    },
+    "both_hidden": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 10,
+      "names": "a.txt,b.dat,empty/,hidden.txt,hiddendir/,noext,readonly.txt,shortcut.lnk,sub/,system.txt"
+    },
+    "both_superhidden": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 8,
+      "names": "a.txt,b.dat,empty/,noext,readonly.txt,shortcut.lnk,sub/,system.txt"
+    },
+    "both_hidden_superhidden": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 11,
+      "names": "a.txt,b.dat,empty/,hidden.txt,hiddendir/,noext,readonly.txt,shortcut.lnk,sub/,superhidden.txt,system.txt"
+    },
+    "nonfolders_hidden": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 7,
+      "names": "a.txt,b.dat,hidden.txt,noext,readonly.txt,shortcut.lnk,system.txt"
+    },
+    "no_flags": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 0,
+      "names": ""
+    },
+    "fastitems": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 8,
+      "names": "a.txt,b.dat,empty/,noext,readonly.txt,shortcut.lnk,sub/,system.txt"
+    },
+    "flatlist": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 8,
+      "names": "a.txt,b.dat,empty/,noext,readonly.txt,shortcut.lnk,sub/,system.txt"
+    },
+    "storage": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 11,
+      "names": "a.txt,b.dat,empty/,hidden.txt,hiddendir/,noext,readonly.txt,shortcut.lnk,sub/,superhidden.txt,system.txt"
+    },
+    "empty_folder": {
+      "hr": "0x00000000",
+      "enum_null": false,
+      "count": 0,
+      "names": ""
+    },
+    "next_three": {
+      "hr": "0x00000000",
+      "got": 1
+    },
+    "skip_two": {
+      "hr": "0x80004001"
+    },
+    "next_rest": {
+      "hr": "0x00000000",
+      "got": 1
+    },
+    "next_at_end": {
+      "hr": "0x00000000",
+      "got": 1
+    },
+    "skip_at_end": {
+      "hr": "0x80004001"
+    },
+    "reset_then_all": {
+      "reset_hr": "0x00000000",
+      "hr": "0x00000000",
+      "got": 1
+    },
+    "clone": {
+      "hr": "0x80004001",
+      "clone_null": true
+    },
+    "next_one_null_fetched": {
+      "hr": "0x00000000"
+    },
+    "next_two_null_fetched": {
+      "hr": "0x00000000"
+    },
+    "desktop_items": {
+      "has_this_pc": true,
+      "has_recycle_bin": true
+    },
+    "this_pc_items": {
+      "bound": true,
+      "has_drive_c": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "028f60702f82a9c5abb525664ca4ac124c021b64c12b108f98f02d88b1cee12c"
+}

@@ -1,0 +1,109 @@
+{
+  "test": "shell32/recycle_bin",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "start_empty": {
+      "empty_again_hr": "0x8000ffff",
+      "q.hr": "0x00000000",
+      "q.size": 0,
+      "q.items": 0,
+      "bin.enum_hr": "0x00000000",
+      "bin.count": 0,
+      "bin.names": ""
+    },
+    "delete_one_file": {
+      "ret": "0x00000000",
+      "gone": true,
+      "q.hr": "0x00000000",
+      "q.size": 100,
+      "q.items": 1,
+      "bin.enum_hr": "0x00000000",
+      "bin.count": 1,
+      "bin.names": "rb_one"
+    },
+    "delete_two_files": {
+      "ret": "0x00000000",
+      "gone": true,
+      "q.hr": "0x00000000",
+      "q.size": 600,
+      "q.items": 3
+    },
+    "delete_dir_tree": {
+      "ret": "0x00000000",
+      "gone": true,
+      "q.hr": "0x00000000",
+      "q.size": 630,
+      "q.items": 4,
+      "bin.enum_hr": "0x00000000",
+      "bin.count": 4,
+      "bin.names": "rb_dir/,rb_one,rb_three.dat,rb_two"
+    },
+    "delete_same_name_again": {
+      "ret": "0x00000000",
+      "q.hr": "0x00000000",
+      "q.size": 637,
+      "q.items": 5,
+      "bin.enum_hr": "0x00000000",
+      "bin.count": 5,
+      "bin.names": "rb_dir/,rb_one,rb_one,rb_three.dat,rb_two"
+    },
+    "delete_missing": {
+      "ret": "0x00000002",
+      "q.hr": "0x00000000",
+      "q.size": 637,
+      "q.items": 5
+    },
+    "delete_readonly": {
+      "ret": "0x00000000",
+      "gone": true,
+      "q.hr": "0x00000000",
+      "q.size": 642,
+      "q.items": 6
+    },
+    "query_variants": {
+      "cwd.hr": "0x00000000",
+      "cwd.size": 642,
+      "cwd.items": 6,
+      "drive_no_backslash.hr": "0x00000000",
+      "drive_no_backslash.size": 642,
+      "drive_no_backslash.items": 6,
+      "all_drives_null.hr": "0x00000000",
+      "all_drives_null.size": 642,
+      "all_drives_null.items": 6,
+      "all_drives_empty.hr": "0x00000000",
+      "all_drives_empty.size": 642,
+      "all_drives_empty.items": 6,
+      "missing_drive.hr": "0x80004005",
+      "cbsize_zero_hr": "0x80070057",
+      "cbsize_big_hr": "0x00000000"
+    },
+    "empty_missing_drive": {
+      "hr": "0x80004005",
+      "q.hr": "0x00000000",
+      "q.size": 642,
+      "q.items": 6
+    },
+    "empty_c": {
+      "hr": "0x00000000",
+      "q.hr": "0x00000000",
+      "q.size": 0,
+      "q.items": 0,
+      "bin.enum_hr": "0x00000000",
+      "bin.count": 0,
+      "bin.names": ""
+    },
+    "empty_c_already_empty": {
+      "hr": "0x8000ffff"
+    },
+    "empty_all_already_empty": {
+      "hr": "0x8000ffff"
+    }
+  },
+  "errors": [],
+  "source_sha256": "c99662d16039cdbd54afd174918e91fb392f41135d48b96957f38835dcc44b48"
+}

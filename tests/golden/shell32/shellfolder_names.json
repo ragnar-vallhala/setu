@@ -1,0 +1,245 @@
+{
+  "test": "shell32/shellfolder_names",
+  "schema": 1,
+  "exit_code": null,
+  "complete": false,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "desktop_parse_abs": {
+      "hr": "0x00000000",
+      "eaten": 0,
+      "eaten_is_len": 0,
+      "attrs": "0x7080014d",
+      "bound": true
+    },
+    "names_file": {
+      "parse_hr": "0x00000000",
+      "normal": "Report",
+      "infolder": "Report",
+      "forediting": "Report",
+      "infolder_editing": "Report",
+      "foraddressbar": "Report",
+      "infolder_addressbar": "Report",
+      "forparsing": "<cwd>\\t\\Report.txt",
+      "infolder_parsing": "Report.txt",
+      "parsing_addressbar": "<cwd>\\t\\Report.txt"
+    },
+    "names_multi_dot": {
+      "parse_hr": "0x00000000",
+      "normal": "archive.tar.gz",
+      "infolder": "archive.tar.gz",
+      "forediting": "archive.tar.gz",
+      "infolder_editing": "archive.tar.gz",
+      "foraddressbar": "archive.tar.gz",
+      "infolder_addressbar": "archive.tar.gz",
+      "forparsing": "<cwd>\\t\\archive.tar.gz",
+      "infolder_parsing": "archive.tar.gz",
+      "parsing_addressbar": "<cwd>\\t\\archive.tar.gz"
+    },
+    "names_noext": {
+      "parse_hr": "0x00000000",
+      "normal": "noext",
+      "infolder": "noext",
+      "forediting": "noext",
+      "infolder_editing": "noext",
+      "foraddressbar": "noext",
+      "infolder_addressbar": "noext",
+      "forparsing": "<cwd>\\t\\noext",
+      "infolder_parsing": "noext",
+      "parsing_addressbar": "<cwd>\\t\\noext"
+    },
+    "names_unknown_ext": {
+      "parse_hr": "0x00000000",
+      "normal": "data.qqqzz",
+      "infolder": "data.qqqzz",
+      "forediting": "data.qqqzz",
+      "infolder_editing": "data.qqqzz",
+      "foraddressbar": "data.qqqzz",
+      "infolder_addressbar": "data.qqqzz",
+      "forparsing": "<cwd>\\t\\data.qqqzz",
+      "infolder_parsing": "data.qqqzz",
+      "parsing_addressbar": "<cwd>\\t\\data.qqqzz"
+    },
+    "names_folder": {
+      "parse_hr": "0x00000000",
+      "normal": "Folder",
+      "infolder": "Folder",
+      "forediting": "Folder",
+      "infolder_editing": "Folder",
+      "foraddressbar": "Folder",
+      "infolder_addressbar": "Folder",
+      "forparsing": "<cwd>\\t\\Folder",
+      "infolder_parsing": "Folder",
+      "parsing_addressbar": "<cwd>\\t\\Folder"
+    },
+    "names_case_differs": {
+      "parse_hr": "0x00000000",
+      "normal": "Report",
+      "infolder": "Report",
+      "forediting": "Report",
+      "infolder_editing": "Report",
+      "foraddressbar": "Report",
+      "infolder_addressbar": "Report",
+      "forparsing": "<cwd>\\t\\Report.txt",
+      "infolder_parsing": "Report.txt",
+      "parsing_addressbar": "<cwd>\\t\\Report.txt"
+    },
+    "parse_missing": {
+      "hr": "0x80070002",
+      "pidl": false
+    },
+    "parse_nested": {
+      "hr": "0x00000000",
+      "pidl": true,
+      "eaten": 999,
+      "attrs": "0x7080010d"
+    },
+    "parse_nested_missing": {
+      "hr": "0x80070002",
+      "pidl": false
+    },
+    "parse_trailing_backslash": {
+      "hr": "0x00000000",
+      "pidl": true,
+      "eaten": 999,
+      "attrs": "0x7080010d"
+    },
+    "parse_bad_chars": {
+      "hr": "0x80070057",
+      "pidl": false
+    },
+    "parse_empty": {
+      "hr": "0x80070057",
+      "pidl": false
+    },
+    "parse_dot": {
+      "hr": "0x80070057",
+      "pidl": false
+    },
+    "parse_dotdot": {
+      "hr": "0x80070057",
+      "pidl": false
+    },
+    "parse_forward_slash": {
+      "hr": "0x80070057",
+      "pidl": false
+    },
+    "parse_absolute_in_child": {
+      "hr": "0x80070057",
+      "pidl": false
+    },
+    "desktop_parse_missing": {
+      "hr": "0x80070002"
+    },
+    "desktop_parse_this_pc": {
+      "hr": "0x00000000"
+    },
+    "desktop_parse_drive": {
+      "hr": "0x00000000",
+      "parsing": "C:\\"
+    },
+    "attrs_file_all": {
+      "parse_hr": "0x00000000",
+      "hr": "0x00000000",
+      "attrs": "0x40400137"
+    },
+    "attrs_file_mask_folder": {
+      "parse_hr": "0x00000000",
+      "hr": "0x00000000",
+      "attrs": "0x40000105"
+    },
+    "attrs_readonly": {
+      "parse_hr": "0x00000000",
+      "hr": "0x00000000",
+      "attrs": "0x40440137"
+    },
+    "attrs_hidden": {
+      "parse_hr": "0x00000000",
+      "hr": "0x00000000",
+      "attrs": "0x40480137"
+    },
+    "attrs_folder_all": {
+      "parse_hr": "0x00000000",
+      "hr": "0x00000000",
+      "attrs": "0xf080013f"
+    },
+    "attrs_folder_subfolder": {
+      "parse_hr": "0x00000000",
+      "hr": "0x00000000",
+      "attrs": "0xf080010d"
+    },
+    "attrs_empty_folder_subfolder": {
+      "parse_hr": "0x00000000",
+      "hr": "0x00000000",
+      "attrs": "0x7080010d"
+    },
+    "attrs_file_and_folder": {
+      "hr": "0x00000000",
+      "attrs": "0x40000137"
+    },
+    "attrs_zero_items": {
+      "hr": "0x00000000",
+      "attrs": "0x40000105"
+    },
+    "cmp_name_lt": {
+      "succeeded": true,
+      "order": -1,
+      "reverse_order": 1
+    },
+    "cmp_name_case": {
+      "succeeded": true,
+      "order": -1,
+      "reverse_order": 1
+    },
+    "cmp_folder_vs_file": {
+      "succeeded": true,
+      "order": -1,
+      "reverse_order": 1
+    },
+    "cmp_same": {
+      "succeeded": true,
+      "order": 0,
+      "reverse_order": 0
+    },
+    "cmp_size_col": {
+      "succeeded": true,
+      "order": 0,
+      "reverse_order": 0
+    },
+    "cmp_type_col": {
+      "succeeded": true,
+      "order": -1,
+      "reverse_order": 1
+    },
+    "cmp_canonical": {
+      "succeeded": true,
+      "order": -1,
+      "reverse_order": 1
+    },
+    "cmp_allfields_same": {
+      "succeeded": true,
+      "order": 0,
+      "reverse_order": 0
+    },
+    "bind": {
+      "file_failed": true,
+      "file_stream_hr": "0x00000000",
+      "stream_read": 2,
+      "folder_hr": "0x00000000",
+      "folder_items": 1
+    },
+    "ui_objects": {
+      "contextmenu_hr": "0x00000000",
+      "extracticon_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "shellfolder_hr": "0x80004001"
+    }
+  },
+  "errors": [
+    "timeout after 60s",
+    "output incomplete (no end line): crash, timeout or early exit"
+  ],
+  "source_sha256": "9b1762522745d811c20ea5fc75780038a253838cca18689a37b234e07293c257"
+}
