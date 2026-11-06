@@ -617,6 +617,7 @@ UINT WINAPI DragQueryFileW(
         if(lpDropFileStruct->fWide)
         {
             LPCWSTR p = (LPCWSTR) ((LPCSTR)lpDropFileStruct + lpDropFileStruct->pFiles);
+            if (!*p) goto end;  /* an empty list has no files */
             while (i++ < lFile)
             {
                 while (*p++); /* skip filename */
@@ -631,6 +632,7 @@ UINT WINAPI DragQueryFileW(
         else
         {
             LPCSTR p = (LPCSTR)lpDropFileStruct + lpDropFileStruct->pFiles;
+            if (!*p) goto end;  /* an empty list has no files */
             while (i++ < lFile)
             {
                 while (*p++); /* skip filename */

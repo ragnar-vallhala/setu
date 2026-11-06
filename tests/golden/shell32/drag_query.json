@@ -1,0 +1,68 @@
+{
+  "test": "shell32/drag_query",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "wide_count": {
+      "count": 3,
+      "count_with_buffer": 3
+    },
+    "wide_file_0": {
+      "len": 14,
+      "ret": 14,
+      "name": "C:\\dir\\one.txt"
+    },
+    "wide_file_1": {
+      "len": 25,
+      "ret": 25,
+      "name": "C:\\My Files\\two words.doc"
+    },
+    "wide_file_2": {
+      "len": 13,
+      "ret": 13,
+      "name": "\\\\srv\\share\\x"
+    },
+    "wide_file_3": {
+      "len": 0,
+      "ret": 0,
+      "name": null
+    },
+    "wide_short_buffer": {
+      "ret": 4,
+      "buf": "C:\\d"
+    },
+    "wide_read_ansi": {
+      "ret": 25,
+      "name": "C:\\My Files\\two words.doc",
+      "count": 3
+    },
+    "ansi_list": {
+      "count": 2,
+      "ret": 8,
+      "name_w": "D:\\c.dat",
+      "ret_a": 10,
+      "name_a": "C:\\a\\b.txt",
+      "len_past_end": 0
+    },
+    "point_client": {
+      "in_client": true,
+      "x": 10,
+      "y": 20
+    },
+    "point_nonclient": {
+      "in_client": false,
+      "x": -5,
+      "y": 300
+    },
+    "empty_list": {
+      "count": 0,
+      "len_0": 0
+    }
+  },
+  "errors": [],
+  "source_sha256": "287d8a271a95b1c6097e6ea0b5b2913c09d99a0476be551c1fac514380204b2b"
+}
