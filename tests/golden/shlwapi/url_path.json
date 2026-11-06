@@ -1,0 +1,270 @@
+{
+  "test": "shlwapi/url_path",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "from_path_simple": {
+      "hr": "0x00000000",
+      "len": 29,
+      "out": "file:///C:/Users/Public/a.txt"
+    },
+    "from_path_spaces": {
+      "hr": "0x00000000",
+      "len": 31,
+      "out": "file:///C:/My%20Files/b%20c.txt"
+    },
+    "from_path_specials": {
+      "hr": "0x00000000",
+      "len": 36,
+      "out": "file:///C:/dir/x%23y%25z%26w;q=1.txt"
+    },
+    "from_path_unicode": {
+      "hr": "0x00000000",
+      "len": 28,
+      "out": "file:///C:/d/%E9t%E9%20日.txt"
+    },
+    "from_path_unc": {
+      "hr": "0x00000000",
+      "len": 25,
+      "out": "file://server/share/f.txt"
+    },
+    "from_path_dir": {
+      "hr": "0x00000000",
+      "len": 15,
+      "out": "file:///C:/dir/"
+    },
+    "from_path_relative": {
+      "hr": "0x00000000",
+      "len": 14,
+      "out": "file:dir/f.txt"
+    },
+    "from_path_already_url": {
+      "hr": "0x00000001",
+      "len": 16,
+      "out": "file:///C:/x.txt"
+    },
+    "from_path_http": {
+      "hr": "0x00000001",
+      "len": 22,
+      "out": "http://example.com/a b"
+    },
+    "from_path_small_buffer": {
+      "hr": "0x80004003",
+      "len": 30,
+      "out": null
+    },
+    "to_path_simple": {
+      "hr": "0x00000000",
+      "len": 21,
+      "out": "C:\\Users\\Public\\a.txt"
+    },
+    "to_path_escaped": {
+      "hr": "0x00000000",
+      "len": 19,
+      "out": "C:\\My Files\\b c.txt"
+    },
+    "to_path_two_slashes": {
+      "hr": "0x00000000",
+      "len": 8,
+      "out": "C:\\x.txt"
+    },
+    "to_path_pipe_drive": {
+      "hr": "0x00000000",
+      "len": 8,
+      "out": "C:\\x.txt"
+    },
+    "to_path_unc": {
+      "hr": "0x00000000",
+      "len": 20,
+      "out": "\\\\server\\share\\f.txt"
+    },
+    "to_path_localhost": {
+      "hr": "0x00000000",
+      "len": 8,
+      "out": "C:\\x.txt"
+    },
+    "to_path_backslashes": {
+      "hr": "0x00000000",
+      "len": 12,
+      "out": "C:\\dir\\x.txt"
+    },
+    "to_path_utf8_escapes": {
+      "hr": "0x00000000",
+      "len": 14,
+      "out": "C:\\d\\Ã©tÃ©.txt"
+    },
+    "to_path_hash": {
+      "hr": "0x00000000",
+      "len": 14,
+      "out": "C:\\dir\\x#y.txt"
+    },
+    "to_path_http": {
+      "hr": "0x80070057",
+      "len": 512,
+      "out": null
+    },
+    "to_path_small_buffer": {
+      "hr": "0x80004003",
+      "len": 22,
+      "out": null
+    },
+    "url_is": {
+      "file_url_file": true,
+      "file_url_http": false,
+      "file_url_path": false,
+      "url_http": true,
+      "url_path": false,
+      "opaque_mailto": true,
+      "opaque_http": false,
+      "hasquery": true,
+      "hasquery_none": false,
+      "hasquery_file": true,
+      "appliable_www": false
+    },
+    "escape_default": {
+      "hr": "0x00000000",
+      "len": 26,
+      "out": "http://e.com/a%20b/c?e f#d"
+    },
+    "escape_spaces_only": {
+      "hr": "0x00000000",
+      "len": 28,
+      "out": "http://e.com/a%20b/c#d?e%20f"
+    },
+    "escape_percent": {
+      "hr": "0x00000000",
+      "len": 21,
+      "out": "http://e.com/100%25/x"
+    },
+    "escape_segment_only": {
+      "hr": "0x00000000",
+      "len": 17,
+      "out": "a%20b%2Fc%3Fd%23e"
+    },
+    "escape_file": {
+      "hr": "0x00000000",
+      "len": 26,
+      "out": "file:///C:/a%20b/c%23d.txt"
+    },
+    "unescape_default": {
+      "hr": "0x00000000",
+      "len": 24,
+      "out": "http://e.com/a b/c#d?e f"
+    },
+    "unescape_until_query": {
+      "hr": "0x00000000",
+      "len": 22,
+      "out": "http://e.com/a b?e%20f"
+    },
+    "unescape_bad_escape": {
+      "hr": "0x00000000",
+      "len": 9,
+      "out": "a%2xb%%c%"
+    },
+    "canon_dots": {
+      "hr": "0x00000000",
+      "len": 16,
+      "out": "http://e.com/a/c"
+    },
+    "canon_spaces": {
+      "hr": "0x00000000",
+      "len": 16,
+      "out": "http://e.com/a b"
+    },
+    "canon_no_encode": {
+      "hr": "0x00000000",
+      "len": 16,
+      "out": "http://e.com/a b"
+    },
+    "canon_file_path": {
+      "hr": "0x00000000",
+      "len": 20,
+      "out": "file:///C:/x%20y.txt"
+    },
+    "canon_file_url": {
+      "hr": "0x00000000",
+      "len": 18,
+      "out": "file:///C:/x y.txt"
+    },
+    "canon_file_url_to_path": {
+      "hr": "0x00000000",
+      "len": 21,
+      "out": "file://C:\\dir\\x y.txt"
+    },
+    "canon_unescape": {
+      "hr": "0x00000000",
+      "len": 16,
+      "out": "http://e.com/a b"
+    },
+    "combine_relative": {
+      "hr": "0x00000000",
+      "len": 21,
+      "out": "http://e.com/a/d.html"
+    },
+    "combine_absolute": {
+      "hr": "0x00000000",
+      "len": 16,
+      "out": "http://e.com/x/y"
+    },
+    "combine_other_scheme": {
+      "hr": "0x00000000",
+      "len": 13,
+      "out": "ftp://f.org/z"
+    },
+    "combine_file": {
+      "hr": "0x00000000",
+      "len": 20,
+      "out": "file:///C:/dir/b.txt"
+    },
+    "combine_query": {
+      "hr": "0x00000000",
+      "len": 20,
+      "out": "http://e.com/a/b?y=2"
+    },
+    "part_scheme": {
+      "hr": "0x00000000",
+      "len": 4,
+      "out": "http"
+    },
+    "part_host": {
+      "hr": "0x00000000",
+      "len": 5,
+      "out": "e.com"
+    },
+    "part_user": {
+      "hr": "0x00000000",
+      "len": 4,
+      "out": "user"
+    },
+    "part_port": {
+      "hr": "0x00000000",
+      "len": 4,
+      "out": "8080"
+    },
+    "part_query": {
+      "hr": "0x00000000",
+      "len": 3,
+      "out": "x=1"
+    },
+    "part_host_with_scheme": {
+      "hr": "0x00000000",
+      "len": 10,
+      "out": "http:e.com"
+    },
+    "part_file_host": {
+      "hr": "0x00000000",
+      "len": 0,
+      "out": ""
+    },
+    "get_location": {
+      "offset": 18,
+      "file_offset": -1
+    }
+  },
+  "errors": [],
+  "source_sha256": "47bd6766d3deada0b93a71b568af4ca5e925968341cfb912ae6ec9fbf6101587"
+}

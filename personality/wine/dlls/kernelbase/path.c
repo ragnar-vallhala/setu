@@ -4844,9 +4844,11 @@ BOOL WINAPI UrlIsA(const char *url, URLIS Urlis)
     case URLIS_URL:
         return PathIsURLA(url);
 
+    case URLIS_HASQUERY:
+        return strchr(url, '?') != NULL;
+
     case URLIS_NOHISTORY:
     case URLIS_APPLIABLE:
-    case URLIS_HASQUERY:
     default:
         FIXME("(%s %d): stub\n", debugstr_a(url), Urlis);
     }
@@ -4890,9 +4892,11 @@ BOOL WINAPI UrlIsW(const WCHAR *url, URLIS Urlis)
     case URLIS_URL:
         return PathIsURLW(url);
 
+    case URLIS_HASQUERY:
+        return wcschr(url, '?') != NULL;
+
     case URLIS_NOHISTORY:
     case URLIS_APPLIABLE:
-    case URLIS_HASQUERY:
     default:
         FIXME("(%s %d): stub\n", debugstr_w(url), Urlis);
     }
@@ -5017,7 +5021,7 @@ HRESULT WINAPI UrlCombineA(const char *base, const char *relative, char *combine
 HRESULT WINAPI UrlCombineW(const WCHAR *baseW, const WCHAR *relativeW, WCHAR *combined, DWORD *combined_len, DWORD flags)
 {
     DWORD i, len, process_case = 0, myflags, sizeloc = 0;
-    LPWSTR work, preliminary, mbase, canonicalized;
+    LPWSTR work, preliminary, mbase, mrelative, canonicalized;
     PARSEDURLW base, relative;
     HRESULT hr;
 
@@ -5030,10 +5034,13 @@ HRESULT WINAPI UrlCombineW(const WCHAR *baseW, const WCHAR *relativeW, WCHAR *co
     relative.cbSize = sizeof(relative);
 
     /* Get space for duplicates of the input and the output */
-    preliminary = HeapAlloc(GetProcessHeap(), 0, 3 * INTERNET_MAX_URL_LENGTH * sizeof(WCHAR));
+    preliminary = HeapAlloc(GetProcessHeap(), 0, 4 * INTERNET_MAX_URL_LENGTH * sizeof(WCHAR));
     mbase = preliminary + INTERNET_MAX_URL_LENGTH;
     canonicalized = mbase + INTERNET_MAX_URL_LENGTH;
+    mrelative = canonicalized + INTERNET_MAX_URL_LENGTH;
     *preliminary = '\0';
+    /* the scheme of the relative part is lowered in a copy: the input may be read-only */
+    lstrcpynW(mrelative, relativeW, INTERNET_MAX_URL_LENGTH);
 
     /* Canonicalize the base input prior to looking for the scheme */
     myflags = flags & (URL_DONT_SIMPLIFY | URL_UNESCAPE);
@@ -5138,13 +5145,13 @@ HRESULT WINAPI UrlCombineW(const WCHAR *baseW, const WCHAR *relativeW, WCHAR *co
          *              the last '/'
          */
 
-        if (ParseURLW(relativeW, &relative) != S_OK)
+        if (ParseURLW(mrelative, &relative) != S_OK)
         {
             /* No scheme in relative */
             TRACE("no scheme detected in Relative\n");
-            relative.pszSuffix = relativeW;  /* case 3,4,5 depends on this */
-            relative.cchSuffix = lstrlenW( relativeW );
-            if (*relativeW == ':')
+            relative.pszSuffix = mrelative;  /* case 3,4,5 depends on this */
+            relative.cchSuffix = lstrlenW( mrelative );
+            if (*mrelative == ':')
             {
                 /* Case that is either left alone or uses base. */
                 if (flags & URL_PLUGGABLE_PROTOCOL)
@@ -5155,27 +5162,27 @@ HRESULT WINAPI UrlCombineW(const WCHAR *baseW, const WCHAR *relativeW, WCHAR *co
                 process_case = 1;
                 break;
             }
-            if (is_drive_spec( relativeW ))
+            if (is_drive_spec( mrelative ))
             {
                 /* case that becomes "file:///" */
                 lstrcpyW(preliminary, L"file:///");
                 process_case = 1;
                 break;
             }
-            if ((relativeW[0] == '/' || relativeW[0] == '\\') &&
-                    (relativeW[1] == '/' || relativeW[1] == '\\'))
+            if ((mrelative[0] == '/' || mrelative[0] == '\\') &&
+                    (mrelative[1] == '/' || mrelative[1] == '\\'))
             {
                 /* Relative has location and the rest. */
                 process_case = 3;
                 break;
             }
-            if (*relativeW == '/' || *relativeW == '\\')
+            if (*mrelative == '/' || *mrelative == '\\')
             {
                 /* Relative is root to location. */
                 process_case = 4;
                 break;
             }
-            if (*relativeW == '#')
+            if (*mrelative == '#')
             {
                 if (!(work = wcschr(base.pszSuffix+base.cchSuffix, '#')))
                     work = (LPWSTR)base.pszSuffix + lstrlenW(base.pszSuffix);
@@ -5232,12 +5239,12 @@ HRESULT WINAPI UrlCombineW(const WCHAR *baseW, const WCHAR *relativeW, WCHAR *co
     {
     case 1:
         /* Return relative appended to whatever is in combined (which may the string "file:///" */
-        lstrcatW(preliminary, relativeW);
+        lstrcatW(preliminary, mrelative);
         break;
 
     case 2:
         /* Relative replaces scheme and location */
-        lstrcpyW(preliminary, relativeW);
+        lstrcpyW(preliminary, mrelative);
         break;
 
     case 3:
