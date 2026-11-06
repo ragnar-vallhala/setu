@@ -26,6 +26,9 @@ target)
     systemctl enable setu-firstboot.service
     # the session is enabled by the wizard, for the account it creates
     systemctl disable setu-session.service 2>/dev/null || true
+    # remote login is off unless ticked in the wizard (setu-firstboot-ssh);
+    # the live system and the dev image keep sshd on
+    systemctl disable ssh.service
     rm -f /var/lib/setu/firstboot.done
     log "first-boot wizard set up"
     ;;

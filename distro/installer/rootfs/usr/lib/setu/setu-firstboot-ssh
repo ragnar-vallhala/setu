@@ -1,0 +1,8 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-firstboot-ssh: "Enable remote login (SSH)" was ticked in the
+# first-boot wizard (netinstall.conf; run by the remotelogin job): enable
+# and start sshd. Unticked, this never runs and sshd stays disabled.
+set -eu
+systemctl enable --now ssh.service
+echo "setu-firstboot: remote login (SSH) enabled" > /dev/kmsg 2>/dev/null || true

@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# First-boot wizard job: enable sshd when "Enable remote login (SSH)" was
+# ticked on the remote login page (netinstall.conf). See main.py.
+---
+type:       "job"
+name:       "remotelogin"
+interface:  "python"
+script:     "main.py"
+noconfig:   true
