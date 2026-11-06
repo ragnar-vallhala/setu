@@ -126,6 +126,29 @@ qemu-img create -q -f raw "$WORK/target.raw" "$SIZE"
 make -s -C "$REPO/services/fs" install DESTDIR="$WORK/overlay" \
     || die "cannot build services/fs (needs mingw-w64: tools/bootstrap-toolchain.sh)"
 
+# Wine Mono, the .NET runtime Wine 11.0's mscoree loads (the version in
+# personality/wine/dlls/appwiz.cpl/addons.c), unpacked into the
+# personality's shared data dir: mscoree finds it there
+# (<datadir>/wine/mono/wine-mono-VERSION) and new prefixes only register
+# its small support MSI, without asking to download anything. The tarball
+# has the same files as the MSI whose SHA-256 Wine pins (checked once, by
+# hand); it is cached in build/distro/downloads and never committed.
+# Licence: NOTICE.
+MONO_VERSION=10.4.1
+MONO_TAR=wine-mono-$MONO_VERSION-x86.tar.xz
+MONO_SHA256=a16606ef0724202e6a6848ece6e0cbba64d11e2f11aefe744af1d93c6d9f99bb
+if [ "$WINE_MODE" = setu ]; then
+    if ! echo "$MONO_SHA256  $DL/$MONO_TAR" | sha256sum -c --quiet 2>/dev/null; then
+        log "downloading $MONO_TAR"
+        curl -sSfL "https://dl.winehq.org/wine/wine-mono/$MONO_VERSION/$MONO_TAR" -o "$DL/$MONO_TAR.part" \
+            || die "cannot download $MONO_TAR (network?)"
+        echo "$MONO_SHA256  $DL/$MONO_TAR.part" | sha256sum -c --quiet || die "checksum mismatch for $MONO_TAR"
+        mv "$DL/$MONO_TAR.part" "$DL/$MONO_TAR"
+    fi
+    mkdir -p "$WORK/overlay/opt/setu/personality/share/wine/mono"
+    tar -xJf "$DL/$MONO_TAR" -C "$WORK/overlay/opt/setu/personality/share/wine/mono"
+fi
+
 cat > "$WORK/meta-data" <<EOF
 instance-id: setu-builder-$(date +%s)
 local-hostname: setu-builder

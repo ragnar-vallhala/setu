@@ -176,7 +176,7 @@ EOF
     # personality doesn't make a drive_c of its own (drive_c is a link too, for
     # tools that expect one).
     chroot $T runuser -u setu -- env HOME=/home/setu WINEPREFIX=/home/setu/.setu/prefix \
-        WINEDEBUG=-all WINEDLLOVERRIDES='mscoree,mshtml=' \
+        WINEDEBUG=-all WINEDLLOVERRIDES='mshtml=' \
         PATH=/opt/setu/personality/bin:/usr/bin:/bin \
         sh -c 'mkdir -p $WINEPREFIX/dosdevices && ln -s /var/lib/setu/volumes/c $WINEPREFIX/dosdevices/c: \
                && ln -s / $WINEPREFIX/dosdevices/z: && ln -s /var/lib/setu/volumes/c $WINEPREFIX/drive_c \

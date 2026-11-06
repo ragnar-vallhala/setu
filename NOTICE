@@ -43,6 +43,21 @@ where a file lives in the tree.
    names are trademarks of Microsoft Corporation, used here only to describe
    compatibility.
 
+4. Bundled in the Setu images (not in this tree): Wine Mono
+   ---------------------------------------------------------
+   The disk images and the installer ISO that distro/ builds include Wine
+   Mono 10.4.1 (https://gitlab.winehq.org/mono/wine-mono), the .NET
+   Framework replacement that Wine 11.0's mscoree.dll loads, installed
+   unmodified in /opt/setu/personality/share/wine/mono. It is downloaded
+   from dl.winehq.org at build time (pinned by SHA-256) and never stored in
+   this repository. Wine Mono's own code is under the MIT License; parts of
+   it are under the GPL and the LGPL (Mono), and its components carry
+   their own licences (MIT, MS-PL, zlib, BSD; see Wine Mono's COPYING).
+   Its source code: https://dl.winehq.org/wine/wine-mono/10.4.1/
+   wine-mono-10.4.1-src.tar.xz. Among its MIT-licensed components are
+   open-source .NET libraries published by Microsoft (WinForms, WPF); they
+   come with Wine Mono as released and are not part of Setu's source.
+
 SPDX identifiers
 ----------------
   Setu code:          SPDX-License-Identifier: MIT OR Apache-2.0

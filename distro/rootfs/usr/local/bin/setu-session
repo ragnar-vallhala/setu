@@ -32,7 +32,7 @@ fi
 export PATH
 export WINEPREFIX="${WINEPREFIX:-$HOME/.setu/prefix}"
 export WINEDEBUG="${WINEDEBUG:--all}"
-export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-mscoree,mshtml=}"  # no Mono/Gecko prompts
+export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-mshtml=}"  # no Gecko prompt (Wine Mono is bundled)
 mkdir -p "$(dirname "$WINEPREFIX")"
 
 log "WAYLAND_DISPLAY=$WAYLAND_DISPLAY DISPLAY=$DISPLAY WINEPREFIX=$WINEPREFIX"
