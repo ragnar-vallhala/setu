@@ -106,9 +106,10 @@ STATE="$WINEPREFIX/drive_c/setu-shell-state.txt"
 fail() { echo "FAIL: $*" >&2; [ -f "$STATE" ] && sed 's/^/  state: /' "$STATE" >&2; exit 1; }
 pass() { echo "ok: $*"; }
 shot() {
-  xwd -root -silent -display "$DISPLAY" > "$OUT/$1.xwd"
-  convert "$OUT/$1.xwd" "$OUT/$1.png"
-  rm -f "$OUT/$1.xwd"
+  # import reads the root window's pixels as shown; xwd -root drops a
+  # window that lies wholly inside another when windows have their own
+  # colormaps (Wine's do), which made such popups look black
+  import -display "$DISPLAY" -window root "$OUT/$1.png"
 }
 probe() { "$WINE" "$PROBE_EXE" "$@" >>"$OUT/probe.log" 2>&1; }
 # wait_state REGEX [SECONDS]: wait until the shell's state file matches

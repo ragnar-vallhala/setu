@@ -110,16 +110,17 @@ fail() { echo "FAIL: $*" >&2; [ -f "$STATE" ] && sed 's/^/  state: /' "$STATE" >
 pass() { echo "ok: $*"; }
 
 shot() {
-  xwd -root -silent -display "$DISPLAY" > "$OUT/$1.xwd"
-  convert "$OUT/$1.xwd" "$OUT/$1.png"
-  rm -f "$OUT/$1.xwd"
+  # import reads the root window's pixels as shown; xwd -root drops a
+  # window that lies wholly inside another when windows have their own
+  # colormaps (Wine's do), which made such popups look black
+  import -display "$DISPLAY" -window root "$OUT/$1.png"
 }
 
 # pixel X Y: the screen pixel at X,Y as "R,G,B"
 pixel() {
-  xwd -root -silent -display "$DISPLAY" > "$OUT/pixel.xwd"
-  convert "$OUT/pixel.xwd" -format "%[fx:int(255*p{$1,$2}.r)],%[fx:int(255*p{$1,$2}.g)],%[fx:int(255*p{$1,$2}.b)]" info:
-  rm -f "$OUT/pixel.xwd"
+  import -display "$DISPLAY" -window root "$OUT/pixel.png"
+  convert "$OUT/pixel.png" -format "%[fx:int(255*p{$1,$2}.r)],%[fx:int(255*p{$1,$2}.g)],%[fx:int(255*p{$1,$2}.b)]" info:
+  rm -f "$OUT/pixel.png"
 }
 # wait_pixel X Y RGB [SECONDS]: wait until the pixel at X,Y is RGB
 wait_pixel() {
