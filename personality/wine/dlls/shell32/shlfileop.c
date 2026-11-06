@@ -84,6 +84,7 @@ typedef struct
     DWORD dwYesToAllMask;
     BOOL bManyItems;
     BOOL bCancelled;
+    HDSA mappings;
 } FILE_OPERATION;
 
 /* Confirm dialogs with an optional "Yes To All" as used in file operations confirmations
@@ -936,6 +937,58 @@ typedef struct
 
 static DWORD do_copy_move(FILE_OPERATION *op, const FILE_ENTRY *from, const FILE_ENTRY *to, BOOL append_file_name);
 
+/* Find a free name next to an item that is in the way. Copies and moves are named
+ * "name - Copy.ext", then "name - Copy (2).ext", ...; renames "name (2).ext", ... */
+static BOOL make_collision_name(WCHAR *path, BOOL is_dir, BOOL is_copy)
+{
+    WCHAR stem[MAX_PATH], ext[MAX_PATH] = L"", buffer[MAX_PATH];
+    unsigned int i;
+    WCHAR *dot;
+
+    lstrcpynW(stem, path, MAX_PATH);
+    if (!is_dir && (dot = PathFindExtensionW(PathFindFileNameW(stem))) && *dot)
+    {
+        lstrcpynW(ext, dot, MAX_PATH);
+        *dot = 0;
+    }
+
+    for (i = is_copy ? 1 : 2; i < 10000; i++)
+    {
+        if (is_copy && i == 1) swprintf(buffer, MAX_PATH, L"%s - Copy%s", stem, ext);
+        else if (is_copy) swprintf(buffer, MAX_PATH, L"%s - Copy (%u)%s", stem, i, ext);
+        else swprintf(buffer, MAX_PATH, L"%s (%u)%s", stem, i, ext);
+        if (!PathFileExistsW(buffer))
+        {
+            lstrcpyW(path, buffer);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/* Remember a renamed item for FOF_WANTMAPPINGHANDLE. */
+static void add_name_mapping(FILE_OPERATION *op, const WCHAR *old_path, const WCHAR *new_path)
+{
+    SHNAMEMAPPINGW mapping;
+
+    if (!(op->req->fFlags & FOF_WANTMAPPINGHANDLE)) return;
+    if (!op->mappings && !(op->mappings = DSA_Create(sizeof(mapping), 4))) return;
+
+    mapping.cchOldPath = lstrlenW(old_path);
+    mapping.cchNewPath = lstrlenW(new_path);
+    mapping.pszOldPath = SHAlloc((mapping.cchOldPath + 1) * sizeof(WCHAR));
+    mapping.pszNewPath = SHAlloc((mapping.cchNewPath + 1) * sizeof(WCHAR));
+    if (!mapping.pszOldPath || !mapping.pszNewPath)
+    {
+        SHFree(mapping.pszOldPath);
+        SHFree(mapping.pszNewPath);
+        return;
+    }
+    lstrcpyW(mapping.pszOldPath, old_path);
+    lstrcpyW(mapping.pszNewPath, new_path);
+    DSA_InsertItem(op->mappings, DA_LAST, &mapping);
+}
+
 static inline void grow_list(FILE_LIST *list)
 {
     FILE_ENTRY *new = _recalloc(list->feFiles, list->num_alloc * 2, sizeof(*new));
@@ -1168,6 +1221,7 @@ static DWORD copy_move_dir(FILE_OPERATION *op, const WCHAR *dir, const WCHAR *ta
 static DWORD do_copy_move(FILE_OPERATION *op, const FILE_ENTRY *from, const FILE_ENTRY *to, BOOL append_file_name)
 {
     WCHAR target[MAX_PATH], target_dir[MAX_PATH];
+    BOOL renamed = FALSE;
 
     TRACE("Copying %s to %s, flags %#x, append_file_name %d.\n",
             debugstr_w(from->szFullPath), debugstr_w(to->szFullPath), op->req->fFlags, append_file_name);
@@ -1181,8 +1235,16 @@ static DWORD do_copy_move(FILE_OPERATION *op, const FILE_ENTRY *from, const FILE
         PathAppendW(target, from->szFilename);
     }
 
+    /* With FOF_RENAMEONCOLLISION an item in the way gets a new name instead. */
+    if ((op->req->fFlags & FOF_RENAMEONCOLLISION) && PathFileExistsW(target)
+            && make_collision_name(target, IsAttribDir(from->attributes), TRUE))
+    {
+        add_name_mapping(op, from->szFullPath, target);
+        renamed = TRUE;
+    }
+
     /* Fail if target is illegal. */
-    if (PathFileExistsW(target))
+    if (!renamed && PathFileExistsW(target))
     {
         BOOL target_is_dir = !!PathIsDirectoryW(target);
         if (target_is_dir != IsAttribDir(from->attributes))
@@ -1194,7 +1256,7 @@ static DWORD do_copy_move(FILE_OPERATION *op, const FILE_ENTRY *from, const FILE
                         PathFindFileNameW(target), op))
             return DE_OPCANCELLED;
     }
-    if (PathIsPrefixW(from->szFullPath, to->szFullPath))
+    if (PathIsPrefixW(from->szFullPath, renamed ? target : to->szFullPath))
         return DE_DESTSUBTREE;
 
     /* Create target dir. */
@@ -1372,6 +1434,19 @@ static DWORD rename_files(SHFILEOPSTRUCTW *op, const FILE_LIST *from, const FILE
     if (wcscmp(entry_from->szDirectory, entry_to->szDirectory) != 0)
         return DE_DIFFDIR;
 
+    /* renaming an item to its own name is an error */
+    if (!wcscmp(entry_from->szFullPath, entry_to->szFullPath))
+        return DE_SAMEFILE;
+
+    if (entry_to->bExists && (op->fFlags & FOF_RENAMEONCOLLISION))
+    {
+        WCHAR target[MAX_PATH];
+
+        lstrcpynW(target, entry_to->szFullPath, MAX_PATH);
+        if (make_collision_name(target, IsAttribDir(entry_from->attributes), FALSE))
+            return SHNotifyMoveFileW(entry_from->szFullPath, target);
+    }
+
     if (entry_to->bExists && IsAttribDir(entry_from->attributes) != IsAttribDir(entry_to->attributes))
         return IsAttribDir(entry_to->attributes) ? DE_FILEDESTISFLD : DE_FLDDESTISFILE;
 
@@ -1382,8 +1457,7 @@ static DWORD rename_files(SHFILEOPSTRUCTW *op, const FILE_LIST *from, const FILE
 static void check_flags(FILEOP_FLAGS fFlags)
 {
     WORD wUnsupportedFlags = FOF_NO_CONNECTED_ELEMENTS |
-        FOF_NOCOPYSECURITYATTRIBS | FOF_NORECURSEREPARSE |
-        FOF_RENAMEONCOLLISION | FOF_WANTMAPPINGHANDLE;
+        FOF_NOCOPYSECURITYATTRIBS | FOF_NORECURSEREPARSE;
 
     if (fFlags & wUnsupportedFlags)
         FIXME("Unsupported flags: %04x\n", fFlags);
@@ -1445,6 +1519,9 @@ int WINAPI SHFileOperationW(LPSHFILEOPSTRUCTW lpFileOp)
 
     file_list_destroy(&flFrom);
     file_list_destroy(&flTo);
+
+    if (lpFileOp->fFlags & FOF_WANTMAPPINGHANDLE) lpFileOp->hNameMappings = op.mappings;
+    else if (op.mappings) SHFreeNameMappings(op.mappings);
 
     if (ret == ERROR_CANCELLED)
         lpFileOp->fAnyOperationsAborted = TRUE;
