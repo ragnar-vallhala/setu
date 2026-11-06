@@ -1,0 +1,265 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# The app compatibility manifest read by tools/compat/run.py.
+#
+# Only the third-party apps the owner approved are listed (docs/COMPAT.md).
+# Each one is the current stable 64-bit Windows release, downloaded from its
+# official site and pinned by sha256. Downloads stay in build/compat/cache
+# and are never committed.
+#
+# Per app:
+#   name, version, url, sha256, size (bytes), licence, licence_url,
+#   homepage        where the version and URL were taken from
+#   kind            msi | nsis | inno | mozilla | exe (a single binary copied
+#                   into the prefix) | zip (a portable zip extracted there)
+#   install_args    the vendor's documented silent-install arguments (for
+#                   msi: after "msiexec /i FILE"); silent_docs links them
+#   install_dir     exe/zip kinds: where the file is put (Windows path)
+#   install_timeout seconds
+#   large           true: only on manual CI dispatch (download size)
+#   files           files the install must create (Windows paths)
+#   uninstall_name  regex on the DisplayName of the Uninstall registry key
+#   lnk             regex on the path of the Start Menu .lnk (under
+#                   ...\Start Menu\Programs)
+#   uninstall_args  appended to the key's UninstallString when the key has
+#                   no QuietUninstallString (MSI: "msiexec /x {GUID}" is used)
+#   [app.write]     files to write after the install: Windows path = text
+#   [app.launch]
+#     exe           the installed program to start
+#     args          its arguments; %SAMPLE_TXT%, %SAMPLE_SVG%, %SAMPLE_HTML%
+#                   are files run.py writes into C:\setu-compat
+#     window        regex on "class|title" that the app's main window
+#                   must match ("" for console programs)
+#     console       true: a console program; pass = exit code 0 and its
+#                   output matching `output`
+#     output        console: regex its output must match
+#     timeout       seconds to wait for the window (default 60)
+#     alive         seconds it must stay running (default 10)
+
+[[app]]
+name = "winsw"
+version = "2.12.0"
+url = "https://github.com/winsw/winsw/releases/download/v2.12.0/WinSW-x64.exe"
+sha256 = "05b82d46ad331cc16bdc00de5c6332c1ef818df8ceefcd49c726553209b3a0da"
+size = 18243033
+licence = "MIT"
+licence_url = "https://github.com/winsw/winsw/blob/v2.12.0/LICENSE.txt"
+homepage = "https://github.com/winsw/winsw/releases/tag/v2.12.0"
+kind = "exe"
+install_dir = 'C:\Program Files\WinSW'
+install_args = []
+silent_docs = "https://github.com/winsw/winsw/blob/v2.12.0/README.md"
+files = ['C:\Program Files\WinSW\WinSW-x64.exe']
+# WinSW reads <exe name>.xml next to itself before any command
+[app.write]
+'C:\Program Files\WinSW\WinSW-x64.xml' = '''
+<service>
+  <id>SetuCompatWinSW</id>
+  <name>Setu compat WinSW</name>
+  <description>Setu compatibility check (never installed).</description>
+  <executable>C:\windows\system32\cmd.exe</executable>
+</service>
+'''
+[app.launch]
+exe = 'C:\Program Files\WinSW\WinSW-x64.exe'
+# queries the service manager: the service doesn't exist
+args = ["status"]
+console = true
+output = '^NonExistent'
+
+[[app]]
+name = "7-zip"
+version = "26.05"
+url = "https://www.7-zip.org/a/7z2605-x64.msi"
+sha256 = "3fe4ab99fa15629c652944309a2b2bc6e41fc933fc6b63f5df1ebcf3aea68263"
+size = 2008576
+licence = "GNU LGPL-2.1-or-later, parts BSD-3-Clause / BSD-2-Clause, unRAR restriction"
+licence_url = "https://www.7-zip.org/license.txt"
+homepage = "https://www.7-zip.org/download.html"
+kind = "msi"
+install_args = ["/qn"]
+silent_docs = "https://www.7-zip.org/faq.html"
+files = ['C:\Program Files\7-Zip\7zFM.exe', 'C:\Program Files\7-Zip\7z.dll']
+uninstall_name = '^7-Zip 26\.05'
+lnk = '7-Zip.*\.lnk$'
+[app.launch]
+exe = 'C:\Program Files\7-Zip\7zFM.exe'
+args = ['C:\setu-compat']
+window = '^7-Zip::FM\|'
+
+[[app]]
+name = "notepad++"
+version = "8.9.8.1"
+url = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.8.1/npp.8.9.8.1.Installer.x64.exe"
+sha256 = "26f3bcced788fadbac4e7e577b430ea2ce6060cf3bcad993ef4612ecd7d743da"
+size = 6963432
+licence = "GPL-3.0"
+licence_url = "https://github.com/notepad-plus-plus/notepad-plus-plus/blob/master/LICENSE"
+homepage = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/tag/v8.9.8.1"
+kind = "nsis"
+install_args = ["/S"]
+silent_docs = "https://npp-user-manual.org/docs/command-prompt/"
+files = ['C:\Program Files\Notepad++\notepad++.exe', 'C:\Program Files\Notepad++\uninstall.exe']
+uninstall_name = '^Notepad\+\+'
+lnk = 'Notepad\+\+.*\.lnk$'
+uninstall_args = "/S"
+[app.launch]
+exe = 'C:\Program Files\Notepad++\notepad++.exe'
+args = ["-nosession", "%SAMPLE_TXT%"]
+window = '^Notepad\+\+\|.*sample\.txt'
+
+[[app]]
+name = "putty"
+version = "0.85"
+url = "https://the.earth.li/~sgtatham/putty/0.85/w64/putty-64bit-0.85-installer.msi"
+sha256 = "2213ebacf962b709411d654a40087508a694756bc4e41c5a1c24ad86596b2511"
+size = 3846144
+licence = "MIT"
+licence_url = "https://www.chiark.greenend.org.uk/~sgtatham/putty/licence.html"
+homepage = "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"
+kind = "msi"
+install_args = ["/qn"]
+silent_docs = "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec"
+files = ['C:\Program Files\PuTTY\putty.exe', 'C:\Program Files\PuTTY\pscp.exe']
+uninstall_name = '^PuTTY'
+lnk = 'PuTTY.*\.lnk$'
+[app.launch]
+exe = 'C:\Program Files\PuTTY\putty.exe'
+args = []
+window = '\|PuTTY Configuration$'
+
+[[app]]
+name = "keepass"
+version = "2.62"
+url = "https://sourceforge.net/projects/keepass/files/KeePass%202.x/2.62/KeePass-2.62-Setup.exe/download"
+sha256 = ""
+size = 0
+licence = "GPL-2.0-or-later"
+licence_url = "https://keepass.info/help/v2/license.html"
+homepage = "https://keepass.info/download.html"
+kind = "inno"
+install_args = ["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"]
+silent_docs = "https://keepass.info/help/v2/setup.html"
+files = ['C:\Program Files\KeePass Password Safe 2\KeePass.exe']
+uninstall_name = '^KeePass Password Safe'
+lnk = 'KeePass.*\.lnk$'
+uninstall_args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+[app.launch]
+exe = 'C:\Program Files\KeePass Password Safe 2\KeePass.exe'
+args = []
+window = 'KeePass'
+
+[[app]]
+name = "winscp"
+version = "6.7"
+url = "https://sourceforge.net/projects/winscp/files/WinSCP/6.7/WinSCP-6.7-Setup.exe/download"
+sha256 = ""
+size = 0
+licence = "GPL-3.0-or-later"
+licence_url = "https://winscp.net/eng/docs/license"
+homepage = "https://winscp.net/eng/download.php"
+kind = "inno"
+install_args = ["/VERYSILENT", "/ALLUSERS", "/NORESTART"]
+silent_docs = "https://winscp.net/eng/docs/installation#automating_installation"
+files = ['C:\Program Files (x86)\WinSCP\WinSCP.exe']
+uninstall_name = '^WinSCP'
+lnk = 'WinSCP.*\.lnk$'
+uninstall_args = "/VERYSILENT /NORESTART"
+[app.launch]
+exe = 'C:\Program Files (x86)\WinSCP\WinSCP.exe'
+args = []
+window = 'WinSCP|Login'
+
+[[app]]
+name = "firefox"
+version = "159.0.1"
+url = "https://download-installer.cdn.mozilla.net/pub/firefox/releases/159.0.1/win64/en-US/Firefox%20Setup%20159.0.1.exe"
+sha256 = "729af643b8e0a3809d6153a57a448cb96a01e6fa5e2e7ff782152ede6202eadd"
+size = 94602272
+licence = "MPL-2.0"
+licence_url = "https://www.mozilla.org/en-US/MPL/2.0/"
+homepage = "https://product-details.mozilla.org/1.0/firefox_versions.json"
+kind = "mozilla"
+install_args = ["/S"]
+silent_docs = "https://firefox-source-docs.mozilla.org/browser/installer/windows/installer/FullConfig.html"
+large = true
+install_timeout = 600
+files = ['C:\Program Files\Mozilla Firefox\firefox.exe', 'C:\Program Files\Mozilla Firefox\uninstall\helper.exe']
+uninstall_name = '^Mozilla Firefox'
+lnk = 'Firefox.*\.lnk$'
+uninstall_args = "/S"
+[app.launch]
+exe = 'C:\Program Files\Mozilla Firefox\firefox.exe'
+args = ["-no-remote", "-profile", 'C:\setu-compat\ffprofile', "%SAMPLE_HTML%"]
+window = '^MozillaWindowClass\|'
+timeout = 120
+
+[[app]]
+name = "libreoffice"
+version = "26.8.2"
+url = "https://download.documentfoundation.org/libreoffice/stable/26.8.2/win/x86_64/LibreOffice_26.8.2_Win_x86-64.msi"
+sha256 = ""
+size = 0
+licence = "MPL-2.0"
+licence_url = "https://www.libreoffice.org/about-us/licenses/"
+homepage = "https://download.documentfoundation.org/libreoffice/stable/"
+kind = "msi"
+install_args = ["/qn", "/norestart", "RebootYesNo=No", "ALLUSERS=1", "UI_LANGS=en_US", "ISCHECKFORPRODUCTUPDATES=0", "REGISTER_NO_MSO_TYPES=1"]
+silent_docs = "https://wiki.documentfoundation.org/Deployment_and_Migration#Silent_and_Unattended_Installations"
+large = true
+install_timeout = 1800
+files = ['C:\Program Files\LibreOffice\program\soffice.exe', 'C:\Program Files\LibreOffice\program\soffice.bin']
+uninstall_name = '^LibreOffice 26\.8'
+lnk = 'LibreOffice.*\.lnk$'
+[app.launch]
+exe = 'C:\Program Files\LibreOffice\program\soffice.exe'
+args = ["--norestore", "--nologo", "--writer", "%SAMPLE_TXT%"]
+window = 'LibreOffice'
+timeout = 240
+
+[[app]]
+name = "gimp"
+version = "3.2.8"
+url = "https://download.gimp.org/gimp/v3.2/windows/gimp-3.2.8-setup.exe"
+sha256 = "1d78874295661d791eaf149982e9b3564888631ea29186da5ff99e8114020a5b"
+size = 185816224
+licence = "GNU GPL-3.0 (COPYING)"
+licence_url = "https://www.gimp.org/about/COPYING"
+homepage = "https://www.gimp.org/downloads/"
+kind = "inno"
+install_args = ["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/ALLUSERS"]
+silent_docs = "https://jrsoftware.org/ishelp/topic_setupcmdline.htm"
+large = true
+install_timeout = 1800
+files = ['C:\Program Files\GIMP 3\bin\gimp-3.2.exe']
+uninstall_name = '^GIMP'
+lnk = 'GIMP.*\.lnk$'
+uninstall_args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"
+[app.launch]
+exe = 'C:\Program Files\GIMP 3\bin\gimp-3.2.exe'
+args = ["--no-splash", "%SAMPLE_SVG%"]
+window = 'GIMP'
+timeout = 300
+
+[[app]]
+name = "inkscape"
+version = "1.4.4"
+url = "https://media.inkscape.org/media/resources/sigs/inkscape-1.4.4_2026-05-05_dcaf3e7-x64.signed.msi"
+sha256 = ""
+size = 0
+licence = "GNU GPL (version 2 text on the licence page)"
+licence_url = "https://inkscape.org/about/license/"
+homepage = "https://inkscape.org/release/inkscape-1.4.4/windows/64-bit/msi/"
+kind = "msi"
+install_args = ["/qn", "ALLUSERS=1"]
+silent_docs = "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec"
+large = true
+install_timeout = 1200
+files = ['C:\Program Files\Inkscape\bin\inkscape.exe']
+uninstall_name = '^Inkscape'
+lnk = 'Inkscape.*\.lnk$'
+[app.launch]
+exe = 'C:\Program Files\Inkscape\bin\inkscape.exe'
+args = ["%SAMPLE_SVG%"]
+window = 'Inkscape'
+timeout = 300
