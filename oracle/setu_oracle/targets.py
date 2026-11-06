@@ -91,6 +91,12 @@ class WineTarget(Target):
         # USB stick changed what d:... meant to the tests. The Windows VM has
         # only C:, so keep the prefix to C: and Z: by giving Wine no bus.
         self.env["DBUS_SYSTEM_BUS_ADDRESS"] = "unix:path=/nonexistent/setu-oracle-no-dbus"
+        # shell32's Recycle Bin is the host's XDG trash ($XDG_DATA_HOME/Trash,
+        # default ~/.local/share/Trash). Tests delete with FOF_ALLOWUNDO and
+        # call SHEmptyRecycleBinW, so give them a trash of their own inside
+        # the prefix instead of the developer's real one.
+        self.xdg_data = self.prefix / "xdg-data"
+        self.env["XDG_DATA_HOME"] = str(self.xdg_data)
         self.env.update({
             "WINEPREFIX": str(self.prefix),
             "WINEDEBUG": c["winedebug"],
@@ -140,6 +146,7 @@ class WineTarget(Target):
                 raise SystemExit(f"wineboot failed ({r.returncode}):\n{r.stderr.decode(errors='replace')[-2000:]}")
             stamp.write_text("ok\n")
         self._use_null_graphics_driver()
+        self.xdg_data.mkdir(parents=True, exist_ok=True)
         if self.workroot.exists():
             shutil.rmtree(self.workroot)
         self.workroot.mkdir(parents=True)
