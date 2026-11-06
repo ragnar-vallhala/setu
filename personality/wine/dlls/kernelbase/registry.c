@@ -518,6 +518,9 @@ static inline HKEY get_special_root_hkey( HKEY hkey )
 /* set once performance data has been read */
 static BOOL perf_data_queried;
 
+/* set when HKEY_CLASSES_ROOT has been remapped with RegOverridePredefKey */
+static BOOL classes_root_overridden;
+
 static BOOL is_perf_key( HKEY key )
 {
     return HandleToUlong(key) == HandleToUlong(HKEY_PERFORMANCE_DATA)
@@ -549,6 +552,7 @@ NTSTATUS WINAPI RemapPredefinedHandleInternal( HKEY hkey, HKEY override )
         if (status) return status;
     }
 
+    if (hkey == HKEY_CLASSES_ROOT) classes_root_overridden = (override != NULL);
     old_key = InterlockedExchangePointer( (void **)&special_root_keys[idx], override );
     if (old_key) NtClose( old_key );
     return STATUS_SUCCESS;
@@ -681,6 +685,22 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExA( HKEY hkey, LPCSTR name, DWORD 
 }
 
 
+/* HKEY_CLASSES_ROOT merges HKCU\\Software\\Classes over HKLM\\Software\\Classes: a key the
+ * user has registered hides the machine-wide key of the same name. */
+static NTSTATUS open_user_classes_key( HKEY *retkey, UNICODE_STRING *name, DWORD options, ACCESS_MASK access )
+{
+    UNICODE_STRING classesW = RTL_CONSTANT_STRING( L"Software\\Classes" );
+    UNICODE_STRING sub = *name;
+    HKEY user, classes;
+    NTSTATUS status;
+
+    if (!(user = get_special_root_hkey( HKEY_CURRENT_USER ))) return STATUS_INVALID_HANDLE;
+    if ((status = open_key( &classes, user, &classesW, 0, KEY_ENUMERATE_SUB_KEYS, FALSE ))) return status;
+    status = open_key( retkey, classes, &sub, options, access, FALSE );
+    NtClose( classes );
+    return status;
+}
+
 /******************************************************************************
  * RegOpenKeyExW   (kernelbase.@)
  *
@@ -688,6 +708,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCreateKeyExA( HKEY hkey, LPCSTR name, DWORD 
  */
 LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExW( HKEY hkey, LPCWSTR name, DWORD options, REGSAM access, PHKEY retkey )
 {
+    BOOL is_classes_root_view = HandleToUlong(hkey) == HandleToUlong(HKEY_CLASSES_ROOT) &&
+                                !classes_root_overridden && !(access & KEY_WOW64_32KEY) && !is_wow64;
     UNICODE_STRING nameW;
     NTSTATUS status;
 
@@ -709,6 +731,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExW( HKEY hkey, LPCWSTR name, DWORD o
 
     /* a name that does not fit in a UNICODE_STRING is too long */
     if ((status = RtlInitUnicodeStringEx( &nameW, name ))) return RtlNtStatusToDosError( status );
+    if (is_classes_root_view && nameW.Length && !open_user_classes_key( retkey, &nameW, options, access ))
+        return ERROR_SUCCESS;
     return RtlNtStatusToDosError( open_key( retkey, hkey, &nameW, options, access, FALSE ) );
 }
 
@@ -735,6 +759,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExW( HKEY hkey, LPCWSTR name, DWORD o
  */
 LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExA( HKEY hkey, LPCSTR name, DWORD options, REGSAM access, PHKEY retkey )
 {
+    BOOL is_classes_root_view = HandleToUlong(hkey) == HandleToUlong(HKEY_CLASSES_ROOT) &&
+                                !classes_root_overridden && !(access & KEY_WOW64_32KEY) && !is_wow64;
     UNICODE_STRING nameW;
     STRING nameA;
     NTSTATUS status;
@@ -761,7 +787,8 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegOpenKeyExA( HKEY hkey, LPCSTR name, DWORD op
     if (!(status = RtlAnsiStringToUnicodeString( &nameW, &nameA, TRUE )))
     {
         UNICODE_STRING str = nameW;  /* open_key() moves the buffer pointer */
-        status = open_key( retkey, hkey, &str, options, access, FALSE );
+        if (!is_classes_root_view || !nameW.Length || open_user_classes_key( retkey, &nameW, options, access ))
+            status = open_key( retkey, hkey, &str, options, access, FALSE );
         RtlFreeUnicodeString( &nameW );
     }
     return RtlNtStatusToDosError( status );
