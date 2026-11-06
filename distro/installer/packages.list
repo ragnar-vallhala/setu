@@ -1,0 +1,22 @@
+# Packages the installer ISO adds to packages.list (distro/build-iso.sh).
+# One per line; '#' starts a comment. The live system and the installed
+# system are the same squashfs; Calamares removes the live-only packages
+# from the installed copy (installer/rootfs/etc/calamares/modules/packages.conf).
+
+# Live system (removed on install)
+live-boot
+live-boot-initramfs-tools
+
+# Calamares: the installer on the live system, and the first-boot wizard
+# on the installed one (OEM mode, dont-chroot)
+calamares
+qt6-wayland          # Calamares runs as a native Wayland client of labwc
+locales              # localecfg runs locale-gen
+keyboard-configuration
+rsync                # unpackfs
+squashfs-tools       # unpackfs counts the files with unsquashfs -l
+fdisk                # kpmcore's sfdisk backend
+dosfstools           # the ESP
+polkitd              # kpmcore's root helper asks polkit before it runs sfdisk etc.
+efibootmgr           # the bootloader module's NVRAM entry
+grub-efi-amd64-bin

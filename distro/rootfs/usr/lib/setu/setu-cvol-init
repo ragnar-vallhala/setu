@@ -1,0 +1,38 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-cvol-init DIR [LABEL]: turn the freshly made ext4 file system mounted
+# at DIR into the Setu system volume behind C: (services/fs/README.md). Used
+# by the dev image build (distro/builder/build-rootfs.sh) and by the
+# installer (Calamares, distro/installer/).
+#
+# * The file system must have the casefold feature. If it lacks it, DIR is
+#   unmounted, the feature is turned on (tune2fs, e2fsprogs >= 1.46; UTF-8
+#   folding) and DIR is mounted again.
+# * LABEL, if given, becomes the file system label.
+# * The root directory gets the casefold flag (+F), which every directory
+#   made under it inherits. It needs an empty directory, so lost+found is
+#   removed first and made again.
+# * lost+found is hidden + system for Windows programs (Samba's
+#   user.DOSATTRIB, which Wine reads), like "System Volume Information".
+set -eu
+DIR=${1:?usage: setu-cvol-init DIR [LABEL]}
+LABEL=${2:-}
+[ "$(findmnt -n -o TARGET --mountpoint "$DIR")" = "$DIR" ] \
+    || { echo "setu-cvol-init: $DIR is not a mount point" >&2; exit 1; }
+DEV=$(findmnt -n -o SOURCE --mountpoint "$DIR")
+[ "$(findmnt -n -o FSTYPE --mountpoint "$DIR")" = ext4 ] \
+    || { echo "setu-cvol-init: $DIR ($DEV) is not ext4" >&2; exit 1; }
+if ! dumpe2fs -h "$DEV" 2>/dev/null | grep -q '^Filesystem features:.*casefold'; then
+    echo "setu-cvol-init: enabling casefold on $DEV"
+    umount "$DIR"
+    tune2fs -O casefold -E encoding=utf8 "$DEV"
+    mount "$DEV" "$DIR"
+fi
+[ -z "$LABEL" ] || e2label "$DEV" "$LABEL"
+if ! lsattr -d "$DIR" | cut -d' ' -f1 | grep -q F; then
+    if [ -d "$DIR/lost+found" ]; then rmdir "$DIR/lost+found"; fi
+    chattr +F "$DIR"
+fi
+[ -d "$DIR/lost+found" ] || (cd "$DIR" && mklost+found >/dev/null)
+setfattr -n user.DOSATTRIB -v 0x16 "$DIR/lost+found"
+lsattr -d "$DIR"

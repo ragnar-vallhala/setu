@@ -20,10 +20,14 @@
 #   --mirror URL        Debian mirror (default: http://deb.debian.org/debian)
 #   --size SIZE         disk size (default: 12G; the C: volume gets what the
 #                       root file system doesn't)
-#   --root-size SIZE    Linux root partition (default: 6GiB)
-#   --out FILE          output image (default: build/distro/setu-dev.qcow2)
+#   --root-size SIZE    Linux root partition (default: SETU_ROOT_SIZE in
+#                       distro/layout.env, 6GiB)
+#   --out FILE          output image (default: build/distro/setu-dev.qcow2,
+#                       with --kind iso build/distro/setu-installer.iso)
+#   --kind image|iso    image (default): the dev disk image. iso: the
+#                       installer ISO instead (distro/build-iso.sh runs this)
 #   --cpus N, --mem MB  builder VM resources (default: 4, 4096)
-#   --keep-work         keep build/distro/work after the build
+#   --keep-work         keep build/distro/work-KIND after the build
 #   -h, --help          show this help
 set -euo pipefail
 
@@ -38,8 +42,9 @@ SHELL_EXE=""
 SUITE=trixie
 MIRROR=http://deb.debian.org/debian
 SIZE=12G
-ROOT_SIZE=6GiB
-OUT=$REPO/build/distro/setu-dev.qcow2
+ROOT_SIZE=
+OUT=
+KIND=image
 CPUS=4
 MEM=4096
 KEEP_WORK=0
@@ -56,6 +61,7 @@ while [ $# -gt 0 ]; do
         --size) SIZE=$2; shift ;;
         --root-size) ROOT_SIZE=$2; shift ;;
         --out) OUT=$2; shift ;;
+        --kind) KIND=$2; shift ;;
         --cpus) CPUS=$2; shift ;;
         --mem) MEM=$2; shift ;;
         --keep-work) KEEP_WORK=1 ;;
@@ -69,6 +75,13 @@ log() { echo "[build-image] $*"; }
 die() { echo "[build-image] error: $*" >&2; exit 1; }
 
 case $WINE_MODE in setu|debian) ;; *) die "--wine must be setu or debian" ;; esac
+case $KIND in
+    image) OUT=${OUT:-$REPO/build/distro/setu-dev.qcow2}; BUILDER_SIZE=12G ;;
+    # the ISO kind keeps the live tree, its squashfs and the ISO on the
+    # builder's disk at the same time; the target disk only receives the ISO
+    iso) OUT=${OUT:-$REPO/build/distro/setu-installer.iso}; BUILDER_SIZE=24G; SIZE=8G ;;
+    *) die "--kind must be image or iso" ;;
+esac
 if [ "$WINE_MODE" = setu ]; then
     PERSONALITY=${PERSONALITY:-$MAIN/build/personality/install}
     [ -x "$PERSONALITY/bin/wine" ] || die "no personality build at $PERSONALITY (build it, pass --personality, or use --wine=debian)"
@@ -85,7 +98,7 @@ done
 
 BUILD=$REPO/build/distro
 DL=$BUILD/downloads
-WORK=$BUILD/work
+WORK=$BUILD/work-$KIND
 mkdir -p "$DL" "$(dirname "$OUT")"
 
 # 1. Builder base image: Debian's official "generic" cloud image, verified
@@ -105,7 +118,7 @@ fi
 # 2. Fresh work dir: builder overlay, cloud-init seed, target disk.
 rm -rf "$WORK"
 mkdir -p "$WORK"
-qemu-img create -q -f qcow2 -F qcow2 -b "$DL/$CLOUD_IMG" "$WORK/builder.qcow2" 12G
+qemu-img create -q -f qcow2 -F qcow2 -b "$DL/$CLOUD_IMG" "$WORK/builder.qcow2" $BUILDER_SIZE
 qemu-img create -q -f raw "$WORK/target.raw" "$SIZE"
 
 # Setu's own system files that live outside distro/ (the drive-letter
@@ -122,6 +135,7 @@ cat > "$WORK/user-data" <<EOF
 write_files:
   - path: /etc/setu-build.env
     content: |
+      KIND=$KIND
       SUITE=$SUITE
       MIRROR=$MIRROR
       WINE_MODE=$WINE_MODE
@@ -159,9 +173,21 @@ grep -a '^\[setu-build\]' "$WORK/build.log" | sed 's/\r$//' || true
 grep -aq '^SETU_BUILD_OK' "$WORK/build.log" \
     || die "build failed; see $BUILD/last-build.log"
 
-# 4. Publish the image (qcow2 keeps it small) and clean up.
-qemu-img convert -O qcow2 "$WORK/target.raw" "$OUT.new"
-mv "$OUT.new" "$OUT"
+# 4. Publish the image (qcow2 keeps it small; the ISO is the start of the
+#    raw disk) and clean up.
+if [ "$KIND" = iso ]; then
+    iso_size=$(grep -a '^SETU_ISO_SIZE=' "$WORK/build.log" | tr -d '\r' | cut -d= -f2)
+    [ -n "$iso_size" ] || die "the builder reported no ISO size"
+    truncate -s "$iso_size" "$WORK/target.raw"
+    mv "$WORK/target.raw" "$OUT"
+else
+    qemu-img convert -O qcow2 "$WORK/target.raw" "$OUT.new"
+    mv "$OUT.new" "$OUT"
+fi
 [ "$KEEP_WORK" = 1 ] || rm -rf "$WORK"
-log "done in $(( $(date +%s) - start ))s: $OUT ($(du -h "$OUT" | cut -f1))"
-log "boot it with: distro/run-qemu.sh"
+log "done in $(( $(date +%s) - start ))s: $OUT ($(du -h --apparent-size "$OUT" | cut -f1))"
+if [ "$KIND" = iso ]; then
+    log "try it with: distro/tests/install-smoke.sh"
+else
+    log "boot it with: distro/run-qemu.sh"
+fi

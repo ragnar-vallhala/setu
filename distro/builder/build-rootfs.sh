@@ -1,29 +1,35 @@
 #!/bin/bash
 # Runs as root INSIDE the throwaway builder VM started by distro/build-image.sh.
-# Partitions the target disk (GPT: ESP + ext4 root + the C: volume, ext4 with
-# casefold), builds the Debian root filesystem into it with mmdebstrap, adds
-# the Setu personality and session config, and installs GRUB (EFI, removable
-# path).
+# Builds the Debian root filesystem with mmdebstrap, adds the Setu
+# personality and session config, and then, by KIND:
+#   image  partitions the target disk (GPT: ESP + ext4 root + the C: volume,
+#          ext4 with casefold; distro/layout.env), builds into it and
+#          installs GRUB (EFI, removable path): the dev image.
+#   iso    builds into a directory, adds the installer (distro/installer/:
+#          live-boot, Calamares and its config, the first-boot wizard),
+#          squashes it and writes a hybrid UEFI ISO (grub-mkrescue) to the
+#          start of the target disk: the installer ISO.
 #
 # Inputs (set up by build-image.sh):
-#   /etc/setu-build.env      SUITE MIRROR WINE_MODE IMAGE_HOSTNAME HAVE_SHELL ROOT_SIZE
+#   /etc/setu-build.env      KIND SUITE MIRROR WINE_MODE IMAGE_HOSTNAME HAVE_SHELL ROOT_SIZE
 #   9p tag "distro"          the repo's distro/ directory (read-only)
 #   9p tag "overlay"         more files for the image (services/fs, installed)
 #   9p tag "personality"     build/personality/install (read-only, WINE_MODE=setu)
 #   9p tag "shell"           directory with setu-shell.exe and, if built,
 #                            setu-probe.exe (HAVE_SHELL=1)
 #   virtio disk serial "setu-target"   the output disk (raw)
-# Output goes to the second serial port; its last line is SETU_BUILD_OK on success.
+# Output goes to the second serial port; its last line is SETU_BUILD_OK on
+# success (KIND=iso: preceded by SETU_ISO_SIZE=<bytes>).
 set -euo pipefail
 # Work in a private mount namespace: otherwise services that start while the
 # target is mounted (with their own namespaces) keep it busy after umount.
 [ -n "${SETU_UNSHARED:-}" ] || exec env SETU_UNSHARED=1 unshare -m --propagation private bash "$0" "$@"
 . /etc/setu-build.env
+KIND=${KIND:-image}
 
 log() { echo "[setu-build] $*"; }
 export DEBIAN_FRONTEND=noninteractive
 DISTRO=/mnt/distro
-T=/mnt/target
 DISK=/dev/disk/by-id/virtio-setu-target
 
 mount_9p() { # tag dir
@@ -33,42 +39,54 @@ mount_9p() { # tag dir
 
 log "installing builder tools"
 apt-get update -qq
-apt-get install -y -q --no-install-recommends mmdebstrap dosfstools e2fsprogs fdisk attr
+tools="mmdebstrap dosfstools e2fsprogs fdisk attr"
+[ "$KIND" = iso ] && tools="$tools squashfs-tools xorriso mtools grub-efi-amd64-bin"
+apt-get install -y -q --no-install-recommends $tools
 
 mountpoint -q $DISTRO || mount_9p distro $DISTRO
+. $DISTRO/layout.env
+ROOT_SIZE=${ROOT_SIZE:-$SETU_ROOT_SIZE}
+CDIR=$SETU_CVOL_DIR
 
-log "partitioning $DISK"
-udevadm settle
-wipefs -a "$DISK"
-# 4f68bce3-... is the "Linux root (x86-64)" type from the Discoverable
-# Partitions Specification.
-# The third partition is the system volume behind C: (type: Linux filesystem
-# data; services/fs/README.md).
-sfdisk -q "$DISK" <<EOF
+if [ "$KIND" = image ]; then
+    T=/mnt/target
+    log "partitioning $DISK"
+    udevadm settle
+    wipefs -a "$DISK"
+    sfdisk -q "$DISK" <<EOF
 label: gpt
-size=256MiB, type=uefi, name="ESP"
-size=${ROOT_SIZE:-6GiB}, type=4f68bce3-e8cd-4db1-96e7-fbcaf984b709, name="setu-root"
-type=0fc63daf-8483-4772-8e79-3d69d8477de4, name="setu-c"
+size=$SETU_ESP_SIZE, type=uefi, name="$SETU_ESP_NAME"
+size=$ROOT_SIZE, type=$SETU_ROOT_TYPE, name="$SETU_ROOT_NAME"
+type=$SETU_CVOL_TYPE, name="$SETU_CVOL_NAME"
 EOF
-udevadm settle
-ESP=${DISK}-part1
-ROOT=${DISK}-part2
-CVOL=${DISK}-part3
-mkfs.vfat -F 32 -n SETU-ESP "$ESP" >/dev/null
-mkfs.ext4 -q -F -L setu-root "$ROOT"
-# C: is case-insensitive in the kernel: ext4 casefold (UTF-8 folding) with
-# +F on the volume's root directory, which every directory created under it
-# inherits (docs/ARCHITECTURE.md 3.3).
-mkfs.ext4 -q -F -L SETU-C -O casefold -E encoding=utf8 "$CVOL"
-mkdir -p $T
-mount "$ROOT" $T
+    udevadm settle
+    ESP=${DISK}-part1
+    ROOT=${DISK}-part2
+    CVOL=${DISK}-part3
+    mkfs.vfat -F 32 -n "$SETU_ESP_LABEL" "$ESP" >/dev/null
+    mkfs.ext4 -q -F -L "$SETU_ROOT_LABEL" "$ROOT"
+    # C: is case-insensitive in the kernel: ext4 casefold (UTF-8 folding)
+    # with +F on the volume's root directory (setu-cvol-init below;
+    # docs/ARCHITECTURE.md 3.3).
+    mkfs.ext4 -q -F -L "$SETU_CVOL_LABEL" -O casefold -E encoding=utf8 "$CVOL"
+    mkdir -p $T
+    mount "$ROOT" $T
+else
+    # The live system, which is also the system the installer copies.
+    T=/var/tmp/setu-live
+    rm -rf $T
+    mkdir -p $T
+fi
 
 pkgs=$(sed 's/#.*//' $DISTRO/packages.list | xargs | tr ' ' ',')
 if [ "$WINE_MODE" = debian ]; then
     pkgs="$pkgs,$(sed 's/#.*//' $DISTRO/packages-wine-debian.list | xargs | tr ' ' ',')"
 fi
+if [ "$KIND" = iso ]; then
+    pkgs="$pkgs,$(sed 's/#.*//' $DISTRO/installer/packages.list | xargs | tr ' ' ',')"
+fi
 
-log "mmdebstrap $SUITE from $MIRROR (wine: $WINE_MODE)"
+log "mmdebstrap $SUITE from $MIRROR (wine: $WINE_MODE, kind: $KIND)"
 mmdebstrap --variant=minbase --include="$pkgs" \
     --aptopt='Acquire::Retries "3"' \
     --dpkgopt='path-exclude=/usr/share/doc/*' \
@@ -81,7 +99,7 @@ mmdebstrap --variant=minbase --include="$pkgs" \
 
 log "configuring"
 mkdir -p $T/boot/efi
-mount "$ESP" $T/boot/efi
+[ "$KIND" = image ] && mount "$ESP" $T/boot/efi
 for d in dev proc sys run; do mount --rbind /$d $T/$d; mount --make-rslave $T/$d; done
 
 cp -a --no-preserve=ownership $DISTRO/rootfs/. $T/
@@ -90,24 +108,33 @@ cp -a --no-preserve=ownership /mnt/overlay/. $T/
 umount /mnt/overlay
 echo "$IMAGE_HOSTNAME" > $T/etc/hostname
 printf '127.0.0.1\tlocalhost\n127.0.1.1\t%s\n' "$IMAGE_HOSTNAME" > $T/etc/hosts
-CDIR=/var/lib/setu/volumes/c
-cat > $T/etc/fstab <<EOF
+mkdir -p $T$CDIR
+
+if [ "$KIND" = image ]; then
+    cat > $T/etc/fstab <<EOF
 UUID=$(blkid -s UUID -o value "$ROOT")  /          ext4  errors=remount-ro  0 1
 UUID=$(blkid -s UUID -o value "$ESP")  /boot/efi  vfat  umask=0077         0 2
 UUID=$(blkid -s UUID -o value "$CVOL")  $CDIR  ext4  defaults  0 2
 EOF
-
-log "C: volume: ext4 casefold at $CDIR"
-mkdir -p $T$CDIR
-mount "$CVOL" $T$CDIR
-# +F needs an empty directory: set it on the root, then make lost+found
-# again. lost+found is hidden and system for Windows programs, like
-# "System Volume Information" (Wine reads the Samba user.DOSATTRIB xattr).
-rmdir $T$CDIR/lost+found
-chattr +F $T$CDIR
-(cd $T$CDIR && mklost+found >/dev/null)
-setfattr -n user.DOSATTRIB -v 0x16 $T$CDIR/lost+found
-log "  $(lsattr -d $T$CDIR)"
+    log "C: volume: ext4 casefold at $CDIR"
+    mount "$CVOL" $T$CDIR
+    out=$(PATH=$PATH:/sbin:/usr/sbin sh $DISTRO/rootfs/usr/lib/setu/setu-cvol-init $T$CDIR)
+    log "  $out"
+else
+    log "installer: live-boot, Calamares (installer/rootfs)"
+    cp -a --no-preserve=ownership $DISTRO/installer/rootfs/. $T/
+    # Calamares' partition layout, from layout.env
+    sed -e "s|@ESP_SIZE@|$SETU_ESP_SIZE|g" -e "s|@ESP_LABEL@|$SETU_ESP_LABEL|g" \
+        -e "s|@ROOT_SIZE@|$ROOT_SIZE|g" -e "s|@ROOT_NAME@|$SETU_ROOT_NAME|g" \
+        -e "s|@ROOT_TYPE@|$SETU_ROOT_TYPE|g" -e "s|@CVOL_NAME@|$SETU_CVOL_NAME|g" \
+        -e "s|@CVOL_TYPE@|$SETU_CVOL_TYPE|g" -e "s|@CVOL_DIR@|$CDIR|g" \
+        $DISTRO/installer/partition.conf.in > $T/etc/calamares/modules/partition.conf
+    cp $DISTRO/layout.env $T/usr/lib/setu/layout.env
+    # the live system has no fstab of its own (Calamares writes the target's)
+    echo '# Setu live system: no static mounts; the installer writes this file.' > $T/etc/fstab
+    # the dev image's passwordless sudo is not for installed systems
+    rm -f $T/etc/sudoers.d/setu
+fi
 
 if [ "$WINE_MODE" = setu ]; then
     log "copying the Setu personality to /opt/setu/personality"
@@ -128,7 +155,8 @@ if [ "${HAVE_SHELL:-0}" = 1 ]; then
     umount /mnt/shell
 fi
 
-chroot $T /bin/bash -euo pipefail <<'EOF'
+if [ "$KIND" = image ]; then
+    chroot $T /bin/bash -euo pipefail <<'EOF'
 useradd -m -s /bin/bash -G sudo,video,render,input,audio setu
 echo setu:setu | chpasswd
 passwd -l root
@@ -141,19 +169,36 @@ update-grub
 apt-get clean
 rm -f /etc/ssh/ssh_host_*_key*
 EOF
-# Pre-create the setu user's Wine prefix so the first session starts fast
-# (the same command setu-session would run; no display is needed).
-log "creating the setu user's prefix"
-# Its C: is the system volume: dosdevices/c: links straight to it, so the
-# personality doesn't make a drive_c of its own (drive_c is a link too, for
-# tools that expect one).
-chroot $T runuser -u setu -- env HOME=/home/setu WINEPREFIX=/home/setu/.setu/prefix \
-    WINEDEBUG=-all WINEDLLOVERRIDES='mscoree,mshtml=' \
-    PATH=/opt/setu/personality/bin:/usr/bin:/bin \
-    sh -c 'mkdir -p $WINEPREFIX/dosdevices && ln -s /var/lib/setu/volumes/c $WINEPREFIX/dosdevices/c: \
-           && ln -s / $WINEPREFIX/dosdevices/z: && ln -s /var/lib/setu/volumes/c $WINEPREFIX/drive_c \
-           && wineboot -i && wineserver -w' \
-    || log "warning: prefix creation failed; setu-session will retry on first boot"
+    # Pre-create the setu user's Wine prefix so the first session starts fast
+    # (the same command setu-session would run; no display is needed).
+    log "creating the setu user's prefix"
+    # Its C: is the system volume: dosdevices/c: links straight to it, so the
+    # personality doesn't make a drive_c of its own (drive_c is a link too, for
+    # tools that expect one).
+    chroot $T runuser -u setu -- env HOME=/home/setu WINEPREFIX=/home/setu/.setu/prefix \
+        WINEDEBUG=-all WINEDLLOVERRIDES='mscoree,mshtml=' \
+        PATH=/opt/setu/personality/bin:/usr/bin:/bin \
+        sh -c 'mkdir -p $WINEPREFIX/dosdevices && ln -s /var/lib/setu/volumes/c $WINEPREFIX/dosdevices/c: \
+               && ln -s / $WINEPREFIX/dosdevices/z: && ln -s /var/lib/setu/volumes/c $WINEPREFIX/drive_c \
+               && wineboot -i && wineserver -w' \
+        || log "warning: prefix creation failed; setu-session will retry on first boot"
+else
+    # No user yet: the first-boot wizard creates the admin account and then
+    # enables setu-session.service for it (installer/README in distro/README.md).
+    chroot $T /bin/bash -euo pipefail <<'EOF'
+passwd -l root
+systemctl enable systemd-networkd systemd-resolved ssh setu-drives.service setu-ntacld.socket \
+    setu-live-installer.service setu-firstboot.service
+systemctl set-default graphical.target
+apt-get clean
+rm -rf /var/lib/apt/lists/*
+rm -f /etc/ssh/ssh_host_*_key*
+# a new machine id on every boot of the live system and for each installed
+# system (Calamares' machineid module)
+: > /etc/machine-id
+rm -f /var/lib/dbus/machine-id
+EOF
+fi
 
 # Regenerate SSH host keys on first boot instead of baking them in. The
 # keys must exist before Debian's own `sshd -t` check, so restate the list.
@@ -185,8 +230,35 @@ for p in /proc/[0-9]*; do
 done
 sleep 1
 sync
-umount -R $T
-e2fsck -f -p "$ROOT" || [ $? -le 1 ]
-e2fsck -f -p "$CVOL" || [ $? -le 1 ]
-log "done"
+
+if [ "$KIND" = image ]; then
+    umount -R $T
+    e2fsck -f -p "$ROOT" || [ $? -le 1 ]
+    e2fsck -f -p "$CVOL" || [ $? -le 1 ]
+    log "done"
+    echo SETU_BUILD_OK
+    exit 0
+fi
+
+for d in dev proc sys run; do umount -R $T/$d; done
+ISO=/var/tmp/setu-iso
+rm -rf $ISO
+mkdir -p $ISO/live $ISO/boot/grub
+kver=$(ls $T/lib/modules | sort -V | tail -1)
+cp $T/boot/vmlinuz-$kver $ISO/live/vmlinuz
+cp $T/boot/initrd.img-$kver $ISO/live/initrd.img
+cp $DISTRO/installer/grub.cfg $ISO/boot/grub/grub.cfg
+log "squashing the live system (kernel $kver)"
+start=$(date +%s)
+mksquashfs $T $ISO/live/filesystem.squashfs -comp xz -noappend -quiet -no-progress
+log "  $(du -h $ISO/live/filesystem.squashfs | cut -f1) in $(( $(date +%s) - start ))s"
+rm -rf $T
+log "writing the ISO"
+# grub-mkrescue: El Torito EFI boot image plus an appended EFI partition
+# and a protective MBR, so the same file boots from a CD or a USB stick.
+grub-mkrescue -o /var/tmp/setu-installer.iso $ISO -- -volid SETU_INSTALLER
+size=$(stat -c %s /var/tmp/setu-installer.iso)
+dd if=/var/tmp/setu-installer.iso of="$DISK" bs=4M conv=fsync status=none
+log "done: ISO $(( size / 1048576 )) MiB"
+echo "SETU_ISO_SIZE=$size"
 echo SETU_BUILD_OK
