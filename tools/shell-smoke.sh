@@ -15,6 +15,8 @@
 #      the work area the taskbar reserved, maximizes inside it and hides
 #      minimized windows (ARW_HIDE); RegisterShellHookWindow notifications;
 #      icons of another process's window are usable.
+#   7. the taskbar buttons are centred, and TaskbarAlignment=1 in
+#      HKCU\Software\Setu\Shell puts them on the left.
 # Screenshots go to build/shell/smoke/*.png; with --update-docs they are
 # also copied to shell/docs/.
 #
@@ -258,6 +260,21 @@ for check in workarea shellhook icons; do
 done
 grep -q '^shellhook=1' "$STATE" || fail "the shell's RegisterShellHookWindow failed"
 pass "shell: $(grep ^appbar= "$STATE" | tr -d '\r') $(grep ^shellhook= "$STATE" | tr -d '\r') $(grep ^workarea_set= "$STATE" | tr -d '\r')"
+
+# --- 7. the buttons are centred; TaskbarAlignment=1 puts them on the left -----
+start_x() { grep ^start_button= "$STATE" | tr -d '\r' | sed 's/start_button=\([0-9]*\),.*/\1/'; }
+grep -q '^taskbar_alignment=center' "$STATE" || fail "the taskbar is not centred by default"
+CX=$(start_x)
+[ "$CX" -gt $(( ${RES%x*} / 4 )) ] || fail "centred taskbar, but the start button is at x=$CX"
+"$WINE" reg add 'HKCU\Software\Setu\Shell' /v TaskbarAlignment /t REG_DWORD /d 1 /f >/dev/null 2>&1
+"$WINE" "$SHELL_EXE" --reload
+wait_state '^taskbar_alignment=left' 10 || fail "TaskbarAlignment=1 did not left-align the taskbar"
+LX=$(start_x)
+[ "$LX" -lt 100 ] && [ "$LX" -lt "$CX" ] || fail "left-aligned taskbar, but the start button is at x=$LX"
+"$WINE" reg delete 'HKCU\Software\Setu\Shell' /v TaskbarAlignment /f >/dev/null 2>&1
+"$WINE" "$SHELL_EXE" --reload
+wait_state '^taskbar_alignment=center' 10 || fail "removing TaskbarAlignment did not centre the taskbar again"
+pass "taskbar alignment: start button at x=$CX centred, x=$LX left"
 
 PASSED=1
 echo "screenshots: $OUT"
