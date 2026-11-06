@@ -78,14 +78,35 @@ fi
 
 SETU_SHELL=${SETU_SHELL:-/opt/setu/shell/setu-shell.exe}
 if [ -f "$SETU_SHELL" ]; then
-    log "starting shell: $SETU_SHELL"
-    wine "$SETU_SHELL"
+    SHELL_CMD=$SETU_SHELL
 else
-    log "starting shell: notepad (placeholder; $SETU_SHELL not found)"
-    wine notepad
+    log "shell: notepad (placeholder; $SETU_SHELL not found)"
+    SHELL_CMD=notepad
 fi
-rc=$?
-log "shell exited ($rc)"
+
+# A shell that exits with 0 ends the session. One that fails (a crash) is
+# started again, so the programs still open on the desktop survive; more
+# than 5 failures within 2 minutes end the session instead of looping.
+fails=0
+window_start=$(date +%s)
+while :; do
+    log "starting shell: $SHELL_CMD"
+    wine "$SHELL_CMD"
+    rc=$?
+    log "shell exited ($rc)"
+    [ "$rc" = 0 ] && break
+    now=$(date +%s)
+    if [ $((now - window_start)) -gt 120 ]; then
+        fails=0
+        window_start=$now
+    fi
+    fails=$((fails + 1))
+    if [ "$fails" -gt 5 ]; then
+        log "shell failed $fails times in 2 minutes; ending the session"
+        break
+    fi
+    sleep 1
+done
 [ -n "$SYNC_PID" ] && kill "$SYNC_PID" 2>/dev/null
 wineserver -k
 exit $rc
