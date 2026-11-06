@@ -995,6 +995,72 @@ static void load_gdi_font_replacements(void)
     NtClose( hkey );
 }
 
+/*
+ * Setu: the override list draws an installed family with another one, for
+ * example
+ *
+ * [HKCU\Software\Wine\Fonts\Overrides]
+ * "Tahoma"="Inter"
+ *
+ * Unlike FontSubstitutes and Replacements, which only apply to names that
+ * aren't installed, an override applies even when the family exists (Wine
+ * ships its own Tahoma and MS Sans Serif). It only takes effect when the
+ * target family is installed, and the requested name is still the one
+ * reported for the font (GetTextFace, GetTextMetrics' family).
+ */
+struct font_override
+{
+    struct list              entry;
+    WCHAR                    name[LF_FACESIZE];
+    struct gdi_font_family  *family;
+};
+
+static struct list font_overrides = LIST_INIT( font_overrides );
+
+static void load_gdi_font_overrides(void)
+{
+    char buffer[2048];
+    KEY_VALUE_FULL_INFORMATION *info = (KEY_VALUE_FULL_INFORMATION *)buffer;
+    struct font_override *override;
+    struct gdi_font_family *family;
+    HKEY hkey;
+    DWORD i = 0;
+    WCHAR value[LF_FACESIZE];
+
+    static const WCHAR overridesW[] = {'O','v','e','r','r','i','d','e','s'};
+
+    /* @@ Wine registry key: HKCU\Software\Wine\Fonts\Overrides */
+    if (!(hkey = reg_open_key( wine_fonts_key, overridesW, sizeof(overridesW) ))) return;
+
+    while (reg_enum_value( hkey, i++, info, sizeof(buffer), value, sizeof(value) ))
+    {
+        WCHAR *data = (WCHAR *)((char *)info + info->DataOffset);
+
+        if (info->Type != REG_SZ) continue;
+        if (!(family = find_family_from_any_name( data )))
+        {
+            TRACE( "%s is not available, not overriding %s\n", debugstr_w(data), debugstr_w(value) );
+            continue;
+        }
+        if (!(override = calloc( 1, sizeof(*override) ))) break;
+        lstrcpynW( override->name, value, LF_FACESIZE );
+        override->family = family;
+        family->refcount++;
+        list_add_tail( &font_overrides, &override->entry );
+        TRACE( "drawing %s with %s\n", debugstr_w(value), debugstr_w(data) );
+    }
+    NtClose( hkey );
+}
+
+static struct gdi_font_family *find_font_override( const WCHAR *name )
+{
+    struct font_override *override;
+
+    LIST_FOR_EACH_ENTRY( override, &font_overrides, struct font_override, entry )
+        if (!facename_compare( override->name, name, LF_FACESIZE - 1 )) return override->family;
+    return NULL;
+}
+
 static void dump_gdi_font_list(void)
 {
     struct gdi_font_family *family;
@@ -2200,6 +2266,13 @@ static struct gdi_font_face *find_matching_face_by_name( const WCHAR *name, cons
 {
     struct gdi_font_family *family;
     struct gdi_font_face *face;
+
+    if ((family = find_font_override( name )) &&
+        (face = find_best_matching_face( family, lf, fs, can_use_bitmap )))
+    {
+        if (orig_name) *orig_name = name;
+        return face;
+    }
 
     family = find_family_from_any_name( name );
     if (family && (face = find_best_matching_face( family, lf, fs, can_use_bitmap ))) goto found;
@@ -6774,6 +6847,7 @@ UINT font_init(void)
     reorder_font_list();
     load_gdi_font_subst();
     load_gdi_font_replacements();
+    load_gdi_font_overrides();
     load_system_links();
     dump_gdi_font_list();
     dump_gdi_font_subst();
