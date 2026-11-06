@@ -142,11 +142,12 @@ written to the raw output disk, which the host truncates to its size.
 | `layout.env` | the disk layout (ESP, root, C: sizes, names, labels, GPT types), read by the builder and the installer |
 | `rootfs/usr/lib/setu/setu-cvol-init` | makes an ext4 volume into C: (casefold, label, `lost+found` hidden); used by both |
 | `installer/` | the ISO's extra packages, GRUB menu, Calamares config and branding, first-boot wizard |
-| `installer/make-artwork.sh` | regenerates the branding PNGs (ImageMagick) |
+| `installer/make-artwork.sh` | regenerates the branding PNGs (runs `artwork/branding.py`) |
+| `artwork/` | Setu's artwork drawn from code: `wallpaper.py` (the wallpaper, at any size), `branding.py` (the mark, Calamares and boot splash images) |
 | `packages.list` | packages in the image (`packages-wine-debian.list` for `--wine=debian`) |
 | `rootfs/` | files copied into the image as-is |
 | `rootfs/usr/local/bin/setu-session` | the session launcher (personality, desktop size, shell) |
-| `rootfs/etc/xdg/labwc/` | labwc config: no decorations, key bindings or root menu |
+| `rootfs/etc/xdg/labwc/` | labwc config: no decorations, key bindings or root menu; theme and cursor environment |
 | `rootfs/etc/systemd/system/setu-session.service` | tty1 autologin running `labwc -S setu-session` |
 | `../services/fs/` | drive-letter service and its units, installed by `build-image.sh` |
 | `run-qemu.sh` | boots the image (OVMF, virtio-gpu, VNC, serial log, monitor socket) |
@@ -189,7 +190,7 @@ distro/tests/install-smoke.sh                            # install it in QEMU, e
 CD or, written with `dd`, from a USB stick). It starts a Debian live system
 whose only program is the **Calamares** installer (Debian's package, GPL-3)
 with Setu branding (`installer/rootfs/usr/share/calamares/branding/setu/`,
-our own artwork from `installer/make-artwork.sh`: text and plain shapes).
+our own artwork from `artwork/branding.py`, in the docs/DESIGN.md look).
 
 ### How the ISO is built
 
@@ -349,6 +350,45 @@ The other stages: [summary](docs/install-summary.png),
   wizard is Calamares too.
 * The installer erases a whole disk; there is no manual partitioning, no
   install alongside another system and no encryption.
+
+## Milestone 3: Setu's look (fonts, wallpaper, cursors, boot, installer)
+
+The image's part of Setu's visual design ([docs/DESIGN.md](../docs/DESIGN.md));
+the control theme and window frames are the personality's
+(`personality/wine`), the taskbar, start menu and file manager the shell's
+(`shell/`). Everything here is in both the dev image and the ISO (so in
+installed systems too). Licences: NOTICE §5.
+
+| What | Where | Notes |
+|---|---|---|
+| Fonts | `packages.list`: `fonts-inter`, `fonts-jetbrains-mono`, `fontconfig`; `rootfs/etc/fonts/local.conf` | The personality enumerates fonts through fontconfig, so Windows programs see **Inter** and **JetBrains Mono** (and DejaVu); the personality's `FontSubstitutes` (wine.inf) map the Windows UI face names to Inter. For Linux programs (Calamares, foot, labwc) `sans-serif` is Inter and `monospace` JetBrains Mono; antialiased, slight hinting, grayscale. |
+| Font smoothing | `setu-session` | Once per prefix: `HKCU\Control Panel\Desktop` `FontSmoothing`=`2`, `FontSmoothingType`=2 (ClearType, what Windows reports by default) and no `FontSmoothingOrientation`, which makes the personality draw it in grayscale: Xwayland renders in software and the desktop is often viewed scaled in a VM window, where subpixel colour fringes look worse. `SETU_FONT_SMOOTHING=rgb` in the session's environment draws subpixel RGB instead. |
+| Wallpaper | `artwork/wallpaper.py`; `/usr/share/setu/wallpapers/setu-WxH.bmp`, `/usr/share/backgrounds/setu/setu-{1920x1080,3840x2160}.png` | Original soft blue waves with one orange ribbon, drawn from code (numpy + Pillow) in the builder VM at 16 common display sizes from 1024×768 to 3840×2160 (a "fill" crop of one 16:9 picture, ordered dithering). The personality's desktop window paints `HKCU\Control Panel\Desktop\Wallpaper` (user32 `PaintDesktop`), which loads only a `.bmp` and draws it centred and unscaled, so `setu-session` sets it to the `.bmp` of the display's size (else the smallest one that covers it). It does so only while the value is unset or one of these files, so a wallpaper chosen in Windows stays. |
+| Cursors | `packages.list`: `adwaita-icon-theme`; `rootfs/etc/xdg/labwc/environment` | `XCURSOR_THEME=Adwaita`, `XCURSOR_SIZE=24` for every labwc session (desktop, installer, wizard). labwc and Calamares use it, and so do Windows programs: winex11 maps the standard cursors (`IDC_ARROW`, `IDC_IBEAM`, `IDC_WAIT`, the sizing arrows...) to the theme's cursors through libXcursor. A program's own cursor resources stay as they are. Before: Wine's built-in black-and-white arrows. |
+| labwc theme | `rootfs/etc/xdg/labwc/themerc-override`, `rc.xml` `<theme>` | DESIGN.md colours, Inter, 8 px corners, 46×32 title buttons. It shows only on non-Windows windows that ask labwc for decorations, its menus and window switcher: the personality's desktop is one fullscreen, undecorated window and Windows programs draw their own frames inside it (the personality's theme), and Calamares runs fullscreen. |
+| Boot splash | `rootfs/usr/share/plymouth/themes/setu/` (script module), `rootfs/etc/plymouth/plymouthd.conf` | The Setu mark and name on `window-bg` with an accent spinner. `build-rootfs.sh` rebuilds the initramfs after the theme is in place. |
+| GRUB | `rootfs/etc/default/grub.d/setu.cfg`, `installer/grub.cfg` | Installed systems and the dev image: the menu is hidden (hold Shift or press Esc in the one-second wait), `quiet splash loglevel=3`. The serial console still gets everything (`console=ttyS0` is last, `plymouth.ignore-serial-consoles` keeps the splash on screen), which the smoke tests rely on. The ISO keeps its menu (3 s) for "safe graphics"; its default entry boots quietly with the splash. |
+| Installer | `installer/rootfs/usr/share/calamares/branding/setu/` (`branding.desc`, `stylesheet.qss`, PNGs from `artwork/branding.py`) | Light sidebar in the taskbar colour with the current step in the accent, the orange bridge mark, a welcome card and an install slide on the wallpaper, Inter, flat 4 px buttons and fields, the accent default button and a thin accent progress bar. Same texts as before. The first-boot wizard uses the same branding. |
+
+`installer/make-artwork.sh` (or `artwork/branding.py`) redraws the committed
+branding PNGs; it needs `python3-numpy`, `python3-pil` and `fonts-inter`.
+
+Before and after:
+
+![Before: the installed system's session on a flat blue desktop](docs/look-before-install-session.png)
+
+![After: the session on the Setu wallpaper](docs/look-session.png)
+
+![Before: the installer's welcome page in teal and saffron](docs/look-before-install-welcome.png)
+
+![After: the installer's welcome page](docs/install-welcome.png)
+
+Also before: [installing](docs/look-before-install-progress.png),
+[first-boot users page](docs/look-before-install-firstboot-users.png);
+after: [installing](docs/install-progress.png),
+[first-boot users page](docs/install-firstboot-users.png).
+
+![The boot splash](docs/look-splash.png)
 
 ## Later (docs/ARCHITECTURE.md §3.5)
 
