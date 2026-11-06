@@ -2423,6 +2423,16 @@ static void draw_menu_item( HWND hwnd, struct menu *menu, HWND owner, HDC hdc,
             NtGdiGetAndSetDCDword( hdc, NtGdiSetTextColor, get_sys_color(COLOR_MENUTEXT), NULL );
             NtGdiGetAndSetDCDword( hdc, NtGdiSetBkColor, get_sys_color(COLOR_MENU), NULL );
         }
+        else if (flat_menu && !(item->fType & MF_OWNERDRAW))
+        {
+            /* Setu: flat menus highlight with a COLOR_MENUHILIGHT surface
+             * and keep the normal text colour */
+            if (item->fState & MF_GRAYED)
+                NtGdiGetAndSetDCDword( hdc, NtGdiSetTextColor, get_sys_color( COLOR_GRAYTEXT ), NULL );
+            else
+                NtGdiGetAndSetDCDword( hdc, NtGdiSetTextColor, get_sys_color( COLOR_MENUTEXT ), NULL );
+            NtGdiGetAndSetDCDword( hdc, NtGdiSetBkColor, get_sys_color( COLOR_MENUHILIGHT ), NULL );
+        }
         else
         {
             if (item->fState & MF_GRAYED)
@@ -2499,10 +2509,21 @@ static void draw_menu_item( HWND hwnd, struct menu *menu, HWND owner, HDC hdc,
     {
         if (flat_menu)
         {
-            InflateRect (&rect, -1, -1);
-            fill_rect( hdc, &rect, get_sys_color_brush( COLOR_MENUHILIGHT ));
-            InflateRect (&rect, 1, 1);
-            fill_rect( hdc, &rect, get_sys_color_brush( COLOR_HIGHLIGHT ));
+            /* Setu: a rounded (4 px) highlight surface, inset from the item */
+            RECT hl = rect;
+            HBRUSH prev_brush;
+            HPEN prev_pen;
+            int r = 4;
+
+            fill_rect( hdc, &rect, get_sys_color_brush( bkgnd ));
+            if (menu_bar) InflateRect( &hl, 0, -1 );
+            else InflateRect( &hl, -4, 0 );
+            prev_brush = NtGdiSelectBrush( hdc, get_sys_color_brush( COLOR_MENUHILIGHT ));
+            prev_pen = NtGdiSelectPen( hdc, GetStockObject( NULL_PEN ));
+            /* with a null pen the shape is one pixel smaller on the right and bottom */
+            NtGdiRoundRect( hdc, hl.left, hl.top, hl.right + 1, hl.bottom + 1, 2 * r, 2 * r );
+            NtGdiSelectPen( hdc, prev_pen );
+            NtGdiSelectBrush( hdc, prev_brush );
         }
         else
         {
