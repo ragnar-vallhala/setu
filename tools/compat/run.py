@@ -542,7 +542,11 @@ class AppRun:
         seen = []
         while time.time() < end:
             time.sleep(1)
-            wins = self.app_windows()
+            try:
+                wins = self.app_windows()
+            except subprocess.TimeoutExpired:
+                raise Stage("compat-probe could not list windows within 60s (session hung)%s" % (
+                    self.evidence("launch.log")))
             seen = ["%s|%s" % (w["cls"], w["title"]) for w in wins]
             # A first-run prompt can look like the main window (KeePass 1's
             # main window is a dialog with the same title), so a window that
@@ -569,12 +573,14 @@ class AppRun:
         if seen:
             raise Stage("no window matching /%s/ in %ds; visible: %s%s" % (
                 L["window"], L.get("timeout", 60), "; ".join(seen[:4]), self.evidence("launch.log")))
-        hidden = ["%s|%s" % (w["cls"], w["title"]) for w in self.windows()
-                  if w["exe"].lower() not in SYSTEM_EXES]
-        procs = sorted({exe for _, _, exe in self.procs() if exe.lower() not in SYSTEM_EXES})
+        try:
+            hidden = "; ".join(["%s|%s" % (w["cls"], w["title"]) for w in self.windows()
+                                if w["exe"].lower() not in SYSTEM_EXES][:4]) or "none"
+            procs = ", ".join(sorted({exe for _, _, exe in self.procs() if exe.lower() not in SYSTEM_EXES})) or "none"
+        except subprocess.TimeoutExpired:
+            hidden = procs = "unknown (compat-probe hung)"
         raise Stage("no visible window in %ds; processes: %s; hidden windows: %s%s" % (
-            L.get("timeout", 60), ", ".join(procs) or "none", "; ".join(hidden[:4]) or "none",
-            self.evidence("launch.log")))
+            L.get("timeout", 60), procs, hidden, self.evidence("launch.log")))
 
     def s_screenshot(self):
         if self.app["launch"].get("console"):
@@ -651,6 +657,12 @@ class AppRun:
         if self.launched and self.launched.poll() is None:
             self.launched.kill()
             self.launched.wait()
+        if self.launched and self.stages.get("close", {}).get("status") != "pass":
+            # the app may still be running, or have wedged the session: end
+            # it, so that the uninstall starts in a new one
+            subprocess.run([self.wineserver, "-k"], env=self.env(), capture_output=True)
+            subprocess.run([self.wineserver, "-w"], env=self.env(), capture_output=True, timeout=60)
+            time.sleep(5)  # -w can return before the old server's socket is gone
 
     def evidence(self, log):
         ev = first_evidence(os.path.join(self.logdir, log))
