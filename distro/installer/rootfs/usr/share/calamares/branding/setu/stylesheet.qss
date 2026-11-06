@@ -13,6 +13,38 @@ QMainWindow, QDialog {
     background-color: #F3F3F3;
 }
 
+/* The sidebar (object names from Calamares' CalamaresWindow): all of it in
+ * the taskbar colour, like its step list (branding.desc), and a flat About
+ * button. */
+#sidebarApp, #logoApp {
+    background-color: #EEF1F5;
+}
+#sidebarApp QPushButton, #aboutButton {
+    background-color: transparent;
+    border: none;
+    color: #5F5F5F;
+}
+#sidebarApp QPushButton:hover, #aboutButton:hover { background-color: #E2E6EC; }
+/* the step list: no white list-view box (the QListView rule below) */
+#sidebarApp QListView {
+    background-color: transparent;
+    border: none;
+}
+
+/* Next / Install / Done: the primary action in the accent */
+#view-button-next {
+    background-color: #1F6FB2;
+    border-color: #1F6FB2;
+    color: #FFFFFF;
+}
+#view-button-next:hover { background-color: #2A7DC3; }
+#view-button-next:pressed { background-color: #195E97; }
+#view-button-next:disabled {
+    background-color: #F3F3F3;
+    border-color: #E5E5E5;
+    color: #A0A0A0;
+}
+
 QPushButton {
     background-color: #FFFFFF;
     border: 1px solid #D1D1D1;

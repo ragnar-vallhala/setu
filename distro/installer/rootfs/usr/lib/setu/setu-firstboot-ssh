@@ -6,3 +6,4 @@
 set -eu
 systemctl enable --now ssh.service
 echo "setu-firstboot: remote login (SSH) enabled" > /dev/kmsg 2>/dev/null || true
+echo "setu-firstboot: remote login (SSH) enabled" > /dev/console 2>/dev/null || true

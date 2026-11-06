@@ -18,7 +18,10 @@
 set -eu
 USER_NAME=${1:?usage: setu-firstboot-finish USER}
 . /usr/lib/setu/layout.env
-log() { echo "setu-firstboot: $*"; echo "setu-firstboot: $*" > /dev/kmsg 2>/dev/null || true; }
+# (the kernel log keeps it in the journal; with "quiet" the kernel doesn't
+# print it on the console, so it goes to /dev/console, the serial port, too)
+log() { echo "setu-firstboot: $*"; echo "setu-firstboot: $*" > /dev/kmsg 2>/dev/null || true
+        echo "setu-firstboot: $*" > /dev/console 2>/dev/null || true; }
 
 id -u "$USER_NAME" >/dev/null
 # the groups the session needs (Calamares' users.conf lists them too)

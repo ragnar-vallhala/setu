@@ -11,7 +11,10 @@
 #   done ROOT    on the live system: records the end in the kernel log
 set -eu
 . /usr/lib/setu/layout.env
-log() { echo "setu-install: $*"; echo "setu-install: $*" > /dev/kmsg 2>/dev/null || true; }
+# (the kernel log keeps it in the journal; with "quiet" the kernel doesn't
+# print it on the console, so it goes to /dev/console, the serial port, too)
+log() { echo "setu-install: $*"; echo "setu-install: $*" > /dev/kmsg 2>/dev/null || true
+        echo "setu-install: $*" > /dev/console 2>/dev/null || true; }
 
 case ${1:-} in
 cvol)

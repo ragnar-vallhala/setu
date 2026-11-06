@@ -255,14 +255,18 @@ sleep 10
 gssh true 2>/dev/null && fail "the guest answers SSH"
 pass "unticked: the wizard set up a password login and left sshd disabled (no SSH)"
 # Without SSH the screen is the only view: a screendump's mean brightness,
-# whole and of the bottom 5% (where the taskbar is). The text console is
-# black (mean ~0.00); the Setu desktop is a mid blue (~0.37) with a dark
-# taskbar (~0.13); labwc before the personality's desktop is black too.
-means() { local ppm=$RUN/mean.ppm; rm -f "$ppm"; monitor "screendump $ppm" >/dev/null; sleep 1
-          echo "$(convert "$ppm" -format '%[fx:mean]' info:) $(convert "$ppm" -gravity south \
-              -crop 100%x5%+0+0 +repage -format '%[fx:mean]' info:)"; rm -f "$ppm"; }
+# and how much the 3-pixel band 43 px above the bottom varies (the top of
+# the taskbar, 44-48 px high, above its text and icons: one flat colour,
+# whatever the shell's theme). The text console
+# is black (mean ~0.00); labwc before the personality's desktop is black
+# too; the Setu desktop shows the wallpaper (mean ~0.3; a band of it alone
+# varies by ~0.05) with the flat taskbar (~0.000).
+means() { local ppm=$RUN/mean.ppm h; rm -f "$ppm"; monitor "screendump $ppm" >/dev/null; sleep 1
+          h=$(identify -format %h "$ppm")
+          echo "$(convert "$ppm" -format '%[fx:mean]' info:) $(convert "$ppm" -crop "x3+0+$((h - 43))" \
+              +repage -colorspace gray -format '%[fx:standard_deviation]' info:)"; rm -f "$ppm"; }
 console() { awk -v a="$1" 'BEGIN { exit !(a < 0.1) }'; }
-desktop() { awk -v a="$1" -v b="$2" 'BEGIN { exit !(a > 0.25 && b < 0.2) }'; }
+desktop() { awk -v a="$1" -v b="$2" 'BEGIN { exit !(a > 0.15 && b < 0.02) }'; }
 # tty1: the login prompt on the text console
 for i in $(seq 30); do m=$(means); console $m && break; sleep 2; done
 console $m || { shot failed; fail "tty1 is not a text console (screen means $m)"; }

@@ -111,6 +111,11 @@ if [ -n "$wp" ]; then
             winwp="Z:$(echo "$wp" | tr / '\\')"
             if [ "$cur" != "$winwp" ]; then
                 wine reg add 'HKCU\Control Panel\Desktop' /v Wallpaper /d "$winwp" /f >/dev/null 2>&1
+                # fill (aspect kept, cropped): used once the fork's
+                # PaintDesktop scales (look-fork's WallpaperStyle work);
+                # until then it is ignored and the size match above counts
+                wine reg add 'HKCU\Control Panel\Desktop' /v WallpaperStyle /d 10 /f >/dev/null 2>&1
+                wine reg add 'HKCU\Control Panel\Desktop' /v TileWallpaper /d 0 /f >/dev/null 2>&1
             fi
             log "wallpaper: $wp" ;;
         *) log "wallpaper: $cur (chosen in Windows)" ;;
