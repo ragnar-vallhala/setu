@@ -1,0 +1,107 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# App compatibility dashboard (tools/compat/run.py, docs/COMPAT.md).
+#
+# Installs and launches the owner-approved third-party apps in fresh Setu
+# prefixes under Xvfb and publishes build/compat/ (results.json, index.html,
+# trimmed logs, thumbnails) as an artifact. Optional: it never runs on push
+# or pull requests and does not gate anything.
+#   nightly          the small apps
+#   manual dispatch  pick "small", "large" or "all" (large: LibreOffice,
+#                    Firefox, GIMP, Inkscape; several hundred MB of downloads)
+# The installers are downloaded from the vendors' sites and checked against
+# the sha256 pinned in tools/compat/apps.toml; they are cached between runs
+# but never committed.
+name: compat
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: "Which apps: small, large or all"
+        type: choice
+        options: [small, large, all]
+        default: small
+      app:
+        description: "Or a single app by name (overrides the choice above)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compat
+  cancel-in-progress: false
+
+jobs:
+  compat:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v7
+
+      # Same key as the oracle workflow, so its cached personality build is reused.
+      - name: Cache key (source tree hash)
+        id: key
+        run: |
+          tree=$(git rev-parse HEAD:personality/wine)
+          echo "key=personality-ubuntu-24.04-$tree-${{ hashFiles('tools/build-personality.sh', 'tools/personality-build-deps.txt') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the personality build
+        id: cached
+        uses: actions/cache/restore@v6
+        with:
+          path: build/personality/install
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Build the personality (no cached build)
+        if: steps.cached.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends $(grep -v '^#' tools/personality-build-deps.txt)
+          tools/build-personality.sh
+
+      - name: Install Xvfb, ImageMagick and mingw-w64
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb x11-apps imagemagick gcc-mingw-w64-x86-64
+          # run.py sets the host name "setu" in a user + UTS namespace
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          cat build/personality/install/SETU_BUILD
+
+      - name: Restore the installer cache
+        uses: actions/cache@v6
+        with:
+          path: build/compat/cache
+          key: compat-cache-${{ hashFiles('tools/compat/apps.toml') }}
+          restore-keys: compat-cache-
+
+      - name: Run the apps
+        env:
+          SELECT: ${{ github.event_name == 'schedule' && 'small' || inputs.apps }}
+          ONE: ${{ inputs.app }}
+        run: |
+          if [ -n "$ONE" ]; then sel=(-a "$ONE")
+          elif [ "$SELECT" = all ]; then sel=()
+          else sel=("--$SELECT"); fi
+          # the verdict is reported, not enforced: exit 1 only means some app failed a stage
+          python3 tools/compat/run.py "${sel[@]}" -j 2 --uninstall || echo "some apps failed a stage"
+
+      - name: Job summary
+        if: always()
+        run: |
+          python3 tools/compat/run.py --html-only --markdown >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload the dashboard
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: compat-dashboard
+          path: |
+            build/compat/index.html
+            build/compat/results.json
+            build/compat/logs/
+            build/compat/thumbs/
+          if-no-files-found: warn
