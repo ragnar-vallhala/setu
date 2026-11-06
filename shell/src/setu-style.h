@@ -111,7 +111,7 @@ static int CALLBACK st_font_found(const LOGFONTW *lf, const TEXTMETRICW *tm, DWO
     return 0;
 }
 
-static BOOL st_have_face(const WCHAR *face)
+static inline BOOL st_have_face(const WCHAR *face)
 {
     LOGFONTW lf;
     BOOL found = FALSE;
@@ -125,7 +125,7 @@ static BOOL st_have_face(const WCHAR *face)
 }
 
 /* (Re)create the fonts for DPI. */
-static void st_make_fonts(UINT dpi)
+static inline void st_make_fonts(UINT dpi)
 {
     static const struct { int tenths; int weight; } spec[SF_COUNT] =
     {
@@ -176,7 +176,7 @@ struct setu_canvas
     RECT clip;     /* what the hand-drawn shapes may touch */
 };
 
-static BOOL st_canvas_begin(struct setu_canvas *cv, int w, int h)
+static inline BOOL st_canvas_begin(struct setu_canvas *cv, int w, int h)
 {
     BITMAPINFO bi;
     memset(cv, 0, sizeof(*cv));
@@ -202,7 +202,7 @@ static BOOL st_canvas_begin(struct setu_canvas *cv, int w, int h)
 }
 
 /* Limit drawing (shapes, icons and GDI) to R, or lift the limit (NULL). */
-static void st_clip(struct setu_canvas *cv, const RECT *r)
+static inline void st_clip(struct setu_canvas *cv, const RECT *r)
 {
     RECT all = { 0, 0, cv->w, cv->h };
     if (r) IntersectRect(&cv->clip, r, &all);
@@ -216,7 +216,7 @@ static void st_clip(struct setu_canvas *cv, const RECT *r)
     else SelectClipRgn(cv->dc, NULL);
 }
 
-static void st_canvas_end(struct setu_canvas *cv)
+static inline void st_canvas_end(struct setu_canvas *cv)
 {
     if (!cv->dc) return;
     SelectObject(cv->dc, cv->old);
@@ -227,7 +227,7 @@ static void st_canvas_end(struct setu_canvas *cv)
 
 /* Paint a window through a canvas: BeginPaint, PAINT(canvas, client
  * rect), copy, EndPaint. */
-static void st_paint_window(HWND hwnd, void (*paint)(struct setu_canvas *, const RECT *))
+static inline void st_paint_window(HWND hwnd, void (*paint)(struct setu_canvas *, const RECT *))
 {
     PAINTSTRUCT ps;
     struct setu_canvas cv;
@@ -257,7 +257,7 @@ static inline void st_blend_px(DWORD *p, DWORD c, unsigned a)
          (((d & 0xff) * (255 - a) + (c & 0xff) * a) / 255);
 }
 
-static void st_fill(struct setu_canvas *cv, const RECT *r, COLORREF c)
+static inline void st_fill(struct setu_canvas *cv, const RECT *r, COLORREF c)
 {
     HBRUSH b = CreateSolidBrush(c);
     FillRect(cv->dc, r, b);
@@ -278,7 +278,7 @@ static inline float st_clampf(float v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 /* The workhorse: for every pixel of R grown by GROW, coverage = F(sdf). */
 enum st_shape_mode { ST_FILL, ST_FRAME, ST_SHADOW };
 
-static void st_shape(struct setu_canvas *cv, const RECT *r, int radius, COLORREF color, int alpha,
+static inline void st_shape(struct setu_canvas *cv, const RECT *r, int radius, COLORREF color, int alpha,
                      enum st_shape_mode mode, float width, int grow)
 {
     float cx = (r->left + r->right) / 2.0f, cy = (r->top + r->bottom) / 2.0f;
@@ -318,30 +318,30 @@ static void st_shape(struct setu_canvas *cv, const RECT *r, int radius, COLORREF
 }
 
 /* anti-aliased rounded rectangle */
-static void st_round(struct setu_canvas *cv, const RECT *r, int radius, COLORREF c)
+static inline void st_round(struct setu_canvas *cv, const RECT *r, int radius, COLORREF c)
 {
     st_shape(cv, r, radius, c, 255, ST_FILL, 0, 0);
 }
 
-static void st_round_alpha(struct setu_canvas *cv, const RECT *r, int radius, COLORREF c, int alpha)
+static inline void st_round_alpha(struct setu_canvas *cv, const RECT *r, int radius, COLORREF c, int alpha)
 {
     st_shape(cv, r, radius, c, alpha, ST_FILL, 0, 0);
 }
 
 /* a WIDTH px outline just inside R */
-static void st_frame(struct setu_canvas *cv, const RECT *r, int radius, int width, COLORREF c)
+static inline void st_frame(struct setu_canvas *cv, const RECT *r, int radius, int width, COLORREF c)
 {
     st_shape(cv, r, radius, c, 255, ST_FRAME, (float)width, 0);
 }
 
 /* a soft shadow BLUR px wide around R (call before drawing R itself) */
-static void st_shadow(struct setu_canvas *cv, const RECT *r, int radius, int blur, int alpha)
+static inline void st_shadow(struct setu_canvas *cv, const RECT *r, int radius, int blur, int alpha)
 {
     st_shape(cv, r, radius, RGB(0, 0, 0), alpha, ST_SHADOW, 0, blur);
 }
 
 /* the keyboard focus ring: 2 px accent, inset 1 px */
-static void st_focus_ring(struct setu_canvas *cv, const RECT *r, int radius, UINT dpi)
+static inline void st_focus_ring(struct setu_canvas *cv, const RECT *r, int radius, UINT dpi)
 {
     RECT f = *r;
     int inset = MulDiv(1, (int)dpi, 96);
@@ -349,7 +349,7 @@ static void st_focus_ring(struct setu_canvas *cv, const RECT *r, int radius, UIN
     st_frame(cv, &f, max(0, radius - inset), max(2, MulDiv(2, (int)dpi, 96)), ST->accent);
 }
 
-static void st_text(struct setu_canvas *cv, const WCHAR *s, RECT *r, enum setu_font f, COLORREF c, UINT fmt)
+static inline void st_text(struct setu_canvas *cv, const WCHAR *s, RECT *r, enum setu_font f, COLORREF c, UINT fmt)
 {
     HGDIOBJ of = SelectObject(cv->dc, st_font[f]);
     SetTextColor(cv->dc, c);
@@ -358,7 +358,7 @@ static void st_text(struct setu_canvas *cv, const WCHAR *s, RECT *r, enum setu_f
     SelectObject(cv->dc, of);
 }
 
-static int st_text_width(struct setu_canvas *cv, const WCHAR *s, enum setu_font f)
+static inline int st_text_width(struct setu_canvas *cv, const WCHAR *s, enum setu_font f)
 {
     SIZE sz = { 0, 0 };
     HGDIOBJ of = SelectObject(cv->dc, st_font[f]);
@@ -374,7 +374,7 @@ static int st_text_width(struct setu_canvas *cv, const WCHAR *s, enum setu_font 
 #define ST_MARK_ARCH 12
 static short st_mark_segs[4 + ST_MARK_ARCH][4];
 
-static const short (*st_mark(void))[4]
+static inline const short (*st_mark(void))[4]
 {
     static BOOL done;
     int i;
@@ -407,7 +407,7 @@ struct st_icon_mask { int icon, size; BYTE *cov; };
 static struct st_icon_mask st_icon_cache[96];
 static int st_icon_cached;
 
-static const BYTE *st_icon_mask(int icon, int size)
+static inline const BYTE *st_icon_mask(int icon, int size)
 {
     const short (*segs)[4];
     int nseg, i, x, y, k;
@@ -467,7 +467,7 @@ static const BYTE *st_icon_mask(int icon, int size)
 }
 
 /* Draw ICON (enum setu_icon, or ICON_SETU_MARK) SIZE px square at X,Y. */
-static void st_icon(struct setu_canvas *cv, int icon, int x, int y, int size, COLORREF color)
+static inline void st_icon(struct setu_canvas *cv, int icon, int x, int y, int size, COLORREF color)
 {
     const BYTE *m = st_icon_mask(icon, size);
     DWORD c = st_px(color);
@@ -486,7 +486,7 @@ static void st_icon(struct setu_canvas *cv, int icon, int x, int y, int size, CO
 }
 
 /* An icon centred in R. */
-static void st_icon_in(struct setu_canvas *cv, int icon, const RECT *r, int size, COLORREF color)
+static inline void st_icon_in(struct setu_canvas *cv, int icon, const RECT *r, int size, COLORREF color)
 {
     st_icon(cv, icon, (r->left + r->right - size) / 2, (r->top + r->bottom - size) / 2, size, color);
 }

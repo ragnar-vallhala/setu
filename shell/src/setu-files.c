@@ -93,19 +93,18 @@ enum
 #define SHELLMENU_FIRST    2000
 #define SHELLMENU_LAST     2999
 
-/* Palette: the shell's warm-on-slate scheme (shell/src/setu-shell.c). */
-#define C_BAR      RGB(0x1b, 0x20, 0x26)
-#define C_EDGE     RGB(0x36, 0x40, 0x4c)
-#define C_HOVER    RGB(0x2a, 0x32, 0x3c)
-#define C_ACTIVE   RGB(0x34, 0x3e, 0x4b)
-#define C_TEXT     RGB(0xe9, 0xed, 0xf1)
-#define C_MUTED    RGB(0x95, 0xa2, 0xb0)
-#define C_DIM      RGB(0x5d, 0x68, 0x75)
-#define C_ACCENT   RGB(0xf2, 0xa9, 0x3b)
-#define C_PANEL    RGB(0x21, 0x27, 0x2e)
-#define C_FIELD    RGB(0x15, 0x19, 0x1e)
-#define C_SELECT   RGB(0x3a, 0x33, 0x27)
-#define C_ERROR    RGB(0xf0, 0x7a, 0x6a)
+#include "setu-style.h"
+
+/* Colours: docs/DESIGN.md's tokens, from setu-style.h. */
+#define C_BAR      (ST->window_bg)        /* command bar, places, status bar */
+#define C_EDGE     (ST->border_subtle)
+#define C_HOVER    (ST->surface_hover)
+#define C_TEXT     (ST->text)
+#define C_MUTED    (ST->text_secondary)
+#define C_DIM      (ST->text_disabled)
+#define C_ACCENT   (ST->accent)
+#define C_PANEL    (ST->surface)          /* the content */
+#define C_ERROR    (ST->error)
 
 /* ------------------------------------------------------------------ */
 /* State                                                                */
@@ -133,7 +132,8 @@ struct place
     int kind;                 /* 0 header, 1 entry */
     WCHAR label[96];
     WCHAR target[MAX_PATH];   /* path, "::drives" or "::recycle" */
-    int icon;
+    int icon;                 /* system image list index (unused for drawing) */
+    int licon;                /* our line icon */
     int y, h;
 };
 
@@ -147,30 +147,41 @@ struct handler
     const WCHAR *source;      /* where it was found, for tests */
 };
 
+/* a command bar button: an icon, with its label beside it when WIDE */
 struct tbtn
 {
     int id;
-    int glyph;
+    int icon;
     RECT rc;
     BOOL enabled;
     BOOL toggled;
-    const WCHAR *name;
+    BOOL wide;
+    const WCHAR *name;        /* for tests */
+    const WCHAR *label;       /* tooltip, and the text of wide buttons */
 };
 
-enum glyph { G_BACK, G_FORWARD, G_UP, G_REFRESH, G_NEWFOLDER, G_DETAILS, G_ICONS, G_EMPTY };
+/* the address bar's breadcrumbs */
+struct crumb
+{
+    WCHAR label[MAX_PATH];
+    WCHAR target[MAX_PATH];
+    RECT rc;
+};
+#define MAX_CRUMBS 32
 
 #define MAX_HIST     64
 #define MAX_PLACES   48
 #define MAX_HANDLERS 24
-#define NUM_TBTN     7
+#define NUM_TBTN     13
 
 static HINSTANCE hinst;
 static HWND main_wnd, lv, addr, sidebar, props_wnd;
 static WNDPROC addr_orig_proc;
 static HIMAGELIST il_small, il_large;
 static UINT dpi = 96;
-static HFONT font_ui, font_bold, font_small, font_title, font_caps;
+static HFONT font_ui, font_bold, font_title;   /* aliases of st_font[] */
 static HBRUSH field_brush, panel_brush, bar_brush;
+static HWND tips;
 static HICON app_icon_big, app_icon_small;
 
 static enum loc cur_loc = LOC_FS;
@@ -259,183 +270,80 @@ static void set_dpi_awareness(void)
     SetProcessDPIAware();
 }
 
+/* Inter at docs/DESIGN.md's sizes (setu-style.h); the old names stay as
+ * aliases for the controls' WM_SETFONT. */
 static void make_fonts(void)
 {
-    NONCLIENTMETRICSW ncm = { sizeof(ncm) };
-    LOGFONTW lf;
-
-    if (font_ui) DeleteObject(font_ui);
-    if (font_bold) DeleteObject(font_bold);
-    if (font_small) DeleteObject(font_small);
-    if (font_title) DeleteObject(font_title);
-    if (font_caps) DeleteObject(font_caps);
-
-    if (!SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0))
-    {
-        memset(&ncm.lfMessageFont, 0, sizeof(ncm.lfMessageFont));
-        ncm.lfMessageFont.lfCharSet = DEFAULT_CHARSET;
-    }
-    lf = ncm.lfMessageFont;
-    lf.lfQuality = CLEARTYPE_QUALITY;
-    lf.lfWeight = FW_NORMAL;
-    lf.lfHeight = -MulDiv(10, dpi, 72);
-    font_ui = CreateFontIndirectW(&lf);
-    lf.lfHeight = -MulDiv(8, dpi, 72);
-    font_small = CreateFontIndirectW(&lf);
-    lf.lfWeight = FW_BOLD;
-    font_caps = CreateFontIndirectW(&lf);
-    lf.lfHeight = -MulDiv(10, dpi, 72);
-    font_bold = CreateFontIndirectW(&lf);
-    lf.lfHeight = -MulDiv(14, dpi, 72);
-    font_title = CreateFontIndirectW(&lf);
+    st_make_fonts(dpi);
+    font_ui = st_font[SF_BODY];
+    font_bold = st_font[SF_CAPTION];
+    font_title = st_font[SF_LARGE];
 }
 
-static void fill_rect(HDC dc, const RECT *r, COLORREF c)
+/* Paint a part of a DC (an owner-drawn item) through a canvas: FN gets
+ * the canvas and the rect in its coordinates (0, 0, w, h). */
+static void paint_into(HDC dc, const RECT *r, void (*fn)(struct setu_canvas *, const RECT *, void *), void *ctx)
 {
-    HBRUSH b = CreateSolidBrush(c);
-    FillRect(dc, r, b);
-    DeleteObject(b);
+    struct setu_canvas cv;
+    RECT local = { 0, 0, r->right - r->left, r->bottom - r->top };
+    if (!st_canvas_begin(&cv, local.right, local.bottom)) return;
+    fn(&cv, &local, ctx);
+    GdiFlush();
+    BitBlt(dc, r->left, r->top, local.right, local.bottom, cv.dc, 0, 0, SRCCOPY);
+    st_canvas_end(&cv);
 }
 
-static void fill_round(HDC dc, const RECT *r, int radius, COLORREF c)
+/* The window icon: a folder line icon on an accent tile. It's drawn twice,
+ * on black and on white, which gives the anti-aliased edges' alpha. */
+static void draw_app_icon_on(struct setu_canvas *cv, int size, COLORREF bg)
 {
-    HBRUSH b = CreateSolidBrush(c);
-    HPEN p = CreatePen(PS_SOLID, 1, c);
-    HGDIOBJ ob = SelectObject(dc, b), op = SelectObject(dc, p);
-    RoundRect(dc, r->left, r->top, r->right, r->bottom, radius, radius);
-    SelectObject(dc, ob);
-    SelectObject(dc, op);
-    DeleteObject(b);
-    DeleteObject(p);
+    RECT r = { 0, 0, size, size };
+    st_fill(cv, &r, bg);
+    InflateRect(&r, -max(1, size / 16), -max(1, size / 16));
+    st_round(cv, &r, max(2, size / 5), ST->accent);
+    st_icon_in(cv, ICON_FOLDER, &r, size * 5 / 8, RGB(0xff, 0xff, 0xff));
 }
 
-static void frame_round(HDC dc, const RECT *r, int radius, COLORREF c)
-{
-    HPEN p = CreatePen(PS_SOLID, 1, c);
-    HGDIOBJ ob = SelectObject(dc, GetStockObject(NULL_BRUSH)), op = SelectObject(dc, p);
-    RoundRect(dc, r->left, r->top, r->right, r->bottom, radius, radius);
-    SelectObject(dc, ob);
-    SelectObject(dc, op);
-    DeleteObject(p);
-}
-
-static void draw_text(HDC dc, const WCHAR *s, RECT *r, HFONT f, COLORREF c, UINT fmt)
-{
-    HGDIOBJ of = SelectObject(dc, f);
-    SetTextColor(dc, c);
-    SetBkMode(dc, TRANSPARENT);
-    DrawTextW(dc, s, -1, r, fmt | DT_NOPREFIX);
-    SelectObject(dc, of);
-}
-
-static HPEN round_pen(int width, COLORREF c)
-{
-    LOGBRUSH lb = { BS_SOLID, c, 0 };
-    return ExtCreatePen(PS_GEOMETRIC | PS_SOLID | PS_ENDCAP_ROUND | PS_JOIN_ROUND, width, &lb, 0, NULL);
-}
-
-/* Toolbar glyphs, drawn with GDI strokes (our own artwork). */
-static void draw_glyph(HDC dc, int glyph, const RECT *r, COLORREF c)
-{
-    int cx = (r->left + r->right) / 2, cy = (r->top + r->bottom) / 2;
-    int s = S(7), w = max(2, S(2));
-    HPEN pen = round_pen(w, c);
-    HGDIOBJ op = SelectObject(dc, pen), ob = SelectObject(dc, GetStockObject(NULL_BRUSH));
-    POINT p[8];
-
-    switch (glyph)
-    {
-    case G_BACK:
-        p[0].x = cx + s / 2; p[0].y = cy - s; p[1].x = cx - s / 2; p[1].y = cy; p[2].x = cx + s / 2; p[2].y = cy + s;
-        Polyline(dc, p, 3);
-        break;
-    case G_FORWARD:
-        p[0].x = cx - s / 2; p[0].y = cy - s; p[1].x = cx + s / 2; p[1].y = cy; p[2].x = cx - s / 2; p[2].y = cy + s;
-        Polyline(dc, p, 3);
-        break;
-    case G_UP:
-        p[0].x = cx - s; p[0].y = cy; p[1].x = cx; p[1].y = cy - s; p[2].x = cx + s; p[2].y = cy;
-        Polyline(dc, p, 3);
-        MoveToEx(dc, cx, cy - s, NULL);
-        LineTo(dc, cx, cy + s);
-        break;
-    case G_REFRESH:
-        Arc(dc, cx - s, cy - s, cx + s, cy + s, cx + s / 2, cy - s, cx + s, cy - s / 3);
-        p[0].x = cx + s; p[0].y = cy - s - S(1); p[1].x = cx + s; p[1].y = cy - s / 3; p[2].x = cx + s / 3; p[2].y = cy - s / 3;
-        Polyline(dc, p, 3);
-        break;
-    case G_NEWFOLDER:
-        p[0].x = cx - s; p[0].y = cy - s * 2 / 3;
-        p[1].x = cx - s / 3; p[1].y = cy - s * 2 / 3;
-        p[2].x = cx; p[2].y = cy - s / 3;
-        p[3].x = cx + s; p[3].y = cy - s / 3;
-        p[4].x = cx + s; p[4].y = cy + s * 2 / 3;
-        p[5].x = cx - s; p[5].y = cy + s * 2 / 3;
-        p[6] = p[0];
-        Polyline(dc, p, 7);
-        MoveToEx(dc, cx - s / 3, cy + s / 6, NULL); LineTo(dc, cx + s / 3, cy + s / 6);
-        MoveToEx(dc, cx, cy - s / 6, NULL); LineTo(dc, cx, cy + s / 2);
-        break;
-    case G_DETAILS:
-        for (int i = -1; i <= 1; i++)
-        {
-            MoveToEx(dc, cx - s, cy + i * s * 2 / 3, NULL); LineTo(dc, cx - s + 1, cy + i * s * 2 / 3);
-            MoveToEx(dc, cx - s / 3, cy + i * s * 2 / 3, NULL); LineTo(dc, cx + s, cy + i * s * 2 / 3);
-        }
-        break;
-    case G_ICONS:
-        Rectangle(dc, cx - s, cy - s, cx - S(1), cy - S(1));
-        Rectangle(dc, cx + S(1), cy - s, cx + s, cy - S(1));
-        Rectangle(dc, cx - s, cy + S(1), cx - S(1), cy + s);
-        Rectangle(dc, cx + S(1), cy + S(1), cx + s, cy + s);
-        break;
-    case G_EMPTY:
-        MoveToEx(dc, cx - s, cy - s * 2 / 3, NULL); LineTo(dc, cx + s, cy - s * 2 / 3);
-        MoveToEx(dc, cx - s / 3, cy - s, NULL); LineTo(dc, cx + s / 3, cy - s);
-        p[0].x = cx - s * 2 / 3; p[0].y = cy - s / 3;
-        p[1].x = cx - s / 2; p[1].y = cy + s;
-        p[2].x = cx + s / 2; p[2].y = cy + s;
-        p[3].x = cx + s * 2 / 3; p[3].y = cy - s / 3;
-        Polyline(dc, p, 4);
-        break;
-    }
-    SelectObject(dc, op);
-    SelectObject(dc, ob);
-    DeleteObject(pen);
-}
-
-/* The window icon: an amber folder with the Setu bridge deck across it. */
 static HICON make_app_icon(int size)
 {
+    struct setu_canvas black, white;
     BITMAPINFO bi = { { sizeof(BITMAPINFOHEADER), size, -size, 1, 32, BI_RGB } };
     DWORD *bits;
-    HDC dc = CreateCompatibleDC(NULL);
-    HBITMAP color = CreateDIBSection(dc, &bi, DIB_RGB_COLORS, (void **)&bits, NULL, 0);
-    HBITMAP mask = CreateBitmap(size, size, 1, 1, NULL);
-    HGDIOBJ old = SelectObject(dc, color);
+    HDC dc;
+    HBITMAP color, mask;
     ICONINFO ii = { TRUE };
-    RECT r;
-    HICON icon;
-    int i, u = max(1, size / 16);
+    HICON icon = NULL;
+    int i;
 
-    SetRect(&r, 0, 0, size, size);
-    fill_rect(dc, &r, RGB(255, 0, 255));
-    SetRect(&r, u, 3 * u, 7 * u, 6 * u);
-    fill_round(dc, &r, 2 * u, RGB(0xc8, 0x84, 0x22));
-    SetRect(&r, u, 4 * u, size - u, size - 2 * u);
-    fill_round(dc, &r, 2 * u, C_ACCENT);
-    SetRect(&r, 3 * u, 9 * u, size - 3 * u, 9 * u + max(1, u));
-    fill_rect(dc, &r, C_BAR);
+    if (!st_canvas_begin(&black, size, size)) return NULL;
+    if (!st_canvas_begin(&white, size, size)) { st_canvas_end(&black); return NULL; }
+    draw_app_icon_on(&black, size, RGB(0, 0, 0));
+    draw_app_icon_on(&white, size, RGB(0xff, 0xff, 0xff));
     GdiFlush();
-    for (i = 0; i < size * size; i++)
-        bits[i] = (bits[i] & 0xffffff) == 0xff00ff ? 0 : (bits[i] | 0xff000000);
-    SelectObject(dc, old);
+    dc = CreateCompatibleDC(NULL);
+    color = CreateDIBSection(dc, &bi, DIB_RGB_COLORS, (void **)&bits, NULL, 0);
+    mask = CreateBitmap(size, size, 1, 1, NULL);
+    if (color && mask)
+    {
+        for (i = 0; i < size * size; i++)
+        {
+            DWORD b = black.bits[i], w = white.bits[i];
+            unsigned a = 255 - (((w >> 8) & 0xff) - ((b >> 8) & 0xff));
+            /* premultiplied on black: un-premultiply */
+            unsigned rr = a ? min(255u, ((b >> 16) & 0xff) * 255 / a) : 0;
+            unsigned gg = a ? min(255u, ((b >> 8) & 0xff) * 255 / a) : 0;
+            unsigned bb = a ? min(255u, (b & 0xff) * 255 / a) : 0;
+            bits[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+        }
+        ii.hbmColor = color;
+        ii.hbmMask = mask;
+        icon = CreateIconIndirect(&ii);
+    }
+    if (color) DeleteObject(color);
+    if (mask) DeleteObject(mask);
     DeleteDC(dc);
-    ii.hbmColor = color;
-    ii.hbmMask = mask;
-    icon = CreateIconIndirect(&ii);
-    DeleteObject(color);
-    DeleteObject(mask);
+    st_canvas_end(&black);
+    st_canvas_end(&white);
     return icon;
 }
 
@@ -1052,12 +960,16 @@ static void add_place(int kind, const WCHAR *label, const WCHAR *target, int ico
     p->icon = icon;
 }
 
-static void add_known_place(REFKNOWNFOLDERID id, const WCHAR *label)
+static void add_known_place(REFKNOWNFOLDERID id, const WCHAR *label, int licon)
 {
     WCHAR *path = NULL;
     if (SUCCEEDED(SHGetKnownFolderPath(id, 0, NULL, &path)) && path)
     {
-        if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) add_place(1, label, path, side_icon(path));
+        if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES)
+        {
+            add_place(1, label, path, side_icon(path));
+            places[nplaces - 1].licon = licon;
+        }
         CoTaskMemFree(path);
     }
 }
@@ -1069,18 +981,19 @@ static void load_places(void)
     int bin_icon = 0;
 
     nplaces = 0;
-    add_place(0, L"PLACES", NULL, 0);
-    add_known_place(&FOLDERID_Profile, L"Home");
-    add_known_place(&FOLDERID_Desktop, L"Desktop");
-    add_known_place(&FOLDERID_Documents, L"Documents");
-    add_known_place(&FOLDERID_Downloads, L"Downloads");
-    add_place(0, L"DRIVES", L"::drives", 0);
+    add_place(0, L"Places", NULL, 0);
+    add_known_place(&FOLDERID_Profile, L"Home", ICON_HOUSE);
+    add_known_place(&FOLDERID_Desktop, L"Desktop", ICON_MONITOR);
+    add_known_place(&FOLDERID_Documents, L"Documents", ICON_FILE_TEXT);
+    add_known_place(&FOLDERID_Downloads, L"Downloads", ICON_DOWNLOAD);
+    add_place(0, L"Drives", L"::drives", 0);
     if (drive_roots(roots, ARRAYSIZE(roots)))
         for (r = roots; *r; r += wcslen(r) + 1)
         {
             int icon;
             drive_label(r, label, ARRAYSIZE(label), &icon);
             add_place(1, label, r, icon);
+            places[nplaces - 1].licon = ICON_HARD_DRIVE;
         }
     add_place(0, L"", NULL, 0);
     if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &bin)))
@@ -1092,11 +1005,12 @@ static void load_places(void)
         CoTaskMemFree(bin);
     }
     add_place(1, L"Recycle Bin", L"::recycle", bin_icon);
+    places[nplaces - 1].licon = ICON_TRASH_2;
 }
 
 static int place_row_h(const struct place *p)
 {
-    if (p->kind == 0) return p->label[0] ? S(34) : S(14);
+    if (p->kind == 0) return p->label[0] ? S(36) : S(14);
     return S(32);
 }
 
@@ -1132,65 +1046,59 @@ static int place_at(int y)
     return -1;
 }
 
-static void paint_sidebar(HDC dc, const RECT *rc)
+static void paint_sidebar(struct setu_canvas *cv, const RECT *rc)
 {
     BOOL focused = GetFocus() == sidebar;
-    int i, rb = -2;
+    int i, isz = S(16), rad = S(ST_RADIUS_CONTROL);
     RECT r;
 
-    fill_rect(dc, rc, C_BAR);
-    SetRect(&r, rc->right - max(1, S(1)), 0, rc->right, rc->bottom);
-    fill_rect(dc, &r, C_EDGE);
+    st_fill(cv, rc, C_BAR);
     for (i = 0; i < nplaces; i++)
     {
         const struct place *p = &places[i];
-        SetRect(&r, S(10), p->y, rc->right - S(10), p->y + p->h);
+        BOOL cur = place_is_current(p);
+        SetRect(&r, S(8), p->y, rc->right - S(8), p->y + p->h);
         if (p->kind == 0)
         {
             if (!p->label[0])
             {
-                RECT line = { S(18), p->y + p->h / 2, rc->right - S(18), p->y + p->h / 2 + max(1, S(1)) };
-                fill_rect(dc, &line, C_EDGE);
+                RECT line = { S(16), p->y + p->h / 2, rc->right - S(16), p->y + p->h / 2 + max(1, S(1)) };
+                st_fill(cv, &line, C_EDGE);
                 continue;
             }
-            r.left += S(10);
+            r.left += S(12);
             r.bottom -= S(6);
-            draw_text(dc, p->label, &r, font_caps, C_ACCENT, DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
+            st_text(cv, p->label, &r, SF_CAPTION, C_MUTED, DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
             continue;
         }
-        if (place_is_current(p) || i == drag_place)
+        if (i == drag_place) st_round(cv, &r, rad, st_selection());
+        else if (cur) st_round(cv, &r, rad, st_mix(C_BAR, ST->text, 20));
+        else if (i == side_hot) st_round(cv, &r, rad, st_mix(C_BAR, ST->text, 12));
+        if (i == drag_place) st_frame(cv, &r, rad, max(1, S(1)), ST->accent);
+        if (cur)
         {
-            fill_round(dc, &r, S(10), i == drag_place ? C_ACTIVE : C_SELECT);
-            if (place_is_current(p))
-            {
-                RECT bar = { r.left + S(2), r.top + S(8), r.left + S(5), r.bottom - S(8) };
-                fill_round(dc, &bar, S(3), C_ACCENT);
-            }
+            /* the accent pill marks where we are */
+            RECT pill = { r.left, r.top + S(9), r.left + S(ST_PILL_H), r.bottom - S(9) };
+            st_round(cv, &pill, S(2), ST->accent);
         }
-        else if (i == side_hot)
-            fill_round(dc, &r, S(10), C_HOVER);
-        if (focused && i == side_sel) frame_round(dc, &r, S(10), C_MUTED);
-        ImageList_DrawEx(il_small, p->icon, dc, r.left + S(12), r.top + (p->h - GetSystemMetrics(SM_CYSMICON)) / 2,
-                         0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT);
-        r.left += S(12) + GetSystemMetrics(SM_CXSMICON) + S(10);
+        if (focused && i == side_sel) st_focus_ring(cv, &r, rad, dpi);
+        st_icon(cv, p->licon, r.left + S(14), r.top + (p->h - isz) / 2, isz, cur ? ST->accent : ST->text);
+        r.left += S(14) + isz + S(12);
         if (!wcscmp(p->target, L"::recycle"))
         {
             int n = recycle_count();
-            rb = i;
             if (n > 0)
             {
                 WCHAR cnt[16];
                 RECT cr = r;
                 _snwprintf(cnt, ARRAYSIZE(cnt), L"%d", n);
                 cr.right -= S(10);
-                draw_text(dc, cnt, &cr, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_RIGHT);
+                st_text(cv, cnt, &cr, SF_BODY, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_RIGHT);
                 r.right -= S(34);
             }
         }
-        draw_text(dc, p->label, &r, font_ui, place_is_current(p) ? C_TEXT : RGB(0xc9, 0xd1, 0xd9),
-                  DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+        st_text(cv, p->label, &r, cur ? SF_CAPTION : SF_BODY, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
     }
-    (void)rb;
 }
 
 static void navigate(const WCHAR *target, int mode);
@@ -1215,22 +1123,8 @@ static LRESULT CALLBACK sidebar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     switch (msg)
     {
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC dc = BeginPaint(hwnd, &ps), mem;
-        RECT rc;
-        HBITMAP bmp;
-        GetClientRect(hwnd, &rc);
-        mem = CreateCompatibleDC(dc);
-        bmp = CreateCompatibleBitmap(dc, rc.right, rc.bottom);
-        SelectObject(mem, bmp);
-        paint_sidebar(mem, &rc);
-        BitBlt(dc, 0, 0, rc.right, rc.bottom, mem, 0, 0, SRCCOPY);
-        DeleteDC(mem);
-        DeleteObject(bmp);
-        EndPaint(hwnd, &ps);
+        st_paint_window(hwnd, paint_sidebar);
         return 0;
-    }
     case WM_ERASEBKGND:
         return 1;
     case WM_SETFOCUS:
@@ -2481,45 +2375,72 @@ static BOOL props_apply(void)
     return !failed;
 }
 
-static void props_paint(HDC dc, const RECT *rc)
+static void props_paint(struct setu_canvas *cv, const RECT *rc)
 {
     RECT r;
     int i, isz = S(32);
 
-    fill_rect(dc, rc, C_PANEL);
-    if (props->icon) DrawIconEx(dc, S(24), S(22), props->icon, isz, isz, 0, NULL, DI_NORMAL);
+    st_fill(cv, rc, C_PANEL);
+    if (!props) return;
+    if (props->icon) DrawIconEx(cv->dc, S(24), S(22), props->icon, isz, isz, 0, NULL, DI_NORMAL);
     SetRect(&r, S(24) + isz + S(14), S(18), rc->right - S(20), S(58));
-    draw_text(dc, props->title, &r, font_title, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+    st_text(cv, props->title, &r, SF_TITLE, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
     SetRect(&r, S(20), S(70), rc->right - S(20), S(70) + max(1, S(1)));
-    fill_rect(dc, &r, C_EDGE);
+    st_fill(cv, &r, C_EDGE);
     for (i = 0; i < props->nrows; i++)
     {
         int y = props_row_y(i);
         SetRect(&r, S(24), y, S(24) + S(92), y + S(26));
-        draw_text(dc, props->rows[i][0], &r, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+        st_text(cv, props->rows[i][0], &r, SF_BODY, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
         SetRect(&r, S(24) + S(96), y, rc->right - S(20), y + S(26));
-        draw_text(dc, props->rows[i][1], &r, font_ui, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_PATH_ELLIPSIS);
+        st_text(cv, props->rows[i][1], &r, SF_BODY, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_PATH_ELLIPSIS);
     }
     if (props->has_attrs)
     {
         int y = props_row_y(props->nrows) + S(8);
         SetRect(&r, S(20), y, rc->right - S(20), y + max(1, S(1)));
-        fill_rect(dc, &r, C_EDGE);
+        st_fill(cv, &r, C_EDGE);
         SetRect(&r, S(24), y + S(14), S(24) + S(92), y + S(14) + S(22));
-        draw_text(dc, L"Attributes", &r, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+        st_text(cv, L"Attributes", &r, SF_BODY, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
     }
+    /* the button area at the bottom, on window-bg */
+    SetRect(&r, 0, rc->bottom - S(66), rc->right, rc->bottom);
+    st_fill(cv, &r, C_BAR);
+    r.bottom = r.top + max(1, S(1));
+    st_fill(cv, &r, C_EDGE);
+}
+
+struct button_ctx { const DRAWITEMSTRUCT *di; BOOL primary; };
+
+static void paint_dialog_button(struct setu_canvas *cv, const RECT *rc, void *ctx)
+{
+    const struct button_ctx *b = ctx;
+    WCHAR text[64];
+    RECT r = *rc;
+    BOOL pressed = (b->di->itemState & ODS_SELECTED) != 0, focus = (b->di->itemState & ODS_FOCUS) != 0;
+    int rad = S(ST_RADIUS_CONTROL);
+
+    st_fill(cv, &r, C_BAR);
+    if (b->primary) st_round(cv, &r, rad, pressed ? ST->accent_pressed : ST->accent);
+    else
+    {
+        st_round(cv, &r, rad, pressed ? ST->surface_hover : ST->surface);
+        st_frame(cv, &r, rad, max(1, S(1)), ST->border);
+    }
+    if (focus)
+    {
+        RECT f = r;
+        if (b->primary) { InflateRect(&f, -S(2), -S(2)); st_frame(cv, &f, max(0, rad - S(2)), max(1, S(1)), ST->accent_text); }
+        else st_focus_ring(cv, &r, rad, dpi);
+    }
+    GetWindowTextW(b->di->hwndItem, text, ARRAYSIZE(text));
+    st_text(cv, text, &r, SF_BODY, b->primary ? ST->accent_text : ST->text, DT_SINGLELINE | DT_VCENTER | DT_CENTER);
 }
 
 static void draw_button(const DRAWITEMSTRUCT *di, BOOL primary)
 {
-    WCHAR text[64];
-    RECT r = di->rcItem;
-    BOOL pressed = (di->itemState & ODS_SELECTED) != 0, focus = (di->itemState & ODS_FOCUS) != 0;
-    fill_rect(di->hDC, &r, C_PANEL);
-    fill_round(di->hDC, &r, S(10), primary ? (pressed ? RGB(0xd8, 0x93, 0x2c) : C_ACCENT) : (pressed ? C_ACTIVE : C_HOVER));
-    if (focus) frame_round(di->hDC, &r, S(10), primary ? C_TEXT : C_MUTED);
-    GetWindowTextW(di->hwndItem, text, ARRAYSIZE(text));
-    draw_text(di->hDC, text, &r, font_bold, primary ? C_BAR : C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_CENTER);
+    struct button_ctx ctx = { di, primary };
+    paint_into(di->hDC, &di->rcItem, paint_dialog_button, &ctx);
 }
 
 static LRESULT CALLBACK props_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -2527,15 +2448,8 @@ static LRESULT CALLBACK props_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     switch (msg)
     {
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC dc = BeginPaint(hwnd, &ps);
-        RECT rc;
-        GetClientRect(hwnd, &rc);
-        if (props) props_paint(dc, &rc);
-        EndPaint(hwnd, &ps);
+        st_paint_window(hwnd, props_paint);
         return 0;
-    }
     case WM_ERASEBKGND:
         return 1;
     case WM_CTLCOLORSTATIC:
@@ -3000,14 +2914,23 @@ static void end_drag(BOOL drop)
 /* ------------------------------------------------------------------ */
 /* Layout and painting of the main window                               */
 
-static int toolbar_h(void) { return S(56); }
+/* The command bar (row 0) and the navigation row with the address bar
+ * (row 1), both on window-bg; then places | content; the status bar. */
+#define ROW_H S(44)
+static int toolbar_h(void) { return 2 * ROW_H + S(4); }
 static int status_h(void) { return S(28); }
 static int sidebar_w(void) { return S(212); }
-static int header_h(void) { return view_icons ? 0 : S(30); }
+static int header_h(void) { return view_icons ? 0 : S(32); }
+
+enum { TB_BACK, TB_FORWARD, TB_UP, TB_REFRESH, TB_NEW, TB_DETAILS, TB_ICONS,
+       TB_CUT, TB_COPY, TB_PASTE, TB_RENAME, TB_DELETE, TB_PROPS };
+
+static void update_tips(void);
 
 static void update_toolbar(void)
 {
-    int i;
+    int i, nsel = lv ? selection_count() : 0;
+    BOOL fs = cur_loc == LOC_FS;
     for (i = 0; i < NUM_TBTN; i++)
     {
         struct tbtn *b = &tbtns[i];
@@ -3017,12 +2940,17 @@ static void update_toolbar(void)
         case IDM_FORWARD: b->enabled = nfwd > 0; break;
         case IDM_UP: b->enabled = can_go_up(); break;
         case IDM_NEWFOLDER:
-            b->glyph = cur_loc == LOC_RECYCLE ? G_EMPTY : G_NEWFOLDER;
+            b->icon = cur_loc == LOC_RECYCLE ? ICON_TRASH_2 : ICON_FOLDER_PLUS;
             b->name = cur_loc == LOC_RECYCLE ? L"empty" : L"newfolder";
-            b->enabled = cur_loc == LOC_FS || (cur_loc == LOC_RECYCLE && nitems > 0);
+            b->label = cur_loc == LOC_RECYCLE ? L"Empty Recycle Bin" : L"New folder";
+            b->enabled = fs || (cur_loc == LOC_RECYCLE && nitems > 0);
             break;
         case IDM_VIEW_DETAILS: b->toggled = !view_icons; b->enabled = TRUE; break;
         case IDM_VIEW_ICONS: b->toggled = view_icons; b->enabled = TRUE; break;
+        case IDM_CUT: case IDM_COPY: case IDM_DELETE: b->enabled = fs && nsel > 0; break;
+        case IDM_RENAME: b->enabled = fs && nsel == 1; break;
+        case IDM_PASTE: b->enabled = fs && IsClipboardFormatAvailable(CF_HDROP); break;
+        case IDM_PROPERTIES: b->enabled = fs || nsel > 0; break;
         default: b->enabled = TRUE; break;
         }
     }
@@ -3035,40 +2963,72 @@ static void update_toolbar(void)
 
 static void init_toolbar(void)
 {
-    static const struct { int id, glyph; const WCHAR *name; } defs[NUM_TBTN] =
+    static const struct { int id, icon; const WCHAR *name, *label; } defs[NUM_TBTN] =
     {
-        { IDM_BACK, G_BACK, L"back" }, { IDM_FORWARD, G_FORWARD, L"forward" }, { IDM_UP, G_UP, L"up" },
-        { IDM_REFRESH, G_REFRESH, L"refresh" }, { IDM_NEWFOLDER, G_NEWFOLDER, L"newfolder" },
-        { IDM_VIEW_DETAILS, G_DETAILS, L"details" }, { IDM_VIEW_ICONS, G_ICONS, L"icons" },
+        { IDM_BACK, ICON_ARROW_LEFT, L"back", L"Back (Alt+Left)" },
+        { IDM_FORWARD, ICON_ARROW_RIGHT, L"forward", L"Forward (Alt+Right)" },
+        { IDM_UP, ICON_ARROW_UP, L"up", L"Up (Alt+Up)" },
+        { IDM_REFRESH, ICON_ROTATE_CW, L"refresh", L"Refresh (F5)" },
+        { IDM_NEWFOLDER, ICON_FOLDER_PLUS, L"newfolder", L"New folder" },
+        { IDM_VIEW_DETAILS, ICON_LIST, L"details", L"Details (Ctrl+1)" },
+        { IDM_VIEW_ICONS, ICON_LAYOUT_GRID, L"icons", L"Icons (Ctrl+2)" },
+        { IDM_CUT, ICON_SCISSORS, L"cut", L"Cut (Ctrl+X)" },
+        { IDM_COPY, ICON_COPY, L"copy", L"Copy (Ctrl+C)" },
+        { IDM_PASTE, ICON_CLIPBOARD_PASTE, L"paste", L"Paste (Ctrl+V)" },
+        { IDM_RENAME, ICON_PENCIL, L"rename", L"Rename (F2)" },
+        { IDM_DELETE, ICON_TRASH_2, L"delete", L"Delete (Del)" },
+        { IDM_PROPERTIES, ICON_INFO, L"properties", L"Properties (Alt+Enter)" },
     };
     int i;
     for (i = 0; i < NUM_TBTN; i++)
     {
         tbtns[i].id = defs[i].id;
-        tbtns[i].glyph = defs[i].glyph;
+        tbtns[i].icon = defs[i].icon;
         tbtns[i].name = defs[i].name;
+        tbtns[i].label = defs[i].label;
+        tbtns[i].wide = defs[i].id == IDM_NEWFOLDER;
     }
+}
+
+static int text_width(HFONT f, const WCHAR *s)
+{
+    HDC dc = GetDC(main_wnd);
+    HGDIOBJ of = SelectObject(dc, f);
+    SIZE sz = { 0, 0 };
+    GetTextExtentPoint32W(dc, s, lstrlenW(s), &sz);
+    SelectObject(dc, of);
+    ReleaseDC(main_wnd, dc);
+    return sz.cx;
 }
 
 static void layout(void)
 {
     RECT rc;
     int tb = toolbar_h(), st = status_h(), sw = sidebar_w(), hh = header_h();
-    int bs = S(36), y = (tb - bs) / 2, x = S(12), i, right, lw, rest;
+    int bs = S(32), gap = S(4), y0 = (ROW_H - bs) / 2 + S(2), y1 = ROW_H + (ROW_H - bs) / 2, x, i, lw, rest;
+    static const int cmds[] = { TB_CUT, TB_COPY, TB_PASTE, TB_RENAME, TB_DELETE };
 
     if (!main_wnd) return;
     GetClientRect(main_wnd, &rc);
-    /* left: back, forward, up */
-    for (i = 0; i < 3; i++, x += bs + S(4)) SetRect(&tbtns[i].rc, x, y, x + bs, y + bs);
-    /* right: view switch, then new folder and refresh */
-    right = rc.right - S(12);
-    SetRect(&tbtns[6].rc, right - bs, y, right, y + bs);
-    SetRect(&tbtns[5].rc, right - 2 * bs, y, right - bs, y + bs);
-    right -= 2 * bs + S(12);
-    SetRect(&tbtns[4].rc, right - bs, y, right, y + bs);
-    SetRect(&tbtns[3].rc, right - 2 * bs - S(4), y, right - bs - S(4), y + bs);
-    right -= 2 * bs + S(16);
-    SetRect(&addr_field_rc, x + S(8), y, max(x + S(60), right), y + bs);
+
+    /* row 0: New folder (with its label), the edit commands, Properties;
+     * the view switch on the right */
+    x = S(12);
+    {
+        int w = S(12) + S(16) + S(8) + text_width(font_ui, cur_loc == LOC_RECYCLE ? L"Empty Recycle Bin" : L"New folder") + S(14);
+        SetRect(&tbtns[TB_NEW].rc, x, y0, x + w, y0 + bs);
+        x += w + S(17); /* room for a separator */
+    }
+    for (i = 0; i < (int)ARRAYSIZE(cmds); i++, x += bs + gap) SetRect(&tbtns[cmds[i]].rc, x, y0, x + bs, y0 + bs);
+    x += S(13);
+    SetRect(&tbtns[TB_PROPS].rc, x, y0, x + bs, y0 + bs);
+    SetRect(&tbtns[TB_ICONS].rc, rc.right - S(12) - bs, y0, rc.right - S(12), y0 + bs);
+    SetRect(&tbtns[TB_DETAILS].rc, rc.right - S(12) - 2 * bs, y0, rc.right - S(12) - bs, y0 + bs);
+
+    /* row 1: back, forward, up, refresh, and the address bar */
+    x = S(12);
+    for (i = TB_BACK; i <= TB_REFRESH; i++, x += bs + gap) SetRect(&tbtns[i].rc, x, y1, x + bs, y1 + bs);
+    SetRect(&addr_field_rc, x + S(8), y1, max(x + S(60), (int)rc.right - S(12)), y1 + bs);
     {
         TEXTMETRICW tm;
         HDC dc = GetDC(main_wnd);
@@ -3078,8 +3038,8 @@ static void layout(void)
         SelectObject(dc, of);
         ReleaseDC(main_wnd, dc);
         eh = tm.tmHeight + S(2);
-        MoveWindow(addr, addr_field_rc.left + S(14), (addr_field_rc.top + addr_field_rc.bottom - eh) / 2,
-                   addr_field_rc.right - addr_field_rc.left - S(28), eh, TRUE);
+        MoveWindow(addr, addr_field_rc.left + S(12), (addr_field_rc.top + addr_field_rc.bottom - eh) / 2,
+                   addr_field_rc.right - addr_field_rc.left - S(24), eh, TRUE);
     }
     MoveWindow(sidebar, 0, tb, sw, rc.bottom - tb - st, TRUE);
     SetRect(&header_rc, sw, tb, rc.right, tb + hh);
@@ -3106,75 +3066,224 @@ static void layout(void)
         if (i == 0) c.fmt = LVCFMT_LEFT;
         ListView_SetColumn(lv, i, &c);
     }
+    update_tips();
     InvalidateRect(main_wnd, NULL, FALSE);
 }
 
-static void paint_main(HDC dc, const RECT *rc)
-{
-    RECT r;
-    int i;
+/* --- tooltips for the icon buttons --- */
 
-    /* toolbar */
-    SetRect(&r, 0, 0, rc->right, toolbar_h());
-    fill_rect(dc, &r, C_BAR);
-    SetRect(&r, 0, toolbar_h() - max(1, S(1)), rc->right, toolbar_h());
-    fill_rect(dc, &r, C_EDGE);
+static void update_tips(void)
+{
+    int i;
+    if (!tips) return;
     for (i = 0; i < NUM_TBTN; i++)
     {
-        struct tbtn *b = &tbtns[i];
-        COLORREF c = b->enabled ? C_TEXT : C_DIM;
-        if (b->toggled) fill_round(dc, &b->rc, S(10), C_ACTIVE);
-        else if (i == tb_hot && b->enabled) fill_round(dc, &b->rc, S(10), C_HOVER);
-        if (b->toggled) c = C_ACCENT;
-        draw_glyph(dc, b->glyph, &b->rc, c);
+        TTTOOLINFOW ti;
+        memset(&ti, 0, sizeof(ti));
+        ti.cbSize = sizeof(ti);
+        ti.hwnd = main_wnd;
+        ti.uId = i + 1;
+        ti.rect = tbtns[i].rc;
+        ti.uFlags = TTF_SUBCLASS;
+        ti.lpszText = LPSTR_TEXTCALLBACKW;
+        if (!SendMessageW(tips, TTM_NEWTOOLRECTW, 0, (LPARAM)&ti)) SendMessageW(tips, TTM_ADDTOOLW, 0, (LPARAM)&ti);
     }
-    fill_round(dc, &addr_field_rc, S(10), C_FIELD);
-    if (GetFocus() == addr) frame_round(dc, &addr_field_rc, S(10), C_ACCENT);
+}
+
+/* --- breadcrumbs --- */
+
+static struct crumb crumbs[MAX_CRUMBS];
+static int ncrumbs, crumb_first, crumb_hot = -1;
+
+static void add_crumb(const WCHAR *label, const WCHAR *target)
+{
+    if (ncrumbs >= MAX_CRUMBS)
+    {
+        memmove(crumbs + 1, crumbs + 2, (MAX_CRUMBS - 2) * sizeof(*crumbs));
+        ncrumbs--;
+    }
+    lstrcpynW(crumbs[ncrumbs].label, label, MAX_PATH);
+    lstrcpynW(crumbs[ncrumbs].target, target, MAX_PATH);
+    SetRectEmpty(&crumbs[ncrumbs].rc);
+    ncrumbs++;
+}
+
+/* Drives > C: > users > setu, Recycle Bin, or Drives; laid out in the
+ * address field from the right, dropping the first ones that don't fit. */
+static void build_crumbs(struct setu_canvas *cv, int *icon)
+{
+    int i, x, avail, total, chev = S(20), pad = S(8);
+
+    ncrumbs = 0;
+    *icon = ICON_HARD_DRIVE;
+    if (cur_loc == LOC_RECYCLE)
+    {
+        *icon = ICON_TRASH_2;
+        add_crumb(L"Recycle Bin", L"::recycle");
+    }
+    else
+    {
+        add_crumb(L"Drives", L"::drives");
+        if (cur_loc == LOC_FS && cur_path[0])
+        {
+            WCHAR acc[MAX_PATH], part[MAX_PATH];
+            const WCHAR *p = cur_path, *e;
+            acc[0] = 0;
+            while (*p)
+            {
+                size_t n;
+                e = wcschr(p, L'\\');
+                n = e ? (size_t)(e - p) : wcslen(p);
+                if (n && n < MAX_PATH - wcslen(acc) - 2)
+                {
+                    memcpy(part, p, n * sizeof(WCHAR));
+                    part[n] = 0;
+                    wcscat(acc, part);
+                    wcscat(acc, L"\\");
+                    add_crumb(part, acc);
+                }
+                if (!e) break;
+                p = e + 1;
+            }
+        }
+    }
+    avail = addr_field_rc.right - addr_field_rc.left - S(36) - S(8);
+    for (i = 0, total = 0; i < ncrumbs; i++)
+        total += st_text_width(cv, crumbs[i].label, i == ncrumbs - 1 ? SF_CAPTION : SF_BODY) + 2 * pad + (i ? chev : 0);
+    crumb_first = 0;
+    while (total > avail && crumb_first < ncrumbs - 1)
+    {
+        total -= st_text_width(cv, crumbs[crumb_first].label, SF_BODY) + 2 * pad + chev;
+        crumb_first++;
+    }
+    x = addr_field_rc.left + S(36);
+    for (i = 0; i < ncrumbs; i++)
+    {
+        int w;
+        if (i < crumb_first) { SetRectEmpty(&crumbs[i].rc); continue; }
+        if (i > crumb_first) x += chev;
+        w = st_text_width(cv, crumbs[i].label, i == ncrumbs - 1 ? SF_CAPTION : SF_BODY) + 2 * pad;
+        w = min(w, (int)addr_field_rc.right - S(4) - x);
+        SetRect(&crumbs[i].rc, x, addr_field_rc.top + S(4), x + max(0, w), addr_field_rc.bottom - S(4));
+        x += w;
+    }
+}
+
+static int crumb_hit(POINT pt)
+{
+    int i;
+    if (GetFocus() == addr) return -1;
+    for (i = crumb_first; i < ncrumbs; i++)
+        if (PtInRect(&crumbs[i].rc, pt)) return i;
+    return -1;
+}
+
+static void paint_button(struct setu_canvas *cv, int i)
+{
+    struct tbtn *b = &tbtns[i];
+    COLORREF c = b->enabled ? ST->text : ST->text_disabled;
+    int isz = S(16), rad = S(ST_RADIUS_CONTROL);
+
+    if (b->toggled) st_round(cv, &b->rc, rad, st_mix(C_BAR, ST->text, 20));
+    else if (i == tb_hot && b->enabled) st_round(cv, &b->rc, rad, st_mix(C_BAR, ST->text, 12));
+    if (b->toggled) c = ST->accent;
+    if (b->wide)
+    {
+        RECT t = b->rc;
+        st_icon(cv, b->icon, b->rc.left + S(12), (b->rc.top + b->rc.bottom - isz) / 2, isz, b->enabled ? ST->accent : c);
+        t.left += S(12) + isz + S(8);
+        st_text(cv, b->label, &t, SF_BODY, c, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+    }
+    else st_icon_in(cv, b->icon, &b->rc, isz, c);
+}
+
+static void paint_main(struct setu_canvas *cv, const RECT *rc)
+{
+    RECT r;
+    int i, rad = S(ST_RADIUS_CONTROL), line = max(1, S(1));
+
+    st_fill(cv, rc, C_PANEL);
+
+    /* command bar and navigation row */
+    SetRect(&r, 0, 0, rc->right, toolbar_h());
+    st_fill(cv, &r, C_BAR);
+    SetRect(&r, 0, toolbar_h() - line, rc->right, toolbar_h());
+    st_fill(cv, &r, C_EDGE);
+    for (i = 0; i < NUM_TBTN; i++) paint_button(cv, i);
+    /* separators around the edit commands */
+    SetRect(&r, tbtns[TB_NEW].rc.right + S(8), tbtns[TB_NEW].rc.top + S(6), tbtns[TB_NEW].rc.right + S(8) + line,
+            tbtns[TB_NEW].rc.bottom - S(6));
+    st_fill(cv, &r, ST->border);
+    OffsetRect(&r, tbtns[TB_PROPS].rc.left - S(8) - r.left - S(1), 0);
+    st_fill(cv, &r, ST->border);
+
+    /* address bar: breadcrumbs, or the edit box while it has the focus */
+    st_round(cv, &addr_field_rc, rad, ST->surface);
+    if (GetFocus() == addr)
+    {
+        RECT u = { addr_field_rc.left, addr_field_rc.bottom - S(2), addr_field_rc.right, addr_field_rc.bottom };
+        st_frame(cv, &addr_field_rc, rad, line, ST->border);
+        st_clip(cv, &u);
+        st_round(cv, &addr_field_rc, rad, ST->accent);
+        st_clip(cv, NULL);
+    }
+    else
+    {
+        int icon;
+        st_frame(cv, &addr_field_rc, rad, line, ST->border);
+        build_crumbs(cv, &icon);
+        st_icon(cv, icon, addr_field_rc.left + S(12), (addr_field_rc.top + addr_field_rc.bottom - S(16)) / 2, S(16),
+                ST->text_secondary);
+        st_clip(cv, &addr_field_rc);
+        for (i = crumb_first; i < ncrumbs; i++)
+        {
+            RECT t = crumbs[i].rc;
+            BOOL last = i == ncrumbs - 1;
+            if (i == crumb_hot) st_round(cv, &t, rad, ST->surface_hover);
+            if (i > crumb_first)
+                st_icon(cv, ICON_CHEVRON_RIGHT, t.left - S(18), (t.top + t.bottom - S(14)) / 2, S(14), ST->text_secondary);
+            st_text(cv, crumbs[i].label, &t, last ? SF_CAPTION : SF_BODY, last ? ST->text : ST->text_secondary,
+                    DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS);
+        }
+        st_clip(cv, NULL);
+    }
 
     /* column header strip (details view) */
     if (!view_icons)
     {
         int x = header_rc.left;
-        fill_rect(dc, &header_rc, C_PANEL);
-        SetRect(&r, header_rc.left, header_rc.bottom - max(1, S(1)), header_rc.right, header_rc.bottom);
-        fill_rect(dc, &r, C_EDGE);
+        st_fill(cv, &header_rc, C_PANEL);
+        SetRect(&r, header_rc.left, header_rc.bottom - line, header_rc.right, header_rc.bottom);
+        st_fill(cv, &r, C_EDGE);
         for (i = 0; i < 4; i++)
         {
-            WCHAR t[64];
             BOOL right = col_right[cur_loc][i];
-            RECT cr = { x + S(8), header_rc.top, x + col_w[i] - S(8), header_rc.bottom };
-            lstrcpynW(t, col_names[cur_loc][i], ARRAYSIZE(t));
-            CharUpperW(t);
-            draw_text(dc, t, &cr, font_caps, i == sort_col ? C_ACCENT : C_MUTED,
-                      DT_SINGLELINE | DT_VCENTER | (right ? DT_RIGHT : DT_LEFT) | DT_END_ELLIPSIS);
+            /* the same insets as the rows */
+            RECT cr = { x + (i ? S(8) : S(12) + S(16) + S(10) + S(4)), header_rc.top, x + col_w[i] - S(8), header_rc.bottom };
+            const WCHAR *t = col_names[cur_loc][i];
+            if (i > 0)
+            {
+                RECT sep = { x, header_rc.top + S(8), x + line, header_rc.bottom - S(8) };
+                st_fill(cv, &sep, C_EDGE);
+            }
+            st_text(cv, t, &cr, SF_BODY, i == sort_col ? ST->text : C_MUTED,
+                    DT_SINGLELINE | DT_VCENTER | (right ? DT_RIGHT : DT_LEFT) | DT_END_ELLIPSIS);
             if (i == sort_col)
             {
-                /* a small chevron after the title shows the direction */
-                SIZE sz;
-                HGDIOBJ of = SelectObject(dc, font_caps);
-                POINT p[3];
-                int ax, ay = (header_rc.top + header_rc.bottom) / 2, a = S(3);
-                HPEN pen = round_pen(max(1, S(1) + 1), C_ACCENT);
-                HGDIOBJ op;
-                GetTextExtentPoint32W(dc, t, (int)wcslen(t), &sz);
-                SelectObject(dc, of);
-                ax = right ? cr.right - sz.cx - S(10) : cr.left + sz.cx + S(8);
-                p[0].x = ax - a; p[1].x = ax; p[2].x = ax + a;
-                p[0].y = p[2].y = sort_desc ? ay - a / 2 : ay + a / 2;
-                p[1].y = sort_desc ? ay + a / 2 + 1 : ay - a / 2 - 1;
-                op = SelectObject(dc, pen);
-                Polyline(dc, p, 3);
-                SelectObject(dc, op);
-                DeleteObject(pen);
+                /* a chevron after the title shows the direction */
+                int tw = st_text_width(cv, t, SF_BODY), isz = S(12);
+                int ax = right ? cr.right - tw - S(4) - isz : cr.left + tw + S(4);
+                st_icon(cv, sort_desc ? ICON_CHEVRON_DOWN : ICON_CHEVRON_UP, ax,
+                        (header_rc.top + header_rc.bottom - isz) / 2, isz, C_MUTED);
             }
             x += col_w[i];
         }
     }
 
     /* status bar */
-    fill_rect(dc, &status_rc, C_BAR);
-    SetRect(&r, 0, status_rc.top, rc->right, status_rc.top + max(1, S(1)));
-    fill_rect(dc, &r, C_EDGE);
+    st_fill(cv, &status_rc, C_BAR);
+    SetRect(&r, 0, status_rc.top, rc->right, status_rc.top + line);
+    st_fill(cv, &r, C_EDGE);
     {
         WCHAR left[128], sz[32];
         int nsel = lv ? selection_count() : 0;
@@ -3192,9 +3301,49 @@ static void paint_main(HDC dc, const RECT *rc)
         }
         else _snwprintf(left, ARRAYSIZE(left), L"%d item%ls", nitems, nitems == 1 ? L"" : L"s");
         left[ARRAYSIZE(left) - 1] = 0;
-        draw_text(dc, left, &lr, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
-        draw_text(dc, status_text, &rr, font_small, status_error ? C_ERROR : C_MUTED,
-                  DT_SINGLELINE | DT_VCENTER | DT_RIGHT | DT_END_ELLIPSIS);
+        st_text(cv, left, &lr, SF_BODY, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+        st_text(cv, status_text, &rr, SF_BODY, status_error ? C_ERROR : C_MUTED,
+                DT_SINGLELINE | DT_VCENTER | DT_RIGHT | DT_END_ELLIPSIS);
+    }
+}
+
+/* --- the list's rows (details view, owner-drawn, 32 px) --- */
+
+struct row_ctx { const DRAWITEMSTRUCT *di; };
+
+static void paint_row(struct setu_canvas *cv, const RECT *rc, void *ctx)
+{
+    const DRAWITEMSTRUCT *di = ((struct row_ctx *)ctx)->di;
+    int idx = (int)di->itemID, it = (int)di->itemData, i, x;
+    UINT st = ListView_GetItemState(lv, idx, LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED | LVIS_FOCUSED);
+    BOOL focused = GetFocus() == lv, sel = (st & (LVIS_SELECTED | LVIS_DROPHILITED)) != 0;
+    int rad = S(ST_RADIUS_CONTROL), isz = GetSystemMetrics(SM_CXSMICON);
+    COLORREF text = ST->text, sub = ST->text_secondary;
+    RECT r = *rc, sr;
+    WCHAR cell[MAX_PATH];
+
+    st_fill(cv, rc, C_PANEL);
+    if (it < 0 || it >= nitems) return;
+    SetRect(&sr, S(4), S(1), rc->right - S(4), rc->bottom - S(1));
+    if (sel)
+    {
+        BOOL strong = focused || (st & LVIS_DROPHILITED);
+        st_round(cv, &sr, rad, strong ? st_selection() : st_selection_inactive());
+        if (strong) st_frame(cv, &sr, rad, max(1, S(1)), ST->accent);
+    }
+    else if (focused && (st & LVIS_FOCUSED)) st_frame(cv, &sr, rad, max(1, S(1)), ST->border);
+    if (items[it].attrs & FILE_ATTRIBUTE_HIDDEN) text = ST->text_secondary;
+    if (st & LVIS_CUT) text = sub = ST->text_disabled;
+
+    ImageList_DrawEx(il_small, items[it].icon, cv->dc, S(12), (rc->bottom - isz) / 2, 0, 0, CLR_NONE, CLR_NONE,
+                     ILD_TRANSPARENT | ((st & LVIS_CUT) ? ILD_BLEND50 : 0));
+    for (i = 0, x = 0; i < 4; x += col_w[i], i++)
+    {
+        RECT cr = { x + S(8), r.top, x + col_w[i] - S(8), r.bottom };
+        if (i == 0) cr.left = S(12) + isz + S(10);
+        cell_text(&items[it], i, cell, ARRAYSIZE(cell));
+        st_text(cv, cell, &cr, SF_BODY, i ? sub : text,
+                DT_SINGLELINE | DT_VCENTER | (i && col_right[cur_loc][i] ? DT_RIGHT : DT_LEFT) | DT_END_ELLIPSIS);
     }
 }
 
@@ -3366,6 +3515,7 @@ static void write_state(void)
 
 static void focus_address(void)
 {
+    ShowWindow(addr, SW_SHOW);
     SetFocus(addr);
     SendMessageW(addr, EM_SETSEL, 0, -1);
 }
@@ -3684,6 +3834,13 @@ static BOOL handle_key(MSG *m)
 
 static LRESULT on_notify(NMHDR *nm)
 {
+    if (tips && nm->hwndFrom == tips && nm->code == TTN_GETDISPINFOW)
+    {
+        NMTTDISPINFOW *di = (NMTTDISPINFOW *)nm;
+        UINT_PTR i = di->hdr.idFrom;
+        if (i >= 1 && i <= NUM_TBTN) di->lpszText = (WCHAR *)tbtns[i - 1].label;
+        return 0;
+    }
     if (nm->hwndFrom != lv) return 0;
     switch (nm->code)
     {
@@ -3704,6 +3861,8 @@ static LRESULT on_notify(NMHDR *nm)
             return CDRF_NOTIFYITEMDRAW;
         case CDDS_ITEMPREPAINT:
         {
+            /* the icons view (details rows are owner-drawn): our
+             * selection colour under the label instead of the system's */
             int idx = (int)cd->nmcd.dwItemSpec;
             UINT st = ListView_GetItemState(lv, idx, LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED);
             int it = (int)cd->nmcd.lItemlParam;
@@ -3713,29 +3872,11 @@ static LRESULT on_notify(NMHDR *nm)
             if (st & LVIS_CUT) cd->clrText = C_DIM;
             if (st & (LVIS_SELECTED | LVIS_DROPHILITED))
             {
-                /* our own selection colour instead of the system's */
-                cd->clrTextBk = (st & LVIS_DROPHILITED) ? C_ACTIVE : C_SELECT;
-                cd->nmcd.uItemState &= ~(CDIS_SELECTED | CDIS_FOCUS);
-            }
-            return CDRF_NOTIFYSUBITEMDRAW;
-        }
-        case CDDS_ITEMPREPAINT | CDDS_SUBITEM:
-            if (cd->iSubItem > 0)
-            {
-                UINT st = ListView_GetItemState(lv, (int)cd->nmcd.dwItemSpec, LVIS_SELECTED | LVIS_DROPHILITED);
-                cd->clrText = (st & LVIS_SELECTED) ? RGB(0xd5, 0xcb, 0xbb) : C_MUTED;
-                cd->clrTextBk = (st & LVIS_DROPHILITED) ? C_ACTIVE : (st & LVIS_SELECTED) ? C_SELECT : C_PANEL;
-                cd->nmcd.uItemState &= ~(CDIS_SELECTED | CDIS_FOCUS);
-            }
-            else
-            {
-                UINT st = ListView_GetItemState(lv, (int)cd->nmcd.dwItemSpec, LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED);
-                int it = (int)cd->nmcd.lItemlParam;
-                cd->clrText = (st & LVIS_CUT) ? C_DIM : (it >= 0 && it < nitems && (items[it].attrs & FILE_ATTRIBUTE_HIDDEN)) ? C_MUTED : C_TEXT;
-                cd->clrTextBk = (st & LVIS_DROPHILITED) ? C_ACTIVE : (st & LVIS_SELECTED) ? C_SELECT : C_PANEL;
+                cd->clrTextBk = GetFocus() == lv || (st & LVIS_DROPHILITED) ? st_selection() : st_selection_inactive();
                 cd->nmcd.uItemState &= ~(CDIS_SELECTED | CDIS_FOCUS);
             }
             return CDRF_DODEFAULT;
+        }
         }
         return CDRF_DODEFAULT;
     }
@@ -3747,6 +3888,12 @@ static LRESULT on_notify(NMHDR *nm)
     }
     case LVN_ITEMCHANGED:
         InvalidateRect(main_wnd, &status_rc, FALSE);
+        update_toolbar();
+        return 0;
+    case NM_SETFOCUS:
+    case NM_KILLFOCUS:
+        /* the selection is drawn stronger while the list has the focus */
+        InvalidateRect(lv, NULL, FALSE);
         return 0;
     case LVN_BEGINLABELEDITW:
     {
@@ -3802,30 +3949,41 @@ static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         return 0;
     }
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC dc = BeginPaint(hwnd, &ps), mem;
-        RECT rc;
-        HBITMAP bmp;
-        GetClientRect(hwnd, &rc);
-        mem = CreateCompatibleDC(dc);
-        bmp = CreateCompatibleBitmap(dc, rc.right, rc.bottom);
-        SelectObject(mem, bmp);
-        fill_rect(mem, &rc, C_PANEL);
-        paint_main(mem, &rc);
-        BitBlt(dc, 0, 0, rc.right, rc.bottom, mem, 0, 0, SRCCOPY);
-        DeleteDC(mem);
-        DeleteObject(bmp);
-        EndPaint(hwnd, &ps);
+        st_paint_window(hwnd, paint_main);
         return 0;
-    }
     case WM_ERASEBKGND:
         return 1;
+    case WM_MEASUREITEM:
+    {
+        MEASUREITEMSTRUCT *mi = (MEASUREITEMSTRUCT *)lp;
+        if (mi->CtlType == ODT_LISTVIEW) { mi->itemHeight = S(ST_ROW_H); return TRUE; }
+        break;
+    }
+    case WM_DRAWITEM:
+    {
+        const DRAWITEMSTRUCT *di = (const DRAWITEMSTRUCT *)lp;
+        if (di->CtlType == ODT_LISTVIEW)
+        {
+            struct row_ctx ctx = { di };
+            RECT r = di->rcItem, cr;
+            /* the whole width, so the selection reaches the right edge */
+            GetClientRect(lv, &cr);
+            r.right = max(r.right, cr.right);
+            {
+                DRAWITEMSTRUCT copy = *di;
+                copy.rcItem = r;
+                ctx.di = &copy;
+                paint_into(di->hDC, &r, paint_row, &ctx);
+            }
+            return TRUE;
+        }
+        break;
+    }
     case WM_CTLCOLOREDIT:
         if ((HWND)lp == addr)
         {
             SetTextColor((HDC)wp, C_TEXT);
-            SetBkColor((HDC)wp, C_FIELD);
+            SetBkColor((HDC)wp, ST->surface);
             return (LRESULT)field_brush;
         }
         break;
@@ -3845,8 +4003,9 @@ static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
             return 0;
         }
         {
-            int h = toolbar_hit(pt);
+            int h = toolbar_hit(pt), c = crumb_hit(pt);
             if (h != tb_hot) { tb_hot = h; update_toolbar(); }
+            if (c != crumb_hot) { crumb_hot = c; InvalidateRect(hwnd, &addr_field_rc, FALSE); }
             if (!tracking_mouse)
             {
                 TRACKMOUSEEVENT tme = { sizeof(tme), TME_LEAVE, hwnd, 0 };
@@ -3858,14 +4017,16 @@ static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_MOUSELEAVE:
         tracking_mouse = FALSE;
         if (tb_hot != -1) { tb_hot = -1; update_toolbar(); }
+        if (crumb_hot != -1) { crumb_hot = -1; InvalidateRect(hwnd, &addr_field_rc, FALSE); }
         return 0;
     case WM_LBUTTONUP:
         if (dragging) { end_drag(TRUE); return 0; }
         {
             POINT pt = { GET_X_LPARAM(lp), GET_Y_LPARAM(lp) };
-            int b = toolbar_hit(pt), c = header_hit(pt);
+            int b = toolbar_hit(pt), c = header_hit(pt), k = crumb_hit(pt);
             if (b >= 0 && tbtns[b].enabled) on_command(tbtns[b].id);
             else if (c >= 0) set_sort(c);
+            else if (k >= 0) navigate(crumbs[k].target, 0);
             else if (PtInRect(&addr_field_rc, pt)) focus_address();
         }
         return 0;
@@ -3902,6 +4063,7 @@ static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_COMMAND:
         if (LOWORD(wp) == ID_ADDR)
         {
+            if (HIWORD(wp) == EN_KILLFOCUS) ShowWindow(addr, SW_HIDE); /* back to the breadcrumbs */
             if (HIWORD(wp) == EN_SETFOCUS || HIWORD(wp) == EN_KILLFOCUS) InvalidateRect(hwnd, &addr_field_rc, FALSE);
             return 0;
         }
@@ -3931,6 +4093,7 @@ static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         return 0;
     case WM_CLIPBOARDUPDATE:
         if (cut_paths && GetClipboardSequenceNumber() != our_clip_seq) set_cut_paths(NULL);
+        update_toolbar();
         return 0;
     case WM_DROPFILES:
     {
@@ -4020,7 +4183,7 @@ static void default_start(WCHAR *out)
 int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
 {
     WNDCLASSEXW wc;
-    INITCOMMONCONTROLSEX icc = { sizeof(icc), ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES };
+    INITCOMMONCONTROLSEX icc = { sizeof(icc), ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES | ICC_WIN95_CLASSES };
     WCHAR **argv, start[MAX_PATH];
     int argc, i;
     MSG msg;
@@ -4036,7 +4199,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     InitCommonControlsEx(&icc);
     dpi = get_window_dpi(NULL);
     make_fonts();
-    field_brush = CreateSolidBrush(C_FIELD);
+    field_brush = CreateSolidBrush(ST->surface);
     panel_brush = CreateSolidBrush(C_PANEL);
     bar_brush = CreateSolidBrush(C_BAR);
     cf_effect = RegisterClipboardFormatW(CFSTR_PREFERREDDROPEFFECT);
@@ -4090,7 +4253,8 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     dpi = get_window_dpi(main_wnd);
     make_fonts();
 
-    addr = CreateWindowExW(0, L"EDIT", L"", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 0, 0, 10, 10, main_wnd,
+    /* shown while it has the focus; the breadcrumbs are drawn otherwise */
+    addr = CreateWindowExW(0, L"EDIT", L"", WS_CHILD | ES_AUTOHSCROLL, 0, 0, 10, 10, main_wnd,
                            (HMENU)(INT_PTR)ID_ADDR, inst, NULL);
     SendMessageW(addr, WM_SETFONT, (WPARAM)font_ui, FALSE);
     SHAutoComplete(addr, SHACF_FILESYS_DIRS | SHACF_AUTOSUGGEST_FORCE_ON);
@@ -4099,6 +4263,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     sidebar = CreateWindowExW(0, SIDE_CLASS, L"Places", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 0, 10, 10, main_wnd,
                               (HMENU)(INT_PTR)ID_SIDEBAR, inst, NULL);
     lv = CreateWindowExW(0, WC_LISTVIEWW, L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT | LVS_NOCOLUMNHEADER |
+                         LVS_OWNERDRAWFIXED |
                          LVS_SHOWSELALWAYS | LVS_EDITLABELS | LVS_SHAREIMAGELISTS | LVS_AUTOARRANGE,
                          0, 0, 10, 10, main_wnd, (HMENU)(INT_PTR)ID_LIST, inst, NULL);
     ListView_SetExtendedListViewStyle(lv, LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP);
@@ -4115,6 +4280,9 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
         ListView_InsertColumn(lv, i, &c);
     }
     AddClipboardFormatListener(main_wnd);
+    tips = CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASSW, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+                           CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, main_wnd, NULL, inst, NULL);
+    if (tips) SendMessageW(tips, WM_SETFONT, (WPARAM)font_ui, FALSE);
 
     load_places();
     layout_places();

@@ -74,6 +74,10 @@ WINESERVER="$(dirname "$WINE")/wineserver"
 export WINEPREFIX="${SETU_PREFIX:-$REPO/build/files-prefix}"
 export WINEDEBUG="${WINEDEBUG:--all}"
 export WINEDLLOVERRIDES="mscoree,mshtml="
+# Wine's mount manager adds this machine's disks (from udisks on the system
+# bus) as drives, with their labels and mount paths; keep them out of the
+# prefix and the screenshots
+export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/nonexistent
 make -s -C "$REPO/shell" -j3   # before HOME moves: the Makefile finds the toolchain under it
 export HOME="$REPO/build/files-home" USER=setu LOGNAME=setu
 export XDG_DATA_HOME="$HOME/.local/share" XDG_CONFIG_HOME="$HOME/.config" XDG_CACHE_HOME="$HOME/.cache"
@@ -157,6 +161,7 @@ mkdir -p "$HOME"
 "$WINE" reg add 'HKCU\Software\Wine\Explorer' /v Desktop /d setu /f >/dev/null 2>&1
 "$WINE" reg add 'HKCU\Software\Wine\Explorer\Desktops' /v setu /d "$RES" /f >/dev/null 2>&1
 "$WINESERVER" -w
+find "$WINEPREFIX/dosdevices" -maxdepth 1 -type l -name '[a-y]:*' ! -name 'c:' -delete
 
 mkdir -p "$D/sub" "$D/archive"
 printf 'hello from setu\r\n' > "$D/a.txt"
