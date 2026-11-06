@@ -451,6 +451,38 @@ static HRESULT restore_trash_item( LPCITEMIDLIST pidl )
     return S_OK;
 }
 
+/* Delete a file or a whole directory tree, read-only entries included. */
+static BOOL delete_trash_path( const WCHAR *path )
+{
+    DWORD attrs = GetFileAttributesW( path );
+    WIN32_FIND_DATAW data;
+    HANDLE handle;
+    WCHAR *child;
+    ULONG len;
+
+    if (attrs == INVALID_FILE_ATTRIBUTES) return FALSE;
+    if (attrs & FILE_ATTRIBUTE_READONLY) SetFileAttributesW( path, attrs & ~FILE_ATTRIBUTE_READONLY );
+    if (!(attrs & FILE_ATTRIBUTE_DIRECTORY) || (attrs & FILE_ATTRIBUTE_REPARSE_POINT))
+        return (attrs & FILE_ATTRIBUTE_DIRECTORY) ? RemoveDirectoryW( path ) : DeleteFileW( path );
+
+    len = lstrlenW( path ) + MAX_PATH + 2;
+    if (!(child = malloc( len * sizeof(WCHAR) ))) return FALSE;
+    swprintf( child, len, L"%s\\*", path );
+    handle = FindFirstFileW( child, &data );
+    if (handle != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            if (!wcscmp( data.cFileName, L"." ) || !wcscmp( data.cFileName, L".." )) continue;
+            swprintf( child, len, L"%s\\%s", path, data.cFileName );
+            delete_trash_path( child );
+        } while (FindNextFileW( handle, &data ));
+        FindClose( handle );
+    }
+    free( child );
+    return RemoveDirectoryW( path );
+}
+
 static HRESULT erase_trash_item( LPCITEMIDLIST pidl )
 {
     const WIN32_FIND_DATAW *data = get_trash_item_data( pidl );
@@ -459,7 +491,7 @@ static HRESULT erase_trash_item( LPCITEMIDLIST pidl )
 
     from = malloc( len * sizeof(WCHAR) );
     swprintf( from, len, L"%s\\%s", trash_dir, filename );
-    if (DeleteFileW( from )) remove_trashinfo( filename );
+    if (delete_trash_path( from )) remove_trashinfo( filename );
     free( from );
     return S_OK;
 }
@@ -1217,6 +1249,46 @@ HRESULT WINAPI SHQueryRecycleBinA(LPCSTR pszRootPath, LPSHQUERYRBINFO pSHQueryRB
     return SHQueryRecycleBinW(wszRootPath, pSHQueryRBInfo);
 }
 
+/* A root on a drive that doesn't exist has no Recycle Bin. */
+static BOOL is_missing_drive( const WCHAR *path )
+{
+    WCHAR root[4] = L"A:\\";
+
+    if (!path || !path[0] || path[1] != ':') return FALSE;
+    root[0] = path[0];
+    return GetDriveTypeW( root ) == DRIVE_NO_ROOT_DIR;
+}
+
+/* Total size of the files in a trashed directory tree. */
+static DWORDLONG trash_tree_size( const WCHAR *path )
+{
+    WIN32_FIND_DATAW data;
+    DWORDLONG size = 0;
+    HANDLE handle;
+    WCHAR *child;
+    ULONG len = lstrlenW( path ) + MAX_PATH + 2;
+
+    if (!(child = malloc( len * sizeof(WCHAR) ))) return 0;
+    swprintf( child, len, L"%s\\*", path );
+    handle = FindFirstFileW( child, &data );
+    if (handle != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            if (!wcscmp( data.cFileName, L"." ) || !wcscmp( data.cFileName, L".." )) continue;
+            if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+                swprintf( child, len, L"%s\\%s", path, data.cFileName );
+                size += trash_tree_size( child );
+            }
+            else size += ((DWORDLONG)data.nFileSizeHigh << 32) + data.nFileSizeLow;
+        } while (FindNextFileW( handle, &data ));
+        FindClose( handle );
+    }
+    free( child );
+    return size;
+}
+
 HRESULT WINAPI SHQueryRecycleBinW(LPCWSTR pszRootPath, LPSHQUERYRBINFO pSHQueryRBInfo)
 {
     LPITEMIDLIST *apidl;
@@ -1226,6 +1298,9 @@ HRESULT WINAPI SHQueryRecycleBinW(LPCWSTR pszRootPath, LPSHQUERYRBINFO pSHQueryR
 
     TRACE("(%s, %p)\n", debugstr_w(pszRootPath), pSHQueryRBInfo);
 
+    if (!pSHQueryRBInfo || pSHQueryRBInfo->cbSize != sizeof(*pSHQueryRBInfo)) return E_INVALIDARG;
+    if (is_missing_drive( pszRootPath )) return E_FAIL;
+
     hr = enum_trash_items(&apidl, &cidl);
     if (FAILED(hr))
         return hr;
@@ -1234,7 +1309,20 @@ HRESULT WINAPI SHQueryRecycleBinW(LPCWSTR pszRootPath, LPSHQUERYRBINFO pSHQueryR
     for (; i<cidl; i++)
     {
         const WIN32_FIND_DATAW *data = get_trash_item_data( apidl[i] );
-        pSHQueryRBInfo->i64Size += ((DWORDLONG)data->nFileSizeHigh << 32) + data->nFileSizeLow;
+        if (data->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            const WCHAR *filename = (const WCHAR *)(data + 1);
+            ULONG len = lstrlenW(trash_dir) + lstrlenW(filename) + 2;
+            WCHAR *path = malloc( len * sizeof(WCHAR) );
+
+            if (path)
+            {
+                swprintf( path, len, L"%s\\%s", trash_dir, filename );
+                pSHQueryRBInfo->i64Size += trash_tree_size( path );
+                free( path );
+            }
+        }
+        else pSHQueryRBInfo->i64Size += ((DWORDLONG)data->nFileSizeHigh << 32) + data->nFileSizeLow;
         ILFree(apidl[i]);
     }
     SHFree(apidl);
@@ -1261,9 +1349,16 @@ HRESULT WINAPI SHEmptyRecycleBinW(HWND hwnd, LPCWSTR pszRootPath, DWORD dwFlags)
 
     TRACE("(%p, %s, 0x%08lx)\n", hwnd, debugstr_w(pszRootPath) , dwFlags);
 
+    if (is_missing_drive( pszRootPath )) return E_FAIL;
     ret = enum_trash_items(&apidl, &cidl);
     if (FAILED(ret))
         return ret;
+    /* there is nothing to empty */
+    if (!cidl)
+    {
+        SHFree(apidl);
+        return E_UNEXPECTED;
+    }
 
     ret = erase_items(hwnd,(const LPCITEMIDLIST*)apidl,cidl,!(dwFlags & SHERB_NOCONFIRMATION));
     for (;i<cidl;i++)
