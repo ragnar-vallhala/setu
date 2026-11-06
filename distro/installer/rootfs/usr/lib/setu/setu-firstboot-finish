@@ -1,0 +1,48 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-firstboot-finish USER: the first-boot wizard's last job (Calamares
+# shellprocess@finish, after its users module made USER, the Setu admin).
+#   * setu-session.service runs as USER (a drop-in), with the keyboard
+#     layout chosen in the wizard (/etc/default/keyboard, as XKB_DEFAULT_*
+#     for labwc); the locale reaches the session through PAM
+#     (/etc/default/locale);
+#   * C: (the system volume) belongs to USER, the one Windows user for now
+#     (services/fs/README.md);
+#   * /var/lib/setu/firstboot.done is created and the wizard's unit
+#     disabled, so it never runs again; the session is enabled and started
+#     (it waits for the wizard's unit to stop).
+set -eu
+USER_NAME=${1:?usage: setu-firstboot-finish USER}
+. /usr/lib/setu/layout.env
+log() { echo "setu-firstboot: $*"; echo "setu-firstboot: $*" > /dev/kmsg 2>/dev/null || true; }
+
+id -u "$USER_NAME" >/dev/null
+# the groups the session needs (Calamares' users.conf lists them too)
+for g in sudo video render input audio; do
+    getent group "$g" >/dev/null && usermod -a -G "$g" "$USER_NAME"
+done
+
+D=/etc/systemd/system/setu-session.service.d
+mkdir -p $D
+printf '[Service]\nUser=%s\n' "$USER_NAME" > $D/10-user.conf
+XKBMODEL= XKBLAYOUT= XKBVARIANT= XKBOPTIONS=
+[ -f /etc/default/keyboard ] && . /etc/default/keyboard
+{
+    echo '[Service]'
+    echo "Environment=\"XKB_DEFAULT_MODEL=$XKBMODEL\" \"XKB_DEFAULT_LAYOUT=$XKBLAYOUT\""
+    echo "Environment=\"XKB_DEFAULT_VARIANT=$XKBVARIANT\" \"XKB_DEFAULT_OPTIONS=$XKBOPTIONS\""
+} > $D/20-keyboard.conf
+
+chown "$USER_NAME:" "$SETU_CVOL_DIR"
+# the computer name (Calamares wrote /etc/hostname) from now on, not only
+# from the next boot
+hostname -F /etc/hostname
+
+touch /var/lib/setu/firstboot.done
+# the wizard's config is no longer needed
+rm -rf /etc/calamares
+systemctl daemon-reload
+systemctl disable setu-firstboot.service
+systemctl enable setu-session.service
+systemctl --no-block start setu-session.service
+log "done: $USER_NAME on $(cat /etc/hostname), $(grep -s '^LANG=' /etc/default/locale), keyboard $XKBLAYOUT, $(readlink /etc/localtime | sed 's|.*/zoneinfo/||')"

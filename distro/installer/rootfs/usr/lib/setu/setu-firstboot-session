@@ -1,0 +1,16 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-firstboot-session: the session program of the first-boot wizard
+# (labwc -S, from setu-firstboot.service). Runs Calamares in OEM mode with the
+# config the installer left in /etc/calamares (from
+# /usr/share/setu/firstboot/calamares): language and locale, keyboard, time
+# zone, the admin account and the computer name. Its last job,
+# setu-firstboot-finish, hands over to the Setu session.
+# If Calamares quits or crashes before the wizard finished, start it again.
+flag=/var/lib/setu/firstboot.done
+until [ -f $flag ]; do
+    echo "setu-firstboot: starting the first-boot wizard (WAYLAND_DISPLAY=$WAYLAND_DISPLAY)"
+    calamares -D 6
+    echo "setu-firstboot: Calamares exited ($?)"
+    [ -f $flag ] || sleep 1
+done
