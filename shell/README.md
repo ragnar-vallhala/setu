@@ -181,3 +181,76 @@ learn.microsoft.com: *Using Application Desktop Toolbars*, *The Taskbar*
 `FindFirstChangeNotificationW`, `RegNotifyChangeKeyValue`,
 `SHChangeNotifyRegister`, `RegisterHotKey`, `LowLevelKeyboardProc`,
 `SHGetFileInfoW`, `TrackPopupMenu`, `RegGetValueW`.
+
+## Files (setu-files.exe)
+
+`src/setu-files.c` is Setu's file manager; the launcher's **Files** entry
+starts it. It's plain Win32 with the shell's warm-on-slate palette.
+
+![Files, details view](docs/files-01-details.png)
+
+- **Browsing**: a sidebar with Home, Desktop, Documents and Downloads (known
+  folders), the drives and the Recycle Bin (with its item count). The list has
+  a details view (name, size, type, modified; click a header to sort) and an
+  icons view. The address bar takes a path, `Drives` or `Recycle Bin`.
+- **Opening**: Enter or a double-click. Folders open in place; files go to
+  `ShellExecuteExW` with the default verb. **Open with…** lists the handlers
+  from the association registry (`AssocQueryStringW`, `OpenWithProgids`,
+  `OpenWithList`, `PerceivedType`). "Choose another program" saves the choice
+  for the user under `HKCU\Software\Classes` (`Applications\<exe>`,
+  `.ext\OpenWithList`, and a `Setu.Choice.*` ProgID when it should be the
+  default).
+- **File operations** use `SHFileOperationW`: new folder, in-place rename,
+  copy, cut and paste (`CF_HDROP` with `Preferred DropEffect`, so they work
+  with other programs), drag and drop onto a folder or a sidebar place, Delete
+  to the Recycle Bin (`FOF_ALLOWUNDO`) and Shift+Del to delete for good.
+  Progress and errors appear in the status bar. In the Recycle Bin view you
+  can restore, delete or empty.
+- **Properties** (Alt+Enter) is our own window. It shows type, location, size
+  (folders are counted in the background), the dates, and the read-only,
+  hidden and archive attributes, which you can change.
+- **Refresh**: our own operations reload the view, and
+  `FindFirstChangeNotificationW` picks up changes made by other programs.
+
+Keys: Alt+Left/Right/Up, Backspace, Enter, F2, Del, Shift+Del, Ctrl+C/X/V/A,
+Ctrl+Shift+N, Alt+Enter, F5, Ctrl+L (or Alt+D, F4), Ctrl+1/2 (details/icons),
+Ctrl+H (show hidden files) and Tab (moves between sidebar, list and address).
+
+| | |
+|---|---|
+| ![Operations](docs/files-02-operations.png) | ![Recycle Bin](docs/files-03-recycle-bin.png) |
+| ![Properties](docs/files-04-properties.png) | ![Open with](docs/files-05-open-with.png) |
+| ![Icons](docs/files-06-icons.png) | ![Drives](docs/files-07-drives.png) |
+
+**Test**: `tools/files-smoke.sh [--update-docs] [--keep]` runs under its own
+Xvfb with a fresh prefix (`build/files-prefix`). It sets `HOME`/`XDG_*` to
+`build/files-home`, so the Recycle Bin (the XDG trash) never touches yours. It
+drives the window with real keys and mouse (`setu-files-probe.exe`) and with
+`WM_COPYDATA` commands, then reads the window's state file. It covers
+browsing, sorting, new folder, rename, copy/paste, cut/paste, drag and drop, an
+outside change, delete, restoring from the Recycle Bin, Shift+Del,
+Properties, Open with and saving a choice, the icons and Drives views, and
+the launcher entry. Exit code 0 is PASS.
+
+Personality gaps found (BUG-FOR shell-api, worked around here):
+- `GetLogicalDrives` returns 0, so we probe `GetDriveTypeW` for each letter.
+- `FOF_RENAMEONCOLLISION` is ignored, so we name the " - Copy" files
+  ourselves.
+- `SHFileOperationW` shows no progress dialog, and most of `IFileOperation`
+  is a stub.
+- The Recycle Bin's context menu has no string verbs.
+- `wine.inf` doesn't map `.txt` to `txtfile`.
+- A popup lying wholly inside another of the process's windows isn't painted,
+  so Properties opens over the main window's left edge. The same bug blacks
+  out the shell32 delete confirmation.
+
+References (learn.microsoft.com): *Shell Namespace* / `IShellFolder2`,
+`SHGetKnownFolderPath`, `SHFileOperationW` and `SHFILEOPSTRUCTW`,
+*Shell Clipboard Formats*, `ShellExecuteExW`, `AssocQueryStringW`,
+*Programmatic Identifiers*, *Registering an Application for Use with
+Open With* (`OpenWithProgids`, `OpenWithList`), `SHQueryRecycleBinW`,
+`SHEmptyRecycleBinW`, `FindFirstChangeNotificationW`, `GetDriveTypeW`,
+`GetVolumeInformationW`, `GetDiskFreeSpaceExW`, *List-View Controls*
+(custom draw, `LVN_BEGINDRAG`, label editing), *Drag lists and image lists*
+(`ImageList_BeginDrag`), `SHAutoComplete`. Wine source was read for behaviour
+only (comctl32 listview drag tracking, kernelbase drives).
