@@ -32,6 +32,14 @@ static HBRUSH hbrushPattern;
 static HBITMAP hbitmapWallPaper;
 static SIZE bitmapSize;
 static BOOL fTileWallPaper;
+static int wallpaper_style;
+
+/* Control Panel\Desktop WallpaperStyle values */
+#define WPSTYLE_CENTER   0
+#define WPSTYLE_STRETCH  2
+#define WPSTYLE_FIT      6
+#define WPSTYLE_FILL     10
+#define WPSTYLE_SPAN     22
 
 
 /***********************************************************************
@@ -70,6 +78,7 @@ static void init_wallpaper( const WCHAR *wallpaper )
 	bitmapSize.cx = (bmp.bmWidth != 0) ? bmp.bmWidth : 1;
 	bitmapSize.cy = (bmp.bmHeight != 0) ? bmp.bmHeight : 1;
         fTileWallPaper = GetProfileIntA( "desktop", "TileWallPaper", 0 );
+        wallpaper_style = GetProfileIntA( "desktop", "WallpaperStyle", WPSTYLE_CENTER );
     }
 }
 
@@ -130,8 +139,10 @@ BOOL WINAPI PaintDesktop(HDC hdc)
 
         /* Paint desktop pattern (only if wall paper does not cover everything) */
 
-        if (!hbitmapWallPaper ||
-            (!fTileWallPaper && ((bitmapSize.cx < rect.right) || (bitmapSize.cy < rect.bottom))))
+        if (!hbitmapWallPaper || (!fTileWallPaper && wallpaper_style == WPSTYLE_FIT) ||
+            (!fTileWallPaper && wallpaper_style != WPSTYLE_STRETCH && wallpaper_style != WPSTYLE_FILL &&
+             wallpaper_style != WPSTYLE_SPAN &&
+             ((bitmapSize.cx < rect.right) || (bitmapSize.cy < rect.bottom))))
         {
             HBRUSH brush = hbrushPattern;
             if (!brush) brush = (HBRUSH)GetClassLongPtrW( hwnd, GCLP_HBRBACKGROUND );
@@ -155,6 +166,26 @@ BOOL WINAPI PaintDesktop(HDC hdc)
                 for (y = 0; y < rect.bottom; y += bitmapSize.cy)
                     for (x = 0; x < rect.right; x += bitmapSize.cx)
                         BitBlt( hdc, x, y, bitmapSize.cx, bitmapSize.cy, hMemDC, 0, 0, SRCCOPY );
+            }
+            else if (wallpaper_style == WPSTYLE_STRETCH || wallpaper_style == WPSTYLE_FIT ||
+                     wallpaper_style == WPSTYLE_FILL || wallpaper_style == WPSTYLE_SPAN)
+            {
+                INT w = rect.right - rect.left, h = rect.bottom - rect.top, dw = w, dh = h;
+
+                /* fit scales the whole picture into the desktop, fill (and span,
+                 * on a single desktop) covers it, cropping the overflow */
+                if (wallpaper_style != WPSTYLE_STRETCH)
+                {
+                    BOOL wider = (LONGLONG)bitmapSize.cx * h > (LONGLONG)w * bitmapSize.cy;
+                    if (wider == (wallpaper_style == WPSTYLE_FIT))
+                        dh = MulDiv( bitmapSize.cy, w, bitmapSize.cx );
+                    else
+                        dw = MulDiv( bitmapSize.cx, h, bitmapSize.cy );
+                }
+                SetStretchBltMode( hdc, HALFTONE );
+                SetBrushOrgEx( hdc, 0, 0, NULL );
+                StretchBlt( hdc, rect.left + (w - dw) / 2, rect.top + (h - dh) / 2, dw, dh,
+                            hMemDC, 0, 0, bitmapSize.cx, bitmapSize.cy, SRCCOPY );
             }
             else
             {
