@@ -2,13 +2,18 @@
 /*
  * setu-probe: small helper for the shell smoke test.
  *
- *   setu-probe mklnk LNK TARGET [ARGS]   create a shell link (IShellLinkW,
+ *   setu-probe mklnk LNK TARGET [ARGS [ICON,INDEX]]
+ *                                        create a shell link (IShellLinkW,
  *                                        IPersistFile::Save)
  *   setu-probe workarea                  print SPI_GETWORKAREA and the
  *                                        primary monitor's rcWork, as seen
  *                                        from this (separate) process
  *   setu-probe appbar-pos                print ABM_GETTASKBARPOS
  *   setu-probe click X Y                 click at screen X,Y (SendInput)
+ *   setu-probe rclick X Y                right-click at screen X,Y
+ *   setu-probe key SPEC...               press keys (SendInput): "lwin",
+ *                                        "ctrl+esc", "down", "enter", "p"...
+ *   setu-probe type TEXT                 type TEXT as key presses
  *   setu-probe setfg TITLE               SetForegroundWindow on that window
  *   setu-probe windows [all]             list top-level windows, top of the
  *                                        z-order first, one per line:
@@ -32,7 +37,75 @@
 #include <stdio.h>
 #include <wchar.h>
 
-static int mklnk(const WCHAR *lnk, const WCHAR *target, const WCHAR *args)
+/* A key name for "key": a letter or digit, or one of these. */
+static WORD key_vk(const WCHAR *name)
+{
+    static const struct { const WCHAR *name; WORD vk; } keys[] = {
+        { L"lwin", VK_LWIN }, { L"esc", VK_ESCAPE }, { L"enter", VK_RETURN }, { L"down", VK_DOWN },
+        { L"up", VK_UP }, { L"left", VK_LEFT }, { L"right", VK_RIGHT }, { L"apps", VK_APPS },
+        { L"tab", VK_TAB }, { L"f10", VK_F10 }, { L"ctrl", VK_CONTROL }, { L"shift", VK_SHIFT },
+        { L"back", VK_BACK },
+    };
+    int i;
+    for (i = 0; i < (int)ARRAYSIZE(keys); i++)
+        if (!lstrcmpiW(keys[i].name, name)) return keys[i].vk;
+    if (name[0] && !name[1]) return LOBYTE(VkKeyScanW(name[0]));
+    return 0;
+}
+
+static UINT send_key(WORD vk, BOOL up)
+{
+    INPUT in;
+    memset(&in, 0, sizeof(in));
+    in.type = INPUT_KEYBOARD;
+    in.ki.wVk = vk;
+    in.ki.wScan = (WORD)MapVirtualKeyW(vk, MAPVK_VK_TO_VSC);
+    if (up) in.ki.dwFlags |= KEYEVENTF_KEYUP;
+    if (vk == VK_LWIN || vk == VK_APPS || (vk >= VK_PRIOR && vk <= VK_DOWN)) in.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+    return SendInput(1, &in, sizeof(in));
+}
+
+/* key SPEC: press and release, e.g. "lwin", "ctrl+esc", "shift+f10", "p" */
+static int press_keys(const WCHAR *spec)
+{
+    WCHAR buf[64], *parts[4], *p, *ctx = NULL;
+    WORD vks[4];
+    int n = 0, i;
+    UINT sent = 0;
+
+    lstrcpynW(buf, spec, ARRAYSIZE(buf));
+    for (p = wcstok_s(buf, L"+", &ctx); p && n < 4; p = wcstok_s(NULL, L"+", &ctx)) parts[n++] = p;
+    for (i = 0; i < n; i++)
+        if (!(vks[i] = key_vk(parts[i]))) { fwprintf(stderr, L"unknown key %ls\n", parts[i]); return 1; }
+    for (i = 0; i < n; i++) { sent += send_key(vks[i], FALSE); Sleep(30); }
+    for (i = n - 1; i >= 0; i--) { sent += send_key(vks[i], TRUE); Sleep(30); }
+    Sleep(100);
+    wprintf(L"key %ls: %u events\n", spec, sent);
+    return sent != (UINT)(2 * n);
+}
+
+/* type TEXT: letters, digits and spaces, as key presses */
+static int type_text(const WCHAR *text)
+{
+    UINT sent = 0, want = 0;
+    for (; *text; text++)
+    {
+        SHORT vs = VkKeyScanW(*text);
+        BOOL shift = (vs >> 8) & 1;
+        if (vs == -1) continue;
+        if (shift) { sent += send_key(VK_SHIFT, FALSE); want++; }
+        sent += send_key(LOBYTE(vs), FALSE);
+        sent += send_key(LOBYTE(vs), TRUE);
+        want += 2;
+        if (shift) { sent += send_key(VK_SHIFT, TRUE); want++; }
+        Sleep(20);
+    }
+    Sleep(100);
+    wprintf(L"type: %u events\n", sent);
+    return sent != want;
+}
+
+static int mklnk(const WCHAR *lnk, const WCHAR *target, const WCHAR *args, const WCHAR *icon)
 {
     IShellLinkW *sl;
     IPersistFile *pf;
@@ -48,7 +121,16 @@ static int mklnk(const WCHAR *lnk, const WCHAR *target, const WCHAR *args)
     hr = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLinkW, (void **)&sl);
     if (FAILED(hr)) { wprintf(L"CoCreateInstance failed %08lx\n", hr); return 1; }
     IShellLinkW_SetPath(sl, target);
-    if (args) IShellLinkW_SetArguments(sl, args);
+    if (args && args[0]) IShellLinkW_SetArguments(sl, args);
+    if (icon && icon[0])
+    {
+        /* "FILE,INDEX" */
+        WCHAR file[MAX_PATH], *comma;
+        lstrcpynW(file, icon, MAX_PATH);
+        comma = wcsrchr(file, L',');
+        if (comma) *comma = 0;
+        IShellLinkW_SetIconLocation(sl, file, comma ? _wtoi(comma + 1) : 0);
+    }
     hr = IShellLinkW_QueryInterface(sl, &IID_IPersistFile, (void **)&pf);
     if (SUCCEEDED(hr))
     {
@@ -83,7 +165,14 @@ int wmain(int argc, WCHAR **argv)
     SetProcessDPIAware();
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     if (argc >= 4 && !wcscmp(argv[1], L"mklnk"))
-        ret = mklnk(argv[2], argv[3], argc > 4 ? argv[4] : NULL);
+        ret = mklnk(argv[2], argv[3], argc > 4 ? argv[4] : NULL, argc > 5 ? argv[5] : NULL);
+    else if (argc >= 3 && !wcscmp(argv[1], L"key"))
+    {
+        int i;
+        for (i = 2, ret = 0; i < argc && !ret; i++) ret = press_keys(argv[i]);
+    }
+    else if (argc >= 3 && !wcscmp(argv[1], L"type"))
+        ret = type_text(argv[2]);
     else if (argc >= 2 && !wcscmp(argv[1], L"workarea"))
     {
         RECT wa;
@@ -104,11 +193,12 @@ int wmain(int argc, WCHAR **argv)
                 abd.rc.left, abd.rc.top, abd.rc.right, abd.rc.bottom);
         ret = 0;
     }
-    else if (argc >= 4 && !wcscmp(argv[1], L"click"))
+    else if (argc >= 4 && (!wcscmp(argv[1], L"click") || !wcscmp(argv[1], L"rclick")))
     {
-        /* a real left click at screen pixel (x, y), through SendInput */
+        /* a real left (or right) click at screen pixel (x, y), through SendInput */
         INPUT in[3];
         int x = _wtoi(argv[2]), y = _wtoi(argv[3]);
+        BOOL right = argv[1][0] == L'r';
         int w = GetSystemMetrics(SM_CXSCREEN), h = GetSystemMetrics(SM_CYSCREEN);
         UINT n;
 
@@ -118,9 +208,9 @@ int wmain(int argc, WCHAR **argv)
         in[0].mi.dy = MulDiv(y, 65535, h - 1);
         in[0].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
         in[1].mi = in[0].mi;
-        in[1].mi.dwFlags |= MOUSEEVENTF_LEFTDOWN;
+        in[1].mi.dwFlags |= right ? MOUSEEVENTF_RIGHTDOWN : MOUSEEVENTF_LEFTDOWN;
         in[2].mi = in[0].mi;
-        in[2].mi.dwFlags |= MOUSEEVENTF_LEFTUP;
+        in[2].mi.dwFlags |= right ? MOUSEEVENTF_RIGHTUP : MOUSEEVENTF_LEFTUP;
         n = SendInput(1, &in[0], sizeof(INPUT));
         Sleep(100);
         n += SendInput(2, &in[1], sizeof(INPUT));
@@ -148,7 +238,7 @@ int wmain(int argc, WCHAR **argv)
         ret = 0;
     }
     else
-        fwprintf(stderr, L"usage: setu-probe mklnk LNK TARGET [ARGS] | workarea | appbar-pos | click X Y | setfg TITLE | windows [all]\n");
+        fwprintf(stderr, L"usage: setu-probe mklnk LNK TARGET [ARGS [ICON,INDEX]] | workarea | appbar-pos | click X Y | rclick X Y | key SPEC... | type TEXT | setfg TITLE | windows [all]\n");
     fflush(stdout);
     CoUninitialize();
     return ret;
