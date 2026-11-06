@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# Minimal stand-in for librsvg's rsvg-convert, for hosts that have the
+# librsvg library (with GObject introspection) but not its command-line
+# tool. It renders an SVG at its intrinsic pixel size into a PNG, which is
+# all Wine's tools/buildimage needs:
+#
+#   rsvg-convert in.svg -o out.png
+#   rsvg-convert in.svg out.png
+#
+# The rendering comes from the same librsvg library rsvg-convert uses.
+import sys
+import warnings
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+import cairo
+import gi
+
+gi.require_version("Rsvg", "2.0")
+from gi.repository import Rsvg  # noqa: E402
+
+
+def main(argv):
+    args = [a for a in argv[1:] if a != "-o"]
+    if len(args) != 2:
+        sys.stderr.write("usage: rsvg-convert in.svg -o out.png\n")
+        return 2
+    src, dst = args
+    handle = Rsvg.Handle.new_from_file(src)
+    dim = handle.get_dimensions()
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, dim.width, dim.height)
+    ctx = cairo.Context(surface)
+    handle.render_cairo(ctx)
+    surface.write_to_png(dst)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
