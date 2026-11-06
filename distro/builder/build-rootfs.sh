@@ -16,7 +16,7 @@
 #   9p tag "overlay"         more files for the image (services/fs, installed)
 #   9p tag "personality"     build/personality/install (read-only, WINE_MODE=setu)
 #   9p tag "shell"           directory with setu-shell.exe and, if built,
-#                            setu-probe.exe (HAVE_SHELL=1)
+#                            setu-files.exe and setu-probe.exe (HAVE_SHELL=1)
 #   virtio disk serial "setu-target"   the output disk (raw)
 # Output goes to the second serial port; its last line is SETU_BUILD_OK on
 # success (KIND=iso: preceded by SETU_ISO_SIZE=<bytes>).
@@ -148,10 +148,13 @@ if [ "${HAVE_SHELL:-0}" = 1 ]; then
     mount_9p shell /mnt/shell
     mkdir -p $T/opt/setu/shell
     cp --no-preserve=ownership /mnt/shell/setu-shell.exe $T/opt/setu/shell/
-    # the test helper next to it, if it was built (distro/tests use it)
-    if [ -f /mnt/shell/setu-probe.exe ]; then
-        cp --no-preserve=ownership /mnt/shell/setu-probe.exe $T/opt/setu/shell/
-    fi
+    # the file manager the shell opens folders with, and the test helper
+    # (distro/tests use it), if they were built
+    for f in setu-files.exe setu-probe.exe; do
+        if [ -f /mnt/shell/$f ]; then
+            cp --no-preserve=ownership /mnt/shell/$f $T/opt/setu/shell/
+        fi
+    done
     umount /mnt/shell
 fi
 
