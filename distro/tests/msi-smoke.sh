@@ -5,7 +5,9 @@
 #   1. start Notepad through the shell's run box and wait for its window,
 #   2. install a third-party .msi with `msiexec /i FILE /qn`,
 #   3. start the installed program through the run box and wait for its window,
-#   4. take a QEMU screendump of the desktop (taskbar + both programs).
+#   4. take a QEMU screendump of the desktop (taskbar + both programs),
+#   5. compile and run a tiny .NET program with the bundled Wine Mono
+#      (lib.sh check_dotnet).
 # Windows are found with setu-probe.exe (shell/tests/, installed next to the
 # shell when build-image.sh was given --shell from a build that has it).
 #
@@ -101,4 +103,7 @@ pass "$(basename "${EXE//\\//}"): $(grep -v -e '|Setu taskbar|' -e '|Notepad|' "
 sleep 2
 screendump "$SHOT"
 pass "screenshot: $SHOT"
+
+# --- 5. .NET ------------------------------------------------------------------
+check_dotnet
 echo "all checks passed"

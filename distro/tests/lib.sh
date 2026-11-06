@@ -47,7 +47,7 @@ install_guest_env() {
     gssh 'cat > /tmp/setu-env && chmod +x /tmp/setu-env' <<'EOF'
 #!/bin/sh
 export PATH=/opt/setu/personality/bin:$PATH WINEPREFIX=$HOME/.setu/prefix
-export WINEDEBUG=-all WINEDLLOVERRIDES='mscoree,mshtml='
+export WINEDEBUG=-all WINEDLLOVERRIDES='mshtml='
 for s in /tmp/.X11-unix/X*; do [ -S "$s" ] && export DISPLAY=:${s##*/X} && break; done
 exec "$@"
 EOF
@@ -56,6 +56,23 @@ EOF
 # gwine ARGS...: run wine in the guest session, each argument passed as is
 gwine() { gssh "/tmp/setu-env wine $(printf '%q ' "$@")"; }
 probe() { gwine /opt/setu/shell/setu-probe.exe "$@" | tr -d '\r'; }
+
+# check_dotnet: the bundled Wine Mono runs .NET programs. Compiles
+# tests/dotnet-hello.cs in the guest with Wine Mono's mcs.exe (itself a .NET
+# program) and runs the result; no download or install prompt may be needed.
+check_dotnet() {
+    local mono=/opt/setu/personality/share/wine/mono out
+    gssh test -d "$mono" || fail "no Wine Mono in $mono"
+    gscp "$(dirname "${BASH_SOURCE[0]}")/dotnet-hello.cs" "$GUEST_USER@127.0.0.1:/tmp/dotnet-hello.cs"
+    local mcs
+    mcs=$(gssh "ls -d $mono/wine-mono-*/lib/mono/4.5/mcs.exe" | head -1)
+    [ -n "$mcs" ] || fail "no mcs.exe in Wine Mono"
+    gwine "$mcs" -nologo -out:'Z:\tmp\dotnet-hello.exe' -r:System.Xml.dll -r:System.Core.dll 'Z:\tmp\dotnet-hello.cs' \
+        > "$OUT/dotnet-mcs.log" 2>&1 || fail "mcs.exe could not compile dotnet-hello.cs ($(tr -d '\r' < "$OUT/dotnet-mcs.log" | tail -3 | xargs))"
+    out=$(gwine 'Z:\tmp\dotnet-hello.exe' 2>&1 | tr -d '\r')
+    grep -q '^dotnet-hello: ok' <<< "$out" || fail "dotnet-hello.exe: $out"
+    pass "Wine Mono: mcs.exe compiled dotnet-hello.cs and it ran: $(grep '^dotnet-hello' <<< "$out")"
+}
 # wait_window REGEX [SECONDS]: a visible top-level window line matches
 wait_window() {
     local i
