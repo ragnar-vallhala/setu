@@ -1,26 +1,37 @@
 /* SPDX-License-Identifier: MIT OR Apache-2.0 */
 /*
- * setu-shell: the Setu desktop shell (Milestone 1).
+ * setu-shell: the Setu desktop shell (taskbar and start menu).
  *
  * A Win32 program built with mingw-w64 that runs on the Setu personality.
  * It uses only public, documented APIs (user32, gdi32, shell32, ole32,
- * kernel32). Main references (learn.microsoft.com):
+ * advapi32, kernel32). Main references (learn.microsoft.com):
  *   - "Using Application Desktop Toolbars" / SHAppBarMessage
  *   - "The Taskbar" > "Managing Taskbar Buttons" (which windows get a button)
  *   - "Shell Links" / IShellLinkW, IPersistFile
  *   - SHGetFolderPathW (CSIDL_PROGRAMS, CSIDL_COMMON_PROGRAMS)
  *   - ShellExecuteExW, SHDefExtractIconW, SHGetFileInfoW
+ *   - "Uninstall Registry Key" (Windows Installer): DisplayName,
+ *     UninstallString, InstallLocation; ARPPRODUCTICON (DisplayIcon),
+ *     ARPSYSTEMCOMPONENT (SystemComponent)
+ *   - FindFirstChangeNotificationW, RegNotifyChangeKeyValue,
+ *     SHChangeNotifyRegister (refresh when installers add shortcuts)
+ *   - RegisterHotKey, LowLevelKeyboardProc (Ctrl+Esc and the Windows key)
  *   - RegisterShellHookWindow, SetProcessDpiAwarenessContext, GetDpiForWindow
  *   - WM_COPYDATA (used to forward commands to a running shell)
  *
  * Command line (also accepted by a second instance, which forwards them to
  * the running shell and exits):
  *   --open-launcher | --close-launcher | --toggle-launcher
- *   --launch NAME      start the launcher entry called NAME
- *   --run CMD          run CMD as if typed into the launcher's run box
+ *   --launch NAME      start the menu entry called NAME
+ *   --run CMD          run CMD as if typed into the menu's search box
+ *   --search TEXT      type TEXT into the search box
+ *   --pin NAME | --unpin NAME   pin or unpin a menu entry
+ *   --reload           rescan the Start Menu and the Uninstall keys
  *   --state-file PATH  write the shell's state (for tests) to PATH
  *   --exit-after SEC   quit after SEC seconds (first instance only)
  *   --quit             quit the running shell
+ *
+ * Pins are kept in HKCU\Software\Setu\Shell, value "Pinned" (REG_MULTI_SZ).
  */
 #ifndef UNICODE
 #define UNICODE
@@ -43,13 +54,24 @@
 #define CMD_SEP        L'\x1f'
 
 #define WM_APP_APPBAR  (WM_APP + 1)
+#define WM_APP_CHANGED (WM_APP + 2)   /* Start Menu or Uninstall keys changed */
+#define WM_APP_SHNOTIFY (WM_APP + 3)  /* SHChangeNotifyRegister */
+#define WM_APP_TOGGLE  (WM_APP + 4)   /* Windows key tapped */
 #define TIMER_REFRESH  1
 #define TIMER_CLOCK    2
 #define TIMER_EXIT     3
+#define TIMER_RELOAD   4
+#define HOTKEY_MENU    1
 #define ID_EDIT        100
 #define IDM_CLOSE      200
 #define IDM_MINIMIZE   201
 #define IDM_RESTORE    202
+#define IDM_OPEN       210
+#define IDM_PIN        211
+#define IDM_UNPIN      212
+#define IDM_LOCATION   213
+#define IDM_UNINSTALL  214
+#define IDM_EXPAND     215
 
 /* Palette: an original, warm-on-slate scheme. */
 #define C_BAR      RGB(0x1b, 0x20, 0x26)
@@ -66,17 +88,36 @@
 /* ------------------------------------------------------------------ */
 /* State                                                                */
 
-enum app_kind { APP_BUILTIN, APP_SHORTCUT };
+enum app_kind { APP_BUILTIN, APP_SHORTCUT, APP_URL, APP_OTHER };
 
 struct app
 {
     enum app_kind kind;
     WCHAR name[128];
-    WCHAR file[MAX_PATH];   /* what ShellExecuteExW opens */
+    WCHAR key[MAX_PATH];        /* stable id for pins: "Folder\\Name" */
+    WCHAR file[MAX_PATH];       /* what ShellExecuteExW opens */
     WCHAR args[1024];
     WCHAR dir[MAX_PATH];
-    WCHAR lnk[MAX_PATH];    /* the .lnk itself (fallback target) */
-    HICON icon;
+    WCHAR lnk[MAX_PATH];        /* the .lnk/.url itself (fallback target) */
+    WCHAR desc[256];
+    WCHAR folder[128];          /* top-level Start Menu folder, "" if none */
+    WCHAR icon_file[MAX_PATH];
+    int icon_index;
+    WCHAR uninstall[1024];      /* UninstallString of the matching entry */
+    WCHAR location[MAX_PATH];   /* InstallLocation (other apps) */
+    int group;                  /* index into groups[], -1 at top level */
+    BOOL common;                /* found in the common Programs folder */
+    BOOL pinned;
+    HICON icon;                 /* owned by the icon cache */
+};
+
+struct group
+{
+    WCHAR name[128];
+    WCHAR path[MAX_PATH];       /* a folder holding it, for "Open file location" */
+    WCHAR uninstall[1024];
+    int count;
+    BOOL expanded;
 };
 
 struct task
@@ -89,20 +130,41 @@ struct task
     RECT rc;
 };
 
-#define MAX_APPS  512
-#define MAX_TASKS 64
-#define MAX_ROWS  (MAX_APPS + 4)
+enum row_type { ROW_LETTER, ROW_SECTION, ROW_APP, ROW_GROUP, ROW_HINT };
+
+struct row
+{
+    enum row_type type;
+    int index;                  /* app or group index */
+    int indent;
+    WCHAR text[32];             /* letter or section title */
+};
+
+#define MAX_APPS   1024
+#define MAX_GROUPS 256
+#define MAX_TASKS  64
+#define MAX_ROWS   (MAX_APPS + MAX_GROUPS + 64)
+#define MAX_PINS   12
 
 static struct app apps[MAX_APPS];
 static int napps;
+static struct group groups[MAX_GROUPS];
+static int ngroups;
 static struct task tasks[MAX_TASKS];
 static int ntasks;
 
-/* launcher rows: >= 0 app index, -1 "Built-in" header, -2 "Start Menu" header */
-static int rows[MAX_ROWS];
+static struct row rows[MAX_ROWS];
 static int nrows;
-static int sel_row = -1;
+static int pins[MAX_PINS];      /* app indices of the visible pins */
+static int npins;
+static WCHAR pin_keys[MAX_PINS][MAX_PATH];
+static int npin_keys;
+enum { SEL_NONE, SEL_TILE, SEL_ROW };
+static int sel_kind = SEL_NONE, sel_index = -1;
 static int scroll_px;
+static WCHAR search_text[256];
+static int reload_count;
+static BOOL in_menu;
 
 static HINSTANCE hinst;
 static HWND bar, launcher, edit;
@@ -121,6 +183,11 @@ static WCHAR state_path[MAX_PATH];
 static WCHAR status_text[256];
 static DWORD launcher_hidden_at;
 static WCHAR clock_text[64], date_text[64];
+static BOOL hotkey_ok, kbd_hook_ok;
+static HHOOK kbd_hook;
+static ULONG shnotify_id;
+static int nwatches;
+static HANDLE watch_stop;
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                              */
@@ -244,16 +311,6 @@ static BOOL ends_with_i(const WCHAR *s, const WCHAR *suffix)
     return a >= b && !lstrcmpiW(s + a - b, suffix);
 }
 
-static BOOL contains_i(const WCHAR *hay, const WCHAR *needle)
-{
-    WCHAR h[256], n[256];
-    lstrcpynW(h, hay, ARRAYSIZE(h));
-    lstrcpynW(n, needle, ARRAYSIZE(n));
-    CharLowerW(h);
-    CharLowerW(n);
-    return wcsstr(h, n) != NULL;
-}
-
 static void set_status(const WCHAR *fmt, ...)
 {
     va_list ap;
@@ -266,6 +323,12 @@ static void set_status(const WCHAR *fmt, ...)
 
 /* ------------------------------------------------------------------ */
 /* State file (for tests)                                               */
+
+static void tile_rect(int i, RECT *r);
+static int row_y(int row);
+static int row_height(int row);
+static int list_top(void);
+static int list_bottom(void);
 
 static void write_state(void)
 {
@@ -291,9 +354,48 @@ static void write_state(void)
     EMIT(L"launcher=%ls\r\n", IsWindowVisible(launcher) ? L"open" : L"closed");
     EMIT(L"clock=%ls\r\n", clock_text);
     EMIT(L"status=%ls\r\n", status_text);
+    EMIT(L"hotkey=%d\r\n", hotkey_ok);
+    EMIT(L"winkey_hook=%d\r\n", kbd_hook_ok);
+    EMIT(L"watches=%d\r\n", nwatches);
+    EMIT(L"shnotify=%d\r\n", shnotify_id != 0);
+    EMIT(L"reloads=%d\r\n", reload_count);
+    EMIT(L"search=%ls\r\n", search_text);
+    /* app=kind|name|file|folder|icon|pinned|uninstall|source */
     for (i = 0; i < napps; i++)
-        EMIT(L"app=%ls|%ls|%ls\r\n", apps[i].kind == APP_BUILTIN ? L"builtin" : L"shortcut",
-            apps[i].name, apps[i].file);
+    {
+        static const WCHAR *const kinds[] = { L"builtin", L"shortcut", L"url", L"other" };
+        const struct app *a = &apps[i];
+        EMIT(L"app=%ls|%ls|%ls|%ls|%ls|%ls|%ls|%ls\r\n", kinds[a->kind], a->name, a->file, a->folder,
+             a->icon ? L"icon" : L"glyph", a->pinned ? L"pinned" : L"-", a->uninstall[0] ? L"uninstall" : L"-",
+             a->kind == APP_SHORTCUT || a->kind == APP_URL ? (a->common ? L"common" : L"user") : L"-");
+    }
+    for (i = 0; i < ngroups; i++)
+        EMIT(L"group=%ls|%ls|%d\r\n", groups[i].name, groups[i].expanded ? L"expanded" : L"collapsed",
+             groups[i].count);
+    /* pins and rows with their centres in screen coordinates, for clicks */
+    for (i = 0; i < npins; i++)
+    {
+        RECT r;
+        POINT c;
+        tile_rect(i, &r);
+        c.x = (r.left + r.right) / 2;
+        c.y = (r.top + r.bottom) / 2;
+        ClientToScreen(launcher, &c);
+        EMIT(L"pin=%d|%ls|%ld,%ld%ls\r\n", i, apps[pins[i]].name, c.x, c.y,
+             sel_kind == SEL_TILE && sel_index == i ? L"|selected" : L"");
+    }
+    for (i = 0; i < nrows; i++)
+    {
+        static const WCHAR *const types[] = { L"letter", L"section", L"app", L"group", L"hint" };
+        const struct row *rw = &rows[i];
+        const WCHAR *label = rw->type == ROW_APP ? apps[rw->index].name :
+                             rw->type == ROW_GROUP ? groups[rw->index].name : rw->text;
+        POINT c = { S(200), row_y(i) + row_height(i) / 2 };
+        BOOL vis = row_y(i) >= list_top() && row_y(i) + row_height(i) <= list_bottom();
+        ClientToScreen(launcher, &c);
+        EMIT(L"row=%d|%ls|%ls|%d|%ld,%ld|%ls%ls\r\n", i, types[rw->type], label, rw->indent, c.x, c.y,
+             vis ? L"visible" : L"hidden", sel_kind == SEL_ROW && sel_index == i ? L"|selected" : L"");
+    }
     for (i = 0; i < ntasks; i++)
     {
         /* button centres in screen coordinates, so tests can click them */
@@ -320,42 +422,80 @@ static void write_state(void)
 }
 
 /* ------------------------------------------------------------------ */
-/* Apps: built-ins and Start Menu shortcuts                             */
+/* Icons, cached per (file, index, size)                                */
 
-static HICON icon_for(const WCHAR *file, const WCHAR *icon_file, int icon_index)
+struct icon_entry { WCHAR file[MAX_PATH]; int index, size; HICON icon; };
+static struct icon_entry *icon_cache;
+static int nicon_cache, icon_cache_cap;
+
+static void flush_icon_cache(void)
 {
-    HICON large = NULL, small = NULL;
-    int size = S(20);
+    int i;
+    for (i = 0; i < nicon_cache; i++)
+        if (icon_cache[i].icon) DestroyIcon(icon_cache[i].icon);
+    nicon_cache = 0;
+}
+
+/* The icon at FILE,INDEX, SIZE pixels square, or NULL. Misses are cached
+ * as well, so a file without icons is only read once. */
+static HICON cached_icon(const WCHAR *file, int index, int size)
+{
+    HICON icon = NULL;
+    int i;
+
+    if (!file || !file[0]) return NULL;
+    for (i = 0; i < nicon_cache; i++)
+        if (icon_cache[i].index == index && icon_cache[i].size == size && !lstrcmpiW(icon_cache[i].file, file))
+            return icon_cache[i].icon;
+    if (SHDefExtractIconW(file, index, 0, &icon, NULL, MAKELONG(size, size)) != S_OK) icon = NULL;
+    if (nicon_cache == icon_cache_cap)
+    {
+        int cap = icon_cache_cap ? icon_cache_cap * 2 : 64;
+        struct icon_entry *n = realloc(icon_cache, cap * sizeof(*n));
+        if (!n) return icon;
+        icon_cache = n;
+        icon_cache_cap = cap;
+    }
+    lstrcpynW(icon_cache[nicon_cache].file, file, MAX_PATH);
+    icon_cache[nicon_cache].index = index;
+    icon_cache[nicon_cache].size = size;
+    icon_cache[nicon_cache++].icon = icon;
+    return icon;
+}
+
+/* A program's own icon, or a document's icon from its file association. */
+static HICON file_icon(const WCHAR *file, int size)
+{
     SHFILEINFOW sfi;
 
-    if (icon_file && icon_file[0])
-    {
-        WCHAR expanded[MAX_PATH];
-        ExpandEnvironmentStringsW(icon_file, expanded, ARRAYSIZE(expanded));
-        if (SHDefExtractIconW(expanded, icon_index, 0, &large, &small, MAKELONG(size, S(16))) == S_OK)
-        {
-            if (small) DestroyIcon(small);
-            return large;
-        }
-    }
-    /* programs carry their own icon: the first icon resource */
-    if ((ends_with_i(file, L".exe") || ends_with_i(file, L".ico")) &&
-        SHDefExtractIconW(file, 0, 0, &large, &small, MAKELONG(size, S(16))) == S_OK)
-    {
-        if (small) DestroyIcon(small);
-        return large;
-    }
+    if (!file || !file[0]) return NULL;
+    if (ends_with_i(file, L".exe") || ends_with_i(file, L".ico") || ends_with_i(file, L".dll"))
+        return cached_icon(file, 0, size);
     memset(&sfi, 0, sizeof(sfi));
-    if (SHGetFileInfoW(file, 0, &sfi, sizeof(sfi), SHGFI_ICONLOCATION) && sfi.szDisplayName[0] &&
-        SHDefExtractIconW(sfi.szDisplayName, sfi.iIcon, 0, &large, &small, MAKELONG(size, S(16))) == S_OK)
-    {
-        if (small) DestroyIcon(small);
-        return large;
-    }
-    memset(&sfi, 0, sizeof(sfi));
-    if (SHGetFileInfoW(file, 0, &sfi, sizeof(sfi), SHGFI_ICON)) return sfi.hIcon;
+    if (SHGetFileInfoW(file, 0, &sfi, sizeof(sfi), SHGFI_ICONLOCATION) && sfi.szDisplayName[0])
+        return cached_icon(sfi.szDisplayName, sfi.iIcon, size);
     return NULL;
 }
+
+/* An app's icon: the link's icon location, else its target's icon. NULL
+ * means "draw our own glyph". */
+static HICON app_icon(const struct app *a, int size)
+{
+    WCHAR f[MAX_PATH];
+    HICON icon;
+
+    if (a->icon_file[0])
+    {
+        ExpandEnvironmentStringsW(a->icon_file, f, ARRAYSIZE(f));
+        if ((icon = cached_icon(f, a->icon_index, size))) return icon;
+    }
+    return file_icon(a->file, size);
+}
+
+/* ------------------------------------------------------------------ */
+/* Apps: built-ins, Start Menu shortcuts and Uninstall entries          */
+
+static WCHAR user_programs[MAX_PATH], common_programs[MAX_PATH];
 
 static struct app *find_app(const WCHAR *name)
 {
@@ -363,58 +503,103 @@ static struct app *find_app(const WCHAR *name)
     for (i = 0; i < napps; i++)
         if (!lstrcmpiW(apps[i].name, name)) return &apps[i];
     for (i = 0; i < napps; i++)
+        if (!lstrcmpiW(apps[i].key, name)) return &apps[i];
+    for (i = 0; i < napps; i++)
         if (!_wcsnicmp(apps[i].name, name, wcslen(name))) return &apps[i];
     return NULL;
 }
 
-static void add_builtin(const WCHAR *name, const WCHAR *const *exes, const WCHAR *args)
+static struct app *find_key(const WCHAR *key)
 {
-    WCHAR path[MAX_PATH], sysdir[MAX_PATH];
-    struct app *a;
-
-    if (napps >= MAX_APPS) return;
-    GetSystemDirectoryW(sysdir, ARRAYSIZE(sysdir));
-    for (; *exes; exes++)
-        if (SearchPathW(sysdir, *exes, NULL, ARRAYSIZE(path), path, NULL) ||
-            SearchPathW(NULL, *exes, NULL, ARRAYSIZE(path), path, NULL)) break;
-    if (!*exes) return;
-    a = &apps[napps++];
-    memset(a, 0, sizeof(*a));
-    a->kind = APP_BUILTIN;
-    lstrcpynW(a->name, name, ARRAYSIZE(a->name));
-    lstrcpynW(a->file, path, ARRAYSIZE(a->file));
-    if (args) lstrcpynW(a->args, args, ARRAYSIZE(a->args));
-    a->icon = icon_for(path, NULL, 0);
+    int i;
+    for (i = 0; i < napps; i++)
+        if (!lstrcmpiW(apps[i].key, key)) return &apps[i];
+    return NULL;
 }
 
-static void add_shortcut(const WCHAR *lnk_path)
+/* Look for EXE next to setu-shell.exe, in the system directory, then on
+ * the search path. */
+static BOOL find_program(const WCHAR *exe, WCHAR *path, DWORD len)
+{
+    WCHAR dir[MAX_PATH], *slash;
+
+    if (GetModuleFileNameW(NULL, dir, ARRAYSIZE(dir)) && (slash = wcsrchr(dir, L'\\')))
+    {
+        *slash = 0;
+        if (SearchPathW(dir, exe, NULL, len, path, NULL)) return TRUE;
+    }
+    GetSystemDirectoryW(dir, ARRAYSIZE(dir));
+    return SearchPathW(dir, exe, NULL, len, path, NULL) || SearchPathW(NULL, exe, NULL, len, path, NULL);
+}
+
+static struct app *new_app(enum app_kind kind)
+{
+    struct app *a;
+    if (napps >= MAX_APPS) return NULL;
+    a = &apps[napps];
+    memset(a, 0, sizeof(*a));
+    a->kind = kind;
+    a->group = -1;
+    return a;
+}
+
+static void add_builtin(const WCHAR *name, const WCHAR *const *exes, const WCHAR *args)
+{
+    WCHAR path[MAX_PATH];
+    struct app *a;
+
+    for (; *exes; exes++)
+        if (find_program(*exes, path, ARRAYSIZE(path))) break;
+    if (!*exes || !(a = new_app(APP_BUILTIN))) return;
+    lstrcpynW(a->name, name, ARRAYSIZE(a->name));
+    lstrcpynW(a->key, name, ARRAYSIZE(a->key));
+    lstrcpynW(a->file, path, ARRAYSIZE(a->file));
+    if (args) lstrcpynW(a->args, args, ARRAYSIZE(a->args));
+    napps++;
+}
+
+/* A .lnk or .url file found under a Programs folder. REL is its folder
+ * relative to Programs ("" at the top). */
+static void add_link(const WCHAR *path, const WCHAR *rel, BOOL common)
 {
     IShellLinkW *sl = NULL;
     IPersistFile *pf = NULL;
+    SHFILEINFOW sfi;
     struct app *a;
-    WCHAR raw[MAX_PATH], icon_file[MAX_PATH];
-    const WCHAR *base;
-    int icon_index = 0, i;
+    WCHAR raw[MAX_PATH];
+    const WCHAR *base, *slash;
+    BOOL url = ends_with_i(path, L".url");
 
-    if (napps >= MAX_APPS) return;
-    a = &apps[napps];
-    memset(a, 0, sizeof(*a));
-    a->kind = APP_SHORTCUT;
-    lstrcpynW(a->lnk, lnk_path, ARRAYSIZE(a->lnk));
+    if (!(a = new_app(url ? APP_URL : APP_SHORTCUT))) return;
+    a->common = common;
+    lstrcpynW(a->lnk, path, ARRAYSIZE(a->lnk));
 
-    base = wcsrchr(lnk_path, L'\\');
-    lstrcpynW(a->name, base ? base + 1 : lnk_path, ARRAYSIZE(a->name));
-    if (ends_with_i(a->name, L".lnk")) a->name[wcslen(a->name) - 4] = 0;
+    /* the name the shell shows for the file (no extension for links) */
+    memset(&sfi, 0, sizeof(sfi));
+    if (SHGetFileInfoW(path, 0, &sfi, sizeof(sfi), SHGFI_DISPLAYNAME) && sfi.szDisplayName[0])
+        lstrcpynW(a->name, sfi.szDisplayName, ARRAYSIZE(a->name));
+    else
+    {
+        base = wcsrchr(path, L'\\');
+        lstrcpynW(a->name, base ? base + 1 : path, ARRAYSIZE(a->name));
+    }
+    if (ends_with_i(a->name, L".lnk") || ends_with_i(a->name, L".url")) a->name[wcslen(a->name) - 4] = 0;
 
-    /* skip duplicates (same name in the per-user and common folders) */
-    for (i = 0; i < napps; i++)
-        if (!lstrcmpiW(apps[i].name, a->name)) return;
+    if (rel[0])
+    {
+        slash = wcschr(rel, L'\\');
+        lstrcpynW(a->folder, rel, slash ? min((int)ARRAYSIZE(a->folder), (int)(slash - rel) + 1) : (int)ARRAYSIZE(a->folder));
+        swprintf(a->key, ARRAYSIZE(a->key), L"%ls\\%ls", rel, a->name);
+    }
+    else lstrcpynW(a->key, a->name, ARRAYSIZE(a->key));
 
-    icon_file[0] = 0;
-    if (SUCCEEDED(CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                                   &IID_IShellLinkW, (void **)&sl)) &&
+    /* the per-user folder is scanned first and wins over the common one */
+    if (find_key(a->key)) return;
+
+    if (!url &&
+        SUCCEEDED(CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLinkW, (void **)&sl)) &&
         SUCCEEDED(IShellLinkW_QueryInterface(sl, &IID_IPersistFile, (void **)&pf)) &&
-        SUCCEEDED(IPersistFile_Load(pf, lnk_path, STGM_READ)))
+        SUCCEEDED(IPersistFile_Load(pf, path, STGM_READ)))
     {
         /* SLR_NO_UI: never show UI; the timeout is in the high word. */
         IShellLinkW_Resolve(sl, NULL, SLR_NO_UI | SLR_NOUPDATE | SLR_NOSEARCH | SLR_NOTRACK | (500 << 16));
@@ -425,22 +610,22 @@ static void add_shortcut(const WCHAR *lnk_path)
         raw[0] = 0;
         if (SUCCEEDED(IShellLinkW_GetWorkingDirectory(sl, raw, ARRAYSIZE(raw))) && raw[0])
             ExpandEnvironmentStringsW(raw, a->dir, ARRAYSIZE(a->dir));
-        IShellLinkW_GetIconLocation(sl, icon_file, ARRAYSIZE(icon_file), &icon_index);
+        IShellLinkW_GetDescription(sl, a->desc, ARRAYSIZE(a->desc));
+        if (FAILED(IShellLinkW_GetIconLocation(sl, a->icon_file, ARRAYSIZE(a->icon_file), &a->icon_index)))
+            a->icon_file[0] = 0;
     }
     if (pf) IPersistFile_Release(pf);
     if (sl) IShellLinkW_Release(sl);
 
-    /* A link without a file-system target (e.g. an advertised shortcut)
-     * is opened through the .lnk itself. */
-    if (!a->file[0]) lstrcpynW(a->file, lnk_path, ARRAYSIZE(a->file));
-    a->icon = icon_for(a->file, icon_file, icon_index);
-    if (!a->icon) a->icon = icon_for(lnk_path, NULL, 0);
+    /* An Internet shortcut, or a link without a file-system target (e.g.
+     * an advertised shortcut), is opened through the file itself. */
+    if (!a->file[0]) lstrcpynW(a->file, path, ARRAYSIZE(a->file));
     napps++;
 }
 
-static void scan_programs(const WCHAR *dir, int depth)
+static void scan_programs(const WCHAR *dir, const WCHAR *rel, int depth, BOOL common)
 {
-    WCHAR pattern[MAX_PATH], path[MAX_PATH];
+    WCHAR pattern[MAX_PATH], path[MAX_PATH], sub[MAX_PATH];
     WIN32_FIND_DATAW fd;
     HANDLE h;
 
@@ -453,51 +638,352 @@ static void scan_programs(const WCHAR *dir, int depth)
         if (!wcscmp(fd.cFileName, L".") || !wcscmp(fd.cFileName, L"..")) continue;
         if (swprintf(path, ARRAYSIZE(path), L"%ls\\%ls", dir, fd.cFileName) < 0) continue;
         if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            scan_programs(path, depth + 1);
-        else if (ends_with_i(fd.cFileName, L".lnk"))
-            add_shortcut(path);
+        {
+            if (swprintf(sub, ARRAYSIZE(sub), rel[0] ? L"%ls\\%ls" : L"%ls%ls", rel, fd.cFileName) < 0) continue;
+            scan_programs(path, sub, depth + 1, common);
+        }
+        else if (fd.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM))
+            continue; /* desktop.ini and friends */
+        else if (ends_with_i(fd.cFileName, L".lnk") || ends_with_i(fd.cFileName, L".url"))
+            add_link(path, rel, common);
+        /* .appref-ms (ClickOnce) is not publicly documented: not listed */
     } while (FindNextFileW(h, &fd));
     FindClose(h);
+}
+
+/* Entries of the Uninstall key ("Uninstall Registry Key" on
+ * learn.microsoft.com). */
+struct uninst
+{
+    WCHAR name[128];
+    WCHAR cmd[1024];            /* UninstallString */
+    WCHAR icon[MAX_PATH];       /* DisplayIcon: "file[,index]" */
+    int icon_index;
+    WCHAR location[MAX_PATH];   /* InstallLocation */
+    BOOL used;
+};
+#define MAX_UNINST 256
+static struct uninst *uninsts;
+static int nuninsts;
+
+static void get_reg_sz(HKEY key, const WCHAR *sub, const WCHAR *value, WCHAR *buf, DWORD len)
+{
+    DWORD size = len * sizeof(WCHAR);
+    if (RegGetValueW(key, sub, value, RRF_RT_REG_SZ, NULL, buf, &size)) buf[0] = 0;
+}
+
+static void read_uninstall(HKEY root, REGSAM view)
+{
+    WCHAR sub[256];
+    HKEY key;
+    DWORD i, len, sys, size;
+    struct uninst *u;
+    int j;
+
+    if (RegOpenKeyExW(root, L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0,
+                      KEY_READ | view, &key)) return;
+    for (i = 0; nuninsts < MAX_UNINST; i++)
+    {
+        WCHAR *comma;
+        len = ARRAYSIZE(sub);
+        if (RegEnumKeyExW(key, i, sub, &len, NULL, NULL, NULL, NULL)) break;
+        u = &uninsts[nuninsts];
+        memset(u, 0, sizeof(*u));
+        get_reg_sz(key, sub, L"DisplayName", u->name, ARRAYSIZE(u->name));
+        if (!u->name[0]) continue;
+        size = sizeof(sys);
+        /* ARPSYSTEMCOMPONENT: not shown in the list of installed programs */
+        if (!RegGetValueW(key, sub, L"SystemComponent", RRF_RT_REG_DWORD, NULL, &sys, &size) && sys == 1) continue;
+        for (j = 0; j < nuninsts; j++)
+            if (!lstrcmpiW(uninsts[j].name, u->name)) break;
+        if (j < nuninsts) continue;
+        get_reg_sz(key, sub, L"UninstallString", u->cmd, ARRAYSIZE(u->cmd));
+        get_reg_sz(key, sub, L"InstallLocation", u->location, ARRAYSIZE(u->location));
+        get_reg_sz(key, sub, L"DisplayIcon", u->icon, ARRAYSIZE(u->icon));
+        /* "path,index", the path possibly quoted */
+        if ((comma = wcsrchr(u->icon, L',')) && (iswdigit(comma[1]) || comma[1] == L'-'))
+        {
+            u->icon_index = _wtoi(comma + 1);
+            *comma = 0;
+        }
+        if (u->icon[0] == L'"')
+        {
+            memmove(u->icon, u->icon + 1, wcslen(u->icon) * sizeof(WCHAR));
+            if ((comma = wcschr(u->icon, L'"'))) *comma = 0;
+        }
+        len = (DWORD)wcslen(u->location);
+        while (len && u->location[len - 1] == L'\\') u->location[--len] = 0;
+        nuninsts++;
+    }
+    RegCloseKey(key);
+}
+
+/* Is FILE inside directory DIR? */
+static BOOL path_under(const WCHAR *file, const WCHAR *dir)
+{
+    size_t n = wcslen(dir);
+    return n > 3 && !_wcsnicmp(file, dir, n) && file[n] == L'\\';
+}
+
+/* The directory of the program a command line starts with, or "". The
+ * Windows and system directories don't count: too many things live there. */
+static void program_dir(const WCHAR *cmd, WCHAR *dir)
+{
+    WCHAR win[MAX_PATH], sys[MAX_PATH], low[1024], *p;
+    const WCHAR *end;
+
+    if (*cmd == L'"')
+    {
+        cmd++;
+        end = wcschr(cmd, L'"');
+    }
+    else
+    {
+        lstrcpynW(low, cmd, ARRAYSIZE(low));
+        CharLowerW(low);
+        p = wcsstr(low, L".exe");
+        end = p ? cmd + (p - low) + 4 : NULL;
+    }
+    if (!end) end = cmd + wcslen(cmd);
+    lstrcpynW(low, cmd, min(MAX_PATH, (int)(end - cmd) + 1));
+    if ((p = wcsrchr(low, L'\\'))) *p = 0;
+    else low[0] = 0;
+    GetWindowsDirectoryW(win, ARRAYSIZE(win));
+    GetSystemDirectoryW(sys, ARRAYSIZE(sys));
+    if (!lstrcmpiW(low, win) || !lstrcmpiW(low, sys) || wcslen(low) <= 3) low[0] = 0;
+    lstrcpynW(dir, low, MAX_PATH);
+}
+
+/* Does the Uninstall entry U belong to the shortcut A? */
+static BOOL uninst_matches(const struct uninst *u, const struct app *a)
+{
+    WCHAR dir[MAX_PATH], quoted[MAX_PATH + 2];
+    size_t n;
+
+    if (a->kind != APP_SHORTCUT && a->kind != APP_URL) return FALSE;
+    if (!lstrcmpiW(u->name, a->name)) return TRUE;
+    if (a->folder[0])
+    {
+        n = wcslen(a->folder);
+        /* the "Foo" folder for the "Foo 1.2 (x64)" entry */
+        if (!_wcsnicmp(u->name, a->folder, n) && (!u->name[n] || u->name[n] == L' ')) return TRUE;
+    }
+    if (a->kind != APP_SHORTCUT || !lstrcmpiW(a->file, a->lnk)) return FALSE;
+    if (u->location[0] && path_under(a->file, u->location)) return TRUE;
+    program_dir(u->cmd, dir);
+    if (dir[0] && path_under(a->file, dir)) return TRUE;
+    if (u->icon[0] && ends_with_i(u->icon, L".exe"))
+    {
+        swprintf(quoted, ARRAYSIZE(quoted), L"\"%ls\"", u->icon);
+        program_dir(quoted, dir);
+        if (dir[0] && path_under(a->file, dir)) return TRUE;
+    }
+    return FALSE;
+}
+
+static void load_uninstall(void)
+{
+    int i, j, n = napps;
+
+    if (!uninsts && !(uninsts = malloc(MAX_UNINST * sizeof(*uninsts)))) return;
+    nuninsts = 0;
+    read_uninstall(HKEY_CURRENT_USER, 0);
+    read_uninstall(HKEY_LOCAL_MACHINE, KEY_WOW64_64KEY);
+    read_uninstall(HKEY_LOCAL_MACHINE, KEY_WOW64_32KEY);
+
+    for (i = 0; i < nuninsts; i++)
+        for (j = 0; j < n; j++)
+            if (uninst_matches(&uninsts[i], &apps[j]))
+            {
+                if (!apps[j].uninstall[0]) lstrcpynW(apps[j].uninstall, uninsts[i].cmd, ARRAYSIZE(apps[j].uninstall));
+                uninsts[i].used = TRUE;
+            }
+
+    /* "Other apps": installed programs without a shortcut */
+    for (i = 0; i < nuninsts; i++)
+    {
+        struct uninst *u = &uninsts[i];
+        struct app *a;
+        const WCHAR *base;
+
+        if (u->used || !(a = new_app(APP_OTHER))) continue;
+        lstrcpynW(a->name, u->name, ARRAYSIZE(a->name));
+        swprintf(a->key, ARRAYSIZE(a->key), L"?other\\%ls", u->name);
+        lstrcpynW(a->uninstall, u->cmd, ARRAYSIZE(a->uninstall));
+        lstrcpynW(a->location, u->location, ARRAYSIZE(a->location));
+        lstrcpynW(a->icon_file, u->icon, ARRAYSIZE(a->icon_file));
+        a->icon_index = u->icon_index;
+        /* DisplayIcon usually names the program: start that, unless it is
+         * the uninstaller itself */
+        base = wcsrchr(u->icon, L'\\');
+        base = base ? base + 1 : u->icon;
+        if (ends_with_i(u->icon, L".exe") && _wcsnicmp(base, L"unins", 5) &&
+            GetFileAttributesW(u->icon) != INVALID_FILE_ATTRIBUTES)
+            lstrcpynW(a->file, u->icon, ARRAYSIZE(a->file));
+        napps++;
+    }
+}
+
+static int name_cmp(const WCHAR *a, const WCHAR *b)
+{
+    return CompareStringEx(LOCALE_NAME_USER_DEFAULT, NORM_IGNORECASE, a, -1, b, -1, NULL, NULL, 0) - 2;
 }
 
 static int __cdecl cmp_apps(const void *a, const void *b)
 {
     const struct app *x = a, *y = b;
-    if (x->kind != y->kind) return x->kind - y->kind;
-    if (x->kind == APP_BUILTIN) return 0;
-    return CompareStringEx(LOCALE_NAME_USER_DEFAULT, NORM_IGNORECASE, x->name, -1, y->name, -1, NULL, NULL, 0) - 2;
+    int r = name_cmp(x->name, y->name);
+    return r ? r : lstrcmpiW(x->key, y->key);
+}
+
+/* Folders become groups; a folder holding a single app is collapsed into
+ * that app, which is then shown at the top level. */
+static void build_groups(void)
+{
+    int i, j;
+
+    ngroups = 0;
+    for (i = 0; i < napps; i++)
+    {
+        struct app *a = &apps[i];
+        int count = 0;
+        if (!a->folder[0] || a->kind == APP_OTHER) continue;
+        for (j = 0; j < ngroups; j++)
+            if (!lstrcmpiW(groups[j].name, a->folder)) break;
+        if (j < ngroups) { a->group = j; groups[j].count++; continue; }
+        for (j = 0; j < napps; j++)
+            if (!lstrcmpiW(apps[j].folder, a->folder) && apps[j].kind != APP_OTHER) count++;
+        if (count < 2 || ngroups == MAX_GROUPS) continue;
+        memset(&groups[ngroups], 0, sizeof(groups[0]));
+        lstrcpynW(groups[ngroups].name, a->folder, ARRAYSIZE(groups[0].name));
+        swprintf(groups[ngroups].path, MAX_PATH, L"%ls\\%ls", a->common ? common_programs : user_programs, a->folder);
+        groups[ngroups].count = 1;
+        a->group = ngroups++;
+    }
+    for (i = 0; i < napps; i++)
+        if (apps[i].group >= 0 && apps[i].uninstall[0] && !groups[apps[i].group].uninstall[0])
+            lstrcpynW(groups[apps[i].group].uninstall, apps[i].uninstall, ARRAYSIZE(groups[0].uninstall));
+}
+
+/* Pins: HKCU\Software\Setu\Shell, "Pinned" (REG_MULTI_SZ, in order). */
+#define SHELL_KEY L"Software\\Setu\\Shell"
+
+static void map_pins(void)
+{
+    int i;
+    struct app *a;
+
+    for (i = 0; i < napps; i++) apps[i].pinned = FALSE;
+    npins = 0;
+    for (i = 0; i < npin_keys; i++)
+        if ((a = find_key(pin_keys[i])) && !a->pinned)
+        {
+            a->pinned = TRUE;
+            pins[npins++] = (int)(a - apps);
+        }
+}
+
+static void load_pins(void)
+{
+    static const WCHAR *const defaults[] = { L"Files", L"Notepad", L"Command Prompt" };
+    static WCHAR buf[MAX_PINS * MAX_PATH + 2];
+    WCHAR *p;
+    DWORD size = sizeof(buf) - 2 * sizeof(WCHAR);
+    int i;
+
+    npin_keys = 0;
+    memset(buf, 0, sizeof(buf));
+    if (!RegGetValueW(HKEY_CURRENT_USER, SHELL_KEY, L"Pinned", RRF_RT_REG_MULTI_SZ, NULL, buf, &size))
+    {
+        for (p = buf; *p && npin_keys < MAX_PINS; p += wcslen(p) + 1)
+            lstrcpynW(pin_keys[npin_keys++], p, MAX_PATH);
+    }
+    else /* nothing saved yet */
+        for (i = 0; i < (int)ARRAYSIZE(defaults); i++)
+            lstrcpynW(pin_keys[npin_keys++], defaults[i], MAX_PATH);
+}
+
+static BOOL save_pins(void)
+{
+    static WCHAR buf[MAX_PINS * MAX_PATH + 2];
+    WCHAR *p = buf;
+    int i;
+
+    for (i = 0; i < npin_keys; i++)
+    {
+        wcscpy(p, pin_keys[i]);
+        p += wcslen(p) + 1;
+    }
+    if (!npin_keys) *p++ = 0;
+    *p++ = 0;
+    return !RegSetKeyValueW(HKEY_CURRENT_USER, SHELL_KEY, L"Pinned", REG_MULTI_SZ, buf,
+                            (DWORD)((p - buf) * sizeof(WCHAR)));
+}
+
+static BOOL pin_app(const struct app *a, BOOL pin)
+{
+    int i;
+
+    for (i = 0; i < npin_keys; i++)
+        if (!lstrcmpiW(pin_keys[i], a->key)) break;
+    if (pin)
+    {
+        if (i < npin_keys) return TRUE;
+        if (npin_keys == MAX_PINS) return FALSE;
+        lstrcpynW(pin_keys[npin_keys++], a->key, MAX_PATH);
+    }
+    else
+    {
+        if (i == npin_keys) return TRUE;
+        memmove(pin_keys[i], pin_keys[i + 1], (npin_keys - i - 1) * sizeof(pin_keys[0]));
+        npin_keys--;
+    }
+    map_pins();
+    return save_pins();
 }
 
 static void free_apps(void)
 {
-    int i;
-    for (i = 0; i < napps; i++)
-        if (apps[i].icon) DestroyIcon(apps[i].icon);
     napps = 0;
+    ngroups = 0;
+    npins = 0;
 }
 
 static void load_apps(void)
 {
     static const WCHAR *const notepad[] = { L"notepad.exe", NULL };
     static const WCHAR *const cmd[] = { L"cmd.exe", NULL };
-    static const WCHAR *const files[] = { L"explorer.exe", L"winefile.exe", NULL };
+    static const WCHAR *const files[] = { L"setu-files.exe", L"explorer.exe", L"winefile.exe", NULL };
     static const WCHAR *const regedit[] = { L"regedit.exe", NULL };
-    static const int folders[] = { CSIDL_PROGRAMS, CSIDL_COMMON_PROGRAMS };
-    WCHAR dir[MAX_PATH];
-    int i, nbuiltin;
+    static WCHAR expanded[MAX_GROUPS][128];
+    int nexpanded = 0, i, j;
+
+    for (i = 0; i < ngroups; i++)
+        if (groups[i].expanded) lstrcpynW(expanded[nexpanded++], groups[i].name, 128);
 
     free_apps();
+    add_builtin(L"Files", files, NULL);
     add_builtin(L"Notepad", notepad, NULL);
     add_builtin(L"Command Prompt", cmd, NULL);
-    add_builtin(L"Files", files, NULL);
     add_builtin(L"Registry Editor", regedit, NULL);
-    nbuiltin = napps;
 
-    for (i = 0; i < (int)ARRAYSIZE(folders); i++)
-        if (SUCCEEDED(SHGetFolderPathW(NULL, folders[i], NULL, SHGFP_TYPE_CURRENT, dir)))
-            scan_programs(dir, 0);
+    /* CSIDL_FLAG_CREATE: the folders must exist to be watched */
+    if (FAILED(SHGetFolderPathW(NULL, CSIDL_PROGRAMS | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, user_programs)))
+        user_programs[0] = 0;
+    if (FAILED(SHGetFolderPathW(NULL, CSIDL_COMMON_PROGRAMS | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, common_programs)))
+        common_programs[0] = 0;
+    if (user_programs[0]) scan_programs(user_programs, L"", 0, FALSE);
+    if (common_programs[0] && lstrcmpiW(user_programs, common_programs)) scan_programs(common_programs, L"", 0, TRUE);
+    load_uninstall();
 
-    qsort(apps + nbuiltin, napps - nbuiltin, sizeof(apps[0]), cmp_apps);
+    qsort(apps, napps, sizeof(apps[0]), cmp_apps);
+    build_groups();
+    for (i = 0; i < ngroups; i++)
+        for (j = 0; j < nexpanded; j++)
+            if (!lstrcmpiW(groups[i].name, expanded[j])) groups[i].expanded = TRUE;
+    for (i = 0; i < napps; i++) apps[i].icon = app_icon(&apps[i], S(24));
+    map_pins();
+    reload_count++;
 }
 
 /* ------------------------------------------------------------------ */
@@ -523,9 +1009,18 @@ BOOL apply_commands(int argc, WCHAR **argv);
 
 static BOOL launch_app(const struct app *a)
 {
-    BOOL ok = shell_execute(a->file, a->args, a->dir);
-    DWORD err = ok ? 0 : GetLastError();
+    BOOL ok;
+    DWORD err;
 
+    if (!a->file[0])
+    {
+        /* an installed program whose Uninstall entry names no program */
+        set_status(L"%ls has no program to start", a->name);
+        write_state();
+        return FALSE;
+    }
+    ok = shell_execute(a->file, a->args, a->dir);
+    err = ok ? 0 : GetLastError();
     if (!ok && a->kind == APP_SHORTCUT && lstrcmpiW(a->file, a->lnk))
         ok = shell_execute(a->lnk, NULL, NULL);
     if (ok)
@@ -534,6 +1029,69 @@ static BOOL launch_app(const struct app *a)
         hide_launcher();
     }
     else set_status(L"Could not start %ls (error %lu)", a->name, err);
+    write_state();
+    return ok;
+}
+
+/* Show FOLDER, with ITEM selected if given: setu-files.exe if it's
+ * installed, else explorer.exe (/select). */
+static BOOL open_location(const WCHAR *folder, const WCHAR *item)
+{
+    WCHAR files[MAX_PATH], args[MAX_PATH * 2 + 16];
+    BOOL ok;
+
+    if (!folder[0]) return FALSE;
+    if (find_program(L"setu-files.exe", files, ARRAYSIZE(files)))
+    {
+        swprintf(args, ARRAYSIZE(args), L"\"%ls\"", folder);
+        ok = shell_execute(files, args, NULL);
+    }
+    else
+    {
+        if (item && item[0]) swprintf(args, ARRAYSIZE(args), L"/select,\"%ls\"", item);
+        else swprintf(args, ARRAYSIZE(args), L"\"%ls\"", folder);
+        ok = shell_execute(L"explorer.exe", args, NULL);
+    }
+    if (ok)
+    {
+        set_status(L"Opened %ls", folder);
+        hide_launcher();
+    }
+    else set_status(L"Could not open %ls", folder);
+    write_state();
+    return ok;
+}
+
+static BOOL open_app_location(const struct app *a)
+{
+    WCHAR dir[MAX_PATH], *slash;
+    const WCHAR *item = a->kind == APP_BUILTIN ? a->file : a->lnk;
+
+    if (a->kind == APP_OTHER) return open_location(a->location, NULL);
+    lstrcpynW(dir, item, ARRAYSIZE(dir));
+    if ((slash = wcsrchr(dir, L'\\'))) *slash = 0;
+    return open_location(dir, item);
+}
+
+/* Run an UninstallString, which is a command line. */
+static BOOL run_uninstall(const WCHAR *name, const WCHAR *cmd)
+{
+    WCHAR line[2048];
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi;
+    BOOL ok;
+
+    if (!cmd[0]) return FALSE;
+    ExpandEnvironmentStringsW(cmd, line, ARRAYSIZE(line));
+    ok = CreateProcessW(NULL, line, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+    if (ok)
+    {
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+        set_status(L"Uninstalling %ls", name);
+        hide_launcher();
+    }
+    else set_status(L"Could not start the uninstaller of %ls (error %lu)", name, GetLastError());
     write_state();
     return ok;
 }
@@ -633,29 +1191,17 @@ static BOOL icon_usable(HICON icon)
     return TRUE;
 }
 
-static struct { WCHAR path[MAX_PATH]; HICON icon; } exe_icons[MAX_TASKS];
-static int nexe_icons;
-
 static HICON exe_icon(HWND hwnd)
 {
     WCHAR path[MAX_PATH];
     DWORD pid = 0, len = ARRAYSIZE(path);
     HANDLE proc;
-    HICON icon;
-    int i;
 
     GetWindowThreadProcessId(hwnd, &pid);
     if (!(proc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid))) return NULL;
     if (!QueryFullProcessImageNameW(proc, 0, path, &len)) path[0] = 0;
     CloseHandle(proc);
-    if (!path[0]) return NULL;
-    for (i = 0; i < nexe_icons; i++)
-        if (!lstrcmpiW(exe_icons[i].path, path)) return exe_icons[i].icon;
-    if (!(icon = icon_for(path, NULL, 0))) return NULL;
-    if (nexe_icons == MAX_TASKS) return icon; /* cache full: leak one, rare */
-    lstrcpynW(exe_icons[nexe_icons].path, path, MAX_PATH);
-    exe_icons[nexe_icons++].icon = icon;
-    return icon;
+    return path[0] ? file_icon(path, S(16)) : NULL;
 }
 
 static HICON window_icon(HWND hwnd)
@@ -955,6 +1501,133 @@ static void dock_bar(void)
 }
 
 static void show_launcher(void);
+static void toggle_launcher(void);
+static void reload_apps(void);
+static void refresh_rows(BOOL keep);
+
+/* ------------------------------------------------------------------ */
+/* Refresh: watch the Programs folders and the Uninstall keys           */
+
+#define UNINSTALL_KEY L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
+
+/* FindFirstChangeNotificationW on both Programs folders (with their
+ * subfolders) and RegNotifyChangeKeyValue on the Uninstall keys; any
+ * change posts WM_APP_CHANGED to the taskbar, which rescans shortly
+ * after (installers write many files in a row). */
+static DWORD WINAPI watch_thread(void *arg)
+{
+    static const struct { HKEY root; REGSAM view; } regs[] = {
+        { HKEY_CURRENT_USER, 0 },
+        { HKEY_LOCAL_MACHINE, KEY_WOW64_64KEY },
+        { HKEY_LOCAL_MACHINE, KEY_WOW64_32KEY },
+    };
+    const WCHAR *dirs[2] = { user_programs, common_programs };
+    HANDLE handles[8];
+    HKEY keys[8] = { 0 };
+    int nh = 0, i;
+    DWORD r;
+
+    handles[nh++] = watch_stop;
+    for (i = 0; i < 2; i++)
+    {
+        HANDLE h;
+        if (!dirs[i][0] || (i && !lstrcmpiW(dirs[0], dirs[1]))) continue;
+        h = FindFirstChangeNotificationW(dirs[i], TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME |
+                                         FILE_NOTIFY_CHANGE_LAST_WRITE);
+        if (h != INVALID_HANDLE_VALUE) handles[nh++] = h;
+    }
+    for (i = 0; i < (int)ARRAYSIZE(regs); i++)
+    {
+        HKEY k;
+        HANDLE ev;
+        /* if there's no Uninstall key yet, watch its parent */
+        if (RegOpenKeyExW(regs[i].root, UNINSTALL_KEY, 0, KEY_NOTIFY | regs[i].view, &k) &&
+            RegOpenKeyExW(regs[i].root, L"Software\\Microsoft\\Windows\\CurrentVersion", 0,
+                          KEY_NOTIFY | regs[i].view, &k))
+            continue;
+        ev = CreateEventW(NULL, FALSE, FALSE, NULL);
+        if (!ev || RegNotifyChangeKeyValue(k, TRUE, REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_LAST_SET, ev, TRUE))
+        {
+            if (ev) CloseHandle(ev);
+            RegCloseKey(k);
+            continue;
+        }
+        keys[nh] = k;
+        handles[nh++] = ev;
+    }
+    nwatches = nh - 1;
+
+    for (;;)
+    {
+        r = WaitForMultipleObjects(nh, handles, FALSE, INFINITE);
+        if (r == WAIT_FAILED || r == WAIT_OBJECT_0 || r >= WAIT_OBJECT_0 + (DWORD)nh) break;
+        i = r - WAIT_OBJECT_0;
+        if (keys[i]) RegNotifyChangeKeyValue(keys[i], TRUE, REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_LAST_SET,
+                                             handles[i], TRUE);
+        else FindNextChangeNotification(handles[i]);
+        PostMessageW(bar, WM_APP_CHANGED, 0, 0);
+    }
+    for (i = 1; i < nh; i++)
+    {
+        if (keys[i]) { RegCloseKey(keys[i]); CloseHandle(handles[i]); }
+        else FindCloseChangeNotification(handles[i]);
+    }
+    return 0;
+}
+
+/* SHChangeNotifyRegister on the Programs folders too: installers that
+ * call SHChangeNotify are heard without polling the file system. */
+static void register_shnotify(void)
+{
+    static const int folders[] = { CSIDL_PROGRAMS, CSIDL_COMMON_PROGRAMS };
+    SHChangeNotifyEntry entries[2];
+    int n = 0, i;
+
+    for (i = 0; i < (int)ARRAYSIZE(folders); i++)
+    {
+        PIDLIST_ABSOLUTE pidl;
+        if (SUCCEEDED(SHGetSpecialFolderLocation(bar, folders[i], &pidl)))
+        {
+            entries[n].pidl = pidl;
+            entries[n++].fRecursive = TRUE;
+        }
+    }
+    if (n)
+        shnotify_id = SHChangeNotifyRegister(bar, SHCNRF_ShellLevel | SHCNRF_InterruptLevel | SHCNRF_NewDelivery,
+                                             SHCNE_CREATE | SHCNE_DELETE | SHCNE_RENAMEITEM | SHCNE_MKDIR |
+                                             SHCNE_RMDIR | SHCNE_UPDATEDIR | SHCNE_UPDATEITEM | SHCNE_ASSOCCHANGED,
+                                             WM_APP_SHNOTIFY, n, entries);
+    for (i = 0; i < n; i++) CoTaskMemFree((void *)entries[i].pidl);
+}
+
+/* The Windows key on its own (pressed and released with no other key in
+ * between) opens the menu. A low-level keyboard hook sees it whichever
+ * window has the focus. */
+static BOOL win_down, win_combo;
+
+static LRESULT CALLBACK kbd_proc(int code, WPARAM wp, LPARAM lp)
+{
+    if (code == HC_ACTION)
+    {
+        const KBDLLHOOKSTRUCT *k = (const KBDLLHOOKSTRUCT *)lp;
+        BOOL down = wp == WM_KEYDOWN || wp == WM_SYSKEYDOWN;
+        if (k->vkCode == VK_LWIN || k->vkCode == VK_RWIN)
+        {
+            if (down)
+            {
+                if (!win_down) win_combo = FALSE;
+                win_down = TRUE;
+            }
+            else
+            {
+                if (win_down && !win_combo) PostMessageW(bar, WM_APP_TOGGLE, 0, 0);
+                win_down = FALSE;
+            }
+        }
+        else if (down && win_down) win_combo = TRUE;
+    }
+    return CallNextHookEx(kbd_hook, code, wp, lp);
+}
 
 static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
@@ -1033,6 +1706,28 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         if (wp == TIMER_REFRESH) refresh_tasks();
         else if (wp == TIMER_CLOCK) update_clock();
         else if (wp == TIMER_EXIT) DestroyWindow(hwnd);
+        else if (wp == TIMER_RELOAD)
+        {
+            KillTimer(hwnd, TIMER_RELOAD);
+            reload_apps();
+        }
+        return 0;
+    case WM_APP_CHANGED:
+        SetTimer(hwnd, TIMER_RELOAD, 300, NULL);
+        return 0;
+    case WM_APP_SHNOTIFY:
+    {
+        PIDLIST_ABSOLUTE *pidls;
+        LONG event = 0;
+        HANDLE lock = SHChangeNotification_Lock((HANDLE)wp, (DWORD)lp, &pidls, &event);
+        if (lock) SHChangeNotification_Unlock(lock);
+        if (event & SHCNE_ASSOCCHANGED) flush_icon_cache();
+        SetTimer(hwnd, TIMER_RELOAD, 300, NULL);
+        return 0;
+    }
+    case WM_APP_TOGGLE:
+    case WM_HOTKEY:
+        toggle_launcher();
         return 0;
     case WM_APP_APPBAR:
         if (wp == ABN_POSCHANGED) dock_bar();
@@ -1043,8 +1738,9 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_DPICHANGED:
         dpi = HIWORD(wp);
         make_fonts();
-        free_apps();
+        flush_icon_cache();
         load_apps();
+        refresh_rows(FALSE);
         dock_bar();
         return 0;
     case WM_COPYDATA:
@@ -1079,6 +1775,10 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         if (appbar_ok) SHAppBarMessage(ABM_REMOVE, &abd);
         if (workarea_set) SystemParametersInfoW(SPI_SETWORKAREA, 0, &saved_workarea, SPIF_SENDCHANGE);
         if (shellhook_ok) DeregisterShellHookWindow(hwnd);
+        if (shnotify_id) SHChangeNotifyDeregister(shnotify_id);
+        if (hotkey_ok) UnregisterHotKey(hwnd, HOTKEY_MENU);
+        if (kbd_hook) UnhookWindowsHookEx(kbd_hook);
+        if (watch_stop) SetEvent(watch_stop);
         PostQuitMessage(0);
         return 0;
     }
@@ -1087,36 +1787,122 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 }
 
 /* ------------------------------------------------------------------ */
-/* Launcher                                                             */
+/* Start menu                                                           */
 
-static int row_height(int row) { return rows[row] < 0 ? S(30) : S(38); }
-static int list_top(void) { return S(112); }
+/* Our own glyphs: a lettered tile for apps without an icon, a folder for
+ * groups, a magnifier and a chevron. */
+static void draw_glyph(HDC dc, int x, int y, int size, const WCHAR *name)
+{
+    static const COLORREF tones[] = {
+        RGB(0x4f, 0x7f, 0x6f), RGB(0x6c, 0x64, 0x9c), RGB(0xa4, 0x62, 0x4a),
+        RGB(0x47, 0x74, 0xa3), RGB(0x8c, 0x7a, 0x3a), RGB(0x84, 0x55, 0x74),
+    };
+    unsigned h = 0;
+    const WCHAR *p;
+    WCHAR letter[2] = { name[0] ? name[0] : L'?', 0 };
+    RECT r = { x, y, x + size, y + size };
+    LOGFONTW lf;
+    HFONT f;
+
+    for (p = name; *p; p++) h = h * 31 + towlower(*p);
+    fill_round(dc, &r, size / 3, tones[h % ARRAYSIZE(tones)]);
+    CharUpperBuffW(letter, 1);
+    GetObjectW(font_bold, sizeof(lf), &lf);
+    lf.lfHeight = -size * 11 / 20;
+    f = CreateFontIndirectW(&lf);
+    draw_text(dc, letter, &r, f, RGB(0xff, 0xff, 0xff), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+    DeleteObject(f);
+}
+
+static void draw_folder(HDC dc, int x, int y, int size)
+{
+    RECT tab = { x + size / 12, y + size / 6, x + size / 2, y + size * 2 / 5 };
+    RECT body = { x, y + size * 3 / 10, x + size, y + size * 5 / 6 };
+    fill_round(dc, &tab, size / 5, RGB(0xb9, 0x80, 0x2e));
+    fill_round(dc, &body, size / 5, C_ACCENT);
+}
+
+/* An app's icon, or our glyph when it has none (a folder for Files). */
+static void draw_app_icon(HDC dc, const struct app *a, int x, int y, int size)
+{
+    HICON icon = size == S(24) ? a->icon : app_icon(a, size);
+    if (icon) DrawIconEx(dc, x, y, icon, size, size, 0, NULL, DI_NORMAL);
+    else if (a->kind == APP_BUILTIN && !wcscmp(a->key, L"Files")) draw_folder(dc, x, y, size);
+    else draw_glyph(dc, x, y, size, a->name);
+}
+
+static void draw_magnifier(HDC dc, int x, int y, int size, COLORREF c)
+{
+    HPEN pen = CreatePen(PS_SOLID, max(1, size / 8), c);
+    HGDIOBJ op = SelectObject(dc, pen), ob = SelectObject(dc, GetStockObject(NULL_BRUSH));
+    int d = size * 2 / 3;
+    Ellipse(dc, x, y, x + d, y + d);
+    MoveToEx(dc, x + d * 6 / 7, y + d * 6 / 7, NULL);
+    LineTo(dc, x + size, y + size);
+    SelectObject(dc, op);
+    SelectObject(dc, ob);
+    DeleteObject(pen);
+}
+
+static void draw_chevron(HDC dc, int cx, int cy, int size, BOOL down, COLORREF c)
+{
+    POINT pt[3];
+    HBRUSH b = CreateSolidBrush(c);
+    HPEN p = CreatePen(PS_SOLID, 1, c);
+    HGDIOBJ ob = SelectObject(dc, b), op = SelectObject(dc, p);
+    int h = size / 2;
+    if (down)
+    {
+        pt[0].x = cx - h; pt[0].y = cy - h / 2;
+        pt[1].x = cx + h; pt[1].y = cy - h / 2;
+        pt[2].x = cx;     pt[2].y = cy + h / 2 + 1;
+    }
+    else
+    {
+        pt[0].x = cx - h / 2; pt[0].y = cy - h;
+        pt[1].x = cx - h / 2; pt[1].y = cy + h;
+        pt[2].x = cx + h / 2 + 1; pt[2].y = cy;
+    }
+    Polygon(dc, pt, 3);
+    SelectObject(dc, ob);
+    SelectObject(dc, op);
+    DeleteObject(b);
+    DeleteObject(p);
+}
+
+/* --- layout (client coordinates) --- */
+
+static int menu_width(void) { RECT rc; GetClientRect(launcher, &rc); return rc.right; }
+static int tile_cols(void) { return max(1, (menu_width() - S(32)) / S(68)); }
+static int tile_rows(void) { return min(2, (npins + tile_cols() - 1) / tile_cols()); }
+static int tiles_top(void) { return S(88); }
+static int tiles_visible(void) { return !search_text[0]; }
+
+static void tile_rect(int i, RECT *r)
+{
+    int cols = tile_cols(), pitch = (menu_width() - S(32)) / cols;
+    int x = S(16) + (i % cols) * pitch, y = tiles_top() + (i / cols) * S(76);
+    SetRect(r, x, y, x + pitch, y + S(72));
+    if (!tiles_visible() || i / cols >= 2) SetRect(r, -1000, -1000, -1000, -1000);
+}
+
+static int list_top(void)
+{
+    if (!tiles_visible()) return S(64);
+    return tiles_top() + (npins ? tile_rows() * S(76) : S(40)) + S(30);
+}
+
 static int list_bottom(void) { RECT rc; GetClientRect(launcher, &rc); return rc.bottom - S(40); }
 
-static void filter_rows(void)
+static int row_height(int row)
 {
-    WCHAR text[256] = L"";
-    int i, kind;
-
-    if (edit) GetWindowTextW(edit, text, ARRAYSIZE(text));
-    nrows = 0;
-    for (kind = APP_BUILTIN; kind <= APP_SHORTCUT; kind++)
+    switch (rows[row].type)
     {
-        int header = nrows, any = 0;
-        if (!text[0]) rows[nrows++] = kind == APP_BUILTIN ? -1 : -2;
-        for (i = 0; i < napps; i++)
-            if ((int)apps[i].kind == kind && (!text[0] || contains_i(apps[i].name, text)))
-            {
-                rows[nrows++] = i;
-                any = 1;
-            }
-        if (!any && !text[0]) nrows = header; /* drop empty section */
+    case ROW_LETTER: return S(28);
+    case ROW_SECTION: return S(30);
+    case ROW_HINT: return S(64);
+    default: return S(36);
     }
-    sel_row = -1;
-    for (i = 0; i < nrows; i++)
-        if (rows[i] >= 0) { sel_row = text[0] ? i : -1; break; }
-    scroll_px = 0;
-    if (launcher) InvalidateRect(launcher, NULL, FALSE);
 }
 
 static int row_y(int row)
@@ -1138,35 +1924,350 @@ static void clamp_scroll(void)
 static void ensure_visible(int row)
 {
     int y, h;
-    if (row < 0) return;
+    if (row < 0 || row >= nrows) return;
     y = row_y(row);
     h = row_height(row);
+    /* show the letter header above the first app of a letter, too */
+    if (row > 0 && rows[row - 1].type != ROW_APP && rows[row - 1].type != ROW_GROUP)
+    {
+        y -= row_height(row - 1);
+        h += row_height(row - 1);
+    }
     if (y < list_top()) scroll_px -= list_top() - y;
     else if (y + h > list_bottom()) scroll_px += y + h - list_bottom();
     clamp_scroll();
 }
 
-static void move_selection(int delta)
+/* --- rows --- */
+
+static void add_row(enum row_type type, int index, int indent, const WCHAR *text)
 {
-    int r = sel_row;
-    do
-    {
-        r += delta;
-        if (r < 0 || r >= nrows) return;
-    } while (rows[r] < 0);
-    sel_row = r;
-    ensure_visible(r);
-    InvalidateRect(launcher, NULL, FALSE);
+    struct row *r;
+    if (nrows >= MAX_ROWS) return;
+    r = &rows[nrows++];
+    r->type = type;
+    r->index = index;
+    r->indent = indent;
+    r->text[0] = 0;
+    if (text) lstrcpynW(r->text, text, ARRAYSIZE(r->text));
 }
 
-static int launcher_hit(POINT pt)
+/* The letter an entry is filed under: its first letter, or "#". */
+static void letter_of(const WCHAR *name, WCHAR *out)
 {
-    int i, y;
-    if (pt.y < list_top() || pt.y >= list_bottom()) return -1;
-    for (i = 0, y = row_y(0); i < nrows; y += row_height(i), i++)
-        if (pt.y >= y && pt.y < y + row_height(i)) return rows[i] >= 0 ? i : -1;
+    out[0] = name[0];
+    out[1] = 0;
+    if (!IsCharAlphaW(out[0])) out[0] = L'#';
+    else CharUpperBuffW(out, 1);
+}
+
+static BOOL is_word_start(const WCHAR *s, const WCHAR *p)
+{
+    return p == s || wcschr(L" -_.(", p[-1]) != NULL;
+}
+
+/* How well A matches the search text (lower is better), or -1. */
+static int match_score(const struct app *a, const WCHAR *text)
+{
+    WCHAR name[128], needle[256], folder[128];
+    const WCHAR *p;
+    int best = -1;
+
+    lstrcpynW(name, a->name, ARRAYSIZE(name));
+    lstrcpynW(needle, text, ARRAYSIZE(needle));
+    lstrcpynW(folder, a->folder, ARRAYSIZE(folder));
+    CharLowerW(name);
+    CharLowerW(needle);
+    CharLowerW(folder);
+    for (p = name; (p = wcsstr(p, needle)); p++)
+    {
+        int s = p == name ? 0 : is_word_start(name, p) ? 1 : 2;
+        if (best < 0 || s < best) best = s;
+    }
+    if (best < 0 && folder[0] && wcsstr(folder, needle)) best = 3;
+    return best;
+}
+
+static void build_rows(void)
+{
+    int i, j, k, n;
+    WCHAR last[2] = L"", letter[2];
+
+    nrows = 0;
+    if (!search_text[0])
+    {
+        /* all apps, A to Z: top-level apps and groups merged by name */
+        static int order[MAX_GROUPS];
+        BOOL others = FALSE;
+
+        for (i = 0; i < ngroups; i++)
+        {
+            for (j = i; j > 0 && name_cmp(groups[order[j - 1]].name, groups[i].name) > 0; j--) order[j] = order[j - 1];
+            order[j] = i;
+        }
+        for (i = 0, j = 0; i < napps || j < ngroups;)
+        {
+            const WCHAR *name;
+            BOOL take_group;
+
+            while (i < napps && (apps[i].group >= 0 || apps[i].kind == APP_OTHER))
+            {
+                if (apps[i].kind == APP_OTHER) others = TRUE;
+                i++;
+            }
+            if (i >= napps && j >= ngroups) break;
+            take_group = j < ngroups && (i >= napps || name_cmp(groups[order[j]].name, apps[i].name) < 0);
+            name = take_group ? groups[order[j]].name : apps[i].name;
+            letter_of(name, letter);
+            if (wcscmp(letter, last))
+            {
+                add_row(ROW_LETTER, -1, 0, letter);
+                wcscpy(last, letter);
+            }
+            if (take_group)
+            {
+                int g = order[j++];
+                add_row(ROW_GROUP, g, 0, NULL);
+                if (groups[g].expanded)
+                    for (k = 0; k < napps; k++)
+                        if (apps[k].group == g) add_row(ROW_APP, k, 1, NULL);
+            }
+            else add_row(ROW_APP, i++, 0, NULL);
+        }
+        if (others)
+        {
+            add_row(ROW_SECTION, -1, 0, L"Other apps");
+            for (i = 0; i < napps; i++)
+                if (apps[i].kind == APP_OTHER) add_row(ROW_APP, i, 0, NULL);
+        }
+        return;
+    }
+
+    /* search: best matches first, A to Z within the same score */
+    for (n = 0, k = 0; k <= 3; k++)
+        for (i = 0; i < napps; i++)
+            if (match_score(&apps[i], search_text) == k)
+            {
+                if (!n) add_row(ROW_SECTION, -1, 0, L"Best match");
+                else if (n == 1) add_row(ROW_SECTION, -1, 0, L"Apps");
+                add_row(ROW_APP, i, 0, NULL);
+                n++;
+            }
+    if (!n) add_row(ROW_HINT, -1, 0, NULL);
+}
+
+/* --- selection --- */
+
+static BOOL row_selectable(int i)
+{
+    return i >= 0 && i < nrows && (rows[i].type == ROW_APP || rows[i].type == ROW_GROUP);
+}
+
+static struct app *selected_app(void)
+{
+    if (sel_kind == SEL_TILE && sel_index >= 0 && sel_index < npins) return &apps[pins[sel_index]];
+    if (sel_kind == SEL_ROW && row_selectable(sel_index) && rows[sel_index].type == ROW_APP)
+        return &apps[rows[sel_index].index];
+    return NULL;
+}
+
+static struct group *selected_group(void)
+{
+    if (sel_kind == SEL_ROW && row_selectable(sel_index) && rows[sel_index].type == ROW_GROUP)
+        return &groups[rows[sel_index].index];
+    return NULL;
+}
+
+static void select_item(int kind, int index)
+{
+    sel_kind = kind;
+    sel_index = index;
+    if (kind == SEL_ROW) ensure_visible(index);
+    if (launcher) InvalidateRect(launcher, NULL, FALSE);
+}
+
+static int first_row(int from, int dir)
+{
+    int i;
+    for (i = from; i >= 0 && i < nrows; i += dir)
+        if (row_selectable(i)) return i;
     return -1;
 }
+
+struct saved_sel { int kind; WCHAR key[MAX_PATH], group[128]; };
+
+static void save_selection(struct saved_sel *s)
+{
+    struct app *a = selected_app();
+    struct group *g = selected_group();
+    s->kind = sel_kind;
+    lstrcpynW(s->key, a ? a->key : L"", ARRAYSIZE(s->key));
+    lstrcpynW(s->group, g ? g->name : L"", ARRAYSIZE(s->group));
+}
+
+/* Rebuild the rows, keeping the entry in S selected if it's still there;
+ * with a search, the best match is selected (Enter runs it). */
+static void rebuild_rows(const struct saved_sel *s)
+{
+    const WCHAR *key = s ? s->key : L"", *gname = s ? s->group : L"";
+    int kind = s ? s->kind : SEL_NONE, i;
+
+    build_rows();
+    sel_kind = SEL_NONE;
+    sel_index = -1;
+    if (key[0] && kind == SEL_TILE)
+    {
+        for (i = 0; i < npins; i++)
+            if (!lstrcmpiW(apps[pins[i]].key, key)) select_item(SEL_TILE, i);
+    }
+    else if (key[0] || gname[0])
+    {
+        for (i = 0; i < nrows; i++)
+            if ((rows[i].type == ROW_APP && key[0] && !lstrcmpiW(apps[rows[i].index].key, key)) ||
+                (rows[i].type == ROW_GROUP && gname[0] && !lstrcmpiW(groups[rows[i].index].name, gname)))
+            {
+                select_item(SEL_ROW, i);
+                break;
+            }
+    }
+    if (sel_kind == SEL_NONE && search_text[0] && (i = first_row(0, 1)) >= 0) select_item(SEL_ROW, i);
+    clamp_scroll();
+    if (launcher) InvalidateRect(launcher, NULL, FALSE);
+}
+
+static void refresh_rows(BOOL keep)
+{
+    struct saved_sel s;
+    save_selection(&s);
+    rebuild_rows(keep ? &s : NULL);
+}
+
+/* Rescan, e.g. after an installer added or removed shortcuts. */
+static void reload_apps(void)
+{
+    struct saved_sel s;
+    save_selection(&s);
+    load_apps();
+    rebuild_rows(&s);
+    write_state();
+}
+
+static void toggle_group(int g, int expand)
+{
+    if (g < 0 || g >= ngroups) return;
+    groups[g].expanded = expand < 0 ? !groups[g].expanded : expand;
+    refresh_rows(TRUE);
+    if (groups[g].expanded)
+    {
+        /* scroll the opened group's apps into view, keeping the group row */
+        int i, first = -1, last = -1;
+        for (i = 0; i < nrows; i++)
+        {
+            if (rows[i].type == ROW_GROUP && rows[i].index == g) first = last = i;
+            else if (first >= 0 && rows[i].indent) last = i;
+            else if (first >= 0) break;
+        }
+        ensure_visible(last);
+        ensure_visible(first);
+        InvalidateRect(launcher, NULL, FALSE);
+    }
+    write_state();
+}
+
+static void move_rows(int delta)
+{
+    int r = sel_kind == SEL_ROW ? sel_index : -1, dir = delta > 0 ? 1 : -1, steps = abs(delta), next;
+
+    if (sel_kind != SEL_ROW)
+    {
+        if ((r = first_row(0, 1)) >= 0) select_item(SEL_ROW, r);
+        return;
+    }
+    while (steps-- && (next = first_row(r + dir, dir)) >= 0) r = next;
+    if (r == sel_index && dir < 0)
+    {
+        /* above the first row: the pins, then the search box */
+        if (tiles_visible() && npins) select_item(SEL_TILE, 0);
+        else select_item(SEL_NONE, -1);
+        return;
+    }
+    select_item(SEL_ROW, r);
+}
+
+static void key_down(void)
+{
+    int r;
+    if (sel_kind == SEL_NONE && tiles_visible() && npins) select_item(SEL_TILE, 0);
+    else if (sel_kind == SEL_TILE && sel_index + tile_cols() < npins && sel_index / tile_cols() < 1)
+        select_item(SEL_TILE, sel_index + tile_cols());
+    else if (sel_kind == SEL_TILE) { if ((r = first_row(0, 1)) >= 0) select_item(SEL_ROW, r); }
+    else move_rows(1);
+}
+
+static void key_up(void)
+{
+    if (sel_kind == SEL_TILE)
+    {
+        if (sel_index >= tile_cols()) select_item(SEL_TILE, sel_index - tile_cols());
+        else select_item(SEL_NONE, -1);
+    }
+    else if (sel_kind == SEL_ROW) move_rows(-1);
+}
+
+/* Left/Right: move along the pins, or collapse/expand a group. Returns
+ * FALSE to let the search box have the key. */
+static BOOL key_side(int dir)
+{
+    if (sel_kind == SEL_TILE)
+    {
+        int i = sel_index + dir;
+        if (i >= 0 && i < npins && i / tile_cols() < 2) select_item(SEL_TILE, i);
+        return TRUE;
+    }
+    if (sel_kind != SEL_ROW || !row_selectable(sel_index)) return FALSE;
+    if (rows[sel_index].type == ROW_GROUP)
+    {
+        toggle_group(rows[sel_index].index, dir > 0);
+        return TRUE;
+    }
+    if (dir < 0 && rows[sel_index].indent)
+    {
+        int i;
+        for (i = sel_index; i >= 0 && rows[i].type != ROW_GROUP; i--) ;
+        if (i >= 0)
+        {
+            select_item(SEL_ROW, i);
+            toggle_group(rows[i].index, FALSE);
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* --- hit testing --- */
+
+static void hit_test(POINT pt, int *kind, int *index)
+{
+    int i, y;
+    RECT r;
+
+    *kind = SEL_NONE;
+    *index = -1;
+    for (i = 0; i < npins; i++)
+    {
+        tile_rect(i, &r);
+        if (PtInRect(&r, pt)) { *kind = SEL_TILE; *index = i; return; }
+    }
+    if (pt.y < list_top() || pt.y >= list_bottom()) return;
+    for (i = 0, y = row_y(0); i < nrows; y += row_height(i), i++)
+        if (pt.y >= y && pt.y < y + row_height(i))
+        {
+            if (row_selectable(i)) { *kind = SEL_ROW; *index = i; }
+            return;
+        }
+}
+
+/* --- painting --- */
 
 static void paint_launcher(HDC dc, const RECT *rc)
 {
@@ -1184,109 +2285,317 @@ static void paint_launcher(HDC dc, const RECT *rc)
         SelectObject(dc, ob);
         DeleteObject(p);
     }
+    /* the warm accent along the top edge */
+    SetRect(&r, 0, 0, rc->right, S(3));
+    fill_rect(dc, &r, C_ACCENT);
 
-    /* header */
-    draw_mark(dc, S(20), S(20), S(26), C_ACCENT);
-    SetRect(&r, S(58), S(14), rc->right - S(16), S(40));
-    draw_text(dc, L"Setu", &r, font_title, C_TEXT, DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
-    SetRect(&r, S(58), S(40), rc->right - S(16), S(58));
-    draw_text(dc, L"Type to filter, or enter a command to run", &r, font_small, C_MUTED,
-              DT_SINGLELINE | DT_TOP | DT_LEFT | DT_END_ELLIPSIS);
+    /* search field (the EDIT control sits inside it) */
+    SetRect(&field, S(16), S(18), rc->right - S(16), S(54));
+    fill_round(dc, &field, S(18), C_FIELD);
+    draw_magnifier(dc, field.left + S(14), (field.top + field.bottom - S(14)) / 2, S(14), C_MUTED);
 
-    /* run / search field (the EDIT control sits inside it) */
-    SetRect(&field, S(16), S(66), rc->right - S(16), S(98));
-    fill_round(dc, &field, S(10), C_FIELD);
+    if (tiles_visible())
+    {
+        SetRect(&r, S(24), S(62), rc->right - S(24), S(84));
+        draw_text(dc, L"Pinned", &r, font_bold, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+        if (!npins)
+        {
+            SetRect(&r, S(24), tiles_top(), rc->right - S(24), tiles_top() + S(36));
+            draw_text(dc, L"Right-click an app and choose Pin to keep it here.", &r, font_small, C_MUTED,
+                      DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+        }
+        for (i = 0; i < npins; i++)
+        {
+            struct app *a = &apps[pins[i]];
+            int isz = S(32);
+            tile_rect(i, &r);
+            if (r.left < 0) continue;
+            InflateRect(&r, -S(2), 0);
+            if (sel_kind == SEL_TILE && sel_index == i) fill_round(dc, &r, S(12), C_SELECT);
+            draw_app_icon(dc, a, (r.left + r.right - isz) / 2, r.top + S(8), isz);
+            r.top += S(8) + isz + S(4);
+            InflateRect(&r, -S(3), 0);
+            draw_text(dc, a->name, &r, font_small, C_TEXT, DT_SINGLELINE | DT_TOP | DT_CENTER | DT_END_ELLIPSIS);
+        }
+        SetRect(&r, S(24), list_top() - S(28), rc->right - S(24), list_top() - S(4));
+        draw_text(dc, L"All apps", &r, font_bold, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+    }
 
     /* list */
     clip = CreateRectRgn(0, list_top(), rc->right, list_bottom());
     SelectClipRgn(dc, clip);
     for (i = 0, y = row_y(0); i < nrows; y += row_height(i), i++)
     {
-        int h = row_height(i);
+        const struct row *rw = &rows[i];
+        int h = row_height(i), isz = S(24);
         if (y + h < list_top() || y > list_bottom()) continue;
-        SetRect(&r, S(12), y, rc->right - S(12), y + h);
-        if (rows[i] < 0)
+        SetRect(&r, S(12) + rw->indent * S(22), y, rc->right - S(12), y + h);
+        switch (rw->type)
         {
-            r.left += S(10);
-            draw_text(dc, rows[i] == -1 ? L"BUILT-IN" : L"START MENU", &r, font_small, C_ACCENT,
-                      DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
-            continue;
+        case ROW_LETTER:
+        {
+            RECT line;
+            SIZE sz;
+            HGDIOBJ of = SelectObject(dc, font_bold);
+            r.left += S(12);
+            draw_text(dc, rw->text, &r, font_bold, C_ACCENT, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+            GetTextExtentPoint32W(dc, rw->text, (int)wcslen(rw->text), &sz);
+            SelectObject(dc, of);
+            SetRect(&line, r.left + sz.cx + S(10), y + h / 2, r.right - S(8), y + h / 2 + max(1, S(1)));
+            fill_rect(dc, &line, C_EDGE);
+            break;
         }
-        if (i == sel_row) fill_round(dc, &r, S(10), C_SELECT);
+        case ROW_SECTION:
+            r.left += S(12);
+            draw_text(dc, rw->text, &r, font_bold, C_MUTED, DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
+            break;
+        case ROW_HINT:
         {
-            struct app *a = &apps[rows[i]];
-            int isz = S(20);
-            if (a->icon)
-                DrawIconEx(dc, r.left + S(10), y + (h - isz) / 2, a->icon, isz, isz, 0, NULL, DI_NORMAL);
+            WCHAR msg[400];
+            swprintf(msg, ARRAYSIZE(msg), L"No app matches “%ls”. Press Enter to run it as a command.",
+                     search_text);
+            r.left += S(12);
+            r.top += S(8);
+            draw_text(dc, msg, &r, font_ui, C_MUTED, DT_WORDBREAK | DT_LEFT);
+            break;
+        }
+        case ROW_APP:
+        {
+            struct app *a = &apps[rw->index];
+            if (sel_kind == SEL_ROW && sel_index == i) fill_round(dc, &r, S(10), C_SELECT);
+            draw_app_icon(dc, a, r.left + S(10), y + (h - isz) / 2, isz);
             r.left += S(10) + isz + S(12);
+            r.right -= S(10);
+            if (search_text[0] && a->folder[0])
+            {
+                /* where it lives, on the right */
+                draw_text(dc, a->folder, &r, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_RIGHT | DT_END_ELLIPSIS);
+                r.right -= min(S(120), (r.right - r.left) / 3);
+            }
+            if (a->pinned)
+            {
+                RECT dot = { r.right - S(6), y + h / 2 - S(3), r.right, y + h / 2 + S(3) };
+                fill_round(dc, &dot, S(6), C_ACCENT);
+                r.right -= S(14);
+            }
             draw_text(dc, a->name, &r, font_ui, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+            break;
         }
-    }
-    if (!nrows)
-    {
-        SetRect(&r, S(28), list_top() + S(8), rc->right - S(16), list_top() + S(60));
-        draw_text(dc, L"No matching app. Press Enter to run it as a command.", &r, font_ui, C_MUTED,
-                  DT_WORDBREAK | DT_LEFT);
+        case ROW_GROUP:
+        {
+            struct group *g = &groups[rw->index];
+            WCHAR count[16];
+            if (sel_kind == SEL_ROW && sel_index == i) fill_round(dc, &r, S(10), C_SELECT);
+            draw_folder(dc, r.left + S(10), y + (h - isz) / 2, isz);
+            draw_chevron(dc, r.right - S(18), y + h / 2, S(8), g->expanded, C_MUTED);
+            r.left += S(10) + isz + S(12);
+            r.right -= S(34);
+            swprintf(count, ARRAYSIZE(count), L"%d", g->count);
+            draw_text(dc, count, &r, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_RIGHT);
+            r.right -= S(28);
+            draw_text(dc, g->name, &r, font_ui, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+            break;
+        }
+        }
     }
     SelectClipRgn(dc, NULL);
     DeleteObject(clip);
 
-    /* footer: status, or the selected entry's target */
+    /* footer: status, or the selected entry's description or target */
     SetRect(&r, 0, list_bottom(), rc->right, list_bottom() + max(1, S(1)));
     fill_rect(dc, &r, C_EDGE);
-    SetRect(&r, S(20), list_bottom(), rc->right - S(20), rc->bottom);
-    if (status_text[0])
-        draw_text(dc, status_text, &r, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
-    else if (sel_row >= 0 && rows[sel_row] >= 0)
-        draw_text(dc, apps[rows[sel_row]].file, &r, font_small, C_MUTED,
-                  DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_PATH_ELLIPSIS);
-    else
-        draw_text(dc, L"Enter  open      Esc  close", &r, font_small, C_MUTED,
-                  DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+    draw_mark(dc, S(20), list_bottom() + (S(40) - S(18)) / 2, S(18), C_ACCENT);
+    SetRect(&r, S(48), list_bottom(), rc->right - S(20), rc->bottom);
+    {
+        const struct app *a = selected_app();
+        const struct group *g = selected_group();
+        WCHAR text[300];
+        UINT fmt = DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS;
+
+        if (status_text[0]) lstrcpynW(text, status_text, ARRAYSIZE(text));
+        else if (a && a->desc[0]) lstrcpynW(text, a->desc, ARRAYSIZE(text));
+        else if (a && a->file[0]) { lstrcpynW(text, a->file, ARRAYSIZE(text)); fmt = (fmt & ~DT_END_ELLIPSIS) | DT_PATH_ELLIPSIS; }
+        else if (a) swprintf(text, ARRAYSIZE(text), L"Installed program. Right-click to uninstall.");
+        else if (g) swprintf(text, ARRAYSIZE(text), L"Folder with %d apps", g->count);
+        else lstrcpynW(text, L"Arrows to move · Enter to open · right-click for more", ARRAYSIZE(text));
+        draw_text(dc, text, &r, font_small, C_MUTED, fmt);
+    }
 }
 
-static void activate_selection(void)
+/* --- actions --- */
+
+static void activate_item(int kind, int index)
 {
     WCHAR text[1024] = L"";
-    GetWindowTextW(edit, text, ARRAYSIZE(text));
-    if (sel_row >= 0 && rows[sel_row] >= 0) launch_app(&apps[rows[sel_row]]);
-    else if (text[0]) run_command(text);
+
+    if (kind == SEL_TILE && index >= 0 && index < npins) launch_app(&apps[pins[index]]);
+    else if (kind == SEL_ROW && row_selectable(index))
+    {
+        if (rows[index].type == ROW_APP) launch_app(&apps[rows[index].index]);
+        else toggle_group(rows[index].index, -1);
+    }
+    else
+    {
+        GetWindowTextW(edit, text, ARRAYSIZE(text));
+        if (text[0]) run_command(text);
+    }
+}
+
+static void set_pinned(struct app *a, BOOL pin)
+{
+    if (!pin_app(a, pin)) set_status(pin ? L"The pinned row is full" : L"Could not save the pins");
+    else set_status(pin ? L"Pinned %ls" : L"Unpinned %ls", a->name);
+    refresh_rows(FALSE);
+    if (pin) InvalidateRect(launcher, NULL, FALSE);
+    write_state();
+}
+
+/* The context menu of the selected entry, at PT (screen coordinates). */
+static void item_menu(POINT pt)
+{
+    struct app *a = selected_app();
+    struct group *g = selected_group();
+    HMENU m;
+    int cmd;
+
+    if (!a && !g) return;
+    m = CreatePopupMenu();
+    if (a)
+    {
+        BOOL has_location = a->kind != APP_OTHER || a->location[0];
+        AppendMenuW(m, MF_STRING | (a->file[0] ? 0 : MF_GRAYED), IDM_OPEN, L"&Open");
+        SetMenuDefaultItem(m, IDM_OPEN, FALSE);
+        AppendMenuW(m, MF_STRING, a->pinned ? IDM_UNPIN : IDM_PIN, a->pinned ? L"Un&pin" : L"&Pin");
+        AppendMenuW(m, MF_SEPARATOR, 0, NULL);
+        AppendMenuW(m, MF_STRING | (has_location ? 0 : MF_GRAYED), IDM_LOCATION, L"Open file &location");
+        AppendMenuW(m, MF_STRING | (a->uninstall[0] ? 0 : MF_GRAYED), IDM_UNINSTALL, L"&Uninstall");
+    }
+    else
+    {
+        AppendMenuW(m, MF_STRING, IDM_EXPAND, g->expanded ? L"&Collapse" : L"&Expand");
+        SetMenuDefaultItem(m, IDM_EXPAND, FALSE);
+        AppendMenuW(m, MF_SEPARATOR, 0, NULL);
+        AppendMenuW(m, MF_STRING, IDM_LOCATION, L"Open file &location");
+        AppendMenuW(m, MF_STRING | (g->uninstall[0] ? 0 : MF_GRAYED), IDM_UNINSTALL, L"&Uninstall");
+    }
+    in_menu = TRUE;
+    write_state();
+    {
+        /* The menu pops out over the panel's right edge. (On the Setu
+         * personality, a popup menu lying wholly inside the panel is not
+         * painted in the virtual desktop; reported to shell-api.) */
+        RECT lr;
+        GetWindowRect(launcher, &lr);
+        pt.x = max(pt.x, lr.right - S(56));
+    }
+    cmd = TrackPopupMenu(m, TPM_RETURNCMD | TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON,
+                         pt.x, pt.y, 0, launcher, NULL);
+    in_menu = FALSE;
+    DestroyMenu(m);
+    if (IsWindowVisible(launcher)) SetFocus(edit);
+
+    switch (cmd)
+    {
+    case IDM_OPEN: launch_app(a); break;
+    case IDM_PIN: set_pinned(a, TRUE); break;
+    case IDM_UNPIN: set_pinned(a, FALSE); break;
+    case IDM_EXPAND: toggle_group((int)(g - groups), -1); break;
+    case IDM_LOCATION:
+        if (a) open_app_location(a);
+        else open_location(g->path, NULL);
+        break;
+    case IDM_UNINSTALL:
+        run_uninstall(a ? a->name : g->name, a ? a->uninstall : g->uninstall);
+        break;
+    }
+    write_state();
+}
+
+/* The context menu from the keyboard (the Menu key or Shift+F10), next
+ * to the selected entry. */
+static void item_menu_at_selection(void)
+{
+    RECT r;
+    POINT pt;
+    if (sel_kind == SEL_TILE) tile_rect(sel_index, &r);
+    else if (sel_kind == SEL_ROW && row_selectable(sel_index))
+        SetRect(&r, S(40), row_y(sel_index), S(200), row_y(sel_index) + row_height(sel_index));
+    else return;
+    pt.x = (r.left + r.right) / 2;
+    pt.y = r.bottom;
+    ClientToScreen(launcher, &pt);
+    item_menu(pt);
 }
 
 static LRESULT CALLBACK edit_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     if (msg == WM_KEYDOWN)
     {
+        BOOL shift = GetKeyState(VK_SHIFT) < 0;
         switch (wp)
         {
-        case VK_DOWN: move_selection(1); return 0;
-        case VK_UP: move_selection(-1); return 0;
-        case VK_RETURN: activate_selection(); return 0;
+        case VK_DOWN: key_down(); write_state(); return 0;
+        case VK_UP: key_up(); write_state(); return 0;
+        case VK_NEXT: move_rows(8); write_state(); return 0;
+        case VK_PRIOR: move_rows(-8); write_state(); return 0;
+        case VK_LEFT: case VK_RIGHT:
+            if (key_side(wp == VK_RIGHT ? 1 : -1)) { write_state(); return 0; }
+            break;
+        case VK_RETURN: activate_item(sel_kind, sel_index); return 0;
         case VK_ESCAPE: hide_launcher(); return 0;
+        case VK_APPS: item_menu_at_selection(); return 0;
+        case VK_F10: if (shift) { item_menu_at_selection(); return 0; } break;
         }
     }
-    if (msg == WM_CHAR && (wp == L'\r' || wp == 27)) return 0; /* no beep */
+    if (msg == WM_SYSKEYDOWN && wp == VK_F10 && GetKeyState(VK_SHIFT) < 0)
+    {
+        item_menu_at_selection();
+        return 0;
+    }
+    if (msg == WM_CHAR && (wp == L'\r' || wp == 27 || wp == L'\t')) return 0; /* no beep */
+    if (msg == WM_PAINT)
+    {
+        /* our own placeholder text while the box is empty */
+        LRESULT ret = CallWindowProcW(edit_orig_proc, hwnd, msg, wp, lp);
+        if (!GetWindowTextLengthW(hwnd))
+        {
+            HDC dc = GetDC(hwnd);
+            RECT r;
+            GetClientRect(hwnd, &r);
+            r.left += S(2);
+            HideCaret(hwnd);
+            draw_text(dc, L"Search apps, or type a command", &r, font_ui, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+            ShowCaret(hwnd);
+            ReleaseDC(hwnd, dc);
+        }
+        return ret;
+    }
     return CallWindowProcW(edit_orig_proc, hwnd, msg, wp, lp);
 }
 
 static void layout_launcher(void)
 {
-    RECT br, rc;
-    int w = S(400), h = S(540);
+    RECT br, rc, wa;
+    int w = S(440), h = S(620);
 
     GetWindowRect(bar, &br);
+    SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0);
+    if (wa.bottom > br.top) wa.bottom = br.top;
+    h = min(h, (int)(wa.bottom - wa.top) - S(16));
     SetWindowPos(launcher, HWND_TOPMOST, br.left + S(6), br.top - S(8) - h, w, h, SWP_NOACTIVATE);
     GetClientRect(launcher, &rc);
-    SetWindowPos(edit, NULL, S(28), S(66) + (S(32) - S(20)) / 2, rc.right - S(56), S(20), SWP_NOZORDER);
-    SendMessageW(edit, WM_SETFONT, (WPARAM)font_ui, TRUE);
+    SendMessageW(edit, WM_SETFONT, (WPARAM)font_ui, FALSE);
+    SetWindowPos(edit, NULL, S(52), S(18) + (S(36) - S(22)) / 2, rc.right - S(52) - S(32), S(22), SWP_NOZORDER);
 }
 
 static void show_launcher(void)
 {
     status_text[0] = 0;
+    search_text[0] = 0;
+    scroll_px = 0;
     SetWindowTextW(edit, L"");
-    filter_rows();
     layout_launcher();
+    refresh_rows(FALSE);
     ShowWindow(launcher, SW_SHOW);
     SetForegroundWindow(launcher);
     SetFocus(edit);
@@ -1303,8 +2612,16 @@ static void hide_launcher(void)
     write_state();
 }
 
+static void toggle_launcher(void)
+{
+    if (IsWindowVisible(launcher)) hide_launcher();
+    else show_launcher();
+}
+
 static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+    static POINT last_mouse = { -1, -1 };
+
     switch (msg)
     {
     case WM_PAINT:
@@ -1336,32 +2653,63 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_COMMAND:
         if (LOWORD(wp) == ID_EDIT && HIWORD(wp) == EN_CHANGE)
         {
+            GetWindowTextW(edit, search_text, ARRAYSIZE(search_text));
             status_text[0] = 0;
-            filter_rows();
+            scroll_px = 0;
+            refresh_rows(FALSE);
+            write_state();
         }
         return 0;
     case WM_MOUSEMOVE:
     {
         POINT pt = { (short)LOWORD(lp), (short)HIWORD(lp) };
-        int r = launcher_hit(pt);
-        if (r >= 0 && r != sel_row) { sel_row = r; InvalidateRect(hwnd, NULL, FALSE); }
+        int kind, index;
+        /* only real moves select: windows appearing under a still pointer
+         * get a WM_MOUSEMOVE too */
+        if (pt.x == last_mouse.x && pt.y == last_mouse.y) return 0;
+        last_mouse = pt;
+        hit_test(pt, &kind, &index);
+        if (kind != SEL_NONE && (kind != sel_kind || index != sel_index))
+        {
+            sel_kind = kind;
+            sel_index = index;
+            InvalidateRect(hwnd, NULL, FALSE);
+        }
         return 0;
     }
     case WM_LBUTTONUP:
     {
         POINT pt = { (short)LOWORD(lp), (short)HIWORD(lp) };
-        int r = launcher_hit(pt);
-        if (r >= 0) { sel_row = r; launch_app(&apps[rows[r]]); }
+        int kind, index;
+        hit_test(pt, &kind, &index);
+        if (kind != SEL_NONE)
+        {
+            sel_kind = kind;
+            sel_index = index;
+            activate_item(kind, index);
+        }
         else SetFocus(edit);
         return 0;
     }
+    case WM_RBUTTONUP:
+    {
+        POINT pt = { (short)LOWORD(lp), (short)HIWORD(lp) };
+        int kind, index;
+        hit_test(pt, &kind, &index);
+        if (kind == SEL_NONE) return 0;
+        select_item(kind, index);
+        UpdateWindow(hwnd);
+        ClientToScreen(hwnd, &pt);
+        item_menu(pt);
+        return 0;
+    }
     case WM_MOUSEWHEEL:
-        scroll_px -= GET_WHEEL_DELTA_WPARAM(wp) * S(38) * 3 / WHEEL_DELTA;
+        scroll_px -= GET_WHEEL_DELTA_WPARAM(wp) * S(36) * 3 / WHEEL_DELTA;
         clamp_scroll();
         InvalidateRect(hwnd, NULL, FALSE);
         return 0;
     case WM_ACTIVATE:
-        if (LOWORD(wp) == WA_INACTIVE) hide_launcher();
+        if (LOWORD(wp) == WA_INACTIVE) { if (!in_menu) hide_launcher(); }
         else SetFocus(edit);
         return 0;
     case WM_CLOSE:
@@ -1370,6 +2718,7 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     }
     return DefWindowProcW(hwnd, msg, wp, lp);
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Commands (command line and WM_COPYDATA)                              */
@@ -1388,10 +2737,23 @@ BOOL apply_commands(int argc, WCHAR **argv)
 
         if (!wcscmp(a, L"--open-launcher")) show_launcher();
         else if (!wcscmp(a, L"--close-launcher")) hide_launcher();
-        else if (!wcscmp(a, L"--toggle-launcher"))
-            IsWindowVisible(launcher) ? hide_launcher() : show_launcher();
+        else if (!wcscmp(a, L"--toggle-launcher")) toggle_launcher();
         else if (!wcscmp(a, L"--quit")) DestroyWindow(bar);
-        else if (!wcscmp(a, L"--reload")) { load_apps(); filter_rows(); write_state(); }
+        else if (!wcscmp(a, L"--reload")) reload_apps();
+        else if (v && !wcscmp(a, L"--search"))
+        {
+            if (!IsWindowVisible(launcher)) show_launcher();
+            SetWindowTextW(edit, v); /* EN_CHANGE filters */
+            SendMessageW(edit, EM_SETSEL, wcslen(v), wcslen(v));
+            i++;
+        }
+        else if (v && (!wcscmp(a, L"--pin") || !wcscmp(a, L"--unpin")))
+        {
+            struct app *app = find_app(v);
+            if (app) set_pinned(app, !wcscmp(a, L"--pin"));
+            else { set_status(L"No app called \"%ls\"", v); ok = FALSE; }
+            i++;
+        }
         else if (v && !wcscmp(a, L"--state-file"))
         {
             GetFullPathNameW(v, ARRAYSIZE(state_path), state_path, NULL);
@@ -1482,7 +2844,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     make_fonts();
 
     launcher = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, LAUNCHER_CLASS, L"Setu launcher",
-                               WS_POPUP | WS_CLIPCHILDREN, 0, 0, S(400), S(540), bar, NULL, inst, NULL);
+                               WS_POPUP | WS_CLIPCHILDREN, 0, 0, S(440), S(620), bar, NULL, inst, NULL);
     edit = CreateWindowExW(0, L"EDIT", L"", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 0, 0, 10, 10,
                            launcher, (HMENU)(INT_PTR)ID_EDIT, inst, NULL);
     edit_orig_proc = (WNDPROC)SetWindowLongPtrW(edit, GWLP_WNDPROC, (LONG_PTR)edit_proc);
@@ -1506,7 +2868,16 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     shellhook_msg = RegisterWindowMessageW(L"SHELLHOOK");
     shellhook_ok = RegisterShellHookWindow(bar);
 
+    load_pins();
     load_apps();
+    build_rows();
+    watch_stop = CreateEventW(NULL, TRUE, FALSE, NULL);
+    CloseHandle(CreateThread(NULL, 0, watch_thread, NULL, 0, NULL));
+    register_shnotify();
+    /* Ctrl+Esc and the Windows key open the menu */
+    hotkey_ok = RegisterHotKey(bar, HOTKEY_MENU, MOD_CONTROL | MOD_NOREPEAT, VK_ESCAPE);
+    kbd_hook = SetWindowsHookExW(WH_KEYBOARD_LL, kbd_proc, inst, 0);
+    kbd_hook_ok = kbd_hook != NULL;
     update_clock();
     dock_bar();
     ShowWindow(bar, SW_SHOWNOACTIVATE);
