@@ -97,6 +97,12 @@ class WineTarget(Target):
         # the prefix instead of the developer's real one.
         self.xdg_data = self.prefix / "xdg-data"
         self.env["XDG_DATA_HOME"] = str(self.xdg_data)
+        # Wine takes the user's locale from the Unix one, so number and date
+        # formatting (digit grouping, StrFormatKBSizeW, GetNumberFormatW)
+        # followed the developer's LANG. The Windows VM is en-US.
+        for var in [v for v in self.env if v.startswith("LC_") or v == "LANGUAGE"]:
+            del self.env[var]
+        self.env["LANG"] = self.env["LC_ALL"] = "en_US.UTF-8"
         self.env.update({
             "WINEPREFIX": str(self.prefix),
             "WINEDEBUG": c["winedebug"],
