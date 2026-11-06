@@ -2313,11 +2313,16 @@ static void hit_test(POINT pt, int *kind, int *index)
 
 static RECT panel;                 /* the panel, in client coordinates */
 
-/* hover or keyboard selection behind an entry */
+/* behind the selected entry: the accent selection when it came from the
+ * keyboard or the search (Enter starts it), else a hover */
 static void paint_selection(struct setu_canvas *cv, const RECT *r)
 {
-    st_round(cv, r, S(ST_RADIUS_CONTROL), ST->surface_hover);
-    if (kbd_sel) st_focus_ring(cv, r, S(ST_RADIUS_CONTROL), dpi);
+    if (kbd_sel || search_text[0])
+    {
+        st_round(cv, r, S(ST_RADIUS_CONTROL), st_selection());
+        st_frame(cv, r, S(ST_RADIUS_CONTROL), max(1, S(1)), ST->accent);
+    }
+    else st_round(cv, r, S(ST_RADIUS_CONTROL), ST->surface_hover);
 }
 
 static void paint_header_button(struct setu_canvas *cv)
