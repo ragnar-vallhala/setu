@@ -44,6 +44,7 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <shlobj.h>
+#include <commctrl.h>
 #include <objbase.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -73,17 +74,14 @@
 #define IDM_UNINSTALL  214
 #define IDM_EXPAND     215
 
-/* Palette: an original, warm-on-slate scheme. */
-#define C_BAR      RGB(0x1b, 0x20, 0x26)
-#define C_EDGE     RGB(0x36, 0x40, 0x4c)
-#define C_HOVER    RGB(0x2a, 0x32, 0x3c)
-#define C_ACTIVE   RGB(0x34, 0x3e, 0x4b)
-#define C_TEXT     RGB(0xe9, 0xed, 0xf1)
-#define C_MUTED    RGB(0x95, 0xa2, 0xb0)
-#define C_ACCENT   RGB(0xf2, 0xa9, 0x3b)
-#define C_PANEL    RGB(0x21, 0x27, 0x2e)
-#define C_FIELD    RGB(0x15, 0x19, 0x1e)
-#define C_SELECT   RGB(0x3a, 0x33, 0x27)
+#define IDM_SIGNOUT    220
+#define IDM_RESTART    221
+#define IDM_SHUTDOWN   222
+#define IDM_HOME       223
+#define TIMER_TIPS     5
+
+/* Colours, fonts, shapes and icons: docs/DESIGN.md, via setu-style.h. */
+#include "setu-style.h"
 
 /* ------------------------------------------------------------------ */
 /* State                                                                */
@@ -144,7 +142,7 @@ struct row
 #define MAX_GROUPS 256
 #define MAX_TASKS  64
 #define MAX_ROWS   (MAX_APPS + MAX_GROUPS + 64)
-#define MAX_PINS   12
+#define MAX_PINS   24          /* a grid of 6 x 4 */
 
 static struct app apps[MAX_APPS];
 static int napps;
@@ -159,7 +157,11 @@ static int pins[MAX_PINS];      /* app indices of the visible pins */
 static int npins;
 static WCHAR pin_keys[MAX_PINS][MAX_PATH];
 static int npin_keys;
-enum { SEL_NONE, SEL_TILE, SEL_ROW };
+enum { SEL_NONE, SEL_TILE, SEL_ROW, SEL_HEADER, SEL_USER, SEL_POWER };
+/* the start menu shows the pins, or the A-Z list; a search shows results */
+enum { VIEW_PINNED, VIEW_ALL };
+static int view = VIEW_PINNED;
+static BOOL bar_left_aligned;   /* HKCU\\Software\\Setu\\Shell TaskbarAlignment = 1 */
 static int sel_kind = SEL_NONE, sel_index = -1;
 static int scroll_px;
 static WCHAR search_text[256];
@@ -170,8 +172,8 @@ static HINSTANCE hinst;
 static HWND bar, launcher, edit;
 static WNDPROC edit_orig_proc;
 static UINT dpi = 96;
-static HFONT font_ui, font_bold, font_small, font_title;
 static HBRUSH field_brush;
+static HWND tips;
 static int hot = -100;          /* -1 start, >= 0 task index, -100 none */
 static BOOL tracking_mouse;
 static RECT start_rc, tray_rc;
@@ -225,84 +227,7 @@ static void set_dpi_awareness(void)
 
 static void make_fonts(void)
 {
-    NONCLIENTMETRICSW ncm = { sizeof(ncm) };
-    LOGFONTW lf;
-
-    if (font_ui) DeleteObject(font_ui);
-    if (font_bold) DeleteObject(font_bold);
-    if (font_small) DeleteObject(font_small);
-    if (font_title) DeleteObject(font_title);
-
-    if (!SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0))
-    {
-        memset(&ncm.lfMessageFont, 0, sizeof(ncm.lfMessageFont));
-        ncm.lfMessageFont.lfCharSet = DEFAULT_CHARSET;
-    }
-    lf = ncm.lfMessageFont;
-    lf.lfQuality = CLEARTYPE_QUALITY;
-    lf.lfWeight = FW_NORMAL;
-    lf.lfHeight = -MulDiv(10, dpi, 72);
-    font_ui = CreateFontIndirectW(&lf);
-    lf.lfHeight = -MulDiv(8, dpi, 72);
-    font_small = CreateFontIndirectW(&lf);
-    lf.lfWeight = FW_BOLD;
-    lf.lfHeight = -MulDiv(10, dpi, 72);
-    font_bold = CreateFontIndirectW(&lf);
-    lf.lfHeight = -MulDiv(15, dpi, 72);
-    font_title = CreateFontIndirectW(&lf);
-}
-
-static void fill_rect(HDC dc, const RECT *r, COLORREF c)
-{
-    HBRUSH b = CreateSolidBrush(c);
-    FillRect(dc, r, b);
-    DeleteObject(b);
-}
-
-static void fill_round(HDC dc, const RECT *r, int radius, COLORREF c)
-{
-    HBRUSH b = CreateSolidBrush(c);
-    HPEN p = CreatePen(PS_SOLID, 1, c);
-    HGDIOBJ ob = SelectObject(dc, b), op = SelectObject(dc, p);
-    RoundRect(dc, r->left, r->top, r->right, r->bottom, radius, radius);
-    SelectObject(dc, ob);
-    SelectObject(dc, op);
-    DeleteObject(b);
-    DeleteObject(p);
-}
-
-static void draw_text(HDC dc, const WCHAR *s, RECT *r, HFONT f, COLORREF c, UINT fmt)
-{
-    HGDIOBJ of = SelectObject(dc, f);
-    SetTextColor(dc, c);
-    SetBkMode(dc, TRANSPARENT);
-    DrawTextW(dc, s, -1, r, fmt | DT_NOPREFIX);
-    SelectObject(dc, of);
-}
-
-/* The Setu mark: a bridge (deck over an arch), drawn with GDI. */
-static void draw_mark(HDC dc, int x, int y, int size, COLORREF c)
-{
-    int w = size, t = max(2, size / 9);
-    HPEN pen = CreatePen(PS_SOLID, t, c);
-    HGDIOBJ op = SelectObject(dc, pen), ob = SelectObject(dc, GetStockObject(NULL_BRUSH));
-    int deck = y + size * 3 / 10, base = y + size * 9 / 10;
-    int r = w / 2 - t;
-
-    MoveToEx(dc, x, deck, NULL);
-    LineTo(dc, x + w, deck);
-    Arc(dc, x + w / 2 - r, base - r, x + w / 2 + r, base + r,
-        x + w / 2 + r, base, x + w / 2 - r, base);
-    /* hangers between deck and arch */
-    MoveToEx(dc, x + w / 2, deck, NULL);
-    LineTo(dc, x + w / 2, base - r);
-    MoveToEx(dc, x + t, deck, NULL);
-    LineTo(dc, x + t, base);
-    MoveToEx(dc, x + w - t, deck, NULL);
-    LineTo(dc, x + w - t, base);
-    SelectObject(dc, op);
-    SelectObject(dc, ob);
-    DeleteObject(pen);
+    st_make_fonts(dpi);
 }
 
 static BOOL ends_with_i(const WCHAR *s, const WCHAR *suffix)
@@ -329,6 +254,8 @@ static int row_y(int row);
 static int row_height(int row);
 static int list_top(void);
 static int list_bottom(void);
+static int panel_left(void);
+static RECT header_btn, user_btn, power_btn;
 
 static void write_state(void)
 {
@@ -360,6 +287,24 @@ static void write_state(void)
     EMIT(L"shnotify=%d\r\n", shnotify_id != 0);
     EMIT(L"reloads=%d\r\n", reload_count);
     EMIT(L"search=%ls\r\n", search_text);
+    EMIT(L"view=%ls\r\n", search_text[0] ? L"search" : view == VIEW_ALL ? L"all" : L"pinned");
+    EMIT(L"taskbar_alignment=%ls\r\n", bar_left_aligned ? L"left" : L"center");
+    {
+        /* the parts of the launcher, centres in screen coordinates */
+        static const struct { const WCHAR *name; const RECT *rc; int kind; } parts[] = {
+            { L"header_button", &header_btn, SEL_HEADER },
+            { L"user_button", &user_btn, SEL_USER },
+            { L"power_button", &power_btn, SEL_POWER },
+        };
+        for (i = 0; i < (int)ARRAYSIZE(parts); i++)
+        {
+            POINT c = { (parts[i].rc->left + parts[i].rc->right) / 2, (parts[i].rc->top + parts[i].rc->bottom) / 2 };
+            ClientToScreen(launcher, &c);
+            EMIT(L"%ls=%ls|%ld,%ld%ls\r\n", parts[i].name,
+                 parts[i].kind == SEL_HEADER ? (view == VIEW_ALL ? L"Back" : L"All apps") : L"-",
+                 c.x, c.y, sel_kind == parts[i].kind ? L"|selected" : L"");
+        }
+    }
     /* app=kind|name|file|folder|icon|pinned|uninstall|source */
     for (i = 0; i < napps; i++)
     {
@@ -390,7 +335,7 @@ static void write_state(void)
         const struct row *rw = &rows[i];
         const WCHAR *label = rw->type == ROW_APP ? apps[rw->index].name :
                              rw->type == ROW_GROUP ? groups[rw->index].name : rw->text;
-        POINT c = { S(200), row_y(i) + row_height(i) / 2 };
+        POINT c = { panel_left() + S(200), row_y(i) + row_height(i) / 2 };
         BOOL vis = row_y(i) >= list_top() && row_y(i) + row_height(i) <= list_bottom();
         ClientToScreen(launcher, &c);
         EMIT(L"row=%d|%ls|%ls|%d|%ld,%ld|%ls%ls\r\n", i, types[rw->type], label, rw->indent, c.x, c.y,
@@ -868,6 +813,15 @@ static void build_groups(void)
 /* Pins: HKCU\Software\Setu\Shell, "Pinned" (REG_MULTI_SZ, in order). */
 #define SHELL_KEY L"Software\\Setu\\Shell"
 
+/* TaskbarAlignment (REG_DWORD): 0 centres the buttons (the default), 1
+ * puts them at the left. Changes apply on WM_SETTINGCHANGE "Setu.Shell". */
+static void load_settings(void)
+{
+    DWORD v = 0, size = sizeof(v);
+    bar_left_aligned = !RegGetValueW(HKEY_CURRENT_USER, SHELL_KEY, L"TaskbarAlignment", RRF_RT_REG_DWORD, NULL,
+                                     &v, &size) && v == 1;
+}
+
 static void map_pins(void)
 {
     int i;
@@ -1201,16 +1155,20 @@ static HICON exe_icon(HWND hwnd)
     if (!(proc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid))) return NULL;
     if (!QueryFullProcessImageNameW(proc, 0, path, &len)) path[0] = 0;
     CloseHandle(proc);
-    return path[0] ? file_icon(path, S(16)) : NULL;
+    return path[0] ? file_icon(path, S(ST_TASK_ICON)) : NULL;
 }
 
+/* The button's icon. The program's own icon, read from its file at the
+ * button's size, stays sharp at 24 px; a window icon (WM_GETICON, the
+ * class icon) is the fallback, the big one first since it scales better. */
 static HICON window_icon(HWND hwnd)
 {
-    static const WPARAM kinds[] = { ICON_SMALL2, ICON_SMALL, ICON_BIG };
+    static const WPARAM kinds[] = { ICON_BIG, ICON_SMALL2, ICON_SMALL };
     DWORD_PTR r;
     HICON icon;
     int i;
 
+    if ((icon = exe_icon(hwnd))) return icon;
     for (i = 0; i < (int)ARRAYSIZE(kinds); i++)
     {
         r = 0;
@@ -1218,9 +1176,8 @@ static HICON window_icon(HWND hwnd)
             icon_usable((HICON)r))
             return (HICON)r;
     }
-    if (icon_usable(icon = (HICON)GetClassLongPtrW(hwnd, GCLP_HICONSM))) return icon;
     if (icon_usable(icon = (HICON)GetClassLongPtrW(hwnd, GCLP_HICON))) return icon;
-    if ((icon = exe_icon(hwnd))) return icon;
+    if (icon_usable(icon = (HICON)GetClassLongPtrW(hwnd, GCLP_HICONSM))) return icon;
     return LoadIconW(NULL, IDI_APPLICATION);
 }
 
@@ -1340,7 +1297,7 @@ static void task_menu(struct task *t, POINT pt)
 /* ------------------------------------------------------------------ */
 /* Taskbar window                                                       */
 
-static int bar_height(void) { return S(44); }
+static int bar_height(void) { return S(ST_TASKBAR_H); }
 
 static void update_clock(void)
 {
@@ -1355,89 +1312,110 @@ static void update_clock(void)
     }
 }
 
-static void layout_tasks(void)
+/* Tooltips name the buttons, which only show icons. The text comes from
+ * TTN_GETDISPINFOW, so it follows title changes. */
+static void update_tips(void)
 {
-    RECT rc;
-    int h, x, avail, w, i;
+    TTTOOLINFOW ti;
+    int i, n;
 
-    GetClientRect(bar, &rc);
-    h = rc.bottom;
-    SetRect(&start_rc, S(6), S(5), S(6) + S(96), h - S(5));
-    SetRect(&tray_rc, rc.right - S(112), S(5), rc.right - S(6), h - S(5));
-    x = start_rc.right + S(10);
-    avail = tray_rc.left - S(10) - x;
-    w = ntasks ? min(S(220), avail / ntasks - S(4)) : 0;
-    if (w < S(36)) w = S(36);
-    for (i = 0; i < ntasks; i++)
+    if (!tips) return;
+    n = (int)SendMessageW(tips, TTM_GETTOOLCOUNT, 0, 0);
+    for (i = n - 1; i >= 0; i--)
     {
-        SetRect(&tasks[i].rc, x, S(5), x + w, h - S(5));
-        x += w + S(4);
+        memset(&ti, 0, sizeof(ti));
+        ti.cbSize = sizeof(ti);
+        if (SendMessageW(tips, TTM_ENUMTOOLSW, i, (LPARAM)&ti)) SendMessageW(tips, TTM_DELTOOLW, 0, (LPARAM)&ti);
+    }
+    for (i = -1; i < ntasks; i++)
+    {
+        memset(&ti, 0, sizeof(ti));
+        ti.cbSize = sizeof(ti);
+        ti.uFlags = TTF_SUBCLASS;
+        ti.hwnd = bar;
+        ti.uId = (UINT_PTR)(i + 1);
+        ti.rect = i < 0 ? start_rc : tasks[i].rc;
+        ti.lpszText = LPSTR_TEXTCALLBACKW;
+        SendMessageW(tips, TTM_ADDTOOLW, 0, (LPARAM)&ti);
     }
 }
 
-static void paint_bar(HDC dc, const RECT *rc)
+/* The Setu button and the window buttons form one row, centred on the
+ * bar (or at its left edge, if TaskbarAlignment is 1); the clock is at
+ * the right. */
+static void layout_tasks(void)
 {
-    RECT r;
-    int i;
+    RECT rc;
+    int h, bw = S(ST_TASK_BUTTON), gap = S(4), top, n, pitch, total, x, i, avail;
 
-    fill_rect(dc, rc, C_BAR);
+    GetClientRect(bar, &rc);
+    h = rc.bottom;
+    top = (h - bw) / 2;
+    SetRect(&tray_rc, rc.right - S(8) - S(92), top, rc.right - S(8), top + bw);
+    n = ntasks + 1;
+    avail = tray_rc.left - S(16);
+    pitch = bw + gap;
+    if (n * pitch - gap > avail) pitch = max(S(20), (avail + gap) / n);
+    bw = min(bw, pitch - gap);
+    total = n * pitch - gap;
+    x = bar_left_aligned ? S(8) : (rc.right - total) / 2;
+    if (x + total > tray_rc.left - S(8)) x = max(S(8), (int)tray_rc.left - S(8) - total);
+    SetRect(&start_rc, x, top, x + bw, top + S(ST_TASK_BUTTON));
+    for (i = 0; i < ntasks; i++)
+    {
+        x += pitch;
+        SetRect(&tasks[i].rc, x, top, x + bw, top + S(ST_TASK_BUTTON));
+    }
+    update_tips();
+}
+
+static void paint_bar(struct setu_canvas *cv, const RECT *rc)
+{
+    COLORREF hover = st_mix(ST->taskbar, ST->surface, 170);
+    RECT r;
+    int i, isz = S(ST_TASK_ICON), rad = S(ST_RADIUS_CONTROL);
+
+    st_fill(cv, rc, ST->taskbar);
     r = *rc;
     r.bottom = r.top + max(1, S(1));
-    fill_rect(dc, &r, C_EDGE);
+    st_fill(cv, &r, ST->border);
 
-    /* start button */
-    if (hot == -1 || IsWindowVisible(launcher))
-        fill_round(dc, &start_rc, S(10), IsWindowVisible(launcher) ? C_ACTIVE : C_HOVER);
+    /* the Setu button: the bridge mark */
+    if (IsWindowVisible(launcher))
     {
-        int m = S(20);
-        int y = (start_rc.top + start_rc.bottom - m) / 2;
-        draw_mark(dc, start_rc.left + S(12), y, m, C_ACCENT);
-        r = start_rc;
-        r.left += S(12) + m + S(10);
-        draw_text(dc, L"Setu", &r, font_bold, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+        st_round(cv, &start_rc, rad, hover);
+        st_frame(cv, &start_rc, rad, 1, ST->border_subtle);
     }
+    else if (hot == -1) st_round(cv, &start_rc, rad, hover);
+    st_icon_in(cv, ICON_SETU_MARK, &start_rc, isz, ST->logo);
 
-    /* separator */
-    r.left = start_rc.right + S(4);
-    r.right = r.left + max(1, S(1));
-    r.top = S(12);
-    r.bottom = rc->bottom - S(12);
-    fill_rect(dc, &r, C_EDGE);
-
-    /* task buttons */
+    /* window buttons: icon, and a pill under it (long for the active one) */
     for (i = 0; i < ntasks; i++)
     {
         struct task *t = &tasks[i];
         RECT b = t->rc, pill;
-        int isz = S(16);
+        int pw = t->active ? S(16) : S(6), cx = (b.left + b.right) / 2;
 
-        if (t->active) fill_round(dc, &b, S(10), C_ACTIVE);
-        else if (hot == i) fill_round(dc, &b, S(10), C_HOVER);
-
-        /* indicator pill on the top edge: long and warm when active */
-        pill.top = b.top;
-        pill.bottom = b.top + S(3);
-        if (t->active) { pill.left = b.left + S(12); pill.right = b.right - S(12); }
-        else { int c = (b.left + b.right) / 2; pill.left = c - S(6); pill.right = c + S(6); }
-        fill_round(dc, &pill, S(3), t->active ? C_ACCENT : (t->minimized ? C_EDGE : C_MUTED));
-
+        if (t->active)
+        {
+            st_round(cv, &b, rad, hover);
+            st_frame(cv, &b, rad, 1, ST->border_subtle);
+        }
+        else if (hot == i) st_round(cv, &b, rad, hover);
         if (t->icon)
-            DrawIconEx(dc, b.left + S(10), (b.top + b.bottom - isz) / 2, t->icon, isz, isz, 0, NULL, DI_NORMAL);
-        r = b;
-        r.left += S(10) + isz + S(8);
-        r.right -= S(8);
-        if (r.right > r.left)
-            draw_text(dc, t->title, &r, font_ui, t->minimized ? C_MUTED : C_TEXT,
-                      DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+            DrawIconEx(cv->dc, cx - isz / 2, (b.top + b.bottom - isz) / 2 - S(1), t->icon, isz, isz, 0, NULL, DI_NORMAL);
+        SetRect(&pill, cx - pw / 2, b.bottom - S(ST_PILL_H) - S(1), cx + pw / 2, b.bottom - S(1));
+        st_round(cv, &pill, S(ST_PILL_H), t->minimized ? ST->text_secondary : ST->accent);
     }
 
-    /* tray: clock and date */
+    /* tray: time over date */
     r = tray_rc;
+    r.right -= S(10);
     r.bottom = (tray_rc.top + tray_rc.bottom) / 2 + S(1);
-    draw_text(dc, clock_text, &r, font_bold, C_TEXT, DT_SINGLELINE | DT_BOTTOM | DT_RIGHT);
-    r.top = r.bottom;
+    st_text(cv, clock_text, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_BOTTOM | DT_RIGHT);
+    r.top = r.bottom + S(1);
     r.bottom = tray_rc.bottom;
-    draw_text(dc, date_text, &r, font_small, C_MUTED, DT_SINGLELINE | DT_TOP | DT_RIGHT);
+    st_text(cv, date_text, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_TOP | DT_RIGHT);
 }
 
 static int bar_hit(POINT pt)
@@ -1639,25 +1617,30 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     switch (msg)
     {
     case WM_PAINT:
+        st_paint_window(hwnd, paint_bar);
+        return 0;
+    case WM_NOTIFY:
     {
-        PAINTSTRUCT ps;
-        RECT rc;
-        HDC dc = BeginPaint(hwnd, &ps), mem;
-        HBITMAP bmp;
-        HGDIOBJ old;
-
-        GetClientRect(hwnd, &rc);
-        mem = CreateCompatibleDC(dc);
-        bmp = CreateCompatibleBitmap(dc, rc.right, rc.bottom);
-        old = SelectObject(mem, bmp);
-        paint_bar(mem, &rc);
-        BitBlt(dc, 0, 0, rc.right, rc.bottom, mem, 0, 0, SRCCOPY);
-        SelectObject(mem, old);
-        DeleteObject(bmp);
-        DeleteDC(mem);
-        EndPaint(hwnd, &ps);
+        NMTTDISPINFOW *di = (NMTTDISPINFOW *)lp;
+        if (di->hdr.hwndFrom == tips && di->hdr.code == TTN_GETDISPINFOW)
+        {
+            int i = (int)di->hdr.idFrom - 1;
+            static WCHAR text[256];
+            if (i < 0) lstrcpynW(text, L"Start", ARRAYSIZE(text));
+            else if (i < ntasks) lstrcpynW(text, tasks[i].title, ARRAYSIZE(text));
+            else text[0] = 0;
+            di->lpszText = text;
+        }
         return 0;
     }
+    case WM_SETTINGCHANGE:
+        if (lp && !lstrcmpiW((const WCHAR *)lp, L"Setu.Shell"))
+        {
+            load_settings();
+            layout_tasks();
+            InvalidateRect(hwnd, NULL, FALSE);
+        }
+        break;
     case WM_ERASEBKGND:
         return 1;
     case WM_MOUSEMOVE:
@@ -1768,6 +1751,16 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     case WM_CLOSE:
         /* Alt+F4 on the shell should not kill the desktop by accident */
         return 0;
+    case WM_QUERYENDSESSION:
+        return TRUE;
+    case WM_ENDSESSION:
+        /* Sign out: tidy up and exit with 0, which ends the session */
+        if (wp)
+        {
+            DestroyWindow(hwnd);
+            ExitProcess(0);
+        }
+        return 0;
     case WM_DESTROY:
     {
         APPBARDATA abd = { sizeof(abd) };
@@ -1789,13 +1782,13 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 /* ------------------------------------------------------------------ */
 /* Start menu                                                           */
 
-/* Our own glyphs: a lettered tile for apps without an icon, a folder for
- * groups, a magnifier and a chevron. */
-static void draw_glyph(HDC dc, int x, int y, int size, const WCHAR *name)
+/* Our own glyphs: a lettered tile for apps without an icon, and a folder
+ * tile for groups (and Files). */
+static void draw_glyph(struct setu_canvas *cv, int x, int y, int size, const WCHAR *name)
 {
     static const COLORREF tones[] = {
-        RGB(0x4f, 0x7f, 0x6f), RGB(0x6c, 0x64, 0x9c), RGB(0xa4, 0x62, 0x4a),
-        RGB(0x47, 0x74, 0xa3), RGB(0x8c, 0x7a, 0x3a), RGB(0x84, 0x55, 0x74),
+        RGB(0x2f, 0x7d, 0x6a), RGB(0x5b, 0x5f, 0xc7), RGB(0xb5, 0x5a, 0x3c),
+        RGB(0x1f, 0x6f, 0xb2), RGB(0x8a, 0x6d, 0x1f), RGB(0x9b, 0x4d, 0x87),
     };
     unsigned h = 0;
     const WCHAR *p;
@@ -1803,105 +1796,91 @@ static void draw_glyph(HDC dc, int x, int y, int size, const WCHAR *name)
     RECT r = { x, y, x + size, y + size };
     LOGFONTW lf;
     HFONT f;
+    HGDIOBJ of;
 
     for (p = name; *p; p++) h = h * 31 + towlower(*p);
-    fill_round(dc, &r, size / 3, tones[h % ARRAYSIZE(tones)]);
+    st_round(cv, &r, max(S(ST_RADIUS_CONTROL), size / 5), tones[h % ARRAYSIZE(tones)]);
     CharUpperBuffW(letter, 1);
-    GetObjectW(font_bold, sizeof(lf), &lf);
+    GetObjectW(st_font[SF_CAPTION], sizeof(lf), &lf);
     lf.lfHeight = -size * 11 / 20;
     f = CreateFontIndirectW(&lf);
-    draw_text(dc, letter, &r, f, RGB(0xff, 0xff, 0xff), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+    of = SelectObject(cv->dc, f);
+    SetTextColor(cv->dc, RGB(0xff, 0xff, 0xff));
+    DrawTextW(cv->dc, letter, 1, &r, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
+    SelectObject(cv->dc, of);
     DeleteObject(f);
 }
 
-static void draw_folder(HDC dc, int x, int y, int size)
+static void draw_folder(struct setu_canvas *cv, int x, int y, int size)
 {
-    RECT tab = { x + size / 12, y + size / 6, x + size / 2, y + size * 2 / 5 };
-    RECT body = { x, y + size * 3 / 10, x + size, y + size * 5 / 6 };
-    fill_round(dc, &tab, size / 5, RGB(0xb9, 0x80, 0x2e));
-    fill_round(dc, &body, size / 5, C_ACCENT);
+    RECT r = { x, y, x + size, y + size };
+    st_round(cv, &r, max(S(ST_RADIUS_CONTROL), size / 5), st_mix(ST->surface, ST->accent, 40));
+    st_icon_in(cv, ICON_FOLDER, &r, size * 2 / 3, ST->accent);
 }
 
 /* An app's icon, or our glyph when it has none (a folder for Files). */
-static void draw_app_icon(HDC dc, const struct app *a, int x, int y, int size)
+static void draw_app_icon(struct setu_canvas *cv, const struct app *a, int x, int y, int size)
 {
     HICON icon = size == S(24) ? a->icon : app_icon(a, size);
-    if (icon) DrawIconEx(dc, x, y, icon, size, size, 0, NULL, DI_NORMAL);
-    else if (a->kind == APP_BUILTIN && !wcscmp(a->key, L"Files")) draw_folder(dc, x, y, size);
-    else draw_glyph(dc, x, y, size, a->name);
+    if (icon) DrawIconEx(cv->dc, x, y, icon, size, size, 0, NULL, DI_NORMAL);
+    else if (a->kind == APP_BUILTIN && !wcscmp(a->key, L"Files")) draw_folder(cv, x, y, size);
+    else draw_glyph(cv, x, y, size, a->name);
 }
 
-static void draw_magnifier(HDC dc, int x, int y, int size, COLORREF c)
+/* --- layout (client coordinates) ---
+ *
+ * The launcher window is the panel plus a margin on every side, where the
+ * panel's shadow is drawn over a copy of what was under the window when
+ * it opened (Wine's virtual desktop has no translucent windows). Without
+ * that copy there's no margin and a rounded window region instead. */
+
+#define PIN_COLS 6
+#define PIN_ROWS 4
+
+static int shadow_px;              /* the margin; 0 when there's no shadow */
+static HBITMAP backdrop;           /* what was under the window */
+static RECT header_btn, user_btn, power_btn, search_rc;
+static BOOL kbd_sel;               /* the selection came from the keyboard */
+static WCHAR user_name[128];
+
+static void panel_rect(RECT *r)
 {
-    HPEN pen = CreatePen(PS_SOLID, max(1, size / 8), c);
-    HGDIOBJ op = SelectObject(dc, pen), ob = SelectObject(dc, GetStockObject(NULL_BRUSH));
-    int d = size * 2 / 3;
-    Ellipse(dc, x, y, x + d, y + d);
-    MoveToEx(dc, x + d * 6 / 7, y + d * 6 / 7, NULL);
-    LineTo(dc, x + size, y + size);
-    SelectObject(dc, op);
-    SelectObject(dc, ob);
-    DeleteObject(pen);
+    GetClientRect(launcher, r);
+    InflateRect(r, -shadow_px, -shadow_px);
 }
-
-static void draw_chevron(HDC dc, int cx, int cy, int size, BOOL down, COLORREF c)
-{
-    POINT pt[3];
-    HBRUSH b = CreateSolidBrush(c);
-    HPEN p = CreatePen(PS_SOLID, 1, c);
-    HGDIOBJ ob = SelectObject(dc, b), op = SelectObject(dc, p);
-    int h = size / 2;
-    if (down)
-    {
-        pt[0].x = cx - h; pt[0].y = cy - h / 2;
-        pt[1].x = cx + h; pt[1].y = cy - h / 2;
-        pt[2].x = cx;     pt[2].y = cy + h / 2 + 1;
-    }
-    else
-    {
-        pt[0].x = cx - h / 2; pt[0].y = cy - h;
-        pt[1].x = cx - h / 2; pt[1].y = cy + h;
-        pt[2].x = cx + h / 2 + 1; pt[2].y = cy;
-    }
-    Polygon(dc, pt, 3);
-    SelectObject(dc, ob);
-    SelectObject(dc, op);
-    DeleteObject(b);
-    DeleteObject(p);
-}
-
-/* --- layout (client coordinates) --- */
-
-static int menu_width(void) { RECT rc; GetClientRect(launcher, &rc); return rc.right; }
-static int tile_cols(void) { return max(1, (menu_width() - S(32)) / S(68)); }
-static int tile_rows(void) { return min(2, (npins + tile_cols() - 1) / tile_cols()); }
-static int tiles_top(void) { return S(88); }
-static int tiles_visible(void) { return !search_text[0]; }
+static int panel_left(void) { RECT r; panel_rect(&r); return r.left; }
+static int panel_top(void) { RECT r; panel_rect(&r); return r.top; }
+static int menu_width(void) { RECT r; panel_rect(&r); return r.right - r.left; }
+static int tile_cols(void) { return PIN_COLS; }
+static int tiles_top(void) { return panel_top() + S(116); }
+static int tiles_visible(void) { return !search_text[0] && view == VIEW_PINNED; }
+static int list_visible(void) { return search_text[0] || view == VIEW_ALL; }
+static int footer_top(void) { RECT r; panel_rect(&r); return r.bottom - S(64); }
 
 static void tile_rect(int i, RECT *r)
 {
-    int cols = tile_cols(), pitch = (menu_width() - S(32)) / cols;
-    int x = S(16) + (i % cols) * pitch, y = tiles_top() + (i / cols) * S(76);
-    SetRect(r, x, y, x + pitch, y + S(72));
-    if (!tiles_visible() || i / cols >= 2) SetRect(r, -1000, -1000, -1000, -1000);
+    int cols = tile_cols(), pitch = (menu_width() - S(48)) / cols;
+    int x = panel_left() + S(24) + (i % cols) * pitch, y = tiles_top() + (i / cols) * S(88);
+    SetRect(r, x, y, x + pitch, y + S(84));
+    if (!tiles_visible() || i / cols >= PIN_ROWS) SetRect(r, -1000, -1000, -1000, -1000);
 }
 
 static int list_top(void)
 {
-    if (!tiles_visible()) return S(64);
-    return tiles_top() + (npins ? tile_rows() * S(76) : S(40)) + S(30);
+    if (!list_visible()) return footer_top();
+    return panel_top() + (search_text[0] ? S(76) : S(116));
 }
 
-static int list_bottom(void) { RECT rc; GetClientRect(launcher, &rc); return rc.bottom - S(40); }
+static int list_bottom(void) { return footer_top() - S(4); }
 
 static int row_height(int row)
 {
     switch (rows[row].type)
     {
-    case ROW_LETTER: return S(28);
-    case ROW_SECTION: return S(30);
+    case ROW_LETTER: return S(32);
+    case ROW_SECTION: return S(32);
     case ROW_HINT: return S(64);
-    default: return S(36);
+    default: return S(40);
     }
 }
 
@@ -2147,6 +2126,9 @@ static void reload_apps(void)
 {
     struct saved_sel s;
     save_selection(&s);
+    load_settings();
+    layout_tasks();
+    InvalidateRect(bar, NULL, FALSE);
     load_apps();
     rebuild_rows(&s);
     write_state();
@@ -2186,42 +2168,74 @@ static void move_rows(int delta)
     while (steps-- && (next = first_row(r + dir, dir)) >= 0) r = next;
     if (r == sel_index && dir < 0)
     {
-        /* above the first row: the pins, then the search box */
-        if (tiles_visible() && npins) select_item(SEL_TILE, 0);
+        /* above the first row: the Back button, then the search box */
+        if (!search_text[0]) select_item(SEL_HEADER, 0);
         else select_item(SEL_NONE, -1);
         return;
     }
     select_item(SEL_ROW, r);
 }
 
+/* Down from the search box: the pins (or the first app), and down the
+ * grid. The "All apps" / "Back" button sits above the pins and the list. */
 static void key_down(void)
 {
     int r;
-    if (sel_kind == SEL_NONE && tiles_visible() && npins) select_item(SEL_TILE, 0);
-    else if (sel_kind == SEL_TILE && sel_index + tile_cols() < npins && sel_index / tile_cols() < 1)
-        select_item(SEL_TILE, sel_index + tile_cols());
-    else if (sel_kind == SEL_TILE) { if ((r = first_row(0, 1)) >= 0) select_item(SEL_ROW, r); }
-    else move_rows(1);
+    kbd_sel = TRUE;
+    switch (sel_kind)
+    {
+    case SEL_NONE:
+        if (tiles_visible()) select_item(npins ? SEL_TILE : SEL_HEADER, 0);
+        else move_rows(1);
+        break;
+    case SEL_HEADER:
+        if (tiles_visible()) { if (npins) select_item(SEL_TILE, 0); }
+        else if ((r = first_row(0, 1)) >= 0) select_item(SEL_ROW, r);
+        break;
+    case SEL_TILE:
+        if (sel_index + tile_cols() < npins && sel_index / tile_cols() < PIN_ROWS - 1)
+            select_item(SEL_TILE, sel_index + tile_cols());
+        break;
+    case SEL_ROW:
+        move_rows(1);
+        break;
+    }
 }
 
 static void key_up(void)
 {
-    if (sel_kind == SEL_TILE)
+    kbd_sel = TRUE;
+    switch (sel_kind)
     {
+    case SEL_TILE:
         if (sel_index >= tile_cols()) select_item(SEL_TILE, sel_index - tile_cols());
-        else select_item(SEL_NONE, -1);
+        else select_item(SEL_HEADER, 0);
+        break;
+    case SEL_HEADER:
+    case SEL_USER:
+    case SEL_POWER:
+        select_item(SEL_NONE, -1);
+        break;
+    case SEL_ROW:
+        move_rows(-1);
+        break;
     }
-    else if (sel_kind == SEL_ROW) move_rows(-1);
 }
 
 /* Left/Right: move along the pins, or collapse/expand a group. Returns
  * FALSE to let the search box have the key. */
 static BOOL key_side(int dir)
 {
+    kbd_sel = TRUE;
     if (sel_kind == SEL_TILE)
     {
         int i = sel_index + dir;
-        if (i >= 0 && i < npins && i / tile_cols() < 2) select_item(SEL_TILE, i);
+        if (i >= 0 && i < npins && i / tile_cols() < PIN_ROWS) select_item(SEL_TILE, i);
+        return TRUE;
+    }
+    if (sel_kind == SEL_USER || sel_kind == SEL_POWER)
+    {
+        select_item(dir > 0 ? SEL_POWER : SEL_USER, 0);
         return TRUE;
     }
     if (sel_kind != SEL_ROW || !row_selectable(sel_index)) return FALSE;
@@ -2244,6 +2258,30 @@ static BOOL key_side(int dir)
     return FALSE;
 }
 
+/* Tab moves between the search box, the list or pins, and the user and
+ * power buttons at the bottom. */
+static void key_tab(BOOL back)
+{
+    int r;
+    kbd_sel = TRUE;
+    if (!back)
+    {
+        if (sel_kind == SEL_USER) select_item(SEL_POWER, 0);
+        else if (sel_kind == SEL_POWER) select_item(SEL_NONE, -1);
+        else if (sel_kind == SEL_NONE && tiles_visible() && npins) select_item(SEL_TILE, 0);
+        else if (sel_kind == SEL_NONE && list_visible() && (r = first_row(0, 1)) >= 0) select_item(SEL_ROW, r);
+        else select_item(SEL_USER, 0);
+    }
+    else
+    {
+        if (sel_kind == SEL_POWER) select_item(SEL_USER, 0);
+        else if (sel_kind == SEL_NONE) select_item(SEL_POWER, 0);
+        else if (sel_kind == SEL_USER && tiles_visible() && npins) select_item(SEL_TILE, 0);
+        else if (sel_kind == SEL_USER && list_visible() && (r = first_row(0, 1)) >= 0) select_item(SEL_ROW, r);
+        else select_item(SEL_NONE, -1);
+    }
+}
+
 /* --- hit testing --- */
 
 static void hit_test(POINT pt, int *kind, int *index)
@@ -2253,12 +2291,16 @@ static void hit_test(POINT pt, int *kind, int *index)
 
     *kind = SEL_NONE;
     *index = -1;
+    if (!search_text[0] && PtInRect(&header_btn, pt)) { *kind = SEL_HEADER; *index = 0; return; }
+    if (PtInRect(&user_btn, pt)) { *kind = SEL_USER; *index = 0; return; }
+    if (PtInRect(&power_btn, pt)) { *kind = SEL_POWER; *index = 0; return; }
     for (i = 0; i < npins; i++)
     {
         tile_rect(i, &r);
         if (PtInRect(&r, pt)) { *kind = SEL_TILE; *index = i; return; }
     }
-    if (pt.y < list_top() || pt.y >= list_bottom()) return;
+    panel_rect(&r);
+    if (pt.y < list_top() || pt.y >= list_bottom() || pt.x < r.left || pt.x >= r.right) return;
     for (i = 0, y = row_y(0); i < nrows; y += row_height(i), i++)
         if (pt.y >= y && pt.y < y + row_height(i))
         {
@@ -2269,160 +2311,309 @@ static void hit_test(POINT pt, int *kind, int *index)
 
 /* --- painting --- */
 
-static void paint_launcher(HDC dc, const RECT *rc)
+static RECT panel;                 /* the panel, in client coordinates */
+
+/* hover or keyboard selection behind an entry */
+static void paint_selection(struct setu_canvas *cv, const RECT *r)
 {
-    RECT r, field;
-    HRGN clip;
-    int i, y;
+    st_round(cv, r, S(ST_RADIUS_CONTROL), ST->surface_hover);
+    if (kbd_sel) st_focus_ring(cv, r, S(ST_RADIUS_CONTROL), dpi);
+}
 
-    fill_rect(dc, rc, C_PANEL);
-    /* a hairline border so the panel reads against any background */
+static void paint_header_button(struct setu_canvas *cv)
+{
+    BOOL all = view == VIEW_ALL, sel = sel_kind == SEL_HEADER;
+    const WCHAR *label = all ? L"Back" : L"All apps";
+    RECT r = header_btn;
+    int isz = S(16), tw = st_text_width(cv, label, SF_BODY);
+    int x = (r.left + r.right - (tw + S(4) + isz)) / 2, cy = (r.top + r.bottom) / 2;
+
+    st_round(cv, &r, S(ST_RADIUS_CONTROL), sel ? ST->surface_hover : ST->window_bg);
+    st_frame(cv, &r, S(ST_RADIUS_CONTROL), 1, ST->border_subtle);
+    if (sel && kbd_sel) st_focus_ring(cv, &r, S(ST_RADIUS_CONTROL), dpi);
+    if (all)
     {
-        HPEN p = CreatePen(PS_SOLID, 1, C_EDGE);
-        HGDIOBJ op = SelectObject(dc, p), ob = SelectObject(dc, GetStockObject(NULL_BRUSH));
-        Rectangle(dc, 0, 0, rc->right, rc->bottom);
-        SelectObject(dc, op);
-        SelectObject(dc, ob);
-        DeleteObject(p);
+        st_icon(cv, ICON_CHEVRON_LEFT, x, cy - isz / 2, isz, ST->text);
+        SetRect(&r, x + isz + S(4), r.top, r.right, r.bottom);
     }
-    /* the warm accent along the top edge */
-    SetRect(&r, 0, 0, rc->right, S(3));
-    fill_rect(dc, &r, C_ACCENT);
+    else
+    {
+        st_icon(cv, ICON_CHEVRON_RIGHT, x + tw + S(4), cy - isz / 2, isz, ST->text);
+        SetRect(&r, x, r.top, x + tw + S(1), r.bottom);
+    }
+    st_text(cv, label, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+}
 
-    /* search field (the EDIT control sits inside it) */
-    SetRect(&field, S(16), S(18), rc->right - S(16), S(54));
-    fill_round(dc, &field, S(18), C_FIELD);
-    draw_magnifier(dc, field.left + S(14), (field.top + field.bottom - S(14)) / 2, S(14), C_MUTED);
+static void paint_row(struct setu_canvas *cv, int i, int y)
+{
+    const struct row *rw = &rows[i];
+    int h = row_height(i), isz = S(24);
+    BOOL sel = sel_kind == SEL_ROW && sel_index == i;
+    RECT r;
+
+    SetRect(&r, panel.left + S(20) + rw->indent * S(24), y, panel.right - S(20), y + h);
+    switch (rw->type)
+    {
+    case ROW_LETTER:
+    {
+        RECT line;
+        int tw = st_text_width(cv, rw->text, SF_CAPTION);
+        r.left += S(12);
+        r.top += S(6);
+        st_text(cv, rw->text, &r, SF_CAPTION, ST->accent, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+        SetRect(&line, r.left + tw + S(12), (r.top + r.bottom) / 2, r.right - S(12), (r.top + r.bottom) / 2 + max(1, S(1)));
+        st_fill(cv, &line, ST->border_subtle);
+        break;
+    }
+    case ROW_SECTION:
+        r.left += S(12);
+        r.bottom -= S(6);
+        st_text(cv, rw->text, &r, SF_CAPTION, ST->text_secondary, DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
+        break;
+    case ROW_HINT:
+    {
+        WCHAR msg[400];
+        swprintf(msg, ARRAYSIZE(msg), L"No app matches \x201c%ls\x201d. Press Enter to run it as a command.",
+                 search_text);
+        r.left += S(12);
+        r.right -= S(12);
+        r.top += S(8);
+        st_text(cv, msg, &r, SF_BODY, ST->text_secondary, DT_WORDBREAK | DT_LEFT);
+        break;
+    }
+    case ROW_APP:
+    {
+        struct app *a = &apps[rw->index];
+        if (sel) paint_selection(cv, &r);
+        draw_app_icon(cv, a, r.left + S(12), y + (h - isz) / 2, isz);
+        r.left += S(12) + isz + S(12);
+        r.right -= S(12);
+        if (search_text[0] && a->folder[0])
+        {
+            /* where it lives, on the right */
+            st_text(cv, a->folder, &r, SF_BODY, ST->text_secondary, DT_SINGLELINE | DT_VCENTER | DT_RIGHT | DT_END_ELLIPSIS);
+            r.right -= min(S(140), (r.right - r.left) / 3);
+        }
+        if (a->pinned)
+        {
+            st_icon(cv, ICON_PIN, r.right - S(14), y + (h - S(14)) / 2, S(14), ST->text_secondary);
+            r.right -= S(22);
+        }
+        st_text(cv, a->name, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+        break;
+    }
+    case ROW_GROUP:
+    {
+        struct group *g = &groups[rw->index];
+        WCHAR count[16];
+        if (sel) paint_selection(cv, &r);
+        draw_folder(cv, r.left + S(12), y + (h - isz) / 2, isz);
+        st_icon(cv, g->expanded ? ICON_CHEVRON_UP : ICON_CHEVRON_DOWN, r.right - S(28), y + (h - S(16)) / 2, S(16),
+                ST->text_secondary);
+        r.left += S(12) + isz + S(12);
+        r.right -= S(40);
+        swprintf(count, ARRAYSIZE(count), L"%d", g->count);
+        st_text(cv, count, &r, SF_BODY, ST->text_secondary, DT_SINGLELINE | DT_VCENTER | DT_RIGHT);
+        r.right -= S(28);
+        st_text(cv, g->name, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+        break;
+    }
+    }
+}
+
+static void paint_launcher(struct setu_canvas *cv, const RECT *rc)
+{
+    int rad = S(ST_RADIUS_WINDOW), i, y, isz;
+    RECT r;
+
+    /* backdrop and shadow, then the panel */
+    if (shadow_px && backdrop)
+    {
+        HDC m = CreateCompatibleDC(cv->dc);
+        HGDIOBJ old = SelectObject(m, backdrop);
+        BitBlt(cv->dc, 0, 0, rc->right, rc->bottom, m, 0, 0, SRCCOPY);
+        SelectObject(m, old);
+        DeleteDC(m);
+        r = panel;
+        OffsetRect(&r, 0, S(2));
+        st_shadow(cv, &r, rad, shadow_px, 72);
+    }
+    else st_fill(cv, rc, ST->surface);
+    st_round(cv, &panel, rad, ST->surface);
+
+    /* search box: an edit field (the EDIT control sits inside it) */
+    st_round(cv, &search_rc, S(ST_RADIUS_CONTROL), ST->surface);
+    st_frame(cv, &search_rc, S(ST_RADIUS_CONTROL), 1, ST->border);
+    if (GetFocus() == edit)
+    {
+        RECT line = { search_rc.left + S(1), search_rc.bottom - S(2), search_rc.right - S(1), search_rc.bottom };
+        st_clip(cv, &line);
+        st_round(cv, &search_rc, S(ST_RADIUS_CONTROL), ST->accent);
+        st_clip(cv, NULL);
+    }
+    st_icon(cv, ICON_SEARCH, search_rc.left + S(12), (search_rc.top + search_rc.bottom - S(16)) / 2, S(16),
+            ST->text_secondary);
+
+    /* header: the view's title and the button that switches views */
+    if (!search_text[0])
+    {
+        SetRect(&r, panel.left + S(32), header_btn.top, header_btn.left - S(8), header_btn.bottom);
+        st_text(cv, view == VIEW_ALL ? L"All apps" : L"Pinned", &r, SF_TITLE, ST->text,
+                DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+        paint_header_button(cv);
+    }
 
     if (tiles_visible())
     {
-        SetRect(&r, S(24), S(62), rc->right - S(24), S(84));
-        draw_text(dc, L"Pinned", &r, font_bold, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
         if (!npins)
         {
-            SetRect(&r, S(24), tiles_top(), rc->right - S(24), tiles_top() + S(36));
-            draw_text(dc, L"Right-click an app and choose Pin to keep it here.", &r, font_small, C_MUTED,
-                      DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+            SetRect(&r, panel.left + S(32), tiles_top(), panel.right - S(32), tiles_top() + S(40));
+            st_text(cv, L"Right-click an app in All apps and choose Pin to keep it here.", &r, SF_BODY,
+                    ST->text_secondary, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
         }
+        isz = S(32);
         for (i = 0; i < npins; i++)
         {
             struct app *a = &apps[pins[i]];
-            int isz = S(32);
             tile_rect(i, &r);
             if (r.left < 0) continue;
             InflateRect(&r, -S(2), 0);
-            if (sel_kind == SEL_TILE && sel_index == i) fill_round(dc, &r, S(12), C_SELECT);
-            draw_app_icon(dc, a, (r.left + r.right - isz) / 2, r.top + S(8), isz);
-            r.top += S(8) + isz + S(4);
-            InflateRect(&r, -S(3), 0);
-            draw_text(dc, a->name, &r, font_small, C_TEXT, DT_SINGLELINE | DT_TOP | DT_CENTER | DT_END_ELLIPSIS);
-        }
-        SetRect(&r, S(24), list_top() - S(28), rc->right - S(24), list_top() - S(4));
-        draw_text(dc, L"All apps", &r, font_bold, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
-    }
-
-    /* list */
-    clip = CreateRectRgn(0, list_top(), rc->right, list_bottom());
-    SelectClipRgn(dc, clip);
-    for (i = 0, y = row_y(0); i < nrows; y += row_height(i), i++)
-    {
-        const struct row *rw = &rows[i];
-        int h = row_height(i), isz = S(24);
-        if (y + h < list_top() || y > list_bottom()) continue;
-        SetRect(&r, S(12) + rw->indent * S(22), y, rc->right - S(12), y + h);
-        switch (rw->type)
-        {
-        case ROW_LETTER:
-        {
-            RECT line;
-            SIZE sz;
-            HGDIOBJ of = SelectObject(dc, font_bold);
-            r.left += S(12);
-            draw_text(dc, rw->text, &r, font_bold, C_ACCENT, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
-            GetTextExtentPoint32W(dc, rw->text, (int)wcslen(rw->text), &sz);
-            SelectObject(dc, of);
-            SetRect(&line, r.left + sz.cx + S(10), y + h / 2, r.right - S(8), y + h / 2 + max(1, S(1)));
-            fill_rect(dc, &line, C_EDGE);
-            break;
-        }
-        case ROW_SECTION:
-            r.left += S(12);
-            draw_text(dc, rw->text, &r, font_bold, C_MUTED, DT_SINGLELINE | DT_BOTTOM | DT_LEFT);
-            break;
-        case ROW_HINT:
-        {
-            WCHAR msg[400];
-            swprintf(msg, ARRAYSIZE(msg), L"No app matches “%ls”. Press Enter to run it as a command.",
-                     search_text);
-            r.left += S(12);
-            r.top += S(8);
-            draw_text(dc, msg, &r, font_ui, C_MUTED, DT_WORDBREAK | DT_LEFT);
-            break;
-        }
-        case ROW_APP:
-        {
-            struct app *a = &apps[rw->index];
-            if (sel_kind == SEL_ROW && sel_index == i) fill_round(dc, &r, S(10), C_SELECT);
-            draw_app_icon(dc, a, r.left + S(10), y + (h - isz) / 2, isz);
-            r.left += S(10) + isz + S(12);
-            r.right -= S(10);
-            if (search_text[0] && a->folder[0])
-            {
-                /* where it lives, on the right */
-                draw_text(dc, a->folder, &r, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_RIGHT | DT_END_ELLIPSIS);
-                r.right -= min(S(120), (r.right - r.left) / 3);
-            }
-            if (a->pinned)
-            {
-                RECT dot = { r.right - S(6), y + h / 2 - S(3), r.right, y + h / 2 + S(3) };
-                fill_round(dc, &dot, S(6), C_ACCENT);
-                r.right -= S(14);
-            }
-            draw_text(dc, a->name, &r, font_ui, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
-            break;
-        }
-        case ROW_GROUP:
-        {
-            struct group *g = &groups[rw->index];
-            WCHAR count[16];
-            if (sel_kind == SEL_ROW && sel_index == i) fill_round(dc, &r, S(10), C_SELECT);
-            draw_folder(dc, r.left + S(10), y + (h - isz) / 2, isz);
-            draw_chevron(dc, r.right - S(18), y + h / 2, S(8), g->expanded, C_MUTED);
-            r.left += S(10) + isz + S(12);
-            r.right -= S(34);
-            swprintf(count, ARRAYSIZE(count), L"%d", g->count);
-            draw_text(dc, count, &r, font_small, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_RIGHT);
-            r.right -= S(28);
-            draw_text(dc, g->name, &r, font_ui, C_TEXT, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
-            break;
-        }
+            if (sel_kind == SEL_TILE && sel_index == i) paint_selection(cv, &r);
+            draw_app_icon(cv, a, (r.left + r.right - isz) / 2, r.top + S(14), isz);
+            r.top += S(14) + isz + S(8);
+            r.bottom = r.top + S(20);
+            InflateRect(&r, -S(4), 0);
+            st_text(cv, a->name, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_TOP | DT_CENTER | DT_END_ELLIPSIS);
         }
     }
-    SelectClipRgn(dc, NULL);
-    DeleteObject(clip);
 
-    /* footer: status, or the selected entry's description or target */
-    SetRect(&r, 0, list_bottom(), rc->right, list_bottom() + max(1, S(1)));
-    fill_rect(dc, &r, C_EDGE);
-    draw_mark(dc, S(20), list_bottom() + (S(40) - S(18)) / 2, S(18), C_ACCENT);
-    SetRect(&r, S(48), list_bottom(), rc->right - S(20), rc->bottom);
+    if (list_visible())
     {
+        int top = list_top(), bottom = list_bottom(), content = content_height();
+        SetRect(&r, panel.left, top, panel.right, bottom);
+        st_clip(cv, &r);
+        for (i = 0, y = row_y(0); i < nrows; y += row_height(i), i++)
+        {
+            if (y + row_height(i) < top || y > bottom) continue;
+            paint_row(cv, i, y);
+        }
+        /* a thin scroll indicator when the list is longer than the view */
+        if (content > bottom - top)
+        {
+            int track = bottom - top - S(8);
+            int th = max(S(24), track * (bottom - top) / content);
+            int ty = top + S(4) + (track - th) * scroll_px / max(1, content - (bottom - top));
+            RECT thumb = { panel.right - S(9), ty, panel.right - S(5), ty + th };
+            st_round_alpha(cv, &thumb, S(2), ST->text_secondary, 128);
+        }
+        st_clip(cv, NULL);
+    }
+
+    /* footer: the user, a status line, power */
+    {
+        int ft = footer_top();
+        RECT f = { panel.left, ft, panel.right, panel.bottom };
         const struct app *a = selected_app();
         const struct group *g = selected_group();
         WCHAR text[300];
         UINT fmt = DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS;
 
+        st_round(cv, &f, rad, ST->window_bg);
+        f.bottom = ft + rad * 2;
+        st_fill(cv, &f, ST->window_bg);
+        f.bottom = ft + max(1, S(1));
+        st_fill(cv, &f, ST->border_subtle);
+
+        if (sel_kind == SEL_USER) paint_selection(cv, &user_btn);
+        st_icon(cv, ICON_CIRCLE_USER_ROUND, user_btn.left + S(10), (user_btn.top + user_btn.bottom - S(24)) / 2, S(24),
+                ST->text);
+        SetRect(&r, user_btn.left + S(10) + S(24) + S(10), user_btn.top, user_btn.right - S(8), user_btn.bottom);
+        st_text(cv, user_name, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
+
+        if (sel_kind == SEL_POWER) paint_selection(cv, &power_btn);
+        st_icon_in(cv, ICON_POWER, &power_btn, S(20), ST->text);
+
         if (status_text[0]) lstrcpynW(text, status_text, ARRAYSIZE(text));
         else if (a && a->desc[0]) lstrcpynW(text, a->desc, ARRAYSIZE(text));
         else if (a && a->file[0]) { lstrcpynW(text, a->file, ARRAYSIZE(text)); fmt = (fmt & ~DT_END_ELLIPSIS) | DT_PATH_ELLIPSIS; }
-        else if (a) swprintf(text, ARRAYSIZE(text), L"Installed program. Right-click to uninstall.");
+        else if (a) lstrcpynW(text, L"Installed program. Right-click to uninstall.", ARRAYSIZE(text));
         else if (g) swprintf(text, ARRAYSIZE(text), L"Folder with %d apps", g->count);
-        else lstrcpynW(text, L"Arrows to move · Enter to open · right-click for more", ARRAYSIZE(text));
-        draw_text(dc, text, &r, font_small, C_MUTED, fmt);
+        else text[0] = 0;
+        SetRect(&r, user_btn.right + S(16), ft, power_btn.left - S(16), panel.bottom);
+        st_text(cv, text, &r, SF_BODY, ST->text_secondary, fmt);
     }
+
+    st_frame(cv, &panel, rad, 1, ST->border);
 }
 
 /* --- actions --- */
+
+static void show_view(int v)
+{
+    view = v;
+    scroll_px = 0;
+    if (v == VIEW_ALL)
+    {
+        int r = first_row(0, 1);
+        if (kbd_sel && r >= 0) select_item(SEL_ROW, r);
+        else select_item(SEL_NONE, -1);
+    }
+    else select_item(kbd_sel ? SEL_HEADER : SEL_NONE, 0);
+    InvalidateRect(launcher, NULL, FALSE);
+    write_state();
+}
+
+static void open_home(void)
+{
+    WCHAR home[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, home))) open_location(home, NULL);
+}
+
+/* Restart and Shut down ask the system (systemd) through Z:, the Linux
+ * root; Sign out ends the session (ExitWindowsEx sends WM_ENDSESSION, and
+ * the shell then exits with 0, which ends setu-session). */
+#define SYSTEMCTL L"Z:\\usr\\bin\\systemctl"
+
+static void power_command(int cmd)
+{
+    WCHAR line[MAX_PATH + 32];
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi;
+
+    if (cmd == IDM_SIGNOUT)
+    {
+        if (!ExitWindowsEx(EWX_LOGOFF, SHTDN_REASON_FLAG_PLANNED)) set_status(L"Could not sign out");
+        return;
+    }
+    swprintf(line, ARRAYSIZE(line), L"\"%ls\" %ls", SYSTEMCTL, cmd == IDM_RESTART ? L"reboot" : L"poweroff");
+    if (CreateProcessW(SYSTEMCTL, line, NULL, NULL, FALSE, DETACHED_PROCESS, NULL, NULL, &si, &pi))
+    {
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    else set_status(L"Could not %ls", cmd == IDM_RESTART ? L"restart" : L"shut down");
+}
+
+static void power_menu(POINT pt)
+{
+    HMENU m = CreatePopupMenu();
+    BOOL sys = GetFileAttributesW(SYSTEMCTL) != INVALID_FILE_ATTRIBUTES;
+    int cmd;
+
+    AppendMenuW(m, MF_STRING, IDM_SIGNOUT, L"Sign &out");
+    AppendMenuW(m, MF_SEPARATOR, 0, NULL);
+    AppendMenuW(m, MF_STRING | (sys ? 0 : MF_GRAYED), IDM_RESTART, L"&Restart");
+    AppendMenuW(m, MF_STRING | (sys ? 0 : MF_GRAYED), IDM_SHUTDOWN, L"Shut &down");
+    in_menu = TRUE;
+    write_state();
+    cmd = TrackPopupMenu(m, TPM_RETURNCMD | TPM_RIGHTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0,
+                         launcher, NULL);
+    in_menu = FALSE;
+    DestroyMenu(m);
+    if (IsWindowVisible(launcher)) SetFocus(edit);
+    if (cmd) power_command(cmd);
+    write_state();
+}
 
 static void activate_item(int kind, int index)
 {
@@ -2434,6 +2625,18 @@ static void activate_item(int kind, int index)
         if (rows[index].type == ROW_APP) launch_app(&apps[rows[index].index]);
         else toggle_group(rows[index].index, -1);
     }
+    else if (kind == SEL_HEADER) show_view(view == VIEW_ALL ? VIEW_PINNED : VIEW_ALL);
+    else if (kind == SEL_USER)
+    {
+        hide_launcher();
+        open_home();
+    }
+    else if (kind == SEL_POWER)
+    {
+        POINT pt = { power_btn.right, power_btn.top };
+        ClientToScreen(launcher, &pt);
+        power_menu(pt);
+    }
     else
     {
         GetWindowTextW(edit, text, ARRAYSIZE(text));
@@ -2443,7 +2646,7 @@ static void activate_item(int kind, int index)
 
 static void set_pinned(struct app *a, BOOL pin)
 {
-    if (!pin_app(a, pin)) set_status(pin ? L"The pinned row is full" : L"Could not save the pins");
+    if (!pin_app(a, pin)) set_status(pin ? L"The pinned grid is full" : L"Could not save the pins");
     else set_status(pin ? L"Pinned %ls" : L"Unpinned %ls", a->name);
     refresh_rows(FALSE);
     if (pin) InvalidateRect(launcher, NULL, FALSE);
@@ -2480,14 +2683,6 @@ static void item_menu(POINT pt)
     }
     in_menu = TRUE;
     write_state();
-    {
-        /* The menu pops out over the panel's right edge. (On the Setu
-         * personality, a popup menu lying wholly inside the panel is not
-         * painted in the virtual desktop; reported to shell-api.) */
-        RECT lr;
-        GetWindowRect(launcher, &lr);
-        pt.x = max(pt.x, lr.right - S(56));
-    }
     cmd = TrackPopupMenu(m, TPM_RETURNCMD | TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON,
                          pt.x, pt.y, 0, launcher, NULL);
     in_menu = FALSE;
@@ -2519,7 +2714,7 @@ static void item_menu_at_selection(void)
     POINT pt;
     if (sel_kind == SEL_TILE) tile_rect(sel_index, &r);
     else if (sel_kind == SEL_ROW && row_selectable(sel_index))
-        SetRect(&r, S(40), row_y(sel_index), S(200), row_y(sel_index) + row_height(sel_index));
+        SetRect(&r, panel.left + S(40), row_y(sel_index), panel.left + S(200), row_y(sel_index) + row_height(sel_index));
     else return;
     pt.x = (r.left + r.right) / 2;
     pt.y = r.bottom;
@@ -2536,8 +2731,9 @@ static LRESULT CALLBACK edit_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         {
         case VK_DOWN: key_down(); write_state(); return 0;
         case VK_UP: key_up(); write_state(); return 0;
-        case VK_NEXT: move_rows(8); write_state(); return 0;
-        case VK_PRIOR: move_rows(-8); write_state(); return 0;
+        case VK_NEXT: kbd_sel = TRUE; move_rows(8); write_state(); return 0;
+        case VK_PRIOR: kbd_sel = TRUE; move_rows(-8); write_state(); return 0;
+        case VK_TAB: key_tab(shift); write_state(); return 0;
         case VK_LEFT: case VK_RIGHT:
             if (key_side(wp == VK_RIGHT ? 1 : -1)) { write_state(); return 0; }
             break;
@@ -2561,10 +2757,14 @@ static LRESULT CALLBACK edit_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         {
             HDC dc = GetDC(hwnd);
             RECT r;
+            HGDIOBJ of = SelectObject(dc, st_font[SF_BODY]);
             GetClientRect(hwnd, &r);
             r.left += S(2);
             HideCaret(hwnd);
-            draw_text(dc, L"Search apps, or type a command", &r, font_ui, C_MUTED, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+            SetTextColor(dc, ST->text_secondary);
+            SetBkMode(dc, TRANSPARENT);
+            DrawTextW(dc, L"Search apps, or type a command", -1, &r, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_NOPREFIX);
+            SelectObject(dc, of);
             ShowCaret(hwnd);
             ReleaseDC(hwnd, dc);
         }
@@ -2573,19 +2773,93 @@ static LRESULT CALLBACK edit_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     return CallWindowProcW(edit_orig_proc, hwnd, msg, wp, lp);
 }
 
+/* Place the window above the taskbar (centred with centred buttons) and
+ * lay out the panel's parts. */
 static void layout_launcher(void)
 {
-    RECT br, rc, wa;
-    int w = S(440), h = S(620);
+    RECT br, wa, mon, win;
+    int w = S(600), h = S(660), m = shadow_px, x, eh;
+    HDC dc;
+    HGDIOBJ of;
+    TEXTMETRICW tm;
+    SIZE sz;
 
     GetWindowRect(bar, &br);
     SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0);
+    get_primary_monitor(&mon);
     if (wa.bottom > br.top) wa.bottom = br.top;
-    h = min(h, (int)(wa.bottom - wa.top) - S(16));
-    SetWindowPos(launcher, HWND_TOPMOST, br.left + S(6), br.top - S(8) - h, w, h, SWP_NOACTIVATE);
-    GetClientRect(launcher, &rc);
-    SendMessageW(edit, WM_SETFONT, (WPARAM)font_ui, FALSE);
-    SetWindowPos(edit, NULL, S(52), S(18) + (S(36) - S(22)) / 2, rc.right - S(52) - S(32), S(22), SWP_NOZORDER);
+    h = min(h, (int)(wa.bottom - wa.top) - S(24));
+    w = min(w, (int)(mon.right - mon.left) - S(24));
+    x = bar_left_aligned ? br.left + S(12) : (mon.left + mon.right - w) / 2;
+    /* the window: the panel and its margin, but never over the taskbar */
+    SetRect(&win, x - m, br.top - S(12) - h - m, x + w + m, min(br.top, br.top - S(12) + m));
+    SetWindowPos(launcher, HWND_TOPMOST, win.left, win.top, win.right - win.left, win.bottom - win.top, SWP_NOACTIVATE);
+    SetRect(&panel, m, m, m + w, m + h);
+
+    dc = GetDC(launcher);
+    of = SelectObject(dc, st_font[SF_BODY]);
+    GetTextMetricsW(dc, &tm);
+    SetRect(&search_rc, panel.left + S(24), panel.top + S(24), panel.right - S(24), panel.top + S(24) + S(36));
+    {
+        int tw = 0;
+        GetTextExtentPoint32W(dc, L"All apps", 8, &sz);
+        tw = sz.cx;
+        GetTextExtentPoint32W(dc, L"Back", 4, &sz);
+        tw = max(tw, sz.cx);
+        SetRect(&header_btn, panel.right - S(24) - (tw + S(16) + S(4) + S(24)), panel.top + S(80),
+                panel.right - S(24), panel.top + S(80) + S(ST_CONTROL_H));
+    }
+    GetTextExtentPoint32W(dc, user_name, (int)wcslen(user_name), &sz);
+    SetRect(&user_btn, panel.left + S(16), footer_top() + S(12),
+            panel.left + S(16) + min(S(10) + S(24) + S(10) + sz.cx + S(14), w / 2), footer_top() + S(52));
+    SetRect(&power_btn, panel.right - S(16) - S(40), footer_top() + S(12), panel.right - S(16), footer_top() + S(52));
+    SelectObject(dc, of);
+    ReleaseDC(launcher, dc);
+
+    SendMessageW(edit, WM_SETFONT, (WPARAM)st_font[SF_BODY], FALSE);
+    eh = tm.tmHeight + S(2);
+    SetWindowPos(edit, NULL, search_rc.left + S(40), (search_rc.top + search_rc.bottom - eh) / 2,
+                 search_rc.right - search_rc.left - S(40) - S(12), eh, SWP_NOZORDER);
+}
+
+/* Copy what's under the (still hidden) window, for the shadow. Without it,
+ * the panel is shaped by a rounded window region instead. */
+static void prepare_backdrop(void)
+{
+    RECT wr;
+    HDC sdc, m;
+    HGDIOBJ old;
+    BOOL ok = FALSE;
+
+    shadow_px = S(ST_SHADOW_BLUR);
+    layout_launcher();
+    GetWindowRect(launcher, &wr);
+    if (backdrop) DeleteObject(backdrop);
+    backdrop = NULL;
+    if ((sdc = GetDC(NULL)))
+    {
+        m = CreateCompatibleDC(sdc);
+        backdrop = CreateCompatibleBitmap(sdc, wr.right - wr.left, wr.bottom - wr.top);
+        if (m && backdrop)
+        {
+            old = SelectObject(m, backdrop);
+            ok = BitBlt(m, 0, 0, wr.right - wr.left, wr.bottom - wr.top, sdc, wr.left, wr.top, SRCCOPY);
+            SelectObject(m, old);
+        }
+        if (m) DeleteDC(m);
+        ReleaseDC(NULL, sdc);
+    }
+    if (ok)
+    {
+        SetWindowRgn(launcher, NULL, FALSE);
+        return;
+    }
+    if (backdrop) DeleteObject(backdrop);
+    backdrop = NULL;
+    shadow_px = 0;
+    layout_launcher();
+    SetWindowRgn(launcher, CreateRoundRectRgn(0, 0, panel.right + 1, panel.bottom + 1,
+                                              S(ST_RADIUS_WINDOW) * 2, S(ST_RADIUS_WINDOW) * 2), FALSE);
 }
 
 static void show_launcher(void)
@@ -2593,8 +2867,10 @@ static void show_launcher(void)
     status_text[0] = 0;
     search_text[0] = 0;
     scroll_px = 0;
+    view = VIEW_PINNED;
+    kbd_sel = FALSE;
     SetWindowTextW(edit, L"");
-    layout_launcher();
+    prepare_backdrop();
     refresh_rows(FALSE);
     ShowWindow(launcher, SW_SHOW);
     SetForegroundWindow(launcher);
@@ -2625,30 +2901,13 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     switch (msg)
     {
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        RECT rc;
-        HDC dc = BeginPaint(hwnd, &ps), mem;
-        HBITMAP bmp;
-        HGDIOBJ old;
-
-        GetClientRect(hwnd, &rc);
-        mem = CreateCompatibleDC(dc);
-        bmp = CreateCompatibleBitmap(dc, rc.right, rc.bottom);
-        old = SelectObject(mem, bmp);
-        paint_launcher(mem, &rc);
-        BitBlt(dc, 0, 0, rc.right, rc.bottom, mem, 0, 0, SRCCOPY);
-        SelectObject(mem, old);
-        DeleteObject(bmp);
-        DeleteDC(mem);
-        EndPaint(hwnd, &ps);
+        st_paint_window(hwnd, paint_launcher);
         return 0;
-    }
     case WM_ERASEBKGND:
         return 1;
     case WM_CTLCOLOREDIT:
-        SetTextColor((HDC)wp, C_TEXT);
-        SetBkColor((HDC)wp, C_FIELD);
+        SetTextColor((HDC)wp, ST->text);
+        SetBkColor((HDC)wp, ST->surface);
         return (LRESULT)field_brush;
     case WM_COMMAND:
         if (LOWORD(wp) == ID_EDIT && HIWORD(wp) == EN_CHANGE)
@@ -2659,6 +2918,8 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
             refresh_rows(FALSE);
             write_state();
         }
+        else if (LOWORD(wp) == ID_EDIT && (HIWORD(wp) == EN_SETFOCUS || HIWORD(wp) == EN_KILLFOCUS))
+            InvalidateRect(hwnd, &search_rc, FALSE);
         return 0;
     case WM_MOUSEMOVE:
     {
@@ -2669,10 +2930,11 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         if (pt.x == last_mouse.x && pt.y == last_mouse.y) return 0;
         last_mouse = pt;
         hit_test(pt, &kind, &index);
-        if (kind != SEL_NONE && (kind != sel_kind || index != sel_index))
+        if (kind != SEL_NONE && (kind != sel_kind || index != sel_index || kbd_sel))
         {
             sel_kind = kind;
             sel_index = index;
+            kbd_sel = FALSE;
             InvalidateRect(hwnd, NULL, FALSE);
         }
         return 0;
@@ -2681,11 +2943,18 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     {
         POINT pt = { (short)LOWORD(lp), (short)HIWORD(lp) };
         int kind, index;
+        if (!PtInRect(&panel, pt))
+        {
+            /* the shadow margin counts as outside the menu */
+            hide_launcher();
+            return 0;
+        }
         hit_test(pt, &kind, &index);
         if (kind != SEL_NONE)
         {
             sel_kind = kind;
             sel_index = index;
+            kbd_sel = FALSE;
             activate_item(kind, index);
         }
         else SetFocus(edit);
@@ -2696,7 +2965,8 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         POINT pt = { (short)LOWORD(lp), (short)HIWORD(lp) };
         int kind, index;
         hit_test(pt, &kind, &index);
-        if (kind == SEL_NONE) return 0;
+        if (kind != SEL_TILE && kind != SEL_ROW) return 0;
+        kbd_sel = FALSE;
         select_item(kind, index);
         UpdateWindow(hwnd);
         ClientToScreen(hwnd, &pt);
@@ -2704,7 +2974,8 @@ static LRESULT CALLBACK launcher_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         return 0;
     }
     case WM_MOUSEWHEEL:
-        scroll_px -= GET_WHEEL_DELTA_WPARAM(wp) * S(36) * 3 / WHEEL_DELTA;
+        if (!list_visible()) return 0;
+        scroll_px -= GET_WHEEL_DELTA_WPARAM(wp) * S(40) * 3 / WHEEL_DELTA;
         clamp_scroll();
         InvalidateRect(hwnd, NULL, FALSE);
         return 0;
@@ -2823,7 +3094,12 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     dpi = get_window_dpi(NULL);
     make_fonts();
-    field_brush = CreateSolidBrush(C_FIELD);
+    field_brush = CreateSolidBrush(ST->surface);
+    load_settings();
+    {
+        DWORD n = ARRAYSIZE(user_name);
+        if (!GetUserNameW(user_name, &n) || !user_name[0]) lstrcpyW(user_name, L"User");
+    }
 
     memset(&wc, 0, sizeof(wc));
     wc.cbSize = sizeof(wc);
@@ -2834,7 +3110,6 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     RegisterClassExW(&wc);
     wc.lpfnWndProc = launcher_proc;
     wc.lpszClassName = LAUNCHER_CLASS;
-    wc.style = CS_DROPSHADOW;
     RegisterClassExW(&wc);
 
     bar = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE, BAR_CLASS, L"Setu taskbar",
@@ -2842,6 +3117,13 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     if (!bar) return 1;
     dpi = get_window_dpi(bar);
     make_fonts();
+    {
+        INITCOMMONCONTROLSEX icc = { sizeof(icc), ICC_WIN95_CLASSES };
+        InitCommonControlsEx(&icc);
+        tips = CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASSW, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+                               CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, bar, NULL, inst, NULL);
+        if (tips) SendMessageW(tips, WM_SETFONT, (WPARAM)st_font[SF_BODY], FALSE);
+    }
 
     launcher = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, LAUNCHER_CLASS, L"Setu launcher",
                                WS_POPUP | WS_CLIPCHILDREN, 0, 0, S(440), S(620), bar, NULL, inst, NULL);

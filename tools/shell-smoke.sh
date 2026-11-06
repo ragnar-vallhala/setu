@@ -76,6 +76,8 @@ WINESERVER="$(dirname "$WINE")/wineserver"
 
 export WINEPREFIX="${SETU_PREFIX:-$REPO/build/shell-prefix}"
 export WINEDEBUG="${WINEDEBUG:--all}"
+# the start menu shows the user name: a neutral one, not this machine's
+export USER=setu LOGNAME=setu
 export WINEDLLOVERRIDES="mscoree,mshtml="
 RES="${SETU_RES:-1280x800}"
 OUT="$REPO/build/shell/smoke"

@@ -13,7 +13,7 @@ OUT     := ../build/shell
 CFLAGS  := -O2 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -municode -std=gnu11
 LDFLAGS := -static-libgcc -s
 # system DLLs only
-SHELL_LIBS := -luser32 -lgdi32 -lshell32 -lole32 -luuid -ladvapi32 -lkernel32
+SHELL_LIBS := -luser32 -lgdi32 -lcomctl32 -lshell32 -lole32 -luuid -ladvapi32 -lkernel32
 PROBE_LIBS := -lshell32 -lole32 -luuid -luser32
 XPROC_LIBS := -luser32 -lgdi32
 FILES_LIBS := -luser32 -lgdi32 -lcomctl32 -lcomdlg32 -lshell32 -lshlwapi -lole32 -luuid -ladvapi32 -lkernel32
@@ -22,7 +22,9 @@ FPROBE_LIBS := -luser32 -lshell32 -lshlwapi
 all: $(OUT)/setu-shell.exe $(OUT)/setu-probe.exe $(OUT)/setu-xproc.exe $(OUT)/setu-testapp.exe \
      $(OUT)/setu-files.exe $(OUT)/setu-files-probe.exe
 
-$(OUT)/setu-shell.exe: src/setu-shell.c | $(OUT)
+STYLE := src/setu-style.h src/setu-icons.h
+
+$(OUT)/setu-shell.exe: src/setu-shell.c $(STYLE) | $(OUT)
 	$(CC) $(CFLAGS) -mwindows -o $@ $< $(LDFLAGS) $(SHELL_LIBS)
 
 $(OUT)/setu-probe.exe: tests/setu-probe.c | $(OUT)
@@ -34,7 +36,7 @@ $(OUT)/setu-xproc.exe: tests/setu-xproc.c | $(OUT)
 $(OUT)/setu-testapp.exe: tests/setu-testapp.c | $(OUT)
 	$(CC) $(CFLAGS) -mwindows -o $@ $< $(LDFLAGS) -luser32 -lgdi32 -lshell32
 
-$(OUT)/setu-files.exe: src/setu-files.c | $(OUT)
+$(OUT)/setu-files.exe: src/setu-files.c $(STYLE) | $(OUT)
 	$(CC) $(CFLAGS) -mwindows -o $@ $< $(LDFLAGS) $(FILES_LIBS)
 
 $(OUT)/setu-files-probe.exe: tests/setu-files-probe.c | $(OUT)

@@ -13,8 +13,10 @@
 #      (SystemComponent ones are hidden),
 #   2. the Windows key opens the menu and typing searches; Enter starts the
 #      best match,
-#   3. Ctrl+Esc opens it, arrow keys move through pins and rows, Esc closes,
-#   4. clicking a group expands it,
+#   3. Ctrl+Esc opens it on the pins; arrow keys move through the pins, up
+#      to the "All apps" button, and Enter there shows the list, where they
+#      move through the rows; Esc closes,
+#   4. clicking "All apps" shows the list, and clicking a group expands it,
 #   5. a shortcut added while the menu is open shows up, and goes away again
 #      when deleted (no restart),
 #   6. right-click > Pin pins an app (HKCU\Software\Setu\Shell "Pinned"),
@@ -70,6 +72,8 @@ WINESERVER="$(dirname "$WINE")/wineserver"
 # a throwaway prefix, made fresh every run
 export WINEPREFIX="$REPO/build/startmenu-prefix"
 export WINEDEBUG="${WINEDEBUG:--all}"
+# the start menu shows the user name: a neutral one, not this machine's
+export USER=setu LOGNAME=setu
 export WINEDLLOVERRIDES="mscoree,mshtml="
 RES="${SETU_RES:-1280x800}"
 OUT="$REPO/build/shell/startmenu"
@@ -212,9 +216,10 @@ pass "discovery: $(grep -c '^app=' "$STATE") apps, $(grep -c '^group=' "$STATE")
 # --- 2. Windows key, type to search, Enter starts the best match -------------
 probe key lwin
 wait_state '^launcher=open' 10 || fail "the Windows key did not open the menu"
+wait_state '^view=pinned$' 1 || fail "the menu did not open on the pins"
 pass "Windows key opens the menu"
 sleep 0.5
-shot startmenu-01-all-apps
+shot startmenu-01-pinned
 probe type beta
 wait_state '^search=beta$' 10 || fail "typing did not reach the search box"
 wait_state '^row=[0-9]+\|app\|Beta Editor\|0\|.*\|selected$' 5 || fail "Beta Editor is not the selected best match"
@@ -234,8 +239,14 @@ probe key down
 wait_state '^pin=0\|Files\|.*\|selected$' 5 || fail "Down did not select the first pin"
 probe key right
 wait_state '^pin=1\|Notepad\|.*\|selected$' 5 || fail "Right did not move to the second pin"
-probe key down
-wait_state '^row=[0-9]+\|app\|Alpha Tool\|0\|.*\|selected$' 5 || fail "Down did not move to the first app"
+probe key up
+wait_state '^header_button=All apps\|[0-9,]+\|selected$' 5 || fail "Up from the pins did not select the All apps button"
+probe key enter
+wait_state '^view=all$' 5 || fail "Enter on All apps did not show the list"
+wait_state '^row=[0-9]+\|app\|Alpha Tool\|0\|.*\|visible\|selected$' 5 || fail "the list did not open on the first app"
+wait_state '^launcher=open' 1 || fail "the menu closed on Enter"
+sleep 0.3
+shot startmenu-01-all-apps
 probe key down
 wait_state '^row=[0-9]+\|app\|Beta Editor\|0\|.*\|selected$' 5 || fail "Down did not move to the next app"
 pass "arrow keys: $(state '^row=.*\|selected$')"
@@ -246,6 +257,13 @@ pass "Ctrl+Esc opens, Esc closes"
 # --- 4. clicking a group expands it ----------------------------------------------
 "$WINE" "$SHELL_EXE" --open-launcher
 wait_state '^launcher=open' 10 || fail "--open-launcher"
+wait_state '^view=pinned$' 5 || fail "the menu did not reopen on the pins"
+read -r HX HY < <(state '^header_button=' | awk -F'|' '{ split($2, c, ","); print c[1], c[2] }')
+[ -n "$HY" ] || fail "no All apps button"
+probe click "$HX" "$HY"
+wait_state '^view=all$' 5 || fail "clicking All apps did not show the list"
+wait_state '^header_button=Back\|' 1 || fail "the list has no Back button"
+pass "All apps button shows the list"
 read -r GX GY < <(row_xy 'Gamma Suite')
 [ -n "$GY" ] || fail "no Gamma Suite row"
 probe click "$GX" "$GY"
