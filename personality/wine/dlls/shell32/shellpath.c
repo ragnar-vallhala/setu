@@ -1114,6 +1114,7 @@ static const CSIDL_DATA CSIDL_Data[] =
         .parent     = &FOLDERID_StartMenu,
         .path       = L"Programs",
         .attributes = FILE_ATTRIBUTE_READONLY,
+        .flags      = KFDF_PRECREATE,
     },
     { /* 0x03 - CSIDL_CONTROLS (.CPL files) */
         .id         = &FOLDERID_ControlPanelFolder,
@@ -1159,7 +1160,7 @@ static const CSIDL_DATA CSIDL_Data[] =
         .category   = KF_CATEGORY_PERUSER,
         .name       = L"Startup",
         .parent     = &FOLDERID_Programs,
-        .path       = L"StartUp",
+        .path       = L"Startup",
         .attributes = FILE_ATTRIBUTE_READONLY,
         .flags      = KFDF_PRECREATE,
     },
@@ -1306,6 +1307,7 @@ static const CSIDL_DATA CSIDL_Data[] =
         .parent     = &FOLDERID_CommonStartMenu,
         .path       = L"Programs",
         .attributes = FILE_ATTRIBUTE_READONLY,
+        .flags      = KFDF_PRECREATE,
     },
     { /* 0x18 - CSIDL_COMMON_STARTUP */
         .id         = &FOLDERID_CommonStartup,
@@ -1314,7 +1316,7 @@ static const CSIDL_DATA CSIDL_Data[] =
         .category   = KF_CATEGORY_COMMON,
         .name       = L"Common Startup",
         .parent     = &FOLDERID_CommonPrograms,
-        .path       = L"StartUp",
+        .path       = L"Startup",
         .attributes = FILE_ATTRIBUTE_READONLY,
         .flags      = KFDF_PRECREATE,
     },
@@ -1432,6 +1434,7 @@ static const CSIDL_DATA CSIDL_Data[] =
         .category   = KF_CATEGORY_FIXED,
         .name       = L"ProgramFiles",
         .attributes = FILE_ATTRIBUTE_READONLY,
+        .flags      = KFDF_PRECREATE,
     },
     { /* 0x27 - CSIDL_MYPICTURES */
         .id         = &FOLDERID_Pictures,
@@ -1580,7 +1583,7 @@ static const CSIDL_DATA CSIDL_Data[] =
     { /* 0x38 - CSIDL_RESOURCES */
         .id         = &FOLDERID_ResourceDir,
         .type       = CSIDL_Type_WindowsPath,
-        .def_path   = L"Resources",
+        .def_path   = L"resources",
         .category   = KF_CATEGORY_FIXED,
         .name       = L"ResourceDir",
     },
@@ -4188,6 +4191,8 @@ static HRESULT WINAPI knownfolder_GetFolderDefinition(
 
     get_known_folder_dword(knownfolder->registryPath, L"Attributes", &pKFD->dwAttributes);
 
+    get_known_folder_dword(knownfolder->registryPath, L"Flags", (DWORD *)&pKFD->kfdFlags);
+
     get_known_folder_wstr(knownfolder->registryPath, L"RelativePath", &pKFD->pszRelativePath);
 
     get_known_folder_wstr(knownfolder->registryPath, L"ParsingName", &pKFD->pszParsingName);
@@ -4459,6 +4464,9 @@ static HRESULT register_folder(const KNOWNFOLDERID *rfid, const KNOWNFOLDER_DEFI
 
         if(SUCCEEDED(hr) && pKFD->dwAttributes != 0)
             hr = HRESULT_FROM_WIN32(RegSetValueExW(hKey, L"Attributes", 0, REG_DWORD, (LPBYTE)&pKFD->dwAttributes, sizeof(pKFD->dwAttributes)));
+
+        if(SUCCEEDED(hr) && pKFD->kfdFlags != 0)
+            hr = HRESULT_FROM_WIN32(RegSetValueExW(hKey, L"Flags", 0, REG_DWORD, (LPBYTE)&pKFD->kfdFlags, sizeof(pKFD->kfdFlags)));
 
         if(SUCCEEDED(hr))
             hr = HRESULT_FROM_WIN32(RegSetValueExW(hKey, L"Name", 0, REG_SZ, (LPBYTE)pKFD->pszName, (lstrlenW(pKFD->pszName)+1)*sizeof(WCHAR) ));
