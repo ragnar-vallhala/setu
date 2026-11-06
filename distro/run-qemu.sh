@@ -15,6 +15,8 @@
 #                    (default: build/distro/run); use another one to run a
 #                    second VM next to the first
 #   --snapshot       discard all disk writes on exit
+#   --cdrom FILE     also attach FILE (e.g. the installer ISO) as a CD-ROM
+#                    (drive id cd0); the disk stays first in the boot order
 #   --daemonize      return once QEMU is running (pid in RUN_DIR/qemu.pid)
 #   --cpus N, --mem MB   (default: 4, 4096)
 #   -h, --help
@@ -31,6 +33,7 @@ DAEMONIZE=0
 CPUS=4
 MEM=4096
 EXTRA=()
+CDROM=
 
 usage() { sed -n '2,/^set -euo/{/^set -euo/d;s/^# \{0,1\}//;p}' "$0"; }
 while [ $# -gt 0 ]; do
@@ -41,6 +44,7 @@ while [ $# -gt 0 ]; do
         --serial) SERIAL=$2; shift ;;
         --run-dir) RUN=$(realpath -m "$2"); shift ;;
         --snapshot) EXTRA+=(-snapshot) ;;
+        --cdrom) CDROM=$2; shift ;;
         --daemonize) DAEMONIZE=1 ;;
         --cpus) CPUS=$2; shift ;;
         --mem) MEM=$2; shift ;;
@@ -53,6 +57,13 @@ done
 [ -n "$SERIAL" ] || SERIAL=$RUN/serial.log
 [ "$DAEMONIZE" = 0 ] || EXTRA+=(-daemonize -pidfile "$RUN/qemu.pid")
 [ -f "$IMAGE" ] || { echo "no image at $IMAGE; run distro/build-image.sh" >&2; exit 1; }
+if [ -n "$CDROM" ]; then
+    [ -f "$CDROM" ] || { echo "no CD-ROM image at $CDROM" >&2; exit 1; }
+    DISK=(-drive "file=$IMAGE,if=none,id=disk0,format=qcow2" -device virtio-blk-pci,drive=disk0,bootindex=0
+          -drive "file=$CDROM,if=none,id=cd0,media=cdrom,readonly=on" -device ide-cd,drive=cd0,bootindex=1)
+else
+    DISK=(-drive "file=$IMAGE,if=virtio,format=qcow2")
+fi
 [ "$VNC" != 1 ] || { echo "VNC :1 (5901) belongs to the oracle Windows VM" >&2; exit 1; }
 mkdir -p "$RUN" "$(dirname "$SERIAL")"
 
@@ -65,7 +76,7 @@ exec qemu-system-x86_64 -enable-kvm -cpu host -smp "$CPUS" -m "$MEM" \
     -machine q35 \
     -drive "if=pflash,format=raw,readonly=on,file=$OVMF_CODE" \
     -drive "if=pflash,format=raw,file=$RUN/OVMF_VARS.fd" \
-    -drive "file=$IMAGE,if=virtio,format=qcow2" \
+    "${DISK[@]}" \
     -device virtio-vga \
     -device qemu-xhci -device usb-tablet -device usb-kbd \
     -nic "user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:$SSH_PORT-:22" \

@@ -1,14 +1,17 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 # Shared helpers for the distro smoke tests (sourced, not run). The caller
-# sets REPO, RUN (run dir), SSH_PORT and KEEP before calling boot_vm.
+# sets REPO, RUN (run dir), SSH_PORT and KEEP before calling boot_vm, and
+# GUEST_USER/GUEST_PASS for an account other than the dev image's setu/setu.
 
 pass() { echo "PASS: $*"; }
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=5
           -o PreferredAuthentications=password -o PubkeyAuthentication=no)
-gssh() { sshpass -p setu ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" setu@127.0.0.1 "$@"; }
-gscp() { sshpass -p setu scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$@"; }
+GUEST_USER=${GUEST_USER:-setu}
+GUEST_PASS=${GUEST_PASS:-setu}
+gssh() { sshpass -p "$GUEST_PASS" ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "$GUEST_USER@127.0.0.1" "$@"; }
+gscp() { sshpass -p "$GUEST_PASS" scp "${SSH_OPTS[@]}" -P "$SSH_PORT" "$@"; }
 # monitor CMD: a QEMU monitor command; its output (without the banner and
 # the echoed command) goes to stdout
 monitor() {
@@ -34,7 +37,11 @@ boot_vm() {
     for i in $(seq 90); do gssh true 2>/dev/null && break; sleep 2; done
     gssh true || fail "no SSH on port $SSH_PORT after 3 minutes (serial log: $RUN/serial.log)"
     pass "SSH up"
+    install_guest_env
+}
 
+# install_guest_env: install the guest helper /tmp/setu-env (SSH must be up)
+install_guest_env() {
     # Guest helper: the session's environment (setu-session) plus the X
     # display Xwayland opened, then run the arguments.
     gssh 'cat > /tmp/setu-env && chmod +x /tmp/setu-env' <<'EOF'
@@ -80,3 +87,39 @@ screendump() {
     convert "$ppm" -resize '1024x1024>' +dither -colors 128 -strip "PNG8:$1"
     rm -f "$ppm"
 }
+
+# sendkey KEYS...: press QEMU key combinations (qcodes, e.g. alt-n, tab, ctrl-a)
+sendkey() {
+    local k
+    for k in "$@"; do monitor "sendkey $k" >/dev/null; sleep 0.2; done
+}
+# type_text TEXT: type TEXT on the VM's keyboard (US layout; letters,
+# digits, space, - . _ @)
+type_text() {
+    local t=$1 c k i
+    for (( i = 0; i < ${#t}; i++ )); do
+        c=${t:i:1}
+        case $c in
+            [a-z0-9]) k=$c ;;
+            [A-Z]) k=shift-${c,,} ;;
+            ' ') k=spc ;;
+            -) k=minus ;;
+            .) k=dot ;;
+            _) k=shift-minus ;;
+            @) k=shift-2 ;;
+            *) fail "type_text: no key for '$c'" ;;
+        esac
+        sendkey "$k"
+    done
+}
+# wait_serial REGEX SECONDS [FROM_LINE]: the serial log (from line FROM_LINE
+# on) matches REGEX
+wait_serial() {
+    local i
+    for (( i = 0; i < $2; i++ )); do
+        tail -n +"${3:-1}" "$RUN/serial.log" 2>/dev/null | tr -d '\r' | grep -aEq "$1" && return 0
+        sleep 1
+    done
+    return 1
+}
+serial_lines() { wc -l < "$RUN/serial.log" 2>/dev/null || echo 0; }
