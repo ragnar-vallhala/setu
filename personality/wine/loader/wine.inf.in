@@ -70,6 +70,7 @@ AddReg=\
     Printing,\
     Services, \
     SessionMgr,\
+    SetuFonts,\
     ThemeManager
 
 [DefaultInstall]
@@ -1010,6 +1011,20 @@ HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","ThemeActive",2,"1
 HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","DllName",2,"%10%\resources\themes\setu\setu.msstyles"
 HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","ColorName",2,"Setu"
 HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","SizeName",2,"NormalSize"
+
+; Setu: draw the user-interface faces with Inter (docs/DESIGN.md, "Type").
+; FontSubstitutes only apply to names that aren't installed, and Wine ships
+; Tahoma and MS Sans Serif, so win32u's override list is used instead. An
+; override only takes effect when Inter is installed; otherwise these names
+; keep their usual fonts. Apps still see the requested face names.
+[SetuFonts]
+HKLM,%FontSubStr%,"Segoe UI",2,"Tahoma"
+HKCU,Software\Wine\Fonts\Overrides,"MS Shell Dlg",2,"Inter"
+HKCU,Software\Wine\Fonts\Overrides,"MS Shell Dlg 2",2,"Inter"
+HKCU,Software\Wine\Fonts\Overrides,"Tahoma",2,"Inter"
+HKCU,Software\Wine\Fonts\Overrides,"MS Sans Serif",2,"Inter"
+HKCU,Software\Wine\Fonts\Overrides,"Microsoft Sans Serif",2,"Inter"
+HKCU,Software\Wine\Fonts\Overrides,"Segoe UI",2,"Inter"
 
 [WinmgmtService]
 Description="Provides access to Windows Management Instrumentation"
