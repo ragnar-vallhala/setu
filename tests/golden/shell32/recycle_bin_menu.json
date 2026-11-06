@@ -1,0 +1,58 @@
+{
+  "test": "shell32/recycle_bin_menu",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true,
+      "bind_hr": "0x00000000",
+      "bin_count": 0
+    },
+    "command_strings": {
+      "recycle_ret": "0x00000000",
+      "menu_hr": "0x00000000",
+      "query_ok": true,
+      "has_undelete": true,
+      "undelete_verba_hr": "0x00000000",
+      "undelete_verba": "undelete",
+      "undelete_validate_hr": "0x00000000",
+      "has_delete": true,
+      "bad_id_hr": "0x80070057"
+    },
+    "invoke_undelete_ansi": {
+      "recycle_ret": "0x00000000",
+      "menu_hr": "0x00000000",
+      "query_ok": true,
+      "hr": "0x00000000",
+      "restored": true,
+      "bin_count": 0
+    },
+    "invoke_undelete_unicode": {
+      "recycle_ret": "0x00000000",
+      "menu_hr": "0x00000000",
+      "query_ok": true,
+      "hr": "0x00000000",
+      "restored": true,
+      "bin_count": 0
+    },
+    "invoke_undelete_offset": {
+      "recycle_ret": "0x00000000",
+      "menu_hr": "0x00000000",
+      "query_ok": true,
+      "hr": "0x00000000",
+      "restored": true,
+      "bin_count": 0
+    },
+    "invoke_unknown_verb": {
+      "recycle_ret": "0x00000000",
+      "menu_hr": "0x00000000",
+      "query_ok": true,
+      "hr_failed": true,
+      "restored": false,
+      "bin_count": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "9509215f8d49dc0cb06c0ed28c2a0f92e53d123aaca72d4807d5dd64d0bf2072"
+}

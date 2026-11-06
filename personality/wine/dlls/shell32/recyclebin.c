@@ -597,12 +597,11 @@ static HRESULT WINAPI RecycleBinMenu_QueryContextMenu(IContextMenu2 *iface,
     }
 }
 
-static void DoErase(RecycleBinMenu *This)
+static HRESULT erase_items(HWND parent, const LPCITEMIDLIST *apidl, UINT cidl, BOOL confirm);
+
+static void DoErase(RecycleBinMenu *This, HWND parent, BOOL confirm)
 {
-    ISFHelper *helper;
-    IShellFolder2_QueryInterface(This->folder,&IID_ISFHelper,(void**)&helper);
-    if(helper)
-        ISFHelper_DeleteItems(helper,This->cidl,(LPCITEMIDLIST*)This->apidl);
+    erase_items(parent, (const LPCITEMIDLIST *)This->apidl, This->cidl, confirm);
 }
 
 static void DoRestore(RecycleBinMenu *This)
@@ -649,24 +648,48 @@ static void DoRestore(RecycleBinMenu *This)
     }
 }
 
+/* the canonical verbs of the Recycle Bin item menu */
+static const struct
+{
+    UINT id;
+    const char *verb;
+    const WCHAR *verbW;
+} recycle_bin_verbs[] =
+{
+    { IDM_RECYCLEBIN_RESTORE, "undelete", L"undelete" },
+    { IDM_RECYCLEBIN_ERASE,   "delete",   L"delete" },
+};
+
 static HRESULT WINAPI RecycleBinMenu_InvokeCommand(IContextMenu2 *iface,
                                                    LPCMINVOKECOMMANDINFO pici)
 {
     RecycleBinMenu *This = impl_from_IContextMenu2(iface);
+    const CMINVOKECOMMANDINFOEX *ex = (const CMINVOKECOMMANDINFOEX *)pici;
     LPCSTR verb = pici->lpVerb;
-    if(IS_INTRESOURCE(verb))
+    UINT id, i;
+
+    if (!IS_INTRESOURCE(verb))
     {
-        switch(LOWORD(verb))
-        {
-        case IDM_RECYCLEBIN_ERASE:
-            DoErase(This);
-            break;
-        case IDM_RECYCLEBIN_RESTORE:
-            DoRestore(This);
-            break;
-        default:
-            return E_NOTIMPL;
-        }
+        BOOL unicode = pici->cbSize >= sizeof(*ex) && (pici->fMask & CMIC_MASK_UNICODE) && ex->lpVerbW;
+
+        for (i = 0; i < ARRAY_SIZE(recycle_bin_verbs); i++)
+            if (unicode ? !wcsicmp( ex->lpVerbW, recycle_bin_verbs[i].verbW )
+                        : !stricmp( verb, recycle_bin_verbs[i].verb )) break;
+        if (i == ARRAY_SIZE(recycle_bin_verbs)) return E_INVALIDARG;
+        id = recycle_bin_verbs[i].id;
+    }
+    else id = LOWORD(verb);
+
+    switch (id)
+    {
+    case IDM_RECYCLEBIN_ERASE:
+        DoErase(This, pici->hwnd, !(pici->fMask & CMIC_MASK_FLAG_NO_UI));
+        break;
+    case IDM_RECYCLEBIN_RESTORE:
+        DoRestore(This);
+        break;
+    default:
+        return E_NOTIMPL;
     }
     return S_OK;
 }
@@ -678,7 +701,26 @@ static HRESULT WINAPI RecycleBinMenu_GetCommandString(IContextMenu2 *iface,
                                                       LPSTR pszName,
                                                       UINT cchMax)
 {
-    TRACE("(%p, %Iu, %u, %p, %s, %u) - stub\n",iface,idCmd,uType,pwReserved,debugstr_a(pszName),cchMax);
+    UINT i;
+
+    TRACE("(%p, %Iu, %u, %p, %p, %u)\n",iface,idCmd,uType,pwReserved,pszName,cchMax);
+
+    for (i = 0; i < ARRAY_SIZE(recycle_bin_verbs); i++)
+        if (recycle_bin_verbs[i].id == idCmd) break;
+    if (i == ARRAY_SIZE(recycle_bin_verbs)) return E_INVALIDARG;
+
+    switch (uType)
+    {
+    case GCS_VERBA:
+        lstrcpynA(pszName, recycle_bin_verbs[i].verb, cchMax);
+        return S_OK;
+    case GCS_VERBW:
+        lstrcpynW((WCHAR *)pszName, recycle_bin_verbs[i].verbW, cchMax);
+        return S_OK;
+    case GCS_VALIDATEA:
+    case GCS_VALIDATEW:
+        return S_OK;
+    }
     return E_NOTIMPL;
 }
 
