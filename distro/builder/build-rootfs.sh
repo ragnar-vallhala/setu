@@ -13,10 +13,15 @@
 # Inputs (set up by build-image.sh):
 #   /etc/setu-build.env      KIND SUITE MIRROR WINE_MODE IMAGE_HOSTNAME HAVE_SHELL ROOT_SIZE
 #   9p tag "distro"          the repo's distro/ directory (read-only)
-#   9p tag "overlay"         more files for the image (services/fs, installed)
+#   9p tag "overlay"         more files for the image (services/fs, installed;
+#                            the theme packs, icon sets, cursors and sounds,
+#                            rendered by distro/themes/render-packs.py)
+#   9p tag "wpcache"         build/distro/wallpaper-cache/<wallgen hash>/, writable:
+#                            wallgen.py and the collection's JPEGs rendered so far
 #   9p tag "personality"     build/personality/install (read-only, WINE_MODE=setu)
 #   9p tag "shell"           directory with setu-shell.exe and, if built,
-#                            setu-files.exe and setu-probe.exe (HAVE_SHELL=1)
+#                            setu-files.exe, setu-theme.exe and setu-probe.exe
+#                            (HAVE_SHELL=1)
 #   virtio disk serial "setu-target"   the output disk (raw)
 # Output goes to the second serial port; its last line is SETU_BUILD_OK on
 # success (KIND=iso: preceded by SETU_ISO_SIZE=<bytes>).
@@ -32,15 +37,16 @@ export DEBIAN_FRONTEND=noninteractive
 DISTRO=/mnt/distro
 DISK=/dev/disk/by-id/virtio-setu-target
 
-mount_9p() { # tag dir
+mount_9p() { # tag dir [rw]
     mkdir -p "$2"
-    mount -t 9p -o trans=virtio,version=9p2000.L,ro,msize=1048576 "$1" "$2"
+    mount -t 9p -o trans=virtio,version=9p2000.L,${3:-ro},msize=1048576 "$1" "$2"
 }
 
 log "installing builder tools"
 apt-get update -qq
-# python3-numpy/-pil: distro/artwork/wallpaper.py draws the wallpaper
-tools="mmdebstrap dosfstools e2fsprogs fdisk attr python3-numpy python3-pil"
+# python3-numpy/-pil/-cairo: art/wallpapers/wallgen.py draws the wallpaper
+# collection (distro/themes/render-collection.py)
+tools="mmdebstrap dosfstools e2fsprogs fdisk attr python3-numpy python3-pil python3-cairo"
 [ "$KIND" = iso ] && tools="$tools squashfs-tools xorriso mtools grub-efi-amd64-bin"
 apt-get install -y -q --no-install-recommends $tools
 
@@ -149,9 +155,10 @@ if [ "${HAVE_SHELL:-0}" = 1 ]; then
     mount_9p shell /mnt/shell
     mkdir -p $T/opt/setu/shell
     cp --no-preserve=ownership /mnt/shell/setu-shell.exe $T/opt/setu/shell/
-    # the file manager the shell opens folders with, and the test helper
+    # the file manager the shell opens folders with, the theme tool
+    # (setu-session runs it at login) and the test helper
     # (distro/tests use it), if they were built
-    for f in setu-files.exe setu-probe.exe; do
+    for f in setu-files.exe setu-theme.exe setu-probe.exe; do
         if [ -f /mnt/shell/$f ]; then
             cp --no-preserve=ownership /mnt/shell/$f $T/opt/setu/shell/
         fi
@@ -159,26 +166,25 @@ if [ "${HAVE_SHELL:-0}" = 1 ]; then
     umount /mnt/shell
 fi
 
-# The wallpaper (docs/DESIGN.md; distro/artwork/wallpaper.py), drawn here at
-# common display sizes. The personality's desktop shows a .bmp centred and
-# unscaled, so setu-session picks the one that matches the display
-# (/usr/share/setu/wallpapers/setu-WxH.bmp); the PNGs are the full-size
-# originals for anything that can scale (/usr/share/backgrounds/setu).
-log "drawing the wallpaper"
-mkdir -p $T/usr/share/setu/wallpapers $T/usr/share/backgrounds/setu
-wp_args=()
-for s in 1024x768 1280x720 1280x800 1280x1024 1366x768 1440x900 1536x864 1600x900 \
-         1680x1050 1920x1080 1920x1200 2560x1080 2560x1440 2560x1600 3440x1440 3840x2160; do
-    wp_args+=("$s" "$T/usr/share/setu/wallpapers/setu-$s.bmp")
-done
-wp_args+=(1920x1080 $T/usr/share/backgrounds/setu/setu-1920x1080.png
-          3840x2160 $T/usr/share/backgrounds/setu/setu-3840x2160.png)
-python3 $DISTRO/artwork/wallpaper.py "${wp_args[@]}" >/dev/null
-log "  $(du -sh $T/usr/share/setu/wallpapers | cut -f1) of .bmp, $(ls $T/usr/share/backgrounds/setu | wc -l) .png"
+# The wallpaper collection (art/wallpapers/wallgen.py): every style in every
+# palette as a 4K JPEG, C:\Windows\Web\Wallpaper\Setu\<style>-<palette>.jpg
+# (setu-theme-sync links it). Drawing all 48 takes about 7 minutes of CPU,
+# so two run at a time (about 1.5 GB each), and the results stay in
+# build/distro/wallpaper-cache/<hash of wallgen.py>/ on the host: the next
+# build with the same wallgen.py only copies them.
+log "drawing the wallpaper collection"
+mount_9p wpcache /mnt/wpcache rw
+start=$(date +%s)
+python3 $DISTRO/themes/render-collection.py list /mnt/wpcache/wallgen.py \
+    | xargs -P2 -n4 python3 $DISTRO/themes/render-collection.py render /mnt/wpcache/wallgen.py /mnt/wpcache >/dev/null
+mkdir -p $T/usr/share/setu/wallpapers/collection
+cp --no-preserve=ownership /mnt/wpcache/*.jpg $T/usr/share/setu/wallpapers/collection/
+umount /mnt/wpcache
+log "  $(ls $T/usr/share/setu/wallpapers/collection | wc -l) wallpapers, $(du -sh $T/usr/share/setu/wallpapers/collection | cut -f1), in $(( $(date +%s) - start ))s"
 
-# The boot splash (rootfs/usr/share/plymouth/themes/setu, selected in
-# /etc/plymouth/plymouthd.conf) goes into the initramfs; the fonts into
-# fontconfig's cache.
+# The boot splash (the default theme pack's, /usr/share/plymouth/themes/<id>,
+# selected in /etc/plymouth/plymouthd.conf; both from the overlay) goes into
+# the initramfs; the fonts into fontconfig's cache.
 log "initramfs with the boot splash; font cache"
 chroot $T update-initramfs -u -k all
 chroot $T fc-cache -s >/dev/null
@@ -210,6 +216,10 @@ EOF
                && ln -s / $WINEPREFIX/dosdevices/z: && ln -s /var/lib/setu/volumes/c $WINEPREFIX/drive_c \
                && wineboot -i && wineserver -w' \
         || log "warning: prefix creation failed; setu-session will retry on first boot"
+    # The theme packs, icons, wallpapers, cursors and sounds on its C:
+    # (setu-session repeats this at every login).
+    chroot $T runuser -u setu -- /usr/lib/setu/setu-theme-sync /home/setu/.setu/prefix/dosdevices/c:/ \
+        || log "warning: setu-theme-sync failed"
 else
     # No user yet: the first-boot wizard creates the admin account and then
     # enables setu-session.service for it (installer/README in distro/README.md).

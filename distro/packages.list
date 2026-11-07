@@ -33,8 +33,8 @@ fonts-dejavu-core
 fontconfig            # fc-cache, fc-match; the personality enumerates fonts through libfontconfig
 fonts-inter           # the UI font (OFL-1.1); wine.inf maps the Windows UI face names to "Inter"
 fonts-jetbrains-mono  # the monospace font (OFL-1.1); substituted for Courier New/Consolas
-adwaita-icon-theme    # the X cursor theme "Adwaita" (labwc, Xwayland and the personality's system cursors)
-plymouth              # the boot splash (rootfs/usr/share/plymouth/themes/setu, script module)
+adwaita-icon-theme    # fallback X cursors for names the Setu cursor sets (art/cursors) do not draw
+plymouth              # the boot splash (one script theme per theme pack, distro/themes)
 
 # Runtime libraries the Setu personality (Wine) loads directly or by dlopen
 libfreetype6

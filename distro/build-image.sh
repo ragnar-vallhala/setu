@@ -16,6 +16,8 @@
 #   --personality DIR   Setu personality install dir
 #                       (default: <main checkout>/build/personality/install)
 #   --shell FILE        setu-shell.exe to install as /opt/setu/shell/setu-shell.exe
+#                       (setu-files.exe, setu-theme.exe and setu-probe.exe
+#                       next to it come along)
 #   --suite NAME        Debian suite (default: trixie, the current stable)
 #   --mirror URL        Debian mirror (default: http://deb.debian.org/debian)
 #   --size SIZE         disk size (default: 12G; the C: volume gets what the
@@ -95,6 +97,9 @@ for t in qemu-system-x86_64 qemu-img curl sha512sum mkfs.vfat mcopy make; do
     command -v $t >/dev/null || die "missing host tool: $t"
 done
 [ -w /dev/kvm ] || die "/dev/kvm is not writable (the builder VM needs KVM)"
+# distro/themes/render-packs.py runs on the host
+python3 -c 'import numpy, PIL, cairo, gi; gi.require_version("Rsvg", "2.0"); from gi.repository import Rsvg' 2>/dev/null \
+    || die "missing host Python modules for the theme packs: numpy, PIL, cairo, gi with Rsvg 2.0 (Debian: python3-numpy python3-pil python3-cairo python3-gi gir1.2-rsvg-2.0)"
 
 BUILD=$REPO/build/distro
 DL=$BUILD/downloads
@@ -149,6 +154,28 @@ if [ "$WINE_MODE" = setu ]; then
     tar -xJf "$DL/$MONO_TAR" -C "$WORK/overlay/opt/setu/personality/share/wine/mono"
 fi
 
+# The theme packs (distro/themes, docs/THEMES.md): every pack with its
+# .theme, icons, wallpaper, control theme and boot splash, the icon sets,
+# cursors and sounds (art/), labwc's default config and the installer's
+# branding, rendered on the host into the overlay.
+log "rendering the theme packs"
+packs_start=$(date +%s)
+pack_args=()
+[ "$WINE_MODE" = setu ] && pack_args+=(--personality "$PERSONALITY" --wine-bin "$PERSONALITY/bin")
+python3 "$HERE/themes/render-packs.py" --out "$WORK/overlay" "${pack_args[@]}" \
+    || die "cannot render the theme packs"
+log "  $(ls "$WORK/overlay/usr/share/setu/themes" | wc -l) packs, $(du -sh "$WORK/overlay/usr/share/setu" | cut -f1), in $(( $(date +%s) - packs_start ))s"
+
+# The wallpaper collection is drawn in the builder (build-rootfs.sh) into a
+# cache keyed by wallgen.py, so a build with the same generator reuses it.
+WALLGEN=$REPO/art/wallpapers/wallgen.py
+WPCACHE=$BUILD/wallpaper-cache/$(sha256sum "$WALLGEN" | cut -c1-16)
+for d in "$BUILD"/wallpaper-cache/*; do
+    [ -d "$d" ] && [ "$d" != "$WPCACHE" ] && rm -rf "$d"  # an older wallgen.py's
+done
+mkdir -p "$WPCACHE"
+cp "$WALLGEN" "$WPCACHE/wallgen.py"
+
 cat > "$WORK/meta-data" <<EOF
 instance-id: setu-builder-$(date +%s)
 local-hostname: setu-builder
@@ -173,7 +200,8 @@ mcopy -i "$WORK/seed.img" "$WORK/user-data" "$WORK/meta-data" ::
 
 # 3. Run the builder VM until it powers itself off.
 SHARES=(-virtfs "local,path=$HERE,mount_tag=distro,security_model=none,readonly=on"
-        -virtfs "local,path=$WORK/overlay,mount_tag=overlay,security_model=none,readonly=on")
+        -virtfs "local,path=$WORK/overlay,mount_tag=overlay,security_model=none,readonly=on"
+        -virtfs "local,path=$WPCACHE,mount_tag=wpcache,security_model=none")
 [ "$WINE_MODE" = setu ] && SHARES+=(-virtfs "local,path=$PERSONALITY,mount_tag=personality,security_model=none,readonly=on")
 [ -n "$SHELL_EXE" ] && SHARES+=(-virtfs "local,path=$(dirname "$SHELL_EXE"),mount_tag=shell,security_model=none,readonly=on")
 
