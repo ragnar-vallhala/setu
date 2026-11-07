@@ -153,6 +153,11 @@ static HRESULT getIconLocationForFolder(IExtractIconWImpl *This, UINT uFlags, LP
     {
        *piIndex = icon_idx;
     }
+    else if (SIC_GetShellIconOverride((uFlags & GIL_OPENICON) ? SIID_FOLDEROPEN : SIID_FOLDER,
+                                      szIconFile, cchMax, piIndex))
+    {
+        /* Shell Icons replaces the standard folder icon */
+    }
     else
     {
         if (!HCR_GetDefaultIconW(L"Folder", szIconFile, cchMax, &icon_idx))
@@ -231,20 +236,34 @@ static HRESULT WINAPI IExtractIconW_fnGetIconLocation(IExtractIconW * iface, UIN
 
 	else if (_ILIsDrive (pSimplePidl))
 	{
+	  int stock_id = -1;
+
 	  icon_idx = -1;
 
 	  if (_ILGetDrive(pSimplePidl, sTemp, MAX_PATH))
 	  {
 		switch(GetDriveTypeA(sTemp))
 		{
-                  case DRIVE_REMOVABLE:   icon_idx = IDI_SHELL_FLOPPY;        break;
-                  case DRIVE_CDROM:       icon_idx = IDI_SHELL_OPTICAL_DRIVE; break;
-                  case DRIVE_REMOTE:      icon_idx = IDI_SHELL_NETDRIVE;      break;
-                  case DRIVE_RAMDISK:     icon_idx = IDI_SHELL_RAMDISK;       break;
+                  case DRIVE_REMOVABLE:   icon_idx = IDI_SHELL_FLOPPY;        stock_id = SIID_DRIVERREMOVE; break;
+                  case DRIVE_CDROM:       icon_idx = IDI_SHELL_OPTICAL_DRIVE; stock_id = SIID_DRIVERCD;    break;
+                  case DRIVE_REMOTE:      icon_idx = IDI_SHELL_NETDRIVE;      stock_id = SIID_DRIVERNET;   break;
+                  case DRIVE_RAMDISK:     icon_idx = IDI_SHELL_RAMDISK;       stock_id = SIID_DRIVERRAM;   break;
+                  case DRIVE_FIXED:
+                  {
+                    /* The Windows drive keeps its own icon. */
+                    char windir[MAX_PATH];
+                    if (!GetWindowsDirectoryA(windir, MAX_PATH) || (windir[0] & ~0x20) != (sTemp[0] & ~0x20))
+                      stock_id = SIID_DRIVERFIXED;
+                    break;
+                  }
 		}
 	  }
 
-	  if (icon_idx != -1)
+	  if (stock_id != -1 && SIC_GetShellIconOverride(stock_id, szIconFile, cchMax, piIndex))
+	  {
+		/* Shell Icons replaces the standard drive icon */
+	  }
+	  else if (icon_idx != -1)
 	  {
 		lstrcpynW(szIconFile, swShell32Name, cchMax);
 		*piIndex = -icon_idx;
@@ -318,8 +337,9 @@ static HRESULT WINAPI IExtractIconW_fnGetIconLocation(IExtractIconW * iface, UIN
 	    }
 	  }
 
-	  if (!found)					/* default icon */
+	  if (!found && !SIC_GetShellIconOverride(SIID_DOCNOASSOC, szIconFile, cchMax, piIndex))
 	  {
+	    /* default icon */
 	    lstrcpynW(szIconFile, swShell32Name, cchMax);
 	    *piIndex = 0;
 	  }

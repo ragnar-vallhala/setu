@@ -50,6 +50,7 @@ extern CLSID CLSID_ShellImageDataFactory;
 void SIC_Destroy(void);
 BOOL PidlToSicIndex (IShellFolder * sh, LPCITEMIDLIST pidl, BOOL bBigIcon, UINT uFlags, int * pIndex);
 INT SIC_GetIconIndex (LPCWSTR sSourceFile, INT dwSourceIndex, DWORD dwFlags );
+BOOL SIC_GetShellIconOverride(int stock_id, WCHAR *path, UINT cch, int *index);
 HRESULT SIC_get_location( int list_idx, WCHAR *file, DWORD *size, int *res_idx );
 
 /* Classes Root */

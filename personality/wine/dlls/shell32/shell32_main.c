@@ -340,8 +340,12 @@ DWORD_PTR WINAPI SHGetFileInfoW(LPCWSTR path,DWORD dwFileAttributes,
         {
             if (dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-                lstrcpyW(psfi->szDisplayName, swShell32Name);
-                psfi->iIcon = -IDI_SHELL_FOLDER;
+                if (!SIC_GetShellIconOverride((flags & SHGFI_OPENICON) ? SIID_FOLDEROPEN : SIID_FOLDER,
+                                              psfi->szDisplayName, MAX_PATH, &psfi->iIcon))
+                {
+                    lstrcpyW(psfi->szDisplayName, swShell32Name);
+                    psfi->iIcon = -IDI_SHELL_FOLDER;
+                }
             }
             else
             {
@@ -363,7 +367,11 @@ DWORD_PTR WINAPI SHGetFileInfoW(LPCWSTR path,DWORD dwFileAttributes,
                     }
                 }
                 else
-                    ret = FALSE;
+                {
+                    /* no association: the generic file icon */
+                    lstrcpyW(psfi->szDisplayName, swShell32Name);
+                    psfi->iIcon = -IDI_SHELL_FILE;
+                }
             }
         }
         else
@@ -397,7 +405,18 @@ DWORD_PTR WINAPI SHGetFileInfoW(LPCWSTR path,DWORD dwFileAttributes,
         if (flags & SHGFI_USEFILEATTRIBUTES && !(flags & SHGFI_PIDL))
         {
             if (dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                psfi->iIcon = SIC_GetIconIndex(swShell32Name, -IDI_SHELL_FOLDER, 0);
+            {
+                WCHAR path[MAX_PATH];
+                int index;
+
+                if (SIC_GetShellIconOverride((flags & SHGFI_OPENICON) ? SIID_FOLDEROPEN : SIID_FOLDER,
+                                             path, MAX_PATH, &index))
+                    psfi->iIcon = SIC_GetIconIndex(path, index, 0);
+                else
+                    psfi->iIcon = -1;
+                if (psfi->iIcon == -1)
+                    psfi->iIcon = SIC_GetIconIndex(swShell32Name, -IDI_SHELL_FOLDER, 0);
+            }
             else
             {
                 WCHAR sTemp[MAX_PATH];

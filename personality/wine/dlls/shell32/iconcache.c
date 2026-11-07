@@ -422,13 +422,54 @@ static int get_shell_icon_size(void)
 }
 
 /*****************************************************************************
+ * SIC_GetShellIconOverride			[internal]
+ *
+ * Reads HKLM\...\Explorer\Shell Icons, which replaces the shell's standard
+ * icons. Values are named by the stock icon number (SHSTOCKICONID: 0
+ * document, 3 folder, 4 open folder, 8 fixed drive, ...) and hold
+ * "path,index". Returns FALSE when the icon isn't overridden.
+ */
+BOOL SIC_GetShellIconOverride(int stock_id, WCHAR *path, UINT cch, int *index)
+{
+    WCHAR buffer[MAX_PATH + 16], name[12], *comma;
+    DWORD size = sizeof(buffer) - sizeof(WCHAR), type;
+    HKEY key;
+    LSTATUS status;
+
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Icons",
+                      0, KEY_READ, &key))
+        return FALSE;
+    swprintf(name, ARRAY_SIZE(name), L"%d", stock_id);
+    status = RegQueryValueExW(key, name, NULL, &type, (BYTE *)buffer, &size);
+    RegCloseKey(key);
+    if (status || (type != REG_SZ && type != REG_EXPAND_SZ)) return FALSE;
+    buffer[size / sizeof(WCHAR)] = 0;
+
+    if (!(comma = wcsrchr(buffer, ','))) return FALSE;
+    *comma = 0;
+    if (!buffer[0]) return FALSE;
+    if (type == REG_EXPAND_SZ)
+    {
+        if (!ExpandEnvironmentStringsW(buffer, path, cch)) return FALSE;
+    }
+    else
+        lstrcpynW(path, buffer, cch);
+    *index = wcstol(comma + 1, NULL, 10);
+    TRACE("%d -> %s,%d\n", stock_id, debugstr_w(path), *index);
+    return TRUE;
+}
+
+/*****************************************************************************
  * SIC_Initialize			[internal]
  */
 static BOOL WINAPI SIC_Initialize( INIT_ONCE *once, void *param, void **context )
 {
     HICON hicons[ARRAY_SIZE(shell_imagelists)];
     SIZE sizes[ARRAY_SIZE(shell_imagelists)];
-    BOOL failed = FALSE;
+    BOOL overridden[ARRAY_SIZE(shell_imagelists)];
+    WCHAR override_path[MAX_PATH];
+    int override_index = 0;
+    BOOL failed = FALSE, have_override;
     unsigned int i;
 
     if (!IsProcessDPIAware())
@@ -457,27 +498,39 @@ static BOOL WINAPI SIC_Initialize( INIT_ONCE *once, void *param, void **context 
     if (!sic_hdpa)
         return(FALSE);
 
+    /* The generic file icon, used as the default if an icon isn't found;
+     * Shell Icons "0" (SIID_DOCNOASSOC) replaces it. */
+    have_override = SIC_GetShellIconOverride(SIID_DOCNOASSOC, override_path, MAX_PATH, &override_index);
+
     for (i = 0; i < ARRAY_SIZE(shell_imagelists); i++)
     {
         shell_imagelists[i] = ImageList_Create(sizes[i].cx, sizes[i].cy, ILC_COLOR32 | ILC_MASK, 0, 0x20);
         ImageList_SetBkColor(shell_imagelists[i], CLR_NONE);
 
-        /* Load the generic file icon, which is used as the default if an icon isn't found. */
-        if (!(hicons[i] = LoadImageA(shell32_hInstance, MAKEINTRESOURCEA(IDI_SHELL_FILE),
+        hicons[i] = NULL;
+        if (have_override &&
+            PrivateExtractIconsW(override_path, override_index, sizes[i].cx, sizes[i].cy, &hicons[i], NULL, 1, 0) != 1)
+            hicons[i] = NULL;
+        overridden[i] = hicons[i] != NULL;
+        if (!hicons[i] && !(hicons[i] = LoadImageA(shell32_hInstance, MAKEINTRESOURCEA(IDI_SHELL_FILE),
             IMAGE_ICON, sizes[i].cx, sizes[i].cy, LR_SHARED)))
         {
             failed = TRUE;
         }
     }
 
+    if (!failed)
+    {
+        SIC_IconAppend(swShell32Name, IDI_SHELL_FILE - 1, hicons, 0);
+        SIC_IconAppend(swShell32Name, -IDI_SHELL_FILE, hicons, 0);
+    }
+    for (i = 0; i < ARRAY_SIZE(hicons); i++)
+        if (overridden[i]) DestroyIcon(hicons[i]);
     if (failed)
     {
         FIXME("Failed to load IDI_SHELL_FILE icon!\n");
         return FALSE;
     }
-
-    SIC_IconAppend(swShell32Name, IDI_SHELL_FILE - 1, hicons, 0);
-    SIC_IconAppend(swShell32Name, -IDI_SHELL_FILE, hicons, 0);
 
     TRACE("small list=%p, large list=%p\n", shell_imagelists[SHIL_SMALL], shell_imagelists[SHIL_LARGE]);
 
@@ -1096,24 +1149,40 @@ static INT stock_icon_id_to_resource_id(SHSTOCKICONID id)
  */
 HRESULT WINAPI SHGetStockIconInfo(SHSTOCKICONID id, UINT flags, SHSTOCKICONINFO *sii)
 {
-    FIXME("(%d, 0x%x, %p) semi-stub\n", id, flags, sii);
+    int size;
+
+    TRACE("(%d, 0x%x, %p)\n", id, flags, sii);
     if ((id < 0) || (id >= SIID_MAX_ICONS) || !sii || (sii->cbSize != sizeof(SHSTOCKICONINFO))) {
         return E_INVALIDARG;
     }
 
-    GetSystemDirectoryW(sii->szPath, MAX_PATH);
+    /* An HKLM Shell Icons value named by the stock icon id replaces it. */
+    if (!SIC_GetShellIconOverride(id, sii->szPath, MAX_PATH, &sii->iIcon))
+    {
+        int res = stock_icon_id_to_resource_id(id);
 
-    /* no icons defined: use default */
-    sii->iIcon = -IDI_SHELL_FILE;
-    lstrcatW(sii->szPath, L"\\shell32.dll");
+        lstrcpynW(sii->szPath, swShell32Name, MAX_PATH);
+        sii->iIcon = res > 0 ? -res : -IDI_SHELL_FILE;
+    }
 
-    if (flags & ~SHGSI_ICON)
+    if (flags & ~(SHGSI_ICONLOCATION | SHGSI_ICON | SHGSI_SYSICONINDEX | SHGSI_LARGEICON |
+                  SHGSI_SMALLICON | SHGSI_SHELLICONSIZE))
         FIXME("flags 0x%x not implemented\n", flags);
 
     sii->hIcon = NULL;
     if (flags & SHGSI_ICON)
-        sii->hIcon = LoadIconW(GetModuleHandleW(sii->szPath), MAKEINTRESOURCEW(stock_icon_id_to_resource_id(id)));
+    {
+        if (flags & SHGSI_SHELLICONSIZE)
+            size = (flags & SHGSI_SMALLICON) ? GetSystemMetrics(SM_CXSMICON) : get_shell_icon_size();
+        else
+            size = GetSystemMetrics((flags & SHGSI_SMALLICON) ? SM_CXSMICON : SM_CXICON);
+        if (PrivateExtractIconsW(sii->szPath, sii->iIcon, size, size, &sii->hIcon, NULL, 1, 0) != 1)
+            sii->hIcon = NULL;
+    }
+
     sii->iSysImageIndex = -1;
+    if (flags & SHGSI_SYSICONINDEX)
+        sii->iSysImageIndex = SIC_GetIconIndex(sii->szPath, sii->iIcon, 0);
 
     TRACE("%3d: returning %s (%d)\n", id, debugstr_w(sii->szPath), sii->iIcon);
 
