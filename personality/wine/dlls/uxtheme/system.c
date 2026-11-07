@@ -130,6 +130,40 @@ static DWORD query_reg_path (HKEY hKey, LPCWSTR lpszValue,
   return dwRet;
 }
 
+/*
+ * Setu: the ThemeManager values this process last loaded or wrote. Theme
+ * packs (docs/THEMES.md) switch the visual style by writing new values and
+ * broadcasting WM_THEMECHANGED; a process that sees different values when it
+ * next opens theme data loads the new style (UXTHEME_ReloadIfChanged).
+ */
+struct theme_manager_state
+{
+    WCHAR active[10];
+    WCHAR dll[MAX_PATH];
+    WCHAR color[64];
+    WCHAR size[64];
+};
+
+static struct theme_manager_state loaded_state;
+
+static void read_theme_manager_state(struct theme_manager_state *state)
+{
+    DWORD size;
+    HKEY hkey;
+
+    memset(state, 0, sizeof(*state));
+    if (RegOpenKeyW(HKEY_CURRENT_USER, szThemeManager, &hkey)) return;
+    size = sizeof(state->active) - sizeof(WCHAR);
+    RegQueryValueExW(hkey, L"ThemeActive", NULL, NULL, (BYTE *)state->active, &size);
+    size = sizeof(state->color) - sizeof(WCHAR);
+    RegQueryValueExW(hkey, L"ColorName", NULL, NULL, (BYTE *)state->color, &size);
+    size = sizeof(state->size) - sizeof(WCHAR);
+    RegQueryValueExW(hkey, L"SizeName", NULL, NULL, (BYTE *)state->size, &size);
+    if (query_reg_path(hkey, L"DllName", state->dll)) state->dll[0] = 0;
+    state->dll[MAX_PATH - 1] = 0;
+    RegCloseKey(hkey);
+}
+
 /***********************************************************************
  *      UXTHEME_LoadTheme
  *
@@ -194,6 +228,47 @@ static void UXTHEME_LoadTheme(void)
         MSSTYLES_SetActiveTheme(NULL, FALSE);
         TRACE("Theming not active\n");
     }
+    read_theme_manager_state(&loaded_state);
+}
+
+/***********************************************************************
+ *      UXTHEME_ReloadIfChanged
+ *
+ * Setu: load the visual style another process switched to. The system
+ * colours and metrics are left alone: the process that switched sets them.
+ */
+static void UXTHEME_ReloadIfChanged(void)
+{
+    struct theme_manager_state state;
+    PTHEME_FILE pt;
+
+    read_theme_manager_state(&state);
+    if (!memcmp(&state, &loaded_state, sizeof(state))) return;
+    loaded_state = state;
+
+    if (!state.active[0] || state.active[0] == '0')
+    {
+        if (!bThemeActive) return;
+        TRACE("theming turned off\n");
+        bThemeActive = FALSE;
+        szCurrentTheme[0] = szCurrentColor[0] = szCurrentSize[0] = 0;
+        MSSTYLES_SetActiveTheme(NULL, FALSE);
+        return;
+    }
+    if (FAILED(MSSTYLES_OpenThemeFile(state.dll, state.color[0] ? state.color : NULL,
+                                      state.size[0] ? state.size : NULL, &pt)))
+    {
+        WARN("can't load %s, keeping the current theme\n", debugstr_w(state.dll));
+        return;
+    }
+    TRACE("switching to %s %s %s\n", debugstr_w(state.dll), debugstr_w(pt->pszSelectedColor),
+          debugstr_w(pt->pszSelectedSize));
+    lstrcpynW(szCurrentTheme, pt->szThemeFile, ARRAY_SIZE(szCurrentTheme));
+    lstrcpynW(szCurrentColor, pt->pszSelectedColor, ARRAY_SIZE(szCurrentColor));
+    lstrcpynW(szCurrentSize, pt->pszSelectedSize, ARRAY_SIZE(szCurrentSize));
+    bThemeActive = TRUE;
+    MSSTYLES_SetActiveTheme(pt, FALSE);
+    MSSTYLES_CloseThemeFile(pt);
 }
 
 /***********************************************************************/
@@ -486,6 +561,7 @@ HRESULT UXTHEME_SetActiveTheme(PTHEME_FILE tf)
     else
         TRACE("Failed to open theme registry key\n");
 
+    read_theme_manager_state(&loaded_state);
     hr = MSSTYLES_SetActiveTheme(tf, TRUE);
     if (bThemeActive)
     {
@@ -631,6 +707,7 @@ static HTHEME open_theme_data(HWND hwnd, LPCWSTR pszClassList, DWORD flags, UINT
     if(flags)
         FIXME("unhandled flags: %lx\n", flags);
 
+    UXTHEME_ReloadIfChanged();
     if(bThemeActive)
     {
         pszAppName = UXTHEME_GetWindowProperty(hwnd, atSubAppName, szAppBuff, ARRAY_SIZE(szAppBuff));
