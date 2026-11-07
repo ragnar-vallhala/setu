@@ -22,10 +22,10 @@ FPROBE_LIBS := -luser32 -lshell32 -lshlwapi
 all: $(OUT)/setu-shell.exe $(OUT)/setu-probe.exe $(OUT)/setu-xproc.exe $(OUT)/setu-testapp.exe \
      $(OUT)/setu-files.exe $(OUT)/setu-files-probe.exe
 
-STYLE := src/setu-style.h src/setu-icons.h
+STYLE := src/setu-style.h src/setu-icons.h src/setu-theme.h src/setu-theme.c
 
 $(OUT)/setu-shell.exe: src/setu-shell.c $(STYLE) | $(OUT)
-	$(CC) $(CFLAGS) -mwindows -o $@ $< $(LDFLAGS) $(SHELL_LIBS)
+	$(CC) $(CFLAGS) -mwindows -o $@ $< src/setu-theme.c $(LDFLAGS) $(SHELL_LIBS)
 
 $(OUT)/setu-probe.exe: tests/setu-probe.c | $(OUT)
 	$(CC) $(CFLAGS) -mconsole -o $@ $< $(LDFLAGS) $(PROBE_LIBS)
@@ -37,7 +37,7 @@ $(OUT)/setu-testapp.exe: tests/setu-testapp.c | $(OUT)
 	$(CC) $(CFLAGS) -mwindows -o $@ $< $(LDFLAGS) -luser32 -lgdi32 -lshell32
 
 $(OUT)/setu-files.exe: src/setu-files.c $(STYLE) | $(OUT)
-	$(CC) $(CFLAGS) -mwindows -o $@ $< $(LDFLAGS) $(FILES_LIBS)
+	$(CC) $(CFLAGS) -mwindows -o $@ $< src/setu-theme.c $(LDFLAGS) $(FILES_LIBS)
 
 $(OUT)/setu-files-probe.exe: tests/setu-files-probe.c | $(OUT)
 	$(CC) $(CFLAGS) -mconsole -o $@ $< $(LDFLAGS) $(FPROBE_LIBS)

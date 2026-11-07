@@ -69,6 +69,7 @@
 
 #define TIMER_RELOAD 1
 #define TIMER_EXIT   2
+#define TIMER_THEME  3
 
 #define ID_LIST    100
 #define ID_ADDR    101
@@ -133,7 +134,7 @@ struct place
     WCHAR label[96];
     WCHAR target[MAX_PATH];   /* path, "::drives" or "::recycle" */
     int icon;                 /* system image list index (unused for drawing) */
-    int licon;                /* our line icon */
+    int licon;                /* our named icon (enum setu_icon_name) */
     int y, h;
 };
 
@@ -229,6 +230,7 @@ static BOOL status_error;
 static WCHAR last_op[256];
 static LONG cmd_seq;
 static int exit_after_sec;
+static int theme_reloads;    /* theme packs applied since the start */
 static BOOL automation;      /* driven by a test: never block on our own message boxes */
 
 static IContextMenu *rb_menu_cm;
@@ -301,7 +303,7 @@ static void draw_app_icon_on(struct setu_canvas *cv, int size, COLORREF bg)
     st_fill(cv, &r, bg);
     InflateRect(&r, -max(1, size / 16), -max(1, size / 16));
     st_round(cv, &r, max(2, size / 5), ST->accent);
-    st_icon_in(cv, ICON_FOLDER, &r, size * 5 / 8, RGB(0xff, 0xff, 0xff));
+    st_icon_in(cv, TI_FOLDER, &r, size * 5 / 8, ST->accent_text);
 }
 
 static HICON make_app_icon(int size)
@@ -499,6 +501,76 @@ static void free_items(void)
     nitems = 0;
 }
 
+/* ------------------------------------------------------------------ */
+/* Pack icons in the list                                               */
+
+/* The list views draw from the system image lists. Where the active pack
+ * has an icon for what shell32 shows with a generic icon (a plain folder, a
+ * file of no known type, a drive, the Recycle Bin), the pack's icon is
+ * added to both lists (ImageList_ReplaceIcon) and used instead. The slots
+ * are kept and replaced in place when another pack is applied. */
+static int sysicon_slot[TI_COUNT];           /* index + 1 in both lists, 0 none */
+static BOOL sysicon_live[TI_COUNT];          /* the slot holds the active pack's icon */
+static int generic_folder_icon = -1, generic_file_icon = -1;
+
+static void theme_sysicons_reset(void)
+{
+    memset(sysicon_live, 0, sizeof(sysicon_live));
+}
+
+/* the image list index for icon NAME from the pack, or FALLBACK */
+static int pack_sysicon(int name, int fallback)
+{
+    HICON small, large;
+    int a, b, slot;
+
+    if (!il_small || !il_large || !st_icon_from_pack(name)) return fallback;
+    if (sysicon_live[name]) return sysicon_slot[name] - 1;
+    small = (HICON)LoadImageW(NULL, setu_theme.icon_file[name], IMAGE_ICON, GetSystemMetrics(SM_CXSMICON),
+                              GetSystemMetrics(SM_CYSMICON), LR_LOADFROMFILE);
+    large = (HICON)LoadImageW(NULL, setu_theme.icon_file[name], IMAGE_ICON, GetSystemMetrics(SM_CXICON),
+                              GetSystemMetrics(SM_CYICON), LR_LOADFROMFILE);
+    slot = sysicon_slot[name] - 1;
+    a = small && large ? ImageList_ReplaceIcon(il_small, slot, small) : -1;
+    b = a >= 0 ? ImageList_ReplaceIcon(il_large, slot >= 0 ? slot : a, large) : -1;
+    if (small) DestroyIcon(small);
+    if (large) DestroyIcon(large);
+    if (a < 0 || b != a) return fallback;
+    sysicon_slot[name] = a + 1;
+    sysicon_live[name] = TRUE;
+    return a;
+}
+
+/* ICON (a system image list index) for a folder or file, or the pack's */
+static int themed_item_icon(int icon, BOOL dir)
+{
+    SHFILEINFOW sfi;
+    if (generic_folder_icon < 0)
+    {
+        memset(&sfi, 0, sizeof(sfi));
+        SHGetFileInfoW(L"folder", FILE_ATTRIBUTE_DIRECTORY, &sfi, sizeof(sfi),
+                       SHGFI_USEFILEATTRIBUTES | SHGFI_SYSICONINDEX | SHGFI_SMALLICON);
+        generic_folder_icon = sfi.iIcon;
+        memset(&sfi, 0, sizeof(sfi));
+        SHGetFileInfoW(L"file", FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),
+                       SHGFI_USEFILEATTRIBUTES | SHGFI_SYSICONINDEX | SHGFI_SMALLICON);
+        generic_file_icon = sfi.iIcon;
+    }
+    if (dir && icon == generic_folder_icon) return pack_sysicon(TI_FOLDER, icon);
+    if (!dir && icon == generic_file_icon) return pack_sysicon(TI_FILE, icon);
+    return icon;
+}
+
+static int drive_icon_name(const WCHAR *root)
+{
+    switch (GetDriveTypeW(root))
+    {
+    case DRIVE_REMOVABLE: return TI_DRIVE_REMOVABLE;
+    case DRIVE_CDROM:     return TI_DRIVE_OPTICAL;
+    default:              return TI_DRIVE_FIXED;
+    }
+}
+
 /* Per-extension cache of type names and icons, so a big folder needs one
  * SHGetFileInfoW call per file type instead of per file. */
 static struct { WCHAR ext[32]; WCHAR type[80]; int icon; } type_cache[128];
@@ -539,7 +611,7 @@ static void file_type_and_icon(struct item *it)
         }
         else lstrcpyW(it->type, L"File");
     }
-    it->icon = sfi.iIcon;
+    it->icon = themed_item_icon(sfi.iIcon, it->dir);
     if (!own_icon && wcslen(ext) < 32 && ntype_cache < (int)ARRAYSIZE(type_cache))
     {
         lstrcpyW(type_cache[ntype_cache].ext, it->dir ? L"\\" : ext);
@@ -642,6 +714,7 @@ static void load_drives(void)
         if (!it) break;
         lstrcpynW(it->path, r, ARRAYSIZE(it->path));
         drive_label(r, it->name, ARRAYSIZE(it->name), &it->icon);
+        it->icon = pack_sysicon(drive_icon_name(r), it->icon);
         lstrcpyW(it->type, drive_type_name(t));
         it->dir = TRUE;
         it->attrs = FILE_ATTRIBUTE_DIRECTORY;
@@ -713,7 +786,7 @@ static void load_recycle(void)
             memset(&sfi, 0, sizeof(sfi));
             if (abs && SHGetFileInfoW((LPCWSTR)abs, 0, &sfi, sizeof(sfi), SHGFI_PIDL | SHGFI_SYSICONINDEX | SHGFI_TYPENAME))
             {
-                it->icon = sfi.iIcon;
+                it->icon = themed_item_icon(sfi.iIcon, it->dir);
                 lstrcpynW(it->type, sfi.szTypeName, ARRAYSIZE(it->type));
             }
             else
@@ -722,7 +795,7 @@ static void load_recycle(void)
                 memset(&sfi, 0, sizeof(sfi));
                 SHGetFileInfoW(it->name, it->dir ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),
                                SHGFI_USEFILEATTRIBUTES | SHGFI_SYSICONINDEX | SHGFI_TYPENAME);
-                it->icon = sfi.iIcon;
+                it->icon = themed_item_icon(sfi.iIcon, it->dir);
                 lstrcpynW(it->type, sfi.szTypeName, ARRAYSIZE(it->type));
             }
             ILFree(abs);
@@ -982,10 +1055,10 @@ static void load_places(void)
 
     nplaces = 0;
     add_place(0, L"Places", NULL, 0);
-    add_known_place(&FOLDERID_Profile, L"Home", ICON_HOUSE);
-    add_known_place(&FOLDERID_Desktop, L"Desktop", ICON_MONITOR);
-    add_known_place(&FOLDERID_Documents, L"Documents", ICON_FILE_TEXT);
-    add_known_place(&FOLDERID_Downloads, L"Downloads", ICON_DOWNLOAD);
+    add_known_place(&FOLDERID_Profile, L"Home", TI_USER_HOME);
+    add_known_place(&FOLDERID_Desktop, L"Desktop", TI_USER_DESKTOP);
+    add_known_place(&FOLDERID_Documents, L"Documents", TI_FOLDER_DOCUMENTS);
+    add_known_place(&FOLDERID_Downloads, L"Downloads", TI_FOLDER_DOWNLOAD);
     add_place(0, L"Drives", L"::drives", 0);
     if (drive_roots(roots, ARRAYSIZE(roots)))
         for (r = roots; *r; r += wcslen(r) + 1)
@@ -993,7 +1066,7 @@ static void load_places(void)
             int icon;
             drive_label(r, label, ARRAYSIZE(label), &icon);
             add_place(1, label, r, icon);
-            places[nplaces - 1].licon = ICON_HARD_DRIVE;
+            places[nplaces - 1].licon = drive_icon_name(r);
         }
     add_place(0, L"", NULL, 0);
     if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &bin)))
@@ -1005,7 +1078,7 @@ static void load_places(void)
         CoTaskMemFree(bin);
     }
     add_place(1, L"Recycle Bin", L"::recycle", bin_icon);
-    places[nplaces - 1].licon = ICON_TRASH_2;
+    places[nplaces - 1].licon = TI_RECYCLE_BIN_EMPTY;
 }
 
 static int place_row_h(const struct place *p)
@@ -1074,7 +1147,7 @@ static void paint_sidebar(struct setu_canvas *cv, const RECT *rc)
         if (i == drag_place) st_round(cv, &r, rad, st_selection());
         else if (cur) st_round(cv, &r, rad, st_mix(C_BAR, ST->text, 20));
         else if (i == side_hot) st_round(cv, &r, rad, st_mix(C_BAR, ST->text, 12));
-        if (i == drag_place) st_frame(cv, &r, rad, max(1, S(1)), ST->accent);
+        if (i == drag_place) st_frame(cv, &r, rad, max(1, S(1)), ST->selection_border);
         if (cur)
         {
             /* the accent pill marks where we are */
@@ -1082,7 +1155,8 @@ static void paint_sidebar(struct setu_canvas *cv, const RECT *rc)
             st_round(cv, &pill, S(2), ST->accent);
         }
         if (focused && i == side_sel) st_focus_ring(cv, &r, rad, dpi);
-        st_icon(cv, p->licon, r.left + S(14), r.top + (p->h - isz) / 2, isz, cur ? ST->accent : ST->text);
+        st_icon(cv, p->licon == TI_RECYCLE_BIN_EMPTY && recycle_count() > 0 ? TI_RECYCLE_BIN_FULL : p->licon,
+                r.left + S(14), r.top + (p->h - isz) / 2, isz, cur ? ST->accent : ST->text);
         r.left += S(14) + isz + S(12);
         if (!wcscmp(p->target, L"::recycle"))
         {
@@ -2940,7 +3014,7 @@ static void update_toolbar(void)
         case IDM_FORWARD: b->enabled = nfwd > 0; break;
         case IDM_UP: b->enabled = can_go_up(); break;
         case IDM_NEWFOLDER:
-            b->icon = cur_loc == LOC_RECYCLE ? ICON_TRASH_2 : ICON_FOLDER_PLUS;
+            b->icon = cur_loc == LOC_RECYCLE ? TI_CMD_EMPTY_RECYCLE_BIN : TI_CMD_NEW_FOLDER;
             b->name = cur_loc == LOC_RECYCLE ? L"empty" : L"newfolder";
             b->label = cur_loc == LOC_RECYCLE ? L"Empty Recycle Bin" : L"New folder";
             b->enabled = fs || (cur_loc == LOC_RECYCLE && nitems > 0);
@@ -2965,19 +3039,19 @@ static void init_toolbar(void)
 {
     static const struct { int id, icon; const WCHAR *name, *label; } defs[NUM_TBTN] =
     {
-        { IDM_BACK, ICON_ARROW_LEFT, L"back", L"Back (Alt+Left)" },
-        { IDM_FORWARD, ICON_ARROW_RIGHT, L"forward", L"Forward (Alt+Right)" },
-        { IDM_UP, ICON_ARROW_UP, L"up", L"Up (Alt+Up)" },
-        { IDM_REFRESH, ICON_ROTATE_CW, L"refresh", L"Refresh (F5)" },
-        { IDM_NEWFOLDER, ICON_FOLDER_PLUS, L"newfolder", L"New folder" },
-        { IDM_VIEW_DETAILS, ICON_LIST, L"details", L"Details (Ctrl+1)" },
-        { IDM_VIEW_ICONS, ICON_LAYOUT_GRID, L"icons", L"Icons (Ctrl+2)" },
-        { IDM_CUT, ICON_SCISSORS, L"cut", L"Cut (Ctrl+X)" },
-        { IDM_COPY, ICON_COPY, L"copy", L"Copy (Ctrl+C)" },
-        { IDM_PASTE, ICON_CLIPBOARD_PASTE, L"paste", L"Paste (Ctrl+V)" },
-        { IDM_RENAME, ICON_PENCIL, L"rename", L"Rename (F2)" },
-        { IDM_DELETE, ICON_TRASH_2, L"delete", L"Delete (Del)" },
-        { IDM_PROPERTIES, ICON_INFO, L"properties", L"Properties (Alt+Enter)" },
+        { IDM_BACK, TI_NAV_BACK, L"back", L"Back (Alt+Left)" },
+        { IDM_FORWARD, TI_NAV_FORWARD, L"forward", L"Forward (Alt+Right)" },
+        { IDM_UP, TI_NAV_UP, L"up", L"Up (Alt+Up)" },
+        { IDM_REFRESH, TI_REFRESH, L"refresh", L"Refresh (F5)" },
+        { IDM_NEWFOLDER, TI_CMD_NEW_FOLDER, L"newfolder", L"New folder" },
+        { IDM_VIEW_DETAILS, TI_VIEW_DETAILS, L"details", L"Details (Ctrl+1)" },
+        { IDM_VIEW_ICONS, TI_VIEW_ICONS, L"icons", L"Icons (Ctrl+2)" },
+        { IDM_CUT, TI_CMD_CUT, L"cut", L"Cut (Ctrl+X)" },
+        { IDM_COPY, TI_CMD_COPY, L"copy", L"Copy (Ctrl+C)" },
+        { IDM_PASTE, TI_CMD_PASTE, L"paste", L"Paste (Ctrl+V)" },
+        { IDM_RENAME, TI_CMD_RENAME, L"rename", L"Rename (F2)" },
+        { IDM_DELETE, TI_CMD_DELETE, L"delete", L"Delete (Del)" },
+        { IDM_PROPERTIES, TI_CMD_PROPERTIES, L"properties", L"Properties (Alt+Enter)" },
     };
     int i;
     for (i = 0; i < NUM_TBTN; i++)
@@ -3115,10 +3189,10 @@ static void build_crumbs(struct setu_canvas *cv, int *icon)
     int i, x, avail, total, chev = S(20), pad = S(8);
 
     ncrumbs = 0;
-    *icon = ICON_HARD_DRIVE;
+    *icon = TI_DRIVE_FIXED;
     if (cur_loc == LOC_RECYCLE)
     {
-        *icon = ICON_TRASH_2;
+        *icon = recycle_count() > 0 ? TI_RECYCLE_BIN_FULL : TI_RECYCLE_BIN_EMPTY;
         add_crumb(L"Recycle Bin", L"::recycle");
     }
     else
@@ -3241,7 +3315,7 @@ static void paint_main(struct setu_canvas *cv, const RECT *rc)
             BOOL last = i == ncrumbs - 1;
             if (i == crumb_hot) st_round(cv, &t, rad, ST->surface_hover);
             if (i > crumb_first)
-                st_icon(cv, ICON_CHEVRON_RIGHT, t.left - S(18), (t.top + t.bottom - S(14)) / 2, S(14), ST->text_secondary);
+                st_icon(cv, TI_CHEVRON_RIGHT, t.left - S(18), (t.top + t.bottom - S(14)) / 2, S(14), ST->text_secondary);
             st_text(cv, crumbs[i].label, &t, last ? SF_CAPTION : SF_BODY, last ? ST->text : ST->text_secondary,
                     DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS);
         }
@@ -3273,7 +3347,7 @@ static void paint_main(struct setu_canvas *cv, const RECT *rc)
                 /* a chevron after the title shows the direction */
                 int tw = st_text_width(cv, t, SF_BODY), isz = S(12);
                 int ax = right ? cr.right - tw - S(4) - isz : cr.left + tw + S(4);
-                st_icon(cv, sort_desc ? ICON_CHEVRON_DOWN : ICON_CHEVRON_UP, ax,
+                st_icon(cv, sort_desc ? TI_CHEVRON_DOWN : TI_CHEVRON_UP, ax,
                         (header_rc.top + header_rc.bottom - isz) / 2, isz, C_MUTED);
             }
             x += col_w[i];
@@ -3329,7 +3403,7 @@ static void paint_row(struct setu_canvas *cv, const RECT *rc, void *ctx)
     {
         BOOL strong = focused || (st & LVIS_DROPHILITED);
         st_round(cv, &sr, rad, strong ? st_selection() : st_selection_inactive());
-        if (strong) st_frame(cv, &sr, rad, max(1, S(1)), ST->accent);
+        if (strong) st_frame(cv, &sr, rad, max(1, S(1)), ST->selection_border);
     }
     else if (focused && (st & LVIS_FOCUSED)) st_frame(cv, &sr, rad, max(1, S(1)), ST->border);
     if (items[it].attrs & FILE_ATTRIBUTE_HIDDEN) text = ST->text_secondary;
@@ -3436,6 +3510,8 @@ static void write_state(void)
     EMIT(L"status=%ls%ls\r\n", status_error ? L"error: " : L"", status_text);
     EMIT(L"last_op=%ls\r\n", last_op);
     EMIT(L"recycle_count=%d\r\n", recycle_count());
+    EMIT(L"theme=%ls\r\n", setu_theme.id);
+    EMIT(L"theme_reloads=%d\r\n", theme_reloads);
     EMIT(L"clipboard=%ls|%d\r\n", cut_paths ? L"cut" : IsClipboardFormatAvailable(CF_HDROP) ? L"files" : L"none",
          cut_paths ? multi_count(cut_paths) : 0);
     EMIT(L"count=%d\r\n", nitems);
@@ -3932,6 +4008,59 @@ static LRESULT on_notify(NMHDR *nm)
     return 0;
 }
 
+/* The theme pack changed (setu-theme apply: WM_SETTINGCHANGE "SetuTheme"
+ * or "ImmersiveColorSet", WM_THEMECHANGED): reload every colour, font,
+ * metric and icon, and redraw without restarting. */
+static void apply_theme(void)
+{
+    HBRUSH old[3] = { field_brush, panel_brush, bar_brush };
+    HICON old_big = app_icon_big, old_small = app_icon_small;
+    int i;
+
+    st_theme_reload();
+    theme_reloads++;
+    make_fonts();
+    field_brush = CreateSolidBrush(ST->surface);
+    panel_brush = CreateSolidBrush(C_PANEL);
+    bar_brush = CreateSolidBrush(C_BAR);
+    /* the classes' background brushes */
+    SetClassLongPtrW(main_wnd, GCLP_HBRBACKGROUND, (LONG_PTR)panel_brush);
+    if (sidebar) SetClassLongPtrW(sidebar, GCLP_HBRBACKGROUND, (LONG_PTR)bar_brush);
+    if (props_wnd) SetClassLongPtrW(props_wnd, GCLP_HBRBACKGROUND, (LONG_PTR)panel_brush);
+    for (i = 0; i < 3; i++) if (old[i]) DeleteObject(old[i]);
+
+    app_icon_big = make_app_icon(GetSystemMetrics(SM_CXICON));
+    app_icon_small = make_app_icon(GetSystemMetrics(SM_CXSMICON));
+    SetClassLongPtrW(main_wnd, GCLP_HICON, (LONG_PTR)app_icon_big);
+    SetClassLongPtrW(main_wnd, GCLP_HICONSM, (LONG_PTR)app_icon_small);
+    SendMessageW(main_wnd, WM_SETICON, ICON_BIG, (LPARAM)app_icon_big);
+    SendMessageW(main_wnd, WM_SETICON, ICON_SMALL, (LPARAM)app_icon_small);
+    if (old_big) DestroyIcon(old_big);
+    if (old_small) DestroyIcon(old_small);
+
+    ListView_SetBkColor(lv, C_PANEL);
+    ListView_SetTextBkColor(lv, C_PANEL);
+    ListView_SetTextColor(lv, C_TEXT);
+    /* owner-drawn rows get their (row-height) height from WM_MEASUREITEM,
+     * which list views send again when their font changes */
+    SendMessageW(lv, WM_SETFONT, (WPARAM)font_ui, TRUE);
+    SendMessageW(addr, WM_SETFONT, (WPARAM)font_ui, FALSE);
+    if (tips) SendMessageW(tips, WM_SETFONT, (WPARAM)font_ui, FALSE);
+
+    /* the list's icons: the new pack's, or shell32's again */
+    theme_sysicons_reset();
+    ntype_cache = 0;
+    load_places();
+    layout_places();
+    layout();
+    reload();
+    update_toolbar();
+    InvalidateRect(main_wnd, NULL, TRUE);
+    RedrawWindow(main_wnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_FRAME);
+    if (props_wnd) RedrawWindow(props_wnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
+    write_state();
+}
+
 static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     switch (msg)
@@ -4087,6 +4216,11 @@ static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
             else reload();
         }
         else if (wp == TIMER_EXIT) DestroyWindow(hwnd);
+        else if (wp == TIMER_THEME)
+        {
+            KillTimer(hwnd, TIMER_THEME);
+            apply_theme();
+        }
         return 0;
     case WM_APP_SHNOTIFY:
         schedule_reload();
@@ -4140,6 +4274,12 @@ static LRESULT CALLBACK main_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         write_state();
         return 0;
     }
+    case WM_THEMECHANGED:
+        SetTimer(hwnd, TIMER_THEME, 50, NULL);
+        break;
+    case WM_SETTINGCHANGE:
+        if (setu_theme_changed_msg(msg, wp, lp)) SetTimer(hwnd, TIMER_THEME, 50, NULL);
+        break;
     case WM_DPICHANGED:
     {
         RECT *r = (RECT *)lp;
@@ -4198,6 +4338,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     OleInitialize(NULL);
     InitCommonControlsEx(&icc);
     dpi = get_window_dpi(NULL);
+    st_theme_reload();
     make_fonts();
     field_brush = CreateSolidBrush(ST->surface);
     panel_brush = CreateSolidBrush(C_PANEL);

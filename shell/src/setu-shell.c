@@ -79,6 +79,7 @@
 #define IDM_SHUTDOWN   222
 #define IDM_HOME       223
 #define TIMER_TIPS     5
+#define TIMER_THEME    6
 
 /* Colours, fonts, shapes and icons: docs/DESIGN.md, via setu-style.h. */
 #include "setu-style.h"
@@ -142,7 +143,7 @@ struct row
 #define MAX_GROUPS 256
 #define MAX_TASKS  64
 #define MAX_ROWS   (MAX_APPS + MAX_GROUPS + 64)
-#define MAX_PINS   24          /* a grid of 6 x 4 */
+#define MAX_PINS   96          /* up to a 12 x 8 grid ([Shell] start-columns, start-rows) */
 
 static struct app apps[MAX_APPS];
 static int napps;
@@ -166,6 +167,7 @@ static int sel_kind = SEL_NONE, sel_index = -1;
 static int scroll_px;
 static WCHAR search_text[256];
 static int reload_count;
+static int theme_reloads;       /* theme packs applied since the start */
 static BOOL in_menu;
 
 static HINSTANCE hinst;
@@ -289,6 +291,11 @@ static void write_state(void)
     EMIT(L"search=%ls\r\n", search_text);
     EMIT(L"view=%ls\r\n", search_text[0] ? L"search" : view == VIEW_ALL ? L"all" : L"pinned");
     EMIT(L"taskbar_alignment=%ls\r\n", bar_left_aligned ? L"left" : L"center");
+    EMIT(L"theme=%ls\r\n", setu_theme.id);
+    EMIT(L"theme_source=%ls\r\n", setu_theme.where == THEME_USER ? L"user" :
+         setu_theme.where == THEME_SYSTEM ? L"system" : L"builtin");
+    EMIT(L"theme_reloads=%d\r\n", theme_reloads);
+    EMIT(L"accent=#%02X%02X%02X\r\n", GetRValue(ST->accent), GetGValue(ST->accent), GetBValue(ST->accent));
     {
         /* the parts of the launcher, centres in screen coordinates */
         static const struct { const WCHAR *name; const RECT *rc; int kind; } parts[] = {
@@ -813,13 +820,16 @@ static void build_groups(void)
 /* Pins: HKCU\Software\Setu\Shell, "Pinned" (REG_MULTI_SZ, in order). */
 #define SHELL_KEY L"Software\\Setu\\Shell"
 
-/* TaskbarAlignment (REG_DWORD): 0 centres the buttons (the default), 1
- * puts them at the left. Changes apply on WM_SETTINGCHANGE "Setu.Shell". */
+/* TaskbarAlignment (REG_DWORD): 0 centres the buttons, 1 puts them at the
+ * left; without it, the theme pack's [Shell] taskbar-alignment decides
+ * (centre in setu-light). Changes apply on WM_SETTINGCHANGE "Setu.Shell". */
 static void load_settings(void)
 {
     DWORD v = 0, size = sizeof(v);
-    bar_left_aligned = !RegGetValueW(HKEY_CURRENT_USER, SHELL_KEY, L"TaskbarAlignment", RRF_RT_REG_DWORD, NULL,
-                                     &v, &size) && v == 1;
+    if (!RegGetValueW(HKEY_CURRENT_USER, SHELL_KEY, L"TaskbarAlignment", RRF_RT_REG_DWORD, NULL, &v, &size))
+        bar_left_aligned = v == 1;
+    else
+        bar_left_aligned = setu_theme.taskbar_left;
 }
 
 static void map_pins(void)
@@ -1380,14 +1390,14 @@ static void paint_bar(struct setu_canvas *cv, const RECT *rc)
     r.bottom = r.top + max(1, S(1));
     st_fill(cv, &r, ST->border);
 
-    /* the Setu button: the bridge mark */
+    /* the Setu button: the pack's full-colour setu-app icon, else the bridge mark */
     if (IsWindowVisible(launcher))
     {
         st_round(cv, &start_rc, rad, hover);
         st_frame(cv, &start_rc, rad, 1, ST->border_subtle);
     }
     else if (hot == -1) st_round(cv, &start_rc, rad, hover);
-    st_icon_in(cv, ICON_SETU_MARK, &start_rc, isz, ST->logo);
+    st_icon_in(cv, st_icon_from_pack(TI_SETU_APP) ? TI_SETU_APP : TI_SETU_LOGO, &start_rc, isz, ST->logo);
 
     /* window buttons: icon, and a pill under it (long for the active one) */
     for (i = 0; i < ntasks; i++)
@@ -1412,10 +1422,10 @@ static void paint_bar(struct setu_canvas *cv, const RECT *rc)
     r = tray_rc;
     r.right -= S(10);
     r.bottom = (tray_rc.top + tray_rc.bottom) / 2 + S(1);
-    st_text(cv, clock_text, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_BOTTOM | DT_RIGHT);
+    st_text(cv, clock_text, &r, SF_BODY, ST->taskbar_text, DT_SINGLELINE | DT_BOTTOM | DT_RIGHT);
     r.top = r.bottom + S(1);
     r.bottom = tray_rc.bottom;
-    st_text(cv, date_text, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_TOP | DT_RIGHT);
+    st_text(cv, date_text, &r, SF_BODY, ST->taskbar_text, DT_SINGLELINE | DT_TOP | DT_RIGHT);
 }
 
 static int bar_hit(POINT pt)
@@ -1607,6 +1617,27 @@ static LRESULT CALLBACK kbd_proc(int code, WPARAM wp, LPARAM lp)
     return CallNextHookEx(kbd_hook, code, wp, lp);
 }
 
+/* The theme pack changed (setu-theme apply: WM_SETTINGCHANGE "SetuTheme"
+ * or "ImmersiveColorSet", WM_THEMECHANGED): reload every colour, font,
+ * metric and icon, and redraw without restarting. */
+static void apply_theme(void)
+{
+    st_theme_reload();
+    theme_reloads++;
+    make_fonts();
+    if (field_brush) DeleteObject(field_brush);
+    field_brush = CreateSolidBrush(ST->surface);
+    if (edit) SendMessageW(edit, WM_SETFONT, (WPARAM)st_font[SF_BODY], FALSE);
+    if (tips) SendMessageW(tips, WM_SETFONT, (WPARAM)st_font[SF_BODY], FALSE);
+    load_settings();
+    if (IsWindowVisible(launcher)) hide_launcher();
+    refresh_rows(FALSE);
+    dock_bar();
+    layout_tasks();
+    InvalidateRect(bar, NULL, TRUE);
+    write_state();
+}
+
 static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     if (msg == shellhook_msg && shellhook_msg)
@@ -1633,7 +1664,12 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         }
         return 0;
     }
+    case WM_THEMECHANGED:
+        /* one reload for the burst of messages a theme switch sends */
+        SetTimer(hwnd, TIMER_THEME, 50, NULL);
+        break;
     case WM_SETTINGCHANGE:
+        if (setu_theme_changed_msg(msg, wp, lp)) SetTimer(hwnd, TIMER_THEME, 50, NULL);
         if (lp && !lstrcmpiW((const WCHAR *)lp, L"Setu.Shell"))
         {
             load_settings();
@@ -1689,6 +1725,11 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         if (wp == TIMER_REFRESH) refresh_tasks();
         else if (wp == TIMER_CLOCK) update_clock();
         else if (wp == TIMER_EXIT) DestroyWindow(hwnd);
+        else if (wp == TIMER_THEME)
+        {
+            KillTimer(hwnd, TIMER_THEME);
+            apply_theme();
+        }
         else if (wp == TIMER_RELOAD)
         {
             KillTimer(hwnd, TIMER_RELOAD);
@@ -1786,10 +1827,6 @@ static LRESULT CALLBACK bar_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
  * tile for groups (and Files). */
 static void draw_glyph(struct setu_canvas *cv, int x, int y, int size, const WCHAR *name)
 {
-    static const COLORREF tones[] = {
-        RGB(0x2f, 0x7d, 0x6a), RGB(0x5b, 0x5f, 0xc7), RGB(0xb5, 0x5a, 0x3c),
-        RGB(0x1f, 0x6f, 0xb2), RGB(0x8a, 0x6d, 0x1f), RGB(0x9b, 0x4d, 0x87),
-    };
     unsigned h = 0;
     const WCHAR *p;
     WCHAR letter[2] = { name[0] ? name[0] : L'?', 0 };
@@ -1799,13 +1836,13 @@ static void draw_glyph(struct setu_canvas *cv, int x, int y, int size, const WCH
     HGDIOBJ of;
 
     for (p = name; *p; p++) h = h * 31 + towlower(*p);
-    st_round(cv, &r, max(S(ST_RADIUS_CONTROL), size / 5), tones[h % ARRAYSIZE(tones)]);
+    st_round(cv, &r, max(S(ST_RADIUS_CONTROL), size / 5), ST->tile[h % ARRAYSIZE(ST->tile)]);
     CharUpperBuffW(letter, 1);
     GetObjectW(st_font[SF_CAPTION], sizeof(lf), &lf);
     lf.lfHeight = -size * 11 / 20;
     f = CreateFontIndirectW(&lf);
     of = SelectObject(cv->dc, f);
-    SetTextColor(cv->dc, RGB(0xff, 0xff, 0xff));
+    SetTextColor(cv->dc, ST->accent_text);
     DrawTextW(cv->dc, letter, 1, &r, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
     SelectObject(cv->dc, of);
     DeleteObject(f);
@@ -1815,7 +1852,7 @@ static void draw_folder(struct setu_canvas *cv, int x, int y, int size)
 {
     RECT r = { x, y, x + size, y + size };
     st_round(cv, &r, max(S(ST_RADIUS_CONTROL), size / 5), st_mix(ST->surface, ST->accent, 40));
-    st_icon_in(cv, ICON_FOLDER, &r, size * 2 / 3, ST->accent);
+    st_icon_in(cv, TI_FOLDER, &r, size * 2 / 3, ST->accent);
 }
 
 /* An app's icon, or our glyph when it has none (a folder for Files). */
@@ -1834,8 +1871,7 @@ static void draw_app_icon(struct setu_canvas *cv, const struct app *a, int x, in
  * it opened (Wine's virtual desktop has no translucent windows). Without
  * that copy there's no margin and a rounded window region instead. */
 
-#define PIN_COLS 6
-#define PIN_ROWS 4
+#define PIN_ROWS (setu_theme.start_rows)
 
 static int shadow_px;              /* the margin; 0 when there's no shadow */
 static HBITMAP backdrop;           /* what was under the window */
@@ -1851,7 +1887,7 @@ static void panel_rect(RECT *r)
 static int panel_left(void) { RECT r; panel_rect(&r); return r.left; }
 static int panel_top(void) { RECT r; panel_rect(&r); return r.top; }
 static int menu_width(void) { RECT r; panel_rect(&r); return r.right - r.left; }
-static int tile_cols(void) { return PIN_COLS; }
+static int tile_cols(void) { return setu_theme.start_columns; }
 static int tiles_top(void) { return panel_top() + S(116); }
 static int tiles_visible(void) { return !search_text[0] && view == VIEW_PINNED; }
 static int list_visible(void) { return search_text[0] || view == VIEW_ALL; }
@@ -2320,7 +2356,7 @@ static void paint_selection(struct setu_canvas *cv, const RECT *r)
     if (kbd_sel || search_text[0])
     {
         st_round(cv, r, S(ST_RADIUS_CONTROL), st_selection());
-        st_frame(cv, r, S(ST_RADIUS_CONTROL), max(1, S(1)), ST->accent);
+        st_frame(cv, r, S(ST_RADIUS_CONTROL), max(1, S(1)), ST->selection_border);
     }
     else st_round(cv, r, S(ST_RADIUS_CONTROL), ST->surface_hover);
 }
@@ -2338,12 +2374,12 @@ static void paint_header_button(struct setu_canvas *cv)
     if (sel && kbd_sel) st_focus_ring(cv, &r, S(ST_RADIUS_CONTROL), dpi);
     if (all)
     {
-        st_icon(cv, ICON_CHEVRON_LEFT, x, cy - isz / 2, isz, ST->text);
+        st_icon(cv, TI_CHEVRON_LEFT, x, cy - isz / 2, isz, ST->text);
         SetRect(&r, x + isz + S(4), r.top, r.right, r.bottom);
     }
     else
     {
-        st_icon(cv, ICON_CHEVRON_RIGHT, x + tw + S(4), cy - isz / 2, isz, ST->text);
+        st_icon(cv, TI_CHEVRON_RIGHT, x + tw + S(4), cy - isz / 2, isz, ST->text);
         SetRect(&r, x, r.top, x + tw + S(1), r.bottom);
     }
     st_text(cv, label, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
@@ -2401,7 +2437,7 @@ static void paint_row(struct setu_canvas *cv, int i, int y)
         }
         if (a->pinned)
         {
-            st_icon(cv, ICON_PIN, r.right - S(14), y + (h - S(14)) / 2, S(14), ST->text_secondary);
+            st_icon(cv, TI_PIN, r.right - S(14), y + (h - S(14)) / 2, S(14), ST->text_secondary);
             r.right -= S(22);
         }
         st_text(cv, a->name, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
@@ -2413,7 +2449,7 @@ static void paint_row(struct setu_canvas *cv, int i, int y)
         WCHAR count[16];
         if (sel) paint_selection(cv, &r);
         draw_folder(cv, r.left + S(12), y + (h - isz) / 2, isz);
-        st_icon(cv, g->expanded ? ICON_CHEVRON_UP : ICON_CHEVRON_DOWN, r.right - S(28), y + (h - S(16)) / 2, S(16),
+        st_icon(cv, g->expanded ? TI_CHEVRON_UP : TI_CHEVRON_DOWN, r.right - S(28), y + (h - S(16)) / 2, S(16),
                 ST->text_secondary);
         r.left += S(12) + isz + S(12);
         r.right -= S(40);
@@ -2441,7 +2477,7 @@ static void paint_launcher(struct setu_canvas *cv, const RECT *rc)
         DeleteDC(m);
         r = panel;
         OffsetRect(&r, 0, S(2));
-        st_shadow(cv, &r, rad, shadow_px, 72);
+        st_shadow(cv, &r, rad, shadow_px);
     }
     else st_fill(cv, rc, ST->surface);
     st_round(cv, &panel, rad, ST->surface);
@@ -2456,7 +2492,7 @@ static void paint_launcher(struct setu_canvas *cv, const RECT *rc)
         st_round(cv, &search_rc, S(ST_RADIUS_CONTROL), ST->accent);
         st_clip(cv, NULL);
     }
-    st_icon(cv, ICON_SEARCH, search_rc.left + S(12), (search_rc.top + search_rc.bottom - S(16)) / 2, S(16),
+    st_icon(cv, TI_SEARCH, search_rc.left + S(12), (search_rc.top + search_rc.bottom - S(16)) / 2, S(16),
             ST->text_secondary);
 
     /* header: the view's title and the button that switches views */
@@ -2530,13 +2566,13 @@ static void paint_launcher(struct setu_canvas *cv, const RECT *rc)
         st_fill(cv, &f, ST->border_subtle);
 
         if (sel_kind == SEL_USER) paint_selection(cv, &user_btn);
-        st_icon(cv, ICON_CIRCLE_USER_ROUND, user_btn.left + S(10), (user_btn.top + user_btn.bottom - S(24)) / 2, S(24),
+        st_icon(cv, TI_USER, user_btn.left + S(10), (user_btn.top + user_btn.bottom - S(24)) / 2, S(24),
                 ST->text);
         SetRect(&r, user_btn.left + S(10) + S(24) + S(10), user_btn.top, user_btn.right - S(8), user_btn.bottom);
         st_text(cv, user_name, &r, SF_BODY, ST->text, DT_SINGLELINE | DT_VCENTER | DT_LEFT | DT_END_ELLIPSIS);
 
         if (sel_kind == SEL_POWER) paint_selection(cv, &power_btn);
-        st_icon_in(cv, ICON_POWER, &power_btn, S(20), ST->text);
+        st_icon_in(cv, TI_POWER, &power_btn, S(20), ST->text);
 
         if (status_text[0]) lstrcpynW(text, status_text, ARRAYSIZE(text));
         else if (a && a->desc[0]) lstrcpynW(text, a->desc, ARRAYSIZE(text));
@@ -3098,6 +3134,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
 
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     dpi = get_window_dpi(NULL);
+    st_theme_reload();
     make_fonts();
     field_brush = CreateSolidBrush(ST->surface);
     load_settings();
