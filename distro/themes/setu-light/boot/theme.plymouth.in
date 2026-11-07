@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=@Theme.Name@
+Description=Setu boot splash (@Theme.Id@): the Setu mark and a spinner, generated from the theme pack
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/@Theme.Id@
+ScriptFile=/usr/share/plymouth/themes/@Theme.Id@/setu.script

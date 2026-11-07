@@ -1,0 +1,8 @@
+# Environment for every labwc session in Setu (the desktop session, the
+# installer and the first-boot wizard), generated from the active theme
+# pack's [Cursor] (/usr/lib/setu/setu-theme-linux); labwc passes it on to
+# Xwayland, the personality and Calamares. winex11 maps the standard
+# Windows cursors (IDC_ARROW, IDC_IBEAM, ...) to the theme's cursors
+# through libXcursor; a program's own cursors stay its own.
+XCURSOR_THEME=@Cursor.theme@
+XCURSOR_SIZE=@Cursor.size@

@@ -1,8 +1,0 @@
-[Plymouth Theme]
-Name=Setu
-Description=Setu boot splash: the Setu mark and a spinner on window-bg (docs/DESIGN.md)
-ModuleName=script
-
-[script]
-ImageDir=/usr/share/plymouth/themes/setu
-ScriptFile=/usr/share/plymouth/themes/setu/setu.script

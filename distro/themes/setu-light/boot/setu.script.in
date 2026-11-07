@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 # Setu boot splash (Plymouth script module): the Setu mark and name in the
-# middle of a window-bg (#F3F3F3) screen, an accent spinner under it, and a
-# message line at the bottom (fsck progress, password prompts). Colours and
-# images: docs/DESIGN.md, distro/artwork/branding.py.
+# middle of a screen in the pack's [Boot] background, an accent spinner
+# under it, and a message line at the bottom (fsck progress, password
+# prompts). A template filled from the pack's tokens by
+# distro/themes/render-packs.py; images: the pack's artwork/branding.py.
 
-Window.SetBackgroundTopColor(0.953, 0.953, 0.953);
-Window.SetBackgroundBottomColor(0.953, 0.953, 0.953);
+Window.SetBackgroundTopColor(@Boot.background|rgbf@);
+Window.SetBackgroundBottomColor(@Boot.background|rgbf@);
 
 W = Window.GetWidth();
 H = Window.GetHeight();
@@ -34,7 +35,7 @@ Plymouth.SetRefreshFunction(refresh);
 # messages (e.g. "Checking disk..."): one line near the bottom, secondary text
 message.sprite = Sprite();
 fun show_message(text) {
-    message.image = Image.Text(text, 0.373, 0.373, 0.373);
+    message.image = Image.Text(text, @text-secondary|rgbf@);
     message.sprite.SetImage(message.image);
     message.sprite.SetPosition(Window.GetX() + W / 2 - message.image.GetWidth() / 2, Window.GetY() + H * 0.9, 3);
 }
@@ -45,12 +46,12 @@ Plymouth.SetMessageFunction(show_message);
 prompt.sprite = Sprite();
 bullets.sprite = Sprite();
 fun display_password(prompt_text, count) {
-    prompt.image = Image.Text(prompt_text, 0.106, 0.106, 0.106);
+    prompt.image = Image.Text(prompt_text, @text|rgbf@);
     prompt.sprite.SetImage(prompt.image);
     prompt.sprite.SetPosition(Window.GetX() + W / 2 - prompt.image.GetWidth() / 2, spinner.cy + 40, 4);
     s = "";
     for (i = 0; i < count; i++) s += "*";
-    bullets.image = Image.Text(s, 0.106, 0.106, 0.106);
+    bullets.image = Image.Text(s, @text|rgbf@);
     bullets.sprite.SetImage(bullets.image);
     bullets.sprite.SetPosition(Window.GetX() + W / 2 - bullets.image.GetWidth() / 2, spinner.cy + 64, 4);
     prompt.sprite.SetOpacity(1);

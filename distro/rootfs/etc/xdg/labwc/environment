@@ -1,8 +1,0 @@
-# Environment for every labwc session in Setu (the desktop session, the
-# installer and the first-boot wizard); labwc passes it on to Xwayland, the
-# personality and Calamares. Cursors: the Adwaita X cursor theme
-# (adwaita-icon-theme) at 24 px. The personality uses it too: winex11 maps
-# the standard Windows cursors (IDC_ARROW, IDC_IBEAM, ...) to the theme's
-# cursors through libXcursor; a program's own cursors stay its own.
-XCURSOR_THEME=Adwaita
-XCURSOR_SIZE=24

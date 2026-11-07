@@ -1,0 +1,40 @@
+# labwc theme for the Setu session, generated from the active theme pack
+# (/usr/lib/setu/setu-theme-linux; fonts and corner radius: rc.xml). It
+# only shows on windows that are not Windows programs and that ask labwc
+# for decorations, its menus and its window
+# switcher; the personality's desktop window is fullscreen and undecorated,
+# and Windows programs draw their own frames inside it.
+border.width: 1
+padding.width: 0
+window.titlebar.padding.width: 8
+window.titlebar.padding.height: 0
+window.label.text.justify: left
+
+window.active.border.color: @border@
+window.inactive.border.color: @border@
+window.active.title.bg.color: @titlebar-active@
+window.inactive.title.bg.color: @titlebar-inactive@
+window.active.label.text.color: @titlebar-text@
+window.inactive.label.text.color: @titlebar-text-inactive@
+window.active.button.unpressed.image.color: @titlebar-text@
+window.inactive.button.unpressed.image.color: @titlebar-text-inactive@
+window.button.width: @Metrics.caption-button-width@
+window.button.height: @Metrics.caption-height@
+window.button.hover.bg.color: @surface-hover@
+window.button.hover.bg.corner-radius: 0
+
+menu.border.width: 1
+menu.border.color: @border@
+menu.items.bg.color: @menu@
+menu.items.text.color: @text@
+menu.items.active.bg.color: @surface-hover@
+menu.items.active.text.color: @text@
+menu.items.padding.x: 12
+menu.items.padding.y: 6
+menu.separator.color: @border-subtle@
+
+osd.bg.color: @surface@
+osd.border.color: @border@
+osd.border.width: 1
+osd.label.text.color: @text@
+osd.window-switcher.item.active.border.color: @accent@
