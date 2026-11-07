@@ -209,6 +209,13 @@ BOOL WINAPI SetDeskWallpaper( const char *filename )
     return SystemParametersInfoA( SPI_SETDESKWALLPAPER, MAX_PATH, (void *)filename, SPIF_UPDATEINIFILE );
 }
 
+static BOOL CALLBACK redraw_window( HWND hwnd, LPARAM lparam )
+{
+    if (IsWindowVisible( hwnd ))
+        NtUserRedrawWindow( hwnd, NULL, 0, RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN );
+    return TRUE;
+}
+
 /***********************************************************************
  *           update_wallpaper
  */
@@ -238,6 +245,12 @@ BOOL update_wallpaper( const WCHAR *wallpaper, const WCHAR *pattern )
         }
     }
     init_wallpaper( wallpaper );
-    NtUserRedrawWindow( GetDesktopWindow(), 0, 0, RDW_INVALIDATE | RDW_ERASE | RDW_NOCHILDREN );
+    NtUserRedrawWindow( GetDesktopWindow(), 0, 0, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_NOCHILDREN );
+    /* Setu: in a virtual desktop the new wallpaper is drawn straight to the
+     * desktop X window, over the windows on it, and reaches the display when
+     * this thread goes idle. Let it get there (waiting flushes it), then have
+     * every window repaint itself on top. */
+    NtUserMsgWaitForMultipleObjectsEx( 0, NULL, 0, QS_ALLINPUT, 0 );
+    EnumWindows( redraw_window, 0 );
     return TRUE;
 }
