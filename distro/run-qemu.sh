@@ -18,6 +18,9 @@
 #   --cdrom FILE     also attach FILE (e.g. the installer ISO) as a CD-ROM
 #                    (drive id cd0); the disk stays first in the boot order
 #   --daemonize      return once QEMU is running (pid in RUN_DIR/qemu.pid)
+#   --gl [NODE]      3D graphics: a virgl virtio-gpu rendered by the host GPU
+#                    (render node, default /dev/dri/renderD128) through
+#                    egl-headless; the screen still goes out over VNC
 #   --cpus N, --mem MB   (default: 4, 4096)
 #   -h, --help
 set -euo pipefail
@@ -34,6 +37,7 @@ CPUS=4
 MEM=4096
 EXTRA=()
 CDROM=
+GL=
 
 usage() { sed -n '2,/^set -euo/{/^set -euo/d;s/^# \{0,1\}//;p}' "$0"; }
 while [ $# -gt 0 ]; do
@@ -46,6 +50,7 @@ while [ $# -gt 0 ]; do
         --snapshot) EXTRA+=(-snapshot) ;;
         --cdrom) CDROM=$2; shift ;;
         --daemonize) DAEMONIZE=1 ;;
+        --gl) if [ $# -gt 1 ] && [ "${2#/dev/}" != "$2" ]; then GL=$2; shift; else GL=/dev/dri/renderD128; fi ;;
         --cpus) CPUS=$2; shift ;;
         --mem) MEM=$2; shift ;;
         -h|--help) usage; exit 0 ;;
@@ -67,6 +72,13 @@ fi
 [ "$VNC" != 1 ] || { echo "VNC :1 (5901) belongs to the oracle Windows VM" >&2; exit 1; }
 mkdir -p "$RUN" "$(dirname "$SERIAL")"
 
+if [ -n "$GL" ]; then
+    [ -e "$GL" ] || { echo "no render node $GL for --gl" >&2; exit 1; }
+    GPU=(-device virtio-vga-gl -display "egl-headless,rendernode=$GL" -vnc "127.0.0.1:$VNC")
+else
+    GPU=(-device virtio-vga -display "vnc=127.0.0.1:$VNC")
+fi
+
 # Per-image writable copy of the UEFI variable store.
 OVMF_CODE=/usr/share/OVMF/OVMF_CODE_4M.fd
 [ -f "$RUN/OVMF_VARS.fd" ] || cp /usr/share/OVMF/OVMF_VARS_4M.fd "$RUN/OVMF_VARS.fd"
@@ -77,10 +89,9 @@ exec qemu-system-x86_64 -enable-kvm -cpu host -smp "$CPUS" -m "$MEM" \
     -drive "if=pflash,format=raw,readonly=on,file=$OVMF_CODE" \
     -drive "if=pflash,format=raw,file=$RUN/OVMF_VARS.fd" \
     "${DISK[@]}" \
-    -device virtio-vga \
+    "${GPU[@]}" \
     -device qemu-xhci -device usb-tablet -device usb-kbd \
     -nic "user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:$SSH_PORT-:22" \
-    -display "vnc=127.0.0.1:$VNC" \
     -serial "file:$SERIAL" \
     -monitor "unix:$RUN/monitor.sock,server,nowait" \
     "${EXTRA[@]}"

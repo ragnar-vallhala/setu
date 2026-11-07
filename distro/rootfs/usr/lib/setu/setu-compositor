@@ -1,0 +1,35 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Start labwc with setu-session, choosing the renderer from the hardware.
+# A GPU with 3D gets wlroots' GPU renderer (wlroots picks it itself); without
+# one, the software renderer (pixman), which is faster than emulated GL.
+#   - a DRM render node from a real GPU driver counts as 3D;
+#   - QEMU's virtio-gpu always has a render node, so it counts only when the
+#     device offers VIRTIO_GPU_F_VIRGL (feature bit 0, the first character of
+#     the virtio device's sysfs "features"), i.e. `distro/run-qemu.sh --gl`.
+# Used by setu-session.service and the password-login profile script.
+gpu_3d() {
+    for node in /sys/class/drm/renderD*; do
+        [ -e "$node" ] || continue
+        dev=$(readlink -f "$node/device")
+        virtio=
+        for v in "$dev"/virtio*; do
+            [ -r "$v/features" ] && virtio=$v
+        done
+        if [ -z "$virtio" ]; then
+            return 0                        # a real GPU
+        fi
+        case $(cat "$virtio/features") in
+            1*) return 0 ;;                 # virtio-gpu with virgl
+        esac
+    done
+    return 1
+}
+if gpu_3d; then
+    unset WLR_RENDERER
+    echo "setu-compositor: 3D GPU found, using the GPU renderer" >&2
+else
+    export WLR_RENDERER=pixman
+    echo "setu-compositor: no 3D GPU, using the software renderer" >&2
+fi
+exec /usr/bin/labwc -S /usr/local/bin/setu-session

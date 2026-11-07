@@ -7,8 +7,8 @@
 # to the login prompt.
 if [ "$(tty 2>/dev/null)" = /dev/tty1 ] && [ -z "${WAYLAND_DISPLAY:-}" ] && [ "$(id -u)" -ne 0 ] \
     && [ -x /usr/local/bin/setu-session ]; then
-    # QEMU's virtio-gpu has no 3D: wlroots' software renderer (setu-session.service)
-    export WLR_RENDERER=pixman WLR_NO_HARDWARE_CURSORS=1 XDG_SESSION_TYPE=wayland
+    # the renderer (GPU or software) is chosen by setu-compositor
+    export WLR_NO_HARDWARE_CURSORS=1 XDG_SESSION_TYPE=wayland
     # the keyboard layout chosen in the wizard
     if [ -r /etc/default/keyboard ]; then
         XKBMODEL= XKBLAYOUT= XKBVARIANT= XKBOPTIONS=
@@ -17,5 +17,5 @@ if [ "$(tty 2>/dev/null)" = /dev/tty1 ] && [ -z "${WAYLAND_DISPLAY:-}" ] && [ "$
             XKB_DEFAULT_VARIANT="$XKBVARIANT" XKB_DEFAULT_OPTIONS="$XKBOPTIONS"
     fi
     cd "$HOME" || true
-    exec /usr/bin/labwc -S /usr/local/bin/setu-session
+    exec /usr/lib/setu/setu-compositor
 fi
