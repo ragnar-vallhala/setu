@@ -27,6 +27,8 @@ UtmpMode=user
 Environment=WLR_RENDERER=pixman
 Environment=WLR_NO_HARDWARE_CURSORS=1
 Environment=XDG_SESSION_TYPE=wayland
+# labwc's theme, fonts and cursor from the active theme pack, before it starts
+ExecStartPre=-/usr/local/bin/setu-session --labwc
 ExecStart=/usr/bin/labwc -S /usr/local/bin/setu-session
 Restart=always
 RestartSec=3

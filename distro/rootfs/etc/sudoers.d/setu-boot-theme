@@ -1,0 +1,4 @@
+# The session switches the boot splash to the active theme pack
+# (/usr/lib/setu/setu-boot-theme validates the pack id and only rebuilds the
+# initramfs when it changed).
+%sudo ALL=(root) NOPASSWD: /usr/lib/setu/setu-boot-theme

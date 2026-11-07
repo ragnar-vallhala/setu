@@ -19,8 +19,92 @@
 #   WINEPREFIX        default ~/.setu/prefix
 #   SETU_RES          desktop size WxH (default: the first connected DRM
 #                     output's preferred mode, else 1280x800)
+#   SETU_THEME_EXE    the theme tool (default /opt/setu/shell/setu-theme.exe)
+#
+# setu-session --labwc only writes labwc's config for the active theme pack.
 
 log() { echo "setu-session: $*"; }
+
+# ---- theme ------------------------------------------------------------------
+# active_theme: HKCU\Software\Setu\Theme\Current from the prefix's user.reg
+# (read before the personality runs), when that pack exists; else setu-light.
+active_theme() {
+    _id=$(awk '
+        /^\[/ { s = tolower($0) ~ /^\[software\\\\setu\\\\theme\]/; next }
+        s && tolower($0) ~ /^"current"="/ { v = $0; sub(/^"[^"]*"="/, "", v); sub(/".*/, "", v); print v; exit }
+    ' "$WINEPREFIX/user.reg" 2>/dev/null)
+    case $_id in ''|*[!a-z0-9-]*) _id=setu-light ;; esac
+    [ "$_id" = setu-light ] || /usr/lib/setu/setu-theme-linux find "$_id" >/dev/null 2>&1 || {
+        log "theme: $_id not found, using setu-light" >&2; _id=setu-light; }
+    echo "$_id"
+}
+
+# theme_sync: the system's packs, icons, wallpapers, cursors and sounds on C:
+theme_sync() {
+    [ -x /usr/lib/setu/setu-theme-sync ] && [ -d "$WINEPREFIX/dosdevices/c:" ] &&
+        /usr/lib/setu/setu-theme-sync "$WINEPREFIX/dosdevices/c:/"
+}
+
+# theme_linux: labwc's theme, fonts and cursor from the active pack
+# (~/.config/labwc), applied at once if they changed.
+theme_linux() {
+    _out=$(/usr/lib/setu/setu-theme-linux labwc "$THEME" "$HOME/.config/labwc" 2>&1) ||
+        log "labwc theme: $_out"
+    case $_out in *changed*) [ -n "${LABWC_PID:-}" ] && labwc --reconfigure 2>/dev/null ;; esac
+    XCURSOR_THEME=$(/usr/lib/setu/setu-theme-linux get "$THEME" Cursor theme 2>/dev/null)
+    XCURSOR_SIZE=$(/usr/lib/setu/setu-theme-linux get "$THEME" Cursor size 2>/dev/null)
+    XCURSOR_THEME=${XCURSOR_THEME:-setu-light} XCURSOR_SIZE=${XCURSOR_SIZE:-24}
+    log "theme: $THEME (cursor $XCURSOR_THEME $XCURSOR_SIZE)"
+}
+
+# theme_cursors_sounds: the .theme file's [Control Panel\Cursors] and
+# [AppEvents\Schemes\...] sections into HKCU (setu-theme.exe does not write
+# them yet), as a .reg file imported with regedit.
+theme_cursors_sounds() {
+    _dir=$(/usr/lib/setu/setu-theme-linux find "$THEME" 2>/dev/null) || return 0
+    [ -f "$_dir/$THEME.theme" ] || return 0
+    _reg=$(mktemp /tmp/setu-theme-XXXXXX.reg) || return 0
+    tr -d '\r' < "$_dir/$THEME.theme" | awk '
+        BEGIN { print "Windows Registry Editor Version 5.00" }
+        /^\[/ {
+            sec = substr($0, 2, length($0) - 2); on = 0
+            if (sec == "Control Panel\\Cursors" || index(sec, "AppEvents\\Schemes\\Apps\\") == 1) {
+                on = 1; print ""
+                if (!scheme && index(sec, "AppEvents") == 1) {  # the active scheme: .Current
+                    scheme = 1; print "[HKEY_CURRENT_USER\\AppEvents\\Schemes]"; print "@=\".Current\""; print ""
+                }
+                print "[HKEY_CURRENT_USER\\" sec "]"
+            }
+            next
+        }
+        on && /=/ && !/^;/ {
+            k = substr($0, 1, index($0, "=") - 1); v = substr($0, index($0, "=") + 1)
+            sub(/^%[Ww][Ii][Nn][Dd][Ii][Rr]%/, "C:\\Windows", v)
+            gsub(/\\/, "\\\\", v)
+            print (k == "DefaultValue" ? "@" : "\"" k "\"") "=\"" v "\""
+        }' > "$_reg"
+    wine regedit /S "$(winepath -w "$_reg" 2>/dev/null)" >/dev/null 2>&1
+    rm -f "$_reg"
+}
+
+# theme_fallback: without setu-theme.exe (an image built without the shell),
+# the pack's wallpaper and the font smoothing, through wine reg.
+theme_fallback() {
+    wine reg add 'HKCU\Software\Setu\Theme' /v Current /d "$THEME" /f >/dev/null 2>&1
+    wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothing /t REG_SZ /d 2 /f >/dev/null 2>&1
+    wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingType /t REG_DWORD /d 2 /f >/dev/null 2>&1
+    [ -f "/usr/share/setu/themes/$THEME/wallpaper/wallpaper.bmp" ] || return 0
+    _cur=$(wine reg query 'HKCU\Control Panel\Desktop' /v Wallpaper 2>/dev/null \
+           | tr -d '\r' | sed -n 's/^ *Wallpaper *REG_SZ *//p')
+    case $(echo "$_cur" | tr A-Z a-z) in
+        ''|*'\resources\themes\'*)
+            wine reg add 'HKCU\Control Panel\Desktop' /v Wallpaper \
+                /d "C:\\Windows\\Resources\\Themes\\$THEME\\wallpaper\\wallpaper.bmp" /f >/dev/null 2>&1
+            wine reg add 'HKCU\Control Panel\Desktop' /v WallpaperStyle /d 10 /f >/dev/null 2>&1
+            wine reg add 'HKCU\Control Panel\Desktop' /v TileWallpaper /d 0 /f >/dev/null 2>&1 ;;
+    esac
+    log "theme: applied without setu-theme.exe (wallpaper and font smoothing only)"
+}
 
 SETU_PERSONALITY=${SETU_PERSONALITY:-/opt/setu/personality}
 if [ -x "$SETU_PERSONALITY/bin/wine" ]; then
@@ -34,6 +118,17 @@ export WINEPREFIX="${WINEPREFIX:-$HOME/.setu/prefix}"
 export WINEDEBUG="${WINEDEBUG:--all}"
 export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-mshtml=}"  # no Gecko prompt (Wine Mono is bundled)
 mkdir -p "$(dirname "$WINEPREFIX")"
+
+# Theme packs: the user's own (%LOCALAPPDATA%\Setu\Themes), then the system's.
+export SETU_THEME_PATH="$WINEPREFIX/dosdevices/c:/users/$(id -un)/AppData/Local/Setu/Themes:/usr/share/setu/themes"
+THEME=$(active_theme)
+# --labwc: only write labwc's config for the active pack (setu-session.service
+# runs this before labwc starts, so its theme and cursor are right from the
+# first frame).
+if [ "${1:-}" = --labwc ]; then
+    theme_linux
+    exit 0
+fi
 
 log "WAYLAND_DISPLAY=$WAYLAND_DISPLAY DISPLAY=$DISPLAY WINEPREFIX=$WINEPREFIX"
 
@@ -66,60 +161,31 @@ if [ -z "$SETU_RES" ]; then
 fi
 SETU_RES=${SETU_RES:-1280x800}
 
-# Setu's look (docs/DESIGN.md) for this prefix, set before the first program
-# opens the desktop (the desktop reads its wallpaper when it starts).
-# Font smoothing: on, reported as ClearType (FontSmoothing=2,
-# FontSmoothingType=2: what Windows reports by default), drawn in grayscale
-# (no FontSmoothingOrientation: the personality then antialiases ClearType
-# text in grayscale; Xwayland draws in software, often scaled in a VM window,
-# where colour fringes look worse). SETU_FONT_SMOOTHING=rgb draws subpixel
-# RGB instead. Set once per prefix; programs may change them afterwards.
-look=$WINEPREFIX/.setu-look-1
-if [ ! -f "$look" ]; then
-    wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothing /t REG_SZ /d 2 /f >/dev/null 2>&1
-    wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingType /t REG_DWORD /d 2 /f >/dev/null 2>&1
-    if [ "$SETU_FONT_SMOOTHING" = rgb ]; then
-        wine reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingOrientation /t REG_DWORD /d 1 /f >/dev/null 2>&1
+# The active theme pack (docs/THEMES.md): its colours, fonts, wallpaper,
+# cursors, sounds and icons for Windows programs (setu-theme apply --login),
+# and the same look for labwc and the boot splash.
+theme_sync
+theme_linux
+export XCURSOR_THEME XCURSOR_SIZE
+SETU_THEME_EXE=${SETU_THEME_EXE:-/opt/setu/shell/setu-theme.exe}
+if [ -f "$SETU_THEME_EXE" ]; then
+    wine "$SETU_THEME_EXE" apply --login "$THEME"
+    rc=$?
+    log "setu-theme apply --login $THEME: exit $rc"
+    if [ "$rc" = 2 ] && [ "$THEME" != setu-light ]; then
+        THEME=setu-light
+        wine "$SETU_THEME_EXE" apply --login "$THEME"
+        theme_linux
     fi
-    : > "$look"
+else
+    theme_fallback
 fi
-# Wallpaper: Setu's (distro/artwork/wallpaper.py), drawn at common display
-# sizes. The desktop shows a .bmp centred and unscaled, so pick the one the
-# size of the display, else the smallest that covers it (its top left shows).
-# Only while the wallpaper is Setu's or unset: one a program or the user
-# chose stays.
-wallpaper_for() { # WxH
-    _dir=/usr/share/setu/wallpapers
-    [ -f "$_dir/setu-$1.bmp" ] && { echo "$_dir/setu-$1.bmp"; return; }
-    _w=${1%x*} _h=${1#*x} _best= _area=
-    for _f in "$_dir"/setu-*x*.bmp; do
-        [ -f "$_f" ] || continue
-        _s=${_f##*/setu-}; _s=${_s%.bmp}
-        [ "${_s%x*}" -ge "$_w" ] && [ "${_s#*x}" -ge "$_h" ] || continue
-        _a=$(( ${_s%x*} * ${_s#*x} ))
-        if [ -z "$_area" ] || [ "$_a" -lt "$_area" ]; then _best=$_f _area=$_a; fi
-    done
-    [ -n "$_best" ] || _best=$(ls "$_dir"/setu-*x*.bmp 2>/dev/null | tail -n1)
-    echo "$_best"
-}
-wp=$(wallpaper_for "$SETU_RES")
-if [ -n "$wp" ]; then
-    cur=$(wine reg query 'HKCU\Control Panel\Desktop' /v Wallpaper 2>/dev/null \
-          | tr -d '\r' | sed -n 's/^ *Wallpaper *REG_SZ *//p')
-    case $cur in
-        ''|*'\usr\share\setu\wallpapers\'*)
-            winwp="Z:$(echo "$wp" | tr / '\\')"
-            if [ "$cur" != "$winwp" ]; then
-                wine reg add 'HKCU\Control Panel\Desktop' /v Wallpaper /d "$winwp" /f >/dev/null 2>&1
-                # fill (aspect kept, cropped): used once the fork's
-                # PaintDesktop scales (look-fork's WallpaperStyle work);
-                # until then it is ignored and the size match above counts
-                wine reg add 'HKCU\Control Panel\Desktop' /v WallpaperStyle /d 10 /f >/dev/null 2>&1
-                wine reg add 'HKCU\Control Panel\Desktop' /v TileWallpaper /d 0 /f >/dev/null 2>&1
-            fi
-            log "wallpaper: $wp" ;;
-        *) log "wallpaper: $cur (chosen in Windows)" ;;
-    esac
+theme_cursors_sounds
+# The boot splash follows the active pack. It lives in the initramfs, which
+# setu-boot-theme rebuilds only when the pack changed (in the background:
+# the next boot shows it).
+if [ -f "/usr/share/plymouth/themes/$THEME/$THEME.plymouth" ] && [ -x /usr/lib/setu/setu-boot-theme ]; then
+    (sudo -n /usr/lib/setu/setu-boot-theme "$THEME" 2>&1 | sed 's/^/setu-session: /') &
 fi
 
 log "desktop: setu $SETU_RES"

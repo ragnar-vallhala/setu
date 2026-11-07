@@ -1,0 +1,158 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-theme-linux: the Linux side of Setu theme packs (docs/THEMES.md).
+# setu-theme.exe applies a pack to the Windows side; the parts that live
+# outside the personality (labwc's theme and fonts, the X cursor theme, the
+# boot splash) are files this script generates from the same theme.ini.
+# setu-session runs it at every login; the image build runs it for the
+# system-wide defaults. POSIX sh + awk only (the image has no Python).
+#
+#   setu-theme-linux find ID               the pack's directory
+#   setu-theme-linux get ID SECTION KEY    a token, Base= chain resolved
+#   setu-theme-linux fill ID TEMPLATE OUT  fill the first TEMPLATE (a path
+#                                          relative to a pack) in ID's chain
+#   setu-theme-linux labwc ID DIR          DIR/{themerc-override,rc.xml,environment}
+#
+# fill and labwc write a file only when its content changes and print
+# "changed FILE" for each one they write. Templates: @key@ is a [Colors]
+# token, @Section.key@ any token; filters: |face (the first font of a
+# list), |int (rounded), |weight (bold from 600 up, else normal), |nohash.
+#
+# Packs are looked up in SETU_THEME_PATH (directories separated by ':',
+# first match wins; default /usr/share/setu/themes). A pack without Base=
+# inherits from setu-light (THEMES.md: missing keys fall back to it).
+set -eu
+
+SETU_THEME_PATH=${SETU_THEME_PATH:-/usr/share/setu/themes}
+DEFAULT_PACK=setu-light
+
+die() { echo "setu-theme-linux: $*" >&2; exit 2; }
+
+valid_id() { case $1 in ''|*[!a-z0-9-]*) return 1 ;; esac; }
+
+find_pack() { # ID
+    valid_id "$1" || die "bad pack id '$1'"
+    _ifs=$IFS; IFS=:
+    for _d in $SETU_THEME_PATH; do
+        if [ -f "$_d/$1/theme.ini" ]; then IFS=$_ifs; echo "$_d/$1"; return 0; fi
+    done
+    IFS=$_ifs
+    return 1
+}
+
+# own_value FILE SECTION KEY: a value from one theme.ini (no chain)
+own_value() {
+    awk -v S="$2" -v K="$3" '
+        { sub(/\r$/, "") }
+        /^[ \t]*[;#]/ { next }
+        /^[ \t]*\[/ { s = $0; gsub(/^[ \t]*\[|\][ \t]*$/, "", s); next }
+        s == S && index($0, "=") {
+            k = substr($0, 1, index($0, "=") - 1); v = substr($0, index($0, "=") + 1)
+            gsub(/^[ \t]+|[ \t]+$/, "", k)
+            sub(/[ \t]+;.*$/, "", v); gsub(/^[ \t]+|[ \t]+$/, "", v)
+            if (k == K) r = v
+        }
+        END { printf "%s", r }' "$1"
+}
+
+# chain ID: the theme.ini files of ID's chain, base first, one per line
+chain() {
+    _id=$1 _list= _n=0
+    while [ -n "$_id" ]; do
+        _n=$((_n + 1)); [ $_n -le 8 ] || die "Base= chain of $1 too long (a loop?)"
+        _dir=$(find_pack "$_id") || die "pack '$_id' not found in $SETU_THEME_PATH"
+        _list="$_dir/theme.ini
+$_list"
+        _base=$(own_value "$_dir/theme.ini" Theme Base)
+        [ -z "$_base" ] && [ "$_id" != "$DEFAULT_PACK" ] && _base=$DEFAULT_PACK
+        _id=$_base
+    done
+    printf '%s' "$_list"
+}
+
+# render ID TEMPLATE [dump]: TEMPLATE filled from ID's merged tokens (with
+# dump: also print SECTION.KEY=VALUE for every token at the end)
+render() {
+    _files=$(chain "$1") _rc=0 _oifs=$IFS
+    # shellcheck disable=SC2086
+    set -f; IFS='
+'
+    awk -v TPL="$2" -v ID="$1" -v DUMP="${3:-}" '
+        FILENAME != TPL {
+            sub(/\r$/, "")
+            if ($0 ~ /^[ \t]*[;#]/) next
+            if ($0 ~ /^[ \t]*\[/) { s = $0; gsub(/^[ \t]*\[|\][ \t]*$/, "", s); next }
+            if (!index($0, "=")) next
+            k = substr($0, 1, index($0, "=") - 1); v = substr($0, index($0, "=") + 1)
+            gsub(/^[ \t]+|[ \t]+$/, "", k)
+            sub(/[ \t]+;.*$/, "", v); gsub(/^[ \t]+|[ \t]+$/, "", v)
+            if (!((s "." k) in tok)) order[++n] = s "." k
+            tok[s "." k] = v
+            next
+        }
+        function value(t,   sec, key, flt, v, p) {
+            flt = ""
+            if ((p = index(t, "|"))) { flt = substr(t, p + 1); t = substr(t, 1, p - 1) }
+            if (index(t, ".")) { sec = substr(t, 1, index(t, ".") - 1); key = substr(t, index(t, ".") + 1) }
+            else { sec = "Colors"; key = t }
+            if (sec == "Theme" && key == "Id") v = ID
+            else if (!((sec "." key) in tok)) { printf "setu-theme-linux: %s: no value for @%s@\n", ID, t > "/dev/stderr"; bad = 1; return "" }
+            else v = tok[sec "." key]
+            if (flt == "face") { sub(/,.*/, "", v); gsub(/^[ \t]+|[ \t]+$/, "", v) }
+            else if (flt == "int") v = sprintf("%.0f", v + 0)
+            else if (flt == "weight") v = (v + 0 >= 600) ? "bold" : "normal"
+            else if (flt == "nohash") sub(/^#/, "", v)
+            else if (flt != "") { printf "setu-theme-linux: unknown filter |%s\n", flt > "/dev/stderr"; bad = 1 }
+            return v
+        }
+        {
+            line = $0; out = ""
+            while (match(line, /@([A-Za-z]+\.)?[A-Za-z0-9-]+(\|[a-z]+)?@/)) {
+                out = out substr(line, 1, RSTART - 1) value(substr(line, RSTART + 1, RLENGTH - 2))
+                line = substr(line, RSTART + RLENGTH)
+            }
+            print out line
+        }
+        END {
+            if (DUMP != "") for (i = 1; i <= n; i++) print order[i] "=" tok[order[i]]
+            exit bad
+        }' $_files "$2" || _rc=$?
+    set +f; IFS=$_oifs
+    return $_rc
+}
+
+# template ID REL: the first REL in ID's chain (own pack first)
+template() {
+    for _f in $(chain "$1" | tac); do
+        [ -f "$(dirname "$_f")/$2" ] && { echo "$(dirname "$_f")/$2"; return 0; }
+    done
+    die "$1: no $2 in the pack or its Base chain"
+}
+
+fill() { # ID TEMPLATE OUT
+    _tpl=$(template "$1" "$2")
+    _tmp=$(mktemp "${3}.XXXXXX")
+    if ! render "$1" "$_tpl" > "$_tmp"; then rm -f "$_tmp"; die "cannot fill $_tpl"; fi
+    if [ -f "$3" ] && cmp -s "$_tmp" "$3"; then
+        rm -f "$_tmp"
+    else
+        chmod 644 "$_tmp"
+        mv "$_tmp" "$3"
+        echo "changed $3"
+    fi
+}
+
+cmd=${1:-}
+[ $# -gt 0 ] && shift
+case $cmd in
+    find) [ $# = 1 ] || die "usage: find ID"; find_pack "$1" || die "pack '$1' not found in $SETU_THEME_PATH" ;;
+    get)
+        [ $# = 3 ] || die "usage: get ID SECTION KEY"
+        render "$1" /dev/null dump | awk -v T="$2.$3" 'index($0, T "=") == 1 { print substr($0, length(T) + 2) }' ;;
+    fill) [ $# = 3 ] || die "usage: fill ID TEMPLATE OUT"; fill "$1" "$2" "$3" ;;
+    labwc)
+        [ $# = 2 ] || die "usage: labwc ID DIR"
+        mkdir -p "$2"
+        for f in themerc-override rc.xml environment; do fill "$1" "linux/$f.in" "$2/$f"; done ;;
+    *) sed -n '2,/^set -eu/{/^set -eu/d;s/^# \{0,1\}//;p}' "$0"; exit 1 ;;
+esac

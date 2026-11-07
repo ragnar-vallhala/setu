@@ -1,0 +1,39 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-boot-theme ID: make the boot splash the one of theme pack ID.
+#
+# Runs as root: setu-session calls it through sudo at every login with the
+# active pack (/etc/sudoers.d/setu-boot-theme allows exactly this command).
+# The splash lives in the initramfs, so this rebuilds it, but only when the
+# pack differs from the one in /etc/plymouth/plymouthd.conf: a login with
+# the same pack costs nothing. A rebuild takes 20-60 s; it runs in the
+# background of the session, and the next boot shows the new splash.
+# Only system packs have a splash (/usr/share/plymouth/themes/<id>, made at
+# image build time); for any other ID nothing changes.
+# Exit: 0 done or nothing to do, 1 usage, 2 no splash for ID.
+set -eu
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+id=${1:-}
+case $id in
+    ''|*[!a-z0-9-]*|-*) echo "usage: setu-boot-theme ID" >&2; exit 1 ;;
+esac
+[ -f "/usr/share/plymouth/themes/$id/$id.plymouth" ] \
+    || { echo "setu-boot-theme: no boot splash for $id" >&2; exit 2; }
+conf=/etc/plymouth/plymouthd.conf
+
+# one rebuild at a time; a later login waits for an earlier one
+exec 9>/run/setu-boot-theme.lock
+flock 9
+[ "$(sed -n 's/^Theme=//p' "$conf" 2>/dev/null)" = "$id" ] && exit 0
+
+tmp=$conf.new
+{
+    echo "# The boot splash: the active theme pack's (/usr/lib/setu/setu-boot-theme)."
+    echo "[Daemon]"
+    echo "Theme=$id"
+    echo "ShowDelay=0"
+} > "$tmp"
+mv "$tmp" "$conf"
+echo "setu-boot-theme: boot splash $id; rebuilding the initramfs"
+update-initramfs -u >/dev/null
+echo "setu-boot-theme: done"

@@ -1,0 +1,68 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-theme-sync CDRIVE: make the system's theme content visible on a C:
+# drive (docs/THEMES.md). Run by setu-session at every login, before
+# setu-theme applies the active pack, and by the image build for the dev
+# image's prefix.
+#
+# Everything is a symbolic link into /usr/share (the personality follows
+# unix links), so the files are not copied onto C: and an updated image
+# shows up at the next login. System packs are read-only from Windows, like
+# Windows' own; user packs go in %LOCALAPPDATA%\Setu\Themes.
+#   C:\Windows\Resources\Themes\<id>  -> /usr/share/setu/themes/<id>
+#   C:\Windows\Resources\Setu\Icons   -> /usr/share/setu/icons
+#   C:\Windows\Web\Wallpaper\Setu     -> /usr/share/setu/wallpapers/collection
+#   C:\Windows\Cursors\Setu           -> /usr/share/setu/cursors
+#   C:\Windows\Media\Setu             -> /usr/share/setu/sounds
+# A link left over from a pack the image no longer has is removed; real
+# folders (a user's own) are never touched.
+set -u
+C=${1:?usage: setu-theme-sync CDRIVE}
+S=${SETU_SHARE:-/usr/share/setu}
+[ -d "$C" ] || { echo "setu-theme-sync: no C: drive at $C" >&2; exit 2; }
+
+# The Windows folder as it is spelled on this drive (C: is case-insensitive
+# on the system volume, but not in every prefix).
+win=$C/windows
+for d in "$C"/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]; do [ -d "$d" ] && win=$d; done
+
+# dir NAME...: the path under $win, reusing existing spellings
+dir() {
+    _p=$win
+    for _n in "$@"; do
+        _f=
+        for _e in "$_p"/*; do
+            [ -d "$_e" ] || continue
+            [ "$(echo "${_e##*/}" | tr A-Z a-z)" = "$(echo "$_n" | tr A-Z a-z)" ] && { _f=$_e; break; }
+        done
+        _p=${_f:-$_p/$_n}
+    done
+    echo "$_p"
+}
+
+# link TARGET LINK: LINK -> TARGET unless LINK is a real file or folder
+link() {
+    if [ -L "$2" ]; then
+        [ "$(readlink "$2")" = "$1" ] && return
+        rm -f "$2"
+    elif [ -e "$2" ]; then
+        return
+    fi
+    mkdir -p "$(dirname "$2")" && ln -s "$1" "$2"
+}
+
+themes=$(dir Resources Themes)
+mkdir -p "$themes"
+for p in "$S"/themes/*/; do
+    [ -f "$p/theme.ini" ] || continue
+    p=${p%/}
+    link "$p" "$themes/${p##*/}"
+done
+for l in "$themes"/*; do  # links to packs that are gone
+    [ -L "$l" ] && [ ! -e "$l" ] && case $(readlink "$l") in "$S"/themes/*) rm -f "$l" ;; esac
+done
+[ -d "$S/icons" ] && link "$S/icons" "$(dir Resources Setu)/Icons"
+[ -d "$S/wallpapers/collection" ] && link "$S/wallpapers/collection" "$(dir Web Wallpaper)/Setu"
+[ -d "$S/cursors" ] && link "$S/cursors" "$(dir Cursors)/Setu"
+[ -d "$S/sounds" ] && link "$S/sounds" "$(dir Media)/Setu"
+exit 0
