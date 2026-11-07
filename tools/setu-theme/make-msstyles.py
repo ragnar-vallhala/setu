@@ -826,7 +826,7 @@ def pack(args):
         render(tmp, todo, args.jobs)
         res = os.path.join(tmp, "setu.res")
         inc = os.path.join(WINE, "include")
-        subprocess.run([wrc, "-I" + tmp, "-I" + inc, "-I" + os.path.join(inc, "msvcrt"),
+        subprocess.run([wrc, "-u", "--nostdinc", "-I" + tmp, "-I" + inc, "-I" + os.path.join(inc, "msvcrt"),
                         "-o", res, os.path.join(tmp, "setu.rc")], check=True)
         out = os.path.abspath(args.out)
         os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
