@@ -169,8 +169,8 @@ pass "registry after login: Current=setu-dark"
 wait_taskbar setu-dark "$DARK_BAR" 30 || fail "taskbar is #$(taskbar setu-dark) after login, expected $DARK_BAR (see $OUT/setu-dark.png)"
 pass "taskbar after login #$(taskbar setu-dark) ~ setu-dark $DARK_BAR"
 gssh grep -q XCURSOR_THEME=setu-dark .config/labwc/environment || fail "~/.config/labwc/environment is not setu-dark's"
-gssh grep -qi "border.color: $DARK_BORDER" .config/labwc/themerc-override || fail "~/.config/labwc/themerc-override has no setu-dark border colour $DARK_BORDER"
-env=$(gssh 'tr "\0" "\n" < /proc/$(pgrep -f setu-shell.exe | head -1)/environ' | grep '^XCURSOR_THEME=' || true)
+gssh "grep -qi 'border.color: $DARK_BORDER' .config/labwc/themerc-override" || fail "~/.config/labwc/themerc-override has no setu-dark border colour $DARK_BORDER"
+env=$(gssh 'sudo -n cat /proc/$(pgrep -x setu-shell.exe | head -1)/environ | tr "\0" "\n"' | grep '^XCURSOR_THEME=' || true)
 [ "$env" = XCURSOR_THEME=setu-dark ] || fail "the session has '$env', expected XCURSOR_THEME=setu-dark"
 pass "labwc and cursor after login: setu-dark ($env)"
 for i in $(seq 60); do

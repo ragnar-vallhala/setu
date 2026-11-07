@@ -121,6 +121,12 @@ mkdir -p "$(dirname "$WINEPREFIX")"
 
 # Theme packs: the user's own (%LOCALAPPDATA%\Setu\Themes), then the system's.
 export SETU_THEME_PATH="$WINEPREFIX/dosdevices/c:/users/$(id -un)/AppData/Local/Setu/Themes:/usr/share/setu/themes"
+# A personality left over from an earlier session (one started over SSH
+# outlives the service) keeps the registry in memory: stop it, which writes
+# user.reg, so the active pack read below is current.
+if [ -f "$WINEPREFIX/user.reg" ] && wineserver -k 2>/dev/null; then
+    wineserver -w 2>/dev/null
+fi
 THEME=$(active_theme)
 # --labwc: only write labwc's config for the active pack (setu-session.service
 # runs this before labwc starts, so its theme and cursor are right from the
