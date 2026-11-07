@@ -76,6 +76,19 @@ Status 2026-11-06, against the interim Windows 10 22H2 oracle (310 tests,
   artwork comes from a swappable pack; `setu-theme` applies one; ships
   `setu-light` (default) and `setu-dark`.
 
+- Linux apps alongside Windows apps: Setu runs both, and the desktop
+  treats them the same.
+  - Taskbar: lists and switches Linux (Wayland/X11) windows too, through
+    labwc's foreign-toplevel protocol and a small bridge to setu-shell.
+  - Start menu and search: Linux apps from freedesktop `.desktop` entries
+    next to Windows `.lnk` shortcuts, with their icons.
+  - Look: GTK 3/4 and Qt themes generated from the active theme pack
+    (colours, light/dark, fonts, icons, cursors), so Linux apps follow
+    `setu-theme apply`.
+  - Installing: Flatpak with Flathub, alongside `.exe`/`.msi`.
+  - Files: one view of the disk; `.desktop` files and Linux executables
+    open from setu-files.
+
 ## Milestone 4: Daily driver alpha
 
 - Updates, recovery, Secure Boot-signed images.
