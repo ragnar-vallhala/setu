@@ -72,6 +72,9 @@ Status 2026-11-06, against the interim Windows 10 22H2 oracle (310 tests,
 - Look and feel: a modern, flat, light design of Setu's own
   (`docs/DESIGN.md`): control theme, window frames, Inter as the UI font,
   restyled taskbar, start menu and file manager, wallpaper and branding.
+- Theme packs (`docs/THEMES.md`): every colour, font, size, icon and
+  artwork comes from a swappable pack; `setu-theme` applies one; ships
+  `setu-light` (default) and `setu-dark`.
 
 ## Milestone 4: Daily driver alpha
 
