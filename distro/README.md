@@ -142,12 +142,12 @@ written to the raw output disk, which the host truncates to its size.
 | `layout.env` | the disk layout (ESP, root, C: sizes, names, labels, GPT types), read by the builder and the installer |
 | `rootfs/usr/lib/setu/setu-cvol-init` | makes an ext4 volume into C: (casefold, label, `lost+found` hidden); used by both |
 | `installer/` | the ISO's extra packages, GRUB menu, Calamares config and branding, first-boot wizard |
-| `installer/make-artwork.sh` | regenerates the branding PNGs (runs `artwork/branding.py`) |
-| `artwork/` | Setu's artwork drawn from code: `wallpaper.py` (the wallpaper, at any size), `branding.py` (the mark, Calamares and boot splash images) |
+| `themes/` | the theme packs' sources and their build (section "Theme packs" below) |
+| `rootfs/usr/lib/setu/setu-theme-linux`, `setu-theme-sync`, `setu-boot-theme` | the active pack for labwc and the cursor, the system's packs on C:, the boot splash (all run by `setu-session`) |
 | `packages.list` | packages in the image (`packages-wine-debian.list` for `--wine=debian`) |
 | `rootfs/` | files copied into the image as-is |
-| `rootfs/usr/local/bin/setu-session` | the session launcher (personality, desktop size, shell) |
-| `rootfs/etc/xdg/labwc/` | labwc config: no decorations, key bindings or root menu; theme and cursor environment |
+| `rootfs/usr/local/bin/setu-session` | the session launcher (personality, active theme pack, desktop size, shell) |
+| `rootfs/etc/xdg/labwc/` | labwc config: no decorations, key bindings or root menu (`menu.xml`); the theme, fonts and cursor environment are rendered from the default pack into the image's `/etc/xdg/labwc` and from the active pack into `~/.config/labwc` |
 | `rootfs/etc/systemd/system/setu-session.service` | tty1 autologin running `labwc -S setu-session` |
 | `../services/fs/` | drive-letter service and its units, installed by `build-image.sh` |
 | `run-qemu.sh` | boots the image (OVMF, virtio-gpu, VNC, serial log, monitor socket) |
@@ -362,16 +362,16 @@ installed systems too). Licences: NOTICE §5.
 | What | Where | Notes |
 |---|---|---|
 | Fonts | `packages.list`: `fonts-inter`, `fonts-jetbrains-mono`, `fontconfig`; `rootfs/etc/fonts/local.conf` | The personality enumerates fonts through fontconfig, so Windows programs see **Inter** and **JetBrains Mono** (and DejaVu); the personality's `FontSubstitutes` (wine.inf) map the Windows UI face names to Inter. For Linux programs (Calamares, foot, labwc) `sans-serif` is Inter and `monospace` JetBrains Mono; antialiased, slight hinting, grayscale. |
-| Font smoothing | `setu-session` | Once per prefix: `HKCU\Control Panel\Desktop` `FontSmoothing`=`2`, `FontSmoothingType`=2 (ClearType, what Windows reports by default) and no `FontSmoothingOrientation`, which makes the personality draw it in grayscale: Xwayland renders in software and the desktop is often viewed scaled in a VM window, where subpixel colour fringes look worse. `SETU_FONT_SMOOTHING=rgb` in the session's environment draws subpixel RGB instead. |
-| Wallpaper | `artwork/wallpaper.py`; `/usr/share/setu/wallpapers/setu-WxH.bmp`, `/usr/share/backgrounds/setu/setu-{1920x1080,3840x2160}.png` | Original soft blue waves with one orange ribbon, drawn from code (numpy + Pillow) in the builder VM at 16 common display sizes from 1024×768 to 3840×2160 (a "fill" crop of one 16:9 picture, ordered dithering). The personality's desktop window paints `HKCU\Control Panel\Desktop\Wallpaper` (user32 `PaintDesktop`), which loads only a `.bmp` and draws it centred and unscaled, so `setu-session` sets it to the `.bmp` of the display's size (else the smallest one that covers it). It does so only while the value is unset or one of these files, so a wallpaper chosen in Windows stays. |
-| Cursors | `packages.list`: `adwaita-icon-theme`; `rootfs/etc/xdg/labwc/environment` | `XCURSOR_THEME=Adwaita`, `XCURSOR_SIZE=24` for every labwc session (desktop, installer, wizard). labwc and Calamares use it, and so do Windows programs: winex11 maps the standard cursors (`IDC_ARROW`, `IDC_IBEAM`, `IDC_WAIT`, the sizing arrows...) to the theme's cursors through libXcursor. A program's own cursor resources stay as they are. Before: Wine's built-in black-and-white arrows. |
-| labwc theme | `rootfs/etc/xdg/labwc/themerc-override`, `rc.xml` `<theme>` | DESIGN.md colours, Inter, 8 px corners, 46×32 title buttons. It shows only on non-Windows windows that ask labwc for decorations, its menus and window switcher: the personality's desktop is one fullscreen, undecorated window and Windows programs draw their own frames inside it (the personality's theme), and Calamares runs fullscreen. |
-| Boot splash | `rootfs/usr/share/plymouth/themes/setu/` (script module), `rootfs/etc/plymouth/plymouthd.conf` | The Setu mark and name on `window-bg` with an accent spinner. `build-rootfs.sh` rebuilds the initramfs after the theme is in place. |
+| Font smoothing | the pack's `[Fonts] smoothing`, applied by `setu-theme` | Grayscale by default: Xwayland renders in software and the desktop is often viewed scaled in a VM window, where subpixel colour fringes look worse. Without `setu-theme.exe` in the image, `setu-session` writes `FontSmoothing`=2, `FontSmoothingType`=2 itself. |
+| Wallpaper | the pack's `[Wallpaper]`; `themes/setu-light/artwork/wallpaper.py`; the collection (`art/wallpapers/wallgen.py`) | Each of the distro's own packs has one 4K `wallpaper\wallpaper.bmp` (the personality's `PaintDesktop` loads only BMPs) with `WallpaperStyle=10` (fill), drawn at build time: setu-light's "silk" waves, setu-dark the collection's `ridges-setu-dark`. All 48 collection items are 4K JPEGs in `C:\Windows\Web\Wallpaper\Setu\<style>-<palette>.jpg`; the packs made from art/schemes name one, and `setu-theme` converts a non-BMP wallpaper to `%LOCALAPPDATA%\Setu\Wallpaper\<name>.bmp`. At login the pack's wallpaper replaces only an unset one or one of these, so a wallpaper chosen in Windows stays. |
+| Cursors | the pack's `[Cursor] theme`; `art/cursors/cursorgen.py` | One name for both sides: the X cursor theme `/usr/share/icons/<set>` (labwc, Calamares; `XCURSOR_THEME` from `~/.config/labwc/environment` and `setu-session`) and the `.cur`/`.ani` files in `C:\Windows\Cursors\Setu\<set>\` for Windows programs (the `.theme` file's `[Control Panel\Cursors]`). setu-light uses the white `setu-light` set, setu-dark the black `setu-dark` set. Adwaita stays installed as a fallback. |
+| labwc theme | `themes/setu-light/linux/*.in` | Rendered from the active pack (colours, Inter, corner radius, title button size) by `setu-theme-linux`. It shows only on non-Windows windows that ask labwc for decorations, its menus and window switcher: the personality's desktop is one fullscreen, undecorated window and Windows programs draw their own frames inside it (the personality's theme), and Calamares runs fullscreen. |
+| Boot splash | `themes/setu-light/boot/*.in`, `artwork/branding.py`; `/usr/share/plymouth/themes/<id>/` | One Plymouth script theme per system pack: the Setu mark and name on the pack's `[Boot] background` with an accent spinner. The image starts with the default pack's; `setu-boot-theme` switches it to the active pack (below). |
 | GRUB | `rootfs/etc/default/grub.d/setu.cfg`, `installer/grub.cfg` | Installed systems and the dev image: the menu is hidden (hold Shift or press Esc in the one-second wait), `quiet splash loglevel=3`. The serial console still gets everything (`console=ttyS0` is last, `plymouth.ignore-serial-consoles` keeps the splash on screen), which the smoke tests rely on. The ISO keeps its menu (3 s) for "safe graphics"; its default entry boots quietly with the splash. |
-| Installer | `installer/rootfs/usr/share/calamares/branding/setu/` (`branding.desc`, `stylesheet.qss`, PNGs from `artwork/branding.py`) | Light sidebar in the taskbar colour with the current step in the accent, the orange bridge mark, a welcome card and an install slide on the wallpaper, Inter, flat 4 px buttons and fields, the accent default button and a thin accent progress bar. Same texts as before. The first-boot wizard uses the same branding. |
+| Installer | `themes/setu-light/installer/*.in`, `artwork/branding.py`; `/usr/share/calamares/branding/setu/` | Rendered at build time from the default pack: light sidebar in `[Installer] sidebar` with the current step in the accent, the Setu app tile (`setu-app`) as the logo, a welcome card and an install slide on the wallpaper, Inter, flat 4 px buttons and fields, the accent default button and a thin accent progress bar. The first-boot wizard uses the same branding. |
 
-`installer/make-artwork.sh` (or `artwork/branding.py`) redraws the committed
-branding PNGs; it needs `python3-numpy`, `python3-pil` and `fonts-inter`.
+The images are no longer committed: `themes/render-packs.py` draws them at
+every image build (see "Theme packs").
 
 Before and after:
 
@@ -389,6 +389,91 @@ after: [installing](docs/install-progress.png),
 [first-boot users page](docs/install-firstboot-users.png).
 
 ![The boot splash](docs/look-splash.png)
+
+## Theme packs (distro/themes)
+
+Everything above that decides the look comes from the active **theme pack**
+(docs/THEMES.md); nothing in the distro scripts hard-codes a colour, font
+or size any more.
+
+| Path | What |
+|---|---|
+| `themes/setu-light/` | the default pack: `theme.ini` (docs/DESIGN.md's values), `pack.theme.in` (the `.theme` template), `artwork/` (wallpaper and branding scripts), `boot/`, `installer/`, `linux/` (templates with `@token@`s), `preview.png` |
+| `themes/setu-dark/` | `theme.ini` only, `Base=setu-light`: dark colours, the `ridges-setu-dark` wallpaper, `setu-dark` cursors |
+| `themes/themelib.py` | reads packs (the `Base=` chain), colour maths, the template filler |
+| `themes/render-packs.py` | builds every pack into the image (run on the host by `build-image.sh`) |
+| `themes/render-collection.py` | draws the wallpaper collection (run in the builder VM) |
+
+What the build installs (all in both the dev image and the ISO):
+
+| Image path | Seen in Windows as | What |
+|---|---|---|
+| `/usr/share/setu/themes/<id>/` | `C:\Windows\Resources\Themes\<id>\` | 14 built packs: setu-light, setu-dark and the 12 `setu-<palette>-<light\|dark>` packs of art/schemes; each has `<id>.theme`, `theme.ini`, `icons/` (ICOs at 16-256 px from its icon set), `visual/<id>.msstyles`, `boot/`, `preview.png`, `LICENSE` |
+| `/usr/share/setu/icons/<set>/` | `C:\Windows\Resources\Setu\Icons\<set>\` | the 5 icon sets of art/icons, for `[Icons] set=` |
+| `/usr/share/setu/wallpapers/collection/` | `C:\Windows\Web\Wallpaper\Setu\` | the 48 collection wallpapers (4K JPEG) |
+| `/usr/share/setu/cursors/<set>/`, `/usr/share/icons/<set>/` | `C:\Windows\Cursors\Setu\<set>\` | 3 cursor sets, Windows and X formats |
+| `/usr/share/setu/sounds/<scheme>/` | `C:\Windows\Media\Setu\<scheme>\` | 3 sound schemes (`[Sounds] scheme=`, the `.theme` file's `[AppEvents\Schemes\...]`); with no audio device nothing plays and nothing complains |
+| `/usr/share/plymouth/themes/<id>/` | | a boot splash per pack |
+
+The Windows paths are symbolic links that `setu-theme-sync` makes on the
+user's C: at every login (the build also makes them in the dev image's
+prefix): the files exist once, an updated image shows up at the next login,
+and system packs are read-only from Windows, like Windows' own. User packs
+go in `%LOCALAPPDATA%\Setu\Themes\<id>\`.
+
+**At login** `setu-session` reads the active pack (`HKCU\Software\Setu\Theme\Current`
+from the prefix's `user.reg`; missing or unknown means setu-light), then:
+1. writes `~/.config/labwc/{themerc-override,rc.xml,environment}` from it
+   (`setu-theme-linux`, POSIX sh and awk: the image has no Python). The
+   service runs this once before labwc starts (`ExecStartPre`), so labwc's
+   theme and cursor are right from the first frame, and again inside the
+   session, where a change is applied with `labwc --reconfigure`;
+2. exports `XCURSOR_THEME`/`XCURSOR_SIZE` from `[Cursor]`;
+3. links the system content into C: (`setu-theme-sync`);
+4. runs `setu-theme.exe apply --login <id>` (theme-shell's tool:
+   colours, control theme, wallpaper, fonts, icons, cursors, sounds);
+5. runs `sudo -n /usr/lib/setu/setu-boot-theme <id>` in the background.
+
+**The boot splash and the initramfs.** Plymouth's theme is inside the
+initramfs, so switching it means rebuilding the initramfs.
+`setu-boot-theme` (allowed without a password by
+`/etc/sudoers.d/setu-boot-theme`) checks the id, compares it with `Theme=`
+in `/etc/plymouth/plymouthd.conf` and only when they differ writes the new
+`Theme=` and runs `update-initramfs -u` (20-60 s, one at a time under a
+lock). A login with an unchanged pack costs nothing; after a switch the
+splash changes from the next boot on. Packs a user adds have no splash and
+leave it alone.
+
+**Calamares' branding** (installer and first-boot wizard) is rendered from
+the default pack at build time only.
+
+**Build time** (dev image, 12-core host under load, 4-vCPU builder):
+`render-packs.py` takes 1.5-3 minutes on the host for 14 packs (90 MB;
+the 4K wallpapers, ICOs and previews; theme-fork's msstyles generator will
+add about 13 s per pack). The 48 collection wallpapers take 219 s in the
+builder the first time (two at a time; 25 MB of JPEG) and 1 s when
+`build/distro/wallpaper-cache/<hash>/` already has them. A whole dev image
+build went from 698 s (cold cache) to 294 s (warm).
+
+`distro/tests/theme-smoke.sh` boots the dev image and checks the default
+pack (registry, a taskbar pixel in a QEMU screendump, the files on C:,
+labwc), applies setu-dark live with `setu-theme apply setu-dark` (taskbar
+colour and wallpaper change), restarts the session (log out and in) and
+checks that setu-dark is still active, including `~/.config/labwc`, the
+session's cursor theme and the boot splash in the initramfs.
+`--update-docs` copies its screenshots to `docs/theme-setu-*.png`.
+
+Before (the hard-coded look) and after, both packs:
+
+![Before: the old fixed look](docs/look-session.png)
+
+![setu-light](docs/theme-setu-light.png)
+
+![setu-dark, after `setu-theme apply setu-dark` and logging in again](docs/theme-setu-dark.png)
+
+The wallpaper collection (`docs/wallpaper-collection.jpg`):
+
+![The 48 wallpapers of the collection](docs/wallpaper-collection.jpg)
 
 ## Later (docs/ARCHITECTURE.md §3.5)
 

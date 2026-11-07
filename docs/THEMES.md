@@ -24,6 +24,21 @@ A user pack with the same id as a system pack wins.
 The active pack: `HKCU\Software\Setu\Theme`, value `Current` (REG_SZ, the
 id). Missing means `setu-light`.
 
+Content that packs share is installed once, next to the packs:
+
+| Path | What | Named by |
+|---|---|---|
+| `C:\Windows\Resources\Setu\Icons\<set>\` | icon sets (`index.ini` + ICOs) | `[Icons] set=` |
+| `C:\Windows\Web\Wallpaper\Setu\<style>-<palette>.jpg` | the generated wallpaper collection (4K) | `[Wallpaper] collection=` |
+| `C:\Windows\Cursors\Setu\<set>\` | cursor sets (`.cur`, `.ani`) | `[Cursor] theme=` |
+| `C:\Windows\Media\Setu\<scheme>\` | sound schemes (`.wav`) | `[Sounds] scheme=` |
+
+On Setu's images the system packs and this content are links into
+`/usr/share/setu/` that `setu-session` makes at every login
+(distro/README.md, "Theme packs"), so they are read-only from Windows.
+A user's own icon sets go in `%LOCALAPPDATA%\Setu\Icons\<set>\` and win
+over the system's.
+
 ## Layout of a built pack
 
 ```
@@ -74,7 +89,15 @@ Size=NormalSize
 ; COLOR_* values as "R G B", generated from theme.ini
 
 [Control Panel\Cursors]
-; optional
+; optional: the cursor set's files, e.g.
+DefaultValue=setu-light
+Arrow=%WinDir%\Cursors\Setu\setu-light\arrow.cur
+Wait=%WinDir%\Cursors\Setu\setu-light\wait.ani
+; ...
+
+[AppEvents\Schemes\Apps\.Default\SystemAsterisk\.Current]
+; optional, one section per sound event of the scheme
+DefaultValue=%WinDir%\Media\Setu\setu-chimes\systemasterisk.wav
 
 [MasterThemeSelector]
 MTSM=RJSPBS
@@ -156,8 +179,27 @@ start-columns=6
 start-rows=4
 
 [Cursor]
-theme=Adwaita             ; X cursor theme (labwc/Xwayland)
+theme=setu-light          ; a cursor set: the X cursor theme of that name
+                          ; (labwc/Xwayland) and, if C:\Windows\Cursors\Setu\
+                          ; has a set of that name, its .cur/.ani files
 size=24
+
+[Sounds]
+scheme=setu-chimes        ; C:\Windows\Media\Setu\<scheme>\ (sounds.ini maps
+                          ; events to files)
+
+[Wallpaper]
+style=10                  ; WallpaperStyle (10 = fill)
+; the picture, from the first pack in the Base= chain that names one:
+collection=ridges-setu-dark   ; an item of the collection: <style>-<palette>
+seed=1                        ; optional (default 1)
+; or, in a source pack, script=artwork/wallpaper.py (drawn at build time;
+; the built pack then has wallpaper\wallpaper.bmp). The .theme names a
+; BMP or the collection JPEG; setu-theme converts a non-BMP wallpaper to
+; %LOCALAPPDATA%\Setu\Wallpaper\<name>.bmp, since the desktop loads BMPs.
+
+[Icons]
+set=setu-colour           ; an icon set, see "Icons"
 
 [Boot]
 background=#F3F3F3
@@ -168,6 +210,17 @@ New keys may be added; components ignore keys they don't know. Changing a
 key's meaning needs a new key name.
 
 ## Icons
+
+A pack names an icon set with `[Icons] set=<name>` (setu-line, setu-bold,
+setu-duotone, setu-solid, setu-colour from art/icons; or a user's set). A
+set named at some level of the `Base=` chain beats the `icons\index.ini` of
+that level and its bases, but a child pack's own `icons\index.ini` still
+wins, so a pack can replace single icons of its set. Set lookup:
+`%LOCALAPPDATA%\Setu\Icons\<set>\index.ini`, then
+`%WINDIR%\Resources\Setu\Icons\<set>\index.ini`. Built packs also carry
+the icons of their set in their own `icons\`, so paths into a pack stay
+valid. `setu-app` is a full-colour tile (the start button and installer
+logo) and is never recoloured.
 
 `icons/index.ini` maps names to files:
 

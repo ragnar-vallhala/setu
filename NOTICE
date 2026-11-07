@@ -66,18 +66,43 @@ where a file lives in the tree.
 
 6. Setu's look: artwork in this tree, fonts and themes in the images
    ------------------------------------------------------------------
-   Artwork in this tree (docs/DESIGN.md), original Setu work under
-   MIT OR Apache-2.0 like the rest of section 1, drawn from code with no
-   third-party or Microsoft artwork:
-     * the default wallpaper (distro/artwork/wallpaper.py; the images are
-       drawn when the image is built),
-     * the Setu bridge mark, the installer's Calamares images and the boot
-       splash images (distro/artwork/branding.py; PNGs in
-       distro/installer/rootfs/usr/share/calamares/branding/setu/ and
-       distro/rootfs/usr/share/plymouth/themes/setu/), and the Plymouth
-       theme, Calamares style sheet and labwc theme next to them.
-   The text in those PNGs is set in Inter (below); a picture of text is
-   not font software, and no font file is in this tree.
+   Artwork in this tree (docs/DESIGN.md, docs/THEMES.md), original Setu
+   work under MIT OR Apache-2.0 like the rest of section 1, drawn from code
+   with no third-party or Microsoft artwork; the images are made when the
+   Setu image is built and are not in this tree:
+     * the wallpaper collection (art/wallpapers/wallgen.py): 8 styles in
+       6 palettes, installed as C:\Windows\Web\Wallpaper\Setu\*.jpg;
+     * the icon sets setu-line, setu-bold, setu-duotone, setu-solid and
+       setu-colour and the Setu logo variants (art/icons/icongen.py),
+       installed as C:\Windows\Resources\Setu\Icons\<set>\;
+     * the colour schemes (art/schemes/schemegen.py), shipped as the packs
+       setu-<palette>-light and setu-<palette>-dark;
+     * the cursor sets setu-light, setu-dark and setu-accent
+       (art/cursors/cursorgen.py), as Windows .cur/.ani files and X cursor
+       themes (/usr/share/icons/<set>);
+     * the sound schemes setu-chimes, setu-wood and setu-minimal
+       (art/sounds/soundgen.py), synthesized with no samples, installed as
+       C:\Windows\Media\Setu\<scheme>\*.wav.
+
+   Theme packs (distro/themes/<id>/, built by distro/themes/render-packs.py;
+   each built pack carries a LICENSE file saying the same):
+     * setu-light, the default pack: theme.ini, the .theme template, the
+       "silk" wallpaper (artwork/wallpaper.py), the Setu bridge mark, the
+       installer's Calamares images and the boot splash images
+       (artwork/branding.py), and the Plymouth theme, Calamares style sheet
+       and labwc theme templates (boot/, installer/, linux/): original Setu
+       work, MIT OR Apache-2.0. Its icons are the setu-colour set, its
+       cursors the setu-light set and its sounds setu-chimes (above). Text
+       in its images is set in Inter (below); a picture of text is not font
+       software, and no font file is in this tree.
+     * setu-dark: theme.ini only (everything else comes from setu-light),
+       with the wallpaper ridges-setu-dark of the collection and the
+       setu-dark cursors: original Setu work, MIT OR Apache-2.0.
+     * setu-<palette>-<light|dark> (12 packs): schemegen's theme.ini with
+       Base=setu-light or setu-dark and a collection wallpaper: original
+       Setu work, MIT OR Apache-2.0.
+     * In every pack, visual/<id>.msstyles is the Setu control theme
+       (below; LGPL-2.1-or-later), and the fonts are Debian's (below).
 
    Third-party artwork in this tree:
      * Lucide icons: see section 5.
@@ -98,8 +123,8 @@ where a file lives in the tree.
      * DejaVu (fonts-dejavu-core), the fallback font: the Bitstream Vera
        Fonts licence and public domain changes.
      * The Adwaita cursor theme (adwaita-icon-theme, the GNOME Project):
-       LGPL-3 or CC-BY-SA-3.0 (some files CC-BY-SA-4.0). Used only as the X
-       cursor theme, as shipped.
+       LGPL-3 or CC-BY-SA-3.0 (some files CC-BY-SA-4.0). Used only as a
+       fallback X cursor theme, as shipped.
      * Plymouth (the boot splash program): GPL-2.0-or-later; fontconfig:
        MIT-style (fontconfig licence).
 
