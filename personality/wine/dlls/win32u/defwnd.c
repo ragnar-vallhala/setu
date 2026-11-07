@@ -1220,9 +1220,12 @@ static void draw_caption_bar( HDC hdc, const RECT *rect, DWORD style, BOOL activ
  * Windows reports: SM_CYCAPTION, SM_CXSIZE, the frame metrics and so
  * AdjustWindowRectEx and the client rectangle. The buttons are drawn and
  * hit-tested inside the caption bar those metrics give.
+ *
+ * The colours are the system colours, plus the active theme pack's
+ * close-hover, close-pressed, close-text, caption-button-hover and
+ * caption-button-pressed (get_setu_color); without a pack they are
+ * setu-light's.
  */
-#define SETU_CLOSE_HOVER    RGB( 0xc4, 0x2b, 0x1c )
-#define SETU_CLOSE_PRESSED  RGB( 0xa5, 0x23, 0x17 )
 
 static COLORREF blend_color( COLORREF color, COLORREF over, int alpha )
 {
@@ -1343,13 +1346,19 @@ static void draw_caption_button( HWND hwnd, HDC hdc, UINT button, BOOL down, BOO
         fg = get_sys_color( COLOR_GRAYTEXT );
     else if (button == HTCLOSE && (down || hot == HTCLOSE))
     {
-        bg = down ? SETU_CLOSE_PRESSED : SETU_CLOSE_HOVER;
-        fg = RGB( 255, 255, 255 );
+        bg = get_setu_color( down ? SETU_COLOR_CLOSE_PRESSED : SETU_COLOR_CLOSE_HOVER );
+        fg = get_setu_color( SETU_COLOR_CLOSE_TEXT );
     }
     else if (down)
-        bg = blend_color( bg, RGB( 0, 0, 0 ), 36 );
+    {
+        COLORREF color = get_setu_color( SETU_COLOR_CAPTION_BUTTON_PRESSED );
+        bg = color != CLR_INVALID ? color : blend_color( bg, RGB( 0, 0, 0 ), 36 );
+    }
     else if (hot == button)
-        bg = blend_color( bg, RGB( 0, 0, 0 ), 20 );
+    {
+        COLORREF color = get_setu_color( SETU_COLOR_CAPTION_BUTTON_HOVER );
+        bg = color != CLR_INVALID ? color : blend_color( bg, RGB( 0, 0, 0 ), 20 );
+    }
     fill_solid_rect( hdc, &rect, bg );
 
     /* 10 px line glyphs at 96 DPI (8 px on tool windows) */

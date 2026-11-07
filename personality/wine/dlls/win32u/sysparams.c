@@ -7335,6 +7335,116 @@ HPEN get_sys_color_pen( unsigned int index )
     return system_colors[index].pen;
 }
 
+/*
+ * Setu: drawing values that have no system colour, from the active theme
+ * pack (docs/THEMES.md, "Applying a pack"). setu-theme writes the pack's
+ * [Colors] tokens as "#RRGGBB" strings under HKCU\Software\Setu\Theme\Colors
+ * and its [Metrics] tokens as DWORDs under HKCU\Software\Setu\Theme\Metrics.
+ * A missing or malformed value keeps setu-light's, compiled in below
+ * (CLR_INVALID: derived from the caption colour when drawing). They are
+ * reloaded with the system colours by SetSysColors.
+ */
+static const struct
+{
+    const char *name;
+    COLORREF    def;
+} setu_color_defs[SETU_COLOR_COUNT] =
+{
+    [SETU_COLOR_CLOSE_HOVER]            = { "close-hover",            RGB( 0xc4, 0x2b, 0x1c ) },
+    [SETU_COLOR_CLOSE_PRESSED]          = { "close-pressed",          RGB( 0xa5, 0x23, 0x17 ) },
+    [SETU_COLOR_CLOSE_TEXT]             = { "close-text",             RGB( 0xff, 0xff, 0xff ) },
+    [SETU_COLOR_CAPTION_BUTTON_HOVER]   = { "caption-button-hover",   CLR_INVALID },
+    [SETU_COLOR_CAPTION_BUTTON_PRESSED] = { "caption-button-pressed", CLR_INVALID },
+};
+
+static const struct
+{
+    const char *name;
+    int         def;
+} setu_metric_defs[SETU_METRIC_COUNT] =
+{
+    [SETU_METRIC_RADIUS_CONTROL] = { "radius-control", 4 },
+};
+
+static COLORREF setu_colors[SETU_COLOR_COUNT];
+static int setu_metrics[SETU_METRIC_COUNT];
+static LONG setu_values_loaded;
+
+static BOOL parse_hex_color( const WCHAR *str, ULONG len, COLORREF *color )
+{
+    DWORD value = 0;
+    ULONG i;
+
+    /* "#RRGGBB" or "#RRGGBBAA" (alpha ignored) */
+    while (len && !str[len - 1]) len--;
+    if ((len != 7 && len != 9) || str[0] != '#') return FALSE;
+    for (i = 1; i < 7; i++)
+    {
+        WCHAR c = str[i];
+        value <<= 4;
+        if (c >= '0' && c <= '9') value |= c - '0';
+        else if (c >= 'a' && c <= 'f') value |= c - 'a' + 10;
+        else if (c >= 'A' && c <= 'F') value |= c - 'A' + 10;
+        else return FALSE;
+    }
+    *color = RGB( (value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff );
+    return TRUE;
+}
+
+static void load_setu_values(void)
+{
+    char buffer[offsetof(KEY_VALUE_PARTIAL_INFORMATION, Data[64 * sizeof(WCHAR)])];
+    KEY_VALUE_PARTIAL_INFORMATION *info = (void *)buffer;
+    COLORREF colors[SETU_COLOR_COUNT];
+    int metrics[SETU_METRIC_COUNT];
+    unsigned int i;
+    HKEY hkey;
+
+    for (i = 0; i < SETU_COLOR_COUNT; i++) colors[i] = setu_color_defs[i].def;
+    for (i = 0; i < SETU_METRIC_COUNT; i++) metrics[i] = setu_metric_defs[i].def;
+
+    /* @@ Setu registry key: HKCU\Software\Setu\Theme\Colors */
+    if ((hkey = reg_open_hkcu_key( "Software\\Setu\\Theme\\Colors" )))
+    {
+        for (i = 0; i < SETU_COLOR_COUNT; i++)
+        {
+            COLORREF color;
+            if (query_reg_ascii_value( hkey, setu_color_defs[i].name, info, sizeof(buffer) ) &&
+                info->Type == REG_SZ &&
+                parse_hex_color( (const WCHAR *)info->Data, info->DataLength / sizeof(WCHAR), &color ))
+                colors[i] = color;
+        }
+        NtClose( hkey );
+    }
+    /* @@ Setu registry key: HKCU\Software\Setu\Theme\Metrics */
+    if ((hkey = reg_open_hkcu_key( "Software\\Setu\\Theme\\Metrics" )))
+    {
+        for (i = 0; i < SETU_METRIC_COUNT; i++)
+        {
+            if (query_reg_ascii_value( hkey, setu_metric_defs[i].name, info, sizeof(buffer) ) &&
+                info->Type == REG_DWORD && info->DataLength == sizeof(DWORD) &&
+                *(DWORD *)info->Data <= 64)
+                metrics[i] = *(DWORD *)info->Data;
+        }
+        NtClose( hkey );
+    }
+    memcpy( setu_colors, colors, sizeof(colors) );
+    memcpy( setu_metrics, metrics, sizeof(metrics) );
+    InterlockedExchange( &setu_values_loaded, 1 );
+}
+
+COLORREF get_setu_color( enum setu_color index )
+{
+    if (!ReadAcquire( &setu_values_loaded )) load_setu_values();
+    return setu_colors[index];
+}
+
+int get_setu_metric( enum setu_metric index )
+{
+    if (!ReadAcquire( &setu_values_loaded )) load_setu_values();
+    return setu_metrics[index];
+}
+
 /**********************************************************************
  *	     NtUserGetDoubleClickTime    (win32u.@)
  */
@@ -7359,6 +7469,9 @@ BOOL WINAPI NtUserSetSysColors( INT count, const INT *colors, const COLORREF *va
     for (i = 0; i < count; i++)
         if (colors[i] >= 0 && colors[i] < ARRAY_SIZE( system_colors ))
             set_entry( &system_colors[colors[i]], values[i], 0, 0 );
+
+    /* Setu: the theme's frame values are written before the colours */
+    InterlockedExchange( &setu_values_loaded, 0 );
 
     /* Send WM_SYSCOLORCHANGE message to all windows */
     send_message_timeout( HWND_BROADCAST, WM_SYSCOLORCHANGE, 0, 0,

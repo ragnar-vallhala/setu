@@ -2509,11 +2509,12 @@ static void draw_menu_item( HWND hwnd, struct menu *menu, HWND owner, HDC hdc,
     {
         if (flat_menu)
         {
-            /* Setu: a rounded (4 px) highlight surface, inset from the item */
+            /* Setu: a rounded highlight surface (the theme's radius-control,
+             * 4 px in setu-light), inset from the item */
             RECT hl = rect;
             HBRUSH prev_brush;
             HPEN prev_pen;
-            int r = 4;
+            int r = get_setu_metric( SETU_METRIC_RADIUS_CONTROL );
 
             fill_rect( hdc, &rect, get_sys_color_brush( bkgnd ));
             if (menu_bar) InflateRect( &hl, 0, -1 );

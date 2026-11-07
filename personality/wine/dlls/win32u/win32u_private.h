@@ -164,6 +164,22 @@ extern DWORD get_process_layout(void);
 extern COLORREF get_sys_color( int index );
 extern HBRUSH get_sys_color_brush( unsigned int index );
 extern HPEN get_sys_color_pen( unsigned int index );
+enum setu_color
+{
+    SETU_COLOR_CLOSE_HOVER,
+    SETU_COLOR_CLOSE_PRESSED,
+    SETU_COLOR_CLOSE_TEXT,
+    SETU_COLOR_CAPTION_BUTTON_HOVER,
+    SETU_COLOR_CAPTION_BUTTON_PRESSED,
+    SETU_COLOR_COUNT
+};
+enum setu_metric
+{
+    SETU_METRIC_RADIUS_CONTROL,
+    SETU_METRIC_COUNT
+};
+extern COLORREF get_setu_color( enum setu_color index );
+extern int get_setu_metric( enum setu_metric index );
 extern UINT get_system_dpi(void);
 extern int get_system_metrics( int index );
 extern UINT get_thread_dpi(void);
