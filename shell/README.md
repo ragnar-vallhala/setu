@@ -80,21 +80,26 @@ The shell and the file manager follow docs/DESIGN.md, Setu's own design:
 light surfaces, one accent colour, rounded corners. No Microsoft artwork,
 icons or fonts.
 
-- **Design tokens**: `src/setu-style.h` holds DESIGN.md's colours, radii and
-  sizes, read through one palette pointer (`ST`) so a dark palette can be
-  added later. It also has the drawing both programs share: anti-aliased
-  rounded rectangles, frames and soft shadows on a 32-bit DIB (from a
-  signed distance), text, and the line icons.
-- **Type**: Inter (body 9 pt, captions 9 pt semibold, titles 10.5 pt
-  semibold, large 14 pt semibold) when the system has it (the image installs
-  fonts-inter), else the system's message font.
+- **Design tokens**: every colour, size, font and icon comes from the active
+  theme pack (docs/THEMES.md), read by `src/setu-theme.c`; the built-in
+  values are setu-light's, from DESIGN.md. `src/setu-style.h` turns them into
+  the palette (`ST`), the `ST_*` metrics (scaled for DPI) and the fonts, and
+  has the drawing both programs share: anti-aliased rounded rectangles,
+  frames and soft shadows on a 32-bit DIB (from a signed distance), text,
+  and icons.
+- **Type**: the pack's `[Fonts] ui` list; in setu-light, Inter (body 9 pt,
+  captions 9 pt semibold, titles 10.5 pt semibold, large 14 pt semibold)
+  when the system has it (the image installs fonts-inter), else the
+  system's message font.
 - **Icons**: [Lucide](https://lucide.dev) line icons (ISC licence,
   `icons/lucide/LICENSE`). The unmodified SVGs are in `icons/lucide/`;
   `icons/gen-icons.py` flattens them into stroke segments in
   `src/setu-icons.h` (`python3 shell/icons/gen-icons.py >
   shell/src/setu-icons.h` after adding one), and they are rasterized at the
   size needed, 1.5 px strokes at 24 px. The Setu bridge mark on the start
-  button is drawn the same way.
+  button is drawn the same way. These are the fallbacks: every icon is
+  looked up by name (distro/themes/ICONS.md) in the pack first, and the
+  pack's monochrome icons are recoloured like the glyphs.
 - **Start menu shadow**: Wine's virtual desktop has no translucent windows,
   so the menu copies what is under it before it opens and draws the shadow
   and the rounded corners over that copy. When the copy fails, it is a
@@ -102,6 +107,59 @@ icons or fonts.
 
 Before/after screenshots of this restyle: `docs/m3-before/` holds the old
 look.
+
+## Theme packs
+
+Both programs read the active pack at start: the id in
+`HKCU\Software\Setu\Theme\Current`, found in
+`%LOCALAPPDATA%\Setu\Themes\<id>` and then
+`C:\Windows\Resources\Themes\<id>`, with `Base=` packs filling in what it
+leaves out, then the built-in setu-light values. They reload and repaint
+live on `WM_SETTINGCHANGE` with "SetuTheme" or "ImmersiveColorSet" and on
+`WM_THEMECHANGED`. The state files have `theme=` and `theme_reloads=`
+lines.
+
+`setu-theme.exe` (`src/setu-theme-tool.c`, a console program) switches
+packs:
+
+```sh
+wine build/shell/setu-theme.exe list              # installed packs, * = active
+wine build/shell/setu-theme.exe current           # the active pack's id
+wine build/shell/setu-theme.exe check DIR         # validate a pack; exit 2 on errors
+wine build/shell/setu-theme.exe apply ID          # switch now
+wine build/shell/setu-theme.exe apply --login ID  # at login: write settings, no broadcasts
+```
+
+`check` validates every value (colours, numbers, `Mode`, smoothing, the
+taskbar alignment), that the icon files exist and load, the `.theme` file's
+paths, and contrast: text on surface, and accent-text on accent, must be
+at least 4.5:1. `apply` runs the steps of docs/THEMES.md with documented
+APIs only:
+
+1. `Current`.
+2. `ThemeManager` (the control theme).
+3. Every token in `HKCU\Software\Setu\Theme\Colors` and `\Metrics`,
+   for the window frames; then `Control Panel\Colors` and `SetSysColors`.
+4. The wallpaper, through `SPI_SETDESKWALLPAPER`. A JPEG or PNG is first
+   converted to a BMP with WIC. At login, a wallpaper the user chose is
+   kept.
+5. The font overrides and font smoothing.
+6. `Shell Icons`.
+7. The `WM_THEMECHANGED` and `WM_SETTINGCHANGE` broadcasts.
+
+Exit codes: 0 ok, 1 usage, 2 pack not found or invalid, 3 a step failed.
+
+| setu-light | a throwaway pack (red accent, own folder and start button icons) |
+|---|---|
+| ![setu-light](docs/theme-01-light.png) | ![smoke-red](docs/theme-02-smoke-red.png) |
+
+`tools/theme-smoke.sh` takes these screenshots. In its own Xvfb, it:
+
+- builds that pack and an invalid one;
+- checks `list`, `current` and `check`;
+- applies the pack while setu-shell and setu-files run, then checks the
+  registry and counts accent and icon pixels to confirm both repainted;
+- applies setu-light again and checks that everything went back.
 
 ## Build
 
@@ -150,6 +208,7 @@ shell (`WM_COPYDATA`):
 ```sh
 tools/shell-smoke.sh               # exits nonzero on failure
 tools/shell-smoke.sh --update-docs # also refresh shell/docs/*.png
+tools/theme-smoke.sh               # theme packs and setu-theme.exe
 ```
 
 The smoke test builds the shell, starts Xvfb and the shell in its own prefix
