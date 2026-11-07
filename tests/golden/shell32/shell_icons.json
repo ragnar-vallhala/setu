@@ -1,0 +1,238 @@
+{
+  "test": "shell32/shell_icons",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "own_icon": {
+      "icon": "red"
+    },
+    "stock_folder_location": {
+      "hr": "0x00000000",
+      "path_ours": true,
+      "path_set": true,
+      "icon": 0
+    },
+    "stock_folder_icon_large": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_folder_icon_small": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_folder_icon_shellsize": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_folder_sysindex": {
+      "hr": "0x00000000",
+      "index_valid": true,
+      "image_list_icon": "red"
+    },
+    "stock_folder_open_location": {
+      "hr": "0x00000000",
+      "path_ours": true,
+      "path_set": true,
+      "icon": 0
+    },
+    "stock_folder_open_icon_large": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_folder_open_icon_small": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_folder_open_icon_shellsize": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_folder_open_sysindex": {
+      "hr": "0x00000000",
+      "index_valid": true,
+      "image_list_icon": "red"
+    },
+    "stock_drive_fixed_location": {
+      "hr": "0x00000000",
+      "path_ours": true,
+      "path_set": true,
+      "icon": 0
+    },
+    "stock_drive_fixed_icon_large": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_drive_fixed_icon_small": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_drive_fixed_icon_shellsize": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_drive_fixed_sysindex": {
+      "hr": "0x00000000",
+      "index_valid": true,
+      "image_list_icon": "red"
+    },
+    "stock_doc_no_assoc_location": {
+      "hr": "0x00000000",
+      "path_ours": true,
+      "path_set": true,
+      "icon": 0
+    },
+    "stock_doc_no_assoc_icon_large": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_doc_no_assoc_icon_small": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_doc_no_assoc_icon_shellsize": {
+      "hr": "0x00000000",
+      "icon": "red"
+    },
+    "stock_doc_no_assoc_sysindex": {
+      "hr": "0x00000000",
+      "index_valid": true,
+      "image_list_icon": "red"
+    },
+    "stock_drive_cd_location": {
+      "hr": "0x00000000",
+      "path_ours": false,
+      "path_set": true
+    },
+    "stock_drive_cd_icon_large": {
+      "hr": "0x00000000",
+      "icon": "other"
+    },
+    "stock_drive_cd_icon_small": {
+      "hr": "0x00000000",
+      "icon": "other"
+    },
+    "stock_drive_cd_icon_shellsize": {
+      "hr": "0x00000000",
+      "icon": "other"
+    },
+    "stock_drive_cd_sysindex": {
+      "hr": "0x00000000",
+      "index_valid": true,
+      "image_list_icon": "other"
+    },
+    "stock_recycler_location": {
+      "hr": "0x00000000",
+      "path_ours": false,
+      "path_set": true
+    },
+    "stock_recycler_icon_large": {
+      "hr": "0x00000000",
+      "icon": "other"
+    },
+    "stock_recycler_icon_small": {
+      "hr": "0x00000000",
+      "icon": "other"
+    },
+    "stock_recycler_icon_shellsize": {
+      "hr": "0x00000000",
+      "icon": "other"
+    },
+    "stock_recycler_sysindex": {
+      "hr": "0x00000000",
+      "index_valid": true,
+      "image_list_icon": "other"
+    },
+    "fileinfo_folder_icon": {
+      "ret_nonzero": true,
+      "icon": "red"
+    },
+    "fileinfo_folder_icon_large": {
+      "ret_nonzero": true,
+      "icon": "red"
+    },
+    "fileinfo_folder_sysindex": {
+      "ret_nonzero": true,
+      "image_list_icon": "red"
+    },
+    "fileinfo_folder_location": {
+      "ret_nonzero": true,
+      "path_ours": true,
+      "icon": 0
+    },
+    "fileinfo_folder_ufa_icon": {
+      "ret_nonzero": true,
+      "icon": "red"
+    },
+    "fileinfo_folder_ufa_icon_large": {
+      "ret_nonzero": true,
+      "icon": "red"
+    },
+    "fileinfo_folder_ufa_sysindex": {
+      "ret_nonzero": true,
+      "image_list_icon": "red"
+    },
+    "fileinfo_folder_ufa_location": {
+      "ret_nonzero": true,
+      "path_ours": true,
+      "icon": 0
+    },
+    "fileinfo_drive_root_icon": {
+      "ret_nonzero": true,
+      "icon": "other"
+    },
+    "fileinfo_drive_root_icon_large": {
+      "ret_nonzero": true,
+      "icon": "other"
+    },
+    "fileinfo_drive_root_sysindex": {
+      "ret_nonzero": true,
+      "image_list_icon": "other"
+    },
+    "fileinfo_drive_root_location": {
+      "ret_nonzero": true,
+      "path_ours": false
+    },
+    "fileinfo_unknown_ext_ufa_icon": {
+      "ret_nonzero": true,
+      "icon": "red"
+    },
+    "fileinfo_unknown_ext_ufa_icon_large": {
+      "ret_nonzero": true,
+      "icon": "red"
+    },
+    "fileinfo_unknown_ext_ufa_sysindex": {
+      "ret_nonzero": true,
+      "image_list_icon": "red"
+    },
+    "fileinfo_unknown_ext_ufa_location": {
+      "ret_nonzero": true,
+      "path_ours": false
+    },
+    "fileinfo_assoc_icon": {
+      "ret_nonzero": true,
+      "icon": "other"
+    },
+    "fileinfo_assoc_icon_large": {
+      "ret_nonzero": true,
+      "icon": "other"
+    },
+    "fileinfo_assoc_sysindex": {
+      "ret_nonzero": true,
+      "image_list_icon": "other"
+    },
+    "fileinfo_assoc_location": {
+      "ret_nonzero": true,
+      "path_ours": false
+    },
+    "fileinfo_folder_openicon": {
+      "ret_nonzero": true,
+      "icon": "red"
+    }
+  },
+  "errors": [],
+  "source_sha256": "d91aa11c77c6c2a3eedb470607971d56b80f48c143fdb42b3d29407f59b6c7bb"
+}
