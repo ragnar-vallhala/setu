@@ -139,6 +139,10 @@ titlebar-inactive=#F3F3F3
 titlebar-text=#1B1B1B
 titlebar-text-inactive=#5F5F5F
 close-hover=#C42B1C
+close-pressed=#A52317       ; optional: caption close button pressed
+close-text=#FFFFFF          ; optional: close glyph on close-hover/pressed
+caption-button-hover=        ; optional: other caption buttons (unset: blended from the caption colour)
+caption-button-pressed=
 taskbar=#EEF1F5
 taskbar-text=#1B1B1B
 menu=#FFFFFF
@@ -158,7 +162,7 @@ smoothing=grayscale       ; none | grayscale | rgb
 
 [Metrics]
 radius-window=8
-radius-control=4
+radius-control=4         ; also the menu highlight radius in window menus
 radius-check=3
 caption-height=30
 caption-button-width=46
