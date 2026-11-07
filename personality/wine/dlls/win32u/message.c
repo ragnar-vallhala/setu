@@ -2313,6 +2313,35 @@ BOOL WINAPI NtUserGetGUIThreadInfo( DWORD id, GUITHREADINFO *info )
  *
  * Call a window procedure and the corresponding hooks.
  */
+/*
+ * Setu: switching the theme pack (docs/THEMES.md) changes settings each
+ * process caches: the system colours and Setu's frame values (another
+ * process's SetSysColors broadcasts WM_SYSCOLORCHANGE) and the font override
+ * list (WM_FONTCHANGE, or WM_SETTINGCHANGE "SetuTheme" from setu-theme).
+ * Reload them before the window sees the message, so it repaints with the
+ * new values.
+ */
+static void handle_settings_message( UINT msg, LPARAM lparam, enum message_type type )
+{
+    static const WCHAR setu_themeW[] = {'S','e','t','u','T','h','e','m','e',0};
+
+    switch (msg)
+    {
+    case WM_SYSCOLORCHANGE:
+        /* SetSysColors already updated its own process */
+        if (type == MSG_OTHER_PROCESS) reload_sys_colors();
+        break;
+    case WM_FONTCHANGE:
+        reload_font_overrides();
+        break;
+    case WM_SETTINGCHANGE:
+        /* only a string unpacked from another process is known to be valid */
+        if (type == MSG_OTHER_PROCESS && lparam && !wcscmp( (const WCHAR *)lparam, setu_themeW ))
+            reload_font_overrides();
+        break;
+    }
+}
+
 static LRESULT call_window_proc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam,
                                  enum message_type type, BOOL same_thread,
                                  enum wm_char_mapping mapping, BOOL ansi_dst )
@@ -2331,6 +2360,9 @@ static LRESULT call_window_proc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
         return handle_internal_message( hwnd, msg, wparam, lparam );
 
     if (!is_current_thread_window( hwnd )) return 0;
+
+    if (msg == WM_SYSCOLORCHANGE || msg == WM_FONTCHANGE || msg == WM_SETTINGCHANGE)
+        handle_settings_message( msg, lparam, type );
 
     packed_size = user_message_size( hwnd, msg, wparam, lparam, type == MSG_OTHER_PROCESS, ansi, &reply_size );
 

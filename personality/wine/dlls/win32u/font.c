@@ -2976,6 +2976,61 @@ static void release_gdi_font( struct gdi_font *font )
     pthread_mutex_unlock( &font_lock );
 }
 
+/*
+ * Setu: read the override list again (a theme pack switch changed the UI
+ * font, docs/THEMES.md). Fonts created after this use the new list; fonts
+ * already realized keep the face they have, but are no longer handed out
+ * for new requests, so new windows get the new face.
+ */
+void reload_font_overrides(void)
+{
+    struct font_override *override, *next;
+    struct gdi_font *font, *next_font;
+    struct list old = LIST_INIT( old );
+    struct list *a, *b;
+    BOOL changed = FALSE;
+
+    if (!font_funcs || !wine_fonts_key) return;
+
+    pthread_mutex_lock( &font_lock );
+    list_move_tail( &old, &font_overrides );
+    load_gdi_font_overrides();
+
+    for (a = list_head( &old ), b = list_head( &font_overrides ); a || b;
+         a = a ? list_next( &old, a ) : NULL, b = b ? list_next( &font_overrides, b ) : NULL)
+    {
+        struct font_override *oa = a ? LIST_ENTRY( a, struct font_override, entry ) : NULL;
+        struct font_override *ob = b ? LIST_ENTRY( b, struct font_override, entry ) : NULL;
+        if (!oa || !ob || oa->family != ob->family || wcscmp( oa->name, ob->name ))
+        {
+            changed = TRUE;
+            break;
+        }
+    }
+
+    LIST_FOR_EACH_ENTRY_SAFE( override, next, &old, struct font_override, entry )
+    {
+        list_remove( &override->entry );
+        release_family( override->family );
+        free( override );
+    }
+
+    if (changed)
+    {
+        TRACE( "font overrides changed, dropping realized fonts from the cache\n" );
+        LIST_FOR_EACH_ENTRY_SAFE( font, next_font, &gdi_font_list, struct gdi_font, entry )
+        {
+            list_remove( &font->entry );
+            list_init( &font->entry );
+            if (font->refcount) continue;
+            list_remove( &font->unused_entry );
+            unused_font_count--;
+            free_gdi_font( font );
+        }
+    }
+    pthread_mutex_unlock( &font_lock );
+}
+
 static void add_font_list(HKEY hkey, const struct nls_update_font_list *fl, int dpi)
 {
     const char *sserif = (dpi <= 108) ? fl->sserif_96 : fl->sserif_120;

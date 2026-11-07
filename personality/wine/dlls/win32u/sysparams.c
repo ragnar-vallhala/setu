@@ -7342,7 +7342,8 @@ HPEN get_sys_color_pen( unsigned int index )
  * and its [Metrics] tokens as DWORDs under HKCU\Software\Setu\Theme\Metrics.
  * A missing or malformed value keeps setu-light's, compiled in below
  * (CLR_INVALID: derived from the caption colour when drawing). They are
- * reloaded with the system colours by SetSysColors.
+ * reloaded with the system colours, by SetSysColors in its own process and
+ * by WM_SYSCOLORCHANGE in the others.
  */
 static const struct
 {
@@ -7445,6 +7446,39 @@ int get_setu_metric( enum setu_metric index )
     return setu_metrics[index];
 }
 
+/* Setu: another process changed the system colours (it broadcast
+ * WM_SYSCOLORCHANGE): read them again, so this process draws with the new
+ * ones too. Brushes and pens of colours that changed are recreated, as
+ * SetSysColors does in its own process. */
+void reload_sys_colors(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < ARRAY_SIZE( system_colors ); i++)
+    {
+        struct sysparam_rgb_entry *entry = &system_colors[i];
+        COLORREF old = entry->val, new = old;
+        HBRUSH brush;
+        HPEN pen;
+
+        if (!entry->hdr.loaded) continue;
+        entry->hdr.loaded = FALSE;
+        get_entry( entry, 0, &new );
+        if (new == old) continue;
+        if ((brush = InterlockedExchangePointer( (void **)&entry->brush, 0 )))
+        {
+            make_gdi_object_system( brush, FALSE );
+            NtGdiDeleteObjectApp( brush );
+        }
+        if ((pen = InterlockedExchangePointer( (void **)&entry->pen, 0 )))
+        {
+            make_gdi_object_system( pen, FALSE );
+            NtGdiDeleteObjectApp( pen );
+        }
+    }
+    InterlockedExchange( &setu_values_loaded, 0 );
+}
+
 /**********************************************************************
  *	     NtUserGetDoubleClickTime    (win32u.@)
  */
@@ -7476,8 +7510,10 @@ BOOL WINAPI NtUserSetSysColors( INT count, const INT *colors, const COLORREF *va
     /* Send WM_SYSCOLORCHANGE message to all windows */
     send_message_timeout( HWND_BROADCAST, WM_SYSCOLORCHANGE, 0, 0,
                           SMTO_ABORTIFHUNG, 2000, FALSE );
-    /* Repaint affected portions of all visible windows */
-    NtUserRedrawWindow( 0, NULL, 0, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW | RDW_ALLCHILDREN );
+    /* Repaint affected portions of all visible windows, their frames too
+     * (Setu: captions and frames are drawn in the system colours) */
+    NtUserRedrawWindow( 0, NULL, 0, RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_UPDATENOW |
+                        RDW_ALLCHILDREN );
     return TRUE;
 }
 

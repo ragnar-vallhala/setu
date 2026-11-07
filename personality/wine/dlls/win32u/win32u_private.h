@@ -180,6 +180,8 @@ enum setu_metric
 };
 extern COLORREF get_setu_color( enum setu_color index );
 extern int get_setu_metric( enum setu_metric index );
+extern void reload_sys_colors(void);
+extern void reload_font_overrides(void);
 extern UINT get_system_dpi(void);
 extern int get_system_metrics( int index );
 extern UINT get_thread_dpi(void);
