@@ -5533,7 +5533,7 @@ NTSTATUS WINAPI NtProtectVirtualMemory( HANDLE process, PVOID *addr_ptr, SIZE_T 
         return STATUS_ACCESS_VIOLATION;
 
     /* invalid parameters fail before *old_prot is written */
-    if (!size) return STATUS_INVALID_PARAMETER_3;
+    if (!size) return STATUS_INVALID_PARAMETER;
     if ((status = check_protect_modifiers( new_prot, PAGE_UNSUPPORTED_FLAGS | PAGE_HIGH_FLAGS )))
         return status;
     if ((status = get_vprot_flags( new_prot, &vprot32, FALSE ))) return status;

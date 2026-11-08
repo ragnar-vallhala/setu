@@ -5260,6 +5260,7 @@
     "kernel32/VirtualAlloc:probe_commit_prot_8004",
     "kernel32/VirtualAlloc:probe_commit_prot_804",
     "kernel32/VirtualAlloc:probe_ntprotect_bad_prot",
+    "kernel32/VirtualAlloc:probe_ntprotect_size0",
     "kernel32/VirtualAlloc:probe_protect_bad_prot_on_reserved",
     "kernel32/VirtualAlloc:probe_protect_free_address",
     "kernel32/VirtualAlloc:probe_protect_prot_100",
