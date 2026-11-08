@@ -2033,7 +2033,7 @@ Unable to update the password. The value provided for the new password contains 
 MessageId=1325
 SymbolicName=ERROR_PASSWORD_RESTRICTION
 Language=ENU
-Unable to update the password. The value provided for the new password does not meet the length, complexity, or history requirements of the domain.
+Unable to update the password. The value provided for the new password does not meet the length, complexity, or history requirements of the machine or domain. Try increasing the length of your password, along with including upper and lowercase characters, numbers, and symbols.
 .
 MessageId=1326
 SymbolicName=ERROR_LOGON_FAILURE
