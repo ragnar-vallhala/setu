@@ -30,7 +30,10 @@
  *   --state-file PATH  write the shell's state (for tests) to PATH
  *   --exit-after SEC   quit after SEC seconds (first instance only)
  *   --quit             quit the running shell
+ *   --no-desktop       don't start setu-desktop.exe (first instance only)
  *
+ * At start the shell also starts setu-desktop.exe (the wallpaper and the
+ * Desktop folder's icons) from its own folder, unless one is running.
  * Pins are kept in HKCU\Software\Setu\Shell, value "Pinned" (REG_MULTI_SZ).
  */
 #ifndef UNICODE
@@ -3081,11 +3084,31 @@ BOOL apply_commands(int argc, WCHAR **argv)
         }
         else if (v && !wcscmp(a, L"--run")) { ok = run_command(v) && ok; i++; }
         else if (v && !wcscmp(a, L"--exit-after")) { exit_after_sec = _wtoi(v); i++; }
+        else if (!wcscmp(a, L"--no-desktop")) { /* handled at start */ }
         else { set_status(L"Unknown option %ls", a); ok = FALSE; }
     }
     if (exit_after_sec > 0 && bar) SetTimer(bar, TIMER_EXIT, exit_after_sec * 1000, NULL);
     write_state();
     return ok;
+}
+
+/* The desktop (wallpaper and icons) is its own program, setu-desktop.exe,
+ * next to the shell; start it unless it's already running. */
+static void start_desktop(void)
+{
+    WCHAR exe[MAX_PATH], dir[MAX_PATH], *slash;
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi;
+
+    if (FindWindowW(L"SetuDesktop", NULL)) return;
+    if (!GetModuleFileNameW(NULL, dir, ARRAYSIZE(dir)) || !(slash = wcsrchr(dir, L'\\'))) return;
+    *slash = 0;
+    if (!SearchPathW(dir, L"setu-desktop.exe", NULL, ARRAYSIZE(exe), exe, NULL)) return;
+    if (CreateProcessW(exe, NULL, NULL, NULL, FALSE, 0, NULL, dir, &si, &pi))
+    {
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
 }
 
 /* Hand our arguments to an already-running shell. Returns -1 if none. */
@@ -3214,6 +3237,12 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     refresh_tasks();
 
     if (argc > 1) apply_commands(argc - 1, argv + 1);
+    {
+        BOOL no_desktop = FALSE;
+        int i;
+        for (i = 1; i < argc; i++) if (!wcscmp(argv[i], L"--no-desktop")) no_desktop = TRUE;
+        if (!no_desktop) start_desktop();
+    }
     LocalFree(argv);
 
     while (GetMessageW(&msg, NULL, 0, 0) > 0)
