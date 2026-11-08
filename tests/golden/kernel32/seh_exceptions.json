@@ -55,6 +55,21 @@
     "handler_log_single": {
       "log": "111111"
     },
+    "probe_rtl_raise_flags_0": {
+      "code": "0xe0000105",
+      "flags": "0x00000080",
+      "nparams": 0,
+      "nested_null": true
+    },
+    "probe_rtl_raise_caller_record": {
+      "flags": "0x00000080"
+    },
+    "probe_rtl_raise_flags_80": {
+      "code": "0xe0000106",
+      "flags": "0x00000080",
+      "nparams": 0,
+      "nested_null": true
+    },
     "order_first_searches_second_continues": {
       "log": "12c"
     },
@@ -137,5 +152,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "0e1824d3de8bd51b867049614a247b6420c6f2275320412b33d0ea2549339c90"
+  "source_sha256": "a9f3a247b253bbe5e61fc09c9195a32e77a17911f785e9d909c1d7c0e84ec9df"
 }

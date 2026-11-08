@@ -185,6 +185,28 @@ int main(int argc, char **argv)
         oracle_case("handler_log_single");
         o_str("log", log_buf);
         oracle_case_end();
+
+        /* Probe: is EXCEPTION_SOFTWARE_ORIGINATE (0x80) added by
+         * RaiseException or by RtlRaiseException, and is the caller's
+         * record changed? */
+        typedef void(WINAPI * rtl_raise_fn)(EXCEPTION_RECORD *);
+        rtl_raise_fn rtl_raise =
+            (rtl_raise_fn)(void *)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlRaiseException");
+        if (rtl_raise) {
+            EXCEPTION_RECORD rec;
+            memset(&rec, 0, sizeof rec);
+            rec.ExceptionCode = 0xE0000105;
+            rtl_raise(&rec);
+            rec_case("probe_rtl_raise_flags_0");
+            oracle_case("probe_rtl_raise_caller_record");
+            o_hex32("flags", rec.ExceptionFlags);
+            oracle_case_end();
+            memset(&rec, 0, sizeof rec);
+            rec.ExceptionCode = 0xE0000106;
+            rec.ExceptionFlags = 0x80;
+            rtl_raise(&rec);
+            rec_case("probe_rtl_raise_flags_80");
+        }
     }
 
     /* ---- handler order ---- */
