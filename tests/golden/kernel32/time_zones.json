@@ -263,6 +263,98 @@
       "dst_date": "0-00-00 00:00:00.000 dow0",
       "dst_bias": 0
     },
+    "probe_morocco_years": {
+      "ret": 0,
+      "last_year": 2027
+    },
+    "probe_morocco_2019": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-01-01 00:00:00.000 dow2",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-06-02 02:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "probe_morocco_2025": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-02-05 03:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-04-01 02:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "probe_morocco_2026": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-09-03 02:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-03-04 02:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "probe_morocco_2027": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "probe_morocco_2028": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "probe_morocco_2030": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "probe_morocco_2035": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60
+    },
+    "probe_morocco_2040": {
+      "ret": true,
+      "last_error": "unchanged",
+      "bias": 0,
+      "std_name": "Morocco Standard Time",
+      "std_date": "0-00-00 00:00:00.000 dow0",
+      "std_bias": 0,
+      "dst_name": "Morocco Daylight Time",
+      "dst_date": "0-00-00 00:00:00.000 dow0",
+      "dst_bias": -60
+    },
     "pacific_summer_to_local": {
       "ret": true,
       "last_error": "unchanged",
@@ -315,5 +407,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "90d33ffef937df2ff0586eea6c815e3042349c8a9cffd31e141122ccc96e4697"
+  "source_sha256": "05a8f30da6d0b3ad08d01128c952de348a1ef46d2bf061d0488c4d6c8868bb5e"
 }

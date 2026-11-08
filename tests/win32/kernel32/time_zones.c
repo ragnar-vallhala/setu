@@ -223,6 +223,25 @@ int main(void)
     year_case("year_russian_2013", L"Russian Standard Time", 2013);
     year_case("year_utc_2024", L"UTC", 2024);
 
+    /* Probe: which year's rule Windows' Morocco TZI is, and where its
+     * dynamic data ends (tzdata models Ramadan as a yearly change). */
+    {
+        DYNAMIC_TIME_ZONE_INFORMATION d;
+        if (pYears && find_zone(L"Morocco Standard Time", &d)) {
+            DWORD first = 0, last = 0, r = pYears(&d, &first, &last);
+            oracle_case("probe_morocco_years");
+            o_u32("ret", r);
+            o_u32("last_year", last);
+            oracle_case_end();
+        }
+        static const USHORT years[] = {2019, 2025, 2026, 2027, 2028, 2030, 2035, 2040};
+        for (unsigned i = 0; i < sizeof years / sizeof years[0]; i++) {
+            char nm[48];
+            snprintf(nm, sizeof nm, "probe_morocco_%u", years[i]);
+            year_case(nm, L"Morocco Standard Time", years[i]);
+        }
+    }
+
     conv_case("pacific_summer_to_local", L"Pacific Standard Time", 1, mk(2024, 7, 1, 12, 0));
     conv_case("pacific_winter_to_local", L"Pacific Standard Time", 1, mk(2024, 1, 15, 12, 0));
     conv_case("pacific_2006_rule_to_local", L"Pacific Standard Time", 1, mk(2006, 3, 20, 12, 0));
