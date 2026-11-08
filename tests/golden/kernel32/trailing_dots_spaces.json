@@ -256,8 +256,91 @@
     },
     "final_listing": {
       "names": " lead.txt,.dotfile,c4.txt,d1,t3,t4.txt,t5..txt,t6 .txt"
+    },
+    "probe_missingsep_rw_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "probe_missingsep_rw_create_new": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_missingsep_rw_create_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_missingsep_rw_open_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_missingsep_rw_truncate_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "probe_missingsep_read_create_new_backup": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_missingsep_fwd_create_new": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_missingsep_in_missing_dir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "probe_filesep_rw_create_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_filesep_rw_open_always": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_filesep_rw_truncate_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_filesep_read_open_existing_backup": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_filesep_noaccess_open_existing": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 267
+    },
+    "probe_filesep_through_file": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 3
+    },
+    "probe_attr_filesep_fwd": {
+      "ret": "0xffffffff",
+      "last_error": 267
+    },
+    "probe_attr_filesep_through_file": {
+      "ret": "0xffffffff",
+      "last_error": 3
+    },
+    "probe_mkdir_filesep": {
+      "ret": false,
+      "last_error": 183
+    },
+    "probe_rmdir_filesep": {
+      "ret": false,
+      "last_error": 267
+    },
+    "probe_move_from_filesep": {
+      "ret": false,
+      "last_error": 267
+    },
+    "probe_move_to_missingsep": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "probe_listing": {
+      "names": " lead.txt,.dotfile,c4.txt,d1,t3m,t4.txt,t5..txt,t6 .txt"
     }
   },
   "errors": [],
-  "source_sha256": "e36f5acc7dbeb456270922ae0dbd3d14b5476fe504b1f91793f8afd77b5629ff"
+  "source_sha256": "7010f7d7ad9c6012967ca4485dd11ddd5e8172e2511610c791d50ef36422bfc8"
 }

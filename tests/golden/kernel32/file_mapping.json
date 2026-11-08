@@ -410,8 +410,58 @@
     "rw_replay_no_shrink_trunc_after_delete": {
       "ret": "INVALID_HANDLE_VALUE",
       "last_error": 2
+    },
+    "probe_image_section_delete": {
+      "section": true,
+      "view": false
+    },
+    "probe_image_section_after_delete": {
+      "ret": false,
+      "last_error": 5
+    },
+    "probe_image_section_exists": {
+      "exists": true
+    },
+    "probe_image_section_closed_exists": {
+      "exists": false
+    },
+    "probe_image_view_delete": {
+      "section": true,
+      "view": true
+    },
+    "probe_image_view_after_delete": {
+      "ret": false,
+      "last_error": 5
+    },
+    "probe_image_view_exists": {
+      "exists": true
+    },
+    "probe_image_view_closed_exists": {
+      "exists": false
+    },
+    "probe_section_disp_ex_delete": {
+      "ret": false,
+      "last_error": 5
+    },
+    "probe_section_disp_ex_delete_state": {
+      "exists": true
+    },
+    "probe_section_disp_ex_delete_after_close": {
+      "exists": true,
+      "listing": "cow.bin,empty.bin,ro.bin,sec4.bin,small.bin"
+    },
+    "probe_section_disp_ex_posix": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "probe_section_disp_ex_posix_state": {
+      "exists": false
+    },
+    "probe_section_disp_ex_posix_after_close": {
+      "exists": false,
+      "listing": "cow.bin,empty.bin,ro.bin,small.bin"
     }
   },
   "errors": [],
-  "source_sha256": "d83d9f4d0b13cef76a434c80c7f958a2e942d31dbd0b2be9d119ce33e9f577b6"
+  "source_sha256": "5f453c5f3ecfe1d89f9932de458de98710b2fbf33199a9a2aa09132663ef2a27"
 }

@@ -191,5 +191,33 @@ int main(void)
     bool_case("rmdir_trailing", ok);
 
     listing("final_listing", L".");
+
+    /* Probes: CreateFileW on a missing name or an existing file with a
+     * trailing separator, for the other dispositions. */
+    open_case("probe_missingsep_rw_open_existing", L"nf\\", GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING, 0);
+    open_case("probe_missingsep_rw_create_new", L"nf\\", GENERIC_READ | GENERIC_WRITE, CREATE_NEW, 0);
+    open_case("probe_missingsep_rw_create_always", L"nf\\", GENERIC_READ | GENERIC_WRITE, CREATE_ALWAYS, 0);
+    open_case("probe_missingsep_rw_open_always", L"nf\\", GENERIC_READ | GENERIC_WRITE, OPEN_ALWAYS, 0);
+    open_case("probe_missingsep_rw_truncate_existing", L"nf\\", GENERIC_READ | GENERIC_WRITE, TRUNCATE_EXISTING, 0);
+    open_case("probe_missingsep_read_create_new_backup", L"nf\\", GENERIC_READ, CREATE_NEW, FILE_FLAG_BACKUP_SEMANTICS);
+    open_case("probe_missingsep_fwd_create_new", L"nf/", GENERIC_READ | GENERIC_WRITE, CREATE_NEW, 0);
+    open_case("probe_missingsep_in_missing_dir", L"nodir\\nf\\", GENERIC_READ | GENERIC_WRITE, CREATE_NEW, 0);
+    open_case("probe_filesep_rw_create_always", L"t3\\", GENERIC_READ | GENERIC_WRITE, CREATE_ALWAYS, 0);
+    open_case("probe_filesep_rw_open_always", L"t3\\", GENERIC_READ | GENERIC_WRITE, OPEN_ALWAYS, 0);
+    open_case("probe_filesep_rw_truncate_existing", L"t3\\", GENERIC_READ | GENERIC_WRITE, TRUNCATE_EXISTING, 0);
+    open_case("probe_filesep_read_open_existing_backup", L"t3\\", GENERIC_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
+    open_case("probe_filesep_noaccess_open_existing", L"t3\\", 0, OPEN_EXISTING, 0);
+    open_case("probe_filesep_through_file", L"t3\\x", GENERIC_READ | GENERIC_WRITE, CREATE_NEW, 0);
+    attr_case("probe_attr_filesep_fwd", L"t3/");
+    attr_case("probe_attr_filesep_through_file", L"t3\\x");
+    ORACLE_CALL(ok, CreateDirectoryW(L"t3\\", NULL));
+    bool_case("probe_mkdir_filesep", ok);
+    ORACLE_CALL(ok, RemoveDirectoryW(L"t3\\"));
+    bool_case("probe_rmdir_filesep", ok);
+    ORACLE_CALL(ok, MoveFileW(L"t3\\", L"t3m"));
+    bool_case("probe_move_from_filesep", ok);
+    ORACLE_CALL(ok, MoveFileW(L"t3", L"t3m\\"));
+    bool_case("probe_move_to_missingsep", ok);
+    listing("probe_listing", L".");
     return oracle_end();
 }

@@ -338,8 +338,249 @@
     },
     "final_listing": {
       "names": "COM0,aux.dir,aux.txt,com10,com9.log,conin.txt,lpt0.txt,nul .txt,nul.tar.gz,nulx,sub,xnul"
+    },
+    "probe_full_nul_in_dir": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_absolute": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_rooted": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_drive_relative": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_fwd_slash_dir": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_in_dir_ext": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\sub\\nul.txt",
+      "file_part": "nul.txt"
+    },
+    "probe_full_nul_in_dir_spaces": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_in_dir_dot": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_in_dir_colon": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_aux_absolute": {
+      "last_error": "unchanged",
+      "full": "C:\\aux",
+      "file_part": "aux"
+    },
+    "probe_full_aux_rooted": {
+      "last_error": "unchanged",
+      "full": "C:\\aux",
+      "file_part": "aux"
+    },
+    "probe_full_aux_drive_relative": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\aux",
+      "file_part": "aux"
+    },
+    "probe_full_aux_dot_dir": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\aux",
+      "file_part": "aux"
+    },
+    "probe_full_aux_fwd_slash_dir": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\sub\\aux",
+      "file_part": "aux"
+    },
+    "probe_full_con_in_dir": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\sub\\con",
+      "file_part": "con"
+    },
+    "probe_full_prn_absolute": {
+      "last_error": "unchanged",
+      "full": "C:\\prn",
+      "file_part": "prn"
+    },
+    "probe_full_com1_in_dir": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\sub\\COM1",
+      "file_part": "COM1"
+    },
+    "probe_full_lpt1_absolute": {
+      "last_error": "unchanged",
+      "full": "C:\\lpt1",
+      "file_part": "lpt1"
+    },
+    "probe_full_conin_in_dir": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\sub\\conin$",
+      "file_part": "conin$"
+    },
+    "probe_full_conout_absolute": {
+      "last_error": "unchanged",
+      "full": "C:\\CONOUT$",
+      "file_part": "CONOUT$"
+    },
+    "probe_full_nul_dot_space": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_space_dot": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_two_dots": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_colon_space": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_two_colons": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_nul_colon_x": {
+      "last_error": "unchanged",
+      "full": "<cwd>\\nul:x",
+      "file_part": "nul:x"
+    },
+    "probe_full_nul_colon_dot": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\nul",
+      "file_part": null
+    },
+    "probe_full_aux_colon": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\aux",
+      "file_part": null
+    },
+    "probe_full_con_dot": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\con",
+      "file_part": null
+    },
+    "probe_full_prn_space": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\prn",
+      "file_part": null
+    },
+    "probe_full_com1_colon": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\COM1",
+      "file_part": null
+    },
+    "probe_full_com1_dot": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\com1",
+      "file_part": null
+    },
+    "probe_full_lpt_superscript_3": {
+      "last_error": "unchanged",
+      "full": "\\\\.\\LPT³",
+      "file_part": null
+    },
+    "probe_full_nul_unc": {
+      "last_error": "unchanged",
+      "full": "\\\\server\\share\\nul",
+      "file_part": "nul"
+    },
+    "probe_attr_nul_in_subdir": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "probe_attr_nul_absolute": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "probe_attr_aux_absolute": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "probe_attr_com9_in_subdir": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "probe_attr_nul_in_subdir_ext": {
+      "ret": "0xffffffff",
+      "last_error": 2
+    },
+    "probe_attr_nul_dot_space": {
+      "ret": "0x00000020",
+      "last_error": "unchanged"
+    },
+    "probe_open_nul_in_subdir_ext": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
+    },
+    "probe_open_nul_in_subdir_dot": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "probe_open_nul_drive_relative": {
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 2,
+      "write_ok": true
+    },
+    "probe_open_com9_in_subdir": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "probe_open_lpt9_absolute": {
+      "ret": "INVALID_HANDLE_VALUE",
+      "last_error": 2
+    },
+    "probe_find_nul_in_subdir": {
+      "ret": "valid",
+      "last_error": "unchanged",
+      "first": "nul",
+      "attrs": "0x00000020"
+    },
+    "probe_delete_nul_in_subdir": {
+      "ret": false,
+      "last_error": 87
+    },
+    "probe_mkdir_aux_in_subdir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "probe_mkdir_nul_in_subdir": {
+      "ret": true,
+      "last_error": "unchanged"
+    },
+    "probe_sub_listing": {
+      "names": "aux,nul.txt"
     }
   },
   "errors": [],
-  "source_sha256": "e5952aa668f06ee50814922e2ad21c5b683527fdfc2ddf45c8ca49621cdf29b5"
+  "source_sha256": "2a1607397ee0d2c1a0d435c8146f688b5f789a54b5ab722ec648b9cf4a09b174"
 }

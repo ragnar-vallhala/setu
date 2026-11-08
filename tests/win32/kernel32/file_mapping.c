@@ -518,5 +518,59 @@ int main(void)
         DeleteFileW(L"sec3.bin");
     }
 
+    /* ---- Probes: deleting a file that backs an image section, and the
+     * FileDispositionInfoEx forms on a data section ---- */
+    {
+        wchar_t self[MAX_PATH];
+        GetModuleFileNameW(NULL, self, MAX_PATH);
+        for (int variant = 0; variant < 2; variant++) {
+            static const char *const names[] = {"probe_image_section_delete", "probe_image_view_delete"};
+            static const char *const states[] = {"probe_image_section_after_delete", "probe_image_view_after_delete"};
+            const wchar_t *img = variant ? L"img2.exe" : L"img1.exe";
+            CopyFileW(self, img, FALSE);
+            HANDLE h = CreateFileW(img, GENERIC_READ | GENERIC_EXECUTE, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL,
+                                   OPEN_EXISTING, 0, NULL);
+            HANDLE im = CreateFileMappingW(h, NULL, PAGE_READONLY | SEC_IMAGE, 0, 0, NULL);
+            CloseHandle(h);
+            void *iv = (im && variant) ? MapViewOfFile(im, FILE_MAP_READ, 0, 0, 0) : NULL;
+            oracle_case(names[variant]);
+            o_bool("section", im != NULL);
+            o_bool("view", iv != NULL);
+            oracle_case_end();
+            BOOL_CASE(states[variant], DeleteFileW(img));
+            oracle_case(variant ? "probe_image_view_exists" : "probe_image_section_exists");
+            o_bool("exists", GetFileAttributesW(img) != INVALID_FILE_ATTRIBUTES);
+            oracle_case_end();
+            if (iv) UnmapViewOfFile(iv);
+            if (im) CloseHandle(im);
+            DeleteFileW(img);
+            oracle_case(variant ? "probe_image_view_closed_exists" : "probe_image_section_closed_exists");
+            o_bool("exists", GetFileAttributesW(img) != INVALID_FILE_ATTRIBUTES);
+            oracle_case_end();
+        }
+    }
+    for (int variant = 0; variant < 2; variant++) {
+        static const char *const names[] = {"probe_section_disp_ex_delete", "probe_section_disp_ex_posix"};
+        static const DWORD flags[] = {0x1 /* DELETE */, 0x3 /* DELETE | POSIX_SEMANTICS */};
+        f = mk_file(L"sec4.bin", GENERIC_READ | GENERIC_WRITE, 4096, 'd');
+        m = CreateFileMappingW(f, NULL, PAGE_READWRITE, 0, 0, NULL);
+        CloseHandle(f);
+        HANDLE h = CreateFileW(L"sec4.bin", DELETE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                               OPEN_EXISTING, 0, NULL);
+        DWORD d = flags[variant];
+        BOOL_CASE(names[variant], SetFileInformationByHandle(h, (FILE_INFO_BY_HANDLE_CLASS)21 /* FileDispositionInfoEx */,
+                                                             &d, sizeof d));
+        oracle_case(variant ? "probe_section_disp_ex_posix_state" : "probe_section_disp_ex_delete_state");
+        o_bool("exists", GetFileAttributesW(L"sec4.bin") != INVALID_FILE_ATTRIBUTES);
+        oracle_case_end();
+        CloseHandle(h);
+        oracle_case(variant ? "probe_section_disp_ex_posix_after_close" : "probe_section_disp_ex_delete_after_close");
+        o_bool("exists", GetFileAttributesW(L"sec4.bin") != INVALID_FILE_ATTRIBUTES);
+        o_dir_listing("listing", L".", 1);
+        oracle_case_end();
+        if (m) CloseHandle(m);
+        DeleteFileW(L"sec4.bin");
+    }
+
     return oracle_end();
 }
