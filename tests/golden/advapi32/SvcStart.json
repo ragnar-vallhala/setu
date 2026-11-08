@@ -113,19 +113,19 @@
     },
     "process_exit_without_stopped": {
       "st.type": "0x00000010",
-      "st.state": "RUNNING",
-      "st.accepted": "0x00000001",
-      "st.win32_exit": 0,
+      "st.state": "STOPPED",
+      "st.accepted": "0x00000000",
+      "st.win32_exit": 1067,
       "st.specific_exit": 0,
       "st.checkpoint": 0,
       "st.wait_hint": 0,
-      "st.has_pid": true,
+      "st.has_pid": false,
       "st.flags": "0x00000000",
-      "log": "SetuOracle_SvcStart_5:main,argc=1,args=|SetuOracle_SvcStart_5:register=ok,err=0|SetuOracle_SvcStart_5:set_running"
+      "log": "SetuOracle_SvcStart_5:main,argc=1,args=|SetuOracle_SvcStart_5:register=ok,err=0|SetuOracle_SvcStart_5:set_running|SetuOracle_SvcStart_5:exitprocess"
     },
     "restart_after_process_exit": {
-      "ret": false,
-      "last_error": 1056,
+      "ret": true,
+      "last_error": "unchanged",
       "state": "RUNNING"
     },
     "disabled": {
@@ -171,5 +171,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "4ef33aa70dc52ca1c21d2e4a4ca53211f6e7301445494eaed221b132b7f6c2c8"
+  "source_sha256": "c0aba4156187281656c0156dfa24c948e8086c7281120c0b9509c1c4a0aa0b4c"
 }

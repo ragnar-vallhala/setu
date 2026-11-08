@@ -160,18 +160,26 @@ int main(int argc, char **argv)
     {
         const wchar_t *n = svc_name(5);
         SC_HANDLE x = svc_create(scm, n, L"exitprocess=7");
+        /* The event is created before the service starts: one the service
+         * (LocalSystem) creates first can't be signalled by the test. */
+        HANDLE go = svc_event(n, L"go");
         SERVICE_STATUS_PROCESS st = svc_start_wait(x, 0, NULL);
         DWORD pid = st.dwProcessId;
-        HANDLE go = svc_event(n, L"go");
         SetEvent(go);
         svc_wait_process_exit(pid);
-        st = svc_wait_state(x, SERVICE_STOPPED);
+        /* The SCM notices the exit some time later: wait up to 20 s for the
+         * state to settle on STOPPED. */
+        for (int i = 0; i < 1000; i++) {
+            if (!svc_query(x, &st) || st.dwCurrentState == SERVICE_STOPPED) break;
+            Sleep(20);
+        }
         oracle_case("process_exit_without_stopped");
         o_svcstatus_ex("st", &st);
         o_svclog("log");
         oracle_case_end();
         CloseHandle(go);
         /* It can be started again. */
+        go = svc_event(n, L"go");
         ORACLE_CALL(r, StartServiceW(x, 0, NULL));
         st = svc_wait_state(x, SERVICE_RUNNING);
         oracle_case("restart_after_process_exit");
@@ -179,7 +187,6 @@ int main(int argc, char **argv)
         o_lasterr();
         o_str("state", svc_state_name(st.dwCurrentState));
         oracle_case_end();
-        go = svc_event(n, L"go");
         SetEvent(go);
         svc_wait_process_exit(st.dwProcessId);
         svc_wait_state(x, SERVICE_STOPPED);
