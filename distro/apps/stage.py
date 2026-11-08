@@ -20,7 +20,8 @@ with the vendor's documented silent install, as on Windows:
                   setu-apps-register imports it into every user's prefix
   OUT/report.json per app: installed or not, exit code, time, size
   OUT/stamp       hash of the inputs; a later run with the same inputs
-                  does nothing (--force redoes it)
+                  does nothing (--force redoes it). apps.reg writes it to
+                  HKLM\\Software\\Setu\\DefaultApps "Stamp"
 
 Zip apps are unpacked to their install_dir. Apps whose installer makes no
 shortcut, and Wine's accessories ([[builtin]]), get one from setu-mklnk.
@@ -653,6 +654,9 @@ def main():
                                     {x["id"]: x for x in apps})
         for n in notes:
             log("association " + n)
+        # setu-apps-register looks for this to tell whether a prefix has
+        # this version of the entries
+        assoc["Software\\Setu\\DefaultApps"] = {"Stamp": sz(stamp)}
         report["associations"] = notes
         # values naming the build user's profile would be wrong for anyone else
         userish = sorted(k for k, vals in delta.items()
