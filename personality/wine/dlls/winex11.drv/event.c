@@ -618,9 +618,15 @@ static void set_input_focus( struct x11drv_win_data *data )
     else
         timestamp = CurrentTime;
 
-    /* Set X focus and install colormap */
-    changes.stack_mode = Above;
-    XConfigureWindow( data->display, data->whole_window, CWStackMode, &changes );
+    /* Set X focus and install colormap. A window of a virtual desktop goes
+     * where the Z order has it: a window kept below others (HWND_BOTTOM, or
+     * under a topmost window) keeps its place when it gets the focus. */
+    if (is_desktop_toplevel( data )) restack_desktop_window( data );
+    else
+    {
+        changes.stack_mode = Above;
+        XConfigureWindow( data->display, data->whole_window, CWStackMode, &changes );
+    }
 
     if (data->embedder)
         xembed_request_focus( data->display, data->embedder, timestamp );
@@ -1382,6 +1388,14 @@ void X11DRV_ActivateWindow( HWND hwnd, HWND previous )
     {
         set_net_active_window( hwnd, previous );
         flush = TRUE;
+    }
+    else if (NtUserGetAncestor( hwnd, GA_PARENT ) == NtUserGetDesktopWindow())
+    {
+        /* No window manager raises the windows of a virtual desktop: bring
+         * the activated window to the top of the Z order, as Windows does.
+         * The window can refuse in WM_WINDOWPOSCHANGING, and the X stacking
+         * follows the Z order. */
+        NtUserSetWindowPos( hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
     }
 
     if ((data = get_win_data( hwnd )))

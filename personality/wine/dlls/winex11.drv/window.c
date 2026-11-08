@@ -2117,6 +2117,50 @@ void make_window_embedded( struct x11drv_win_data *data )
 }
 
 
+/* whether this is a top-level window of a virtual desktop, which no window
+ * manager stacks */
+BOOL is_desktop_toplevel( struct x11drv_win_data *data )
+{
+    return is_virtual_desktop() && !data->managed && !data->embedded &&
+           data->whole_window && data->whole_window != root_window &&
+           NtUserGetAncestor( data->hwnd, GA_PARENT ) == NtUserGetDesktopWindow();
+}
+
+/***********************************************************************
+ *		restack_desktop_window
+ *
+ * Stack a top-level window of a virtual desktop where the Z order has it:
+ * just below the nearest visible window before it, or on top of its
+ * siblings when there is none.
+ */
+void restack_desktop_window( struct x11drv_win_data *data )
+{
+    XWindowChanges changes;
+    unsigned int mask = CWStackMode;
+    HWND prev = data->hwnd;
+    Window sibling = 0;
+
+    while ((prev = NtUserGetWindowRelative( prev, GW_HWNDPREV )))
+    {
+        if (!(NtUserGetWindowLongW( prev, GWL_STYLE ) & WS_VISIBLE)) continue;
+        /* not X11DRV_get_whole_window: we hold the win data lock */
+        if ((sibling = (Window)NtUserGetProp( prev, whole_window_prop )) && sibling != data->whole_window) break;
+        sibling = 0;
+    }
+    if (sibling)
+    {
+        changes.sibling = sibling;
+        changes.stack_mode = Below;
+        mask |= CWSibling;
+    }
+    else changes.stack_mode = Above;
+
+    TRACE( "win %p/%lx below %p/%lx\n", data->hwnd, data->whole_window, prev, sibling );
+    X11DRV_expect_error( data->display, host_window_error, NULL );
+    XConfigureWindow( data->display, data->whole_window, mask, &changes );
+    if (X11DRV_check_error()) WARN( "cannot stack %lx below %lx\n", data->whole_window, sibling );
+}
+
 /***********************************************************************
  *		sync_window_position
  *
@@ -2127,7 +2171,7 @@ static void sync_window_position( struct x11drv_win_data *data, UINT swp_flags, 
     DWORD style = NtUserGetWindowLongW( data->hwnd, GWL_STYLE );
     DWORD ex_style = NtUserGetWindowLongW( data->hwnd, GWL_EXSTYLE );
     RECT new_rect, window_rect;
-    BOOL above = FALSE;
+    BOOL above = FALSE, restack = FALSE;
 
     if (data->managed && ((style & WS_MINIMIZE) || data->desired_state.wm_state == IconicState)) return;
 
@@ -2140,6 +2184,12 @@ static void sync_window_position( struct x11drv_win_data *data, UINT swp_flags, 
         if (!prev) above = TRUE;  /* top child */
         /* should use stack_mode Below but most window managers don't get it right */
         /* and Above with a sibling doesn't work so well either, so we ignore it */
+        /* no window manager stacks the windows of a virtual desktop, so do it */
+        if (is_desktop_toplevel( data ))
+        {
+            restack = TRUE;
+            above = FALSE;
+        }
     }
 
     set_size_hints( data, style );
@@ -2154,6 +2204,7 @@ static void sync_window_position( struct x11drv_win_data *data, UINT swp_flags, 
                                         window_rect.top - old_rects->window.top );
 
     window_set_config( data, new_rect, above );
+    if (restack) restack_desktop_window( data );
 }
 
 
