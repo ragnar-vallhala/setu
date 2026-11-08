@@ -838,6 +838,7 @@ __ASM_GLOBAL_FUNC( RtlRaiseException,
                    "movq 0x4f8(%rsp),%rax\n\t"  /* return address */
                    "movq %rax,0xf8(%rdx)\n\t"   /* context->Rip */
                    "movq %rax,0x10(%rcx)\n\t"   /* rec->ExceptionAddress */
+                   "orl $0x80,0x4(%rcx)\n\t"   /* rec->ExceptionFlags |= EXCEPTION_SOFTWARE_ORIGINATE */
                    "movl $1,%r8d\n\t"
                    "movq %gs:0x60,%rax\n\t"     /* Peb */
                    "cmpb $0,0x02(%rax)\n\t"     /* BeingDebugged */

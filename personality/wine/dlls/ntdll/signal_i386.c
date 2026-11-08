@@ -418,6 +418,7 @@ __ASM_STDCALL_FUNC( RtlRaiseException, 4,
                     "movl 4(%ebp),%eax\n\t"       /* return address */
                     "movl 8(%ebp),%ecx\n\t"       /* rec */
                     "movl %eax,12(%ecx)\n\t"      /* rec->ExceptionAddress */
+                    "orl $0x80,4(%ecx)\n\t"       /* rec->ExceptionFlags |= EXCEPTION_SOFTWARE_ORIGINATE */
                     "leal 12(%ebp),%eax\n\t"
                     "movl %eax,0xc4(%esp)\n\t"    /* context->Esp */
                     "movl %esp,%eax\n\t"
