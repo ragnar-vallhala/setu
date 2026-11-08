@@ -11,7 +11,7 @@
 #          start of the target disk: the installer ISO.
 #
 # Inputs (set up by build-image.sh):
-#   /etc/setu-build.env      KIND SUITE MIRROR WINE_MODE IMAGE_HOSTNAME HAVE_SHELL ROOT_SIZE
+#   /etc/setu-build.env      KIND SUITE MIRROR WINE_MODE IMAGE_HOSTNAME HAVE_SHELL HAVE_APPS ROOT_SIZE
 #   9p tag "distro"          the repo's distro/ directory (read-only)
 #   9p tag "overlay"         more files for the image (services/fs, installed;
 #                            the theme packs, icon sets, cursors and sounds,
@@ -19,6 +19,8 @@
 #   9p tag "wpcache"         build/distro/wallpaper-cache/<wallgen hash>/, writable:
 #                            wallgen.py and the collection's JPEGs rendered so far
 #   9p tag "personality"     build/personality/install (read-only, WINE_MODE=setu)
+#   9p tag "apps"            build/distro/apps-stage/c: the default apps' files
+#                            for C: (distro/apps/stage.py; HAVE_APPS=1)
 #   9p tag "shell"           directory with setu-shell.exe and, if built,
 #                            setu-desktop.exe, setu-files.exe, setu-theme.exe, setu-probe.exe
 #                            (HAVE_SHELL=1)
@@ -143,6 +145,20 @@ else
     rm -f $T/etc/sudoers.d/setu
 fi
 
+# The default apps (docs/DEFAULT_APPS.md): their files go onto C:, in
+# Program Files and the common Start Menu. In the dev image $T$CDIR is the
+# mounted C: volume; in the installer's live system it is a plain folder,
+# which Calamares' unpackfs copies onto the new C: volume (mounted there by
+# then).
+if [ "${HAVE_APPS:-0}" = 1 ]; then
+    log "copying the default apps to C:"
+    start=$(date +%s)
+    mount_9p apps /mnt/apps
+    cp -a --no-preserve=ownership /mnt/apps/. $T$CDIR/
+    umount /mnt/apps
+    log "  $(du -sh $T$CDIR | cut -f1) on C: in $(( $(date +%s) - start ))s"
+fi
+
 if [ "$WINE_MODE" = setu ]; then
     log "copying the Setu personality to /opt/setu/personality"
     mount_9p personality /mnt/personality
@@ -196,8 +212,9 @@ useradd -m -s /bin/bash -G sudo,video,render,input,audio setu
 echo setu:setu | chpasswd
 passwd -l root
 systemctl enable systemd-networkd systemd-resolved ssh setu-session.service setu-drives.service setu-ntacld.socket
-# Until NT ACLs exist (services/fs), C: belongs to the one Windows user.
-chown setu:setu /var/lib/setu/volumes/c
+# Until NT ACLs exist (services/fs), C: belongs to the one Windows user,
+# with the default apps on it.
+chown -R setu:setu /var/lib/setu/volumes/c
 systemctl set-default graphical.target
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --removable --no-nvram
 update-grub
@@ -217,6 +234,10 @@ EOF
                && ln -s / $WINEPREFIX/dosdevices/z: && ln -s /var/lib/setu/volumes/c $WINEPREFIX/drive_c \
                && wineboot -i && wineserver -w' \
         || log "warning: prefix creation failed; setu-session will retry on first boot"
+    # The default apps' registry entries (file types, Uninstall entries...)
+    chroot $T runuser -u setu -- env HOME=/home/setu WINEPREFIX=/home/setu/.setu/prefix \
+        WINEDEBUG=-all PATH=/opt/setu/personality/bin:/usr/bin:/bin /usr/lib/setu/setu-apps-register \
+        || log "warning: setu-apps-register failed; setu-session will retry at login"
     # The theme packs, icons, wallpapers, cursors and sounds on its C:
     # (setu-session repeats this at every login).
     chroot $T runuser -u setu -- /usr/lib/setu/setu-theme-sync /home/setu/.setu/prefix/dosdevices/c:/ \

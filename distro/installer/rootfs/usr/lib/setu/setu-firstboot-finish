@@ -7,7 +7,8 @@
 #     for labwc); the locale reaches the session through PAM
 #     (/etc/default/locale);
 #   * C: (the system volume) belongs to USER, the one Windows user for now
-#     (services/fs/README.md);
+#     (services/fs/README.md), with the default apps the installer put on
+#     it (docs/DEFAULT_APPS.md);
 #   * "Log in automatically" ticked (USER is in the autologin group, see
 #     users.conf): setu-session.service logs USER in on tty1, as on the dev
 #     image. Unticked: the normal getty login on tty1, and after the
@@ -40,7 +41,7 @@ XKBMODEL= XKBLAYOUT= XKBVARIANT= XKBOPTIONS=
     echo "Environment=\"XKB_DEFAULT_VARIANT=$XKBVARIANT\" \"XKB_DEFAULT_OPTIONS=$XKBOPTIONS\""
 } > $D/20-keyboard.conf
 
-chown "$USER_NAME:" "$SETU_CVOL_DIR"
+chown -R "$USER_NAME:" "$SETU_CVOL_DIR"
 # the computer name (Calamares wrote /etc/hostname) from now on, not only
 # from the next boot
 hostname -F /etc/hostname

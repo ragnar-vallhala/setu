@@ -155,6 +155,8 @@ if [ ! -f "$WINEPREFIX/system.reg" ]; then
 fi
 wineserver -p
 log "personality up"
+# The default apps' registry entries (docs/DEFAULT_APPS.md), once per image
+[ -x /usr/lib/setu/setu-apps-register ] && /usr/lib/setu/setu-apps-register 2>&1 | sed 's/^/setu-session: /'
 
 # One desktop for the whole session, sized to the display. When the size
 # matches the output, the personality makes the desktop window fullscreen.

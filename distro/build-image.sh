@@ -18,10 +18,12 @@
 #   --shell FILE        setu-shell.exe to install as /opt/setu/shell/setu-shell.exe
 #                       (setu-desktop.exe, setu-files.exe, setu-theme.exe and setu-probe.exe
 #                       next to it come along)
+#   --no-apps           leave out the default apps (distro/apps/apps.toml,
+#                       docs/DEFAULT_APPS.md); they need --wine=setu
 #   --suite NAME        Debian suite (default: trixie, the current stable)
 #   --mirror URL        Debian mirror (default: http://deb.debian.org/debian)
-#   --size SIZE         disk size (default: 12G; the C: volume gets what the
-#                       root file system doesn't)
+#   --size SIZE         disk size (default: 20G, 12G with --no-apps; the C:
+#                       volume gets what the root file system doesn't)
 #   --root-size SIZE    Linux root partition (default: SETU_ROOT_SIZE in
 #                       distro/layout.env, 6GiB)
 #   --out FILE          output image (default: build/distro/setu-dev.qcow2,
@@ -43,7 +45,8 @@ PERSONALITY=""
 SHELL_EXE=""
 SUITE=trixie
 MIRROR=http://deb.debian.org/debian
-SIZE=12G
+SIZE=
+APPS=1
 ROOT_SIZE=
 OUT=
 KIND=image
@@ -58,6 +61,7 @@ while [ $# -gt 0 ]; do
         --wine) WINE_MODE=$2; shift ;;
         --personality) PERSONALITY=$2; shift ;;
         --shell) SHELL_EXE=$2; shift ;;
+        --no-apps) APPS=0 ;;
         --suite) SUITE=$2; shift ;;
         --mirror) MIRROR=$2; shift ;;
         --size) SIZE=$2; shift ;;
@@ -77,6 +81,9 @@ log() { echo "[build-image] $*"; }
 die() { echo "[build-image] error: $*" >&2; exit 1; }
 
 case $WINE_MODE in setu|debian) ;; *) die "--wine must be setu or debian" ;; esac
+[ "$WINE_MODE" = setu ] || APPS=0
+# the default apps take about 4 GB of C: (docs/DEFAULT_APPS.md)
+if [ "$APPS" = 1 ]; then SIZE=${SIZE:-20G}; else SIZE=${SIZE:-12G}; fi
 case $KIND in
     image) OUT=${OUT:-$REPO/build/distro/setu-dev.qcow2}; BUILDER_SIZE=12G ;;
     # the ISO kind keeps the live tree, its squashfs and the ISO on the
@@ -96,6 +103,12 @@ fi
 for t in qemu-system-x86_64 qemu-img curl sha512sum mkfs.vfat mcopy make; do
     command -v $t >/dev/null || die "missing host tool: $t"
 done
+if [ "$APPS" = 1 ]; then
+    for t in Xvfb unshare x86_64-w64-mingw32-gcc; do
+        PATH=$PATH:$HOME/.local/setu-toolchain/bin command -v $t >/dev/null \
+            || die "missing host tool for the default apps: $t (or pass --no-apps)"
+    done
+fi
 [ -w /dev/kvm ] || die "/dev/kvm is not writable (the builder VM needs KVM)"
 # distro/themes/render-packs.py runs on the host
 python3 -c 'import numpy, PIL, cairo, gi; gi.require_version("Rsvg", "2.0"); from gi.repository import Rsvg' 2>/dev/null \
@@ -166,6 +179,25 @@ python3 "$HERE/themes/render-packs.py" --out "$WORK/overlay" "${pack_args[@]}" \
     || die "cannot render the theme packs"
 log "  $(ls "$WORK/overlay/usr/share/setu/themes" | wc -l) packs, $(du -sh "$WORK/overlay/usr/share/setu" | cut -f1), in $(( $(date +%s) - packs_start ))s"
 
+# The default apps (distro/apps, docs/DEFAULT_APPS.md): installed on the
+# host with their vendors' silent installers into a staging C: drive, by
+# the personality being shipped, under a private Xvfb. The result is cached
+# in build/distro/apps-stage (stage.py redoes it only when apps.toml, the
+# staging code or the personality build changed). The builder copies the
+# files onto the C: volume; the registry entries go to
+# /usr/share/setu/apps/apps.reg, which setu-apps-register imports into each
+# user's prefix.
+APPS_STAGE=$BUILD/apps-stage
+if [ "$APPS" = 1 ]; then
+    log "staging the default apps (log: $APPS_STAGE-logs)"
+    apps_start=$(date +%s)
+    python3 "$HERE/apps/stage.py" --out "$APPS_STAGE" --wine "$PERSONALITY/bin/wine" \
+        || die "staging the default apps failed (see $APPS_STAGE-logs, or pass --no-apps)"
+    mkdir -p "$WORK/overlay/usr/share/setu/apps"
+    cp "$APPS_STAGE/apps.reg" "$APPS_STAGE/report.json" "$APPS_STAGE/LICENSES.txt" "$WORK/overlay/usr/share/setu/apps/"
+    log "  $(du -sh "$APPS_STAGE/c" | cut -f1) of apps in $(( $(date +%s) - apps_start ))s"
+fi
+
 # The wallpaper collection is drawn in the builder (build-rootfs.sh) into a
 # cache keyed by wallgen.py, so a build with the same generator reuses it.
 WALLGEN=$REPO/art/wallpapers/wallgen.py
@@ -192,6 +224,7 @@ write_files:
       IMAGE_HOSTNAME=setu
       ROOT_SIZE=$ROOT_SIZE
       HAVE_SHELL=$([ -n "$SHELL_EXE" ] && echo 1 || echo 0)
+      HAVE_APPS=$APPS
 runcmd:
   - [sh, -c, "mkdir -p /mnt/distro && mount -t 9p -o trans=virtio,version=9p2000.L,ro distro /mnt/distro && bash /mnt/distro/builder/build-rootfs.sh > /dev/ttyS1 2>&1 || echo SETU_BUILD_FAILED > /dev/ttyS1; sync; poweroff -f"]
 EOF
@@ -203,6 +236,7 @@ SHARES=(-virtfs "local,path=$HERE,mount_tag=distro,security_model=none,readonly=
         -virtfs "local,path=$WORK/overlay,mount_tag=overlay,security_model=none,readonly=on"
         -virtfs "local,path=$WPCACHE,mount_tag=wpcache,security_model=none")
 [ "$WINE_MODE" = setu ] && SHARES+=(-virtfs "local,path=$PERSONALITY,mount_tag=personality,security_model=none,readonly=on")
+[ "$APPS" = 1 ] && SHARES+=(-virtfs "local,path=$APPS_STAGE/c,mount_tag=apps,security_model=none,readonly=on")
 [ -n "$SHELL_EXE" ] && SHARES+=(-virtfs "local,path=$(dirname "$SHELL_EXE"),mount_tag=shell,security_model=none,readonly=on")
 
 # Build output goes to the VM's second serial port (ttyS1): the first one

@@ -1,0 +1,28 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# setu-apps-register: give this user's prefix the default apps' registry
+# entries (docs/DEFAULT_APPS.md). The apps' files are on the shared C:
+# volume, put there by the image or the installer; what their installers
+# wrote to HKEY_LOCAL_MACHINE\Software (file types and the default app for
+# each, App Paths, Uninstall entries) is in /usr/share/setu/apps/apps.reg
+# (distro/apps/stage.py), and every prefix has its own registry. It is
+# imported with regedit once per version of the file: the prefix keeps the
+# file's hash in $WINEPREFIX/.setu-apps.stamp. A user's own choices under
+# HKEY_CURRENT_USER\Software\Classes still win over these.
+#
+# Run by setu-session at every login after the prefix exists, and by the
+# image build for the dev image's prefix. Needs WINEPREFIX and wine on PATH.
+set -u
+REG=${SETU_APPS_REG:-/usr/share/setu/apps/apps.reg}
+[ -f "$REG" ] || exit 0
+: "${WINEPREFIX:?setu-apps-register: WINEPREFIX is not set}"
+STAMP=$WINEPREFIX/.setu-apps.stamp
+sum=$(sha256sum < "$REG" | cut -c1-64)
+[ "$(cat "$STAMP" 2>/dev/null)" = "$sum" ] && exit 0
+if wine regedit /S "$(winepath -w "$REG" 2>/dev/null)" >/dev/null 2>&1; then
+    echo "$sum" > "$STAMP"
+    echo "setu-apps-register: imported $REG"
+else
+    echo "setu-apps-register: regedit could not import $REG" >&2
+    exit 1
+fi
