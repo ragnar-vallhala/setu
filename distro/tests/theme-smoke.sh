@@ -142,6 +142,9 @@ n=$(gssh "ls $C/Web/Wallpaper/Setu/*.jpg | wc -l")
 pass "C: has $(gssh "ls -d $C/Resources/Themes/setu-*/ | wc -l") packs, 5 icon sets, cursors, sounds, $n collection wallpapers"
 gssh grep -q XCURSOR_THEME=setu-light .config/labwc/environment || fail "~/.config/labwc/environment is not setu-light's"
 pass "labwc: setu-light (~/.config/labwc)"
+for _ in $(seq 30); do gssh pgrep -f setu-desktop.exe >/dev/null && break; sleep 2; done
+gssh pgrep -f setu-desktop.exe >/dev/null || fail "setu-desktop.exe (desktop icons) is not running"
+pass "desktop: setu-desktop.exe is running"
 
 # --- 2. setu-theme apply setu-dark ---------------------------------------------
 if gssh test -f /opt/setu/shell/setu-theme.exe; then

@@ -20,7 +20,7 @@
 #                            wallgen.py and the collection's JPEGs rendered so far
 #   9p tag "personality"     build/personality/install (read-only, WINE_MODE=setu)
 #   9p tag "shell"           directory with setu-shell.exe and, if built,
-#                            setu-files.exe, setu-theme.exe and setu-probe.exe
+#                            setu-desktop.exe, setu-files.exe, setu-theme.exe, setu-probe.exe
 #                            (HAVE_SHELL=1)
 #   virtio disk serial "setu-target"   the output disk (raw)
 # Output goes to the second serial port; its last line is SETU_BUILD_OK on
@@ -155,10 +155,11 @@ if [ "${HAVE_SHELL:-0}" = 1 ]; then
     mount_9p shell /mnt/shell
     mkdir -p $T/opt/setu/shell
     cp --no-preserve=ownership /mnt/shell/setu-shell.exe $T/opt/setu/shell/
-    # the file manager the shell opens folders with, the theme tool
+    # the desktop (icons and wallpaper) the shell starts, the file manager
+    # it opens folders with, the theme tool
     # (setu-session runs it at login) and the test helper
     # (distro/tests use it), if they were built
-    for f in setu-files.exe setu-theme.exe setu-probe.exe; do
+    for f in setu-desktop.exe setu-files.exe setu-theme.exe setu-probe.exe; do
         if [ -f /mnt/shell/$f ]; then
             cp --no-preserve=ownership /mnt/shell/$f $T/opt/setu/shell/
         fi

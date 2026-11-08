@@ -16,7 +16,7 @@
 #   --personality DIR   Setu personality install dir
 #                       (default: <main checkout>/build/personality/install)
 #   --shell FILE        setu-shell.exe to install as /opt/setu/shell/setu-shell.exe
-#                       (setu-files.exe, setu-theme.exe and setu-probe.exe
+#                       (setu-desktop.exe, setu-files.exe, setu-theme.exe and setu-probe.exe
 #                       next to it come along)
 #   --suite NAME        Debian suite (default: trixie, the current stable)
 #   --mirror URL        Debian mirror (default: http://deb.debian.org/debian)
