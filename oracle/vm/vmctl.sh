@@ -244,6 +244,7 @@ cmd_provision() {
   for _ in $(seq 180); do running || break; sleep 2; done
   running && die "guest did not power off within 6 minutes"
   rm -f "$PIDF"
+  sleep 5   # QEMU may still hold its VNC port for a moment after the guest powers off
   launch run headless
   wait_ssh 900
   log "letting the guest settle for ${settle}s (background first-boot tasks) ..."

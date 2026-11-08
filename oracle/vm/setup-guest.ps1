@@ -65,6 +65,9 @@ if (-not (Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction Silentl
     New-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -DisplayName "OpenSSH Server (sshd)" `
         -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 | Out-Null
 }
+# The rule the OpenSSH capability creates allows only the Private profile.
+# A VM whose NAT network has no internet is "Public", so allow every profile.
+Set-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -Profile Any
 
 # --- Stability: keep the snapshot quiet and comparable ----------------------
 Step "Disabling automatic updates, sleep and hibernation"
