@@ -194,7 +194,7 @@ if [ "$APPS" = 1 ]; then
     python3 "$HERE/apps/stage.py" --out "$APPS_STAGE" --wine "$PERSONALITY/bin/wine" \
         || die "staging the default apps failed (see $APPS_STAGE-logs, or pass --no-apps)"
     mkdir -p "$WORK/overlay/usr/share/setu/apps"
-    cp "$APPS_STAGE/apps.reg" "$APPS_STAGE/report.json" "$APPS_STAGE/LICENSES.txt" "$WORK/overlay/usr/share/setu/apps/"
+    cp "$APPS_STAGE/apps.reg" "$APPS_STAGE/report.json" "$APPS_STAGE/LICENSES.txt" "$APPS_STAGE/stamp" "$WORK/overlay/usr/share/setu/apps/"
     log "  $(du -sh "$APPS_STAGE/c" | cut -f1) of apps in $(( $(date +%s) - apps_start ))s"
 fi
 

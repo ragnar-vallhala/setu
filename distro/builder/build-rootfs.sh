@@ -234,9 +234,12 @@ EOF
                && ln -s / $WINEPREFIX/dosdevices/z: && ln -s /var/lib/setu/volumes/c $WINEPREFIX/drive_c \
                && wineboot -i && wineserver -w' \
         || log "warning: prefix creation failed; setu-session will retry on first boot"
-    # The default apps' registry entries (file types, Uninstall entries...)
+    # The default apps' registry entries (file types, Uninstall entries...).
+    # wineserver -w: the registry reaches system.reg only when the server
+    # saves it, and the build kills what is left running at the end.
     chroot $T runuser -u setu -- env HOME=/home/setu WINEPREFIX=/home/setu/.setu/prefix \
-        WINEDEBUG=-all PATH=/opt/setu/personality/bin:/usr/bin:/bin /usr/lib/setu/setu-apps-register \
+        WINEDEBUG=-all PATH=/opt/setu/personality/bin:/usr/bin:/bin \
+        sh -c '/usr/lib/setu/setu-apps-register && wineserver -w' \
         || log "warning: setu-apps-register failed; setu-session will retry at login"
     # The theme packs, icons, wallpapers, cursors and sounds on its C:
     # (setu-session repeats this at every login).

@@ -6,21 +6,25 @@
 # wrote to HKEY_LOCAL_MACHINE\Software (file types and the default app for
 # each, App Paths, Uninstall entries) is in /usr/share/setu/apps/apps.reg
 # (distro/apps/stage.py), and every prefix has its own registry. It is
-# imported with regedit once per version of the file: the prefix keeps the
-# file's hash in $WINEPREFIX/.setu-apps.stamp. A user's own choices under
-# HKEY_CURRENT_USER\Software\Classes still win over these.
+# imported with regedit unless the prefix already has this version of it:
+# apps.reg sets HKLM\Software\Setu\DefaultApps "Stamp" to the hash in
+# /usr/share/setu/apps/stamp, and the prefix's system.reg is checked for
+# it. (The registry itself is checked rather than a stamp file of our own,
+# so entries the server never saved get imported again.) A user's own
+# choices under HKEY_CURRENT_USER\Software\Classes still win over these.
 #
 # Run by setu-session at every login after the prefix exists, and by the
 # image build for the dev image's prefix. Needs WINEPREFIX and wine on PATH.
 set -u
-REG=${SETU_APPS_REG:-/usr/share/setu/apps/apps.reg}
+DIR=${SETU_APPS_DIR:-/usr/share/setu/apps}
+REG=$DIR/apps.reg
 [ -f "$REG" ] || exit 0
 : "${WINEPREFIX:?setu-apps-register: WINEPREFIX is not set}"
-STAMP=$WINEPREFIX/.setu-apps.stamp
-sum=$(sha256sum < "$REG" | cut -c1-64)
-[ "$(cat "$STAMP" 2>/dev/null)" = "$sum" ] && exit 0
+want=$(cat "$DIR/stamp" 2>/dev/null)
+if [ -n "$want" ] && grep -qF "\"Stamp\"=\"$want\"" "$WINEPREFIX/system.reg" 2>/dev/null; then
+    exit 0
+fi
 if wine regedit /S "$(winepath -w "$REG" 2>/dev/null)" >/dev/null 2>&1; then
-    echo "$sum" > "$STAMP"
     echo "setu-apps-register: imported $REG"
 else
     echo "setu-apps-register: regedit could not import $REG" >&2
