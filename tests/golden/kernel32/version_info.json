@@ -202,8 +202,29 @@
     "verify_major_less_minor_equal": {
       "ret": true,
       "last_error": "unchanged"
+    },
+    "probe_peb_version": {
+      "major": 10,
+      "minor": 0,
+      "build": 26300,
+      "platform": 2
+    },
+    "probe_registry_current_version": {
+      "open": 0,
+      "CurrentVersion": "6.3",
+      "CurrentBuild": "26300",
+      "CurrentBuildNumber": "26300",
+      "DisplayVersion": "26H2",
+      "ReleaseId": "2009",
+      "ProductName": "Windows 10 Pro",
+      "EditionID": "Professional",
+      "InstallationType": "Client",
+      "CurrentType": "Multiprocessor Free",
+      "CurrentMajorVersionNumber": 10,
+      "CurrentMinorVersionNumber": 0,
+      "UBR_present": true
     }
   },
   "errors": [],
-  "source_sha256": "cc8c3a45d54538b055ecd681195a89325f8b510af701bd280be619de4e2857b9"
+  "source_sha256": "852639f10253522860e92f083bbade6e3a49d5accd470ad9b1dbca1609685093"
 }

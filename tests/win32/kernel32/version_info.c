@@ -6,7 +6,7 @@
  * VerifyVersionInfoW with every comparison style, VerSetConditionMask, and
  * the version numbers in KUSER_SHARED_DATA.
  *
- * The goldens come from Windows 10 22H2 (10.0.19045); suite masks and
+ * The goldens come from Windows 11 26H2 (10.0.26300); suite masks and
  * product types that depend on the edition are not printed.
  *
  * Docs: https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getversion
@@ -297,6 +297,55 @@ int main(void)
         oracle_case("verify_major_less_minor_equal");
         o_bool("ret", ok);
         o_lasterr();
+        oracle_case_end();
+    }
+
+    /* Probe: the other places the version is visible: the PEB and the
+     * CurrentVersion registry key. UBR (the update revision) is only
+     * checked for presence. */
+    {
+        const BYTE *peb = (const BYTE *)__readgsqword(0x60); /* TEB.ProcessEnvironmentBlock */
+        oracle_case("probe_peb_version");
+        o_u32("major", *(const ULONG *)(peb + 0x118));
+        o_u32("minor", *(const ULONG *)(peb + 0x11c));
+        o_u32("build", *(const USHORT *)(peb + 0x120));
+        o_u32("platform", *(const ULONG *)(peb + 0x124));
+        oracle_case_end();
+    }
+    {
+        static const wchar_t *const strs[] = {L"CurrentVersion", L"CurrentBuild", L"CurrentBuildNumber",
+                                              L"DisplayVersion", L"ReleaseId", L"ProductName",
+                                              L"EditionID", L"InstallationType", L"CurrentType"};
+        static const wchar_t *const dwords[] = {L"CurrentMajorVersionNumber", L"CurrentMinorVersionNumber"};
+        HKEY k;
+        LONG st = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0,
+                                KEY_QUERY_VALUE | KEY_WOW64_64KEY, &k);
+        oracle_case("probe_registry_current_version");
+        o_status("open", st);
+        if (!st) {
+            for (unsigned i = 0; i < sizeof strs / sizeof strs[0]; i++) {
+                wchar_t buf[256];
+                DWORD sz = sizeof buf - sizeof(wchar_t), type = 0;
+                memset(buf, 0, sizeof buf);
+                LONG r = RegQueryValueExW(k, strs[i], NULL, &type, (BYTE *)buf, &sz);
+                char key[64];
+                snprintf(key, sizeof key, "%ls", strs[i]);
+                if (r) o_str(key, "<absent>");
+                else if (type != REG_SZ) o_str(key, "<not REG_SZ>");
+                else o_wstr(key, buf);
+            }
+            for (unsigned i = 0; i < sizeof dwords / sizeof dwords[0]; i++) {
+                DWORD v = 0, sz = sizeof v, type = 0;
+                LONG r = RegQueryValueExW(k, dwords[i], NULL, &type, (BYTE *)&v, &sz);
+                char key[64];
+                snprintf(key, sizeof key, "%ls", dwords[i]);
+                if (r || type != REG_DWORD) o_str(key, "<absent>");
+                else o_u32(key, v);
+            }
+            DWORD ubr = 0, sz = sizeof ubr, type = 0;
+            o_bool("UBR_present", !RegQueryValueExW(k, L"UBR", NULL, &type, (BYTE *)&ubr, &sz) && type == REG_DWORD);
+            RegCloseKey(k);
+        }
         oracle_case_end();
     }
 
