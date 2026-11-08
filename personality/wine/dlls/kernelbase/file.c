@@ -804,12 +804,13 @@ HANDLE WINAPI DECLSPEC_HOTPATCH CreateFile2( LPCWSTR name, DWORD access, DWORD s
         return INVALID_HANDLE_VALUE;
     }
 
-    /* CreateFileW makes a directory for this combination; CreateFile2 refuses it */
+    /* like CreateFileW, this combination makes a directory */
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) && (flags & FILE_FLAG_BACKUP_SEMANTICS) &&
         (flags & FILE_FLAG_POSIX_SEMANTICS) && creation == CREATE_NEW)
     {
-        SetLastError( ERROR_INVALID_PARAMETER );
-        return INVALID_HANDLE_VALUE;
+        flags &= flags_mask;
+        return CreateFileW( name, access, sharing, sa, creation,
+                            flags | (attributes & attributes_mask) | FILE_ATTRIBUTE_DIRECTORY, template );
     }
 
     if (attributes & ~attributes_mask) FIXME( "unsupported attributes %#lx\n", attributes );
