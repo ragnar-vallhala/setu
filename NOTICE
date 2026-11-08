@@ -156,8 +156,6 @@ where a file lives in the tree.
        https://download.videolan.org/pub/videolan/vlc/3.0.24/vlc-3.0.24.tar.xz
      * KeePassXC 2.8.0: GPL-3.0-or-later (parts GPL-2.0, LGPL, BSD, MIT).
        https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/keepassxc-2.8.0-src.tar.xz
-     * Windows Terminal 1.25.2733.0: MIT.
-       https://github.com/microsoft/terminal/archive/refs/tags/v1.25.2733.0.tar.gz
      * PuTTY 0.85: MIT. https://the.earth.li/~sgtatham/putty/0.85/putty-0.85.tar.gz
      * WinSCP 6.7: GPL-3.0-or-later.
        https://github.com/winscp/winscp/archive/refs/tags/6.7.tar.gz
@@ -166,9 +164,7 @@ where a file lives in the tree.
 
    The same list is installed in the images as
    /usr/share/setu/apps/LICENSES.txt, and each app's own licence text is in
-   its folder under C:\Program Files. Windows Terminal is open-source
-   software published by Microsoft under the MIT License, as released; it
-   is not Microsoft code in Setu's source (section 3).
+   its folder under C:\Program Files.
 
    The Start menu icons of Wine's accessories (WordPad, Clock) are drawn
    by distro/apps/icons.py: original Setu work, MIT OR Apache-2.0.

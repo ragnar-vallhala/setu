@@ -2,7 +2,8 @@
 #
 # The default apps preinstalled in the Setu image and installer ISO
 # (docs/DEFAULT_APPS.md). Owner decision 2026-11-08 (setu-m3 #146): these 14
-# Windows builds plus Wine's own accessories, and nothing else.
+# Windows builds plus Wine's own accessories, and nothing else (Windows
+# Terminal, the 14th, is left out for now: see below).
 #
 # Every download is the official 64-bit Windows release from the project's
 # own site or its official GitHub releases, pinned by version, URL and
@@ -84,7 +85,7 @@ silent_docs = "https://wiki.documentfoundation.org/Deployment_and_Migration#Sile
 install_timeout = 2400
 exe = 'C:\Program Files\LibreOffice\program\soffice.exe'
 args = ["--norestore", "--nologo", "--writer", "%SAMPLE_TXT%"]
-window = 'LibreOffice'
+window = '^SALFRAME\|'
 window_timeout = 240
 
 [[app]]
@@ -161,7 +162,8 @@ install_args = ["/qn", "ALLUSERS=1"]
 silent_docs = "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec"
 exe = 'C:\Program Files\ImageGlass\ImageGlass.exe'
 args = ["%SAMPLE_PNG%"]
-window = 'ImageGlass|sample\.png'
+window = '^(?!.*Unhandled exception).*(ImageGlass|sample\.png)'
+known_issue = "opens an Unhandled exception dialog (NotImplementedException) instead of its viewer"
 
 [[app]]
 id = "gimp"
@@ -241,26 +243,32 @@ install_args = ["/qn", "ALLUSERS=1", "LAUNCHAPPONEXIT=0", "AUTOSTARTPROGRAM=0"]
 silent_docs = "https://keepassxc.org/docs/KeePassXC_GettingStarted#_installing_keepassxc"
 exe = 'C:\Program Files\KeePassXC\KeePassXC.exe'
 window = 'KeePassXC'
+known_issue = "does not start: Qt6Core.dll imports icuuc.dll, the ICU that Windows ships in system32, which the personality lacks"
 
-[[app]]
-id = "windows-terminal"
-name = "Windows Terminal"
-version = "1.25.2733.0"
-url = "https://github.com/microsoft/terminal/releases/download/v1.25.2733.0/Microsoft.WindowsTerminal_1.25.2733.0_x64.zip"
-sha256 = "bf3ef2012f6c44d8340a4c58125acc9498d19b580f9890dc043cdf831852e796"
-size = 12127272
-checksum_src = "https://api.github.com/repos/microsoft/terminal/releases/tags/v1.25.2733.0 (asset digest)"
-licence = "MIT"
-licence_url = "https://github.com/microsoft/terminal/blob/v1.25.2733.0/LICENSE"
-source_url = "https://github.com/microsoft/terminal/archive/refs/tags/v1.25.2733.0.tar.gz"
-homepage = "https://github.com/microsoft/terminal/releases/tag/v1.25.2733.0"
-kind = "zip"
-install_dir = 'C:\Program Files\Windows Terminal'
-install_args = []
-silent_docs = "https://learn.microsoft.com/en-us/windows/terminal/distributions#windows-terminal-unpackaged-zip"
-exe = 'C:\Program Files\Windows Terminal\WindowsTerminal.exe'
-window = 'CASCADIA_HOSTING_WINDOW_CLASS|Terminal'
-lnk = "Terminal"
+# Windows Terminal is left out (owner: "the portable zip, or report and
+# leave it out if no build runs"): 1.25.2733.0 does not start under Setu.
+# TerminalApp.dll imports icu.dll, the ICU that Windows ships in
+# system32, which the personality lacks (reported to shell-api). Its pin
+# is kept here for when it does:
+# [[app]]
+# id = "windows-terminal"
+# name = "Windows Terminal"
+# version = "1.25.2733.0"
+# url = "https://github.com/microsoft/terminal/releases/download/v1.25.2733.0/Microsoft.WindowsTerminal_1.25.2733.0_x64.zip"
+# sha256 = "bf3ef2012f6c44d8340a4c58125acc9498d19b580f9890dc043cdf831852e796"
+# size = 12127272
+# checksum_src = "https://api.github.com/repos/microsoft/terminal/releases/tags/v1.25.2733.0 (asset digest)"
+# licence = "MIT"
+# licence_url = "https://github.com/microsoft/terminal/blob/v1.25.2733.0/LICENSE"
+# source_url = "https://github.com/microsoft/terminal/archive/refs/tags/v1.25.2733.0.tar.gz"
+# homepage = "https://github.com/microsoft/terminal/releases/tag/v1.25.2733.0"
+# kind = "zip"
+# install_dir = 'C:\Program Files\Windows Terminal'
+# install_args = []
+# silent_docs = "https://learn.microsoft.com/en-us/windows/terminal/distributions#windows-terminal-unpackaged-zip"
+# exe = 'C:\Program Files\Windows Terminal\WindowsTerminal.exe'
+# window = 'CASCADIA_HOSTING_WINDOW_CLASS|Terminal'
+# lnk = "Terminal"
 
 [[app]]
 id = "putty"
@@ -297,7 +305,6 @@ install_args = ["/VERYSILENT", "/ALLUSERS", "/NORESTART", "/SUPPRESSMSGBOXES"]
 silent_docs = "https://winscp.net/eng/docs/installation#automating_installation"
 exe = 'C:\Program Files (x86)\WinSCP\WinSCP.exe'
 window = 'WinSCP|Login'
-known_issue = "shows no window under Setu (docs/COMPAT.md: installs only)"
 
 [[app]]
 id = "sharex"
@@ -324,7 +331,7 @@ id = "wordpad"
 lnk = "WordPad"
 exe = 'C:\Program Files\Windows NT\Accessories\wordpad.exe'
 icon = "wordpad"
-window = '\|.*WordPad$|WordPad'
+window = '^WORDPADTOP\|'
 
 [[builtin]]
 id = "clock"
