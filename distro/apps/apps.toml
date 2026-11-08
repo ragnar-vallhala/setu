@@ -6,7 +6,7 @@
 #
 # Every download is the official 64-bit Windows release from the project's
 # own site or its official GitHub releases, pinned by version, URL and
-# sha256. distro/apps/fetch.sh caches them in build/distro/downloads/apps;
+# sha256. distro/apps/fetch.py caches them in build/distro/downloads/apps;
 # they are never committed. distro/apps/stage.py installs them with the
 # vendor's documented silent install into a staging C: drive at image build
 # time (distro/build-image.sh).
@@ -19,7 +19,7 @@
 #                   published checksum ("" when the vendor publishes none:
 #                   then it was computed from the official download)
 #   licence         SPDX-style summary; licence_url the vendor's text
-#   source_url      the source code of exactly this release (written offer:
+#   source_url      the source code of exactly this release (see
 #                   docs/DEFAULT_APPS.md, "Licences and source")
 #   homepage        where the version and URL were taken from
 #   kind            msi | nsis | inno | mozilla | sumatra | zip

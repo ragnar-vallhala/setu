@@ -425,10 +425,12 @@ def progids_for(delta, ext):
     Capabilities (FileAssociations, URLAssociations: Default Programs,
     https://learn.microsoft.com/windows/win32/shell/default-programs)."""
     out = []
-    k = delta.get("Software\\Classes\\" + ext, {})
+    # key names keep the case of whichever program created them first
+    low = {key.lower(): vals for key, vals in delta.items()}
+    k = low.get(("Software\\Classes\\" + ext).lower(), {})
     if "" in k and sz_text(k[""]):
         out.append(sz_text(k[""]))
-    for n in delta.get("Software\\Classes\\%s\\OpenWithProgids" % ext, {}):
+    for n in low.get(("Software\\Classes\\%s\\OpenWithProgids" % ext).lower(), {}):
         if n:
             out.append(n)
     for key, vals in delta.items():
