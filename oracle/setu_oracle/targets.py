@@ -12,6 +12,7 @@ import os
 import shlex
 import shutil
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 
@@ -199,13 +200,20 @@ class WineTarget(Target):
         if work.exists():
             shutil.rmtree(work)
         work.mkdir(parents=True)
-        try:
-            r = subprocess.run([*self.wine, str(test.exe.resolve())], cwd=work, env=self.env,
-                               capture_output=True, timeout=self.timeout)
-            return RawRun(r.stdout, r.stderr, r.returncode)
-        except subprocess.TimeoutExpired as e:
-            self._wineserver("-k")
-            return RawRun(e.stdout or b"", e.stderr or b"", None, f"timeout after {self.timeout}s")
+        # stderr goes to a file, not a pipe: the services wine starts on the
+        # first run (explorer, services.exe, ...) inherit it and keep a pipe
+        # open until the wineserver exits, so reading a pipe to EOF waited
+        # out the server's idle timeout (~4 s) after every test.
+        with tempfile.TemporaryFile() as err:
+            try:
+                r = subprocess.run([*self.wine, str(test.exe.resolve())], cwd=work, env=self.env,
+                                   stdout=subprocess.PIPE, stderr=err, timeout=self.timeout)
+                err.seek(0)
+                return RawRun(r.stdout, err.read(), r.returncode)
+            except subprocess.TimeoutExpired as e:
+                self._wineserver("-k")
+                err.seek(0)
+                return RawRun(e.stdout or b"", err.read(), None, f"timeout after {self.timeout}s")
 
     def describe(self) -> dict:
         try:
