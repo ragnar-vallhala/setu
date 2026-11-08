@@ -114,6 +114,23 @@
       "last_error": "unchanged",
       "removed": 1
     },
+    "probe_nt_remove_ex_timeout": {
+      "status": "0x00000102",
+      "removed": 0
+    },
+    "probe_nt_remove_ex_count_zero": {
+      "status": "0xc000000d",
+      "removed": 85
+    },
+    "probe_nt_remove_ex_user_apc": {
+      "status": "0x000000c0",
+      "removed": 0
+    },
+    "probe_get_ex_timeout_1ms": {
+      "ret": false,
+      "last_error": 258,
+      "removed": 0
+    },
     "post_to_event": {
       "ret": false,
       "last_error": 6
@@ -218,5 +235,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "89f2c186537606411d08750e86e9de7aadd953309a276f27e8ea7aea775ccaf5"
+  "source_sha256": "95273453c9ae14a2ece2736177460f1211683dcf11605839495377d8895470a1"
 }

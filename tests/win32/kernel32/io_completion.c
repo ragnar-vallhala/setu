@@ -170,6 +170,43 @@ int main(void)
         oracle_case_end();
         SleepEx(0, TRUE);
         GetQueuedCompletionStatusEx(port, e, 8, &n, 0, FALSE);
+
+        /* Probe: does NtRemoveIoCompletionEx itself write 0 entries on a
+         * timeout or a user APC, or only GetQueuedCompletionStatusEx? */
+        typedef LONG(WINAPI * remove_ex_fn)(HANDLE, void *, ULONG, ULONG *, LARGE_INTEGER *, BOOLEAN);
+        remove_ex_fn nt_remove_ex =
+            (remove_ex_fn)(void *)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtRemoveIoCompletionEx");
+        if (nt_remove_ex) {
+            LARGE_INTEGER zero = {{0, 0}}, second;
+            LONG st;
+            second.QuadPart = -10000000;
+            n = 0x55;
+            st = nt_remove_ex(port, e, 8, &n, &zero, FALSE);
+            oracle_case("probe_nt_remove_ex_timeout");
+            o_hex32("status", (DWORD)st);
+            o_u32("removed", n);
+            oracle_case_end();
+            n = 0x55;
+            st = nt_remove_ex(port, e, 0, &n, &zero, FALSE);
+            oracle_case("probe_nt_remove_ex_count_zero");
+            o_hex32("status", (DWORD)st);
+            o_u32("removed", n);
+            oracle_case_end();
+            QueueUserAPC(apc, GetCurrentThread(), 0);
+            n = 0x55;
+            st = nt_remove_ex(port, e, 8, &n, &second, TRUE);
+            oracle_case("probe_nt_remove_ex_user_apc");
+            o_hex32("status", (DWORD)st);
+            o_u32("removed", n);
+            oracle_case_end();
+            n = 0x55;
+            ORACLE_CALL(ok, GetQueuedCompletionStatusEx(port, e, 8, &n, 1, FALSE));
+            oracle_case("probe_get_ex_timeout_1ms");
+            o_bool("ret", ok);
+            o_lasterr();
+            o_u32("removed", n);
+            oracle_case_end();
+        }
     }
 
     /* ---- wrong handles ---- */
