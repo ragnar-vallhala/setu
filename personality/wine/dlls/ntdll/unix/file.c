@@ -4481,7 +4481,7 @@ static NTSTATUS lookup_unix_name( int root_fd, OBJECT_ATTRIBUTES *attr, UNICODE_
                 /* a trailing backslash is only valid after a directory */
                 if ((status == STATUS_SUCCESS || status == STATUS_OBJECT_NAME_COLLISION) &&
                     fstatat( root_fd, unix_name, &st, 0 ) == -1 && errno == ENOTDIR)
-                    status = STATUS_OBJECT_NAME_INVALID;
+                    status = STATUS_NOT_A_DIRECTORY;
             }
         }
         else if (status == STATUS_OBJECT_NAME_NOT_FOUND) status = STATUS_OBJECT_PATH_NOT_FOUND;
@@ -5567,6 +5567,11 @@ NTSTATUS WINAPI NtCreateFile( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBU
     }
     else status = get_nt_and_unix_names( &new_attr, &nt_name, &unix_name, disposition,
                                          options & FILE_OPEN_REPARSE_POINT );
+
+    /* creating a directory over an existing file named with a trailing
+     * backslash is a name collision, not a missing directory */
+    if (status == STATUS_NOT_A_DIRECTORY && disposition == FILE_CREATE && (options & FILE_DIRECTORY_FILE))
+        status = STATUS_OBJECT_NAME_COLLISION;
 
     /* creating a non-directory file over an existing directory fails with
      * STATUS_FILE_IS_A_DIRECTORY, not with a name collision */
