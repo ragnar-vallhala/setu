@@ -3926,6 +3926,7 @@
     "kernel32/CopyFileW:move_case_only",
     "kernel32/CopyFileW:move_directory",
     "kernel32/CopyFileW:move_into_own_nested_subdir",
+    "kernel32/CopyFileW:move_into_own_subdir",
     "kernel32/CopyFileW:move_new",
     "kernel32/CopyFileW:move_onto_existing",
     "kernel32/CreateDirectoryExW:ansi_template_readonly",
