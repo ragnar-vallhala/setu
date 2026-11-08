@@ -708,6 +708,8 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR 
         info->dwThreadId  = HandleToUlong( rtl_info.ClientId.UniqueThread );
         if (!(flags & CREATE_SUSPENDED)) NtResumeThread( rtl_info.Thread, NULL );
         TRACE( "started process pid %04lx tid %04lx\n", info->dwProcessId, info->dwThreadId );
+        /* a successful call clears the last error, whatever the environment */
+        SetLastError( ERROR_SUCCESS );
     }
 
  done:
