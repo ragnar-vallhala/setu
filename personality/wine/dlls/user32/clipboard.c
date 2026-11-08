@@ -657,6 +657,8 @@ HANDLE WINAPI GetClipboardData( UINT format )
     }
 
     LeaveCriticalSection( &clipboard_cs );
+    /* returning data clears the last error */
+    if (ret) SetLastError( ERROR_SUCCESS );
     return ret;
 }
 

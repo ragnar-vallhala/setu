@@ -722,7 +722,8 @@ HANDLE WINAPI NtUserGetClipboardData( UINT format, struct get_clipboard_params *
         }
         if (status == STATUS_OBJECT_NAME_NOT_FOUND)
         {
-            /* no such format: Windows 10 leaves the last error alone (Windows 11 sets ERROR_NOT_FOUND) */
+            /* no such format */
+            RtlSetLastWin32Error( ERROR_NOT_FOUND );
             return 0;
         }
         if (status)
