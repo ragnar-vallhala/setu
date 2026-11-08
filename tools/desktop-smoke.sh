@@ -141,6 +141,19 @@ has_item() { st | grep -q "^item=$1|"; }
 item_field() { st | awk -F'|' -v n="$1" -v f="$2" '$1 == "item=" n { print $f; exit }'; }
 icon_xy() { item_field "$1" 5 | tr ',' ' '; }
 now_ms() { date +%s%3N; }
+# taskbar_shown SHOT: the strip below the work area is the taskbar, not the desktop
+taskbar_shown() {
+  python3 - "$OUT/$1.png" "$WB" <<'PYEOF'
+import sys
+from PIL import Image
+img = Image.open(sys.argv[1]).convert("RGB")
+w, h = img.size
+y = (int(sys.argv[2]) + h) // 2
+bg = img.getpixel((w // 2, h // 3))
+same = sum(sum(abs(a - b) for a, b in zip(img.getpixel((x, y)), bg)) < 30 for x in range(0, w, 8))
+sys.exit(0 if same < (w // 8) // 4 else 1)
+PYEOF
+}
 
 # --- a fresh prefix and home -------------------------------------------------
 rm -rf "$WINEPREFIX" "$HOME"
@@ -232,6 +245,7 @@ if bad:
     print("; ".join(bad)); sys.exit(1)
 EOF
 sed 's/^/  /' "$OUT/pixels.txt"
+taskbar_shown desktop-01-icons || fail "the taskbar is not visible over the desktop"
 pass "layout: one column from the top left inside the work area $WL,$WT,$WR,$WB; icons and labels drawn"
 
 # --- 3. live refresh -----------------------------------------------------------
@@ -273,6 +287,7 @@ n = sum(toward(a.getpixel(p), b.getpixel(p)) for p in pts)
 print(f"{n}/{len(pts)} px tinted toward {sys.argv[4]}")
 sys.exit(0 if n > len(pts) // 2 else 1)
 EOF
+taskbar_shown desktop-02-selected || fail "a click on the desktop put it over the taskbar"
 pass "click selects notes: $(cat "$OUT/select.txt")"
 probe key Down >/dev/null
 wait_state '^selected=Team plan$' 5 || fail "Down did not select the next item: $(st | grep ^selected=)"
@@ -292,6 +307,7 @@ st | grep -q '^bottom=1' || fail "the desktop is not below setu-files"
 [ "$(grep -v '|hidden' "$OUT/windows.txt" | tail -n 1 | cut -d'|' -f2)" = SetuDesktop ] ||
   fail "the desktop window is not the bottom visible window: $(cat "$OUT/windows.txt")"
 shot desktop-03-open-folder
+taskbar_shown desktop-03-open-folder || fail "the taskbar is hidden with setu-files open"
 probe close 'Projects - Files' >/dev/null
 pass "double-click opens Projects in setu-files; the desktop stays at the bottom"
 # Enter on the shortcut starts its target
