@@ -38,6 +38,12 @@ that match real Windows, not in features that seem to work.
 
 ## Milestone 2: System services
 
+Oracle switched 2026-11-08 to Windows 11 26H2 (build 26300.9457), which
+replaces the interim Windows 10 VMs. All goldens were re-recorded. Status
+2026-11-09: 12,206 of 12,870 cases match Windows 11 (332 tests); Setu reports
+itself as Windows 11 26H2. The status lines below are the earlier Windows 10
+figures.
+
 Status 2026-11-06, against the interim Windows 10 22H2 oracle (310 tests,
 11,520 cases ratcheted, CI deterministic over two runs):
 
