@@ -1,0 +1,418 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# The default apps preinstalled in the Setu image and installer ISO
+# (docs/DEFAULT_APPS.md). Owner decision 2026-11-08 (setu-m3 #146): these 14
+# Windows builds plus Wine's own accessories, and nothing else.
+#
+# Every download is the official 64-bit Windows release from the project's
+# own site or its official GitHub releases, pinned by version, URL and
+# sha256. distro/apps/fetch.sh caches them in build/distro/downloads/apps;
+# they are never committed. distro/apps/stage.py installs them with the
+# vendor's documented silent install into a staging C: drive at image build
+# time (distro/build-image.sh).
+#
+# Per app:
+#   id              short name: the cache file name, logs, screenshots
+#   name            display name
+#   version, url, sha256, size (bytes)
+#   checksum_src    where the sha256 was checked against the vendor's own
+#                   published checksum ("" when the vendor publishes none:
+#                   then it was computed from the official download)
+#   licence         SPDX-style summary; licence_url the vendor's text
+#   source_url      the source code of exactly this release (written offer:
+#                   docs/DEFAULT_APPS.md, "Licences and source")
+#   homepage        where the version and URL were taken from
+#   kind            msi | nsis | inno | mozilla | sumatra | zip
+#   install_args    the vendor's documented silent arguments (msi: after
+#                   "msiexec /i FILE"); silent_docs links them
+#   install_dir     zip: the folder the archive's top folder becomes
+#   install_timeout seconds (default 600)
+#   exe             the program the Start menu shortcut and the smoke test
+#                   start (Windows path)
+#   args            arguments the smoke test adds (%SAMPLE_*% are files
+#                   distro/tests/apps-smoke.sh writes to C:\setu-apps)
+#   window          regex on "class|title" of its main window (setu-probe
+#                   windows), for distro/tests/apps-smoke.sh
+#   window_timeout  seconds (default 90)
+#   lnk             the Start menu shortcut's name when the installer makes
+#                   none (zip kind; stage.py creates it in the common
+#                   Programs folder)
+#   known_issue     a known failure under Setu: recorded, not fatal
+#
+# Wine's built-in accessories are listed as [[builtin]]: no download, a
+# Start menu shortcut with a Setu icon (distro/apps/icons.py).
+
+[[app]]
+id = "firefox"
+name = "Mozilla Firefox"
+version = "159.0.1"
+url = "https://download-installer.cdn.mozilla.net/pub/firefox/releases/159.0.1/win64/en-US/Firefox%20Setup%20159.0.1.exe"
+sha256 = "729af643b8e0a3809d6153a57a448cb96a01e6fa5e2e7ff782152ede6202eadd"
+size = 94602272
+checksum_src = "https://ftp.mozilla.org/pub/firefox/releases/159.0.1/SHA256SUMS"
+licence = "MPL-2.0"
+licence_url = "https://www.mozilla.org/en-US/MPL/2.0/"
+source_url = "https://ftp.mozilla.org/pub/firefox/releases/159.0.1/source/"
+homepage = "https://product-details.mozilla.org/1.0/firefox_versions.json"
+kind = "mozilla"
+install_args = ["/S", "/DesktopShortcut=false", "/MaintenanceService=false"]
+silent_docs = "https://firefox-source-docs.mozilla.org/browser/installer/windows/installer/FullConfig.html"
+install_timeout = 900
+exe = 'C:\Program Files\Mozilla Firefox\firefox.exe'
+args = ["-no-remote", "-profile", 'C:\setu-apps\ffprofile', "%SAMPLE_HTML%"]
+window = '^MozillaWindowClass\|'
+window_timeout = 150
+
+[[app]]
+id = "libreoffice"
+name = "LibreOffice"
+version = "26.8.2"
+url = "https://download.documentfoundation.org/libreoffice/stable/26.8.2/win/x86_64/LibreOffice_26.8.2_Win_x86-64.msi"
+sha256 = "ff4b911403b67ee9e6249f820f9782c44bb32c94fdaa45b0da53a8e419e5307a"
+size = 375934976
+checksum_src = "https://download.documentfoundation.org/libreoffice/stable/26.8.2/win/x86_64/LibreOffice_26.8.2_Win_x86-64.msi.sha256"
+licence = "MPL-2.0 (parts LGPL-3.0-or-later and others)"
+licence_url = "https://www.libreoffice.org/about-us/licenses/"
+source_url = "https://download.documentfoundation.org/libreoffice/src/26.8.2/"
+homepage = "https://download.documentfoundation.org/libreoffice/stable/"
+kind = "msi"
+# REGISTER_ALL_MSO_TYPES: LibreOffice opens Word, Excel and PowerPoint files
+install_args = ["/qn", "/norestart", "RebootYesNo=No", "ALLUSERS=1", "UI_LANGS=en_US",
+                "ISCHECKFORPRODUCTUPDATES=0", "REGISTER_ALL_MSO_TYPES=1", "QUICKSTART=0",
+                "CREATEDESKTOPLINK=0"]
+silent_docs = "https://wiki.documentfoundation.org/Deployment_and_Migration#Silent_and_Unattended_Installations"
+install_timeout = 2400
+exe = 'C:\Program Files\LibreOffice\program\soffice.exe'
+args = ["--norestore", "--nologo", "--writer", "%SAMPLE_TXT%"]
+window = 'LibreOffice'
+window_timeout = 240
+
+[[app]]
+id = "sumatrapdf"
+name = "SumatraPDF"
+version = "3.6.1"
+url = "https://files.sumatrapdfreader.org/software/sumatrapdf/rel/3.6.1/SumatraPDF-3.6.1-64-install.exe"
+sha256 = "1eee71cccd2ea6e94d5bcea54ee2f759844da3e1a0ee2f6045035b1d17b94381"
+size = 11075960
+checksum_src = ""
+licence = "GPL-3.0 (parts BSD)"
+licence_url = "https://github.com/sumatrapdfreader/sumatrapdf/blob/master/COPYING"
+source_url = "https://github.com/sumatrapdfreader/sumatrapdf/archive/refs/tags/3.6.1rel.tar.gz"
+homepage = "https://www.sumatrapdfreader.org/download-free-pdf-viewer"
+kind = "sumatra"
+install_args = ["-install", "-silent", "-all-users"]
+silent_docs = "https://www.sumatrapdfreader.org/docs/Command-line-arguments"
+exe = 'C:\Program Files\SumatraPDF\SumatraPDF.exe'
+args = ["%SAMPLE_PDF%"]
+window = '^SUMATRA_PDF_FRAME\|'
+
+[[app]]
+id = "notepad++"
+name = "Notepad++"
+version = "8.9.9"
+url = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.9/npp.8.9.9.Installer.x64.exe"
+sha256 = "a18cfb33d616c8eecda0059604d40bdb9d607fbc4ede857c8be6e41986464367"
+size = 7028968
+checksum_src = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.9/npp.8.9.9.checksums.sha256"
+licence = "GPL-3.0-or-later"
+licence_url = "https://github.com/notepad-plus-plus/notepad-plus-plus/blob/v8.9.9/LICENSE"
+source_url = "https://github.com/notepad-plus-plus/notepad-plus-plus/archive/refs/tags/v8.9.9.tar.gz"
+homepage = "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/tag/v8.9.9"
+kind = "nsis"
+install_args = ["/S"]
+silent_docs = "https://npp-user-manual.org/docs/command-prompt/"
+exe = 'C:\Program Files\Notepad++\notepad++.exe'
+args = ["-nosession", "%SAMPLE_TXT%"]
+window = '^Notepad\+\+\|'
+
+[[app]]
+id = "7-zip"
+name = "7-Zip"
+version = "26.06"
+url = "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-x64.msi"
+sha256 = "6dc822569e777d9a3ecd5ffcbc22b55600af87e6c5d9810a64e8566cf5a4af9f"
+size = 2003456
+checksum_src = "https://api.github.com/repos/ip7z/7zip/releases/tags/26.06 (asset digest)"
+licence = "LGPL-2.1-or-later (parts BSD-3-Clause, BSD-2-Clause; unRAR restriction)"
+licence_url = "https://www.7-zip.org/license.txt"
+source_url = "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-src.tar.xz"
+homepage = "https://www.7-zip.org/download.html"
+kind = "msi"
+install_args = ["/qn", "ALLUSERS=1"]
+silent_docs = "https://www.7-zip.org/faq.html"
+exe = 'C:\Program Files\7-Zip\7zFM.exe'
+args = ['C:\setu-apps']
+window = '^FM\||7-Zip'
+
+[[app]]
+id = "imageglass"
+name = "ImageGlass"
+version = "10.0.6.906"
+url = "https://github.com/d2phap/ImageGlass/releases/download/10.0.6.906/ImageGlass_10.0.6.906_win-x64.msi"
+sha256 = "c0ad65830cc75bd7bb23190c99e2fcb0d08c5ae3c5d982f1590c72539ce9e73d"
+size = 35405824
+checksum_src = "https://api.github.com/repos/d2phap/ImageGlass/releases/tags/10.0.6.906 (asset digest)"
+licence = "GPL-3.0"
+licence_url = "https://github.com/d2phap/ImageGlass/blob/10.0.6.906/LICENSE"
+source_url = "https://github.com/d2phap/ImageGlass/archive/refs/tags/10.0.6.906.tar.gz"
+homepage = "https://github.com/d2phap/ImageGlass/releases/tag/10.0.6.906"
+kind = "msi"
+install_args = ["/qn", "ALLUSERS=1"]
+silent_docs = "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec"
+exe = 'C:\Program Files\ImageGlass\ImageGlass.exe'
+args = ["%SAMPLE_PNG%"]
+window = 'ImageGlass|sample\.png'
+
+[[app]]
+id = "gimp"
+name = "GIMP"
+version = "3.2.8"
+url = "https://download.gimp.org/gimp/v3.2/windows/gimp-3.2.8-setup.exe"
+sha256 = "1d78874295661d791eaf149982e9b3564888631ea29186da5ff99e8114020a5b"
+size = 185816224
+checksum_src = "https://www.gimp.org/downloads/ (SHA256 on the download page)"
+licence = "GPL-3.0-or-later"
+licence_url = "https://www.gimp.org/about/COPYING"
+source_url = "https://download.gimp.org/gimp/v3.2/gimp-3.2.8.tar.xz"
+homepage = "https://www.gimp.org/downloads/"
+kind = "inno"
+install_args = ["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/ALLUSERS"]
+silent_docs = "https://jrsoftware.org/ishelp/topic_setupcmdline.htm"
+install_timeout = 2400
+exe = 'C:\Program Files\GIMP 3\bin\gimp-3.2.exe'
+args = ["--no-splash"]
+window = '\|GNU Image Manipulation Program$'
+window_timeout = 300
+
+[[app]]
+id = "inkscape"
+name = "Inkscape"
+version = "1.4.4"
+url = "https://inkscape.org/gallery/item/59504/inkscape-1.4.4_2026-05-05_dcaf3e7-x64.signed_xMx7DJV.msi"
+sha256 = "2fa033e95113ae83d6430b2479e7e63e4266d0632a5b03f99ee3db9360e3b8b8"
+size = 170323968
+checksum_src = ""
+licence = "GPL-2.0-or-later (parts GPL-3.0, LGPL)"
+licence_url = "https://inkscape.org/about/license/"
+source_url = "https://inkscape.org/release/inkscape-1.4.4/source/"
+homepage = "https://inkscape.org/release/inkscape-1.4.4/windows/64-bit/msi/"
+kind = "msi"
+install_args = ["/qn", "ALLUSERS=1"]
+silent_docs = "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec"
+install_timeout = 1800
+exe = 'C:\Program Files\Inkscape\bin\inkscape.exe'
+args = ["%SAMPLE_SVG%"]
+window = 'sample\.svg - Inkscape'
+window_timeout = 300
+
+[[app]]
+id = "vlc"
+name = "VLC media player"
+version = "3.0.24"
+url = "https://download.videolan.org/pub/videolan/vlc/3.0.24/win64/vlc-3.0.24-win64.exe"
+sha256 = "d711e1e1fe52052748c39080c7dce63f6b7e4c315efedf1774a3f1957b782ff3"
+size = 46269360
+checksum_src = "https://download.videolan.org/pub/videolan/vlc/3.0.24/win64/vlc-3.0.24-win64.exe.sha256"
+licence = "GPL-2.0-or-later (libVLC LGPL-2.1-or-later)"
+licence_url = "https://www.videolan.org/legal.html"
+source_url = "https://download.videolan.org/pub/videolan/vlc/3.0.24/vlc-3.0.24.tar.xz"
+homepage = "https://www.videolan.org/vlc/download-windows.html"
+kind = "nsis"
+install_args = ["/L=1033", "/S"]
+silent_docs = "https://wiki.videolan.org/Documentation:Installing_VLC/#Windows"
+exe = 'C:\Program Files\VideoLAN\VLC\vlc.exe'
+args = ["--no-qt-privacy-ask", "--no-qt-updates-notif"]
+window = 'VLC media player'
+
+[[app]]
+id = "keepassxc"
+name = "KeePassXC"
+version = "2.8.0"
+url = "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-x64.msi"
+sha256 = "4f105af5ba780428718c8be5614cf95deceed5cb3b474a9bd624c5df81cec6e5"
+size = 69419008
+checksum_src = "https://api.github.com/repos/keepassxreboot/keepassxc/releases/tags/2.8.0 (asset digest)"
+licence = "GPL-3.0-or-later (parts GPL-2.0, LGPL, BSD, MIT)"
+licence_url = "https://github.com/keepassxreboot/keepassxc/blob/2.8.0/COPYING"
+source_url = "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/keepassxc-2.8.0-src.tar.xz"
+homepage = "https://github.com/keepassxreboot/keepassxc/releases/tag/2.8.0"
+kind = "msi"
+install_args = ["/qn", "ALLUSERS=1", "LAUNCHAPPONEXIT=0", "AUTOSTARTPROGRAM=0"]
+silent_docs = "https://keepassxc.org/docs/KeePassXC_GettingStarted#_installing_keepassxc"
+exe = 'C:\Program Files\KeePassXC\KeePassXC.exe'
+window = 'KeePassXC'
+
+[[app]]
+id = "windows-terminal"
+name = "Windows Terminal"
+version = "1.25.2733.0"
+url = "https://github.com/microsoft/terminal/releases/download/v1.25.2733.0/Microsoft.WindowsTerminal_1.25.2733.0_x64.zip"
+sha256 = "bf3ef2012f6c44d8340a4c58125acc9498d19b580f9890dc043cdf831852e796"
+size = 12127272
+checksum_src = "https://api.github.com/repos/microsoft/terminal/releases/tags/v1.25.2733.0 (asset digest)"
+licence = "MIT"
+licence_url = "https://github.com/microsoft/terminal/blob/v1.25.2733.0/LICENSE"
+source_url = "https://github.com/microsoft/terminal/archive/refs/tags/v1.25.2733.0.tar.gz"
+homepage = "https://github.com/microsoft/terminal/releases/tag/v1.25.2733.0"
+kind = "zip"
+install_dir = 'C:\Program Files\Windows Terminal'
+install_args = []
+silent_docs = "https://learn.microsoft.com/en-us/windows/terminal/distributions#windows-terminal-unpackaged-zip"
+exe = 'C:\Program Files\Windows Terminal\WindowsTerminal.exe'
+window = 'CASCADIA_HOSTING_WINDOW_CLASS|Terminal'
+lnk = "Terminal"
+
+[[app]]
+id = "putty"
+name = "PuTTY"
+version = "0.85"
+url = "https://the.earth.li/~sgtatham/putty/0.85/w64/putty-64bit-0.85-installer.msi"
+sha256 = "2213ebacf962b709411d654a40087508a694756bc4e41c5a1c24ad86596b2511"
+size = 3846144
+checksum_src = "https://the.earth.li/~sgtatham/putty/0.85/sha256sums"
+licence = "MIT"
+licence_url = "https://www.chiark.greenend.org.uk/~sgtatham/putty/licence.html"
+source_url = "https://the.earth.li/~sgtatham/putty/0.85/putty-0.85.tar.gz"
+homepage = "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"
+kind = "msi"
+install_args = ["/qn", "ALLUSERS=1"]
+silent_docs = "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec"
+exe = 'C:\Program Files\PuTTY\putty.exe'
+window = '\|PuTTY Configuration$'
+
+[[app]]
+id = "winscp"
+name = "WinSCP"
+version = "6.7"
+url = "https://sourceforge.net/projects/winscp/files/WinSCP/6.7/WinSCP-6.7-Setup.exe/download"
+sha256 = "c8e603088b608b6620ca8e06846486cfed48969b76b111f05a83a386a829207c"
+size = 13150616
+checksum_src = "https://winscp.net/eng/download.php (SHA-256 on the download page)"
+licence = "GPL-3.0-or-later"
+licence_url = "https://winscp.net/eng/docs/license"
+source_url = "https://github.com/winscp/winscp/archive/refs/tags/6.7.tar.gz"
+homepage = "https://winscp.net/eng/download.php"
+kind = "inno"
+install_args = ["/VERYSILENT", "/ALLUSERS", "/NORESTART", "/SUPPRESSMSGBOXES"]
+silent_docs = "https://winscp.net/eng/docs/installation#automating_installation"
+exe = 'C:\Program Files (x86)\WinSCP\WinSCP.exe'
+window = 'WinSCP|Login'
+known_issue = "shows no window under Setu (docs/COMPAT.md: installs only)"
+
+[[app]]
+id = "sharex"
+name = "ShareX"
+version = "22.4.0"
+url = "https://github.com/ShareX/ShareX/releases/download/v22.4.0/ShareX-22.4.0-setup-x64.exe"
+sha256 = "5fac6ee58600976586d706f164b0f8a992fff7679bf2724a1f678c4a63894a8e"
+size = 145391368
+checksum_src = "https://api.github.com/repos/ShareX/ShareX/releases/tags/v22.4.0 (asset digest)"
+licence = "GPL-3.0-or-later"
+licence_url = "https://github.com/ShareX/ShareX/blob/v22.4.0/LICENSE.txt"
+source_url = "https://github.com/ShareX/ShareX/archive/refs/tags/v22.4.0.tar.gz"
+homepage = "https://github.com/ShareX/ShareX/releases/tag/v22.4.0"
+kind = "inno"
+install_args = ["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/NORUN", "/ALLUSERS"]
+silent_docs = "https://getsharex.com/docs/command-line-arguments"
+exe = 'C:\Program Files\ShareX\ShareX.exe'
+window = 'ShareX'
+
+# Wine's own accessories (personality/wine/programs). Wine has no
+# calculator and no paint program, so those two are not listed.
+[[builtin]]
+id = "wordpad"
+lnk = "WordPad"
+exe = 'C:\Program Files\Windows NT\Accessories\wordpad.exe'
+icon = "wordpad"
+window = '\|.*WordPad$|WordPad'
+
+[[builtin]]
+id = "clock"
+lnk = "Clock"
+exe = 'C:\windows\system32\clock.exe'
+icon = "clock"
+window = 'Clock'
+
+# Setu's default app for each file type (and the http/https protocols): the
+# ProgID that app's own installer registered for it, or a Setu.<name> ProgID
+# that opens the file with the app's exe when it registered none. Written
+# to HKLM\Software\Classes after all installs, so it settles the conflicts
+# between installers (each claims some types; the last one would win).
+# Conflicts decided here are listed in docs/DEFAULT_APPS.md.
+[associations]
+# documents
+".pdf" = "sumatrapdf"
+".epub" = "sumatrapdf"
+".xps" = "sumatrapdf"
+".oxps" = "sumatrapdf"
+".djvu" = "sumatrapdf"
+".cbz" = "sumatrapdf"
+".cbr" = "sumatrapdf"
+".mobi" = "sumatrapdf"
+".fb2" = "sumatrapdf"
+# office files (LibreOffice also takes the Microsoft Office types)
+".odt" = "libreoffice"
+".ods" = "libreoffice"
+".odp" = "libreoffice"
+".odg" = "libreoffice"
+".doc" = "libreoffice"
+".docx" = "libreoffice"
+".xls" = "libreoffice"
+".xlsx" = "libreoffice"
+".ppt" = "libreoffice"
+".pptx" = "libreoffice"
+".rtf" = "libreoffice"
+".csv" = "libreoffice"
+# plain text and source files
+".txt" = "notepad++"
+".log" = "notepad++"
+".ini" = "notepad++"
+".xml" = "notepad++"
+".json" = "notepad++"
+".md" = "notepad++"
+".yaml" = "notepad++"
+".yml" = "notepad++"
+# web
+".htm" = "firefox"
+".html" = "firefox"
+".xhtml" = "firefox"
+"http" = "firefox"
+"https" = "firefox"
+# images
+".png" = "imageglass"
+".jpg" = "imageglass"
+".jpeg" = "imageglass"
+".gif" = "imageglass"
+".bmp" = "imageglass"
+".webp" = "imageglass"
+".tif" = "imageglass"
+".tiff" = "imageglass"
+".ico" = "imageglass"
+".avif" = "imageglass"
+".svg" = "inkscape"
+".xcf" = "gimp"
+# audio and video
+".mp4" = "vlc"
+".mkv" = "vlc"
+".avi" = "vlc"
+".mov" = "vlc"
+".webm" = "vlc"
+".wmv" = "vlc"
+".mp3" = "vlc"
+".ogg" = "vlc"
+".flac" = "vlc"
+".wav" = "vlc"
+".m4a" = "vlc"
+".opus" = "vlc"
+# archives
+".zip" = "7-zip"
+".7z" = "7-zip"
+".rar" = "7-zip"
+".tar" = "7-zip"
+".gz" = "7-zip"
+".tgz" = "7-zip"
+".bz2" = "7-zip"
+".xz" = "7-zip"
+".zst" = "7-zip"
+# passwords
+".kdbx" = "keepassxc"
