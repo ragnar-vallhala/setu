@@ -3140,6 +3140,31 @@ static int forward_to_running_shell(int argc, WCHAR **argv)
     return result ? 0 : 2;
 }
 
+/* Make setu-files the program that opens folders: ShellExecute's "open" and
+ * "explore" verbs on the Folder class (learn.microsoft.com, "Extending
+ * Shortcut Menus" / "Verbs and File Associations"). Wine's default sends a
+ * DDE ViewFolder request to Explorer first, so the ddeexec key goes. The
+ * personality doesn't merge HKCU\Software\Classes into HKCR yet, so this is
+ * written to HKCR itself (the machine classes). */
+static void register_folder_handler(void)
+{
+    static const WCHAR *const verbs[] = { L"Folder\\shell\\open\\command", L"Folder\\shell\\explore\\command" };
+    WCHAR exe[MAX_PATH], cmd[MAX_PATH + 16];
+    unsigned int i;
+    HKEY key;
+
+    if (!find_program(L"setu-files.exe", exe, ARRAYSIZE(exe))) return;
+    _snwprintf(cmd, ARRAYSIZE(cmd), L"\"%ls\" \"%%1\"", exe);
+    cmd[ARRAYSIZE(cmd) - 1] = 0;
+    RegDeleteTreeW(HKEY_CLASSES_ROOT, L"Folder\\shell\\open\\ddeexec");
+    for (i = 0; i < ARRAYSIZE(verbs); i++)
+    {
+        if (RegCreateKeyExW(HKEY_CLASSES_ROOT, verbs[i], 0, NULL, 0, KEY_SET_VALUE, NULL, &key, NULL)) continue;
+        RegSetValueExW(key, NULL, 0, REG_SZ, (const BYTE *)cmd, (lstrlenW(cmd) + 1) * sizeof(WCHAR));
+        RegCloseKey(key);
+    }
+}
+
 int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
 {
     WNDCLASSEXW wc;
@@ -3161,6 +3186,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     make_fonts();
     field_brush = CreateSolidBrush(ST->surface);
     load_settings();
+    register_folder_handler();
     {
         DWORD n = ARRAYSIZE(user_name);
         if (!GetUserNameW(user_name, &n) || !user_name[0]) lstrcpyW(user_name, L"User");

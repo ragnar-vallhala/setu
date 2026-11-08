@@ -348,7 +348,8 @@ read -r X Y < <(icon_xy groceries)
 probe rclick "$X" "$Y" >/dev/null
 wait_state '^menu=.*Delete' 5 || fail "no item menu for Delete"
 probe key d >/dev/null
-if probe setfg 'Confirm' 5 >"$OUT/confirm.txt" 2>&1; then sleep 0.3; probe key Return >/dev/null; fi
+# no "Are you sure?" for the Recycle Bin (Windows' default; owner decision)
+if probe setfg 'Confirm' 2 >"$OUT/confirm.txt" 2>&1; then fail "Delete to the Recycle Bin asked for confirmation"; fi
 for _ in $(seq 50); do [ ! -e "$D/groceries.txt" ] && break; sleep 0.1; done
 [ ! -e "$D/groceries.txt" ] || fail "Delete did not remove groceries.txt"
 gone_state '^item=groceries\|' 5 || fail "groceries is still shown"
@@ -394,6 +395,12 @@ probe key o >/dev/null
 probe find 'Desktop - Files' 30 >/dev/null || fail "Open Desktop folder did not open setu-files: $(st | grep -E '^(last_open|status)=')"
 probe close 'Desktop - Files' >/dev/null
 pass "Open Desktop folder opens setu-files"
+# any program opening a folder (ShellExecute "open" on the Folder class) gets setu-files
+mkdir -p "$WINEPREFIX/drive_c/shellexec-folder"
+"$WINE" cmd /c start "" 'C:\shellexec-folder' >/dev/null 2>&1 &
+probe find 'shellexec-folder - Files' 30 >/dev/null || fail "ShellExecute on a folder did not open setu-files: $("$WINE" reg query 'HKCR\Folder\shell\open\command' 2>&1 | tr -d '\r' | grep REG_)"
+probe close 'shellexec-folder - Files' >/dev/null
+pass "ShellExecute open on a folder opens setu-files"
 
 # --- 8. dragging, remembered --------------------------------------------------
 read -r X1 Y1 < <(icon_xy 'Team plan')
