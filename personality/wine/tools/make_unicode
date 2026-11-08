@@ -4858,7 +4858,6 @@ sub build_locale_data()
         my $slist = locale_entry( $loc, "slist", ";" );
         my $smondecimalsep = loc_query( $loc, "/ldml/numbers/symbols[\@numberSystem='latn']/currencyDecimal" ) || $sdecimal;
         my $sthousand = loc_query( $loc, "/ldml/numbers/symbols[\@numberSystem='latn']/group[not(\@alt)]" );
-        $sthousand =~ s/\x{202f}/\x{00a0}/;
         my $smonthousandsep = loc_query( $loc, "/ldml/numbers/symbols[\@numberSystem='latn']/currencyGroup" ) || $sthousand;
         my $spositivesign = "";
         my $snegativesign = "-";
