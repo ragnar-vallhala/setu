@@ -6646,6 +6646,7 @@
     "kernel32/global_local:local_unlock_2",
     "kernel32/global_local:local_unlock_not_locked",
     "kernel32/global_local:lock_discarded",
+    "kernel32/global_local:lock_null",
     "kernel32/global_local:modify_discardable",
     "kernel32/global_local:moveable_alloc",
     "kernel32/global_local:moveable_flags_after_unlocks",

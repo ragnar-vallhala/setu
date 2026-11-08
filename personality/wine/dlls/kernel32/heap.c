@@ -139,16 +139,11 @@ static inline void *unsafe_ptr_from_HLOCAL( HLOCAL handle )
  *  Failure: NULL
  *
  * NOTES
- *   When the handle is invalid, last error is set to ERROR_INVALID_HANDLE
+ *   A NULL handle returns NULL without setting the last error.
  *
  */
 void *WINAPI GlobalLock( HGLOBAL handle )
 {
-    if (!handle)
-    {
-        SetLastError( ERROR_INVALID_HANDLE );
-        return NULL;
-    }
     return LocalLock( handle );
 }
 
