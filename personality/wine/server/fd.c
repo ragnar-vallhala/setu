@@ -2970,10 +2970,13 @@ static void set_fd_disposition( struct fd *fd, unsigned int flags )
     if (flags & FILE_DISPOSITION_DELETE)
     {
         struct fd *fd_ptr;
+        /* a section keeps the file from being deleted, but a POSIX delete
+         * only fails for an image section */
+        unsigned int blocking = (flags & FILE_DISPOSITION_POSIX_SEMANTICS) ? FILE_MAPPING_IMAGE : FILE_MAPPING_ACCESS;
 
         LIST_FOR_EACH_ENTRY( fd_ptr, &fd->inode->open, struct fd, inode_entry )
         {
-            if (fd_ptr->access & FILE_MAPPING_ACCESS)
+            if (fd_ptr->access & blocking)
             {
                 set_error( STATUS_CANNOT_DELETE );
                 return;
