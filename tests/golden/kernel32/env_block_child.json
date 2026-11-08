@@ -127,8 +127,20 @@
     "unicode_block_without_flag": {
       "created": false,
       "last_error": 87
+    },
+    "probe_suspended_inherit": {
+      "created": true,
+      "last_error": 0
+    },
+    "probe_ansi_suspended_inherit": {
+      "created": true,
+      "last_error": 0
+    },
+    "probe_suspended_ansi_block": {
+      "created": true,
+      "last_error": 0
     }
   },
   "errors": [],
-  "source_sha256": "144c5408ca41c3c3080a423b68f47192ada5ec91472c32d77719dba276895456"
+  "source_sha256": "c029608209b0a9f1a4942f1e2510daff29f99c63bddf51231bb9b91126e71365"
 }

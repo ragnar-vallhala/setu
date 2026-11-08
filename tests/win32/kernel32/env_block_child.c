@@ -202,5 +202,54 @@ int main(void)
     /* A Unicode block passed without CREATE_UNICODE_ENVIRONMENT: read as ANSI. */
     spawn_case("unicode_block_without_flag", L"all", wblock(L"SETU_A=1|SETU_B=2", wb), 0);
 
+    /* Probe: is the last error cleared by every successful CreateProcess,
+     * or only when the environment is inherited? */
+    {
+        wchar_t cmd[512];
+        char cmda[512];
+        STARTUPINFOW si = {0};
+        STARTUPINFOA sia = {0};
+        PROCESS_INFORMATION pi;
+        BOOL ok;
+        si.cb = sizeof si;
+        sia.cb = sizeof sia;
+        swprintf(cmd, 512, L"\"%ls\" setu", self);
+        ORACLE_CALL(ok, CreateProcessW(self, cmd, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi));
+        oracle_case("probe_suspended_inherit");
+        o_bool("created", ok);
+        o_lasterr();
+        oracle_case_end();
+        if (ok) {
+            TerminateProcess(pi.hProcess, 0);
+            WaitForSingleObject(pi.hProcess, 20000);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
+        snprintf(cmda, sizeof cmda, "\"%ls\" setu", self);
+        ORACLE_CALL(ok, CreateProcessA(NULL, cmda, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &sia, &pi));
+        oracle_case("probe_ansi_suspended_inherit");
+        o_bool("created", ok);
+        o_lasterr();
+        oracle_case_end();
+        if (ok) {
+            TerminateProcess(pi.hProcess, 0);
+            WaitForSingleObject(pi.hProcess, 20000);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
+        ORACLE_CALL(ok, CreateProcessW(self, cmd, NULL, NULL, FALSE, CREATE_SUSPENDED, ablock("SETU_A=1", ab),
+                                       NULL, &si, &pi));
+        oracle_case("probe_suspended_ansi_block");
+        o_bool("created", ok);
+        o_lasterr();
+        oracle_case_end();
+        if (ok) {
+            TerminateProcess(pi.hProcess, 0);
+            WaitForSingleObject(pi.hProcess, 20000);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
+    }
+
     return oracle_end();
 }
