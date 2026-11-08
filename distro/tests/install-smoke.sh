@@ -30,7 +30,7 @@
 #   --iso FILE       installer ISO (default: build/distro/setu-installer.iso)
 #   --answers FILE   first-boot answers (default: distro/tests/install-answers.conf)
 #   --shots DIR      where the install-*.png go (default: distro/docs)
-#   --disk-size N    the blank disk (default: 16G)
+#   --disk-size N    the blank disk (default: 20G; the installer asks for 16 GiB)
 #   --vnc N          VNC display (default: 24)
 #   --ssh-port N     host port for the guest's SSH (default: 2236)
 #   --scenario S     answers: as in the answers file (steps 1-4), unticked
@@ -45,7 +45,7 @@ OUT=$REPO/build/distro/install-smoke
 ISO=$REPO/build/distro/setu-installer.iso
 ANSWERS=$HERE/install-answers.conf
 SHOTS=$REPO/distro/docs
-DISK_SIZE=16G
+DISK_SIZE=20G
 VNC=24
 SSH_PORT=2236
 KEEP=0
