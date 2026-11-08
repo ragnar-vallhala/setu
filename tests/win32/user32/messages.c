@@ -496,8 +496,10 @@ int main(void)
         drain();
         log_[0] = 0;
 
-        /* Probe: what a PM_NOREMOVE peek does to a due timer. */
-        pSetTimer(wa, 2, 0, NULL);
+        /* Probe: what a PM_NOREMOVE peek does to a due timer. The period is
+         * long enough that the timer cannot fire again before the queue
+         * status is read. */
+        pSetTimer(wa, 2, 500, NULL);
         got = 0;
         for (int i = 0; i < 300 && !got; i++) {
             if (pPeekMessageW(&msg, wa, WM_TIMER, WM_TIMER, PM_NOREMOVE)) got = 1;
