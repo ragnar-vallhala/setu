@@ -315,6 +315,68 @@ int main(void)
             o_bool("len_nonzero", len != 0);
             oracle_case_end();
         }
+
+        /* Probe: what the Windows 11 relationships return. Counts are
+         * compared with the core, package and NUMA counts (booleans only,
+         * the topology differs between machines). */
+        {
+            DWORD counts[8] = {0}, all_counts[16] = {0};
+            len = 0;
+            GetLogicalProcessorInformationEx(RelationAll, NULL, &len);
+            buf = malloc(len);
+            if (GetLogicalProcessorInformationEx(RelationAll, (void *)buf, &len)) {
+                for (DWORD off = 0; off < len;) {
+                    SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *e = (void *)(buf + off);
+                    if (e->Relationship < 16) all_counts[e->Relationship]++;
+                    if (!e->Size) break;
+                    off += e->Size;
+                }
+            }
+            free(buf);
+            oracle_case("probe_lpix_all_relationships");
+            for (int rel = 0; rel < 9; rel++) {
+                char nm[32];
+                snprintf(nm, sizeof nm, "has_%d", rel);
+                o_bool(nm, all_counts[rel] != 0);
+            }
+            oracle_case_end();
+            for (int rel = 5; rel <= 7; rel++) {
+                char nm[64];
+                DWORD first_rel = 0xffff, first_size = 0, bad_rel = 0, extra = 0;
+                len = 0;
+                GetLogicalProcessorInformationEx((LOGICAL_PROCESSOR_RELATIONSHIP)rel, NULL, &len);
+                buf = malloc(len ? len : 1);
+                ok = GetLogicalProcessorInformationEx((LOGICAL_PROCESSOR_RELATIONSHIP)rel, (void *)buf, &len);
+                if (ok) {
+                    for (DWORD off = 0; off < len;) {
+                        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *e = (void *)(buf + off);
+                        if (first_rel == 0xffff) { first_rel = e->Relationship; first_size = e->Size; }
+                        if (e->Relationship != first_rel) bad_rel++;
+                        if (e->Relationship == RelationProcessorPackage || e->Relationship == RelationProcessorCore ||
+                            e->Relationship == 5 || e->Relationship == 7)
+                            extra += e->Processor.GroupCount != 1;
+                        if (e->Relationship == RelationNumaNode || e->Relationship == 6)
+                            extra += *(const WORD *)((const BYTE *)&e->NumaNode + 22) != 1; /* GroupCount */
+                        counts[rel]++;
+                        if (!e->Size) break;
+                        off += e->Size;
+                    }
+                }
+                free(buf);
+                snprintf(nm, sizeof nm, "probe_lpix_relationship_%d_data", rel);
+                oracle_case(nm);
+                o_bool("ret", ok);
+                o_u32("first_relationship", first_rel);
+                o_u32("first_size", first_size);
+                o_u32("mixed_relationships", bad_rel);
+                o_u32("group_count_not_1", extra);
+                o_bool("count_eq_cores", counts[rel] == all_counts[RelationProcessorCore]);
+                o_bool("count_eq_packages", counts[rel] == all_counts[RelationProcessorPackage]);
+                o_bool("count_eq_numa", counts[rel] == all_counts[RelationNumaNode]);
+                o_bool("count_is_1", counts[rel] == 1);
+                oracle_case_end();
+            }
+        }
     }
 
     /* ---- WOW64 ---- */

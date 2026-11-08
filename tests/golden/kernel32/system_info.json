@@ -155,6 +155,50 @@
       "last_error": 31,
       "len_nonzero": false
     },
+    "probe_lpix_all_relationships": {
+      "has_0": true,
+      "has_1": true,
+      "has_2": true,
+      "has_3": true,
+      "has_4": true,
+      "has_5": false,
+      "has_6": false,
+      "has_7": true,
+      "has_8": false
+    },
+    "probe_lpix_relationship_5_data": {
+      "ret": true,
+      "first_relationship": 5,
+      "first_size": 48,
+      "mixed_relationships": 0,
+      "group_count_not_1": 0,
+      "count_eq_cores": false,
+      "count_eq_packages": true,
+      "count_eq_numa": true,
+      "count_is_1": true
+    },
+    "probe_lpix_relationship_6_data": {
+      "ret": true,
+      "first_relationship": 1,
+      "first_size": 48,
+      "mixed_relationships": 0,
+      "group_count_not_1": 0,
+      "count_eq_cores": false,
+      "count_eq_packages": true,
+      "count_eq_numa": true,
+      "count_is_1": true
+    },
+    "probe_lpix_relationship_7_data": {
+      "ret": true,
+      "first_relationship": 7,
+      "first_size": 48,
+      "mixed_relationships": 0,
+      "group_count_not_1": 0,
+      "count_eq_cores": true,
+      "count_eq_packages": false,
+      "count_eq_numa": false,
+      "count_is_1": false
+    },
     "iswow64": {
       "ret": true,
       "last_error": "unchanged",
@@ -181,5 +225,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "1e8f9eb5842f3d8aa3df85fde0caf420e3d8203eae82ca8c300be4cdf2060541"
+  "source_sha256": "9626488233fcb845344de27badf507e0d0186a8d3eec6bf50e7b04be099a293b"
 }
