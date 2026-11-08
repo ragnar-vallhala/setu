@@ -365,3 +365,85 @@ Open With* (`OpenWithProgids`, `OpenWithList`), `SHQueryRecycleBinW`,
 (custom draw, `LVN_BEGINDRAG`, label editing), *Drag lists and image lists*
 (`ImageList_BeginDrag`), `SHAutoComplete`. Wine source was read for behaviour
 only (comctl32 listview drag tracking, kernelbase drives).
+
+## Desktop (setu-desktop.exe)
+
+`src/setu-desktop.c` draws the wallpaper and the desktop's icons. The shell
+starts it from its own folder at start (`--no-desktop` skips that), unless
+one is already running. As on Windows, the icons sit in a window above the
+desktop window: a full-screen `WS_POPUP` that stays at the bottom of the Z
+order (`HWND_BOTTOM` forced in `WM_WINDOWPOSCHANGING`). The wallpaper is
+drawn here too: user32 holds the wallpaper bitmap only in the desktop
+process. It's loaded with WIC from `SPI_GETDESKWALLPAPER` and placed using
+`WallpaperStyle`/`TileWallpaper`.
+
+![Desktop](docs/desktop-01-icons.png)
+
+- **Items**: `FOLDERID_Desktop` merged with `FOLDERID_PublicDesktop`.
+  Hidden and system items and `desktop.ini` are skipped. Labels and icons
+  come from `SHGetFileInfoW` (display name, system image list at
+  `SHIL_EXTRALARGE`). That hides known extensions, honours
+  `Explorer\Advanced\HideFileExt`, drops ".lnk", shows a shortcut's target
+  icon and applies the Shell Icons overrides. Shortcuts get a small arrow
+  badge in the accent colour. Labels are white with a blurred shadow, and
+  wrap to two lines.
+- **Layout**: columns from the top left, top to bottom then left to right,
+  inside the work area (so clear of the taskbar). Drag an icon to another
+  cell; an icon already there swaps with it. Positions are remembered in
+  `HKCU\Software\Setu\Desktop\Positions`. Desktop menu > Arrange by name
+  forgets them.
+- **Opening**: double-click or Enter. Folders (and shortcuts to folders)
+  open in `setu-files.exe`; everything else goes to `ShellExecuteExW`
+  "open".
+- **Item menu**: Open, Rename (in place; a hidden extension is kept),
+  Delete (`SHFileOperationW` with `FOF_ALLOWUNDO`, to the Recycle Bin;
+  Shift+Del deletes for good) and Properties (the shell's `properties`
+  verb).
+- **Desktop menu**: Arrange by name, Refresh, Paste (`CF_HDROP`), New >
+  Folder / Text Document (created at the click and named in place), and
+  Open Desktop folder (setu-files).
+- **Live refresh**: `ReadDirectoryChangesW` on both folders. A change shows
+  within about 0.2 s. `SHChangeNotifyRegister` reloads the icons after an
+  association or icon change. Theme switches, wallpaper changes
+  (`SPI_SETDESKWALLPAPER`) and work-area changes are followed.
+- Keys: arrows, Enter, F2, Del, Shift+Del, F5, Esc, Ctrl+V, Shift+F10 or the
+  menu key. Files dropped from other programs (`WM_DROPFILES`) are moved, or
+  copied when they come from another drive.
+
+| | |
+|---|---|
+| ![Selected](docs/desktop-02-selected.png) | ![Folder opened](docs/desktop-03-open-folder.png) |
+| ![Item menu](docs/desktop-04-item-menu.png) | ![Desktop menu](docs/desktop-05-desktop-menu.png) |
+
+Explorer's own desktop launchers (`.lnk` only) still run underneath, hidden
+by this window.
+
+**Test**: `tools/desktop-smoke.sh [--update-docs] [--keep]` runs under its
+own Xvfb, with a fresh prefix (`build/desktop-prefix`) and home. It puts a
+text file, a folder, a shortcut, a hidden file and `desktop.ini` on the
+Desktop and a file on the Public Desktop. Then it checks:
+- the items and HideFileExt;
+- the layout against the work area;
+- the drawn icons, labels and shadows (pixel checks);
+- live create, rename and delete;
+- click and arrow selection, including the accent highlight;
+- double-click opening a folder in setu-files, and Enter on a shortcut;
+- the item menu (Rename, Delete to the Recycle Bin), F2 and Escape;
+- the desktop menu (New > Folder, New > Text Document, Open Desktop folder);
+- dragging an icon, and that its position is remembered after a restart.
+
+Personality fix that came with it: in a virtual desktop, Wine's X11 driver
+only ever raised X windows, and raised every window that got the focus. So
+`HWND_BOTTOM` didn't lower the desktop, a click put it over the taskbar, and
+activating a window didn't bring it to the top of the Z order. winex11.drv
+now stacks each top-level window of a virtual desktop just below the window
+before it in the Z order. It also brings an activated window to the top,
+unless the window refuses in `WM_WINDOWPOSCHANGING`.
+
+References (learn.microsoft.com): *KNOWNFOLDERID*, `SHGetKnownFolderPath`,
+`SHGetFileInfoW`, `SHGetImageList`, `ShellExecuteExW`,
+`ReadDirectoryChangesW`, `SHChangeNotifyRegister`, `SHFileOperationW`,
+`SystemParametersInfoW` (`SPI_GETDESKWALLPAPER`, `SPI_GETWORKAREA`),
+`SetWindowPos`, `WM_WINDOWPOSCHANGING`, `DESKTOP_WALLPAPER_POSITION`,
+*Windows Imaging Component*. Wine source was read for behaviour only
+(explorer's desktop, shell32 display names).
