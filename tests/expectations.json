@@ -2104,6 +2104,7 @@
     "advapi32/RegOverridePredefKey:restore_hklm",
     "advapi32/RegOverridePredefKey:restore_hklm_twice",
     "advapi32/RegOverridePredefKey:write_through_override",
+    "advapi32/RegPerformanceData:close",
     "advapi32/RegPerformanceData:counter_009",
     "advapi32/RegPerformanceData:create_subkey",
     "advapi32/RegPerformanceData:enum_key",

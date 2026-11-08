@@ -1304,7 +1304,7 @@ LSTATUS WINAPI DECLSPEC_HOTPATCH RegCloseKey( HKEY hkey )
     {
         if (is_perf_key( hkey ))
         {
-            if (perf_data_queried) SetLastError( ERROR_GEN_FAILURE );
+            if (perf_data_queried) SetLastError( ERROR_INVALID_HANDLE );
             return ERROR_SUCCESS;
         }
         if (HandleToUlong(hkey) >= HandleToUlong(HKEY_SPECIAL_ROOT_FIRST) &&
