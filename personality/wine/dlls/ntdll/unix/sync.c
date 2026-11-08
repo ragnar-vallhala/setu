@@ -2952,7 +2952,7 @@ NTSTATUS WINAPI NtRemoveIoCompletionEx( HANDLE handle, FILE_IO_COMPLETION_INFORM
     SERVER_END_REQ;
 
 done:
-    *written = i ? i : 1;
+    *written = i;
     return status;
 }
 
