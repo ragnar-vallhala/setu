@@ -6,7 +6,7 @@
   "cases": {
     "pipes_inherited": {
       "created": true,
-      "last_error": 2,
+      "last_error": 0,
       "stdout": "out:data",
       "child_exit": 0,
       "report.exists": true,
@@ -17,7 +17,7 @@
     },
     "pipes_not_inheritable": {
       "created": true,
-      "last_error": "unchanged",
+      "last_error": 0,
       "stdout": "",
       "child_exit": 0,
       "report.exists": true,
@@ -28,7 +28,7 @@
     },
     "pipes_inherit_false": {
       "created": true,
-      "last_error": "unchanged",
+      "last_error": 0,
       "stdout": "",
       "child_exit": 0,
       "report.exists": true,
@@ -112,7 +112,7 @@
       "report.exists": true,
       "report.attrs": "0x00000020",
       "report.size": 71,
-      "report.data": "696e3d6e756c6c206f75743d6e756c6c206572723d6e756c6c207573657374643d302073616d655f61735f73693d3030310a7772697465206f6b3d30206e3d30",
+      "report.data": "696e3d6e756c6c206f75743d6e756c6c206572723d6e756c6c207573657374643d302073616d655f61735f73693d3031310a7772697465206f6b3d30206e3d30",
       "out_file": ""
     },
     "crt_stdio_over_pipes": {

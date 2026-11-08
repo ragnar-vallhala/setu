@@ -25,19 +25,19 @@
     "nul_ext": {
       "ret": "valid",
       "last_error": 0,
-      "file_type": 2,
+      "file_type": 1,
       "write_ok": true
     },
     "nul_two_exts": {
       "ret": "valid",
       "last_error": 0,
-      "file_type": 2,
+      "file_type": 1,
       "write_ok": true
     },
     "nul_space_ext": {
       "ret": "valid",
       "last_error": 0,
-      "file_type": 2,
+      "file_type": 1,
       "write_ok": true
     },
     "nul_trailing_dot": {
@@ -89,8 +89,10 @@
       "last_error": 2
     },
     "com9_ext_missing_port": {
-      "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 2
+      "ret": "valid",
+      "last_error": 0,
+      "file_type": 1,
+      "write_ok": true
     },
     "lpt9_missing_port": {
       "ret": "INVALID_HANDLE_VALUE",
@@ -121,7 +123,7 @@
       "write_ok": true
     },
     "listing_after_opens": {
-      "names": "COM0,com10,conin.txt,lpt0.txt,nulx,sub,xnul"
+      "names": "COM0,com10,com9.log,conin.txt,lpt0.txt,nul .txt,nul.tar.gz,nul.txt,nulx,sub,xnul"
     },
     "full_aux": {
       "last_error": "unchanged",
@@ -130,23 +132,23 @@
     },
     "full_prn_ext": {
       "last_error": "unchanged",
-      "full": "\\\\.\\prn",
-      "file_part": null
+      "full": "<cwd>\\prn.doc",
+      "file_part": "prn.doc"
     },
     "full_con_upper_ext": {
       "last_error": "unchanged",
-      "full": "\\\\.\\CON",
-      "file_part": null
+      "full": "<cwd>\\CON.TXT",
+      "file_part": "CON.TXT"
     },
     "full_com1_ext": {
       "last_error": "unchanged",
-      "full": "\\\\.\\com1",
-      "file_part": null
+      "full": "<cwd>\\com1.txt",
+      "file_part": "com1.txt"
     },
     "full_lpt3_in_dir": {
       "last_error": "unchanged",
-      "full": "\\\\.\\lpt3",
-      "file_part": null
+      "full": "<cwd>\\sub\\lpt3.log",
+      "file_part": "lpt3.log"
     },
     "full_com_superscript_1": {
       "last_error": "unchanged",
@@ -155,8 +157,8 @@
     },
     "full_lpt_superscript_2": {
       "last_error": "unchanged",
-      "full": "\\\\.\\lpt²",
-      "file_part": null
+      "full": "<cwd>\\lpt².txt",
+      "file_part": "lpt².txt"
     },
     "full_com0": {
       "last_error": "unchanged",
@@ -175,8 +177,8 @@
     },
     "full_nul_colon_ext": {
       "last_error": "unchanged",
-      "full": "\\\\.\\nul",
-      "file_part": null
+      "full": "<cwd>\\nul:.txt",
+      "file_part": "nul:.txt"
     },
     "full_conin": {
       "last_error": "unchanged",
@@ -185,8 +187,8 @@
     },
     "full_conout_ext": {
       "last_error": "unchanged",
-      "full": "\\\\.\\conout$",
-      "file_part": null
+      "full": "<cwd>\\conout$.txt",
+      "file_part": "conout$.txt"
     },
     "full_clock": {
       "last_error": "unchanged",
@@ -211,8 +213,8 @@
       "last_error": "unchanged"
     },
     "attr_aux_in_subdir": {
-      "ret": "0x00000020",
-      "last_error": "unchanged"
+      "ret": "0xffffffff",
+      "last_error": 2
     },
     "find_nul": {
       "ret": "valid",
@@ -223,13 +225,13 @@
     "find_nul_ext": {
       "ret": "valid",
       "last_error": "unchanged",
-      "first": "nul",
+      "first": "nul.txt",
       "attrs": "0x00000020"
     },
     "find_nul_wildcard": {
       "ret": "valid",
       "last_error": "unchanged",
-      "first": "nulx",
+      "first": "nul .txt",
       "attrs": "0x00000020"
     },
     "mkdir_nul": {
@@ -241,16 +243,16 @@
       "last_error": 267
     },
     "mkdir_aux_ext": {
-      "ret": false,
-      "last_error": 267
+      "ret": true,
+      "last_error": "unchanged"
     },
     "delete_nul": {
       "ret": false,
       "last_error": 87
     },
     "delete_nul_ext": {
-      "ret": false,
-      "last_error": 87
+      "ret": true,
+      "last_error": "unchanged"
     },
     "rmdir_nul": {
       "ret": false,
@@ -265,12 +267,12 @@
       "last_error": 183
     },
     "move_to_aux_ext": {
-      "ret": false,
-      "last_error": 183
+      "ret": true,
+      "last_error": "unchanged"
     },
     "copy_to_nul": {
-      "ret": true,
-      "last_error": 0
+      "ret": false,
+      "last_error": 2
     },
     "copy_from_nul": {
       "ret": false,
@@ -335,7 +337,7 @@
       "last_error": "unchanged"
     },
     "final_listing": {
-      "names": "COM0,com10,conin.txt,lpt0.txt,nulx,src.txt,sub,xnul"
+      "names": "COM0,aux.dir,aux.txt,com10,com9.log,conin.txt,lpt0.txt,nul .txt,nul.tar.gz,nulx,sub,xnul"
     }
   },
   "errors": [],

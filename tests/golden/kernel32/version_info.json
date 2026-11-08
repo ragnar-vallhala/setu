@@ -60,7 +60,7 @@
       "status": "0x00000000",
       "major": 10,
       "minor": 0,
-      "build": 19045,
+      "build": 26300,
       "platform": 2,
       "csd": "",
       "sp_major": 0,
@@ -72,7 +72,7 @@
     "kuser_shared_data": {
       "nt_major": 10,
       "nt_minor": 0,
-      "nt_build": 19045,
+      "nt_build": 26300,
       "product_type_workstation": 1,
       "product_type_valid": true,
       "image_number_low": 34404,

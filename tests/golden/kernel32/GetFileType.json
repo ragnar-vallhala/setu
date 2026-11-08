@@ -35,9 +35,8 @@
       "last_error": "unchanged"
     },
     "nul_with_extension": {
-      "type": "CHAR",
-      "raw": 2,
-      "last_error": "unchanged"
+      "open": "INVALID_HANDLE_VALUE",
+      "last_error": 2
     },
     "nul_in_subdir": {
       "type": "CHAR",

@@ -664,7 +664,7 @@
       "offset_from_request": 0
     },
     "probe_ntprotect_size0": {
-      "status": "0xc00000f1",
+      "status": "0xc000000d",
       "old": "0x0000dead",
       "size_out": 0,
       "addr_unchanged": true

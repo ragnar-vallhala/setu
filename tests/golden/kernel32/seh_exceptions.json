@@ -9,7 +9,7 @@
     },
     "raise_three_args": {
       "code": "0xe0000100",
-      "flags": "0x00000000",
+      "flags": "0x00000080",
       "nparams": 3,
       "p0": 1,
       "p1": 2,
@@ -18,25 +18,25 @@
     },
     "raise_code_without_customer_bit": {
       "code": "0x12345678",
-      "flags": "0x00000000",
+      "flags": "0x00000080",
       "nparams": 0,
       "nested_null": true
     },
     "raise_unknown_flags": {
       "code": "0xe0000101",
-      "flags": "0x00000000",
+      "flags": "0x00000080",
       "nparams": 0,
       "nested_null": true
     },
     "raise_args_null_with_count": {
       "code": "0xe0000102",
-      "flags": "0x00000000",
+      "flags": "0x00000080",
       "nparams": 0,
       "nested_null": true
     },
     "raise_twenty_args": {
       "code": "0xe0000103",
-      "flags": "0x00000000",
+      "flags": "0x00000080",
       "nparams": 15,
       "p0": 100,
       "p1": 101,
@@ -45,7 +45,7 @@
     },
     "raise_max_args": {
       "code": "0xe0000104",
-      "flags": "0x00000000",
+      "flags": "0x00000080",
       "nparams": 15,
       "p0": 100,
       "p1": 101,

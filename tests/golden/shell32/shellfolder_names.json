@@ -28,12 +28,12 @@
     },
     "names_multi_dot": {
       "parse_hr": "0x00000000",
-      "normal": "archive.tar.gz",
-      "infolder": "archive.tar.gz",
-      "forediting": "archive.tar.gz",
-      "infolder_editing": "archive.tar.gz",
-      "foraddressbar": "archive.tar.gz",
-      "infolder_addressbar": "archive.tar.gz",
+      "normal": "archive.tar",
+      "infolder": "archive.tar",
+      "forediting": "archive.tar",
+      "infolder_editing": "archive.tar",
+      "foraddressbar": "archive.tar",
+      "infolder_addressbar": "archive.tar",
       "forparsing": "<cwd>\\t\\archive.tar.gz",
       "infolder_parsing": "archive.tar.gz",
       "parsing_addressbar": "<cwd>\\t\\archive.tar.gz"

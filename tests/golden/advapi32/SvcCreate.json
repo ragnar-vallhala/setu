@@ -293,7 +293,7 @@
       "cfg.type": "0x00000010",
       "cfg.start": 3,
       "cfg.error": 0,
-      "cfg.path": "C:\\Windows\\none.exe",
+      "cfg.path": "C:\\WINDOWS\\none.exe",
       "cfg.group": "",
       "cfg.tag": 0,
       "cfg.deps": "",

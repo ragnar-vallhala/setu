@@ -18,7 +18,7 @@
     },
     "file_trailing_backslash": {
       "ret": "0xffffffff",
-      "last_error": 123
+      "last_error": 267
     },
     "missing_trailing_backslash": {
       "ret": "0xffffffff",

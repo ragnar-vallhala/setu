@@ -10,8 +10,10 @@ as run on a **real Windows 11 VM** by `python3 oracle/run.py windows`.
 * `source_sha256` ties each golden to the exact test source. If you change a
   test, re-record its golden file in the same PR.
 
-**Status: interim Windows 10 goldens.** The current files were recorded on
-Windows 10 22H2 (build 19045.2965), because no Windows 11 ISO was available
-yet. The file and registry APIs covered so far are the same across 10 and 11.
-Re-record everything on Windows 11 (`oracle/run.py windows --repeat 2`) as
-soon as a Windows 11 VM exists, and review any diffs that appear.
+**Status: Windows 11 goldens.** Recorded on Windows 11 26H2 Pro (build
+26300.9457) on 2026-11-08, replacing the interim Windows 10 22H2 files. Two
+tests were nondeterministic on Windows 11 and still carry their Windows 10
+goldens until the tests are fixed: advapi32/SvcStart
+(process_exit_without_stopped reads the service state before the SCM has
+noticed the exit) and user32/messages (timer_probe_peeked depends on whether
+the timer has fired yet).

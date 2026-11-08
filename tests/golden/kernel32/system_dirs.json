@@ -143,9 +143,8 @@
     "wow64_2_amd64": {
       "have_fn": true,
       "ret_is_length": true,
-      "nonzero": true,
-      "last_error": "unchanged",
-      "path": "<windir>\\SysX8664"
+      "nonzero": false,
+      "last_error": 160
     },
     "wow64_2_armnt": {
       "have_fn": true,
@@ -157,9 +156,8 @@
     "wow64_2_arm64": {
       "have_fn": true,
       "ret_is_length": true,
-      "nonzero": true,
-      "last_error": "unchanged",
-      "path": "<windir>\\SysArm64"
+      "nonzero": false,
+      "last_error": 160
     },
     "wow64_2_unknown": {
       "have_fn": true,

@@ -310,7 +310,7 @@
     "iocp_get_ex_empty": {
       "ret": false,
       "last_error": 258,
-      "count": 1
+      "count": 0
     },
     "skip_on_success_mode": {
       "ret": true,

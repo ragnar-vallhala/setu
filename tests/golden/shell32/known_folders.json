@@ -52,8 +52,8 @@
       "path": "<profile>\\Searches"
     },
     "path_objects3d": {
-      "hr": "0x00000000",
-      "path": "<profile>\\3D Objects"
+      "hr": "0x80070002",
+      "out_null": true
     },
     "path_profile": {
       "hr": "0x00000000",
@@ -574,7 +574,7 @@
     },
     "find_nearest_child": {
       "hr": "0x00000000",
-      "is_documents": false
+      "is_documents": true
     }
   },
   "errors": [],

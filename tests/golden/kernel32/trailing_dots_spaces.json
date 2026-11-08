@@ -157,11 +157,11 @@
     },
     "filesep_rw_open_existing": {
       "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 123
+      "last_error": 267
     },
     "filesep_rw_create_new": {
       "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 123
+      "last_error": 267
     },
     "cwdsep_rw_open_existing": {
       "ret": "INVALID_HANDLE_VALUE",

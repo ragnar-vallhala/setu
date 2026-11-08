@@ -126,13 +126,13 @@
     },
     "getdata_unicodetext_while_open": {
       "ret": "valid",
-      "last_error": "unchanged",
+      "last_error": 0,
       "text": "Hello clip",
       "size": 22
     },
     "getdata_custom_while_open": {
       "ret": "valid",
-      "last_error": "unchanged",
+      "last_error": 0,
       "data": "01020304050007",
       "size": 7
     },
@@ -147,7 +147,7 @@
     },
     "getdata_bitmap_absent": {
       "ret": "NULL",
-      "last_error": "unchanged"
+      "last_error": 1168
     },
     "close": {
       "ret": true,
@@ -183,13 +183,13 @@
     },
     "getdata_oemtext_synthesized": {
       "ret": "valid",
-      "last_error": "unchanged",
+      "last_error": 0,
       "data": "48656c6c6f20636c697000",
       "size": 11
     },
     "getdata_unicodetext_again": {
       "ret": "valid",
-      "last_error": "unchanged",
+      "last_error": 0,
       "text": "Hello clip",
       "size": 22
     },
@@ -216,19 +216,19 @@
     },
     "getdata_delayed_after_owner_destroyed": {
       "ret": "valid",
-      "last_error": "unchanged",
+      "last_error": 0,
       "data": "616c6c00",
       "size": 4
     },
     "getdata_text_after_owner_destroyed": {
       "ret": "valid",
-      "last_error": "unchanged",
+      "last_error": 0,
       "data": "706c61696e00",
       "size": 6
     },
     "getdata_unicode_from_text": {
       "ret": "valid",
-      "last_error": "unchanged",
+      "last_error": 0,
       "text": "plain",
       "size": 12
     },

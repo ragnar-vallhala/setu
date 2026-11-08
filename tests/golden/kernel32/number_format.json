@@ -52,7 +52,7 @@
     "fr_basic": {
       "ret": 13,
       "last_error": "unchanged",
-      "out": "1 234 567,89"
+      "out": "1 234 567,89"
     },
     "hi_indian_grouping": {
       "ret": 16,
@@ -254,7 +254,7 @@
     "cur_fr": {
       "ret": 11,
       "last_error": "unchanged",
-      "out": "1 234,57 €"
+      "out": "1 234,57 €"
     },
     "cur_ja": {
       "ret": 8,

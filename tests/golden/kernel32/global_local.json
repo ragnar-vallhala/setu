@@ -259,7 +259,7 @@
     },
     "lock_null": {
       "ret_null": true,
-      "last_error": 6
+      "last_error": "unchanged"
     },
     "unlock_null": {
       "ret": true,

@@ -517,7 +517,7 @@
       "buf": "é€�"
     },
     "settext_bad_hwnd": {
-      "ret": false,
+      "ret": true,
       "last_error": 1400,
       "len_after": 0
     },

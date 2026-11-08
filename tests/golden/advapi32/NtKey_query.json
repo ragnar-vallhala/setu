@@ -34,7 +34,7 @@
     },
     "name": {
       "status": "0x00000000",
-      "path": "\\REGISTRY\\USER\\<SID>\\SOFTWARE\\SetuOracle\\advapi32_NtKey_query\\Node"
+      "path": "\\REGISTRY\\USER\\<SID>\\Software\\SetuOracle\\advapi32_NtKey_query\\Node"
     },
     "cached": {
       "status": "0x00000000",

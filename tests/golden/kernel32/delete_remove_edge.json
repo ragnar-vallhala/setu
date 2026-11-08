@@ -6,7 +6,7 @@
   "cases": {
     "delete_trailing_backslash": {
       "ret": false,
-      "last_error": 123,
+      "last_error": 267,
       "file.exists": true,
       "file.attrs": "0x00000020",
       "file.size": 1,
@@ -14,7 +14,7 @@
     },
     "delete_trailing_slash": {
       "ret": false,
-      "last_error": 123,
+      "last_error": 267,
       "file.exists": true,
       "file.attrs": "0x00000020",
       "file.size": 1,
@@ -140,16 +140,13 @@
       "file.data": ""
     },
     "delete_mapped_view": {
-      "ret": false,
-      "last_error": 5,
-      "file.exists": true,
-      "file.attrs": "0x00000020",
-      "file.size": 1,
-      "file.data": "6d"
-    },
-    "delete_after_unmap": {
       "ret": true,
       "last_error": "unchanged",
+      "file.exists": false
+    },
+    "delete_after_unmap": {
+      "ret": false,
+      "last_error": 2,
       "file.exists": false
     },
     "rmdir_trailing_backslash": {
@@ -272,7 +269,7 @@
     },
     "probe_delete_device_nul_ext": {
       "ret": false,
-      "last_error": 87
+      "last_error": 2
     },
     "probe_rmdir_device_nul": {
       "ret": false,

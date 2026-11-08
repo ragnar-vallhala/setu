@@ -55,7 +55,7 @@
     },
     "close": {
       "ret": 0,
-      "last_error": 31
+      "last_error": 6
     }
   },
   "errors": [],

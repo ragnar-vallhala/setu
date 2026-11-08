@@ -217,16 +217,16 @@
       "child_ran": false
     },
     "no_association": {
-      "ret": true,
-      "last_error": 0,
-      "hinstapp": 42,
+      "ret": false,
+      "last_error": 2147500065,
+      "hinstapp": 5,
       "has_process": false,
       "child_ran": false
     },
     "no_association_default": {
-      "ret": true,
-      "last_error": 0,
-      "hinstapp": 42,
+      "ret": false,
+      "last_error": 2147500065,
+      "hinstapp": 5,
       "has_process": false,
       "child_ran": false
     },
@@ -258,8 +258,9 @@
       "child_ran": false
     },
     "se_no_association": {
-      "success": true,
-      "last_error": 0,
+      "success": false,
+      "ret": 5,
+      "last_error": 2147500065,
       "child_ran": false
     },
     "se_missing_verb": {
@@ -270,7 +271,7 @@
     },
     "find_doc": {
       "ret": 31,
-      "last_error": 122,
+      "last_error": 0,
       "result": ""
     },
     "find_doc_with_dir": {
@@ -280,12 +281,12 @@
     },
     "find_doc_default_edit": {
       "ret": 31,
-      "last_error": 122,
+      "last_error": 0,
       "result": ""
     },
     "find_doc_custom_only": {
       "ret": 31,
-      "last_error": 122,
+      "last_error": 0,
       "result": ""
     },
     "find_exe_itself": {
@@ -300,7 +301,7 @@
     },
     "find_no_association": {
       "ret": 31,
-      "last_error": 122,
+      "last_error": 0,
       "result": ""
     },
     "find_missing_dir": {

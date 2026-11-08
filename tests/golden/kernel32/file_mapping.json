@@ -181,16 +181,16 @@
       "last_error": 487
     },
     "delete_while_section_open": {
-      "ret": false,
-      "last_error": 5
+      "ret": true,
+      "last_error": "unchanged"
     },
     "truncate_existing_while_section_open": {
       "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 5
+      "last_error": "unchanged"
     },
     "delete_after_section_closed": {
-      "ret": true,
-      "last_error": "unchanged"
+      "ret": false,
+      "last_error": 2
     },
     "cow_mapping": {
       "ret": "valid",
@@ -367,15 +367,15 @@
       "last_error": 5
     },
     "section_delete_file": {
-      "ret": false,
-      "last_error": 5
+      "ret": true,
+      "last_error": "unchanged"
     },
     "section_truncate_after_failed_delete": {
       "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 1224
+      "last_error": 2
     },
     "section_doc_open": {
-      "ret": "valid"
+      "ret": "INVALID_HANDLE_VALUE"
     },
     "section_after_doc_close": {
       "file.exists": false
@@ -405,11 +405,11 @@
     },
     "rw_replay_trunc_after_delete": {
       "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 1224
+      "last_error": 2
     },
     "rw_replay_no_shrink_trunc_after_delete": {
       "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 1224
+      "last_error": 2
     }
   },
   "errors": [],

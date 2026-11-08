@@ -342,7 +342,7 @@
     },
     "trailing_backslash_new_file": {
       "ret": "INVALID_HANDLE_VALUE",
-      "last_error": 123
+      "last_error": 267
     },
     "non_ascii_name": {
       "ret": "valid",

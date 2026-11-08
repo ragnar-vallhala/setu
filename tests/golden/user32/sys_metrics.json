@@ -12,22 +12,22 @@
       "logpixelsy": 96
     },
     "cycaption": {
-      "value": 19
+      "value": 23
     },
     "cxsize": {
-      "value": 18
+      "value": 22
     },
     "cysize": {
-      "value": 18
+      "value": 22
     },
     "cysmcaption": {
-      "value": 16
+      "value": 23
     },
     "cxsmsize": {
-      "value": 13
+      "value": 22
     },
     "cysmsize": {
-      "value": 15
+      "value": 22
     },
     "cxborder": {
       "value": 1
@@ -48,37 +48,37 @@
       "value": 3
     },
     "cxsizeframe": {
-      "value": 4
+      "value": 8
     },
     "cysizeframe": {
-      "value": 4
+      "value": 8
     },
     "cxpaddedborder": {
       "value": 0
     },
     "cymenu": {
-      "value": 19
+      "value": 20
     },
     "cxmenusize": {
-      "value": 18
+      "value": 19
     },
     "cymenusize": {
-      "value": 18
+      "value": 19
     },
     "cxmenucheck": {
-      "value": 13
+      "value": 15
     },
     "cxvscroll": {
-      "value": 16
+      "value": 17
     },
     "cyhscroll": {
-      "value": 16
+      "value": 17
     },
     "cyvthumb": {
-      "value": 16
+      "value": 17
     },
     "cxhthumb": {
-      "value": 16
+      "value": 17
     },
     "cxicon": {
       "value": 32
@@ -87,16 +87,16 @@
       "value": 16
     },
     "cxmintrack": {
-      "value": 112
+      "value": 136
     },
     "cymintrack": {
-      "value": 27
+      "value": 39
     },
     "cxmin": {
-      "value": 112
+      "value": 136
     },
     "cymin": {
-      "value": 27
+      "value": 39
     },
     "cxfocusborder": {
       "value": 1
@@ -104,59 +104,59 @@
     "ncm_sizes": {
       "ret": true,
       "last_error": "unchanged",
-      "border": 1,
-      "scroll_width": 16,
-      "scroll_height": 16,
-      "caption_width": 18,
-      "caption_height": 18,
-      "smcaption_width": 13,
-      "smcaption_height": 15,
-      "menu_width": 18,
-      "menu_height": 18,
+      "border": 5,
+      "scroll_width": 17,
+      "scroll_height": 17,
+      "caption_width": 22,
+      "caption_height": 22,
+      "smcaption_width": 22,
+      "smcaption_height": 22,
+      "menu_width": 19,
+      "menu_height": 19,
       "padded_border": 0
     },
     "ncm_caption_font": {
-      "caption_face": "MS Shell Dlg",
-      "caption_height": -11,
-      "caption_weight": 700,
+      "caption_face": "Segoe UI",
+      "caption_height": -12,
+      "caption_weight": 400,
       "caption_italic": 0,
-      "caption_charset": 0
+      "caption_charset": 1
     },
     "ncm_smcaption_font": {
-      "smcaption_face": "MS Shell Dlg",
-      "smcaption_height": -11,
+      "smcaption_face": "Segoe UI",
+      "smcaption_height": -12,
       "smcaption_weight": 400,
       "smcaption_italic": 0,
-      "smcaption_charset": 0
+      "smcaption_charset": 1
     },
     "ncm_menu_font": {
-      "menu_face": "MS Shell Dlg",
-      "menu_height": -11,
+      "menu_face": "Segoe UI",
+      "menu_height": -12,
       "menu_weight": 400,
       "menu_italic": 0,
-      "menu_charset": 0
+      "menu_charset": 1
     },
     "ncm_status_font": {
-      "status_face": "MS Shell Dlg",
-      "status_height": -11,
+      "status_face": "Segoe UI",
+      "status_height": -12,
       "status_weight": 400,
       "status_italic": 0,
-      "status_charset": 0
+      "status_charset": 1
     },
     "ncm_message_font": {
-      "message_face": "MS Shell Dlg",
-      "message_height": -11,
+      "message_face": "Segoe UI",
+      "message_height": -12,
       "message_weight": 400,
       "message_italic": 0,
-      "message_charset": 0
+      "message_charset": 1
     },
     "icon_title_font": {
       "ret": true,
-      "icon_face": "MS Shell Dlg",
-      "icon_height": -11,
+      "icon_face": "Segoe UI",
+      "icon_height": -12,
       "icon_weight": 400,
       "icon_italic": 0,
-      "icon_charset": 0
+      "icon_charset": 1
     },
     "flat_menu_gradient_captions": {
       "flat_ret": true,
@@ -176,24 +176,24 @@
     "adjust_overlapped": {
       "ret": true,
       "last_error": "unchanged",
-      "left": 4,
-      "top": 23,
-      "right": 4,
-      "bottom": 4
+      "left": 8,
+      "top": 31,
+      "right": 8,
+      "bottom": 8
     },
     "adjust_overlapped_menu": {
       "ret": true,
       "last_error": "unchanged",
-      "left": 4,
-      "top": 42,
-      "right": 4,
-      "bottom": 4
+      "left": 8,
+      "top": 51,
+      "right": 8,
+      "bottom": 8
     },
     "adjust_dialog": {
       "ret": true,
       "last_error": "unchanged",
       "left": 3,
-      "top": 22,
+      "top": 26,
       "right": 3,
       "bottom": 3
     },
@@ -201,17 +201,17 @@
       "ret": true,
       "last_error": "unchanged",
       "left": 3,
-      "top": 22,
+      "top": 26,
       "right": 3,
       "bottom": 3
     },
     "adjust_toolwindow": {
       "ret": true,
       "last_error": "unchanged",
-      "left": 4,
-      "top": 20,
-      "right": 4,
-      "bottom": 4
+      "left": 8,
+      "top": 31,
+      "right": 8,
+      "bottom": 8
     },
     "adjust_border": {
       "ret": true,
@@ -224,10 +224,10 @@
     "adjust_clientedge": {
       "ret": true,
       "last_error": "unchanged",
-      "left": 6,
-      "top": 25,
-      "right": 6,
-      "bottom": 6
+      "left": 10,
+      "top": 33,
+      "right": 10,
+      "bottom": 10
     }
   },
   "errors": [],

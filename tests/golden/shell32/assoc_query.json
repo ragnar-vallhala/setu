@@ -220,13 +220,13 @@
     },
     "txt_executable": {
       "hr": "0x00000000",
-      "out": "<windir>\\system32\\NOTEPAD.EXE",
-      "len_out": 32
+      "out": "C:\\Program Files\\WindowsApps\\Microsoft.WindowsNotepad_11.2607.14.0_x64__8wekyb3d8bbwe\\Notepad\\Notepad.exe",
+      "len_out": 106
     },
     "txt_command": {
       "hr": "0x00000000",
-      "out": "<windir>\\system32\\NOTEPAD.EXE %1",
-      "len_out": 35
+      "out": "\"C:\\Program Files\\WindowsApps\\Microsoft.WindowsNotepad_11.2607.14.0_x64__8wekyb3d8bbwe\\Notepad\\Notepad.exe\"",
+      "len_out": 108
     },
     "exe_command": {
       "hr": "0x00000000",

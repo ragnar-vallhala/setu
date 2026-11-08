@@ -175,8 +175,8 @@
     "device_nul_ext": {
       "last_error": "unchanged",
       "ret_is_len": true,
-      "full": "\\\\.\\nul",
-      "file_part": null
+      "full": "<cwd>\\nul.txt",
+      "file_part": "nul.txt"
     },
     "device_com1_upper": {
       "last_error": "unchanged",
@@ -187,8 +187,8 @@
     "device_lpt1_in_dir": {
       "last_error": "unchanged",
       "ret_is_len": true,
-      "full": "\\\\.\\lpt1",
-      "file_part": null
+      "full": "<cwd>\\sub\\lpt1",
+      "file_part": "lpt1"
     },
     "device_conin": {
       "last_error": "unchanged",

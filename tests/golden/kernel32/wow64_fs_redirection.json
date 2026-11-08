@@ -97,9 +97,8 @@
       "tail": "syswow64"
     },
     "syswow64_2_amd64": {
-      "ret_nonzero": true,
-      "last_error": "unchanged",
-      "tail": "sysx8664"
+      "ret_nonzero": false,
+      "last_error": 160
     },
     "syswow64_2_armnt": {
       "ret_nonzero": true,
@@ -107,9 +106,8 @@
       "tail": "sysarm32"
     },
     "syswow64_2_arm64": {
-      "ret_nonzero": true,
-      "last_error": "unchanged",
-      "tail": "sysarm64"
+      "ret_nonzero": false,
+      "last_error": 160
     },
     "syswow64_2_unknown": {
       "ret_nonzero": false,

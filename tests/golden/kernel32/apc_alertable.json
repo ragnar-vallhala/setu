@@ -143,7 +143,7 @@
       "last_error": 6
     },
     "queue_user_apc2_export": {
-      "present": false
+      "present": true
     }
   },
   "errors": [],

@@ -1609,8 +1609,8 @@
       "out": "Unable to update the password. The value provided for the new password contains values that are not allowed in passwords.\r\n"
     },
     "m_0000052d": {
-      "ret": 149,
-      "out": "Unable to update the password. The value provided for the new password does not meet the length, complexity, or history requirements of the domain.\r\n"
+      "ret": 279,
+      "out": "Unable to update the password. The value provided for the new password does not meet the length, complexity, or history requirements of the machine or domain. Try increasing the length of your password, along with including upper and lowercase characters, numbers, and symbols.\r\n"
     },
     "m_0000052e": {
       "ret": 41,

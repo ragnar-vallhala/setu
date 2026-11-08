@@ -92,7 +92,7 @@
     "get_ex_empty": {
       "ret": false,
       "last_error": 258,
-      "removed": 1
+      "removed": 0
     },
     "get_ex_count_zero": {
       "ret": false,
@@ -102,12 +102,12 @@
     "get_ex_not_alertable_apc_queued": {
       "ret": false,
       "last_error": 258,
-      "removed": 1
+      "removed": 0
     },
     "get_ex_alertable_apc_queued": {
       "ret": false,
       "last_error": 192,
-      "removed": 1
+      "removed": 0
     },
     "get_ex_alertable_packet_and_apc": {
       "ret": true,
