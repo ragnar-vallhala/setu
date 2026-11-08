@@ -128,6 +128,51 @@ where a file lives in the tree.
      * Plymouth (the boot splash program): GPL-2.0-or-later; fontconfig:
        MIT-style (fontconfig licence).
 
+7. Bundled in the Setu images (not in this tree): the default apps
+   -----------------------------------------------------------------
+   The disk images and the installer ISO include these Windows programs,
+   each the vendor's official 64-bit release installed unmodified with its
+   own installer (distro/apps/apps.toml pins the version, URL and SHA-256;
+   docs/DEFAULT_APPS.md). They are downloaded at build time and never stored
+   in this repository. Their licences, and the source code of each release:
+
+     * Mozilla Firefox 159.0.1: MPL-2.0.
+       https://ftp.mozilla.org/pub/firefox/releases/159.0.1/source/
+     * LibreOffice 26.8.2: MPL-2.0 (parts LGPL-3.0-or-later and others).
+       https://download.documentfoundation.org/libreoffice/src/26.8.2/
+     * SumatraPDF 3.6.1: GPL-3.0 (parts BSD).
+       https://github.com/sumatrapdfreader/sumatrapdf/archive/refs/tags/3.6.1rel.tar.gz
+     * Notepad++ 8.9.9: GPL-3.0-or-later.
+       https://github.com/notepad-plus-plus/notepad-plus-plus/archive/refs/tags/v8.9.9.tar.gz
+     * 7-Zip 26.06: LGPL-2.1-or-later (parts BSD-3-Clause, BSD-2-Clause;
+       unRAR restriction). https://github.com/ip7z/7zip/releases/download/26.06/7z2606-src.tar.xz
+     * ImageGlass 10.0.6.906: GPL-3.0.
+       https://github.com/d2phap/ImageGlass/archive/refs/tags/10.0.6.906.tar.gz
+     * GIMP 3.2.8: GPL-3.0-or-later.
+       https://download.gimp.org/gimp/v3.2/gimp-3.2.8.tar.xz
+     * Inkscape 1.4.4: GPL-2.0-or-later (parts GPL-3.0, LGPL).
+       https://inkscape.org/release/inkscape-1.4.4/source/
+     * VLC media player 3.0.24: GPL-2.0-or-later (libVLC LGPL-2.1-or-later).
+       https://download.videolan.org/pub/videolan/vlc/3.0.24/vlc-3.0.24.tar.xz
+     * KeePassXC 2.8.0: GPL-3.0-or-later (parts GPL-2.0, LGPL, BSD, MIT).
+       https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/keepassxc-2.8.0-src.tar.xz
+     * Windows Terminal 1.25.2733.0: MIT.
+       https://github.com/microsoft/terminal/archive/refs/tags/v1.25.2733.0.tar.gz
+     * PuTTY 0.85: MIT. https://the.earth.li/~sgtatham/putty/0.85/putty-0.85.tar.gz
+     * WinSCP 6.7: GPL-3.0-or-later.
+       https://github.com/winscp/winscp/archive/refs/tags/6.7.tar.gz
+     * ShareX 22.4.0: GPL-3.0-or-later.
+       https://github.com/ShareX/ShareX/archive/refs/tags/v22.4.0.tar.gz
+
+   The same list is installed in the images as
+   /usr/share/setu/apps/LICENSES.txt, and each app's own licence text is in
+   its folder under C:\Program Files. Windows Terminal is open-source
+   software published by Microsoft under the MIT License, as released; it
+   is not Microsoft code in Setu's source (section 3).
+
+   The Start menu icons of Wine's accessories (WordPad, Clock) are drawn
+   by distro/apps/icons.py: original Setu work, MIT OR Apache-2.0.
+
 SPDX identifiers
 ----------------
   Setu code:          SPDX-License-Identifier: MIT OR Apache-2.0
