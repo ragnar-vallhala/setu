@@ -75,6 +75,7 @@ ULONG WINAPI RtlIsDosDeviceName_U( PCWSTR dos_name )
     static const WCHAR conoutW[] = {'C','O','N','O','U','T','$'};
 
     const WCHAR *start, *end, *p;
+    BOOL bare = FALSE;  /* a relative name without a directory part */
 
     switch(RtlDetermineDosPathNameType_U( dos_name ))
     {
@@ -89,20 +90,25 @@ ULONG WINAPI RtlIsDosDeviceName_U( PCWSTR dos_name )
     case RtlPathTypeDriveRelative:
         start = dos_name + 2;  /* skip drive letter */
         break;
+    case RtlPathTypeRelative:
+        bare = TRUE;
+        start = dos_name;
+        break;
     default:
         start = dos_name;
         break;
     }
 
     /* find start of file name */
-    for (p = start; *p; p++) if (IS_SEPARATOR(*p)) start = p + 1;
+    for (p = start; *p; p++) if (IS_SEPARATOR(*p)) { start = p + 1; bare = FALSE; }
 
-    /* truncate at extension and ':' */
-    for (end = start; *end; end++) if (*end == '.' || *end == ':') break;
-    end--;
+    /* the whole name must be the device name, apart from trailing spaces,
+     * dots and colons: "nul.txt", "nul .txt" and "nul:x" are ordinary names */
+    end = start + wcslen( start ) - 1;
+    while (end >= start && (*end == ' ' || *end == '.' || *end == ':')) end--;
 
-    /* remove trailing spaces */
-    while (end >= start && *end == ' ') end--;
+    /* NUL is a device in any directory, the other names only on their own */
+    if (!bare && (end - start != 2 || wcsnicmp( start, nulW, 3 ))) return 0;
 
     /* now we have a potential device name between start and end, check it */
     switch(end - start + 1)

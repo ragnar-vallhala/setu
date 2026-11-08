@@ -693,8 +693,11 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateDirectoryW( LPCWSTR path, LPSECURITY_ATTRIBU
 
     TRACE( "%s\n", debugstr_w(path) );
 
-    if (path && RtlIsDosDeviceName_U( path ))
+    if (path && (len = RtlIsDosDeviceName_U( path )))
     {
+        /* "creating" the NUL device succeeds without making anything */
+        if (LOWORD(len) == 3 * sizeof(WCHAR) && !wcsnicmp( path + HIWORD(len) / sizeof(WCHAR), L"nul", 3 ))
+            return TRUE;
         SetLastError( ERROR_DIRECTORY );
         return FALSE;
     }
