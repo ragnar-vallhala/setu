@@ -3977,8 +3977,7 @@ NTSTATUS WINAPI NtQuerySystemInformationEx( SYSTEM_INFORMATION_CLASS class,
         }
 
         relation = *(DWORD *)query;
-        /* Windows 10 19045 knows relationships up to RelationGroup only. */
-        if (relation > RelationGroup && relation != RelationAll)
+        if (relation > RelationProcessorModule && relation != RelationAll)
         {
             ret = STATUS_UNSUCCESSFUL;
             break;
@@ -3987,13 +3986,46 @@ NTSTATUS WINAPI NtQuerySystemInformationEx( SYSTEM_INFORMATION_CLASS class,
         p = logical_proc_info_ex;
         while ((char *)p != (char *)logical_proc_info_ex + logical_proc_info_ex_size)
         {
-            if (relation == RelationAll || p->Relationship == relation)
+            /* RelationNumaNodeEx returns the NUMA node entries */
+            if (relation == RelationAll || p->Relationship == relation ||
+                (relation == RelationNumaNodeEx && p->Relationship == RelationNumaNode))
             {
                 if (len + p->Size <= size)
+                {
                     memcpy( (char *)info + len, p, p->Size );
+                    /* the full group information: one group */
+                    if (relation == RelationNumaNodeEx)
+                        ((SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *)((char *)info + len))->NumaNode.GroupCount = 1;
+                }
                 len += p->Size;
             }
             p = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *)((char *)p + p->Size);
+        }
+        /* One die per package and one module per core; RelationAll includes
+         * the modules but not the dies. */
+        if (relation == RelationProcessorDie || relation == RelationProcessorModule || relation == RelationAll)
+        {
+            DWORD from = relation == RelationProcessorDie ? RelationProcessorPackage : RelationProcessorCore;
+            DWORD to = relation == RelationProcessorDie ? RelationProcessorDie : RelationProcessorModule;
+
+            p = logical_proc_info_ex;
+            while ((char *)p != (char *)logical_proc_info_ex + logical_proc_info_ex_size)
+            {
+                if (p->Relationship == from)
+                {
+                    if (len + p->Size <= size)
+                    {
+                        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *out = (void *)((char *)info + len);
+                        memcpy( out, p, p->Size );
+                        out->Relationship = to;
+                        out->Processor.Flags = 0;
+                        out->Processor.EfficiencyClass = 0;
+                        memset( out->Processor.Reserved, 0, sizeof(out->Processor.Reserved) );
+                    }
+                    len += p->Size;
+                }
+                p = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *)((char *)p + p->Size);
+            }
         }
         ret = size >= len ? STATUS_SUCCESS : STATUS_INFO_LENGTH_MISMATCH;
         break;
