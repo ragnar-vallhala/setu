@@ -5445,6 +5445,7 @@
     "kernel32/apc_alertable:queue_to_never_alertable_thread",
     "kernel32/apc_alertable:queue_to_process_pseudo_handle",
     "kernel32/apc_alertable:queue_to_self",
+    "kernel32/apc_alertable:queue_user_apc2_export",
     "kernel32/apc_alertable:queue_with_set_context_only",
     "kernel32/apc_alertable:queue_without_set_context_access",
     "kernel32/apc_alertable:set_context_only_apc_runs",
