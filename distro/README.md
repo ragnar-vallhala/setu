@@ -20,7 +20,7 @@ taskbar and work area apply to all programs. labwc's config
 bindings and its root menu.
 
 ```sh
-distro/build-image.sh     # ~10 min; writes build/distro/setu-dev.qcow2 (~4.5 GB)
+distro/build-image.sh     # ~20 min; writes build/distro/setu-dev.qcow2
 distro/run-qemu.sh        # VNC 127.0.0.1:5911, serial log build/distro/run/serial.log
 ```
 
@@ -33,12 +33,28 @@ distro/run-qemu.sh        # VNC 127.0.0.1:5911, serial log build/distro/run/seri
   session then runs it instead of notepad.
 * `build-image.sh --personality DIR`: the personality install to copy (e.g.
   a worktree's `build/personality/install`).
+* `build-image.sh --no-apps`: leave out the default apps (below).
 * `run-qemu.sh --snapshot`: throw away disk writes.
 * `run-qemu.sh --run-dir DIR --vnc N --ssh-port N`: run a second VM next to
   the first (own monitor socket, pid file and serial log).
 
 Login: user `setu`, password `setu` (passwordless sudo; dev image only).
 SSH: `ssh -p 2230 setu@127.0.0.1`.
+
+### Default apps: `distro/tests/apps-smoke.sh`
+
+The image and the ISO come with 13 Windows programs installed in
+`C:\Program Files` (Firefox, LibreOffice, SumatraPDF, Notepad++, 7-Zip,
+ImageGlass, GIMP, Inkscape, VLC, KeePassXC, PuTTY, WinSCP, ShareX; Windows
+Terminal is left out until it runs), Start menu shortcuts for them and for Wine's WordPad and
+Clock, and a default app for each common file type. `build-image.sh`
+downloads the vendors' official installers (pinned by SHA-256 in
+`apps/apps.toml`, cached in `build/distro/downloads/apps` and never
+committed) and runs them silently on the build host (`apps/stage.py`); the
+files go onto C:, and each user's prefix imports the registry entries at
+login (`setu-apps-register`). They add about 4 GB to C:. Design, versions,
+licences, how to update a pin and the per-app results:
+[docs/DEFAULT_APPS.md](../docs/DEFAULT_APPS.md).
 
 ### .NET: Wine Mono
 
@@ -90,7 +106,7 @@ has cosmetic gaps (see below).
 
 The disk has three partitions: the ESP, the Linux root (`setu-root`, 6 GiB
 by default, `--root-size`) and **`C:`** (`setu-c`, the rest of `--size`,
-12G by default): an ext4 file system made with `-O casefold`, mounted at
+20G by default, 12G with `--no-apps`): an ext4 file system made with `-O casefold`, mounted at
 `/var/lib/setu/volumes/c`, with `+F` on its root, so the kernel looks names
 up without regard to case and keeps their case. The `setu` user's prefix
 links its `c:` straight to it. Other volumes get drive letters from the
@@ -291,7 +307,7 @@ program would avoid. If Calamares quits before the wizard is done,
 
 ### `distro/tests/install-smoke.sh`
 
-QEMU (4 GB, q35, OVMF), a blank 16 GB qcow2 and the ISO as a CD-ROM
+QEMU (4 GB, q35, OVMF), a blank 20 GB qcow2 and the ISO as a CD-ROM
 (VNC :24, SSH 2236, run dir `build/distro/install-smoke/run`). The test
 drives Calamares through the keyboard, as a user would (QEMU `sendkey`:
 the buttons' Alt shortcuts, Tab between fields): Calamares has no
