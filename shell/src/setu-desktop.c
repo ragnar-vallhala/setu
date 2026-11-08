@@ -439,7 +439,16 @@ static void load_wallpaper(void)
     FillRect(dc, &rc, br);
     DeleteObject(br);
 
-    SystemParametersInfoW(SPI_GETDESKWALLPAPER, ARRAYSIZE(path), path, 0);
+    /* The registry value SPI_SETDESKWALLPAPER stores, read directly: the
+     * personality caches system parameters per process, so another
+     * program's change (setu-theme apply) wouldn't show through
+     * SPI_GETDESKWALLPAPER here. */
+    {
+        DWORD size = sizeof(path);
+        if (RegGetValueW(HKEY_CURRENT_USER, L"Control Panel\\Desktop", L"Wallpaper",
+                         RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ, NULL, path, &size))
+            SystemParametersInfoW(SPI_GETDESKWALLPAPER, ARRAYSIZE(path), path, 0);
+    }
     if (path[0]) pic = load_picture(path, &pw, &ph);
     if (pic)
     {
@@ -964,7 +973,7 @@ static void delete_item(int i, BOOL permanent)
     op.hwnd = desk;
     op.wFunc = FO_DELETE;
     op.pFrom = from;
-    op.fFlags = permanent ? 0 : FOF_ALLOWUNDO;
+    op.fFlags = permanent ? 0 : FOF_ALLOWUNDO | FOF_NOCONFIRMATION; /* no "Are you sure?" for the Recycle Bin, like Windows by default */
     r = SHFileOperationW(&op);
     if (!r && !op.fAnyOperationsAborted)
     {
@@ -1485,6 +1494,7 @@ static void apply_theme(void)
     layout();
     load_wallpaper();
     rescan();
+    InvalidateRect(desk, NULL, FALSE);
 }
 
 BOOL apply_commands(int argc, WCHAR **argv);

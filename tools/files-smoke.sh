@@ -288,7 +288,7 @@ pass "refresh on outside change"
 [ "$(probe recycle)" = 0 ] || fail "Recycle Bin not empty at start"
 send --select renamed.txt --focus
 probe key Delete >/dev/null
-# the personality asks first; answer Yes
+# Shift+Del asks first (answer Yes); the Recycle Bin doesn't (owner decision)
 confirm() {
   if probe setfg 'Confirm' 5 >"$OUT/confirm.txt" 2>&1; then
     sed 's/^/  confirm dialog: /' "$OUT/confirm.txt"
@@ -296,7 +296,7 @@ confirm() {
     probe key Return >/dev/null
   fi
 }
-confirm
+if probe setfg 'Confirm' 2 >"$OUT/confirm.txt" 2>&1; then fail "Delete to the Recycle Bin asked for confirmation"; fi
 for _ in $(seq 50); do [ ! -e "$D/renamed.txt" ] && break; sleep 0.1; done
 [ ! -e "$D/renamed.txt" ] || fail "Delete did not remove renamed.txt"
 wait_state '^recycle_count=1' 10 || fail "renamed.txt is not in the Recycle Bin"

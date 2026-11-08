@@ -2142,7 +2142,7 @@ static void delete_selection(BOOL permanent)
         return;
     }
     if (!(m = selected_paths(&n))) return;
-    file_op(FO_DELETE, m, NULL, permanent ? 0 : FOF_ALLOWUNDO, permanent ? L"delete" : L"recycle",
+    file_op(FO_DELETE, m, NULL, permanent ? 0 : FOF_ALLOWUNDO | FOF_NOCONFIRMATION, permanent ? L"delete" : L"recycle",
             permanent ? L"Deleted" : L"Moved to the Recycle Bin:", L"Deleting");
     free(m);
 }
@@ -2974,7 +2974,7 @@ static void end_drag(BOOL drop)
     if (!dest[0]) { set_status(L""); return; }
     if (!(m = selected_paths(&n))) return;
     if (!wcscmp(dest, L"::recycle"))
-        file_op(FO_DELETE, m, NULL, FOF_ALLOWUNDO, L"recycle", L"Moved to the Recycle Bin:", L"Deleting");
+        file_op(FO_DELETE, m, NULL, FOF_ALLOWUNDO | FOF_NOCONFIRMATION, L"recycle", L"Moved to the Recycle Bin:", L"Deleting");
     else
     {
         /* same drive: move by default; another drive: copy */
