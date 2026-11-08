@@ -239,8 +239,11 @@ int main(void)
         CloseHandle(th);
 
         HANDLE gate = CreateEventW(NULL, TRUE, FALSE, NULL);
-        th = CreateThread(NULL, 0, exit_without_alertable, gate, 0, NULL);
+        /* Queued before the thread runs: it starts by calling the APC
+         * (QueueUserAPC docs). Created suspended so it cannot start first. */
+        th = CreateThread(NULL, 0, exit_without_alertable, gate, CREATE_SUSPENDED, NULL);
         ORACLE_CALL(ok, QueueUserAPC(apc_letter, th, 'Y'));
+        ResumeThread(th);
         oracle_case("queue_to_never_alertable_thread");
         o_bool("ret", ok);
         o_lasterr();
