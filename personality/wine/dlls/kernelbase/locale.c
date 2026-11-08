@@ -7286,6 +7286,17 @@ BOOL WINAPI DECLSPEC_HOTPATCH GetTimeZoneInformationForYear( USHORT year,
         !RegOpenKeyExW( key, L"Dynamic DST", 0, KEY_ALL_ACCESS, &dst_key ))
     {
         WCHAR yearW[16];
+        DWORD first, last, type;
+
+        /* years outside the table use its first or last entry */
+        count = sizeof(first);
+        if (!RegQueryValueExW( dst_key, L"FirstEntry", NULL, &type, (BYTE *)&first, &count ) &&
+            type == REG_DWORD && year < first)
+            year = first;
+        count = sizeof(last);
+        if (!RegQueryValueExW( dst_key, L"LastEntry", NULL, &type, (BYTE *)&last, &count ) &&
+            type == REG_DWORD && year > last)
+            year = last;
         swprintf( yearW, ARRAY_SIZE(yearW), L"%u", year );
         count = sizeof(data);
         ret = RegQueryValueExW( dst_key, yearW, NULL, NULL, (BYTE *)&data, &count );
