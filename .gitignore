@@ -6,6 +6,7 @@
 /oracle/.cache/
 /oracle/vm/state/
 /oracle/vm/state-*
+/oracle/vm/win10-state*
 
 # VM images and installer media: never commit these
 *.qcow2
