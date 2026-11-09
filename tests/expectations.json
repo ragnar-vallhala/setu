@@ -12037,6 +12037,7 @@
     "user32/string_apis:w_x",
     "user32/string_apis:w_z_and_ll",
     "user32/sys_metrics:adjust_border",
+    "user32/sys_metrics:adjust_dlgframe",
     "user32/sys_metrics:cxborder",
     "user32/sys_metrics:cxedge",
     "user32/sys_metrics:cxfixedframe",
