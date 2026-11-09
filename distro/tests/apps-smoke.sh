@@ -5,7 +5,7 @@
 # session, then
 #   1. the apps' registry entries were imported into the prefix
 #      (HKLM\Software\Setu\DefaultApps Stamp) and Setu's default apps own the main
-#      file types (.pdf .txt .png .jpg .html .docx .mp4 .svg .kdbx), while
+#      file types (.pdf .txt .png .jpg .tif .html .docx .mp4 .svg .kdbx), while
 #      archives stay compressed folders (.zip: CompressedFolder, opened in
 #      setu-files; .7z: ArchiveFolder) with 7-Zip in "Open with";
 #   2. the Start menu's common Programs folder has a shortcut for each app
@@ -180,7 +180,7 @@ assoc() {
         | sed -n 's/^ *(Default) *REG_[A-Z_]*SZ *//p')"
 }
 bad=0
-for pair in .pdf:SumatraPDF.exe .txt:notepad++.exe .png:SumatraPDF.exe .jpg:SumatraPDF.exe .html:firefox.exe \
+for pair in .pdf:SumatraPDF.exe .txt:notepad++.exe .png:SumatraPDF.exe .jpg:SumatraPDF.exe .tif:SumatraPDF.exe .html:firefox.exe \
             .docx:swriter.exe .mp4:vlc.exe .svg:inkscape .kdbx:KeePassXC.exe \
             '.zip:CompressedFolder =>' .zip:setu-files.exe '.7z:ArchiveFolder =>'; do
     ext=${pair%%:*} exe=${pair#*:}
@@ -194,7 +194,7 @@ for ext in .zip .7z; do
         || { echo "FAIL: 7-Zip is not in $ext's OpenWithProgids" >&2; bad=1; }
 done
 [ "$bad" = 0 ] || fail "file associations"
-pass "file associations: Setu's default apps own .pdf .txt .png .jpg .html .docx .mp4 .svg .kdbx; .zip and .7z are compressed folders, 7-Zip in Open with"
+pass "file associations: Setu's default apps own .pdf .txt .png .jpg .tif .html .docx .mp4 .svg .kdbx; .zip and .7z are compressed folders, 7-Zip in Open with"
 
 # --- 2. Start menu ------------------------------------------------------------------
 PROGS='/var/lib/setu/volumes/c/ProgramData/Microsoft/Windows/Start Menu/Programs'

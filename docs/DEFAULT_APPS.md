@@ -134,8 +134,8 @@ ProgID that opens the file with the app's exe. The other apps stay in
 | .odt .ods .odp .odg .doc .docx .xls .xlsx .ppt .pptx .rtf .csv | LibreOffice | (.rtf: WordPad in Wine's defaults) |
 | .txt .log .ini .xml .json .md .yaml .yml | Notepad++ | LibreOffice (.txt .xml), Wine's Notepad |
 | .htm .html .xhtml, http and https links | Firefox | LibreOffice (.htm .html), Wine's built-in browser |
-| .png .jpg .jpeg .gif .bmp .webp | SumatraPDF | ImageGlass, GIMP, LibreOffice |
-| .tif .tiff .ico .avif | ImageGlass | GIMP, LibreOffice, SumatraPDF |
+| .png .jpg .jpeg .gif .bmp .webp .tif .tiff | SumatraPDF | ImageGlass, GIMP, LibreOffice |
+| .ico .avif | ImageGlass | GIMP, LibreOffice |
 | .svg | Inkscape | GIMP, LibreOffice |
 | .xcf | GIMP | |
 | .mp4 .mkv .avi .mov .webm .wmv .mp3 .ogg .flac .wav .m4a .opus | VLC | |
@@ -147,9 +147,10 @@ Conflicts decided:
 
 * **PDF**: SumatraPDF, the light viewer, over LibreOffice Draw (an
   editor) and GIMP (imports one page as an image).
-* **Images**: SumatraPDF for .png .jpg .jpeg .gif .bmp .webp (owner,
-  2026-11-09), since ImageGlass, the image viewer, does not start yet; GIMP
-  is an editor. The other image types stay with ImageGlass for now. SVG
+* **Images**: SumatraPDF for .png .jpg .jpeg .gif .bmp .webp .tif .tiff
+  (owner, 2026-11-09), since ImageGlass, the image viewer, does not start
+  yet; GIMP is an editor. .ico and .avif, which SumatraPDF does not open,
+  stay with ImageGlass for now. SVG
   goes to Inkscape, the vector editor.
 * **Plain text**: Notepad++ over Wine's Notepad and LibreOffice.
 * **RTF**: LibreOffice Writer over WordPad: it keeps more formatting.
@@ -278,8 +279,8 @@ top-level window and how long after the start it appeared.
 | Windows Terminal 1.25.2733.0 | **left out** | - | gets past ICU; needs the system XAML framework |
 
 The test also checks that the prefix imported apps.reg; that .pdf .txt
-.png .jpg .html .docx .mp4 .svg and .kdbx open with their default app
-(.png and .jpg with SumatraPDF); that .zip is a `CompressedFolder` and .7z
+.png .jpg .tif .html .docx .mp4 .svg and .kdbx open with their default
+app (.png .jpg and .tif with SumatraPDF); that .zip is a `CompressedFolder` and .7z
 an `ArchiveFolder`, both opening in setu-files, with 7-Zip in their "Open
 with" list; that the common Programs folder has the shortcuts (33); and
 that ImageGlass and KeePassXC have none.
@@ -316,7 +317,7 @@ that ImageGlass and KeePassXC have none.
   at `Windows.Storage.ApplicationData` and `Windows.UI.Composition`, which
   the personality implements only in part. Reported to shell-api. It stays
   installed but is hidden from the Start menu, and the common image types
-  open in SumatraPDF; .tif .tiff .ico .avif still point at it.
+  open in SumatraPDF; .ico and .avif still point at it.
 * **Firefox**: its first start after login crashes (an access violation
   within two seconds, no window); clicking it again works, and so does
   every later start. Its log also shows sandboxed child processes failing
