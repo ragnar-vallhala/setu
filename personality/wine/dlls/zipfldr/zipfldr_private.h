@@ -64,6 +64,7 @@ struct archive
     enum arc_format format;
     BOOL valid;                 /* read without errors */
     BOOL sorted;                /* entries sorted by name (not archive order) */
+    BOOL flat;                  /* entries listed with their whole path (cab) */
     BYTE *data;                 /* tar (or other archive) inside a compressed stream, or the stream: decompressed */
     SIZE_T data_len;
     struct arc_node **entries;  /* ARC_LIB: the node of each entry number, or NULL */
@@ -73,6 +74,7 @@ struct archive
 
 /* archive.c */
 #define ARCHIVE_SORTED 1        /* sort entries by name */
+#define ARCHIVE_FLAT   2        /* no directories: every file at the top with its path */
 struct archive *archive_open(const WCHAR *path, DWORD flags);
 void archive_release(struct archive *arc);
 struct arc_node *archive_find(struct archive *arc, struct arc_node *dir, const WCHAR *name);
@@ -87,7 +89,8 @@ struct arc_node *folder_lookup(IShellFolder2 *folder, LPCITEMIDLIST pidl, struct
 
 /* dataobj.c */
 HRESULT stream_create(const WCHAR *name, const FILETIME *mtime, BYTE *data, SIZE_T len, IStream **out);
-HRESULT dataobject_create(IShellFolder2 *folder, BOOL zip, LPCITEMIDLIST parent, UINT cidl,
+enum folder_kind { KIND_ARCHIVE, KIND_ZIP, KIND_CAB };
+HRESULT dataobject_create(IShellFolder2 *folder, enum folder_kind kind, LPCITEMIDLIST parent, UINT cidl,
                           LPCITEMIDLIST *apidl, REFIID riid, void **out);
 HRESULT transfer_source_create(IShellFolder2 *folder, LPCITEMIDLIST pidl, void **out);
 HRESULT item_menu_create(IShellFolder2 *folder, LPCITEMIDLIST parent, UINT cidl,
@@ -98,6 +101,7 @@ HRESULT extract_menu_create(const CLSID *clsid, REFIID riid, void **out);
 
 extern const CLSID CLSID_ZipFolder;         /* {E88DCCE0-B7B3-11d1-A9F0-00AA0060FA31} */
 extern const CLSID CLSID_ArchiveFolder;     /* {0C1FD748-B888-443D-9EC3-AD7E22D48808} */
+extern const CLSID CLSID_CABFolder;         /* {0CD7A5C0-9F37-11CE-AE65-08002B2E1262} */
 extern const CLSID CLSID_ZipExtractMenu;    /* {b8cdcb65-b1bf-4b42-9428-1dfdb7ee92af} */
 extern const CLSID CLSID_ArchiveExtractMenu;/* {EE07CEF5-3441-4CFB-870A-4002C724783A} */
 

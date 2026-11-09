@@ -31,7 +31,14 @@
  *    only copyable;
  *  - zip GetAttributesOf returns all attributes, the archive folder only
  *    the requested ones.
- * Neither writes to the archive: moving, deleting, renaming and dropping
+ * A third class, the cabinet folder (CLSID_CABFolder, ProgID CABFolder,
+ * registered for cabview.dll, which forwards to this DLL), shows a .cab
+ * like Windows 11's cabview: one flat list in archive order, each file
+ * named with its path ("docs\inner.txt") and displayed with its last
+ * component, only copyable (SFGAO_CANCOPY), copied out through
+ * FileGroupDescriptorW and FileContents; BindToObject(IStream) is not
+ * implemented, as on Windows.
+ * None writes to the archive: moving, deleting, renaming and dropping
  * files in are not implemented.
  */
 
@@ -97,6 +104,7 @@ struct folder
     IStorage IStorage_iface;
     LONG ref;
     BOOL zip;
+    BOOL cab;
     LPITEMIDLIST pidl;          /* absolute */
     WCHAR arc_path[MAX_PATH];
     WCHAR sub[MAX_PATH];        /* directory inside the archive: "" or "a\b" */
@@ -121,7 +129,7 @@ static inline struct folder *impl_from_IStorage(IStorage *iface)
 
 static const CLSID *folder_clsid(const struct folder *f)
 {
-    return f->zip ? &CLSID_ZipFolder : &CLSID_ArchiveFolder;
+    return f->zip ? &CLSID_ZipFolder : f->cab ? &CLSID_CABFolder : &CLSID_ArchiveFolder;
 }
 
 static struct archive *folder_archive(struct folder *f)
@@ -129,7 +137,8 @@ static struct archive *folder_archive(struct folder *f)
     if (!f->loaded)
     {
         f->loaded = TRUE;
-        if (*f->arc_path) f->arc = archive_open(f->arc_path, f->zip ? 0 : ARCHIVE_SORTED);
+        if (*f->arc_path)
+            f->arc = archive_open(f->arc_path, f->cab ? ARCHIVE_FLAT : f->zip ? 0 : ARCHIVE_SORTED);
     }
     return f->arc;
 }
@@ -176,6 +185,7 @@ static SFGAOF node_attributes(const struct folder *f, const struct arc_node *nod
 {
     SFGAOF a;
 
+    if (f->cab) return SFGAO_CANCOPY;
     if (node->dir)
     {
         a = f->zip ? SFGAO_FOLDER | SFGAO_DROPTARGET | SFGAO_HASPROPSHEET | SFGAO_CANDELETE | SFGAO_STORAGE |
@@ -368,6 +378,13 @@ static HRESULT WINAPI folder_ParseDisplayName(IShellFolder2 *iface, HWND hwnd, I
     if (!name || !*name) return E_INVALIDARG;
     if (!(node = folder_node(f))) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
+    if (f->cab)
+    {
+        /* one level, named with the whole path */
+        if (!(node = archive_find(f->arc, node, name))) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+        if (!(result = make_pidl(node))) return E_OUTOFMEMORY;
+        p = name + wcslen(name);
+    }
     while (*p)
     {
         int n = 0;
@@ -460,7 +477,7 @@ static HRESULT WINAPI folder_BindToObject(IShellFolder2 *iface, LPCITEMIDLIST pi
     {
         if (IsEqualIID(riid, &IID_IStream))
         {
-            if (!f->zip) return E_NOINTERFACE;
+            if (!f->zip) return f->cab ? E_NOTIMPL : E_NOINTERFACE;
             return open_stream(f, node, (IStream **)out);
         }
         if (IsEqualIID(riid, &IID_IStorage)) return f->zip ? E_NOTIMPL : E_NOINTERFACE;
@@ -600,7 +617,8 @@ static HRESULT WINAPI folder_GetUIObjectOf(IShellFolder2 *iface, HWND hwnd, UINT
                                         riid, out);
     }
     if (IsEqualIID(riid, &IID_IDataObject))
-        return dataobject_create(&f->IShellFolder2_iface, f->zip, f->pidl, cidl, apidl, riid, out);
+        return dataobject_create(&f->IShellFolder2_iface, f->zip ? KIND_ZIP : f->cab ? KIND_CAB : KIND_ARCHIVE,
+                                 f->pidl, cidl, apidl, riid, out);
     if (IsEqualIID(riid, &IID_IContextMenu) || IsEqualIID(riid, &IID_IContextMenu2) || IsEqualIID(riid, &IID_IContextMenu3))
         return item_menu_create(&f->IShellFolder2_iface, f->pidl, cidl, apidl, riid, out);
     return E_NOINTERFACE;
@@ -641,7 +659,7 @@ static HRESULT WINAPI folder_GetDisplayNameOf(IShellFolder2 *iface, LPCITEMIDLIS
     }
     else if (z)
     {
-        lstrcpynW(buf, z->name, MAX_PATH);
+        lstrcpynW(buf, (f->cab && !(flags & SHGDN_FORPARSING)) ? PathFindFileNameW(z->name) : z->name, MAX_PATH);
         if (!(flags & SHGDN_FORPARSING) && !(z->flags & PIDL_DIR) && hide_extension(buf))
             PathRemoveExtensionW(buf);
     }
@@ -1019,7 +1037,7 @@ static const IStorageVtbl storage_vtbl =
 
 /* ---- creation ---- */
 
-static struct folder *folder_alloc(BOOL zip)
+static struct folder *folder_alloc(BOOL zip, BOOL cab)
 {
     struct folder *f = calloc(1, sizeof(*f));
     if (!f) return NULL;
@@ -1028,6 +1046,7 @@ static struct folder *folder_alloc(BOOL zip)
     f->IStorage_iface.lpVtbl = &storage_vtbl;
     f->ref = 1;
     f->zip = zip;
+    f->cab = cab;
     InterlockedIncrement(&zipfldr_locks);
     return f;
 }
@@ -1040,7 +1059,7 @@ static HRESULT folder_create_child(struct folder *parent, LPCITEMIDLIST child, s
 
     *out = NULL;
     if (!z) return E_INVALIDARG;
-    if (!(f = folder_alloc(parent->zip))) return E_OUTOFMEMORY;
+    if (!(f = folder_alloc(parent->zip, parent->cab))) return E_OUTOFMEMORY;
     if (!(first = ILCloneFirst(child)) || !(f->pidl = ILCombine(parent->pidl, first)))
     {
         ILFree(first);
@@ -1065,7 +1084,7 @@ static HRESULT folder_create_child(struct folder *parent, LPCITEMIDLIST child, s
 
 HRESULT zip_folder_create(const CLSID *clsid, REFIID riid, void **out)
 {
-    struct folder *f = folder_alloc(IsEqualCLSID(clsid, &CLSID_ZipFolder));
+    struct folder *f = folder_alloc(IsEqualCLSID(clsid, &CLSID_ZipFolder), IsEqualCLSID(clsid, &CLSID_CABFolder));
     HRESULT hr;
 
     if (!f) return E_OUTOFMEMORY;

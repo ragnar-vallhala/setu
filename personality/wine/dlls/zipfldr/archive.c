@@ -167,6 +167,30 @@ static struct arc_node *add_entry(struct archive *arc, const WCHAR *path, BOOL d
     return NULL;
 }
 
+/* A file of a flat archive: a child of the root named with its whole path,
+ * '\' separated, without "." and ".." components. */
+static struct arc_node *add_flat(struct archive *arc, const WCHAR *path)
+{
+    WCHAR name[MAX_PATH];
+    const WCHAR *p = path, *start;
+    int len, n = 0;
+
+    for (;;)
+    {
+        while (*p == '/' || *p == '\\') p++;
+        if (!*p) break;
+        start = p;
+        while (*p && *p != '/' && *p != '\\') p++;
+        len = p - start;
+        if ((len == 1 && start[0] == '.') || (len == 2 && start[0] == '.' && start[1] == '.')) continue;
+        if (n + len + 2 > MAX_PATH) return NULL;
+        if (n) name[n++] = '\\';
+        memcpy(name + n, start, len * sizeof(WCHAR));
+        n += len;
+    }
+    return n ? add_child(&arc->root, name, n) : NULL;
+}
+
 static int __cdecl compare_nodes(const void *a, const void *b)
 {
     const struct arc_node *x = *(const struct arc_node *const *)a, *y = *(const struct arc_node *const *)b;
@@ -678,7 +702,11 @@ static BOOL lib_entry(void *ctx, ULONGLONG index, const struct la_entry *e)
         arc->entries = entries;
         arc->entry_count = count;
     }
-    if (!(node = add_entry(arc, e->path, e->dir)) || node->dir != e->dir) return TRUE;
+    if (arc->flat)
+    {
+        if (e->dir || !(node = add_flat(arc, e->path))) return TRUE;
+    }
+    else if (!(node = add_entry(arc, e->path, e->dir)) || node->dir != e->dir) return TRUE;
     if (e->mtime.dwLowDateTime || e->mtime.dwHighDateTime) node->mtime = e->mtime;
     node->attrs = e->attrs | (node->dir ? FILE_ATTRIBUTE_DIRECTORY : 0);
     if (node->dir) return TRUE;
@@ -781,7 +809,7 @@ void archive_release(struct archive *arc)
 
 struct archive *archive_open(const WCHAR *path, DWORD flags)
 {
-    BOOL sorted = !!(flags & ARCHIVE_SORTED);
+    BOOL sorted = !!(flags & ARCHIVE_SORTED), flat = !!(flags & ARCHIVE_FLAT);
     WIN32_FILE_ATTRIBUTE_DATA fad;
     struct archive *arc;
     LARGE_INTEGER size;
@@ -795,7 +823,7 @@ struct archive *archive_open(const WCHAR *path, DWORD flags)
     for (i = 0; i < CACHE_SIZE; i++)
     {
         arc = cache[i];
-        if (arc && arc->sorted == sorted && !wcsicmp(arc->path, path) && !CompareFileTime(&arc->stamp, &fad.ftLastWriteTime)
+        if (arc && arc->sorted == sorted && arc->flat == flat && !wcsicmp(arc->path, path) && !CompareFileTime(&arc->stamp, &fad.ftLastWriteTime)
             && arc->file_size == (((ULONGLONG)fad.nFileSizeHigh << 32) | fad.nFileSizeLow))
         {
             InterlockedIncrement(&arc->ref);
@@ -808,6 +836,7 @@ struct archive *archive_open(const WCHAR *path, DWORD flags)
     if (!(arc = calloc(1, sizeof(*arc)))) return NULL;
     arc->ref = 1;
     arc->sorted = sorted;
+    arc->flat = flat;
     lstrcpynW(arc->path, path, MAX_PATH);
     arc->stamp = fad.ftLastWriteTime;
     arc->root.dir = TRUE;

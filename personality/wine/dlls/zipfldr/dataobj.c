@@ -244,7 +244,7 @@ struct dataobject
     LONG ref;
     IShellFolder2 *folder;
     struct archive *arc;
-    BOOL zip;
+    enum folder_kind kind;
     LPITEMIDLIST parent;
     UINT cidl;
     LPITEMIDLIST *apidl;
@@ -358,7 +358,8 @@ static HGLOBAL make_descriptor(struct dataobject *d)
         const struct arc_node *node = d->items[i].node;
 
         fd->dwFlags = FD_PROGRESSUI | FD_FILESIZE | FD_ATTRIBUTES;
-        fd->dwFileAttributes = FILE_ATTRIBUTE_VIRTUAL | (node->dir ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_ARCHIVE)
+        fd->dwFileAttributes = (d->kind == KIND_ZIP ? FILE_ATTRIBUTE_VIRTUAL : 0)
+                               | (node->dir ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_ARCHIVE)
                                | (node->attrs & FILE_ATTRIBUTE_HIDDEN);
         if (!node->dir)
         {
@@ -379,7 +380,7 @@ static HGLOBAL make_descriptor(struct dataobject *d)
 static BOOL format_ok(struct dataobject *d, const FORMATETC *fmt)
 {
     if (fmt->cfFormat == d->cf_idlist) return !!(fmt->tymed & TYMED_HGLOBAL);
-    if (!d->zip) return FALSE;
+    if (d->kind == KIND_ARCHIVE) return FALSE;
     if (fmt->cfFormat == d->cf_descriptor) return !!(fmt->tymed & TYMED_HGLOBAL);
     if (fmt->cfFormat == d->cf_contents) return !!(fmt->tymed & TYMED_ISTREAM);
     return FALSE;
@@ -441,7 +442,14 @@ static HRESULT WINAPI dataobject_EnumFormatEtc(IDataObject *iface, DWORD dir, IE
     };
 
     if (dir != DATADIR_GET) return E_NOTIMPL;
-    return SHCreateStdEnumFmtEtc(d->zip ? 3 : 1, fmts, out);
+    if (d->kind == KIND_CAB)
+    {
+        /* the cabinet folder lists the contents first */
+        FORMATETC t = fmts[0];
+        fmts[0] = fmts[2];
+        fmts[2] = t;
+    }
+    return SHCreateStdEnumFmtEtc(d->kind == KIND_ARCHIVE ? 1 : 3, fmts, out);
 }
 
 static HRESULT WINAPI dataobject_DAdvise(IDataObject *iface, FORMATETC *fmt, DWORD flags, IAdviseSink *sink, DWORD *conn)
@@ -466,7 +474,7 @@ static const IDataObjectVtbl dataobject_vtbl =
     dataobject_EnumFormatEtc, dataobject_DAdvise, dataobject_DUnadvise, dataobject_EnumDAdvise
 };
 
-HRESULT dataobject_create(IShellFolder2 *folder, BOOL zip, LPCITEMIDLIST parent, UINT cidl,
+HRESULT dataobject_create(IShellFolder2 *folder, enum folder_kind kind, LPCITEMIDLIST parent, UINT cidl,
                           LPCITEMIDLIST *apidl, REFIID riid, void **out)
 {
     struct dataobject *d = calloc(1, sizeof(*d));
@@ -478,7 +486,7 @@ HRESULT dataobject_create(IShellFolder2 *folder, BOOL zip, LPCITEMIDLIST parent,
     d->ref = 1;
     d->folder = folder;
     IShellFolder2_AddRef(folder);
-    d->zip = zip;
+    d->kind = kind;
     d->parent = ILClone(parent);
     d->apidl = calloc(cidl, sizeof(*d->apidl));
     d->cf_idlist = RegisterClipboardFormatW(CFSTR_SHELLIDLISTW);

@@ -24,6 +24,25 @@ HKCR
         {
             InprocServer32 = s '%MODULE%' { val ThreadingModel = s 'Apartment' }
         }
+        '{0CD7A5C0-9F37-11CE-AE65-08002B2E1262}' = s 'Cabinet Shell Folder'
+        {
+            InprocServer32 = s 'cabview.dll' { val ThreadingModel = s 'Apartment' }
+            ShellFolder { val Attributes = d '1744830880' }
+        }
+    }
+    'CABFolder' = s 'Cabinet File'
+    {
+        val FriendlyTypeName = s 'Cabinet File'
+        val EditFlags = d '65536'
+        CLSID = s '{0CD7A5C0-9F37-11CE-AE65-08002B2E1262}'
+        DefaultIcon = s 'shell32.dll,-4'
+        Shell
+        {
+            Open
+            {
+                command = s 'explorer.exe "%%1"'
+            }
+        }
     }
     'CompressedFolder' = s 'Compressed (zipped) Folder'
     {
@@ -156,5 +175,10 @@ HKCR
         val 'Content Type' = s 'application/x-compressed'
         val PerceivedType = s 'compressed'
         OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.cab' = s 'CABFolder'
+    {
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'CABFolder' = s '' }
     }
 }
