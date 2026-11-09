@@ -1,5 +1,5 @@
 /*
- * Compressed folders: reading zip, tar and gzip archives
+ * Compressed folders: reading archives
  *
  * Copyright 2026 The Setu Contributors
  *
@@ -27,14 +27,17 @@
  *  - gzip: RFC 1952 (one or more members), deflate: RFC 1951, both through
  *    zlib. A gzip file holding a tar archive is read as the tar archive;
  *    any other gzip file is shown as the one file it contains.
- * Other formats (.7z, .rar, .bz2, .xz, .zst, ...) are not read yet: they
- * show as an empty folder that fails to enumerate.
+ * Everything else goes through libarchive (arclib.c): 7z, rar, cab and cpio
+ * archives are listed and read with it; bzip2, xz, zstd and uuencoded
+ * streams are decompressed with it and then treated like gzip (a tar
+ * archive inside, or else one file).
  */
 
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
 #include "zipfldr_private.h"
+#include "arclib.h"
 #include "shlwapi.h"
 #include "wine/debug.h"
 
@@ -658,54 +661,112 @@ fail:
     return FALSE;
 }
 
+/* ---- libarchive ---- */
+
+static BOOL lib_entry(void *ctx, ULONGLONG index, const struct la_entry *e)
+{
+    struct archive *arc = ctx;
+    struct arc_node *node;
+
+    if (index >= arc->entry_count)
+    {
+        ULONGLONG count = max(max(64, arc->entry_count * 2), index + 1);
+        struct arc_node **entries;
+        if (count > MAX_DECOMPRESSED / sizeof(*entries) || !(entries = realloc(arc->entries, count * sizeof(*entries))))
+            return FALSE;
+        memset(entries + arc->entry_count, 0, (count - arc->entry_count) * sizeof(*entries));
+        arc->entries = entries;
+        arc->entry_count = count;
+    }
+    if (!(node = add_entry(arc, e->path, e->dir)) || node->dir != e->dir) return TRUE;
+    if (e->mtime.dwLowDateTime || e->mtime.dwHighDateTime) node->mtime = e->mtime;
+    node->attrs = e->attrs | (node->dir ? FILE_ATTRIBUTE_DIRECTORY : 0);
+    if (node->dir) return TRUE;
+    arc->entries[index] = node;
+    node->offset = index;
+    node->size = e->link ? 0 : e->size;
+    node->method = e->link;    /* no data */
+    node->flags = e->encrypted ? 1 : 0;
+    return TRUE;
+}
+
+/* 7z, rar, cab or cpio: FALSE if the archive is broken, S_FALSE in *hr if
+ * it is none of these. */
+static BOOL read_lib(struct archive *arc, const struct source *src, HRESULT *hr)
+{
+    struct la_source ls = { src->mem ? NULL : src->file, src->mem, src->len };
+
+    *hr = la_list(&ls, lib_entry, arc);
+    if (*hr == S_FALSE) return FALSE;
+    arc->format = ARC_LIB;
+    return *hr == S_OK;
+}
+
 /* ---- archives ---- */
+
+/* arc->data holds a decompressed stream: a tar archive, another archive, or
+ * one file named in the stream's header (fname) or after the archive. */
+static BOOL read_stream(struct archive *arc, HANDLE file, char *fname)
+{
+    struct source src = { NULL, arc->data, arc->data_len };
+    HRESULT hr;
+
+    if (is_tar(&src))
+    {
+        free(fname);
+        return read_tar(arc, &src);
+    }
+    if (read_lib(arc, &src, &hr) || hr != S_FALSE)
+    {
+        free(fname);
+        return SUCCEEDED(hr);
+    }
+    else
+    {
+        /* one file: the name stored in the header, or the archive's name
+         * without its extension (".gz", ".bz2", ...) */
+        WCHAR name[MAX_PATH], *w = NULL;
+        struct arc_node *node;
+
+        arc->format = ARC_GZ;
+        if (fname && *fname && (w = decode_name(fname, -1, CP_ACP)))
+            archive_sanitize_name(w, name, MAX_PATH);
+        else
+        {
+            lstrcpynW(name, PathFindFileNameW(arc->path), MAX_PATH);
+            PathRemoveExtensionW(name);
+        }
+        free(w);
+        free(fname);
+        if (!(node = add_entry(arc, name, FALSE))) return FALSE;
+        node->size = arc->data_len;
+        node->offset = 0;
+        GetFileTime(file, NULL, NULL, &node->mtime);
+        return TRUE;
+    }
+}
 
 static BOOL read_archive(struct archive *arc, HANDLE file)
 {
     struct source src = { file, NULL, arc->file_size };
+    struct la_source ls = { file, NULL, arc->file_size };
     BYTE magic[4] = {0};
+    HRESULT hr;
 
     src_read(&src, 0, magic, 4);
     if (magic[0] == 0x1f && magic[1] == 0x8b)
     {
         char *fname = NULL;
         if (!gunzip(file, &arc->data, &arc->data_len, &fname)) return FALSE;
-        src.file = NULL;
-        src.mem = arc->data;
-        src.len = arc->data_len;
-        if (is_tar(&src))
-        {
-            free(fname);
-            return read_tar(arc, &src);
-        }
-        else
-        {
-            /* one file: the name stored in the header, or the archive's name
-             * without ".gz" */
-            WCHAR name[MAX_PATH], *w = NULL;
-            struct arc_node *node;
-
-            arc->format = ARC_GZ;
-            if (fname && *fname && (w = decode_name(fname, -1, CP_ACP)))
-                archive_sanitize_name(w, name, MAX_PATH);
-            else
-            {
-                lstrcpynW(name, PathFindFileNameW(arc->path), MAX_PATH);
-                PathRemoveExtensionW(name);
-            }
-            free(w);
-            free(fname);
-            if (!(node = add_entry(arc, name, FALSE))) return FALSE;
-            node->size = arc->data_len;
-            node->offset = 0;
-            GetFileTime(file, NULL, NULL, &node->mtime);
-            return TRUE;
-        }
+        return read_stream(arc, file, fname);
     }
     if (read_zip(arc, &src)) return TRUE;
     free_nodes(&arc->root);
     arc->format = ARC_NONE;
     if (is_tar(&src)) return read_tar(arc, &src);
+    if (read_lib(arc, &src, &hr) || hr != S_FALSE) return SUCCEEDED(hr);
+    hr = la_decompress(&ls, MAX_DECOMPRESSED, &arc->data, &arc->data_len);
+    if (hr == S_OK) return read_stream(arc, file, NULL);
     return FALSE;
 }
 
@@ -713,12 +774,14 @@ void archive_release(struct archive *arc)
 {
     if (!arc || InterlockedDecrement(&arc->ref)) return;
     free_nodes(&arc->root);
+    free(arc->entries);
     free(arc->data);
     free(arc);
 }
 
-struct archive *archive_open(const WCHAR *path, BOOL sorted)
+struct archive *archive_open(const WCHAR *path, DWORD flags)
 {
+    BOOL sorted = !!(flags & ARCHIVE_SORTED);
     WIN32_FILE_ATTRIBUTE_DATA fad;
     struct archive *arc;
     LARGE_INTEGER size;
@@ -806,6 +869,27 @@ HRESULT archive_read_entry(struct archive *arc, const struct arc_node *node, BYT
             hr = S_OK;
         }
     }
+    else if (arc->format == ARC_LIB)
+    {
+        struct la_source ls = { NULL, arc->data, arc->data_len };
+
+        if (node->flags & 1) return HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED);  /* encrypted */
+        if (node->method)  /* a link: no data */
+        {
+            if (!(*data = malloc(1))) return E_OUTOFMEMORY;
+            *len = 0;
+            return S_OK;
+        }
+        if (!arc->data)
+        {
+            file = CreateFileW(arc->path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                               NULL, OPEN_EXISTING, 0, NULL);
+            if (file == INVALID_HANDLE_VALUE) return HRESULT_FROM_WIN32(GetLastError());
+            ls.file = file;
+            ls.len = arc->file_size;
+        }
+        hr = la_read(&ls, node->offset, MAX_DECOMPRESSED, data, len);
+    }
     else
     {
         file = CreateFileW(arc->path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -868,13 +952,101 @@ static HRESULT extract_node(struct archive *arc, const struct arc_node *dir, con
     return hr;
 }
 
+/* libarchive formats are extracted in one pass (a solid 7z or rar archive
+ * would otherwise be decompressed again for every file): first the
+ * directories, then every file as the archive gives it. */
+static HRESULT make_dirs(const struct arc_node *dir, const WCHAR *dest)
+{
+    const struct arc_node *c;
+    WCHAR path[MAX_PATH], name[MAX_PATH];
+    HRESULT hr = S_OK;
+
+    if (!CreateDirectoryW(dest, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+        return HRESULT_FROM_WIN32(GetLastError());
+    for (c = dir->child; c && SUCCEEDED(hr); c = c->next)
+    {
+        if (!c->dir) continue;
+        archive_sanitize_name(c->name, name, MAX_PATH);
+        if (!PathCombineW(path, dest, name)) return HRESULT_FROM_WIN32(ERROR_FILENAME_EXCED_RANGE);
+        hr = make_dirs(c, path);
+    }
+    return hr;
+}
+
+struct extract_ctx
+{
+    struct archive *arc;
+    const WCHAR *dest;
+};
+
+static BOOL node_path(const struct arc_node *node, const WCHAR *dest, WCHAR *path, DWORD len)
+{
+    const struct arc_node *stack[64], *n;
+    WCHAR name[MAX_PATH], buf[MAX_PATH];
+    int depth = 0;
+
+    for (n = node; n && n->parent; n = n->parent)
+    {
+        if (depth == ARRAY_SIZE(stack)) return FALSE;
+        stack[depth++] = n;
+    }
+    lstrcpynW(buf, dest, MAX_PATH);
+    while (depth--)
+    {
+        archive_sanitize_name(stack[depth]->name, name, MAX_PATH);
+        if (!PathCombineW(buf, buf, name)) return FALSE;
+    }
+    lstrcpynW(path, buf, len);
+    return TRUE;
+}
+
+static BOOL extract_cb(void *ctx, ULONGLONG index, WCHAR *path, DWORD len, DWORD *attrs, FILETIME *mtime)
+{
+    struct extract_ctx *x = ctx;
+    const struct arc_node *node;
+    HANDLE file;
+
+    if (index >= x->arc->entry_count || !(node = x->arc->entries[index]) || node->offset != index) return FALSE;
+    if (!node_path(node, x->dest, path, len)) return FALSE;
+    *attrs = node->attrs;
+    *mtime = node->mtime;
+    if (!node->method) return TRUE;
+    /* a link: an empty file */
+    file = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file != INVALID_HANDLE_VALUE) CloseHandle(file);
+    return FALSE;
+}
+
+static HRESULT extract_lib(struct archive *arc, const WCHAR *dest)
+{
+    struct la_source ls = { NULL, arc->data, arc->data_len };
+    struct extract_ctx ctx = { arc, dest };
+    HANDLE file = INVALID_HANDLE_VALUE;
+    HRESULT hr;
+
+    if (FAILED(hr = make_dirs(&arc->root, dest))) return hr;
+    if (!arc->data)
+    {
+        file = CreateFileW(arc->path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                           NULL, OPEN_EXISTING, 0, NULL);
+        if (file == INVALID_HANDLE_VALUE) return HRESULT_FROM_WIN32(GetLastError());
+        ls.file = file;
+        ls.len = arc->file_size;
+    }
+    hr = la_extract(&ls, extract_cb, &ctx);
+    if (file != INVALID_HANDLE_VALUE) CloseHandle(file);
+    return hr;
+}
+
 HRESULT archive_extract_all(const WCHAR *path, const WCHAR *dest)
 {
-    struct archive *arc = archive_open(path, FALSE);
+    struct archive *arc = archive_open(path, 0);
     HRESULT hr;
 
     if (!arc) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
-    hr = arc->valid ? extract_node(arc, &arc->root, dest) : HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
+    if (!arc->valid) hr = HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
+    else if (arc->format == ARC_LIB) hr = extract_lib(arc, dest);
+    else hr = extract_node(arc, &arc->root, dest);
     archive_release(arc);
     return hr;
 }

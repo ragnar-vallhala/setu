@@ -1,8 +1,9 @@
 MODULE    = zipfldr.dll
-IMPORTS   = $(ZLIB_PE_LIBS) uuid ole32 oleaut32 shell32 shlwapi user32 advapi32
-EXTRAINCL = $(ZLIB_PE_CFLAGS)
+IMPORTS   = $(ARCHIVE_PE_LIBS) $(ZLIB_PE_LIBS) bcrypt uuid ole32 oleaut32 shell32 shlwapi user32 advapi32
+EXTRAINCL = $(ARCHIVE_PE_CFLAGS) $(ZLIB_PE_CFLAGS)
 
 SOURCES = \
+	arclib.c \
 	archive.c \
 	dataobj.c \
 	extract.c \

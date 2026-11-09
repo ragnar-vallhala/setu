@@ -129,7 +129,7 @@ static struct archive *folder_archive(struct folder *f)
     if (!f->loaded)
     {
         f->loaded = TRUE;
-        if (*f->arc_path) f->arc = archive_open(f->arc_path, !f->zip);
+        if (*f->arc_path) f->arc = archive_open(f->arc_path, f->zip ? 0 : ARCHIVE_SORTED);
     }
     return f->arc;
 }

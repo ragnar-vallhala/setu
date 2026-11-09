@@ -1,5 +1,5 @@
 /*
- * Compressed folders: archives (zip, tar, gzip) as shell folders
+ * Compressed folders: archives (zip, tar, gzip, 7z, rar, ...) as shell folders
  *
  * Copyright 2026 The Setu Contributors
  *
@@ -44,14 +44,16 @@ struct arc_node
     ULONGLONG size;
     FILETIME mtime;
     /* where the data is */
-    ULONGLONG offset;           /* zip: local header; tar: start of the data */
+    ULONGLONG offset;           /* zip: local header; tar: start of the data; libarchive: entry number */
     ULONGLONG csize;            /* zip: compressed size */
     WORD method;                /* zip: compression method */
-    WORD flags;                 /* zip: general purpose flags */
+    WORD flags;                 /* zip: general purpose flags (bit 0: encrypted, also for libarchive) */
     struct arc_node *parent, *child, *last_child, *next;
 };
 
-enum arc_format { ARC_NONE, ARC_ZIP, ARC_TAR, ARC_GZ };
+/* ARC_GZ: one compressed file (gzip, bzip2, xz, zstd, ...), decompressed in data.
+ * ARC_LIB: an archive read with libarchive (7z, rar, cab, cpio): arclib.c. */
+enum arc_format { ARC_NONE, ARC_ZIP, ARC_TAR, ARC_GZ, ARC_LIB };
 
 struct archive
 {
@@ -62,13 +64,16 @@ struct archive
     enum arc_format format;
     BOOL valid;                 /* read without errors */
     BOOL sorted;                /* entries sorted by name (not archive order) */
-    BYTE *data;                 /* tar inside gzip, or the gzip member: decompressed */
+    BYTE *data;                 /* tar (or other archive) inside a compressed stream, or the stream: decompressed */
     SIZE_T data_len;
+    struct arc_node **entries;  /* ARC_LIB: the node of each entry number, or NULL */
+    ULONGLONG entry_count;
     struct arc_node root;
 };
 
 /* archive.c */
-struct archive *archive_open(const WCHAR *path, BOOL sorted);
+#define ARCHIVE_SORTED 1        /* sort entries by name */
+struct archive *archive_open(const WCHAR *path, DWORD flags);
 void archive_release(struct archive *arc);
 struct arc_node *archive_find(struct archive *arc, struct arc_node *dir, const WCHAR *name);
 HRESULT archive_read_entry(struct archive *arc, const struct arc_node *node, BYTE **data, SIZE_T *len);
