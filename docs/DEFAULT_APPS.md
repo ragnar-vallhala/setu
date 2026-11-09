@@ -285,18 +285,28 @@ that the common Programs folder has the shortcuts (37).
 ## Known issues
 
 * **Windows Terminal** 1.25.2733.0 (the portable zip) is left out: it
-  does not start. `TerminalApp.dll` imports `icu.dll`, the ICU library
-  Windows ships in `system32`, and the personality has none. Its pin stays
-  in apps.toml, commented out; uncomment it once the personality has ICU.
-  Reported to shell-api.
-* **KeePassXC** is installed but does not start, for the same reason:
-  `Qt6Core.dll` imports `icuuc.dll`. Reported to shell-api.
+  does not start. The personality now has ICU (`icu.dll`,
+  tools/icu/README.md), which `TerminalApp.dll` imports, so it gets
+  further: `TerminalApp.dll` loads, but its initialisation fails because
+  it needs the system XAML framework (`Windows.UI.Xaml`, the class
+  `Windows.UI.Xaml.DurationHelper`), which the personality does not have,
+  and `WindowsTerminal.exe` then crashes. Its pin stays in apps.toml,
+  commented out.
+* **KeePassXC** is installed but does not start, and is hidden from the
+  Start menu (`start_menu = false`). ICU, which `Qt6Core.dll` needed, is
+  there now; the next missing DLL is `WinSCard.dll`. Wine has it
+  (`dlls/winscard`), but builds it only when libpcsclite's development
+  files are present, and the personality build has none. With ICU and a
+  `WinSCard.dll` it starts and shows its welcome screen (tested in a
+  scratch prefix). The fix is `libpcsclite-dev` in
+  tools/personality-build-deps.txt and `libpcsclite1` in
+  distro/packages.list (owner decision).
 * **ImageGlass** starts with an "Unhandled exception" dialog
   (`System.NotImplementedException`) instead of its viewer; the log points
   at `Windows.Storage.ApplicationData` and `Windows.UI.Composition`, which
   the personality implements only in part. Reported to shell-api. It stays
-  the default image viewer, so pictures open in it once that is fixed;
-  until then GIMP is in "Open with".
+  installed but is hidden from the Start menu, and the common image types
+  open in SumatraPDF; .tif .tiff .ico .avif still point at it.
 * **Firefox**: its first start after login crashes (an access violation
   within two seconds, no window); clicking it again works, and so does
   every later start. Its log also shows sandboxed child processes failing

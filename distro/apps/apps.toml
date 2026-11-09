@@ -248,13 +248,20 @@ install_args = ["/qn", "ALLUSERS=1", "LAUNCHAPPONEXIT=0", "AUTOSTARTPROGRAM=0"]
 silent_docs = "https://keepassxc.org/docs/KeePassXC_GettingStarted#_installing_keepassxc"
 exe = 'C:\Program Files\KeePassXC\KeePassXC.exe'
 window = 'KeePassXC'
-known_issue = "does not start: Qt6Core.dll imports icuuc.dll, the ICU that Windows ships in system32, which the personality lacks"
+# With ICU in the personality its next blocker is winscard.dll: Wine's
+# smart-card DLL is built only when libpcsclite's development files are
+# there, and the personality build has none. Hidden from the Start menu
+# until it starts (owner, 2026-11-09).
+known_issue = "does not start: KeePassXC.exe imports WinSCard.dll, which the personality build leaves out (no libpcsclite)"
+start_menu = false
 
 # Windows Terminal is left out (owner: "the portable zip, or report and
 # leave it out if no build runs"): 1.25.2733.0 does not start under Setu.
-# TerminalApp.dll imports icu.dll, the ICU that Windows ships in
-# system32, which the personality lacks (reported to shell-api). Its pin
-# is kept here for when it does:
+# With ICU in the personality (2026-11-09) TerminalApp.dll loads, but its
+# initialisation fails: it needs the system XAML framework
+# (Windows.UI.Xaml.DurationHelper), which the personality does not have,
+# and WindowsTerminal.exe then crashes. Its pin is kept here for when it
+# does start:
 # [[app]]
 # id = "windows-terminal"
 # name = "Windows Terminal"
