@@ -28,6 +28,8 @@ PKGS=(
   # new WoW64 mode, plus the parser generators Wine's build uses
   gcc-mingw-w64-i686-posix gcc-mingw-w64-i686-posix-runtime
   binutils-mingw-w64-i686 mingw-w64-i686-dev
+  # C++ compilers: ICU, which tools/build-icu.sh builds into the personality
+  g++-mingw-w64-x86-64-posix g++-mingw-w64-i686-posix
   flex bison
 )
 echo "downloading: ${PKGS[*]}"
@@ -48,6 +50,8 @@ rm -f "$ZDLL" && cp "$U/x86_64-w64-mingw32/lib/zlib1.dll" "$ZDLL"
 # Wrappers on PATH.
 ln -sf "$U/bin/x86_64-w64-mingw32-gcc-posix" "$PREFIX/bin/x86_64-w64-mingw32-gcc"
 ln -sf "$U/bin/i686-w64-mingw32-gcc-posix" "$PREFIX/bin/i686-w64-mingw32-gcc"
+ln -sf "$U/bin/x86_64-w64-mingw32-g++-posix" "$PREFIX/bin/x86_64-w64-mingw32-g++"
+ln -sf "$U/bin/i686-w64-mingw32-g++-posix" "$PREFIX/bin/i686-w64-mingw32-g++"
 for arch in x86_64 i686; do
   for tool in "$U"/bin/$arch-w64-mingw32-{ar,as,ld,nm,objcopy,strip,windres,dlltool,ranlib}; do
     [ -e "$tool" ] && ln -sf "$tool" "$PREFIX/bin/$(basename "$tool")"

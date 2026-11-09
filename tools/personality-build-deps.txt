@@ -4,6 +4,8 @@
 # CI installs exactly this list; changing it invalidates CI's cached build.
 gcc make flex bison ccache
 gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
+# ICU (tools/build-icu.sh): C++ for both PE targets, and the host's g++ and curl
+g++ g++-mingw-w64-x86-64 g++-mingw-w64-i686 curl
 libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxcomposite-dev
 libfreetype-dev libfontconfig-dev
 libwayland-dev libxkbcommon-dev libgl-dev libegl-dev

@@ -19,6 +19,11 @@
 # want Wine to use (X11, freetype, fontconfig, Wayland, ...): the list is
 # tools/personality-build-deps.txt. Without root,
 # tools/bootstrap-toolchain.sh provides the compilers, flex and bison.
+#
+# After installing the fork it runs tools/build-icu.sh, which adds ICU
+# (icu.dll, icuuc.dll, icuin.dll; tools/icu/README.md) to the installed
+# tree, and does nothing when ICU is already there and up to date. That
+# needs the mingw C++ compilers too.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -43,7 +48,8 @@ while [ $# -gt 0 ]; do
 done
 
 [ -f "$SRC/configure" ] || { echo "no Wine source in $SRC" >&2; exit 1; }
-for t in gcc make flex bison x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc; do
+for t in gcc g++ make flex bison x86_64-w64-mingw32-gcc i686-w64-mingw32-gcc \
+         x86_64-w64-mingw32-g++ i686-w64-mingw32-g++; do
   command -v "$t" >/dev/null || { echo "missing build tool: $t (see tools/bootstrap-toolchain.sh)" >&2; exit 1; }
 done
 
@@ -56,6 +62,7 @@ fi
 if [ "$FORCE" = 0 ] && [ -f "$STAMP" ] && [ "$(sed -n 's/^tree=//p' "$STAMP")" = "$id" ] \
    && [[ "$id" != *-dirty ]]; then
   echo "personality: up to date ($id), nothing to do (use --force to rebuild)"
+  "$REPO/tools/build-icu.sh" --install "$INSTALL" -j "$JOBS"
   exit 0
 fi
 
@@ -97,3 +104,4 @@ version=$version
 built=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
 echo "personality: $version installed in $INSTALL ($((SECONDS - start))s, tree $id)"
+"$REPO/tools/build-icu.sh" --install "$INSTALL" -j "$JOBS"

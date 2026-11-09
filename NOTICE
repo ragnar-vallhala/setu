@@ -198,6 +198,21 @@ where a file lives in the tree.
    The Setu glue (the libraries' config.h and Makefile.in files, and
    zipfldr's arclib.c) is under LGPL-2.1-or-later like section 2.
 
+9. Built into the personality (not in this tree): ICU
+   ---------------------------------------------------
+   The personality build, and so the Setu images, include ICU 72.1
+   (International Components for Unicode, https://icu.unicode.org/) as the
+   system DLLs icu.dll, icuuc.dll and icuin.dll (tools/build-icu.sh,
+   tools/icu/README.md). They are compiled, unmodified apart from the
+   build configuration, from the upstream source release
+   https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz
+   (downloaded at build time, pinned by SHA-256, never stored in this
+   repository), and include its prebuilt data (Unicode CLDR). ICU is
+   Copyright (c) Unicode, Inc. and others, under the Unicode License
+   (Unicode-DFS-2016, https://www.unicode.org/copyright.html); parts are
+   under the other permissive licences listed in its LICENSE file, which
+   is installed next to the DLLs as share/wine/icu/LICENSE.
+
 SPDX identifiers
 ----------------
   Setu code:          SPDX-License-Identifier: MIT OR Apache-2.0

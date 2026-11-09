@@ -31,7 +31,7 @@ jobs:
         id: key
         run: |
           tree=$(git rev-parse HEAD:personality/wine)
-          echo "key=personality-ubuntu-24.04-$tree-${{ hashFiles('tools/build-personality.sh', 'tools/personality-build-deps.txt') }}" >> "$GITHUB_OUTPUT"
+          echo "key=personality-ubuntu-24.04-$tree-${{ hashFiles('tools/build-personality.sh', 'tools/personality-build-deps.txt', 'tools/build-icu.sh', 'tools/icu/**') }}" >> "$GITHUB_OUTPUT"
 
       - name: Look for a cached build
         id: cached
