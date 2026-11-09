@@ -648,7 +648,7 @@ static HRESULT on_default_action(FileDialogImpl *This)
         open_action = FILEDLG95_ValidatePathAction(canon_filename, &psf_parent, This->dlg_hwnd,
                                                    This->options & ~FOS_FILEMUSTEXIST,
                                                    (This->dlg_type == ITEMDLG_TYPE_SAVE),
-                                                   open_action);
+                                                   open_action, FALSE);
 
         /* Add the proper extension */
         if(open_action == ONOPEN_OPEN)

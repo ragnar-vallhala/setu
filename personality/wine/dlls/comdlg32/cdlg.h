@@ -175,7 +175,8 @@ HRESULT FileSaveDialog_Constructor(IUnknown *pUnkOuter, REFIID riid, void **ppv)
 /* Shared helper functions */
 void COMDLG32_GetCanonicalPath(PCIDLIST_ABSOLUTE pidlAbsCurrent, LPWSTR lpstrFile, LPWSTR lpstrPathAndFile);
 int FILEDLG95_ValidatePathAction(LPWSTR lpstrPathAndFile, IShellFolder **ppsf,
-                                 HWND hwnd, DWORD flags, BOOL isSaveDlg, int defAction);
+                                 HWND hwnd, DWORD flags, BOOL isSaveDlg, int defAction,
+                                 BOOL browse_archives);
 int COMDLG32_SplitFileNames(LPWSTR lpstrEdit, UINT nStrLen, LPWSTR *lpstrFileList, UINT *sizeUsed);
 void FILEDLG95_OnOpenMessage(HWND hwnd, int idCaption, int idText);
 

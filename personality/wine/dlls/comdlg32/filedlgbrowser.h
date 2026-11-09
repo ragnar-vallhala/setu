@@ -96,6 +96,17 @@ typedef struct
     LPITEMIDLIST places[5];
 } FileOpenDlgInfos;
 
+/* Archives ("Compressed (zipped) Folder") are folders that are also files:
+ * SFGAO_FOLDER | SFGAO_STREAM. Windows 11's GetOpenFileName browses into
+ * them only when the dialog has a hook or a template; the default dialog
+ * returns them as files (tests/win32/shell32/compressed_folders.c). */
+static inline BOOL filedlg_browses_archives(const FileOpenDlgInfos *info)
+{
+    return !!(info->ofnInfos->Flags & (OFN_ENABLEHOOK | OFN_ENABLETEMPLATE | OFN_ENABLETEMPLATEHANDLE));
+}
+
+BOOL COMDLG32_IsBrowsable(IShellFolder *psf, LPCITEMIDLIST pidl, BOOL browse_archives);
+
 /***********************************************************************
  * Control IDs
  */

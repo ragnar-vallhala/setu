@@ -735,9 +735,7 @@ static HRESULT WINAPI IShellBrowserImpl_ICommDlgBrowser_OnDefaultCommand(ICommDl
     {
         HRESULT hRes;
 
-        ULONG  ulAttr = SFGAO_FOLDER | SFGAO_HASSUBFOLDER;
-        IShellFolder_GetAttributesOf(fodInfos->Shell.FOIShellFolder, 1, (LPCITEMIDLIST *)&pidl, &ulAttr);
-	if (ulAttr & (SFGAO_FOLDER | SFGAO_HASSUBFOLDER) )
+	if (COMDLG32_IsBrowsable(fodInfos->Shell.FOIShellFolder, pidl, filedlg_browses_archives(fodInfos)))
 	{
             hRes = IShellBrowser_BrowseObject(&This->IShellBrowser_iface,pidl,SBSP_RELATIVE);
             if(fodInfos->ofnInfos->Flags & OFN_EXPLORER)
@@ -886,8 +884,12 @@ static HRESULT WINAPI IShellBrowserImpl_ICommDlgBrowser_IncludeObject(ICommDlgBr
 
     fodInfos = get_filedlg_infoptr(This->hwndOwner);
 
-    ulAttr = SFGAO_HIDDEN | SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_LINK;
+    ulAttr = SFGAO_HIDDEN | SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_LINK | SFGAO_STREAM;
     IShellFolder_GetAttributesOf(fodInfos->Shell.FOIShellFolder, 1, &pidl, &ulAttr);
+
+    /* archives are filtered like files unless the dialog browses into them */
+    if ((ulAttr & SFGAO_FOLDER) && (ulAttr & SFGAO_STREAM) && !filedlg_browses_archives(fodInfos))
+        ulAttr &= ~SFGAO_FOLDER;
 
     if( (ulAttr & SFGAO_HIDDEN) ||                                      /* hidden */
         !(ulAttr & (SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR))) /* special folder */

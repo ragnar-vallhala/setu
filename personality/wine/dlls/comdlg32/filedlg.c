@@ -196,7 +196,7 @@ static HRESULT GetName(LPSHELLFOLDER lpsf, LPITEMIDLIST pidl,DWORD dwFlags,LPWST
 IShellFolder* GetShellFolderFromPidl(LPITEMIDLIST pidlAbs);
 LPITEMIDLIST  GetParentPidl(LPITEMIDLIST pidl);
 static LPITEMIDLIST GetPidlFromName(IShellFolder *psf,LPWSTR lpcstrFileName);
-static BOOL IsPidlFolder (LPSHELLFOLDER psf, LPCITEMIDLIST pidl);
+static BOOL IsPidlFolder (LPSHELLFOLDER psf, LPCITEMIDLIST pidl, BOOL browse_archives);
 static UINT GetNumSelected( IDataObject *doSelected );
 static void COMCTL32_ReleaseStgMedium(STGMEDIUM medium);
 
@@ -1648,12 +1648,35 @@ static LRESULT FILEDLG95_InitControls(HWND hwnd)
          WCHAR *nameBit;
          DWORD result;
 
+         BOOL in_archive = FALSE;
+
          result = GetFullPathNameW(fodInfos->filename, MAX_PATH, tmpBuf, &nameBit);
+         if (result && nameBit && nameBit > tmpBuf && result < fodInfos->ofnInfos->nMaxFile)
+         {
+             /* a path inside a compressed folder (C:\x\a.zip\name): start
+              * in the folder holding the archive and leave the whole path
+              * in the file name box, so OK browses into the archive */
+             WCHAR outer[MAX_PATH];
+             DWORD attr;
+
+             lstrcpynW(outer, tmpBuf, nameBit - tmpBuf);
+             while ((attr = GetFileAttributesW(outer)) == INVALID_FILE_ATTRIBUTES &&
+                    PathRemoveFileSpecW(outer) && outer[0] && !PathIsRootW(outer));
+             if (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY))
+             {
+                 lstrcpyW(fodInfos->filename, tmpBuf);
+                 PathRemoveFileSpecW(outer);
+                 lstrcpyW(tmpBuf, outer);
+                 PathAddBackslashW(tmpBuf);
+                 in_archive = TRUE;
+             }
+         }
          if (result) {
 
             /* nameBit is always shorter than the original filename. It may be NULL
              * when the filename contains only a drive name instead of file name */
-            if (nameBit)
+            if (in_archive) ;
+            else if (nameBit)
             {
                 lstrcpyW(fodInfos->filename,nameBit);
                 *nameBit = 0x00;
@@ -2427,7 +2450,8 @@ void FILEDLG95_OnOpenMessage(HWND hwnd, int idCaption, int idText)
 }
 
 int FILEDLG95_ValidatePathAction(LPWSTR lpstrPathAndFile, IShellFolder **ppsf,
-                                 HWND hwnd, DWORD flags, BOOL isSaveDlg, int defAction)
+                                 HWND hwnd, DWORD flags, BOOL isSaveDlg, int defAction,
+                                 BOOL browse_archives)
 {
     int nOpenAction = defAction;
     LPWSTR lpszTemp, lpszTemp1;
@@ -2485,12 +2509,15 @@ int FILEDLG95_ValidatePathAction(LPWSTR lpstrPathAndFile, IShellFolder **ppsf,
             PathAddBackslashW(lpwstrTemp);
         }
 
-        dwAttributes = SFGAO_FOLDER;
+        dwAttributes = SFGAO_FOLDER | SFGAO_STREAM | SFGAO_FILESYSTEM;
         if(SUCCEEDED(IShellFolder_ParseDisplayName(*ppsf, hwnd, NULL, lpwstrTemp, &dwEaten, &pidl, &dwAttributes)))
         {
             /* the path component is valid, we have a pidl of the next path component */
             TRACE("parse OK attr=0x%08lx pidl=%p\n", dwAttributes, pidl);
-            if(dwAttributes & SFGAO_FOLDER)
+            /* an archive is a file here unless the dialog browses into
+             * archives, or the path goes on inside it */
+            if((dwAttributes & SFGAO_FOLDER) &&
+               (!(dwAttributes & SFGAO_STREAM) || browse_archives || *lpszTemp))
             {
                 if(FAILED(IShellFolder_BindToObject(*ppsf, pidl, 0, &IID_IShellFolder, (LPVOID*)&lpsfChild)))
                 {
@@ -2505,6 +2532,13 @@ int FILEDLG95_ValidatePathAction(LPWSTR lpstrPathAndFile, IShellFolder **ppsf,
             {
                 TRACE("value\n");
 
+                /* a file inside a compressed folder has no path to
+                 * return: show its folder instead */
+                if (!(dwAttributes & SFGAO_FILESYSTEM) && !(flags & OFN_NOVALIDATE))
+                {
+                    nOpenAction = ONOPEN_BROWSE;
+                    break;
+                }
                 /* end dialog, return value */
                 nOpenAction = ONOPEN_OPEN;
                 break;
@@ -2617,7 +2651,7 @@ BOOL FILEDLG95_OnOpen(HWND hwnd)
   nOpenAction = FILEDLG95_ValidatePathAction(lpstrPathAndFile, &lpsf, hwnd,
                                              fodInfos->ofnInfos->Flags,
                                              fodInfos->DlgInfos.dwDlgProp & FODPROP_SAVEDLG,
-                                             nOpenAction);
+                                             nOpenAction, filedlg_browses_archives(fodInfos));
   if(!nOpenAction)
       goto ret;
 
@@ -3792,7 +3826,7 @@ void FILEDLG95_FILENAME_FillFromSelection (HWND hwnd)
         pidl = (LPITEMIDLIST)((LPBYTE)cida + cida->aoffset[nFileToOpen + 1]);
         if (pidl)
         {
-            if (!IsPidlFolder(fodInfos->Shell.FOIShellFolder, pidl))
+            if (!IsPidlFolder(fodInfos->Shell.FOIShellFolder, pidl, filedlg_browses_archives(fodInfos)))
             {
                 if (nAllFilesLength + MAX_PATH + 3 > nAllFilesMaxLength)
                 {
@@ -4056,9 +4090,9 @@ static LPITEMIDLIST GetPidlFromName(IShellFolder *lpsf,LPWSTR lpcstrFileName)
 
 /*
 */
-static BOOL IsPidlFolder (LPSHELLFOLDER psf, LPCITEMIDLIST pidl)
+BOOL COMDLG32_IsBrowsable(IShellFolder *psf, LPCITEMIDLIST pidl, BOOL browse_archives)
 {
-	ULONG uAttr  = SFGAO_FOLDER | SFGAO_HASSUBFOLDER;
+	ULONG uAttr  = SFGAO_FOLDER | SFGAO_HASSUBFOLDER | SFGAO_STREAM;
 	HRESULT ret;
 
 	TRACE("%p, %p\n", psf, pidl);
@@ -4066,8 +4100,15 @@ static BOOL IsPidlFolder (LPSHELLFOLDER psf, LPCITEMIDLIST pidl)
   	ret = IShellFolder_GetAttributesOf( psf, 1, &pidl, &uAttr );
 
 	TRACE("-- 0x%08lx 0x%08lx\n", uAttr, ret);
+	/* archives: see filedlg_browses_archives() */
+	if ((uAttr & SFGAO_FOLDER) && (uAttr & SFGAO_STREAM) && !browse_archives) return FALSE;
 	/* see documentation shell 4.1*/
-        return uAttr & (SFGAO_FOLDER | SFGAO_HASSUBFOLDER);
+        return !!(uAttr & (SFGAO_FOLDER | SFGAO_HASSUBFOLDER));
+}
+
+static BOOL IsPidlFolder (LPSHELLFOLDER psf, LPCITEMIDLIST pidl, BOOL browse_archives)
+{
+        return COMDLG32_IsBrowsable(psf, pidl, browse_archives);
 }
 
 /***********************************************************************
@@ -4086,7 +4127,7 @@ static BOOL BrowseSelectedFolder(HWND hwnd)
 
       /* get the file selected */
       pidlSelection  = GetPidlFromDataObject( fodInfos->Shell.FOIDataObject, 1);
-      if (IsPidlFolder (fodInfos->Shell.FOIShellFolder, pidlSelection))
+      if (IsPidlFolder (fodInfos->Shell.FOIShellFolder, pidlSelection, filedlg_browses_archives(fodInfos)))
       {
           if ( FAILED( IShellBrowser_BrowseObject( fodInfos->Shell.FOIShellBrowser,
                          pidlSelection, SBSP_RELATIVE ) ) )
