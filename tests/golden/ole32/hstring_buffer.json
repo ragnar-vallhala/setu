@@ -1,0 +1,41 @@
+{
+  "test": "ole32/hstring_buffer",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exports_present": {
+      "present": true
+    },
+    "zero_length": {
+      "hr": "0x00000000",
+      "ptr_set": true,
+      "buffer_null": false,
+      "ptr_is_nul": true,
+      "ptr_writable": true
+    },
+    "zero_length_promote": {
+      "hr": "0x00000000",
+      "string_null": true
+    },
+    "zero_length_twice": {
+      "same_pointer": false,
+      "both_writable": true
+    },
+    "one_char": {
+      "hr": "0x00000000",
+      "buffer_set": true,
+      "terminated": true,
+      "ptr_writable": true
+    },
+    "one_char_promote": {
+      "hr": "0x00000000",
+      "len": 1
+    },
+    "zero_length_delete": {
+      "hr": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "3bc02cd428cd25f84794a5bb26cfbd7a9ad1e4935b30816ac04f7fd9a4830b0b"
+}

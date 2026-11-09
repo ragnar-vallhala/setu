@@ -191,13 +191,8 @@ HRESULT WINAPI WindowsPreallocateStringBuffer(UINT32 len, WCHAR **outptr,
 
     if (outptr == NULL || out == NULL)
         return E_POINTER;
-    if (len == 0)
-    {
-        *outptr = (LPWSTR)empty;
-        *out = NULL;
-        return S_OK;
-    }
 
+    /* even an empty buffer is allocated: callers may write its terminator */
     if (!alloc_string(len, &str))
         return E_OUTOFMEMORY;
     priv = impl_from_HSTRING(str);
@@ -239,6 +234,13 @@ HRESULT WINAPI WindowsPromoteStringBuffer(HSTRING_BUFFER buf, HSTRING *out)
     }
     if (priv->buffer[priv->header.length] != 0 || priv->header.flags & HSTRING_REFERENCE_FLAG || priv->refcount != 1)
         return E_INVALIDARG;
+    if (!priv->header.length)
+    {
+        /* an empty string is the null string */
+        WindowsDeleteString((HSTRING)priv);
+        *out = NULL;
+        return S_OK;
+    }
     *out = (HSTRING)priv;
     return S_OK;
 }
