@@ -390,13 +390,14 @@ window = 'Clock'
 ".xhtml" = "firefox"
 "http" = "firefox"
 "https" = "firefox"
-# images
-".png" = "imageglass"
-".jpg" = "imageglass"
-".jpeg" = "imageglass"
-".gif" = "imageglass"
-".bmp" = "imageglass"
-".webp" = "imageglass"
+# images: SumatraPDF views the common ones while ImageGlass does not run
+# (owner 2026-11-09); ImageGlass keeps the rest
+".png" = "sumatrapdf"
+".jpg" = "sumatrapdf"
+".jpeg" = "sumatrapdf"
+".gif" = "sumatrapdf"
+".bmp" = "sumatrapdf"
+".webp" = "sumatrapdf"
 ".tif" = "imageglass"
 ".tiff" = "imageglass"
 ".ico" = "imageglass"

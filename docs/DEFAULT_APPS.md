@@ -134,7 +134,8 @@ ProgID that opens the file with the app's exe. The other apps stay in
 | .odt .ods .odp .odg .doc .docx .xls .xlsx .ppt .pptx .rtf .csv | LibreOffice | (.rtf: WordPad in Wine's defaults) |
 | .txt .log .ini .xml .json .md .yaml .yml | Notepad++ | LibreOffice (.txt .xml), Wine's Notepad |
 | .htm .html .xhtml, http and https links | Firefox | LibreOffice (.htm .html), Wine's built-in browser |
-| .png .jpg .jpeg .gif .bmp .webp .tif .tiff .ico .avif | ImageGlass | GIMP, LibreOffice, SumatraPDF |
+| .png .jpg .jpeg .gif .bmp .webp | SumatraPDF | ImageGlass, GIMP, LibreOffice |
+| .tif .tiff .ico .avif | ImageGlass | GIMP, LibreOffice, SumatraPDF |
 | .svg | Inkscape | GIMP, LibreOffice |
 | .xcf | GIMP | |
 | .mp4 .mkv .avi .mov .webm .wmv .mp3 .ogg .flac .wav .m4a .opus | VLC | |
@@ -145,8 +146,10 @@ Conflicts decided:
 
 * **PDF**: SumatraPDF, the light viewer, over LibreOffice Draw (an
   editor) and GIMP (imports one page as an image).
-* **Images**: ImageGlass, the viewer, over GIMP (an editor). SVG goes to
-  Inkscape, the vector editor, since ImageGlass only views it.
+* **Images**: SumatraPDF for .png .jpg .jpeg .gif .bmp .webp (owner,
+  2026-11-09), since ImageGlass, the image viewer, does not start yet; GIMP
+  is an editor. The other image types stay with ImageGlass for now. SVG
+  goes to Inkscape, the vector editor.
 * **Plain text**: Notepad++ over Wine's Notepad and LibreOffice.
 * **RTF**: LibreOffice Writer over WordPad: it keeps more formatting.
 * **HTML**: Firefox over LibreOffice Writer/Web.

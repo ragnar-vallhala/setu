@@ -178,7 +178,7 @@ assoc() {
         | sed -n 's/^ *(Default) *REG_[A-Z_]*SZ *//p')"
 }
 bad=0
-for pair in .pdf:SumatraPDF.exe .txt:notepad++.exe .png:ImageGlass.exe .zip:7zFM.exe .html:firefox.exe \
+for pair in .pdf:SumatraPDF.exe .txt:notepad++.exe .png:SumatraPDF.exe .jpg:SumatraPDF.exe .zip:7zFM.exe .html:firefox.exe \
             .docx:swriter.exe .mp4:vlc.exe .svg:inkscape .kdbx:KeePassXC.exe; do
     ext=${pair%%:*} exe=${pair#*:}
     a=$(assoc "$ext")
@@ -186,7 +186,7 @@ for pair in .pdf:SumatraPDF.exe .txt:notepad++.exe .png:ImageGlass.exe .zip:7zFM
     grep -qiF "$exe" <<< "$a" || { echo "FAIL: $ext does not open with $exe" >&2; bad=1; }
 done
 [ "$bad" = 0 ] || fail "file associations"
-pass "file associations: Setu's default apps own .pdf .txt .png .zip .html .docx .mp4 .svg .kdbx"
+pass "file associations: Setu's default apps own .pdf .txt .png .jpg .zip .html .docx .mp4 .svg .kdbx"
 
 # --- 2. Start menu ------------------------------------------------------------------
 PROGS='/var/lib/setu/volumes/c/ProgramData/Microsoft/Windows/Start Menu/Programs'
