@@ -44,6 +44,14 @@ WINE_DEFAULT_DEBUG_CHANNEL(shell);
 #define FCIDM_BASE 0x7000
 
 #define VERB_ID_OFFSET 0x200
+#define HANDLER_ID_OFFSET 0x400
+
+/* a context menu handler from the class's ShellEx\ContextMenuHandlers key */
+struct handler
+{
+    IContextMenu *menu;
+    UINT first, count;          /* command offsets it took in QueryContextMenu */
+};
 
 struct verb
 {
@@ -62,6 +70,8 @@ typedef struct
 
     struct verb *verbs;
     size_t verb_count;
+    struct handler *handlers;
+    size_t handler_count;
     WCHAR filetype[MAX_PATH];
 
     /* item menu data */
@@ -151,6 +161,9 @@ static ULONG WINAPI ContextMenu_Release(IContextMenu3 *iface)
             free(This->verbs[i].verb);
         }
         free(This->verbs);
+        for (unsigned int i = 0; i < This->handler_count; ++i)
+            IContextMenu_Release(This->handlers[i].menu);
+        free(This->handlers);
         free(This);
     }
 
@@ -251,12 +264,33 @@ static HRESULT WINAPI ItemMenu_QueryContextMenu(
             InsertMenuItemW(hmenu, i, MF_BYPOSITION, &mi);
             uIDMax = max(uIDMax, mi.wID + 1);
         }
-        if (This->verb_count)
         {
-            mi.cbSize = sizeof(mi);
-            mi.fMask = MIIM_FTYPE;
-            mi.fType = MFT_SEPARATOR;
-            InsertMenuItemW(hmenu, This->verb_count, MF_BYPOSITION, &mi);
+            UINT pos = This->verb_count, next = VERB_ID_OFFSET + This->verb_count;
+
+            next = max(next, HANDLER_ID_OFFSET);
+            for (size_t i = 0; i < This->handler_count; ++i)
+            {
+                struct handler *h = &This->handlers[i];
+                int before = GetMenuItemCount(hmenu);
+                HRESULT hr;
+
+                h->first = next;
+                h->count = 0;
+                if (idCmdFirst + next > idCmdLast) break;
+                hr = IContextMenu_QueryContextMenu(h->menu, hmenu, pos, idCmdFirst + next, idCmdLast, uFlags);
+                if (FAILED(hr)) continue;
+                h->count = HRESULT_CODE(hr);
+                pos += max(GetMenuItemCount(hmenu) - before, 0);
+                next += h->count;
+                if (h->count) uIDMax = max(uIDMax, idCmdFirst + next);
+            }
+            if (pos)
+            {
+                mi.cbSize = sizeof(mi);
+                mi.fMask = MIIM_FTYPE;
+                mi.fType = MFT_SEPARATOR;
+                InsertMenuItemW(hmenu, pos, MF_BYPOSITION, &mi);
+            }
         }
 
         SetMenuDefaultItem(hmenu, 0, MF_BYPOSITION);
@@ -973,6 +1007,18 @@ static HRESULT WINAPI ItemMenu_InvokeCommand(
             return S_OK;
         }
 
+        for (size_t i = 0; i < This->handler_count; ++i)
+        {
+            struct handler *h = &This->handlers[i];
+            if (id >= h->first && id - h->first < h->count)
+            {
+                CMINVOKECOMMANDINFO info = *lpcmi;
+                info.cbSize = sizeof(info);
+                info.lpVerb = MAKEINTRESOURCEA(id - h->first);
+                return IContextMenu_InvokeCommand(h->menu, &info);
+            }
+        }
+
         switch (id + FCIDM_BASE)
         {
         case FCIDM_SHVIEW_RENAME:
@@ -1033,6 +1079,13 @@ static HRESULT WINAPI ItemMenu_InvokeCommand(
         else if (strcmp(lpcmi->lpVerb,"properties")==0)
             DoOpenProperties(This, lpcmi->hwnd);
         else {
+            for (size_t i = 0; i < This->handler_count; ++i)
+            {
+                CMINVOKECOMMANDINFO info = *lpcmi;
+                info.cbSize = sizeof(info);
+                if (SUCCEEDED(IContextMenu_InvokeCommand(This->handlers[i].menu, &info)))
+                    return S_OK;
+            }
             FIXME("Unhandled string verb %s\n",debugstr_a(lpcmi->lpVerb));
             return E_FAIL;
         }
@@ -1085,6 +1138,13 @@ static HRESULT WINAPI ItemMenu_GetCommandString(IContextMenu3 *iface, UINT_PTR c
 
         if (cmdid >= VERB_ID_OFFSET && cmdid - VERB_ID_OFFSET < This->verb_count)
             cmdW = This->verbs[cmdid - VERB_ID_OFFSET].verb;
+
+        for (size_t i = 0; !cmdW && i < This->handler_count; ++i)
+        {
+            struct handler *h = &This->handlers[i];
+            if (cmdid >= h->first && cmdid - h->first < h->count)
+                return IContextMenu_GetCommandString(h->menu, cmdid - h->first, flags, reserved, name, maxlen);
+        }
 
         if (!cmdW)
         {
@@ -1260,6 +1320,61 @@ static WCHAR *get_verb_desc(HKEY key, const WCHAR *verb)
     return wcsdup(verb);
 }
 
+/* Context menu handlers of the item's class (its ProgID only: handlers for
+ * all files, "*", are not loaded). Windows 11 adds "Extract All..." to
+ * archives this way (tests/win32/shell32/compressed_folders.c). */
+static void load_shellex_handlers(ContextMenu *menu, HKEY type_key)
+{
+    WCHAR name[MAX_PATH], value[39];
+    IDataObject *data = NULL;
+    HKEY handlers_key;
+    DWORD size;
+
+    if (RegOpenKeyExW(type_key, L"ShellEx\\ContextMenuHandlers", 0, KEY_READ, &handlers_key))
+        return;
+    for (unsigned int i = 0; ; ++i)
+    {
+        IShellExtInit *init;
+        IContextMenu *handler;
+        LONG len = sizeof(value);
+        CLSID clsid;
+
+        size = ARRAY_SIZE(name);
+        if (RegEnumKeyExW(handlers_key, i, name, &size, NULL, NULL, NULL, NULL)) break;
+        /* the key's name is the CLSID, or its default value is */
+        if (FAILED(CLSIDFromString(name, &clsid)) &&
+            (RegQueryValueW(handlers_key, name, value, &len) || FAILED(CLSIDFromString(value, &clsid))))
+            continue;
+        if (FAILED(SHCoCreateInstance(NULL, &clsid, NULL, &IID_IContextMenu, (void **)&handler)))
+        {
+            WARN("could not load handler %s\n", debugstr_w(name));
+            continue;
+        }
+        if (SUCCEEDED(IContextMenu_QueryInterface(handler, &IID_IShellExtInit, (void **)&init)))
+        {
+            HRESULT hr;
+
+            if (!data && menu->parent)
+                IShellFolder_GetUIObjectOf(menu->parent, NULL, menu->cidl, (LPCITEMIDLIST *)menu->apidl,
+                                           &IID_IDataObject, NULL, (void **)&data);
+            hr = IShellExtInit_Initialize(init, menu->pidl, data, type_key);
+            IShellExtInit_Release(init);
+            if (FAILED(hr))
+            {
+                IContextMenu_Release(handler);
+                continue;
+            }
+        }
+        menu->handlers = realloc(menu->handlers, (menu->handler_count + 1) * sizeof(*menu->handlers));
+        menu->handlers[menu->handler_count].menu = handler;
+        menu->handlers[menu->handler_count].first = menu->handlers[menu->handler_count].count = 0;
+        ++menu->handler_count;
+        TRACE("loaded handler %s\n", debugstr_guid(&clsid));
+    }
+    if (data) IDataObject_Release(data);
+    RegCloseKey(handlers_key);
+}
+
 static void build_verb_list(ContextMenu *menu)
 {
     HKEY type_key, shell_key;
@@ -1291,6 +1406,7 @@ static void build_verb_list(ContextMenu *menu)
 
     if ((ret = RegOpenKeyExW(type_key, L"shell", 0, KEY_READ, &shell_key)))
     {
+        load_shellex_handlers(menu, type_key);
         RegCloseKey(type_key);
         return;
     }
@@ -1325,7 +1441,7 @@ static void build_verb_list(ContextMenu *menu)
 
     RegCloseKey(shell_key);
 
-    /* TODO: Enumerate the shellex key as well. */
+    load_shellex_handlers(menu, type_key);
 
     RegCloseKey(type_key);
 }
