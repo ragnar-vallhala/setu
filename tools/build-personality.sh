@@ -18,7 +18,9 @@
 # needs no 32-bit Linux libraries), plus whatever host -dev libraries you
 # want Wine to use (X11, freetype, fontconfig, Wayland, ...): the list is
 # tools/personality-build-deps.txt. Without root,
-# tools/bootstrap-toolchain.sh provides the compilers, flex and bison.
+# tools/bootstrap-toolchain.sh provides the compilers, flex and bison, and
+# libpcsclite's link library (for winscard.dll, the smart card API) under
+# $SETU_TOOLCHAIN/pcsclite, which is used when the host has none.
 #
 # After installing the fork it runs tools/build-icu.sh, which adds ICU
 # (icu.dll, icuuc.dll, icuin.dll; tools/icu/README.md) to the installed
@@ -66,9 +68,21 @@ if [ "$FORCE" = 0 ] && [ -f "$STAMP" ] && [ "$(sed -n 's/^tree=//p' "$STAMP")" =
   exit 0
 fi
 
+# libpcsclite: configure only links -lpcsclite (winscard.so needs no
+# headers). Without the host's libpcsclite-dev, use the toolchain's copy.
+cfg=()
+PCSC="${SETU_TOOLCHAIN:-$HOME/.local/setu-toolchain}/pcsclite/usr/lib/x86_64-linux-gnu"
+if ! printf 'char SCardEstablishContext(void);int main(void){return SCardEstablishContext();}' \
+     | gcc -x c - -o /dev/null -lpcsclite 2>/dev/null && [ -e "$PCSC/libpcsclite.so" ]; then
+  cfg+=(LDFLAGS="-L$PCSC")
+fi
+
 mkdir -p "$OBJ"
 cd "$OBJ"
-if [ ! -f Makefile ] || [ "$SRC/configure" -nt Makefile ]; then
+# Reconfigure when configure or its arguments change.
+args="${cfg[*]}"
+if [ ! -f Makefile ] || [ "$SRC/configure" -nt Makefile ] \
+   || [ "$(cat setu-configure.args 2>/dev/null)" != "$args" ]; then
   echo "personality: configuring (out of tree, $OBJ)"
   # --disable-tests: Wine's own conformance tests are not needed for a
   # runtime build, and skipping them roughly halves the build time.
@@ -77,12 +91,13 @@ if [ ! -f Makefile ] || [ "$SRC/configure" -nt Makefile ]; then
   if command -v ccache >/dev/null && [ "${SETU_CCACHE:-1}" != 0 ]; then
     cc=(CC="ccache gcc" x86_64_CC="ccache x86_64-w64-mingw32-gcc" i386_CC="ccache i686-w64-mingw32-gcc")
   fi
-  "$SRC/configure" "${cc[@]}" \
+  "$SRC/configure" "${cc[@]}" "${cfg[@]}" \
     --prefix="$INSTALL" \
     --enable-archs=x86_64,i386 \
     --disable-tests \
     > "$OUT/configure.log" 2>&1 \
     || { tail -30 "$OUT/configure.log"; echo "configure failed: $OUT/configure.log" >&2; exit 1; }
+  printf '%s' "$args" > setu-configure.args
   # Show which optional features are off because a -dev library is missing.
   grep -E '^configure: (WARNING|.*not found)' "$OUT/configure.log" | sed 's/^/  /' | head -40 || true
 fi

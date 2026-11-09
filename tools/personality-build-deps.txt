@@ -10,3 +10,5 @@ libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev li
 libfreetype-dev libfontconfig-dev
 libwayland-dev libxkbcommon-dev libgl-dev libegl-dev
 libdbus-1-dev libudev-dev libunwind-dev libgnutls28-dev
+# winscard.dll (smart cards; KeePassXC imports it)
+libpcsclite-dev

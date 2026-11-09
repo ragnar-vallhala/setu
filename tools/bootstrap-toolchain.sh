@@ -39,6 +39,21 @@ echo "downloading: ${PKGS[*]}"
 
 for d in "$DEBS"/*.deb; do dpkg -x "$d" "$PREFIX"; done
 
+# libpcsclite's link library, for the personality's winscard.dll (the smart
+# card API KeePassXC imports): kept in its own root, $PREFIX/pcsclite, so
+# that tools/build-personality.sh can add just this library to the link
+# path. At run time winscard.so loads the system's libpcsclite.so.1
+# (distro/packages.list).
+# Pinned to Ubuntu 24.04's version (what CI and the distro image use); other
+# releases fall back to their own.
+PCSC_VER=2.0.3-1build1
+PCSC_DEBS="$PREFIX/debs-pcsclite"
+mkdir -p "$PCSC_DEBS"
+(cd "$PCSC_DEBS" && { apt-get download "libpcsclite-dev=$PCSC_VER" "libpcsclite1=$PCSC_VER" \
+  || { echo "libpcsclite $PCSC_VER not available here; using this release's" >&2
+       apt-get download libpcsclite-dev libpcsclite1; }; })
+for d in "$PCSC_DEBS"/*.deb; do dpkg -x "$d" "$PREFIX/pcsclite"; done
+
 U="$PREFIX/usr"
 # Debian's wineserver wrapper hardcodes /usr/lib/wine; point it at our prefix.
 sed -i "s#/usr/lib/wine/#$U/lib/wine/#g" "$U/lib/wine/wineserver"
