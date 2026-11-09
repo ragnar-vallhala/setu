@@ -39,6 +39,8 @@
 #                   none (zip kind; stage.py creates it in the common
 #                   Programs folder)
 #   known_issue     a known failure under Setu: recorded, not fatal
+#   start_menu      false: installed, but its Start menu shortcuts are
+#                   removed (an app that does not work yet; stage.py)
 #
 # Wine's built-in accessories are listed as [[builtin]]: no download, a
 # Start menu shortcut with a Setu icon (distro/apps/icons.py).
@@ -164,6 +166,9 @@ exe = 'C:\Program Files\ImageGlass\ImageGlass.exe'
 args = ["%SAMPLE_PNG%"]
 window = '^(?!.*Unhandled exception).*(ImageGlass|sample\.png)'
 known_issue = "opens an Unhandled exception dialog (NotImplementedException) instead of its viewer"
+# Owner 2026-11-09: keep it installed, out of the Start menu, until it runs;
+# pictures open in SumatraPDF meanwhile ([associations])
+start_menu = false
 
 [[app]]
 id = "gimp"

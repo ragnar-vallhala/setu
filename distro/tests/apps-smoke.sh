@@ -5,9 +5,10 @@
 # session, then
 #   1. the apps' registry entries were imported into the prefix
 #      (HKLM\Software\Setu\DefaultApps Stamp) and Setu's default apps own the main
-#      file types (.pdf .txt .png .zip .html .docx .mp4 .svg .kdbx);
+#      file types (.pdf .txt .png .jpg .zip .html .docx .mp4 .svg .kdbx);
 #   2. the Start menu's common Programs folder has a shortcut for each app
-#      and for Wine's accessories;
+#      and for Wine's accessories, and none for the apps with
+#      start_menu = false;
 #   3. for each app in apps.toml and each accessory: its exe exists on C:,
 #      it starts (from the session, as the Start menu would) and shows a
 #      visible top-level window matching the manifest's pattern within its
@@ -195,6 +196,17 @@ nlnk=$(wc -l < "$OUT/start-menu.txt")
 for l in WordPad Clock; do
     grep -qx "./$l.lnk" "$OUT/start-menu.txt" || fail "no $l.lnk in the common Programs folder"
 done
+# apps kept out of the Start menu: no shortcut names them
+while read -r name; do
+    [ -n "$name" ] || continue
+    if grep -iF -- "$name" "$OUT/start-menu.txt"; then
+        fail "$name has a Start menu shortcut, but apps.toml says start_menu = false"
+    fi
+done < <(python3 -c '
+import sys, tomllib
+for a in tomllib.load(open(sys.argv[1], "rb"))["app"]:
+    if a.get("start_menu", True) is False:
+        print(a["name"])' "$REPO/distro/apps/apps.toml")
 pass "Start menu: $nlnk shortcuts in the common Programs folder"
 
 # --- 3. each app ------------------------------------------------------------------

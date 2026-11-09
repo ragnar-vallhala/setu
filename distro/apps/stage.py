@@ -25,6 +25,8 @@ with the vendor's documented silent install, as on Windows:
 
 Zip apps are unpacked to their install_dir. Apps whose installer makes no
 shortcut, and Wine's accessories ([[builtin]]), get one from setu-mklnk.
+An app with start_menu = false stays installed without Start menu
+shortcuts (the ones its installer made are removed).
 
 Usage: distro/apps/stage.py [--out DIR] [--cache DIR] [--wine WINE]
                             [-a ID]... [--force] [--keep-prefix]
@@ -387,6 +389,35 @@ def unzip_to(archive, dest):
                 shutil.copyfileobj(src, dst)
 
 
+def start_menu_links(files):
+    """Shortcuts among FILES (paths relative to C:), relative to the
+    Programs folder they are in (the common one or the build user's)."""
+    out = []
+    for rel in files:
+        low = rel.lower()
+        i = low.find("/start menu/programs/")
+        if i >= 0 and low.endswith((".lnk", ".url")) and \
+                low.startswith(("programdata/", "users/")):
+            out.append(rel[i + len("/start menu/programs/"):])
+    return sorted(out)
+
+
+def remove_links(progs, rels):
+    """Delete the shortcuts RELS under PROGS, and folders left empty."""
+    gone = []
+    for rel in rels:
+        p = os.path.join(progs, rel)
+        if not os.path.lexists(p):
+            continue
+        os.remove(p)
+        gone.append(rel)
+        d = os.path.dirname(p)
+        while os.path.abspath(d) != os.path.abspath(progs) and not os.listdir(d):
+            os.rmdir(d)
+            d = os.path.dirname(d)
+    return gone
+
+
 def build_mklnk(outdir):
     exe = os.path.join(outdir, "setu-mklnk.exe")
     env = dict(os.environ, PATH=TOOLCHAIN + os.pathsep + os.environ.get("PATH", ""))
@@ -550,7 +581,7 @@ def main():
     shutil.rmtree(px.logdir, ignore_errors=True)
     px.start_xvfb()
     report = {"stamp": stamp, "wine": wine, "apps": {}, "builtins": {}, "ok": True}
-    deltas = {}
+    deltas, links = {}, {}
     try:
         log("creating the staging prefix (Xvfb %s)" % px.display)
         px.create()
@@ -568,6 +599,7 @@ def main():
             exe_ok = os.path.isfile(px.unix(app["exe"]))
             ok = rc in (0, 3010) and exe_ok
             new = {k: v for k, v in snapshot(px.cdir).items() if before.get(k) != v}
+            links[app["id"]] = start_menu_links(new)
             r = dict(version=app["version"], exit=rc, installed=ok, exe=exe_ok,
                      seconds=round(time.time() - t0), files=len(new),
                      bytes=sum(v[0] for v in new.values()))
@@ -605,6 +637,16 @@ def main():
                 os.rename(os.path.join(user_progs, rel), dst)
                 log("shortcut %s: moved to the common Programs folder" % rel)
 
+        # Apps kept out of the Start menu (start_menu = false in apps.toml)
+        for app in apps:
+            if app.get("start_menu", True):
+                continue
+            gone = remove_links(progs, links.get(app["id"], []))
+            gone += remove_links(user_progs, links.get(app["id"], []))
+            report["apps"][app["id"]]["start_menu"] = False
+            for rel in sorted(set(gone)):
+                log("shortcut %s: removed (%s: start_menu = false)" % (rel, app["id"]))
+
         # Start menu shortcuts for zip apps and Wine's accessories
         mklnk = build_mklnk(work)
         icons_out = px.unix(ICON_DIR)
@@ -612,7 +654,8 @@ def main():
         if builtins:
             subprocess.run([sys.executable, os.path.join(HERE, "icons.py"), icons_out,
                             *sorted({b["icon"] for b in builtins})], check=True)
-        lnks = [(x, x["lnk"], None) for x in apps if x.get("lnk") and report["apps"][x["id"]]["installed"]]
+        lnks = [(x, x["lnk"], None) for x in apps
+                if x.get("lnk") and x.get("start_menu", True) and report["apps"][x["id"]]["installed"]]
         lnks += [(b, b["lnk"], "%s\\%s.ico" % (ICON_DIR, b["icon"])) for b in builtins]
         for item, name, icon in lnks:
             argv = ["Z:" + mklnk.replace("/", "\\"), "%s\\%s.lnk" % (COMMON_PROGRAMS, name), item["exe"],

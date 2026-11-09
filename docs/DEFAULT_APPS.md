@@ -107,7 +107,9 @@ Wine's msi puts them in the installing user's Programs folder
 (`dlls/msi/package.c` resolves `ProgramMenuFolder` per user; reported to
 the shell-api team). `stage.py` moves them to the common Programs folder
 (`C:\ProgramData\Microsoft\Windows\Start Menu\Programs`), where Windows
-puts them. Startup shortcuts are dropped (ShareX makes one): no default
+puts them. An app with `start_menu = false` in apps.toml stays installed
+but gets no Start menu shortcuts (now ImageGlass and KeePassXC, which do
+not start yet); `apps-smoke.sh` checks that none are there. Startup shortcuts are dropped (ShareX makes one): no default
 app starts by itself at login. Zip apps (none at the moment) and the Wine
 accessories get shortcuts from `distro/apps/setu-mklnk.c`.
 
