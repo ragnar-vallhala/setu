@@ -1,0 +1,49 @@
+{
+  "test": "user32/window_in_destroy",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "export_present": {
+      "present": true,
+      "apiset_resolves": true
+    },
+    "live_window": {
+      "ret": false,
+      "last_error": "unchanged",
+      "during_wm_create": false
+    },
+    "during_destroy": {
+      "wm_destroy": 1,
+      "wm_ncdestroy": 1,
+      "child_wm_destroy": 0,
+      "child_wm_ncdestroy": 1,
+      "child_in_parent_destroy": 0,
+      "parent_in_child_destroy": 1
+    },
+    "after_destroy": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "null_hwnd": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "bogus_hwnd": {
+      "ret": false,
+      "last_error": 1400
+    },
+    "child_alone": {
+      "child_wm_destroy": 1,
+      "child_wm_ncdestroy": 1,
+      "parent_meanwhile": 0,
+      "parent_after": false
+    },
+    "other_thread_window": {
+      "ret": false,
+      "last_error": "unchanged"
+    }
+  },
+  "errors": [],
+  "source_sha256": "ecadbf74cfef4f373cc189c30d1adc5fdae4180769496674f9c57dcd82f78c7e"
+}

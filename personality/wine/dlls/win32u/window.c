@@ -5206,6 +5206,39 @@ HICON WINAPI NtUserInternalGetWindowIcon( HWND hwnd, UINT type )
 }
 
 /***********************************************************************
+ *           set_in_destroy
+ *
+ * Mark a window as being destroyed, for IsWindowInDestroy.
+ */
+static void set_in_destroy( HWND hwnd )
+{
+    WND *win = get_win_ptr( hwnd );
+
+    if (!win || win == WND_OTHER_PROCESS || win == WND_DESKTOP) return;
+    win->flags |= WIN_IN_DESTROY;
+    release_win_ptr( win );
+}
+
+/***********************************************************************
+ *           is_window_in_destroy
+ */
+static BOOL is_window_in_destroy( HWND hwnd )
+{
+    WND *win = get_win_ptr( hwnd );
+    BOOL ret;
+
+    if (!win)
+    {
+        RtlSetLastWin32Error( ERROR_INVALID_WINDOW_HANDLE );
+        return FALSE;
+    }
+    if (win == WND_OTHER_PROCESS || win == WND_DESKTOP) return FALSE;
+    ret = !!(win->flags & WIN_IN_DESTROY);
+    release_win_ptr( win );
+    return ret;
+}
+
+/***********************************************************************
  *           send_destroy_message
  */
 static void send_destroy_message( HWND hwnd, BOOL winevent )
@@ -5287,6 +5320,8 @@ LRESULT destroy_window( HWND hwnd )
 
     TRACE( "%p\n", hwnd );
 
+    /* children destroyed with their parent count as being destroyed from now on */
+    set_in_destroy( hwnd );
     unregister_imm_window( hwnd );
 
     /* free child windows */
@@ -5372,6 +5407,8 @@ static BOOL user_destroy_window( HWND hwnd, BOOL winevent )
     TRACE( "(%p)\n", hwnd );
 
     if (call_hooks( WH_CBT, HCBT_DESTROYWND, (WPARAM)hwnd, 0, 0 )) return FALSE;
+
+    set_in_destroy( hwnd );
 
     if (is_menu_active() == hwnd) NtUserEndMenu();
 
@@ -6131,6 +6168,9 @@ ULONG_PTR WINAPI NtUserCallHwnd( HWND hwnd, DWORD code )
 
     case NtUserCallHwnd_IsWindowVisible:
         return is_window_visible( hwnd );
+
+    case NtUserCallHwnd_IsWindowInDestroy:
+        return is_window_in_destroy( hwnd );
 
     /* temporary exports */
     case NtUserGetFullWindowHandle:

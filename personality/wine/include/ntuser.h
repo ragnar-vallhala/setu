@@ -1308,6 +1308,7 @@ enum
     NtUserCallHwnd_IsWindowUnicode,
     NtUserCallHwnd_IsWindowVisible,
     NtUserCallHwnd_SetForegroundWindowInternal,
+    NtUserCallHwnd_IsWindowInDestroy,
     /* temporary exports */
     NtUserGetFullWindowHandle,
     NtUserIsCurrentProcessWindow,
@@ -1387,6 +1388,11 @@ static inline BOOL NtUserIsWindowUnicode( HWND hwnd )
 static inline BOOL NtUserIsWindowVisible( HWND hwnd )
 {
     return NtUserCallHwnd( hwnd, NtUserCallHwnd_IsWindowVisible );
+}
+
+static inline BOOL NtUserIsWindowInDestroy( HWND hwnd )
+{
+    return NtUserCallHwnd( hwnd, NtUserCallHwnd_IsWindowInDestroy );
 }
 
 /* NtUserCallHwndParam codes, not compatible with Windows */

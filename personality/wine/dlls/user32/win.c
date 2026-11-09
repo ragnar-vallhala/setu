@@ -1247,6 +1247,17 @@ BOOL WINAPI IsChild( HWND parent, HWND child )
 
 
 /***********************************************************************
+ *		IsWindowInDestroy (USER32.@)
+ *
+ * Undocumented; behaviour from the user32/window_in_destroy oracle test.
+ */
+BOOL WINAPI IsWindowInDestroy( HWND hwnd )
+{
+    return NtUserIsWindowInDestroy( hwnd );
+}
+
+
+/***********************************************************************
  *		IsWindowVisible (USER32.@)
  */
 BOOL WINAPI IsWindowVisible( HWND hwnd )
