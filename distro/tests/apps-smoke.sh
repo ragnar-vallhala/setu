@@ -5,7 +5,9 @@
 # session, then
 #   1. the apps' registry entries were imported into the prefix
 #      (HKLM\Software\Setu\DefaultApps Stamp) and Setu's default apps own the main
-#      file types (.pdf .txt .png .jpg .zip .html .docx .mp4 .svg .kdbx);
+#      file types (.pdf .txt .png .jpg .html .docx .mp4 .svg .kdbx), while
+#      archives stay compressed folders (.zip: CompressedFolder, opened in
+#      setu-files; .7z: ArchiveFolder) with 7-Zip in "Open with";
 #   2. the Start menu's common Programs folder has a shortcut for each app
 #      and for Wine's accessories, and none for the apps with
 #      start_menu = false;
@@ -178,15 +180,21 @@ assoc() {
         | sed -n 's/^ *(Default) *REG_[A-Z_]*SZ *//p')"
 }
 bad=0
-for pair in .pdf:SumatraPDF.exe .txt:notepad++.exe .png:SumatraPDF.exe .jpg:SumatraPDF.exe .zip:7zFM.exe .html:firefox.exe \
-            .docx:swriter.exe .mp4:vlc.exe .svg:inkscape .kdbx:KeePassXC.exe; do
+for pair in .pdf:SumatraPDF.exe .txt:notepad++.exe .png:SumatraPDF.exe .jpg:SumatraPDF.exe .html:firefox.exe \
+            .docx:swriter.exe .mp4:vlc.exe .svg:inkscape .kdbx:KeePassXC.exe \
+            '.zip:CompressedFolder =>' .zip:setu-files.exe '.7z:ArchiveFolder =>'; do
     ext=${pair%%:*} exe=${pair#*:}
     a=$(assoc "$ext")
     echo "  $ext -> $a"
     grep -qiF "$exe" <<< "$a" || { echo "FAIL: $ext does not open with $exe" >&2; bad=1; }
 done
+# archives: 7-Zip only in "Open with" (apps.toml [open_with])
+for ext in .zip .7z; do
+    gwine reg query "HKCR\\$ext\\OpenWithProgids" 2>/dev/null | tr -d '\r' | grep -qi 'Setu\.7Zip\|7-Zip' \
+        || { echo "FAIL: 7-Zip is not in $ext's OpenWithProgids" >&2; bad=1; }
+done
 [ "$bad" = 0 ] || fail "file associations"
-pass "file associations: Setu's default apps own .pdf .txt .png .jpg .zip .html .docx .mp4 .svg .kdbx"
+pass "file associations: Setu's default apps own .pdf .txt .png .jpg .html .docx .mp4 .svg .kdbx; .zip and .7z are compressed folders, 7-Zip in Open with"
 
 # --- 2. Start menu ------------------------------------------------------------------
 PROGS='/var/lib/setu/volumes/c/ProgramData/Microsoft/Windows/Start Menu/Programs'

@@ -139,7 +139,8 @@ ProgID that opens the file with the app's exe. The other apps stay in
 | .svg | Inkscape | GIMP, LibreOffice |
 | .xcf | GIMP | |
 | .mp4 .mkv .avi .mov .webm .wmv .mp3 .ogg .flac .wav .m4a .opus | VLC | |
-| .zip .7z .rar .tar .gz .tgz .bz2 .xz .zst | 7-Zip | |
+| .zip | compressed folder (`CompressedFolder`, opens in setu-files) | 7-Zip (Open with only) |
+| .7z .rar .tar .gz .tgz .bz2 .xz .zst | compressed folder (`ArchiveFolder`, opens in setu-files) | 7-Zip (Open with only) |
 | .kdbx | KeePassXC | |
 
 Conflicts decided:
@@ -153,6 +154,12 @@ Conflicts decided:
 * **Plain text**: Notepad++ over Wine's Notepad and LibreOffice.
 * **RTF**: LibreOffice Writer over WordPad: it keeps more formatting.
 * **HTML**: Firefox over LibreOffice Writer/Web.
+* **Archives**: compressed folders, as on Windows 11 (owner, 2026-11-09):
+  the personality's zipfldr registers `CompressedFolder` for .zip and
+  `ArchiveFolder` for the other archive types, and setu-files browses
+  them. 7-Zip is listed in `[open_with]` in apps.toml: `stage.py` only
+  adds its ProgID (`Setu.7Zip`) to each type's `OpenWithProgids` and drops
+  any default an installer set, so the system's stays.
 
 ## Licences and source
 

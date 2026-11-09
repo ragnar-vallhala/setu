@@ -424,7 +424,16 @@ window = 'Clock'
 ".wav" = "vlc"
 ".m4a" = "vlc"
 ".opus" = "vlc"
-# archives
+# passwords
+".kdbx" = "keepassxc"
+
+# Types whose default stays Windows' own handler, with an app only offered
+# in "Open with": stage.py adds the app's ProgID to the type's
+# OpenWithProgids and drops any default an installer set for it.
+# Archives open as compressed folders, as on Windows 11 (zipfldr: .zip is
+# CompressedFolder, the others ArchiveFolder; setu-files browses them),
+# owner decision 2026-11-09; 7-Zip is one right-click away.
+[open_with]
 ".zip" = "7-zip"
 ".7z" = "7-zip"
 ".rar" = "7-zip"
@@ -434,5 +443,3 @@ window = 'Clock'
 ".bz2" = "7-zip"
 ".xz" = "7-zip"
 ".zst" = "7-zip"
-# passwords
-".kdbx" = "keepassxc"

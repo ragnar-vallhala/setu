@@ -473,14 +473,18 @@ def progids_for(delta, ext):
     return out
 
 
-def associations(conf, deltas, registry, apps):
+def associations(conf, deltas, registry, apps, open_with=None):
     """Setu's default app per file type: Software\\Classes\\<ext> points at
     the ProgID that app's own installer registered; for apps whose
     installer registers none, a Setu.<name> ProgID is written. A URL
-    protocol (no leading dot) gets the ProgID's open command."""
+    protocol (no leading dot) gets the ProgID's open command. Types in
+    OPEN_WITH ([open_with]) only get the app's ProgID in OpenWithProgids:
+    their default stays the system's."""
     lower = {k.lower(): k for k in registry}
     keys, notes = {}, []
-    for ext, appid in sorted(conf.items()):
+    items = [(e, a, False) for e, a in conf.items()]
+    items += [(e, a, True) for e, a in (open_with or {}).items()]
+    for ext, appid, only_open_with in sorted(items):
         app = apps.get(appid)
         if not app or appid not in deltas:
             notes.append("%s: %s not installed" % (ext, appid))
@@ -500,7 +504,10 @@ def associations(conf, deltas, registry, apps):
             notes.append("%s: %s (Setu ProgID %s)" % (ext, appid, progid))
         else:
             notes.append("%s: %s (%s)" % (ext, appid, progid))
-        if ext.startswith("."):
+        if only_open_with:
+            notes[-1] += ", Open with only"
+            keys.setdefault("Software\\Classes\\%s\\OpenWithProgids" % ext, {})[progid] = (0, b"")
+        elif ext.startswith("."):
             keys.setdefault("Software\\Classes\\" + ext, {})[""] = sz(progid)
             keys.setdefault("Software\\Classes\\%s\\OpenWithProgids" % ext, {})[progid] = (0, b"")
         else:
@@ -693,8 +700,15 @@ def main():
             log("not kept: %s (%d files)" % (top, n))
 
         delta = reg_delta(base_reg, final_reg)
+        # [open_with] types keep the prefix's own default (Windows' handler):
+        # drop whatever default an installer gave them
+        for ext in conf.get("open_with", {}):
+            for key, vals in delta.items():
+                if key.lower() == ("software\\classes\\" + ext).lower() and "" in vals:
+                    del vals[""]
+                    log("association %s: installer default dropped ([open_with])" % ext)
         assoc, notes = associations(conf.get("associations", {}), deltas, final_reg,
-                                    {x["id"]: x for x in apps})
+                                    {x["id"]: x for x in apps}, conf.get("open_with", {}))
         for n in notes:
             log("association " + n)
         # setu-apps-register looks for this to tell whether a prefix has
