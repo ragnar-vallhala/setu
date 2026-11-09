@@ -108,8 +108,8 @@ Wine's msi puts them in the installing user's Programs folder
 the shell-api team). `stage.py` moves them to the common Programs folder
 (`C:\ProgramData\Microsoft\Windows\Start Menu\Programs`), where Windows
 puts them. An app with `start_menu = false` in apps.toml stays installed
-but gets no Start menu shortcuts (now ImageGlass and KeePassXC, which do
-not start yet); `apps-smoke.sh` checks that none are there. Startup shortcuts are dropped (ShareX makes one): no default
+but gets no Start menu shortcuts (now ImageGlass, which does not start
+yet); `apps-smoke.sh` checks that none are there. Startup shortcuts are dropped (ShareX makes one): no default
 app starts by itself at login. Zip apps (none at the moment) and the Wine
 accessories get shortcuts from `distro/apps/setu-mklnk.c`.
 
@@ -256,7 +256,7 @@ distro/tests/apps-smoke.sh --build --vnc 26 --ssh-port 2246 --update-docs
 ## Results
 
 `apps-smoke.sh` on the dev image, 2026-11-09 (QEMU, 3 GB, 1280x800,
-personality at main's build plus ICU). "Window" is the first matching
+personality at main's build plus ICU and winscard). "Window" is the first matching
 top-level window and how long after the start it appeared.
 
 | App | Installed | Window | Notes |
@@ -270,7 +270,7 @@ top-level window and how long after the start it appeared.
 | GIMP 3.2.8 | yes | yes, 270 s | first start builds its font and plug-in caches |
 | Inkscape 1.4.4 | yes | yes, 20 s | sample.svg |
 | VLC 3.0.24 | yes | yes, 4 s | |
-| KeePassXC 2.8.0 | yes, not in the Start menu | **no** | ICU is there now; next blocker: no `WinSCard.dll` (known issue) |
+| KeePassXC 2.8.0 | yes | yes, 2 s | welcome screen, with a warning bar about screenshot blocking ([Known issues](#known-issues)) |
 | PuTTY 0.85 | yes | yes, <1 s | PuTTY Configuration |
 | WinSCP 6.7 | yes | yes, 6 s | Login dialog |
 | ShareX 22.4.0 | yes | **no** | exits at start: its single-instance wait fails, new since 2026-11-08 and also without ICU ([Known issues](#known-issues)) |
@@ -282,15 +282,15 @@ The test also checks that the prefix imported apps.reg; that .pdf .txt
 .png .jpg .tif .html .docx .mp4 .svg and .kdbx open with their default
 app (.png .jpg and .tif with SumatraPDF); that .zip is a `CompressedFolder` and .7z
 an `ArchiveFolder`, both opening in setu-files, with 7-Zip in their "Open
-with" list; that the common Programs folder has the shortcuts (33); and
-that ImageGlass and KeePassXC have none.
+with" list; that the common Programs folder has the shortcuts (36); and
+that ImageGlass has none.
 
 | | | |
 |---|---|---|
 | ![Firefox: no window](img/apps/firefox.png) Firefox (no window) | ![LibreOffice Writer](img/apps/libreoffice.png) LibreOffice | ![SumatraPDF](img/apps/sumatrapdf.png) SumatraPDF |
 | ![Notepad++](img/apps/notepad++.png) Notepad++ | ![7-Zip](img/apps/7-zip.png) 7-Zip | ![ImageGlass's error dialog](img/apps/imageglass.png) ImageGlass (error) |
 | ![GIMP](img/apps/gimp.png) GIMP | ![Inkscape](img/apps/inkscape.png) Inkscape | ![VLC](img/apps/vlc.png) VLC |
-| ![KeePassXC: no window](img/apps/keepassxc.png) KeePassXC (no window) | ![PuTTY](img/apps/putty.png) PuTTY | ![WinSCP](img/apps/winscp.png) WinSCP |
+| ![KeePassXC](img/apps/keepassxc.png) KeePassXC | ![PuTTY](img/apps/putty.png) PuTTY | ![WinSCP](img/apps/winscp.png) WinSCP |
 | ![ShareX: no window](img/apps/sharex.png) ShareX (no window) | ![WordPad](img/apps/wordpad.png) WordPad | ![Clock](img/apps/clock.png) Clock |
 
 ## Known issues
@@ -303,15 +303,13 @@ that ImageGlass and KeePassXC have none.
   `Windows.UI.Xaml.DurationHelper`), which the personality does not have,
   and `WindowsTerminal.exe` then crashes. Its pin stays in apps.toml,
   commented out.
-* **KeePassXC** is installed but does not start, and is hidden from the
-  Start menu (`start_menu = false`). ICU, which `Qt6Core.dll` needed, is
-  there now; the next missing DLL is `WinSCard.dll`. Wine has it
-  (`dlls/winscard`), but builds it only when libpcsclite's development
-  files are present, and the personality build has none. With ICU and a
-  `WinSCard.dll` it starts and shows its welcome screen (tested in a
-  scratch prefix). The fix is `libpcsclite-dev` in
-  tools/personality-build-deps.txt and `libpcsclite1` in
-  distro/packages.list (owner decision).
+* **KeePassXC** starts and is in the Start menu again: it imports
+  `icuuc.dll` (Qt6Core), which the personality's ICU provides, and
+  `WinSCard.dll`, which the personality now builds against libpcsclite
+  (tools/personality-build-deps.txt, or the toolchain's copy without root;
+  `libpcsclite1` in distro/packages.list). It shows a warning bar, "Failed
+  to block screenshot capture on a top-level window": the personality does
+  not implement `SetWindowDisplayAffinity`'s capture exclusion.
 * **ImageGlass** starts with an "Unhandled exception" dialog
   (`System.NotImplementedException`) instead of its viewer; the log points
   at `Windows.Storage.ApplicationData` and `Windows.UI.Composition`, which
