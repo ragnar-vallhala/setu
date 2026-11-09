@@ -1,0 +1,213 @@
+{
+  "test": "user32/coremsg_iocp",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "export_init2": {
+      "user32_ordinal": true,
+      "win32u_export": true,
+      "same_address": false
+    },
+    "export_drain2": {
+      "user32_ordinal": true,
+      "win32u_export": true,
+      "same_address": false
+    },
+    "export_init1": {
+      "user32_ordinal": true,
+      "win32u_export": true,
+      "same_address": false
+    },
+    "export_drain1": {
+      "user32_ordinal": true,
+      "win32u_export": true,
+      "same_address": false
+    },
+    "export_getqueueiocp": {
+      "win32u_export": true
+    },
+    "init2_zero": {
+      "out": "ret=0 err=1400 end",
+      "exit": "0x00000000"
+    },
+    "init2_zero_gui": {
+      "out": "ret=0 err=1400 end",
+      "exit": "0x00000000"
+    },
+    "init2_twice": {
+      "out": "ret1=0 err=1400 ret2=0 err=1400 end",
+      "exit": "0x00000000"
+    },
+    "init2_own_hwnd": {
+      "out": "ret=0 err=87 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "init2_own_hwnd_twice": {
+      "out": "ret1=0 err=87 ret2=0 err=87 same=1 end",
+      "exit": "0x00000000"
+    },
+    "init2_destroyed_hwnd": {
+      "out": "ret=0 err=1400 end",
+      "exit": "0x00000000"
+    },
+    "init2_other_thread_hwnd": {
+      "out": "ret=0 err=87 end",
+      "exit": "0x00000000"
+    },
+    "init2_desktop_hwnd": {
+      "out": "ret=0 err=87 end",
+      "exit": "0x00000000"
+    },
+    "init2_message_only": {
+      "out": "ret=0 err=87 end",
+      "exit": "0x00000000"
+    },
+    "drain2_after_init": {
+      "out": "init=0 err=87 drain=0 err=5 drain1=0 err=5 end",
+      "exit": "0x00000000"
+    },
+    "init1_own_hwnd": {
+      "out": "ret=handle:IoCompletion err=unchanged queueiocp=handle:IoCompletion queueiocp_is_ret=1 gqcs_idle=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post_again=0,err=258,bytes=dead,key=untouched,ov=null peek=1 gqcs_after_peek=0,err=258,bytes=dead,key=untouched,ov=null gqcs_threadmsg=0,err=258,bytes=dead,key=untouched,ov=null gqcs_send=0,err=258,bytes=dead,key=untouched,ov=null gqcs_timer=0,err=258,bytes=dead,key=untouched,ov=null end",
+      "exit": "0x00000000"
+    },
+    "queueiocp_fresh": {
+      "out": "ret=handle:IoCompletion err=unchanged end",
+      "exit": "0x00000000"
+    },
+    "args2_h_1": {
+      "out": "ret=0 err=87 qport_is_ret=0 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "args2_h_p": {
+      "out": "ret=handle:IoCompletion err=unchanged p0==0 dead,dead,dead,qport_is_ret=1 queueiocp=handle:IoCompletion queueiocp_is_ret=1 gqcs_idle=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post_again=0,err=258,bytes=dead,key=untouched,ov=null peek=1 gqcs_after_peek=0,err=258,bytes=dead,key=untouched,ov=null gqcs_threadmsg=0,err=258,bytes=dead,key=untouched,ov=null gqcs_send=0,err=258,bytes=dead,key=untouched,ov=null gqcs_timer=0,err=258,bytes=dead,key=untouched,ov=null end",
+      "exit": "0x00000000"
+    },
+    "args2_h_port": {
+      "out": "ret=0 err=87 qport_is_ret=0 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "args2_h_qport": {
+      "out": "ret=0 err=87 qport_is_ret=0 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "args2_h_0_p": {
+      "out": "ret=0 err=87 p0=dead,dead,dead,dead,qport_is_ret=0 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "args2_h_1_p": {
+      "out": "ret=0 err=87 p0=dead,dead,dead,dead,qport_is_ret=0 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "args2_h_port_p": {
+      "out": "ret=0 err=87 p0=dead,dead,dead,dead,qport_is_ret=0 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "args2_h_p_p": {
+      "out": "ret=handle:IoCompletion err=unchanged p0==0 dead,dead,dead,p1=dead,dead,dead,dead,qport_is_ret=1 queueiocp=handle:IoCompletion queueiocp_is_ret=1 gqcs_idle=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post_again=0,err=258,bytes=dead,key=untouched,ov=null peek=1 gqcs_after_peek=0,err=258,bytes=dead,key=untouched,ov=null gqcs_threadmsg=0,err=258,bytes=dead,key=untouched,ov=null gqcs_send=0,err=258,bytes=dead,key=untouched,ov=null gqcs_timer=0,err=258,bytes=dead,key=untouched,ov=null end",
+      "exit": "0x00000000"
+    },
+    "args2_h_0_0_p": {
+      "out": "ret=0 err=87 p0=dead,dead,dead,dead,qport_is_ret=0 queueiocp=handle:IoCompletion queueiocp_is_ret=0 end",
+      "exit": "0x00000000"
+    },
+    "args2_h_p_0_0": {
+      "out": "ret=handle:IoCompletion err=unchanged p0==0 dead,dead,dead,qport_is_ret=1 queueiocp=handle:IoCompletion queueiocp_is_ret=1 gqcs_idle=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post_again=0,err=258,bytes=dead,key=untouched,ov=null peek=1 gqcs_after_peek=0,err=258,bytes=dead,key=untouched,ov=null gqcs_threadmsg=0,err=258,bytes=dead,key=untouched,ov=null gqcs_send=0,err=258,bytes=dead,key=untouched,ov=null gqcs_timer=0,err=258,bytes=dead,key=untouched,ov=null end",
+      "exit": "0x00000000"
+    },
+    "args1_h_p": {
+      "out": "ret=handle:IoCompletion err=unchanged p0=dead,dead,dead,dead,qport_is_ret=1 queueiocp=handle:IoCompletion queueiocp_is_ret=1 gqcs_idle=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post_again=0,err=258,bytes=dead,key=untouched,ov=null peek=1 gqcs_after_peek=0,err=258,bytes=dead,key=untouched,ov=null gqcs_threadmsg=0,err=258,bytes=dead,key=untouched,ov=null gqcs_send=0,err=258,bytes=dead,key=untouched,ov=null gqcs_timer=0,err=258,bytes=dead,key=untouched,ov=null end",
+      "exit": "0x00000000"
+    },
+    "init2_preset": {
+      "out": "ret=handle:IoCompletion err=unchanged v0=hi_preset,lo=0 v1=preset again=0 err=87 v0=preset end",
+      "exit": "0x00000000"
+    },
+    "init2_pending_post": {
+      "out": "ret=handle:IoCompletion err=unchanged v=hi_preset,lo=0 queueiocp=handle:IoCompletion queueiocp_is_ret=1 gqcs_idle=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post=0,err=258,bytes=dead,key=untouched,ov=null gqcs_post_again=0,err=258,bytes=dead,key=untouched,ov=null peek=1 gqcs_after_peek=0,err=258,bytes=dead,key=untouched,ov=null gqcs_threadmsg=0,err=258,bytes=dead,key=untouched,ov=null gqcs_send=0,err=258,bytes=dead,key=untouched,ov=null gqcs_timer=0,err=258,bytes=dead,key=untouched,ov=null end",
+      "exit": "0x00000000"
+    },
+    "init2_bad_ptr": {
+      "out": "ret=0 err=87 end",
+      "exit": "0x00000000"
+    },
+    "init2_other_thread_hwnd_p": {
+      "out": "ret=0 err=5 v=preset end",
+      "exit": "0x00000000"
+    },
+    "init2_message_only_p": {
+      "out": "ret=handle:IoCompletion err=unchanged v=hi_preset,lo=0 end",
+      "exit": "0x00000000"
+    },
+    "init2_desktop_p": {
+      "out": "ret=0 err=5 v=preset end",
+      "exit": "0x00000000"
+    },
+    "drain2_after_init_p": {
+      "out": "init=handle:IoCompletion err=unchanged drain_null=small:1 err=unchanged drain_p=small:1 err=unchanged d=preset drain_nullhwnd=0 err=1400 drain1=small:1 err=unchanged end",
+      "exit": "0x00000000"
+    },
+    "wake_post": {
+      "out": "init=handle:IoCompletion v=hi_preset,lo=0 gqcs=0,err=258,woke_early=0,bytes=dead,key=untouched,ov=null drain=small:1 drain_err=0 d=preset peek=1 end",
+      "exit": "0x00000000"
+    },
+    "wake_send": {
+      "out": "init=handle:IoCompletion v=hi_preset,lo=0 gqcs=0,err=258,woke_early=0,bytes=dead,key=untouched,ov=null drain=small:1 drain_err=0 d=preset peek=0 end",
+      "exit": "0x00000000"
+    },
+    "wake_threadmsg": {
+      "out": "init=handle:IoCompletion v=hi_preset,lo=0 gqcs=0,err=258,woke_early=0,bytes=dead,key=untouched,ov=null drain=small:1 drain_err=0 d=preset peek=1 end",
+      "exit": "0x00000000"
+    },
+    "two_threads": {
+      "out": "ret=handle:IoCompletion err=unchanged getq_stable=1 t_nogui_nonzero=1 t_nogui_stable=1 t_nogui_is_later=1 t_port=IoCompletion t_port_after_exit=nonhandle t_port_same_as_main=0 t_ret=nonhandle t_ret_is_t_port=1 t_err=0 main_after=1 end",
+      "exit": "0x00000000"
+    },
+    "close_port": {
+      "out": "ret=handle:IoCompletion err=unchanged close=0 getq_after_close=handle:IoCompletion same_value=1 end",
+      "exit": "0x00000000"
+    },
+    "init1_then_init2": {
+      "out": "drain1_before=0 err=5 init1=handle:IoCompletion err=unchanged drain1=small:1 err=unchanged drain2=small:1 err=unchanged init1_again=0 err=87 init2=0 err=87 v=5a5a5a5a end",
+      "exit": "0x00000000"
+    },
+    "init2_then_init1": {
+      "out": "init2=handle:IoCompletion err=unchanged init1=0 err=87 end",
+      "exit": "0x00000000"
+    },
+    "init1_other_thread_hwnd": {
+      "out": "ret=0 err=5 desktop=0 err=5 end",
+      "exit": "0x00000000"
+    },
+    "drain2_other_thread_hwnd": {
+      "out": "init2=handle:IoCompletion err=unchanged drain2_other=0 err=87 drain2_desktop=0 err=87 drain2_destroyed=0 err=1400 drain1_after_destroy=0 err=5 end",
+      "exit": "0x00000000"
+    },
+    "close_port_error": {
+      "out": "close=0 err=6 info=1 end",
+      "exit": "0x00000000"
+    },
+    "rebind_after_destroy": {
+      "out": "init2=handle:IoCompletion err=unchanged drain2_sibling=0 err=87 drain1_after_sibling_destroyed=small:1 err=unchanged drain1_after_destroy=0 err=5 init2_again=handle:IoCompletion err=unchanged v=0 same_port=1 getq_same=1 drain2_new=small:1 err=unchanged end",
+      "exit": "0x00000000"
+    },
+    "child_window_init": {
+      "out": "init2_child=handle:IoCompletion err=unchanged drain2_parent=0 err=87 drain1_after_child_destroyed=0 err=5 end",
+      "exit": "0x00000000"
+    },
+    "drain2_zero": {
+      "out": "ret=0 err=1400 end",
+      "exit": "0x00000000"
+    },
+    "init1_zero": {
+      "out": "ret=0 err=1400 end",
+      "exit": "0x00000000"
+    },
+    "drain1_zero": {
+      "out": "ret=0 err=5 end",
+      "exit": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "a68da8b4e0df1a50f4183091243d18d03b66414d54711a857b9c63a2a251758e"
+}
