@@ -20,7 +20,8 @@
 #   6b. compressed folders: Enter on a .zip browses into it (address bar
 #      shows C:\...\test.zip\docs), a file and a folder copy out of it, a
 #      path typed inside a .tar.gz opens and copies out, Up leaves it, and
-#      Extract All extracts it next to the archive;
+#      Extract All extracts it next to the archive; a .7z (written by the
+#      script, libarchive reads it) browses, copies out and extracts too;
 #   7. the shell's launcher "Files" entry starts setu-files.exe.
 # Screenshots go to build/shell/files-smoke/files-*.png; with --update-docs
 # they are also copied to shell/docs/.
@@ -385,7 +386,7 @@ pass "Enter opens folders, Backspace goes back"
 # --- 6b. compressed folders --------------------------------------------------
 # archives browse like folders (zipfldr), copy out, and Extract All
 python3 -c '
-import io, sys, tarfile, zipfile
+import io, struct, sys, tarfile, zipfile, zlib
 d = sys.argv[1]
 with zipfile.ZipFile(d + "/test.zip", "w", zipfile.ZIP_DEFLATED) as z:
     z.writestr("top.txt", "top level\r\n")
@@ -395,6 +396,29 @@ with tarfile.open(d + "/bundle.tar.gz", "w:gz") as t:
     data = b"from a tarball\r\n"
     info = tarfile.TarInfo("pkg/hello.txt"); info.size = len(data)
     t.addfile(info, io.BytesIO(data))
+# a .7z with the Copy coder (7zFormat.txt in the LZMA SDK)
+def num(v):
+    n = 0
+    while n < 8 and v >= 1 << (7 * (n + 1)): n += 1
+    if n == 8: return b"\xff" + struct.pack("<Q", v)
+    return bytes([((0xff00 >> n) & 0xff) | (v >> (8 * n))]) + v.to_bytes(8, "little")[:n]
+ents = [("notes", None), ("notes/seven.txt", b"seven zip\r\n" * 20), ("top7.txt", b"top of 7z\r\n")]
+files = [e for e in ents if e[1] is not None]
+pack = b"".join(e[1] for e in files)
+h = b"\x01\x04\x06" + num(0) + num(1) + b"\x09" + num(len(pack)) + b"\x00"
+h += b"\x07\x0b" + num(1) + b"\x00" + num(1) + b"\x01\x00\x0c" + num(len(pack)) + b"\x00"
+h += b"\x08\x0d" + num(len(files)) + b"\x09" + b"".join(num(len(e[1])) for e in files[:-1])
+h += b"\x0a\x01" + b"".join(struct.pack("<I", zlib.crc32(e[1])) for e in files) + b"\x00\x00"
+h += b"\x05" + num(len(ents))
+empty = sum(0x80 >> i for i, e in enumerate(ents) if e[1] is None)
+h += b"\x0e" + num(1) + bytes([empty])
+names = b"".join(e[0].encode("utf-16-le") + b"\0\0" for e in ents)
+h += b"\x11" + num(len(names) + 1) + b"\x00" + names
+h += b"\x15" + num(2 + 4 * len(ents)) + b"\x01\x00"
+h += b"".join(struct.pack("<I", 0x10 if e[1] is None else 0x20) for e in ents) + b"\x00\x00"
+start = struct.pack("<QQI", len(pack), len(h), zlib.crc32(h))
+with open(d + "/seven.7z", "wb") as f:
+    f.write(b"7z\xbc\xaf\x27\x1c\x00\x04" + struct.pack("<I", zlib.crc32(start)) + start + pack + h)
 ' "$D"
 send --cmd refresh
 wait_state '^item=test.zip\|file\|[^|]*\|Compressed \(zipped\) Folder\|' 10 || fail "test.zip is not a Compressed (zipped) Folder: $(st | grep '^item=test.zip')"
@@ -424,6 +448,13 @@ send --select hello.txt --cmd copy --go 'C:\files-smoke\sub' --cmd paste
 wait_state '^item=hello.txt\|file' 10 || fail "paste from bundle.tar.gz"
 cmp -s <(printf 'from a tarball\r\n') "$D/sub/hello.txt" || fail "hello.txt copied out wrong"
 pass "browsing and copying out of bundle.tar.gz"
+send --go 'C:\files-smoke\seven.7z'
+wait_state '^location=archive\|C:\\files-smoke\\seven.7z$' 10 || fail "seven.7z did not open"
+st | grep -q '^item=notes|dir|' && st | grep -q '^item=top7.txt|file|' || fail "seven.7z lists: $(st | grep ^item= | cut -d'|' -f1-2 | tr '\n' ' ')"
+send --select notes --cmd copy --go 'C:\files-smoke\sub' --cmd paste
+wait_state '^item=notes\|dir' 10 || fail "paste of a folder from seven.7z"
+[ "$(tr -d '\r' < "$D/sub/notes/seven.txt" | sort -u)" = "seven zip" ] || fail "notes\\seven.txt copied out of seven.7z wrong"
+pass "browsing and copying out of seven.7z (libarchive)"
 send --go 'C:\files-smoke\test.zip' --cmd up
 wait_state '^location=fs\|C:\\files-smoke$' 10 || fail "Up from test.zip"
 wait_state '^selected=test.zip$' 5 || fail "Up from test.zip did not select it"
@@ -431,6 +462,10 @@ send --select test.zip --cmd extract-all
 for _ in $(seq 50); do [ -f "$D/test/docs/deep/x.txt" ] && break; sleep 0.1; done
 [ -f "$D/test/top.txt" ] && [ -f "$D/test/docs/deep/x.txt" ] || fail "Extract All did not extract test.zip into test: $(st | grep -E '^(last_op|status)=')"
 pass "Extract All: test.zip -> test\\"
+send --select seven.7z --cmd extract-all
+for _ in $(seq 50); do [ -f "$D/seven/notes/seven.txt" ] && break; sleep 0.1; done
+[ -f "$D/seven/top7.txt" ] && [ -f "$D/seven/notes/seven.txt" ] || fail "Extract All did not extract seven.7z into seven: $(st | grep -E '^(last_op|status)=')"
+pass "Extract All: seven.7z -> seven\\"
 
 # icons view, and the drives
 send --cmd icons
