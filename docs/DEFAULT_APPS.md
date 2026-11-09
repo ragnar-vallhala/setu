@@ -254,40 +254,43 @@ distro/tests/apps-smoke.sh --build --vnc 26 --ssh-port 2246 --update-docs
 
 ## Results
 
-`apps-smoke.sh` on the dev image, 2026-11-08 (QEMU, 4 GB, 1280x800,
-personality at main's build). "Window" is the first matching top-level
-window and how long after the start it appeared.
+`apps-smoke.sh` on the dev image, 2026-11-09 (QEMU, 3 GB, 1280x800,
+personality at main's build plus ICU). "Window" is the first matching
+top-level window and how long after the start it appeared.
 
 | App | Installed | Window | Notes |
 |---|---|---|---|
-| Firefox 159.0.1 | yes | yes, 18 s | the first start after login crashes; the second works ([Known issues](#known-issues)) |
-| LibreOffice 26.8.2 | yes | yes, 6 s | Writer with sample.txt |
-| SumatraPDF 3.6.1 | yes | yes, <1 s | sample.pdf |
-| Notepad++ 8.9.9 | yes | yes, 3 s | sample.txt |
-| 7-Zip 26.06 | yes | yes, 1 s | File Manager in `C:\setu-apps` |
-| ImageGlass 10.0.6.906 | yes | **no** | "Unhandled exception" dialog (known issue) |
-| GIMP 3.2.8 | yes | yes, 87 s | first start builds its font and plug-in caches |
-| Inkscape 1.4.4 | yes | yes, 10 s | sample.svg |
-| VLC 3.0.24 | yes | yes, 3 s | |
-| KeePassXC 2.8.0 | yes | **no** | does not start: no `icuuc.dll` (known issue) |
-| PuTTY 0.85 | yes | yes, 1 s | PuTTY Configuration |
-| WinSCP 6.7 | yes | yes, 5 s | Login dialog |
-| ShareX 22.4.0 | yes | yes, 3 s | "Welcome to ShareX" |
-| WordPad (Wine) | built in | yes, <1 s | |
-| Clock (Wine) | built in | yes, <1 s | |
-| Windows Terminal 1.25.2733.0 | **left out** | - | does not start: no `icu.dll` |
+| Firefox 159.0.1 | yes | **no** | crashes at start (access violation), also on the retry; new since 2026-11-08 and also without ICU, so a regression in the merged personality ([Known issues](#known-issues)) |
+| LibreOffice 26.8.2 | yes | yes, 17 s | Writer with sample.txt |
+| SumatraPDF 3.6.1 | yes | yes, 4 s | sample.pdf |
+| Notepad++ 8.9.9 | yes | yes, 7 s | sample.txt |
+| 7-Zip 26.06 | yes | yes, 4 s | File Manager in `C:\setu-apps` |
+| ImageGlass 10.0.6.906 | yes, not in the Start menu | **no** | "Unhandled exception" dialog (known issue) |
+| GIMP 3.2.8 | yes | yes, 270 s | first start builds its font and plug-in caches |
+| Inkscape 1.4.4 | yes | yes, 20 s | sample.svg |
+| VLC 3.0.24 | yes | yes, 4 s | |
+| KeePassXC 2.8.0 | yes, not in the Start menu | **no** | ICU is there now; next blocker: no `WinSCard.dll` (known issue) |
+| PuTTY 0.85 | yes | yes, <1 s | PuTTY Configuration |
+| WinSCP 6.7 | yes | yes, 6 s | Login dialog |
+| ShareX 22.4.0 | yes | **no** | exits at start: its single-instance wait fails, new since 2026-11-08 and also without ICU ([Known issues](#known-issues)) |
+| WordPad (Wine) | built in | yes, 1 s | |
+| Clock (Wine) | built in | yes, 1 s | |
+| Windows Terminal 1.25.2733.0 | **left out** | - | gets past ICU; needs the system XAML framework |
 
-The test also checks that the prefix imported apps.reg, that .pdf .txt
-.png .zip .html .docx .mp4 .svg and .kdbx open with their default app, and
-that the common Programs folder has the shortcuts (37).
+The test also checks that the prefix imported apps.reg; that .pdf .txt
+.png .jpg .html .docx .mp4 .svg and .kdbx open with their default app
+(.png and .jpg with SumatraPDF); that .zip is a `CompressedFolder` and .7z
+an `ArchiveFolder`, both opening in setu-files, with 7-Zip in their "Open
+with" list; that the common Programs folder has the shortcuts (33); and
+that ImageGlass and KeePassXC have none.
 
 | | | |
 |---|---|---|
-| ![Firefox](img/apps/firefox.png) Firefox | ![LibreOffice Writer](img/apps/libreoffice.png) LibreOffice | ![SumatraPDF](img/apps/sumatrapdf.png) SumatraPDF |
+| ![Firefox: no window](img/apps/firefox.png) Firefox (no window) | ![LibreOffice Writer](img/apps/libreoffice.png) LibreOffice | ![SumatraPDF](img/apps/sumatrapdf.png) SumatraPDF |
 | ![Notepad++](img/apps/notepad++.png) Notepad++ | ![7-Zip](img/apps/7-zip.png) 7-Zip | ![ImageGlass's error dialog](img/apps/imageglass.png) ImageGlass (error) |
 | ![GIMP](img/apps/gimp.png) GIMP | ![Inkscape](img/apps/inkscape.png) Inkscape | ![VLC](img/apps/vlc.png) VLC |
 | ![KeePassXC: no window](img/apps/keepassxc.png) KeePassXC (no window) | ![PuTTY](img/apps/putty.png) PuTTY | ![WinSCP](img/apps/winscp.png) WinSCP |
-| ![ShareX](img/apps/sharex.png) ShareX | ![WordPad](img/apps/wordpad.png) WordPad | ![Clock](img/apps/clock.png) Clock |
+| ![ShareX: no window](img/apps/sharex.png) ShareX (no window) | ![WordPad](img/apps/wordpad.png) WordPad | ![Clock](img/apps/clock.png) Clock |
 
 ## Known issues
 
@@ -319,7 +322,17 @@ that the common Programs folder has the shortcuts (37).
   every later start. Its log also shows sandboxed child processes failing
   to start (`c0000022`), though pages load. Both reported to shell-api.
   The smoke test starts an app a second time when the first start exits
-  without a window, and says so.
+  without a window, and says so. Since the 2026-11-09 merge of main the
+  second start crashes too (the same access violation at a small address,
+  with or without ICU, in the VM and under Xvfb): a regression in the
+  personality, not yet bisected.
+* **ShareX** exits at start since the 2026-11-09 merge of main, also with
+  ICU disabled: its log (`Documents\ShareX\Logs`) shows it taking itself
+  for a second instance. The trace shows the wait on its single-instance
+  mutex returning `STATUS_USER_APC` after a special user APC
+  (`call_user_apc_dispatcher flags 0x3 are not supported`); the likely
+  cause is "kernel32: Export QueueUserAPC2", which lets .NET use special
+  APCs that the personality does not deliver properly.
 * **WinSCP** used to show no window under Setu (docs/COMPAT.md); it now
   shows its Login dialog.
 * **Wine's msi** puts `ALLUSERS=1` shortcuts in the per-user Programs
