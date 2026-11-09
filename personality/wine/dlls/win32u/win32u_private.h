@@ -184,6 +184,7 @@ extern void reload_sys_colors(void);
 extern void reload_font_overrides(void);
 extern UINT get_system_dpi(void);
 extern int get_system_metrics( int index );
+extern int get_sizing_frame( BOOL vertical );
 extern UINT get_thread_dpi(void);
 extern UINT set_thread_dpi_awareness_context( UINT context );
 extern UINT get_thread_dpi_awareness_context(void);

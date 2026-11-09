@@ -74,7 +74,11 @@ added without touching drawing code.
 - Caption height 30 px, caption text left-aligned in `text` (semibold),
   window icon 16 px before it. The frame is drawn inside the metrics apps
   can query (SM_CYCAPTION, the frame and padded-border sizes,
-  AdjustWindowRectEx), which stay at Windows 10's values; 30 px is what fits.
+  AdjustWindowRectEx), which follow Windows 11: a sizing frame of 8 px
+  (BorderWidth 1 + PaddedBorderWidth 4 + the 3 px dialog frame). Windows 11
+  leaves most of that band transparent; Setu fills it flat in the caption
+  colour inside the 1 px `border`, so it reads as part of the caption at the
+  top and as a margin elsewhere, and the whole band is the resize handle.
 - Caption buttons 46 × 29 px, flat line glyphs (minimise, maximise/restore,
   close) drawn as vectors in `text`; hover `surface-hover`, close hover
   `close-hover` with white glyph. No 3D button faces.

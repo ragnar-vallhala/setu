@@ -535,8 +535,8 @@ static void draw_moving_frame( HWND parent, HDC hdc, RECT *screen_rect, BOOL thi
     if (parent) map_window_points( 0, parent, (POINT *)&rect, 2, get_thread_dpi() );
     if (thickframe)
     {
-        const int width = get_system_metrics( SM_CXFRAME );
-        const int height = get_system_metrics( SM_CYFRAME );
+        const int width = get_sizing_frame( FALSE );
+        const int height = get_sizing_frame( TRUE );
 
         HBRUSH hbrush = NtGdiSelectBrush( hdc, GetStockObject( GRAY_BRUSH ));
         NtGdiPatBlt( hdc, rect.left, rect.top,
@@ -612,21 +612,21 @@ static LONG start_size_move( HWND hwnd, WPARAM wparam, POINT *capture_point, LON
                 case VK_UP:
                     hittest = HTTOP;
                     pt.x = (window_rect.left + window_rect.right) / 2;
-                    pt.y = window_rect.top + get_system_metrics( SM_CYFRAME ) / 2;
+                    pt.y = window_rect.top + get_sizing_frame( TRUE ) / 2;
                     break;
                 case VK_DOWN:
                     hittest = HTBOTTOM;
                     pt.x = (window_rect.left + window_rect.right) / 2;
-                    pt.y = window_rect.bottom - get_system_metrics( SM_CYFRAME ) / 2;
+                    pt.y = window_rect.bottom - get_sizing_frame( TRUE ) / 2;
                     break;
                 case VK_LEFT:
                     hittest = HTLEFT;
-                    pt.x = window_rect.left + get_system_metrics( SM_CXFRAME ) / 2;
+                    pt.x = window_rect.left + get_sizing_frame( FALSE ) / 2;
                     pt.y = (window_rect.top + window_rect.bottom) / 2;
                     break;
                 case VK_RIGHT:
                     hittest = HTRIGHT;
-                    pt.x = window_rect.right - get_system_metrics( SM_CXFRAME ) / 2;
+                    pt.x = window_rect.right - get_sizing_frame( FALSE ) / 2;
                     pt.y = (window_rect.top + window_rect.bottom) / 2;
                     break;
                 case VK_RETURN:
@@ -1050,7 +1050,7 @@ static void get_inside_rect( HWND hwnd, enum coords_relative relative, RECT *rec
     /* Remove frame from rectangle */
     if (has_thick_frame( style, ex_style ))
     {
-        InflateRect( rect, -get_system_metrics( SM_CXFRAME ), -get_system_metrics( SM_CYFRAME ));
+        InflateRect( rect, -get_sizing_frame( FALSE ), -get_sizing_frame( TRUE ));
     }
     else if (has_dialog_frame( style, ex_style ))
     {
@@ -1094,8 +1094,8 @@ static void draw_nc_frame( HDC  hdc, RECT  *rect, BOOL  active, DWORD style, DWO
 
     if (style & WS_THICKFRAME)
     {
-        width  = get_system_metrics( SM_CXFRAME ) - get_system_metrics( SM_CXDLGFRAME );
-        height = get_system_metrics( SM_CYFRAME ) - get_system_metrics( SM_CYDLGFRAME );
+        width  = get_sizing_frame( FALSE ) - get_system_metrics( SM_CXDLGFRAME );
+        height = get_sizing_frame( TRUE ) - get_system_metrics( SM_CYDLGFRAME );
 
         NtGdiSelectBrush( hdc, get_sys_color_brush( active ? COLOR_ACTIVEBORDER :
                                                     COLOR_INACTIVEBORDER ));
@@ -1844,8 +1844,8 @@ static void draw_flat_frame( HDC hdc, RECT *rect, BOOL active, DWORD style, DWOR
 
     if (has_big_frame( style, ex_style )) InflateRect( rect, -2, -2 );
     if (style & WS_THICKFRAME)
-        InflateRect( rect, -(get_system_metrics( SM_CXFRAME ) - get_system_metrics( SM_CXDLGFRAME )),
-                     -(get_system_metrics( SM_CYFRAME ) - get_system_metrics( SM_CYDLGFRAME )));
+        InflateRect( rect, -(get_sizing_frame( FALSE ) - get_system_metrics( SM_CXDLGFRAME )),
+                     -(get_sizing_frame( TRUE ) - get_system_metrics( SM_CYDLGFRAME )));
     if ((style & (WS_BORDER|WS_DLGFRAME)) || (ex_style & WS_EX_DLGMODALFRAME))
         InflateRect( rect, -(get_system_metrics( SM_CXDLGFRAME ) - get_system_metrics( SM_CXEDGE )),
                      -(get_system_metrics( SM_CYDLGFRAME ) - get_system_metrics( SM_CYEDGE )));
@@ -2096,7 +2096,7 @@ LRESULT handle_nc_hit_test( HWND hwnd, POINT pt )
     /* Check borders */
     if (has_thick_frame( style, ex_style ))
     {
-        InflateRect( &rects.window, -get_system_metrics( SM_CXFRAME ), -get_system_metrics( SM_CYFRAME ));
+        InflateRect( &rects.window, -get_sizing_frame( FALSE ), -get_sizing_frame( TRUE ));
         if (!PtInRect( &rects.window, pt ))
         {
             /* Check top sizing border */

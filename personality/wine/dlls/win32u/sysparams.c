@@ -5673,7 +5673,7 @@ static TWIPS_ENTRY( ICONHORIZONTALSPACING, -1125, METRICS_KEY, "IconSpacing" );
 static TWIPS_ENTRY( ICONVERTICALSPACING, -1125, METRICS_KEY, "IconVerticalSpacing" );
 static TWIPS_ENTRY( MENUHEIGHT, -285, METRICS_KEY, "MenuHeight" );
 static TWIPS_ENTRY( MENUWIDTH, -285, METRICS_KEY, "MenuWidth" );
-static TWIPS_ENTRY( PADDEDBORDERWIDTH, 0, METRICS_KEY, "PaddedBorderWidth" );
+static TWIPS_ENTRY( PADDEDBORDERWIDTH, -60, METRICS_KEY, "PaddedBorderWidth" );
 static TWIPS_ENTRY( SCROLLHEIGHT, -240, METRICS_KEY, "ScrollHeight" );
 static TWIPS_ENTRY( SCROLLWIDTH, -240, METRICS_KEY, "ScrollWidth" );
 static TWIPS_ENTRY( SMCAPTIONHEIGHT, -225, METRICS_KEY, "SmCaptionHeight" );
@@ -6021,6 +6021,22 @@ static BOOL update_desktop_wallpaper(void)
     return TRUE;
 }
 
+/* Programs linked for a subsystem older than 6.0 (Vista) don't know about
+ * the padded border: GetSystemMetrics and SystemParametersInfo fold it into
+ * the sizing frame for them, and report SM_CXPADDEDBORDER and
+ * iPaddedBorderWidth as 0. The *ForDpi functions never fold it. */
+static BOOL fold_padded_border(void)
+{
+    return NtCurrentTeb()->Peb->ImageSubSystemMajorVersion < 6;
+}
+
+static int get_padded_border(void)
+{
+    int ret = 0;
+    get_entry( &entry_PADDEDBORDERWIDTH, 0, &ret );
+    return max( ret, 0 );
+}
+
 /***********************************************************************
  *	     NtUserSystemParametersInfoForDpi   (win32u.@)
  */
@@ -6275,11 +6291,13 @@ BOOL WINAPI NtUserSystemParametersInfo( UINT action, UINT val, void *ptr, UINT w
               get_entry( &entry_MENULOGFONT, 0, &nm->lfMenuFont ) &&
               get_entry( &entry_STATUSLOGFONT, 0, &nm->lfStatusFont ) &&
               get_entry( &entry_MESSAGELOGFONT, 0, &nm->lfMessageFont );
-        if (ret)
+        if (ret && fold_padded_border())
         {
             nm->iBorderWidth += padded_border;
             if (nm->cbSize == sizeof(NONCLIENTMETRICSW)) nm->iPaddedBorderWidth = 0;
         }
+        else if (ret && nm->cbSize == sizeof(NONCLIENTMETRICSW))
+            nm->iPaddedBorderWidth = padded_border;
         normalize_nonclientmetrics( nm );
         break;
     }
@@ -6291,7 +6309,9 @@ BOOL WINAPI NtUserSystemParametersInfo( UINT action, UINT val, void *ptr, UINT w
         if (nm && (nm->cbSize == sizeof(NONCLIENTMETRICSW) ||
                      nm->cbSize == FIELD_OFFSET(NONCLIENTMETRICSW, iPaddedBorderWidth)))
         {
-            get_entry( &entry_PADDEDBORDERWIDTH, 0, &padded_border );
+            /* the padded border itself is kept; see fold_padded_border */
+            if (fold_padded_border()) get_entry( &entry_PADDEDBORDERWIDTH, 0, &padded_border );
+            else padded_border = 0;
 
             ret = set_entry( &entry_BORDER, nm->iBorderWidth - padded_border, NULL, winini ) &&
                   set_entry( &entry_SCROLLWIDTH, nm->iScrollWidth, NULL, winini ) &&
@@ -6928,6 +6948,14 @@ BOOL WINAPI NtUserSystemParametersInfo( UINT action, UINT val, void *ptr, UINT w
 #undef WINE_SPI_WARN
 }
 
+/* The width (or height) of a sizing frame as drawn: the frame plus the
+ * padded border, however the calling program sees them split. */
+int get_sizing_frame( BOOL vertical )
+{
+    return get_system_metrics( vertical ? SM_CYFRAME : SM_CXFRAME ) +
+           get_system_metrics( SM_CXPADDEDBORDER );
+}
+
 int get_system_metrics( int index )
 {
     NONCLIENTMETRICSW ncm;
@@ -6976,7 +7004,7 @@ int get_system_metrics( int index )
         return ncm.iMenuHeight + 1;
     case SM_CXFULLSCREEN:
         /* see the remark for SM_CXMAXIMIZED, at least this formulation is correct */
-        return get_system_metrics( SM_CXMAXIMIZED ) - 2 * get_system_metrics( SM_CXFRAME );
+        return get_system_metrics( SM_CXMAXIMIZED ) - 2 * get_sizing_frame( FALSE );
     case SM_CYFULLSCREEN:
         /* see the remark for SM_CYMAXIMIZED, at least this formulation is
          * correct */
@@ -7002,9 +7030,9 @@ int get_system_metrics( int index )
         get_text_metr_size( hdc, &ncm.lfCaptionFont, NULL, &ret );
         release_display_dc( hdc );
         return 3 * ncm.iCaptionWidth + ncm.iCaptionHeight + 4 * ret +
-               2 * get_system_metrics( SM_CXFRAME ) + 4;
+               2 * get_sizing_frame( FALSE ) + 4;
     case SM_CYMIN:
-        return get_system_metrics( SM_CYCAPTION ) + 2 * get_system_metrics( SM_CYFRAME );
+        return get_system_metrics( SM_CYCAPTION ) + 2 * get_sizing_frame( TRUE );
     case SM_CXSIZE:
         get_entry( &entry_CAPTIONWIDTH, 0, &ret );
         return max( ret, 8 );
@@ -7015,11 +7043,15 @@ int get_system_metrics( int index )
     case SM_CXFRAME:
         get_entry( &entry_BORDER, 0, &ret );
         ret = max( ret, 1 );
+        if (fold_padded_border()) ret += get_padded_border();
         return get_system_metrics( SM_CXDLGFRAME ) + ret;
     case SM_CYFRAME:
         get_entry( &entry_BORDER, 0, &ret );
         ret = max( ret, 1 );
+        if (fold_padded_border()) ret += get_padded_border();
         return get_system_metrics( SM_CYDLGFRAME ) + ret;
+    case SM_CXPADDEDBORDER:
+        return fold_padded_border() ? 0 : get_padded_border();
     case SM_CXMINTRACK:
         return get_system_metrics( SM_CXMIN );
     case SM_CYMINTRACK:
@@ -7095,12 +7127,12 @@ int get_system_metrics( int index )
         NtUserSystemParametersInfo( SPI_GETNONCLIENTMETRICS, 0, &ncm, 0 );
         return ncm.iCaptionHeight + 6;
     case SM_CXMAXTRACK:
-        return get_system_metrics( SM_CXVIRTUALSCREEN ) + 4 + 2 * get_system_metrics( SM_CXFRAME );
+        return get_system_metrics( SM_CXVIRTUALSCREEN ) + 4 + 2 * get_sizing_frame( FALSE );
     case SM_CYMAXTRACK:
-        return get_system_metrics( SM_CYVIRTUALSCREEN ) + 4 + 2 * get_system_metrics( SM_CYFRAME );
+        return get_system_metrics( SM_CYVIRTUALSCREEN ) + 4 + 2 * get_sizing_frame( TRUE );
     case SM_CXMAXIMIZED:
         /* FIXME: subtract the width of any vertical application toolbars*/
-        return get_system_metrics( SM_CXSCREEN ) + 2 * get_system_metrics( SM_CXFRAME );
+        return get_system_metrics( SM_CXSCREEN ) + 2 * get_sizing_frame( FALSE );
     case SM_CYMAXIMIZED:
         /* FIXME: subtract the width of any horizontal application toolbars*/
         return get_system_metrics( SM_CYSCREEN ) + 2 * get_system_metrics( SM_CYCAPTION );
@@ -7226,6 +7258,9 @@ static int get_system_metrics_for_dpi( int index, unsigned int dpi )
         get_entry_dpi( &entry_BORDER, 0, &ret, dpi );
         ret = max( ret, 1 );
         return get_system_metrics_for_dpi( SM_CYDLGFRAME, dpi ) + ret;
+    case SM_CXPADDEDBORDER:
+        get_entry_dpi( &entry_PADDEDBORDERWIDTH, 0, &ret, dpi );
+        return max( (int)ret, 0 );
     case SM_CXICONSPACING:
         im.cbSize = sizeof(im);
         NtUserSystemParametersInfoForDpi( SPI_GETICONMETRICS, sizeof(im), &im, 0, dpi );
