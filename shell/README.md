@@ -316,14 +316,16 @@ starts it. It's plain Win32, drawn with `src/setu-style.h` like the shell.
   Progress and errors appear in the status bar. In the Recycle Bin view you
   can restore, delete or empty.
 - **Compressed folders**: archives that the shell shows as folders
-  (zipfldr in the personality: `.zip`, `.tar`, `.tar.gz`/`.tgz`, `.gz`)
+  (zipfldr in the personality: `.zip`, `.tar`, `.gz`, `.7z`, `.rar`,
+  `.cpio`, `.bz2`, `.xz`, `.zst` and their `.tar.*` forms; `.cab` as a flat
+  Cabinet File folder)
   open in place like folders, and the address bar shows paths inside them
   (`C:\x\a.zip\docs`), which you can also type. Copy (Ctrl+C, then paste in
   a folder) or drag items onto a folder or a sidebar place to copy them out;
   folders copy recursively. **Extract All…** (on the archive, or inside it)
   runs the archive's `extract` verb. Archives are read-only here: no cut,
-  rename, delete or paste into them. Types the personality can't read yet
-  (7z, rar, bz2, xz, zst) open with their program instead.
+  rename, delete or paste into them. `.xar` is registered but not readable
+  yet (docs/DEFAULT_APPS.md, "Archives").
 - **Properties** (Alt+Enter) is our own window. It shows type, location, size
   (folders are counted in the background), the dates, and the read-only,
   hidden and archive attributes, which you can change.

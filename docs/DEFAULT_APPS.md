@@ -162,6 +162,25 @@ Conflicts decided:
   adds its ProgID (`Setu.7Zip`) to each type's `OpenWithProgids` and drops
   any default an installer set, so the system's stays.
 
+  Known differences from Windows 11 that stay as they are (owner,
+  "Agreed on archives", 2026-11-09; oracle tests
+  shell32/compressed_formats and shell32/compressed_folders):
+  1. `ITransferSource::OpenItem` on an entry of a 7z, rar, cpio or
+     compressed tar returns S_OK with a stream in Setu; Windows returns
+     S_FALSE without one. Left as it is.
+  2. `IFileOperation::CopyItem` is implemented (it was a stub) and copies
+     entries out of compressed folders, as on Windows. Kept.
+  3. .xar is registered as an `ArchiveFolder`, as on Windows, but the
+     zipfldr's libarchive reader (arclib.c) does not enable the xar
+     format (it needs an XML parser), so Setu can't list a .xar's
+     entries. Left unreadable for now.
+  4. The RAR support is tested with a RAR5 archive only; a RAR4 case is
+     to be added to shell32/compressed_formats later.
+  5. Minor .cab differences: Windows' data object also lists
+     `OleClipboardPersistOnFlush` and a private format, and its
+     `IFileOperation` copy out of a cab is aborted, where Setu's
+     succeeds. Left as they are.
+
 ## Licences and source
 
 Every app is the vendor's official release, installed unmodified. Its
