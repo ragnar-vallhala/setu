@@ -1,0 +1,214 @@
+{
+  "test": "ntdll/alpc_security",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "base_named_objects": {
+      "create_global": 0
+    },
+    "probe_plain": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_qos_ports": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_qos_ports_sec": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_qos_ports_sec_ctx0": {
+      "create": 0,
+      "receive": 3221225473,
+      "connect": 3221225480
+    },
+    "probe_server_qos_only": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_client_qos_only": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_client_impersonation_flag": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_client_waitable_flag": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_client_lpc_flag": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_client_flags_noqos": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_waitable": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_waitable_wait_first": {
+      "create": 0,
+      "wait": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_impersonation": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_firefox_wait_first": {
+      "create": 0,
+      "wait": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "probe_sec_only": {
+      "create": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "accept": 0,
+      "connect": 0
+    },
+    "create": {
+      "status": 0
+    },
+    "receive_empty_waitable": {
+      "status": 3221225473,
+      "returned_at_once": true
+    },
+    "connection_request": {
+      "wait": 0,
+      "receive": 0,
+      "type": "0x0000200a",
+      "valid_attrs": "0x80000000",
+      "security_flags": "0x00000000",
+      "security_qos_null": true,
+      "security_qos_is_buffer": false,
+      "security_ctx_minus2": false,
+      "security_ctx_null": false,
+      "impersonate": 0,
+      "open_thread_token": true,
+      "open_thread_token_error": 0,
+      "token_type": 2,
+      "token_level": 1,
+      "token_user_is_process_user": true,
+      "revert": true,
+      "accept": 0
+    },
+    "request": {
+      "wait": 0,
+      "receive": 0,
+      "type": "0x00002001",
+      "valid_attrs": "0xa0000000",
+      "security_flags": "0x00000000",
+      "security_qos_null": true,
+      "security_qos_is_buffer": false,
+      "security_ctx_minus2": false,
+      "security_ctx_null": false,
+      "context_port_null": false,
+      "impersonate": 0,
+      "open_thread_token": true,
+      "open_thread_token_error": 0,
+      "token_type": 2,
+      "token_level": 1,
+      "token_user_is_process_user": true,
+      "revert": true,
+      "reply": 0
+    },
+    "via_conn_release_attrs": {
+      "wait": 0,
+      "receive": 0,
+      "send": 0,
+      "client_done": 0,
+      "client_status": 0,
+      "client_reply_len": 46,
+      "client_reply_type": "0x00000002",
+      "client_reply_same_id": true,
+      "conn_queue": 3221225473
+    },
+    "via_conn_release": {
+      "wait": 0,
+      "receive": 0,
+      "send": 0,
+      "client_done": 0,
+      "client_status": 0,
+      "client_reply_len": 46,
+      "client_reply_type": "0x00000002",
+      "client_reply_same_id": true,
+      "conn_queue": 3221225473
+    },
+    "via_conn_plain_attrs": {
+      "wait": 0,
+      "receive": 0,
+      "send": 0,
+      "client_done": 0,
+      "client_status": 0,
+      "client_reply_len": 46,
+      "client_reply_type": "0x00002001",
+      "client_reply_same_id": true,
+      "conn_queue": 3221225473
+    },
+    "via_comm_release": {
+      "wait": 0,
+      "receive": 0,
+      "send": 0,
+      "client_done": 0,
+      "client_status": 0,
+      "client_reply_len": 46,
+      "client_reply_type": "0x00000002",
+      "client_reply_same_id": true,
+      "conn_queue": 3221225473
+    },
+    "client": {
+      "connect": 0,
+      "request": 0,
+      "reply_len": 46,
+      "send_attrs_valid_after": "0x80000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "de5fa7555947dddbf13977e4c4730e10cf653e86251055b7596d11cbc1f39a1a"
+}
