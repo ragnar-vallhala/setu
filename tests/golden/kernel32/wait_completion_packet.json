@@ -1,0 +1,85 @@
+{
+  "test": "kernel32/wait_completion_packet",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "exports": {
+      "create": true,
+      "associate": true,
+      "cancel": true
+    },
+    "create": {
+      "ret": 0,
+      "handle": true
+    },
+    "cancel_never_associated": {
+      "ret": 3221225760
+    },
+    "associate_unsignaled": {
+      "ret": 0,
+      "already_signaled": 0,
+      "before_signal_got": false,
+      "before_signal_ret": 258,
+      "after_signal_got": true,
+      "after_signal_key": "0x00001111",
+      "after_signal_apc": "0x00002222",
+      "after_signal_status": 259,
+      "after_signal_info": "0x00003333",
+      "again_got": false,
+      "again_ret": 258
+    },
+    "cancel_after_pickup": {
+      "ret": 3221225760
+    },
+    "associate_signaled": {
+      "ret": 0,
+      "already_signaled": 1,
+      "queued_got": true,
+      "queued_key": "0x00004444",
+      "queued_apc": "0x00000000",
+      "queued_status": 0,
+      "queued_info": "0x00000000"
+    },
+    "auto_reset_event": {
+      "ret": 0,
+      "already_signaled": 0,
+      "packet_got": true,
+      "packet_key": "0x00005555",
+      "packet_apc": "0x00000000",
+      "packet_status": 0,
+      "packet_info": "0x00000000",
+      "event_still_set": false
+    },
+    "associate_while_active": {
+      "ret": 3221225711
+    },
+    "cancel_waiting": {
+      "ret": 0,
+      "after_signal_got": false,
+      "after_signal_ret": 258
+    },
+    "cancel_twice": {
+      "ret": 3221225760
+    },
+    "cancel_queued_keep": {
+      "ret": 259,
+      "packet_got": true,
+      "packet_key": "0x00008888",
+      "packet_apc": "0x00000000",
+      "packet_status": 0,
+      "packet_info": "0x00000000"
+    },
+    "reassociate_after_cancel": {
+      "ret": 0
+    },
+    "associate_wrong_handle_type": {
+      "ret": 3221225508
+    },
+    "cancel_wrong_handle_type": {
+      "ret": 3221225508
+    }
+  },
+  "errors": [],
+  "source_sha256": "213f5126afd33f1ecd6e24c534429a39a9b6620f855e87fc566f15d0f78ac1fa"
+}

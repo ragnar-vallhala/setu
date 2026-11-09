@@ -3396,3 +3396,168 @@ NTSTATUS WINAPI RtlDeregisterWait(HANDLE WaitHandle)
 {
     return RtlDeregisterWaitEx(WaitHandle, NULL);
 }
+
+
+/***********************************************************************
+ * Wait completion packets
+ *
+ * A wait completion packet queues a packet to an I/O completion port when
+ * a waitable object it is associated with becomes signaled. Here a packet
+ * is an unnamed event handle, and an association is a one-shot thread pool
+ * wait on the target object. When a packet reaches the port it counts as
+ * picked up: Windows keeps it in use until it is dequeued (a cancel returns
+ * STATUS_PENDING meanwhile), which cannot be seen from here.
+ */
+struct wait_packet
+{
+    struct list entry;
+    HANDLE      handle;
+    TP_WAIT    *wait;
+    LONG        state;     /* WAIT_PACKET_* */
+    HANDLE      port;
+    ULONG_PTR   key;
+    ULONG_PTR   apc;
+    NTSTATUS    status;
+    ULONG_PTR   info;
+};
+
+enum { WAIT_PACKET_IDLE, WAIT_PACKET_WAITING };
+
+static struct list wait_packets = LIST_INIT( wait_packets );
+static RTL_CRITICAL_SECTION wait_packet_cs;
+static RTL_CRITICAL_SECTION_DEBUG wait_packet_cs_debug =
+{
+    0, 0, &wait_packet_cs,
+    { &wait_packet_cs_debug.ProcessLocksList, &wait_packet_cs_debug.ProcessLocksList },
+      0, 0, { (DWORD_PTR)(__FILE__ ": wait_packet_cs") }
+};
+static RTL_CRITICAL_SECTION wait_packet_cs = { &wait_packet_cs_debug, -1, 0, 0, 0, 0 };
+
+static struct wait_packet *find_wait_packet( HANDLE handle )
+{
+    struct wait_packet *packet;
+
+    LIST_FOR_EACH_ENTRY( packet, &wait_packets, struct wait_packet, entry )
+        if (packet->handle == handle) return packet;
+    return NULL;
+}
+
+static void CALLBACK wait_packet_callback( TP_CALLBACK_INSTANCE *instance, void *userdata,
+                                           TP_WAIT *wait, TP_WAIT_RESULT result )
+{
+    struct wait_packet *packet = userdata;
+
+    if (InterlockedCompareExchange( &packet->state, WAIT_PACKET_IDLE, WAIT_PACKET_WAITING ) == WAIT_PACKET_WAITING)
+        NtSetIoCompletion( packet->port, packet->key, packet->apc, packet->status, packet->info );
+}
+
+/***********************************************************************
+ *           NtCreateWaitCompletionPacket   (NTDLL.@)
+ */
+NTSTATUS WINAPI NtCreateWaitCompletionPacket( HANDLE *handle, ACCESS_MASK access, OBJECT_ATTRIBUTES *attr )
+{
+    struct wait_packet *packet, *old;
+    NTSTATUS status;
+
+    TRACE( "%p %#x %p\n", handle, (int)access, attr );
+
+    if (!handle) return STATUS_ACCESS_VIOLATION;
+    if (!(packet = RtlAllocateHeap( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*packet) )))
+        return STATUS_NO_MEMORY;
+    if ((status = TpAllocWait( &packet->wait, wait_packet_callback, packet, NULL )))
+    {
+        RtlFreeHeap( GetProcessHeap(), 0, packet );
+        return status;
+    }
+    if ((status = NtCreateEvent( &packet->handle, EVENT_ALL_ACCESS, attr, NotificationEvent, FALSE )))
+    {
+        TpReleaseWait( packet->wait );
+        RtlFreeHeap( GetProcessHeap(), 0, packet );
+        return status;
+    }
+
+    RtlEnterCriticalSection( &wait_packet_cs );
+    /* a packet whose handle was closed, and the handle value reused */
+    if ((old = find_wait_packet( packet->handle )))
+    {
+        list_remove( &old->entry );
+        InterlockedExchange( &old->state, WAIT_PACKET_IDLE );
+        TpSetWait( old->wait, NULL, NULL );
+        TpWaitForWait( old->wait, TRUE );
+        TpReleaseWait( old->wait );
+        RtlFreeHeap( GetProcessHeap(), 0, old );
+    }
+    list_add_tail( &wait_packets, &packet->entry );
+    RtlLeaveCriticalSection( &wait_packet_cs );
+
+    *handle = packet->handle;
+    return STATUS_SUCCESS;
+}
+
+/***********************************************************************
+ *           NtAssociateWaitCompletionPacket   (NTDLL.@)
+ */
+NTSTATUS WINAPI NtAssociateWaitCompletionPacket( HANDLE handle, HANDLE port, HANDLE target, void *key,
+                                                 void *apc, NTSTATUS io_status, ULONG_PTR info,
+                                                 BOOLEAN *already_signaled )
+{
+    LARGE_INTEGER zero = {{ 0 }};
+    struct wait_packet *packet;
+    NTSTATUS status;
+
+    TRACE( "%p %p %p %p %p %#x %#Ix %p\n", handle, port, target, key, apc, (int)io_status, info, already_signaled );
+
+    RtlEnterCriticalSection( &wait_packet_cs );
+    if (!(packet = find_wait_packet( handle )))
+    {
+        RtlLeaveCriticalSection( &wait_packet_cs );
+        return STATUS_OBJECT_TYPE_MISMATCH;
+    }
+    if (packet->state != WAIT_PACKET_IDLE)
+    {
+        RtlLeaveCriticalSection( &wait_packet_cs );
+        return STATUS_INVALID_PARAMETER_1;
+    }
+    packet->port = port;
+    packet->key = (ULONG_PTR)key;
+    packet->apc = (ULONG_PTR)apc;
+    packet->status = io_status;
+    packet->info = info;
+
+    status = NtWaitForSingleObject( target, FALSE, &zero );
+    if (status == STATUS_WAIT_0 || status == STATUS_ABANDONED_WAIT_0)
+    {
+        status = NtSetIoCompletion( port, packet->key, packet->apc, io_status, info );
+        if (!status && already_signaled) *already_signaled = TRUE;
+    }
+    else if (status == STATUS_TIMEOUT)
+    {
+        packet->state = WAIT_PACKET_WAITING;
+        TpSetWait( packet->wait, target, NULL );
+        if (already_signaled) *already_signaled = FALSE;
+        status = STATUS_SUCCESS;
+    }
+    RtlLeaveCriticalSection( &wait_packet_cs );
+    return status;
+}
+
+/***********************************************************************
+ *           NtCancelWaitCompletionPacket   (NTDLL.@)
+ */
+NTSTATUS WINAPI NtCancelWaitCompletionPacket( HANDLE handle, BOOLEAN remove_signaled )
+{
+    struct wait_packet *packet;
+    NTSTATUS status = STATUS_CANCELLED;
+
+    TRACE( "%p %d\n", handle, remove_signaled );
+
+    RtlEnterCriticalSection( &wait_packet_cs );
+    if (!(packet = find_wait_packet( handle ))) status = STATUS_OBJECT_TYPE_MISMATCH;
+    else if (InterlockedCompareExchange( &packet->state, WAIT_PACKET_IDLE, WAIT_PACKET_WAITING ) == WAIT_PACKET_WAITING)
+    {
+        TpSetWait( packet->wait, NULL, NULL );
+        status = STATUS_SUCCESS;
+    }
+    RtlLeaveCriticalSection( &wait_packet_cs );
+    return status;
+}

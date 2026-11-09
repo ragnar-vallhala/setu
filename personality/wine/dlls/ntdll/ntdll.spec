@@ -155,11 +155,13 @@
 @ stub -syscall=0x004c NtApphelpCacheControl
 @ stdcall -syscall NtAreMappedFilesTheSame(ptr ptr)
 @ stdcall -syscall NtAssignProcessToJobObject(long long)
+@ stdcall NtAssociateWaitCompletionPacket(long long long ptr ptr long long ptr)
 @ stdcall -syscall=0x0005 NtCallbackReturn(ptr long long)
 @ stdcall -syscall=0x005d NtCancelIoFile(long ptr)
 @ stdcall -syscall NtCancelIoFileEx(long ptr ptr)
 @ stdcall -syscall NtCancelSynchronousIoFile(long ptr ptr)
 @ stdcall -syscall=0x0061 NtCancelTimer(long ptr)
+@ stdcall NtCancelWaitCompletionPacket(long long)
 @ stdcall -syscall=0x003e NtClearEvent(long)
 @ stdcall -syscall=0x000f NtClose(long)
 @ stdcall -syscall=0x003b NtCloseObjectAuditAlarm(ptr long long)
@@ -200,6 +202,7 @@
 @ stdcall -syscall=0x004e NtCreateThread(ptr long ptr long ptr ptr ptr long)
 @ stdcall -syscall NtCreateThreadEx(ptr long ptr long ptr ptr long long long long ptr)
 @ stdcall -syscall NtCreateTimer(ptr long ptr long)
+@ stdcall NtCreateWaitCompletionPacket(ptr long ptr)
 @ stdcall -syscall NtCreateToken(ptr long ptr long ptr ptr ptr ptr ptr ptr ptr ptr ptr)
 @ stdcall -syscall NtCreateTransaction(ptr long ptr ptr long long long long ptr ptr)
 @ stdcall -syscall NtCreateUserProcess(ptr ptr long long ptr ptr long long ptr ptr ptr)
@@ -1231,11 +1234,13 @@
 @ stdcall -private ZwApphelpCacheControl() NtApphelpCacheControl
 @ stdcall -private ZwAreMappedFilesTheSame(ptr ptr) NtAreMappedFilesTheSame
 @ stdcall -private ZwAssignProcessToJobObject(long long) NtAssignProcessToJobObject
+@ stdcall -private ZwAssociateWaitCompletionPacket(long long long ptr ptr long long ptr) NtAssociateWaitCompletionPacket
 @ stdcall -private ZwCallbackReturn(ptr long long) NtCallbackReturn
 @ stdcall -private ZwCancelIoFile(long ptr) NtCancelIoFile
 @ stdcall -private ZwCancelIoFileEx(long ptr ptr) NtCancelIoFileEx
 @ stdcall -private ZwCancelSynchronousIoFile(long ptr ptr) NtCancelSynchronousIoFile
 @ stdcall -private ZwCancelTimer(long ptr) NtCancelTimer
+@ stdcall -private ZwCancelWaitCompletionPacket(long long) NtCancelWaitCompletionPacket
 @ stdcall -private ZwClearEvent(long) NtClearEvent
 @ stdcall -private ZwClose(long) NtClose
 @ stdcall -private ZwCloseObjectAuditAlarm(ptr long long) NtCloseObjectAuditAlarm
@@ -1276,6 +1281,7 @@
 @ stdcall -private ZwCreateThread(ptr long ptr long ptr ptr ptr long) NtCreateThread
 @ stdcall -private ZwCreateThreadEx(ptr long ptr long ptr ptr long long long long ptr) NtCreateThreadEx
 @ stdcall -private ZwCreateTimer(ptr long ptr long) NtCreateTimer
+@ stdcall -private ZwCreateWaitCompletionPacket(ptr long ptr) NtCreateWaitCompletionPacket
 @ stdcall -private ZwCreateToken(ptr long ptr long ptr ptr ptr ptr ptr ptr ptr ptr ptr) NtCreateToken
 @ stdcall -private ZwCreateTransaction(ptr long ptr ptr long long long long ptr ptr) NtCreateTransaction
 @ stdcall -private ZwCreateUserProcess(ptr ptr long long ptr ptr long long ptr ptr ptr) NtCreateUserProcess
