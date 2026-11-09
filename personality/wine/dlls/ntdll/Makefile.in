@@ -70,10 +70,12 @@ SOURCES = \
 	unix/tape.c \
 	unix/thread.c \
 	unix/virtual.c \
+	unix/wnf.c \
 	unwind.c \
 	version.c \
 	version.rc \
-	wcstring.c
+	wcstring.c \
+	wnf.c
 
 EXTRA_OBJS = unix/version.o
 

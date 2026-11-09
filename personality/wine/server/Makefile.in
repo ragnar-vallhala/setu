@@ -50,7 +50,8 @@ SOURCES = \
 	wineserver.de.UTF-8.man.in \
 	wineserver.fr.UTF-8.man.in \
 	wineserver.man.in \
-	winstation.c
+	winstation.c \
+	wnf.c
 
 UNIX_CFLAGS = $(INOTIFY_CFLAGS)
 UNIX_LIBS   = $(LDEXECFLAGS) $(RT_LIBS) $(INOTIFY_LIBS) $(PROCSTAT_LIBS)

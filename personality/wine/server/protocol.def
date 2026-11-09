@@ -4108,6 +4108,70 @@ struct handle_info
 @END
 
 
+/* create a temporary WNF state name */
+@REQ(wnf_create)
+    unsigned int  lifetime;       /* WNF_STATE_NAME_LIFETIME */
+    unsigned int  scope;          /* WNF_DATA_SCOPE */
+    unsigned int  max_size;       /* maximum data size */
+@REPLY
+    unsigned __int64 name;        /* new state name */
+@END
+
+
+/* delete a WNF state name */
+@REQ(wnf_delete)
+    unsigned __int64 name;        /* state name */
+@END
+
+
+/* publish data for a WNF state name */
+@REQ(wnf_update)
+    unsigned __int64 name;        /* state name */
+    unsigned int  match_stamp;    /* stamp the state must have */
+    int           check_stamp;    /* whether to check it */
+    VARARG(data,bytes);           /* new data */
+@END
+
+
+/* read the data of a WNF state name */
+@REQ(wnf_query)
+    unsigned __int64 name;        /* state name */
+@REPLY
+    unsigned int  stamp;          /* change stamp */
+    data_size_t   total;          /* data size */
+    VARARG(data,bytes);           /* data */
+@END
+
+
+/* query information about a WNF state name */
+@REQ(wnf_info)
+    unsigned __int64 name;        /* state name */
+    unsigned int  info_class;     /* WNF_STATE_NAME_INFORMATION */
+@REPLY
+    unsigned int  value;          /* the answer */
+@END
+
+
+/* subscribe to the changes of a WNF state name */
+@REQ(wnf_subscribe)
+    unsigned __int64 name;        /* state name */
+    unsigned int  stamp;          /* last stamp the caller has seen */
+@REPLY
+    obj_handle_t  handle;         /* waitable subscription */
+@END
+
+
+/* fetch the change a WNF subscription is signaled for */
+@REQ(wnf_fetch)
+    obj_handle_t  handle;         /* subscription */
+@REPLY
+    unsigned __int64 name;        /* state name */
+    unsigned int  stamp;          /* change stamp */
+    data_size_t   total;          /* data size */
+    VARARG(data,bytes);           /* data */
+@END
+
+
 /* associate object with completion port */
 @REQ(set_completion_info)
     obj_handle_t  handle;         /* object handle */

@@ -293,6 +293,13 @@ DECL_HANDLER(alpc_get_reply);
 DECL_HANDLER(alpc_cancel);
 DECL_HANDLER(alpc_disconnect);
 DECL_HANDLER(alpc_query);
+DECL_HANDLER(wnf_create);
+DECL_HANDLER(wnf_delete);
+DECL_HANDLER(wnf_update);
+DECL_HANDLER(wnf_query);
+DECL_HANDLER(wnf_info);
+DECL_HANDLER(wnf_subscribe);
+DECL_HANDLER(wnf_fetch);
 DECL_HANDLER(set_completion_info);
 DECL_HANDLER(add_fd_completion);
 DECL_HANDLER(set_fd_completion_mode);
@@ -624,6 +631,13 @@ static const req_handler req_handlers[REQ_NB_REQUESTS] =
     (req_handler)req_alpc_cancel,
     (req_handler)req_alpc_disconnect,
     (req_handler)req_alpc_query,
+    (req_handler)req_wnf_create,
+    (req_handler)req_wnf_delete,
+    (req_handler)req_wnf_update,
+    (req_handler)req_wnf_query,
+    (req_handler)req_wnf_info,
+    (req_handler)req_wnf_subscribe,
+    (req_handler)req_wnf_fetch,
     (req_handler)req_set_completion_info,
     (req_handler)req_add_fd_completion,
     (req_handler)req_set_fd_completion_mode,
@@ -2337,6 +2351,39 @@ C_ASSERT( offsetof(struct alpc_query_reply, flags) == 16 );
 C_ASSERT( offsetof(struct alpc_query_reply, pid) == 20 );
 C_ASSERT( offsetof(struct alpc_query_reply, qos_level) == 24 );
 C_ASSERT( sizeof(struct alpc_query_reply) == 32 );
+C_ASSERT( offsetof(struct wnf_create_request, lifetime) == 12 );
+C_ASSERT( offsetof(struct wnf_create_request, scope) == 16 );
+C_ASSERT( offsetof(struct wnf_create_request, max_size) == 20 );
+C_ASSERT( sizeof(struct wnf_create_request) == 24 );
+C_ASSERT( offsetof(struct wnf_create_reply, name) == 8 );
+C_ASSERT( sizeof(struct wnf_create_reply) == 16 );
+C_ASSERT( offsetof(struct wnf_delete_request, name) == 16 );
+C_ASSERT( sizeof(struct wnf_delete_request) == 24 );
+C_ASSERT( offsetof(struct wnf_update_request, name) == 16 );
+C_ASSERT( offsetof(struct wnf_update_request, match_stamp) == 24 );
+C_ASSERT( offsetof(struct wnf_update_request, check_stamp) == 28 );
+C_ASSERT( sizeof(struct wnf_update_request) == 32 );
+C_ASSERT( offsetof(struct wnf_query_request, name) == 16 );
+C_ASSERT( sizeof(struct wnf_query_request) == 24 );
+C_ASSERT( offsetof(struct wnf_query_reply, stamp) == 8 );
+C_ASSERT( offsetof(struct wnf_query_reply, total) == 12 );
+C_ASSERT( sizeof(struct wnf_query_reply) == 16 );
+C_ASSERT( offsetof(struct wnf_info_request, name) == 16 );
+C_ASSERT( offsetof(struct wnf_info_request, info_class) == 24 );
+C_ASSERT( sizeof(struct wnf_info_request) == 32 );
+C_ASSERT( offsetof(struct wnf_info_reply, value) == 8 );
+C_ASSERT( sizeof(struct wnf_info_reply) == 16 );
+C_ASSERT( offsetof(struct wnf_subscribe_request, name) == 16 );
+C_ASSERT( offsetof(struct wnf_subscribe_request, stamp) == 24 );
+C_ASSERT( sizeof(struct wnf_subscribe_request) == 32 );
+C_ASSERT( offsetof(struct wnf_subscribe_reply, handle) == 8 );
+C_ASSERT( sizeof(struct wnf_subscribe_reply) == 16 );
+C_ASSERT( offsetof(struct wnf_fetch_request, handle) == 12 );
+C_ASSERT( sizeof(struct wnf_fetch_request) == 16 );
+C_ASSERT( offsetof(struct wnf_fetch_reply, name) == 8 );
+C_ASSERT( offsetof(struct wnf_fetch_reply, stamp) == 16 );
+C_ASSERT( offsetof(struct wnf_fetch_reply, total) == 20 );
+C_ASSERT( sizeof(struct wnf_fetch_reply) == 24 );
 C_ASSERT( offsetof(struct set_completion_info_request, handle) == 12 );
 C_ASSERT( offsetof(struct set_completion_info_request, ckey) == 16 );
 C_ASSERT( offsetof(struct set_completion_info_request, chandle) == 24 );

@@ -3342,6 +3342,78 @@ static void dump_alpc_query_reply( const struct alpc_query_reply *req )
     fprintf( stderr, ", qos_level=%08x", req->qos_level );
 }
 
+static void dump_wnf_create_request( const struct wnf_create_request *req )
+{
+    fprintf( stderr, " lifetime=%08x", req->lifetime );
+    fprintf( stderr, ", scope=%08x", req->scope );
+    fprintf( stderr, ", max_size=%08x", req->max_size );
+}
+
+static void dump_wnf_create_reply( const struct wnf_create_reply *req )
+{
+    dump_uint64( " name=", &req->name );
+}
+
+static void dump_wnf_delete_request( const struct wnf_delete_request *req )
+{
+    dump_uint64( " name=", &req->name );
+}
+
+static void dump_wnf_update_request( const struct wnf_update_request *req )
+{
+    dump_uint64( " name=", &req->name );
+    fprintf( stderr, ", match_stamp=%08x", req->match_stamp );
+    fprintf( stderr, ", check_stamp=%d", req->check_stamp );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
+static void dump_wnf_query_request( const struct wnf_query_request *req )
+{
+    dump_uint64( " name=", &req->name );
+}
+
+static void dump_wnf_query_reply( const struct wnf_query_reply *req )
+{
+    fprintf( stderr, " stamp=%08x", req->stamp );
+    fprintf( stderr, ", total=%u", req->total );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
+static void dump_wnf_info_request( const struct wnf_info_request *req )
+{
+    dump_uint64( " name=", &req->name );
+    fprintf( stderr, ", info_class=%08x", req->info_class );
+}
+
+static void dump_wnf_info_reply( const struct wnf_info_reply *req )
+{
+    fprintf( stderr, " value=%08x", req->value );
+}
+
+static void dump_wnf_subscribe_request( const struct wnf_subscribe_request *req )
+{
+    dump_uint64( " name=", &req->name );
+    fprintf( stderr, ", stamp=%08x", req->stamp );
+}
+
+static void dump_wnf_subscribe_reply( const struct wnf_subscribe_reply *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+}
+
+static void dump_wnf_fetch_request( const struct wnf_fetch_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+}
+
+static void dump_wnf_fetch_reply( const struct wnf_fetch_reply *req )
+{
+    dump_uint64( " name=", &req->name );
+    fprintf( stderr, ", stamp=%08x", req->stamp );
+    fprintf( stderr, ", total=%u", req->total );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
 static void dump_set_completion_info_request( const struct set_completion_info_request *req )
 {
     fprintf( stderr, " handle=%04x", req->handle );
@@ -4040,6 +4112,13 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_alpc_cancel_request,
     (dump_func)dump_alpc_disconnect_request,
     (dump_func)dump_alpc_query_request,
+    (dump_func)dump_wnf_create_request,
+    (dump_func)dump_wnf_delete_request,
+    (dump_func)dump_wnf_update_request,
+    (dump_func)dump_wnf_query_request,
+    (dump_func)dump_wnf_info_request,
+    (dump_func)dump_wnf_subscribe_request,
+    (dump_func)dump_wnf_fetch_request,
     (dump_func)dump_set_completion_info_request,
     (dump_func)dump_add_fd_completion_request,
     (dump_func)dump_set_fd_completion_mode_request,
@@ -4371,6 +4450,13 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     NULL,
     NULL,
     (dump_func)dump_alpc_query_reply,
+    (dump_func)dump_wnf_create_reply,
+    NULL,
+    NULL,
+    (dump_func)dump_wnf_query_reply,
+    (dump_func)dump_wnf_info_reply,
+    (dump_func)dump_wnf_subscribe_reply,
+    (dump_func)dump_wnf_fetch_reply,
     NULL,
     NULL,
     NULL,
@@ -4702,6 +4788,13 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "alpc_cancel",
     "alpc_disconnect",
     "alpc_query",
+    "wnf_create",
+    "wnf_delete",
+    "wnf_update",
+    "wnf_query",
+    "wnf_info",
+    "wnf_subscribe",
+    "wnf_fetch",
     "set_completion_info",
     "add_fd_completion",
     "set_fd_completion_mode",

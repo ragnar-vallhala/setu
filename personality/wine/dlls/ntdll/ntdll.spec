@@ -221,6 +221,7 @@
 @ stdcall -syscall NtCreateUserProcess(ptr ptr long long ptr ptr long long ptr ptr ptr)
 # @ stub NtCreateWaitablePort
 @ stdcall -arch=i386 NtCurrentTeb()
+@ stdcall -arch=win64 -syscall NtCreateWnfStateName(ptr long long long ptr long ptr)
 @ stdcall -syscall NtDebugActiveProcess(long long)
 @ stdcall -syscall NtDebugContinue(long ptr long)
 @ stdcall -syscall=0x0034 NtDelayExecution(long ptr)
@@ -230,6 +231,7 @@
 @ stdcall -syscall NtDeleteKey(long)
 # @ stub NtDeleteObjectAuditAlarm
 @ stdcall -syscall NtDeleteValueKey(long ptr)
+@ stdcall -arch=win64 -syscall NtDeleteWnfStateName(ptr)
 @ stdcall -syscall=0x0007 NtDeviceIoControlFile(long long ptr ptr ptr long ptr long ptr long)
 @ stdcall -syscall NtDisplayString(ptr)
 @ stdcall -syscall=0x003c NtDuplicateObject(long long long ptr long long long)
@@ -361,6 +363,8 @@
 @ stdcall -syscall=0x0017 NtQueryValueKey(long ptr long ptr long ptr)
 @ stdcall -syscall=0x0023 NtQueryVirtualMemory(long ptr long ptr long ptr)
 @ stdcall -syscall=0x0049 NtQueryVolumeInformationFile(long ptr ptr long long)
+@ stdcall -arch=win64 -syscall NtQueryWnfStateData(ptr ptr ptr ptr ptr ptr)
+@ stdcall -arch=win64 -syscall NtQueryWnfStateNameInformation(ptr long ptr ptr long)
 @ stdcall -syscall=0x0045 NtQueueApcThread(long ptr long long long)
 @ stdcall -syscall NtQueueApcThreadEx(long long ptr long long long)
 @ stdcall -syscall NtQueueApcThreadEx2(long long long ptr long long long)
@@ -457,6 +461,7 @@
 @ stdcall -syscall=0x002a NtUnmapViewOfSection(long ptr)
 @ stdcall -syscall NtUnmapViewOfSectionEx(long ptr long)
 # @ stub NtVdmControl
+@ stdcall -arch=win64 -syscall NtUpdateWnfStateData(ptr ptr long ptr ptr long long)
 @ stdcall -syscall NtWaitForAlertByThreadId(ptr ptr)
 @ stdcall -syscall NtWaitForDebugEvent(long long ptr ptr)
 @ stdcall -syscall NtWaitForKeyedEvent(long ptr long ptr)
@@ -1071,6 +1076,7 @@
 @ stdcall RtlStringFromGUID(ptr ptr)
 @ stdcall RtlSubAuthorityCountSid(ptr)
 @ stdcall RtlSubAuthoritySid(ptr long)
+@ stdcall -arch=win64 RtlSubscribeWnfStateChangeNotification(ptr int64 long ptr ptr ptr long long)
 @ stdcall RtlSubtreePredecessor(ptr)
 @ stdcall RtlSubtreeSuccessor(ptr)
 @ stdcall RtlSystemTimeToLocalTime(ptr ptr)
@@ -1112,6 +1118,7 @@
 # @ stub RtlUnlockMemoryStreamRegion
 @ stdcall -norelay RtlUnwind(ptr ptr ptr ptr)
 @ stdcall -arch=!i386 RtlUnwindEx(ptr ptr ptr ptr ptr ptr)
+@ stdcall -arch=win64 RtlUnsubscribeWnfStateChangeNotification(ptr)
 @ stdcall RtlUpcaseUnicodeChar(long)
 @ stdcall RtlUpcaseUnicodeString(ptr ptr long)
 @ stdcall RtlUpcaseUnicodeStringToAnsiString(ptr ptr long)
@@ -1308,6 +1315,7 @@
 @ stdcall -private ZwCreateTransaction(ptr long ptr ptr long long long long ptr ptr) NtCreateTransaction
 @ stdcall -private ZwCreateUserProcess(ptr ptr long long ptr ptr long long ptr ptr ptr) NtCreateUserProcess
 # @ stub ZwCreateWaitablePort
+@ stdcall -arch=win64 -private ZwCreateWnfStateName(ptr long long long ptr long ptr) NtCreateWnfStateName
 @ stdcall -private ZwDebugActiveProcess(long long) NtDebugActiveProcess
 @ stdcall -private ZwDebugContinue(long ptr long) NtDebugContinue
 @ stdcall -private ZwDelayExecution(long ptr) NtDelayExecution
@@ -1317,6 +1325,7 @@
 @ stdcall -private ZwDeleteKey(long) NtDeleteKey
 # @ stub ZwDeleteObjectAuditAlarm
 @ stdcall -private ZwDeleteValueKey(long ptr) NtDeleteValueKey
+@ stdcall -arch=win64 -private ZwDeleteWnfStateName(ptr) NtDeleteWnfStateName
 @ stdcall -private ZwDeviceIoControlFile(long long ptr ptr ptr long ptr long ptr long) NtDeviceIoControlFile
 @ stdcall -private ZwDisplayString(ptr) NtDisplayString
 @ stdcall -private ZwDuplicateObject(long long long ptr long long long) NtDuplicateObject
@@ -1447,6 +1456,8 @@
 @ stdcall -private ZwQueryValueKey(long ptr long ptr long ptr) NtQueryValueKey
 @ stdcall -private ZwQueryVirtualMemory(long ptr long ptr long ptr) NtQueryVirtualMemory
 @ stdcall -private ZwQueryVolumeInformationFile(long ptr ptr long long) NtQueryVolumeInformationFile
+@ stdcall -arch=win64 -private ZwQueryWnfStateData(ptr ptr ptr ptr ptr ptr) NtQueryWnfStateData
+@ stdcall -arch=win64 -private ZwQueryWnfStateNameInformation(ptr long ptr ptr long) NtQueryWnfStateNameInformation
 @ stdcall -private ZwQueueApcThread(long ptr long long long) NtQueueApcThread
 @ stdcall -private ZwQueueApcThreadEx(long long ptr long long long) NtQueueApcThreadEx
 @ stdcall -private ZwQueueApcThreadEx2(long long long ptr long long long) NtQueueApcThreadEx2
@@ -1543,6 +1554,7 @@
 @ stdcall -private ZwUnmapViewOfSection(long ptr) NtUnmapViewOfSection
 @ stdcall -private ZwUnmapViewOfSectionEx(long ptr long) NtUnmapViewOfSectionEx
 # @ stub ZwVdmControl
+@ stdcall -arch=win64 -private ZwUpdateWnfStateData(ptr ptr long ptr ptr long long) NtUpdateWnfStateData
 @ stdcall -private ZwWaitForAlertByThreadId(ptr ptr) NtWaitForAlertByThreadId
 @ stdcall -private ZwWaitForDebugEvent(long long ptr ptr) NtWaitForDebugEvent
 @ stdcall -private ZwWaitForKeyedEvent(long ptr long ptr) NtWaitForKeyedEvent

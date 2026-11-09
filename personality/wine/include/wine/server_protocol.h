@@ -5864,6 +5864,116 @@ struct alpc_query_reply
 
 
 
+struct wnf_create_request
+{
+    struct request_header __header;
+    unsigned int  lifetime;
+    unsigned int  scope;
+    unsigned int  max_size;
+};
+struct wnf_create_reply
+{
+    struct reply_header __header;
+    unsigned __int64 name;
+};
+
+
+
+struct wnf_delete_request
+{
+    struct request_header __header;
+    char __pad_12[4];
+    unsigned __int64 name;
+};
+struct wnf_delete_reply
+{
+    struct reply_header __header;
+};
+
+
+
+struct wnf_update_request
+{
+    struct request_header __header;
+    char __pad_12[4];
+    unsigned __int64 name;
+    unsigned int  match_stamp;
+    int           check_stamp;
+    /* VARARG(data,bytes); */
+};
+struct wnf_update_reply
+{
+    struct reply_header __header;
+};
+
+
+
+struct wnf_query_request
+{
+    struct request_header __header;
+    char __pad_12[4];
+    unsigned __int64 name;
+};
+struct wnf_query_reply
+{
+    struct reply_header __header;
+    unsigned int  stamp;
+    data_size_t   total;
+    /* VARARG(data,bytes); */
+};
+
+
+
+struct wnf_info_request
+{
+    struct request_header __header;
+    char __pad_12[4];
+    unsigned __int64 name;
+    unsigned int  info_class;
+    char __pad_28[4];
+};
+struct wnf_info_reply
+{
+    struct reply_header __header;
+    unsigned int  value;
+    char __pad_12[4];
+};
+
+
+
+struct wnf_subscribe_request
+{
+    struct request_header __header;
+    char __pad_12[4];
+    unsigned __int64 name;
+    unsigned int  stamp;
+    char __pad_28[4];
+};
+struct wnf_subscribe_reply
+{
+    struct reply_header __header;
+    obj_handle_t  handle;
+    char __pad_12[4];
+};
+
+
+
+struct wnf_fetch_request
+{
+    struct request_header __header;
+    obj_handle_t  handle;
+};
+struct wnf_fetch_reply
+{
+    struct reply_header __header;
+    unsigned __int64 name;
+    unsigned int  stamp;
+    data_size_t   total;
+    /* VARARG(data,bytes); */
+};
+
+
+
 struct set_completion_info_request
 {
     struct request_header __header;
@@ -6809,6 +6919,13 @@ enum request
     REQ_alpc_cancel,
     REQ_alpc_disconnect,
     REQ_alpc_query,
+    REQ_wnf_create,
+    REQ_wnf_delete,
+    REQ_wnf_update,
+    REQ_wnf_query,
+    REQ_wnf_info,
+    REQ_wnf_subscribe,
+    REQ_wnf_fetch,
     REQ_set_completion_info,
     REQ_add_fd_completion,
     REQ_set_fd_completion_mode,
@@ -7143,6 +7260,13 @@ union generic_request
     struct alpc_cancel_request alpc_cancel_request;
     struct alpc_disconnect_request alpc_disconnect_request;
     struct alpc_query_request alpc_query_request;
+    struct wnf_create_request wnf_create_request;
+    struct wnf_delete_request wnf_delete_request;
+    struct wnf_update_request wnf_update_request;
+    struct wnf_query_request wnf_query_request;
+    struct wnf_info_request wnf_info_request;
+    struct wnf_subscribe_request wnf_subscribe_request;
+    struct wnf_fetch_request wnf_fetch_request;
     struct set_completion_info_request set_completion_info_request;
     struct add_fd_completion_request add_fd_completion_request;
     struct set_fd_completion_mode_request set_fd_completion_mode_request;
@@ -7475,6 +7599,13 @@ union generic_reply
     struct alpc_cancel_reply alpc_cancel_reply;
     struct alpc_disconnect_reply alpc_disconnect_reply;
     struct alpc_query_reply alpc_query_reply;
+    struct wnf_create_reply wnf_create_reply;
+    struct wnf_delete_reply wnf_delete_reply;
+    struct wnf_update_reply wnf_update_reply;
+    struct wnf_query_reply wnf_query_reply;
+    struct wnf_info_reply wnf_info_reply;
+    struct wnf_subscribe_reply wnf_subscribe_reply;
+    struct wnf_fetch_reply wnf_fetch_reply;
     struct set_completion_info_reply set_completion_info_reply;
     struct add_fd_completion_reply add_fd_completion_reply;
     struct set_fd_completion_mode_reply set_fd_completion_mode_reply;
@@ -7518,6 +7649,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 944
+#define SERVER_PROTOCOL_VERSION 945
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */
