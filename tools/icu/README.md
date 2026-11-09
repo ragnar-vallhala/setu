@@ -62,6 +62,18 @@ and hands that section to ICU with `udata_setCommonData`.
   ICU has a plain space there. Matching it would mean patching the
   locale data and building it from source instead of using the release's
   prebuilt data.
+* The DLLs' version resource: Windows' ICU carries a vendor build level
+  (a fourth version number after 72.1); Setu's says plain 72.1.
+
+## Decisions (owner, 2026-11-09)
+
+* Stay on ICU 72.1, the release Windows 11 reports, rather than the
+  latest ICU.
+* Keep one copy of the unfiltered data (above), not a filtered or per-
+  architecture one.
+* Accept the known differences above: no patched Unicode 15.1 data, no
+  default-locale keywords, no time-format patch.
+* Leave out Windows' vendor build level.
 
 ## Updating ICU
 
