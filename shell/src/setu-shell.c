@@ -3149,6 +3149,7 @@ static int forward_to_running_shell(int argc, WCHAR **argv)
 static void register_folder_handler(void)
 {
     static const WCHAR *const verbs[] = { L"Folder\\shell\\open\\command", L"Folder\\shell\\explore\\command" };
+    static const WCHAR *const archive_progids[] = { L"CompressedFolder", L"ArchiveFolder" };
     WCHAR exe[MAX_PATH], cmd[MAX_PATH + 16];
     unsigned int i;
     HKEY key;
@@ -3160,6 +3161,19 @@ static void register_folder_handler(void)
     for (i = 0; i < ARRAYSIZE(verbs); i++)
     {
         if (RegCreateKeyExW(HKEY_CLASSES_ROOT, verbs[i], 0, NULL, 0, KEY_SET_VALUE, NULL, &key, NULL)) continue;
+        RegSetValueExW(key, NULL, 0, REG_SZ, (const BYTE *)cmd, (lstrlenW(cmd) + 1) * sizeof(WCHAR));
+        RegCloseKey(key);
+    }
+    /* compressed folders (zipfldr's ProgIDs, when registered) browse in
+     * setu-files too, instead of explorer.exe */
+    for (i = 0; i < ARRAYSIZE(archive_progids); i++)
+    {
+        WCHAR sub[64];
+        if (RegOpenKeyExW(HKEY_CLASSES_ROOT, archive_progids[i], 0, KEY_READ, &key)) continue;
+        RegCloseKey(key);
+        _snwprintf(sub, ARRAYSIZE(sub), L"%ls\\shell\\Open\\command", archive_progids[i]);
+        sub[ARRAYSIZE(sub) - 1] = 0;
+        if (RegCreateKeyExW(HKEY_CLASSES_ROOT, sub, 0, NULL, 0, KEY_SET_VALUE, NULL, &key, NULL)) continue;
         RegSetValueExW(key, NULL, 0, REG_SZ, (const BYTE *)cmd, (lstrlenW(cmd) + 1) * sizeof(WCHAR));
         RegCloseKey(key);
     }
