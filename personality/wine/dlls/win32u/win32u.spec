@@ -916,8 +916,8 @@
 @ stub -syscall NtUserDownlevelTouchpad
 @ stdcall -syscall NtUserDragDetect(long long long)
 @ stdcall -syscall NtUserDragObject(long long long long long)
-@ stub -syscall NtUserDrainThreadCoreMessagingCompletions
-@ stub -syscall NtUserDrainThreadCoreMessagingCompletions2
+@ stdcall -syscall NtUserDrainThreadCoreMessagingCompletions()
+@ stdcall -syscall NtUserDrainThreadCoreMessagingCompletions2(long)
 @ stub -syscall NtUserDrawAnimatedRects
 @ stub -syscall NtUserDrawCaption
 @ stdcall -syscall NtUserDrawCaptionTemp(long long ptr long long wstr long)
@@ -1081,7 +1081,7 @@
 @ stdcall -syscall NtUserGetProcessWindowStation()
 @ stdcall -syscall NtUserGetProp(long wstr)
 @ stub -syscall NtUserGetProp2
-@ stub -syscall NtUserGetQueueIocp
+@ stdcall -syscall NtUserGetQueueIocp()
 @ stdcall -syscall NtUserGetQueueStatus(long)
 @ stub -syscall NtUserGetQueueStatusReadonly
 @ stdcall -syscall NtUserGetRawInputBuffer(ptr ptr long)
@@ -1142,8 +1142,8 @@
 @ stub -syscall NtUserInheritWindowMonitor
 @ stub -syscall NtUserInitAnsiOem
 @ stub -syscall NtUserInitTask
-@ stub -syscall NtUserInitThreadCoreMessagingIocp
-@ stub -syscall NtUserInitThreadCoreMessagingIocp2
+@ stdcall -syscall NtUserInitThreadCoreMessagingIocp(long)
+@ stdcall -syscall NtUserInitThreadCoreMessagingIocp2(long ptr)
 @ stub -syscall NtUserInitialize
 @ stdcall -syscall NtUserInitializeClientPfnArrays(ptr ptr ptr ptr)
 @ stub -syscall NtUserInitializeGenericHidInjection

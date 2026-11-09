@@ -4131,6 +4131,38 @@ NTSTATUS WINAPI wow64_NtUserScheduleDispatchNotification( UINT *args )
     return NtUserScheduleDispatchNotification( hwnd );
 }
 
+NTSTATUS WINAPI wow64_NtUserDrainThreadCoreMessagingCompletions( UINT *args )
+{
+    return NtUserDrainThreadCoreMessagingCompletions();
+}
+
+NTSTATUS WINAPI wow64_NtUserDrainThreadCoreMessagingCompletions2( UINT *args )
+{
+    HWND hwnd = get_handle( &args );
+
+    return NtUserDrainThreadCoreMessagingCompletions2( hwnd );
+}
+
+NTSTATUS WINAPI wow64_NtUserGetQueueIocp( UINT *args )
+{
+    return HandleToUlong( (HANDLE)NtUserGetQueueIocp() );
+}
+
+NTSTATUS WINAPI wow64_NtUserInitThreadCoreMessagingIocp( UINT *args )
+{
+    HWND hwnd = get_handle( &args );
+
+    return HandleToUlong( (HANDLE)NtUserInitThreadCoreMessagingIocp( hwnd ) );
+}
+
+NTSTATUS WINAPI wow64_NtUserInitThreadCoreMessagingIocp2( UINT *args )
+{
+    HWND hwnd = get_handle( &args );
+    DWORD *value = get_ptr( &args );
+
+    return HandleToUlong( (HANDLE)NtUserInitThreadCoreMessagingIocp2( hwnd, value ) );
+}
+
 NTSTATUS WINAPI wow64_NtUserScrollDC( UINT *args )
 {
     HDC hdc = get_handle( &args );

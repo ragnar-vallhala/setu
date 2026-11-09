@@ -2845,3 +2845,155 @@ INT WINAPI NtUserScheduleDispatchNotification( HWND hwnd )
 
     return 0;
 }
+
+/* CoreMessaging completion port
+ *
+ * Every thread's message queue has an I/O completion port that CoreMessaging
+ * (CoreMessagingXP in the Windows App SDK) asks for through
+ * InitThreadCoreMessagingIocp(2). Observed on Windows 11 (oracle test
+ * user32/coremsg_iocp): the port is the thread's own, the same handle every
+ * time, cannot be closed by the application, goes away with the thread, and
+ * no message traffic is queued to it. A thread binds one of its windows to it
+ * once; the binding ends when that window is destroyed. */
+
+static HANDLE get_queue_iocp(void)
+{
+    struct user_thread_info *thread_info = get_user_thread_info();
+
+    if (!thread_info->coremsg_port)
+    {
+        OBJECT_HANDLE_FLAG_INFORMATION flags = { .Inherit = FALSE, .ProtectFromClose = TRUE };
+        HANDLE port;
+
+        if (NtCreateIoCompletion( &port, IO_COMPLETION_ALL_ACCESS, NULL, 0 )) return 0;
+        NtSetInformationObject( port, ObjectHandleFlagInformation, &flags, sizeof(flags) );
+        thread_info->coremsg_port = port;
+    }
+    return thread_info->coremsg_port;
+}
+
+/* called when the thread's user data goes away */
+void destroy_queue_iocp(void)
+{
+    struct user_thread_info *thread_info = get_user_thread_info();
+    OBJECT_HANDLE_FLAG_INFORMATION flags = { .Inherit = FALSE, .ProtectFromClose = FALSE };
+
+    if (!thread_info->coremsg_port) return;
+    NtSetInformationObject( thread_info->coremsg_port, ObjectHandleFlagInformation, &flags, sizeof(flags) );
+    NtClose( thread_info->coremsg_port );
+    thread_info->coremsg_port = 0;
+    thread_info->coremsg_hwnd = 0;
+}
+
+/* called when a window of this thread is destroyed */
+void coremsg_window_destroyed( HWND hwnd )
+{
+    struct user_thread_info *thread_info = get_user_thread_info();
+    if (thread_info->coremsg_hwnd == hwnd) thread_info->coremsg_hwnd = 0;
+}
+
+static ULONG_PTR init_coremsg_iocp( HWND hwnd, DWORD *value, BOOL v2 )
+{
+    struct user_thread_info *thread_info = get_user_thread_info();
+    HANDLE port;
+    DWORD tid;
+
+    if (!(tid = get_window_thread( hwnd, NULL ))) return 0; /* ERROR_INVALID_WINDOW_HANDLE */
+    hwnd = get_full_window_handle( hwnd );
+    if (v2)
+    {
+        BOOL bad = !value;
+        if (!bad)
+        {
+            __TRY
+            {
+                volatile DWORD probe = *value;
+                (void)probe;
+            }
+            __EXCEPT
+            {
+                bad = TRUE;
+            }
+            __ENDTRY
+        }
+        if (bad)
+        {
+            RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
+            return 0;
+        }
+    }
+    if (tid != GetCurrentThreadId())
+    {
+        RtlSetLastWin32Error( ERROR_ACCESS_DENIED );
+        return 0;
+    }
+    if (thread_info->coremsg_hwnd)
+    {
+        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
+        return 0;
+    }
+    if (!(port = get_queue_iocp())) return 0;
+    thread_info->coremsg_hwnd = hwnd;
+    if (value) *value = 0;
+    return (ULONG_PTR)port;
+}
+
+/**********************************************************************
+ *       NtUserGetQueueIocp    (win32u.@)
+ */
+ULONG_PTR WINAPI NtUserGetQueueIocp(void)
+{
+    return (ULONG_PTR)get_queue_iocp();
+}
+
+/**********************************************************************
+ *       NtUserInitThreadCoreMessagingIocp    (win32u.@)
+ */
+ULONG_PTR WINAPI NtUserInitThreadCoreMessagingIocp( HWND hwnd )
+{
+    TRACE( "hwnd %p\n", hwnd );
+    return init_coremsg_iocp( hwnd, NULL, FALSE );
+}
+
+/**********************************************************************
+ *       NtUserInitThreadCoreMessagingIocp2    (win32u.@)
+ */
+ULONG_PTR WINAPI NtUserInitThreadCoreMessagingIocp2( HWND hwnd, DWORD *value )
+{
+    TRACE( "hwnd %p value %p\n", hwnd, value );
+    return init_coremsg_iocp( hwnd, value, TRUE );
+}
+
+/**********************************************************************
+ *       NtUserDrainThreadCoreMessagingCompletions    (win32u.@)
+ */
+BOOL WINAPI NtUserDrainThreadCoreMessagingCompletions(void)
+{
+    if (!get_user_thread_info()->coremsg_hwnd)
+    {
+        RtlSetLastWin32Error( ERROR_ACCESS_DENIED );
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/**********************************************************************
+ *       NtUserDrainThreadCoreMessagingCompletions2    (win32u.@)
+ */
+BOOL WINAPI NtUserDrainThreadCoreMessagingCompletions2( HWND hwnd )
+{
+    struct user_thread_info *thread_info = get_user_thread_info();
+
+    if (!get_window_thread( hwnd, NULL )) return FALSE; /* ERROR_INVALID_WINDOW_HANDLE */
+    if (!thread_info->coremsg_hwnd)
+    {
+        RtlSetLastWin32Error( ERROR_ACCESS_DENIED );
+        return FALSE;
+    }
+    if (get_full_window_handle( hwnd ) != thread_info->coremsg_hwnd)
+    {
+        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
+        return FALSE;
+    }
+    return TRUE;
+}

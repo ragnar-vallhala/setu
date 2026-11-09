@@ -2132,6 +2132,31 @@ INT SYSCALL_API NtUserScheduleDispatchNotification( HWND hwnd )
     SYSCALL_FUNC( NtUserScheduleDispatchNotification );
 }
 
+BOOL SYSCALL_API NtUserDrainThreadCoreMessagingCompletions(void)
+{
+    SYSCALL_FUNC( NtUserDrainThreadCoreMessagingCompletions );
+}
+
+BOOL SYSCALL_API NtUserDrainThreadCoreMessagingCompletions2( HWND hwnd )
+{
+    SYSCALL_FUNC( NtUserDrainThreadCoreMessagingCompletions2 );
+}
+
+ULONG_PTR SYSCALL_API NtUserGetQueueIocp(void)
+{
+    SYSCALL_FUNC( NtUserGetQueueIocp );
+}
+
+ULONG_PTR SYSCALL_API NtUserInitThreadCoreMessagingIocp( HWND hwnd )
+{
+    SYSCALL_FUNC( NtUserInitThreadCoreMessagingIocp );
+}
+
+ULONG_PTR SYSCALL_API NtUserInitThreadCoreMessagingIocp2( HWND hwnd, DWORD *value )
+{
+    SYSCALL_FUNC( NtUserInitThreadCoreMessagingIocp2 );
+}
+
 BOOL SYSCALL_API NtUserScrollDC( HDC hdc, INT dx, INT dy, const RECT *scroll, const RECT *clip,
                                  HRGN ret_update_rgn, RECT *update_rect )
 {

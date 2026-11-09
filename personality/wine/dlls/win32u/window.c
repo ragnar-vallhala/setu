@@ -5304,6 +5304,7 @@ static void free_window_handle( HWND hwnd )
         free( win->pScroll );
         free( win->text );
         free( win );
+        coremsg_window_destroyed( hwnd );
     }
 }
 

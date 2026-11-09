@@ -546,3 +546,38 @@ LRESULT WINAPI ImeWndProcW( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
     if (!imm_ime_wnd_proc) return DefWindowProcW(hwnd, msg, wParam, lParam);
     return imm_ime_wnd_proc( hwnd, msg, wParam, lParam, FALSE );
 }
+
+/***********************************************************************
+ *		InitThreadCoreMessagingIocp (USER32.2612)
+ *
+ * Returns the completion port of the calling thread's message queue and
+ * binds one of the thread's windows to it (oracle test user32/coremsg_iocp).
+ */
+ULONG_PTR WINAPI InitThreadCoreMessagingIocp( HWND hwnd )
+{
+    return NtUserInitThreadCoreMessagingIocp( hwnd );
+}
+
+/***********************************************************************
+ *		DrainThreadCoreMessagingCompletions (USER32.2613)
+ */
+BOOL WINAPI DrainThreadCoreMessagingCompletions(void)
+{
+    return NtUserDrainThreadCoreMessagingCompletions();
+}
+
+/***********************************************************************
+ *		InitThreadCoreMessagingIocp2 (USER32.2669)
+ */
+ULONG_PTR WINAPI InitThreadCoreMessagingIocp2( HWND hwnd, DWORD *value )
+{
+    return NtUserInitThreadCoreMessagingIocp2( hwnd, value );
+}
+
+/***********************************************************************
+ *		DrainThreadCoreMessagingCompletions2 (USER32.2670)
+ */
+BOOL WINAPI DrainThreadCoreMessagingCompletions2( HWND hwnd )
+{
+    return NtUserDrainThreadCoreMessagingCompletions2( hwnd );
+}
