@@ -1,0 +1,1538 @@
+{
+  "test": "shell32/compressed_folders",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "reg_ext_zip": {
+      "progid": "CompressedFolder",
+      "content_type": "application/x-zip-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "CompressedFolder,OpenWithProgids,PersistentHandler",
+      "openwithprogids": "CompressedFolder"
+    },
+    "reg_progid_zip": {
+      "progid": "CompressedFolder",
+      "default": "Compressed (zipped) Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{E88DCCE0-B7B3-11d1-A9F0-00AA0060FA31}",
+      "shell_verbs": "find,Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{b8cdcb65-b1bf-4b42-9428-1dfdb7ee92af}"
+    },
+    "reg_ext_tar": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-tar",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_tar": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_gz": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-gzip",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_gz": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_tgz": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_tgz": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_7z": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_7z": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_rar": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_rar": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_bz2": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_bz2": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_tbz2": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_tbz2": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_tbz": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_xz": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_xz": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_txz": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_txz": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_zst": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_zst": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_tzst": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_tzst": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_lz": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_lzma": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_z": {
+      "progid": "<none>",
+      "content_type": "application/x-compress",
+      "perceived_type": "compressed",
+      "subkeys": "PersistentHandler",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_taz": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_cab": {
+      "progid": "CABFolder",
+      "content_type": "<none>",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "CABFolder"
+    },
+    "reg_progid_cab": {
+      "progid": "CABFolder",
+      "default": "Cabinet File",
+      "values": "@,EditFlags,FriendlyTypeName,InfoTip",
+      "subkeys": "CLSID,DefaultIcon,Shell",
+      "clsid": "{0CD7A5C0-9F37-11CE-AE65-08002B2E1262}",
+      "shell_verbs": "find,Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "<none>"
+    },
+    "reg_ext_iso": {
+      "progid": "Windows.IsoFile",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "OpenWithProgids",
+      "openwithprogids": "Windows.IsoFile"
+    },
+    "reg_progid_iso": {
+      "progid": "Windows.IsoFile",
+      "default": "Disc Image File",
+      "values": "@,FriendlyTypeName",
+      "subkeys": "DefaultIcon,shell,tabsets",
+      "clsid": "<none>",
+      "shell_verbs": "burn,mount",
+      "shell_default": "mount",
+      "contextmenu_handlers": "<none>"
+    },
+    "reg_ext_lzh": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_arj": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_cpio": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_cpio": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_wim": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_jar": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_lz4": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_tlz": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_lha": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_xar": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_xar": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_pax": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_ar": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_deb": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_rpm": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_warc": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_lzo": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_uu": {
+      "progid": "ArchiveFolder",
+      "content_type": "application/x-compressed",
+      "perceived_type": "compressed",
+      "subkeys": "OpenWithProgids,PersistentHandler",
+      "openwithprogids": "ArchiveFolder"
+    },
+    "reg_progid_uu": {
+      "progid": "ArchiveFolder",
+      "default": "Compressed Archive Folder",
+      "values": "@,AppUserModelID,EditFlags,FriendlyTypeName",
+      "subkeys": "CLSID,DefaultIcon,Shell,ShellEx",
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "shell_verbs": "Open",
+      "shell_default": "<none>",
+      "contextmenu_handlers": "{EE07CEF5-3441-4CFB-870A-4002C724783A}"
+    },
+    "reg_ext_zipx": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_ext_tb2": {
+      "progid": "<none>",
+      "content_type": "<none>",
+      "perceived_type": "<none>",
+      "subkeys": "<none>",
+      "openwithprogids": "<none>"
+    },
+    "reg_clsid_CompressedFolder": {
+      "default": "CompressedFolder",
+      "values": "@",
+      "subkeys": "DefaultIcon,Implemented Categories,InProcServer32,ProgID,ShellFolder,tabsets",
+      "inproc": "zipfldr.dll",
+      "threading": "Apartment",
+      "shellfolder_values": "Attributes,DisableContextualTabset,UseDropHandler",
+      "shellfolder_attributes": "0x200001a0"
+    },
+    "reg_clsid_ArchiveFolder": {
+      "default": "ArchiveFolder",
+      "values": "@",
+      "subkeys": "DefaultIcon,Implemented Categories,InProcServer32,ProgID,ShellFolder,tabsets",
+      "inproc": "zipfldr.dll",
+      "threading": "Apartment",
+      "shellfolder_values": "Attributes,DisableContextualTabset,UseDropHandler",
+      "shellfolder_attributes": "0x200001a0"
+    },
+    "reg_clsid_CABFolder": {
+      "default": "Cabinet Shell Folder",
+      "values": "@",
+      "subkeys": "Implemented Categories,InProcServer32,ShellFolder,tabsets",
+      "inproc": "cabview.dll",
+      "threading": "Apartment",
+      "shellfolder_values": "Attributes",
+      "shellfolder_attributes": "0x680001a0"
+    },
+    "sfi_j_zip": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed (zipped) Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tar": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_gz": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tar_gz": {
+      "ret": 1,
+      "display": "j.tar",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tgz": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_7z": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_rar": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_bz2": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tar_bz2": {
+      "ret": 1,
+      "display": "j.tar",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tbz2": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_xz": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tar_xz": {
+      "ret": 1,
+      "display": "j.tar",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_txz": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_zst": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tar_zst": {
+      "ret": 1,
+      "display": "j.tar",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_tzst": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_cab": {
+      "ret": 1,
+      "display": "j",
+      "type": "Cabinet File",
+      "attrs": "0xe8400177"
+    },
+    "sfi_j_lz": {
+      "ret": 1,
+      "display": "j.lz",
+      "type": "LZ File",
+      "attrs": "0x40400177"
+    },
+    "sfi_j_z": {
+      "ret": 1,
+      "display": "j.z",
+      "type": "Z File",
+      "attrs": "0x40400177"
+    },
+    "sfi_j_cpio": {
+      "ret": 1,
+      "display": "j",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_two_dots_zip": {
+      "ret": 1,
+      "display": "two.dots",
+      "type": "Compressed (zipped) Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_ufa_zip": {
+      "ret": 1,
+      "display": "nothing",
+      "type": "Compressed (zipped) Folder",
+      "attrs": "0x00000000"
+    },
+    "sfi_ufa_7z": {
+      "ret": 1,
+      "display": "nothing",
+      "type": "Compressed Archive Folder",
+      "attrs": "0x00000000"
+    },
+    "sfi_ufa_tar_gz": {
+      "ret": 1,
+      "display": "nothing.tar",
+      "type": "Compressed Archive Folder",
+      "attrs": "0x00000000"
+    },
+    "sfi_ufa_zip_dir": {
+      "ret": 1,
+      "display": "nothing.zip",
+      "type": "File folder",
+      "attrs": "0x00000000"
+    },
+    "sfi_directory_named_zip": {
+      "ret": 1,
+      "display": "dir.zip",
+      "type": "File folder",
+      "attrs": "0x7080017f"
+    },
+    "sfi_valid_zip": {
+      "ret": 1,
+      "display": "a",
+      "type": "Compressed (zipped) Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_empty_zip": {
+      "ret": 1,
+      "display": "empty",
+      "type": "Compressed (zipped) Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_valid_tar_gz": {
+      "ret": 1,
+      "display": "a.tar",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "tdir": {
+      "bound": true
+    },
+    "masks_a_zip": {
+      "parsed": true,
+      "mask_folder": "0x60000145",
+      "mask_hassubfolder": "0xe0000145",
+      "mask_stream": "0x60400145",
+      "mask_browsable": "0x08000000",
+      "mask_filesystem": "0x40000145",
+      "mask_storage": "0x60000145",
+      "mask_validate": "0x60000145"
+    },
+    "masks_empty_zip": {
+      "parsed": true,
+      "mask_folder": "0x60000145",
+      "mask_hassubfolder": "0xe0000145",
+      "mask_stream": "0x60400145",
+      "mask_browsable": "0x08000000",
+      "mask_filesystem": "0x40000145",
+      "mask_storage": "0x60000145",
+      "mask_validate": "0x60000145"
+    },
+    "masks_j_zip": {
+      "parsed": true,
+      "mask_folder": "0x60000145",
+      "mask_hassubfolder": "0xe0000145",
+      "mask_stream": "0x60400145",
+      "mask_browsable": "0x08000000",
+      "mask_filesystem": "0x40000145",
+      "mask_storage": "0x60000145",
+      "mask_validate": "0x60000145"
+    },
+    "masks_j_7z": {
+      "parsed": true,
+      "mask_folder": "0x60000145",
+      "mask_hassubfolder": "0xe0000145",
+      "mask_stream": "0x60400145",
+      "mask_browsable": "0x08000000",
+      "mask_filesystem": "0x40000145",
+      "mask_storage": "0x60000145",
+      "mask_validate": "0x60000145"
+    },
+    "masks_a_tar_gz": {
+      "parsed": true,
+      "mask_folder": "0x60000145",
+      "mask_hassubfolder": "0xe0000145",
+      "mask_stream": "0x60400145",
+      "mask_browsable": "0x08000000",
+      "mask_filesystem": "0x40000145",
+      "mask_storage": "0x60000145",
+      "mask_validate": "0x60000145"
+    },
+    "zip_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a",
+      "infolder": "a",
+      "infolder_editing": "a",
+      "infolder_parsing": "a.zip",
+      "forparsing": "<cwd>\\t\\a.zip",
+      "parsing_addressbar": "<cwd>\\t\\a.zip",
+      "foraddressbar": "a",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "zip_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{E88DCCE0-B7B3-11D1-A9F0-00AA0060FA31}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": true,
+      "stream_hr": "0x00000000"
+    },
+    "zip_enum": {
+      "hr": "0x00000000",
+      "count": 5,
+      "names": "readme.txt,docs,implicit,Upper.TXT,empty.dat",
+      "folders_count": 2,
+      "nonfolders_count": 3
+    },
+    "zip_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_editing": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.zip\\readme.txt",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\readme.txt",
+      "foraddressbar": "readme",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "zip_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_editing": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\a.zip\\docs",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\docs",
+      "foraddressbar": "docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xa000016b"
+    },
+    "zip_item_implicit": {
+      "normal": "implicit",
+      "infolder": "implicit",
+      "infolder_editing": "implicit",
+      "infolder_parsing": "implicit",
+      "forparsing": "<cwd>\\t\\a.zip\\implicit",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\implicit",
+      "foraddressbar": "implicit",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x2000016b"
+    },
+    "zip_item_Upper_TXT": {
+      "normal": "Upper",
+      "infolder": "Upper",
+      "infolder_editing": "Upper",
+      "infolder_parsing": "Upper.TXT",
+      "forparsing": "<cwd>\\t\\a.zip\\Upper.TXT",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\Upper.TXT",
+      "foraddressbar": "Upper",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "zip_item_empty_dat": {
+      "normal": "empty.dat",
+      "infolder": "empty.dat",
+      "infolder_editing": "empty.dat",
+      "infolder_parsing": "empty.dat",
+      "forparsing": "<cwd>\\t\\a.zip\\empty.dat",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\empty.dat",
+      "foraddressbar": "empty.dat",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "emptyzip_item": {
+      "parse_hr": "0x00000000",
+      "normal": "empty",
+      "infolder": "empty",
+      "infolder_editing": "empty",
+      "infolder_parsing": "empty.zip",
+      "forparsing": "<cwd>\\t\\empty.zip",
+      "parsing_addressbar": "<cwd>\\t\\empty.zip",
+      "foraddressbar": "empty",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "emptyzip_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{E88DCCE0-B7B3-11D1-A9F0-00AA0060FA31}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": true,
+      "stream_hr": "0x00000000"
+    },
+    "emptyzip_enum": {
+      "hr": "0x00000000",
+      "count": 0,
+      "names": "",
+      "folders_count": 0,
+      "nonfolders_count": 0
+    },
+    "junkzip_item": {
+      "parse_hr": "0x00000000",
+      "normal": "j",
+      "infolder": "j",
+      "infolder_editing": "j",
+      "infolder_parsing": "j.zip",
+      "forparsing": "<cwd>\\t\\j.zip",
+      "parsing_addressbar": "<cwd>\\t\\j.zip",
+      "foraddressbar": "j",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "junkzip_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{E88DCCE0-B7B3-11D1-A9F0-00AA0060FA31}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": true,
+      "stream_hr": "0x00000000"
+    },
+    "junkzip_enum": {
+      "hr": "0x80004005",
+      "count": 0,
+      "names": "",
+      "folders_count": 0,
+      "nonfolders_count": 0
+    },
+    "tar_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a",
+      "infolder": "a",
+      "infolder_editing": "a",
+      "infolder_parsing": "a.tar",
+      "forparsing": "<cwd>\\t\\a.tar",
+      "parsing_addressbar": "<cwd>\\t\\a.tar",
+      "foraddressbar": "a",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "tar_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": false,
+      "stream_hr": "0x00000000"
+    },
+    "tar_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "dir,readme.txt",
+      "folders_count": 1,
+      "nonfolders_count": 1
+    },
+    "tar_item_dir": {
+      "normal": "dir",
+      "infolder": "dir",
+      "infolder_editing": "dir",
+      "infolder_parsing": "dir",
+      "forparsing": "<cwd>\\t\\a.tar\\dir",
+      "parsing_addressbar": "<cwd>\\t\\a.tar\\dir",
+      "foraddressbar": "dir",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "tar_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_editing": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.tar\\readme.txt",
+      "parsing_addressbar": "<cwd>\\t\\a.tar\\readme.txt",
+      "foraddressbar": "readme",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "targz_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a.tar",
+      "infolder": "a.tar",
+      "infolder_editing": "a.tar",
+      "infolder_parsing": "a.tar.gz",
+      "forparsing": "<cwd>\\t\\a.tar.gz",
+      "parsing_addressbar": "<cwd>\\t\\a.tar.gz",
+      "foraddressbar": "a.tar",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "targz_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": false,
+      "stream_hr": "0x00000000"
+    },
+    "targz_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "dir,readme.txt",
+      "folders_count": 1,
+      "nonfolders_count": 1
+    },
+    "targz_item_dir": {
+      "normal": "dir",
+      "infolder": "dir",
+      "infolder_editing": "dir",
+      "infolder_parsing": "dir",
+      "forparsing": "<cwd>\\t\\a.tar.gz\\dir",
+      "parsing_addressbar": "<cwd>\\t\\a.tar.gz\\dir",
+      "foraddressbar": "dir",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "targz_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_editing": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.tar.gz\\readme.txt",
+      "parsing_addressbar": "<cwd>\\t\\a.tar.gz\\readme.txt",
+      "foraddressbar": "readme",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tgz_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a",
+      "infolder": "a",
+      "infolder_editing": "a",
+      "infolder_parsing": "a.tgz",
+      "forparsing": "<cwd>\\t\\a.tgz",
+      "parsing_addressbar": "<cwd>\\t\\a.tgz",
+      "foraddressbar": "a",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "tgz_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": false,
+      "stream_hr": "0x00000000"
+    },
+    "tgz_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "dir,readme.txt",
+      "folders_count": 1,
+      "nonfolders_count": 1
+    },
+    "tgz_item_dir": {
+      "normal": "dir",
+      "infolder": "dir",
+      "infolder_editing": "dir",
+      "infolder_parsing": "dir",
+      "forparsing": "<cwd>\\t\\a.tgz\\dir",
+      "parsing_addressbar": "<cwd>\\t\\a.tgz\\dir",
+      "foraddressbar": "dir",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "tgz_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_editing": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.tgz\\readme.txt",
+      "parsing_addressbar": "<cwd>\\t\\a.tgz\\readme.txt",
+      "foraddressbar": "readme",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "gz_item": {
+      "parse_hr": "0x00000000",
+      "normal": "plain",
+      "infolder": "plain",
+      "infolder_editing": "plain",
+      "infolder_parsing": "plain.gz",
+      "forparsing": "<cwd>\\t\\plain.gz",
+      "parsing_addressbar": "<cwd>\\t\\plain.gz",
+      "foraddressbar": "plain",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "gz_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": false,
+      "stream_hr": "0x00000000"
+    },
+    "gz_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "plain.txt",
+      "folders_count": 0,
+      "nonfolders_count": 1
+    },
+    "gz_item_plain_txt": {
+      "normal": "plain",
+      "infolder": "plain",
+      "infolder_editing": "plain",
+      "infolder_parsing": "plain.txt",
+      "forparsing": "<cwd>\\t\\plain.gz\\plain.txt",
+      "parsing_addressbar": "<cwd>\\t\\plain.gz\\plain.txt",
+      "foraddressbar": "plain",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "names_item": {
+      "parse_hr": "0x00000000",
+      "normal": "names",
+      "infolder": "names",
+      "infolder_editing": "names",
+      "infolder_parsing": "names.zip",
+      "forparsing": "<cwd>\\t\\names.zip",
+      "parsing_addressbar": "<cwd>\\t\\names.zip",
+      "foraddressbar": "names",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "names_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{E88DCCE0-B7B3-11D1-A9F0-00AA0060FA31}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": true,
+      "stream_hr": "0x00000000"
+    },
+    "names_enum": {
+      "hr": "0x00000000",
+      "count": 6,
+      "names": "café.txt,oemé.txt,ro.txt,hid.txt,b.txt,a.txt",
+      "folders_count": 0,
+      "nonfolders_count": 6
+    },
+    "names_item_caf___txt": {
+      "normal": "café",
+      "infolder": "café",
+      "infolder_editing": "café",
+      "infolder_parsing": "café.txt",
+      "forparsing": "<cwd>\\t\\names.zip\\café.txt",
+      "parsing_addressbar": "<cwd>\\t\\names.zip\\café.txt",
+      "foraddressbar": "café",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "names_item_oem___txt": {
+      "normal": "oemé",
+      "infolder": "oemé",
+      "infolder_editing": "oemé",
+      "infolder_parsing": "oemé.txt",
+      "forparsing": "<cwd>\\t\\names.zip\\oemé.txt",
+      "parsing_addressbar": "<cwd>\\t\\names.zip\\oemé.txt",
+      "foraddressbar": "oemé",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "names_item_ro_txt": {
+      "normal": "ro",
+      "infolder": "ro",
+      "infolder_editing": "ro",
+      "infolder_parsing": "ro.txt",
+      "forparsing": "<cwd>\\t\\names.zip\\ro.txt",
+      "parsing_addressbar": "<cwd>\\t\\names.zip\\ro.txt",
+      "foraddressbar": "ro",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "names_item_hid_txt": {
+      "normal": "hid",
+      "infolder": "hid",
+      "infolder_editing": "hid",
+      "infolder_parsing": "hid.txt",
+      "forparsing": "<cwd>\\t\\names.zip\\hid.txt",
+      "parsing_addressbar": "<cwd>\\t\\names.zip\\hid.txt",
+      "foraddressbar": "hid",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00480063"
+    },
+    "names_item_b_txt": {
+      "normal": "b",
+      "infolder": "b",
+      "infolder_editing": "b",
+      "infolder_parsing": "b.txt",
+      "forparsing": "<cwd>\\t\\names.zip\\b.txt",
+      "parsing_addressbar": "<cwd>\\t\\names.zip\\b.txt",
+      "foraddressbar": "b",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "names_item_a_txt": {
+      "normal": "a",
+      "infolder": "a",
+      "infolder_editing": "a",
+      "infolder_parsing": "a.txt",
+      "forparsing": "<cwd>\\t\\names.zip\\a.txt",
+      "parsing_addressbar": "<cwd>\\t\\names.zip\\a.txt",
+      "foraddressbar": "a",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "order_tar_item": {
+      "parse_hr": "0x00000000",
+      "normal": "order",
+      "infolder": "order",
+      "infolder_editing": "order",
+      "infolder_parsing": "order.tar",
+      "forparsing": "<cwd>\\t\\order.tar",
+      "parsing_addressbar": "<cwd>\\t\\order.tar",
+      "foraddressbar": "order",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "order_tar_bind": {
+      "hr": "0x00000000",
+      "persistfolder2": true,
+      "clsid": "{0C1FD748-B888-443D-9EC3-AD7E22D48808}",
+      "curfolder_hr": "0x00000000",
+      "curfolder_is_archive": true,
+      "shellfolder2": true,
+      "storage": false,
+      "stream_hr": "0x00000000"
+    },
+    "order_tar_enum": {
+      "hr": "0x00000000",
+      "count": 4,
+      "names": "a.txt,b.txt,c,z",
+      "folders_count": 2,
+      "nonfolders_count": 2
+    },
+    "order_tar_item_a_txt": {
+      "normal": "a",
+      "infolder": "a",
+      "infolder_editing": "a",
+      "infolder_parsing": "a.txt",
+      "forparsing": "<cwd>\\t\\order.tar\\a.txt",
+      "parsing_addressbar": "<cwd>\\t\\order.tar\\a.txt",
+      "foraddressbar": "a",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "order_tar_item_b_txt": {
+      "normal": "b",
+      "infolder": "b",
+      "infolder_editing": "b",
+      "infolder_parsing": "b.txt",
+      "forparsing": "<cwd>\\t\\order.tar\\b.txt",
+      "parsing_addressbar": "<cwd>\\t\\order.tar\\b.txt",
+      "foraddressbar": "b",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "order_tar_item_c": {
+      "normal": "c",
+      "infolder": "c",
+      "infolder_editing": "c",
+      "infolder_parsing": "c",
+      "forparsing": "<cwd>\\t\\order.tar\\c",
+      "parsing_addressbar": "<cwd>\\t\\order.tar\\c",
+      "foraddressbar": "c",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "order_tar_item_z": {
+      "normal": "z",
+      "infolder": "z",
+      "infolder_editing": "z",
+      "infolder_parsing": "z",
+      "forparsing": "<cwd>\\t\\order.tar\\z",
+      "parsing_addressbar": "<cwd>\\t\\order.tar\\z",
+      "foraddressbar": "z",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "zparse_file": {
+      "hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "zparse_dir": {
+      "hr": "0x00000000",
+      "attrs": "0x2000016b"
+    },
+    "zparse_nested": {
+      "hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "zparse_implicit_dir": {
+      "hr": "0x00000000",
+      "attrs": "0x2000016b"
+    },
+    "zparse_case": {
+      "hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "zparse_missing": {
+      "hr": "0x80070002"
+    },
+    "zparse_forward_slash": {
+      "hr": "0x80070002"
+    },
+    "zip_docs_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "inner.txt,deep",
+      "folders_count": 1,
+      "nonfolders_count": 1
+    },
+    "zip_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_editing": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\a.zip\\docs\\inner.txt",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\docs\\inner.txt",
+      "foraddressbar": "inner",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "zip_docs_item_deep": {
+      "normal": "deep",
+      "infolder": "deep",
+      "infolder_editing": "deep",
+      "infolder_parsing": "deep",
+      "forparsing": "<cwd>\\t\\a.zip\\docs\\deep",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\docs\\deep",
+      "foraddressbar": "deep",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x2000016b"
+    },
+    "zip_docs_deep_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "x.bin",
+      "folders_count": 0,
+      "nonfolders_count": 1
+    },
+    "zip_docs_deep_item_x_bin": {
+      "normal": "x.bin",
+      "infolder": "x.bin",
+      "infolder_editing": "x.bin",
+      "infolder_parsing": "x.bin",
+      "forparsing": "<cwd>\\t\\a.zip\\docs\\deep\\x.bin",
+      "parsing_addressbar": "<cwd>\\t\\a.zip\\docs\\deep\\x.bin",
+      "foraddressbar": "x.bin",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400063"
+    },
+    "zip_copy_nested": {
+      "parse_hr": "0x00000000",
+      "extracticon_hr": "0x00000000",
+      "contextmenu_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array,FileGroupDescriptorW,FileContents",
+      "filedescriptor_hr": "0x00000000",
+      "fd_count": 1,
+      "fd_names": "inner.txt",
+      "fd0_flags": "0x00004044",
+      "fd0_has_writetime": true,
+      "fd0_attrs": "0x00010020",
+      "fd0_size": 10,
+      "contents0_hr": "0x00000000",
+      "contents0_tymed": 4,
+      "contents0": "inner text",
+      "storage_stream_hr": "0x00000000",
+      "storage_stream_data": "inner text",
+      "stream_hr": "0x00000000",
+      "stream_data": "inner text",
+      "stream_size": 10,
+      "stream_name": "inner.txt"
+    },
+    "zip_copy_file": {
+      "parse_hr": "0x00000000",
+      "extracticon_hr": "0x00000000",
+      "contextmenu_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array,FileGroupDescriptorW,FileContents",
+      "filedescriptor_hr": "0x00000000",
+      "fd_count": 1,
+      "fd_names": "readme.txt",
+      "fd0_flags": "0x00004044",
+      "fd0_has_writetime": true,
+      "fd0_attrs": "0x00010020",
+      "fd0_size": 10,
+      "contents0_hr": "0x00000000",
+      "contents0_tymed": 4,
+      "contents0": "hello zip\n",
+      "storage_stream_hr": "0x00000000",
+      "storage_stream_data": "hello zip\n",
+      "stream_hr": "0x00000000",
+      "stream_data": "hello zip\n",
+      "stream_size": 10,
+      "stream_name": "readme.txt"
+    },
+    "zip_copy_dir": {
+      "parse_hr": "0x00000000",
+      "extracticon_hr": "0x00000000",
+      "contextmenu_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array,FileGroupDescriptorW,FileContents",
+      "filedescriptor_hr": "0x00000000",
+      "fd_count": 4,
+      "fd_names": "docs,docs\\inner.txt,docs\\deep,docs\\deep\\x.bin",
+      "fd0_flags": "0x00004044",
+      "fd0_has_writetime": true,
+      "fd0_attrs": "0x00010010",
+      "fd0_size": 0,
+      "contents0_hr": "0x80004005",
+      "contents1_hr": "0x00000000",
+      "contents1_tymed": 4,
+      "contents1": "inner text",
+      "contents2_hr": "0x80004005",
+      "contents3_hr": "0x00000000",
+      "contents3_tymed": 4,
+      "contents3": "xyz",
+      "storage_stream_hr": "0x80004005",
+      "stream_hr": "0x80004005"
+    },
+    "zip_copy_empty": {
+      "parse_hr": "0x00000000",
+      "extracticon_hr": "0x00000000",
+      "contextmenu_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array,FileGroupDescriptorW,FileContents",
+      "filedescriptor_hr": "0x00000000",
+      "fd_count": 1,
+      "fd_names": "empty.dat",
+      "fd0_flags": "0x00004044",
+      "fd0_has_writetime": true,
+      "fd0_attrs": "0x00010020",
+      "fd0_size": 0,
+      "contents0_hr": "0x00000000",
+      "contents0_tymed": 4,
+      "contents0": "",
+      "storage_stream_hr": "0x00000000",
+      "storage_stream_data": "",
+      "stream_hr": "0x00000000",
+      "stream_data": "",
+      "stream_size": 0,
+      "stream_name": "empty.dat"
+    },
+    "targz_copy_file": {
+      "parse_hr": "0x00000000",
+      "extracticon_hr": "0x00000000",
+      "contextmenu_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "storage_stream_hr": "0x80004002",
+      "stream_hr": "0x80004002"
+    },
+    "targz_copy_dir": {
+      "parse_hr": "0x00000000",
+      "extracticon_hr": "0x00000000",
+      "contextmenu_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "storage_stream_hr": "0x80004002",
+      "stream_hr": "0x80004002"
+    },
+    "desktop_parse_in_zip": {
+      "hr": "0x00000000",
+      "attrs": "0x00400063",
+      "forparsing": "<cwd>\\t\\a.zip\\docs\\inner.txt",
+      "addressbar": "<cwd>\\t\\a.zip\\docs\\inner.txt",
+      "has_fs_path": false
+    },
+    "sfi_path_in_zip": {
+      "ret": 1,
+      "display": "inner",
+      "type": "Text Document",
+      "attrs": "0x00400063"
+    },
+    "desktop_parse_zip_dir": {
+      "hr": "0x00000000",
+      "attrs": "0x2000016b",
+      "forparsing": "<cwd>\\t\\a.zip\\docs",
+      "addressbar": "<cwd>\\t\\a.zip\\docs",
+      "has_fs_path": false
+    },
+    "sfi_path_zip_dir": {
+      "ret": 1,
+      "display": "docs",
+      "type": "File folder",
+      "attrs": "0xa000016b"
+    },
+    "desktop_parse_in_zip_missing": {
+      "hr": "0x80070002"
+    },
+    "sfi_path_in_zip_missing": {
+      "ret": 0,
+      "display": "",
+      "type": "",
+      "attrs": "0x00000000"
+    },
+    "desktop_parse_in_targz": {
+      "hr": "0x00000000",
+      "attrs": "0x00400000",
+      "forparsing": "<cwd>\\t\\a.tar.gz\\dir\\inner.txt",
+      "addressbar": "<cwd>\\t\\a.tar.gz\\dir\\inner.txt",
+      "has_fs_path": false
+    },
+    "sfi_path_in_targz": {
+      "ret": 1,
+      "display": "inner",
+      "type": "Text Document",
+      "attrs": "0x00400001"
+    },
+    "item_zip_file": {
+      "create_hr": "0x00000000",
+      "stream_hr": "0x00000000",
+      "stream_data": "hello zip\n",
+      "transfer_hr": "0x00000000",
+      "storage_hr": "0x80004001",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array,FileGroupDescriptorW,FileContents",
+      "attrs": "0x00400001"
+    },
+    "item_targz_file": {
+      "create_hr": "0x00000000",
+      "stream_hr": "0x80004002",
+      "transfer_hr": "0x00000000",
+      "storage_hr": "0x80004002",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "attrs": "0x00400001"
+    },
+    "item_targz_dir": {
+      "create_hr": "0x00000000",
+      "stream_hr": "0x80004002",
+      "transfer_hr": "0x00000000",
+      "storage_hr": "0x80004002",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "attrs": "0x20000001"
+    },
+    "item_tar_file": {
+      "create_hr": "0x00000000",
+      "stream_hr": "0x80004002",
+      "transfer_hr": "0x00000000",
+      "storage_hr": "0x80004002",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "attrs": "0x00400001"
+    },
+    "item_zip_archive": {
+      "create_hr": "0x00000000",
+      "stream_hr": "0x00000000",
+      "stream_data": "PK\u0003\u0004\n",
+      "transfer_hr": "0x00000000",
+      "storage_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array,cf15,FileName,FileNameW,ZoneIdentifier",
+      "attrs": "0x60400001"
+    },
+    "verbs_zip": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,extract,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties",
+      "has_extract_text": false
+    },
+    "verbs_targz": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,extract,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties",
+      "has_extract_text": false
+    },
+    "verbs_cab": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties",
+      "has_extract_text": false
+    },
+    "ofn_zip_all_files": {
+      "timeout": false,
+      "ret": false,
+      "ext_error": 0,
+      "dialog_shown": true,
+      "navigated_into": true
+    },
+    "ofn_zip_txt_filter": {
+      "timeout": false,
+      "ret": false,
+      "ext_error": 0,
+      "dialog_shown": true,
+      "navigated_into": true
+    },
+    "ofn_targz": {
+      "timeout": false,
+      "ret": false,
+      "ext_error": 0,
+      "dialog_shown": true,
+      "navigated_into": true
+    },
+    "ofn_into_zip": {
+      "timeout": false,
+      "ret": false,
+      "ext_error": 0,
+      "dialog_shown": true,
+      "navigated_into": true
+    },
+    "ofn_nohook_zip": {
+      "ret": true,
+      "dialog_found": true,
+      "still_open_after_ok": false,
+      "file": "<cwd>\\t\\a.zip"
+    },
+    "ofn_nohook_plain": {
+      "ret": true,
+      "dialog_found": true,
+      "still_open_after_ok": false,
+      "file": "<cwd>\\t\\j.lz"
+    }
+  },
+  "errors": [],
+  "source_sha256": "02eee81c25a55a3ef831697286e0d409bcdb57451f4d0cd793dc700f52ee1d1e"
+}
