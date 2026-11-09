@@ -772,9 +772,27 @@ HRESULT WINAPI SHCreateItemFromIDList(PCIDLIST_ABSOLUTE pidl, REFIID riid, void 
 HRESULT WINAPI SHCreateItemWithParent(PCIDLIST_ABSOLUTE pidl_parent, IShellFolder *psf,
                                 PCUITEMID_CHILD pidl, REFIID riid, void **ppv)
 {
-    FIXME("(%p, %p, %p, %s, %p)\n", pidl_parent, psf, pidl, debugstr_guid(riid), ppv);
+    LPITEMIDLIST parent = NULL, full;
+    HRESULT hr;
 
-    return E_NOTIMPL;
+    TRACE("(%p, %p, %p, %s, %p)\n", pidl_parent, psf, pidl, debugstr_guid(riid), ppv);
+
+    if (!ppv) return E_INVALIDARG;
+    *ppv = NULL;
+    if (!pidl || (!pidl_parent && !psf)) return E_INVALIDARG;
+
+    /* the parent is given by its ID list, or else by its folder object */
+    if (!pidl_parent)
+    {
+        if (FAILED(hr = SHGetIDListFromObject((IUnknown *)psf, &parent))) return hr;
+        pidl_parent = parent;
+    }
+    full = ILCombine(pidl_parent, pidl);
+    ILFree(parent);
+    if (!full) return E_OUTOFMEMORY;
+    hr = SHCreateItemFromIDList(full, riid, ppv);
+    ILFree(full);
+    return hr;
 }
 
 HRESULT WINAPI SHCreateItemInKnownFolder(REFKNOWNFOLDERID rfid, DWORD flags,
