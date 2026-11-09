@@ -1772,6 +1772,7 @@ enum copy_engine_opcode
 {
     COPY_ENGINE_MOVE,
     COPY_ENGINE_REMOVE_DIRECTORY_SILENT,
+    COPY_ENGINE_COPY,
 };
 
 #define TSF_UNKNOWN_MEGRE_FLAG 0x1000
@@ -1948,6 +1949,22 @@ static HRESULT notify_post_move_item(IFileOperationProgressSink *sink, struct fi
     return IFileOperationProgressSink_PostMoveItem(sink, op->tsf, p->item, op->folder, op->name, p->result, p->new_item);
 }
 
+static HRESULT notify_pre_copy_item(IFileOperationProgressSink *sink, struct file_operation *operations,
+        struct copy_engine_operation *op, void *context)
+{
+    struct notify_move_item_param *p = context;
+
+    return IFileOperationProgressSink_PreCopyItem(sink, op->tsf, p->item, op->folder, op->name);
+}
+
+static HRESULT notify_post_copy_item(IFileOperationProgressSink *sink, struct file_operation *operations,
+        struct copy_engine_operation *op, void *context)
+{
+    struct notify_move_item_param *p = context;
+
+    return IFileOperationProgressSink_PostCopyItem(sink, op->tsf, p->item, op->folder, op->name, p->result, p->new_item);
+}
+
 static void set_file_operation_progress(struct file_operation *operation, unsigned int total, unsigned int sofar)
 {
     operation->progress_total = total;
@@ -2061,6 +2078,183 @@ static HRESULT copy_engine_move(struct file_operation *operation, struct copy_en
     return COPYENGINE_S_NOT_HANDLED;
 }
 
+HRESULT WINAPI SHCreateItemWithParent(PCIDLIST_ABSOLUTE, IShellFolder *, PCUITEMID_CHILD, REFIID, void **);
+
+/* The contents of an item that is not a file, such as a file in a
+ * compressed folder: its stream, or the stream its folder's
+ * ITransferSource hands out. */
+static HRESULT item_stream(IShellItem *item, IStream **out)
+{
+    ITransferSource *source;
+    HRESULT hr;
+
+    *out = NULL;
+    if (SUCCEEDED(IShellItem_BindToHandler(item, NULL, &BHID_Stream, &IID_IStream, (void **)out)) && *out)
+        return S_OK;
+    *out = NULL;
+    if (FAILED(hr = IShellItem_BindToHandler(item, NULL, &BHID_Transfer, &IID_ITransferSource, (void **)&source)))
+        return hr;
+    hr = ITransferSource_OpenItem(source, item, TSF_NORMAL, &IID_IStream, (void **)out);
+    ITransferSource_Release(source);
+    if (hr != S_OK || !*out)
+    {
+        if (*out) IStream_Release(*out);
+        *out = NULL;
+        return FAILED(hr) ? hr : E_FAIL;
+    }
+    return S_OK;
+}
+
+static HRESULT copy_stream_to_file(IStream *stream, const WCHAR *path)
+{
+    BYTE buffer[65536];
+    STATSTG stat;
+    HANDLE file;
+    DWORD written;
+    ULONG got;
+    HRESULT hr;
+
+    file = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE)
+        return HRESULT_FROM_WIN32(GetLastError());
+    for (;;)
+    {
+        got = 0;
+        if (FAILED(hr = IStream_Read(stream, buffer, sizeof(buffer), &got)))
+            break;
+        if (got && !WriteFile(file, buffer, got, &written, NULL))
+        {
+            hr = HRESULT_FROM_WIN32(GetLastError());
+            break;
+        }
+        if (!got || hr == S_FALSE)
+        {
+            hr = S_OK;
+            break;
+        }
+    }
+    if (SUCCEEDED(hr) && SUCCEEDED(IStream_Stat(stream, &stat, STATFLAG_NONAME))
+            && (stat.mtime.dwLowDateTime || stat.mtime.dwHighDateTime))
+        SetFileTime(file, NULL, NULL, &stat.mtime);
+    CloseHandle(file);
+    if (FAILED(hr))
+        DeleteFileW(path);
+    return hr;
+}
+
+/* Copies an item that is not in the file system to path: a stream to a
+ * file, a folder (a directory in an archive) with everything in it. */
+static HRESULT copy_namespace_item(IShellItem *item, const WCHAR *path, int depth)
+{
+    PIDLIST_ABSOLUTE parent;
+    IShellFolder *folder;
+    IEnumIDList *items;
+    LPITEMIDLIST child;
+    SFGAOF attrs = 0;
+    IStream *stream;
+    HRESULT hr;
+
+    if (FAILED(IShellItem_GetAttributes(item, SFGAO_FOLDER | SFGAO_STREAM, &attrs)) || !(attrs & SFGAO_FOLDER)
+            || (attrs & SFGAO_STREAM))
+    {
+        if (FAILED(hr = item_stream(item, &stream)))
+            return hr;
+        hr = copy_stream_to_file(stream, path);
+        IStream_Release(stream);
+        return hr;
+    }
+    if (depth > 64)
+        return HRESULT_FROM_WIN32(ERROR_FILENAME_EXCED_RANGE);
+    if (!CreateDirectoryW(path, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+        return HRESULT_FROM_WIN32(GetLastError());
+    if (FAILED(hr = IShellItem_BindToHandler(item, NULL, &BHID_SFObject, &IID_IShellFolder, (void **)&folder)))
+        return hr;
+    if (FAILED(hr = SHGetIDListFromObject((IUnknown *)item, &parent)))
+    {
+        IShellFolder_Release(folder);
+        return hr;
+    }
+    hr = IShellFolder_EnumObjects(folder, NULL, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &items);
+    if (hr == S_OK)
+    {
+        while (SUCCEEDED(hr) && IEnumIDList_Next(items, 1, &child, NULL) == S_OK)
+        {
+            WCHAR child_path[MAX_PATH];
+            IShellItem *child_item;
+            STRRET name;
+            WCHAR *str;
+
+            if (SUCCEEDED(hr = SHCreateItemWithParent(parent, folder, child, &IID_IShellItem, (void **)&child_item)))
+            {
+                if (SUCCEEDED(hr = IShellFolder_GetDisplayNameOf(folder, child, SHGDN_INFOLDER | SHGDN_FORPARSING, &name))
+                        && SUCCEEDED(hr = StrRetToStrW(&name, child, &str)))
+                {
+                    if (PathCombineW(child_path, path, PathFindFileNameW(str)))
+                        hr = copy_namespace_item(child_item, child_path, depth + 1);
+                    else
+                        hr = HRESULT_FROM_WIN32(ERROR_FILENAME_EXCED_RANGE);
+                    CoTaskMemFree(str);
+                }
+                IShellItem_Release(child_item);
+            }
+            ILFree(child);
+        }
+        IEnumIDList_Release(items);
+    }
+    else if (hr == S_FALSE)
+        hr = S_OK;
+    ILFree(parent);
+    IShellFolder_Release(folder);
+    return hr;
+}
+
+static HRESULT copy_engine_copy(struct file_operation *operation, struct copy_engine_operation *op, IShellItem *src_item,
+        IShellItem **new_item)
+{
+    WCHAR path[MAX_PATH], from[MAX_PATH + 1], to[MAX_PATH + 1];
+    SHFILEOPSTRUCTW fo;
+    WCHAR *str;
+    HRESULT hr;
+
+    *new_item = NULL;
+    if (!*op->name)
+    {
+        if (FAILED(hr = IShellItem_GetDisplayName(src_item, SIGDN_PARENTRELATIVEPARSING, &str)))
+            return hr;
+        free(op->name);
+        op->name = wcsdup(PathFindFileNameW(str));
+        CoTaskMemFree(str);
+        if (!op->name)
+            return E_OUTOFMEMORY;
+    }
+    if (FAILED(hr = IShellItem_GetDisplayName(op->folder, SIGDN_FILESYSPATH, &str)))
+        return hr;
+    hr = PathCombineW(path, str, op->name) ? S_OK : HRESULT_FROM_WIN32(ERROR_FILENAME_EXCED_RANGE);
+    CoTaskMemFree(str);
+    if (FAILED(hr))
+        return hr;
+
+    if (SUCCEEDED(IShellItem_GetDisplayName(src_item, SIGDN_FILESYSPATH, &str)))
+    {
+        /* a file or a directory */
+        memset(from, 0, sizeof(from));
+        memset(to, 0, sizeof(to));
+        lstrcpynW(from, str, MAX_PATH);
+        lstrcpynW(to, path, MAX_PATH);
+        CoTaskMemFree(str);
+        memset(&fo, 0, sizeof(fo));
+        fo.wFunc = FO_COPY;
+        fo.pFrom = from;
+        fo.pTo = to;
+        fo.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NOCONFIRMMKDIR;
+        if (SHFileOperationW(&fo) || fo.fAnyOperationsAborted)
+            return E_FAIL;
+    }
+    else if (FAILED(hr = copy_namespace_item(src_item, path, 0)))
+        return hr;
+    return SHCreateItemFromParsingName(path, NULL, &IID_IShellItem, (void **)new_item);
+}
+
 static HRESULT perform_file_operations(struct file_operation *operation)
 {
     struct copy_engine_operation *op;
@@ -2106,6 +2300,34 @@ static HRESULT perform_file_operations(struct file_operation *operation)
                 p.result = hr;
                 if (FAILED(hr = file_operation_notify(operation, op, TRUE, &p, notify_post_move_item)))
                 {
+                    if (p.new_item)
+                        IShellItem_Release(p.new_item);
+                    return hr;
+                }
+                hr = p.result;
+                IShellItem_Release(p.item);
+                if (p.new_item)
+                    IShellItem_Release(p.new_item);
+                break;
+            }
+
+            case COPY_ENGINE_COPY:
+            {
+                struct notify_move_item_param p;
+
+                p.new_item = NULL;
+                if (FAILED(hr = SHCreateItemFromIDList(op->item_pidl, &IID_IShellItem, (void**)&p.item)))
+                    break;
+                if (FAILED((hr = file_operation_notify(operation, op, FALSE, &p, notify_pre_copy_item))))
+                {
+                    IShellItem_Release(p.item);
+                    return hr;
+                }
+                hr = copy_engine_copy(operation, op, p.item, &p.new_item);
+                p.result = hr;
+                if (FAILED(hr = file_operation_notify(operation, op, TRUE, &p, notify_post_copy_item)))
+                {
+                    IShellItem_Release(p.item);
                     if (p.new_item)
                         IShellItem_Release(p.new_item);
                     return hr;
@@ -2311,9 +2533,12 @@ static HRESULT WINAPI file_operation_MoveItems(IFileOperation *iface, IUnknown *
 static HRESULT WINAPI file_operation_CopyItem(IFileOperation *iface, IShellItem *item, IShellItem *folder,
         LPCWSTR name, IFileOperationProgressSink *sink)
 {
-    FIXME("(%p, %p, %p, %s, %p): stub.\n", iface, item, folder, debugstr_w(name), sink);
+    TRACE("(%p, %p, %p, %s, %p).\n", iface, item, folder, debugstr_w(name), sink);
 
-    return E_NOTIMPL;
+    if (!item || !folder)
+        return E_INVALIDARG;
+    return add_operation(impl_from_IFileOperation(iface), COPY_ENGINE_COPY, item, folder, name, sink,
+            TSF_COPY_LOCALIZED_NAME | TSF_COPY_WRITE_TIME | TSF_COPY_CREATION_TIME, NULL);
 }
 
 static HRESULT WINAPI file_operation_CopyItems(IFileOperation *iface, IUnknown *items, IShellItem *folder)
