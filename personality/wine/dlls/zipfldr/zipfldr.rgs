@@ -1,0 +1,160 @@
+HKCR
+{
+    NoRemove CLSID
+    {
+        '{E88DCCE0-B7B3-11d1-A9F0-00AA0060FA31}' = s 'CompressedFolder'
+        {
+            InprocServer32 = s '%MODULE%' { val ThreadingModel = s 'Apartment' }
+            ProgID = s 'CompressedFolder'
+            DefaultIcon = s 'shell32.dll,-4'
+            ShellFolder { val Attributes = d '536871328' }
+        }
+        '{b8cdcb65-b1bf-4b42-9428-1dfdb7ee92af}' = s 'Compressed (zipped) Folder Extract Menu'
+        {
+            InprocServer32 = s '%MODULE%' { val ThreadingModel = s 'Apartment' }
+        }
+        '{0C1FD748-B888-443D-9EC3-AD7E22D48808}' = s 'ArchiveFolder'
+        {
+            InprocServer32 = s '%MODULE%' { val ThreadingModel = s 'Apartment' }
+            ProgID = s 'ArchiveFolder'
+            DefaultIcon = s 'shell32.dll,-4'
+            ShellFolder { val Attributes = d '536871328' }
+        }
+        '{EE07CEF5-3441-4CFB-870A-4002C724783A}' = s 'Compressed Archive Folder Extract Menu'
+        {
+            InprocServer32 = s '%MODULE%' { val ThreadingModel = s 'Apartment' }
+        }
+    }
+    'CompressedFolder' = s 'Compressed (zipped) Folder'
+    {
+        val FriendlyTypeName = s 'Compressed (zipped) Folder'
+        val EditFlags = d '65536'
+        CLSID = s '{E88DCCE0-B7B3-11d1-A9F0-00AA0060FA31}'
+        DefaultIcon = s 'shell32.dll,-4'
+        Shell
+        {
+            Open
+            {
+                command = s 'explorer.exe "%%1"'
+            }
+        }
+        ShellEx
+        {
+            ContextMenuHandlers
+            {
+                '{b8cdcb65-b1bf-4b42-9428-1dfdb7ee92af}'
+            }
+        }
+    }
+    'ArchiveFolder' = s 'Compressed Archive Folder'
+    {
+        val FriendlyTypeName = s 'Compressed Archive Folder'
+        val EditFlags = d '65536'
+        CLSID = s '{0C1FD748-B888-443D-9EC3-AD7E22D48808}'
+        DefaultIcon = s 'shell32.dll,-4'
+        Shell
+        {
+            Open
+            {
+                command = s 'explorer.exe "%%1"'
+            }
+        }
+        ShellEx
+        {
+            ContextMenuHandlers
+            {
+                '{EE07CEF5-3441-4CFB-870A-4002C724783A}'
+            }
+        }
+    }
+    NoRemove '.zip' = s 'CompressedFolder'
+    {
+        val 'Content Type' = s 'application/x-zip-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'CompressedFolder' = s '' }
+    }
+    NoRemove '.tar' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-tar'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.gz' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-gzip'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.tgz' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.7z' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.rar' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.bz2' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.tbz2' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.xz' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.txz' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.zst' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.tzst' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.cpio' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.xar' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+    NoRemove '.uu' = s 'ArchiveFolder'
+    {
+        val 'Content Type' = s 'application/x-compressed'
+        val PerceivedType = s 'compressed'
+        OpenWithProgids { val 'ArchiveFolder' = s '' }
+    }
+}

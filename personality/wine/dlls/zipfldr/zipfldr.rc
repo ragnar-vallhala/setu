@@ -1,0 +1,66 @@
+/*
+ * Compressed folders: resources
+ *
+ * Copyright 2026 The Setu Contributors
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+#include "resource.h"
+
+LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
+
+STRINGTABLE
+{
+    IDS_EXTRACT_MENU    "E&xtract All..."
+    IDS_EXTRACT_HELP    "Extracts all files and folders of the archive into a folder."
+    IDS_ZIP_TYPE        "Compressed (zipped) Folder"
+    IDS_ARCHIVE_TYPE    "Compressed Archive Folder"
+    IDS_COL_NAME        "Name"
+    IDS_COL_TYPE        "Type"
+    IDS_COL_SIZE        "Size"
+    IDS_COL_DATE        "Date modified"
+    IDS_EXTRACT_FAILED  "The archive could not be extracted. It may be damaged, encrypted, or in a format that can't be read yet."
+    IDS_EXTRACT_TITLE   "Extract Compressed Folder"
+    IDS_COPY_MENU       "&Copy"
+    IDS_OPEN_MENU       "&Open"
+}
+
+IDD_EXTRACT DIALOGEX 0, 0, 300, 90
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Extract Compressed Folder"
+FONT 9, "MS Shell Dlg"
+{
+    LTEXT           "Files will be extracted to this folder:", IDC_PROMPT, 7, 7, 286, 10
+    EDITTEXT        IDC_DEST, 7, 20, 226, 13, ES_AUTOHSCROLL
+    PUSHBUTTON      "B&rowse...", IDC_BROWSE, 238, 19, 55, 14
+    AUTOCHECKBOX    "&Show extracted files when complete", IDC_SHOW, 7, 40, 286, 10
+    DEFPUSHBUTTON   "E&xtract", IDOK, 184, 69, 52, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 241, 69, 52, 14
+}
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+/* @makedep: zipfldr.rgs */
+1 WINE_REGISTRY zipfldr.rgs
+
+#define WINE_FILEDESCRIPTION_STR "Compressed (zipped) Folders"
+#define WINE_FILENAME_STR "zipfldr.dll"
+#define WINE_FILEVERSION 10,0,22621,1
+#define WINE_FILEVERSION_STR "10.0.22621.1"
+#define WINE_PRODUCTVERSION 10,0,22621,1
+#define WINE_PRODUCTVERSION_STR "10.0.22621.1"
+
+#include "wine/wine_common_ver.rc"

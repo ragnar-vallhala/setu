@@ -1643,6 +1643,7 @@ enable_xmllite
 enable_xolehlp
 enable_xpsprint
 enable_xpssvcs
+enable_zipfldr
 enable_xtajit64
 enable_fonts
 enable_include
@@ -23353,6 +23354,7 @@ wine_fn_config_makefile dlls/xolehlp enable_xolehlp
 wine_fn_config_makefile dlls/xpsprint enable_xpsprint
 wine_fn_config_makefile dlls/xpssvcs enable_xpssvcs
 wine_fn_config_makefile dlls/xtajit64 enable_xtajit64
+wine_fn_config_makefile dlls/zipfldr enable_zipfldr
 wine_fn_config_makefile fonts enable_fonts
 wine_fn_config_makefile include enable_include
 wine_fn_config_makefile libs/adsiid enable_adsiid
