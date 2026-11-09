@@ -1,0 +1,37 @@
+EXTLIB    = libarchive.a
+EXTRAINCL = $(ARCHIVE_PE_CFLAGS) $(ZLIB_PE_CFLAGS) $(BZIP2_PE_CFLAGS) $(LZMA_PE_CFLAGS) $(ZSTD_PE_CFLAGS)
+EXTRADEFS = -DHAVE_CONFIG_H
+
+SOURCES = \
+	libarchive/archive_acl.c \
+	libarchive/archive_blake2s_ref.c \
+	libarchive/archive_blake2sp_ref.c \
+	libarchive/archive_check_magic.c \
+	libarchive/archive_crc32.c \
+	libarchive/archive_entry.c \
+	libarchive/archive_entry_sparse.c \
+	libarchive/archive_entry_xattr.c \
+	libarchive/archive_options.c \
+	libarchive/archive_ppmd7.c \
+	libarchive/archive_random.c \
+	libarchive/archive_rb.c \
+	libarchive/archive_read.c \
+	libarchive/archive_read_add_passphrase.c \
+	libarchive/archive_read_set_options.c \
+	libarchive/archive_read_support_filter_bzip2.c \
+	libarchive/archive_read_support_filter_uu.c \
+	libarchive/archive_read_support_filter_xz.c \
+	libarchive/archive_read_support_filter_zstd.c \
+	libarchive/archive_read_support_format_7zip.c \
+	libarchive/archive_read_support_format_cab.c \
+	libarchive/archive_read_support_format_cpio.c \
+	libarchive/archive_read_support_format_rar.c \
+	libarchive/archive_read_support_format_rar5.c \
+	libarchive/archive_read_support_format_raw.c \
+	libarchive/archive_string.c \
+	libarchive/archive_string_sprintf.c \
+	libarchive/archive_time.c \
+	libarchive/archive_util.c \
+	libarchive/archive_virtual.c \
+	libarchive/archive_windows.c \
+	zlib_alloc.c

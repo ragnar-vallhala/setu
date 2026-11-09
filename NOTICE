@@ -169,6 +169,35 @@ where a file lives in the tree.
    The Start menu icons of Wine's accessories (WordPad, Clock) are drawn
    by distro/apps/icons.py: original Setu work, MIT OR Apache-2.0.
 
+8. Archive libraries in this tree, linked into zipfldr.dll
+   --------------------------------------------------------
+   zipfldr.dll, the compressed folder, links these libraries in statically
+   (no extra DLL) so that it can read .7z, .rar, .cab, .cpio, .tar.bz2,
+   .tar.xz, .tar.zst, .bz2, .xz and .zst files. Each is a trimmed, unmodified
+   copy of the upstream release, imported by tools/import-libarchive.sh,
+   which pins the URL and SHA-256. Each keeps its own licence file in its
+   directory:
+
+     * libarchive 3.8.11 (personality/wine/libs/libarchive): BSD-2-Clause,
+       Copyright Tim Kientzle and the libarchive contributors.
+       https://github.com/libarchive/libarchive/releases/download/v3.8.11/libarchive-3.8.11.tar.xz
+       SHA-256 a3dc0872b1b39da34dc18ef1b944f0f11ffd37425d70ae04be679279f1cf43d2
+     * liblzma from XZ Utils 5.8.4 (personality/wine/libs/lzma): 0BSD.
+       https://github.com/tukaani-project/xz/releases/download/v5.8.4/xz-5.8.4.tar.xz
+       SHA-256 4ce24038fd4221e0d13bc1a2de7a4db56e90b92b3bf75321f6c14be73f65de4b
+     * bzip2 1.0.8 (personality/wine/libs/bzip2): the bzip2 licence
+       (BSD-style), Copyright (C) 1996-2019 Julian R Seward.
+       https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
+       SHA-256 ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269
+     * zstd 1.5.7, decompressor only (personality/wine/libs/zstd):
+       BSD-3-Clause (dual-licensed upstream with GPL-2.0; used here under
+       BSD), Copyright (c) Meta Platforms, Inc. and affiliates.
+       https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz
+       SHA-256 eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3
+
+   The Setu glue (the libraries' config.h and Makefile.in files, and
+   zipfldr's arclib.c) is under LGPL-2.1-or-later like section 2.
+
 SPDX identifiers
 ----------------
   Setu code:          SPDX-License-Identifier: MIT OR Apache-2.0

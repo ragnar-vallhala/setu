@@ -1,0 +1,15 @@
+EXTLIB    = libzstd.a
+EXTRAINCL = $(ZSTD_PE_CFLAGS)
+EXTRADEFS = -DZSTD_DISABLE_ASM -DZSTD_LEGACY_SUPPORT=0 -DZSTD_MULTITHREAD=0
+
+SOURCES = \
+	lib/common/debug.c \
+	lib/common/entropy_common.c \
+	lib/common/error_private.c \
+	lib/common/fse_decompress.c \
+	lib/common/xxhash.c \
+	lib/common/zstd_common.c \
+	lib/decompress/huf_decompress.c \
+	lib/decompress/zstd_ddict.c \
+	lib/decompress/zstd_decompress.c \
+	lib/decompress/zstd_decompress_block.c

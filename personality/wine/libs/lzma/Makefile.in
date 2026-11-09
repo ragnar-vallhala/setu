@@ -1,0 +1,42 @@
+EXTLIB    = liblzma.a
+EXTRAINCL = $(LZMA_PE_CFLAGS) -I$(srcdir)/src/common -I$(srcdir)/src/liblzma/common -I$(srcdir)/src/liblzma/check -I$(srcdir)/src/liblzma/lz -I$(srcdir)/src/liblzma/lzma -I$(srcdir)/src/liblzma/rangecoder -I$(srcdir)/src/liblzma/delta -I$(srcdir)/src/liblzma/simple
+EXTRADEFS = -DHAVE_CONFIG_H
+
+SOURCES = \
+	src/liblzma/check/check.c \
+	src/liblzma/check/crc32_fast.c \
+	src/liblzma/check/crc64_fast.c \
+	src/liblzma/check/sha256.c \
+	src/liblzma/common/alone_decoder.c \
+	src/liblzma/common/auto_decoder.c \
+	src/liblzma/common/block_decoder.c \
+	src/liblzma/common/block_header_decoder.c \
+	src/liblzma/common/block_util.c \
+	src/liblzma/common/common.c \
+	src/liblzma/common/filter_common.c \
+	src/liblzma/common/filter_decoder.c \
+	src/liblzma/common/filter_flags_decoder.c \
+	src/liblzma/common/index.c \
+	src/liblzma/common/index_decoder.c \
+	src/liblzma/common/index_hash.c \
+	src/liblzma/common/lzip_decoder.c \
+	src/liblzma/common/stream_decoder.c \
+	src/liblzma/common/stream_flags_common.c \
+	src/liblzma/common/stream_flags_decoder.c \
+	src/liblzma/common/vli_decoder.c \
+	src/liblzma/common/vli_size.c \
+	src/liblzma/delta/delta_common.c \
+	src/liblzma/delta/delta_decoder.c \
+	src/liblzma/lz/lz_decoder.c \
+	src/liblzma/lzma/lzma2_decoder.c \
+	src/liblzma/lzma/lzma_decoder.c \
+	src/liblzma/simple/arm.c \
+	src/liblzma/simple/arm64.c \
+	src/liblzma/simple/armthumb.c \
+	src/liblzma/simple/ia64.c \
+	src/liblzma/simple/powerpc.c \
+	src/liblzma/simple/riscv.c \
+	src/liblzma/simple/simple_coder.c \
+	src/liblzma/simple/simple_decoder.c \
+	src/liblzma/simple/sparc.c \
+	src/liblzma/simple/x86.c

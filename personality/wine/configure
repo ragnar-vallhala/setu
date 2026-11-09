@@ -718,6 +718,14 @@ EGL_CFLAGS
 PTHREAD_LIBS
 ZLIB_PE_LIBS
 ZLIB_PE_CFLAGS
+ZSTD_PE_LIBS
+ZSTD_PE_CFLAGS
+LZMA_PE_LIBS
+LZMA_PE_CFLAGS
+BZIP2_PE_LIBS
+BZIP2_PE_CFLAGS
+ARCHIVE_PE_LIBS
+ARCHIVE_PE_CFLAGS
 XSLT_PE_LIBS
 XSLT_PE_CFLAGS
 XML2_PE_LIBS
@@ -1676,6 +1684,10 @@ enable_wmcodecdspuuid
 enable_xml2
 enable_xslt
 enable_zlib
+enable_libarchive
+enable_bzip2
+enable_lzma
+enable_zstd
 enable_loader
 enable_nls
 enable_po
@@ -1852,6 +1864,14 @@ XSLT_PE_CFLAGS
 XSLT_PE_LIBS
 ZLIB_PE_CFLAGS
 ZLIB_PE_LIBS
+ARCHIVE_PE_CFLAGS
+ARCHIVE_PE_LIBS
+BZIP2_PE_CFLAGS
+BZIP2_PE_LIBS
+LZMA_PE_CFLAGS
+LZMA_PE_LIBS
+ZSTD_PE_CFLAGS
+ZSTD_PE_LIBS
 EGL_CFLAGS
 EGL_LIBS
 XMKMF
@@ -2698,6 +2718,26 @@ Some influential environment variables:
               C compiler flags for the PE zlib, overriding the bundled version
   ZLIB_PE_LIBS
               Linker flags for the PE zlib, overriding the bundled version
+  ARCHIVE_PE_CFLAGS
+              C compiler flags for the PE libarchive, overriding the bundled
+              version
+  ARCHIVE_PE_LIBS
+              Linker flags for the PE libarchive, overriding the bundled version
+  BZIP2_PE_CFLAGS
+              C compiler flags for the PE bzip2, overriding the bundled
+              version
+  BZIP2_PE_LIBS
+              Linker flags for the PE bzip2, overriding the bundled version
+  LZMA_PE_CFLAGS
+              C compiler flags for the PE lzma, overriding the bundled
+              version
+  LZMA_PE_LIBS
+              Linker flags for the PE lzma, overriding the bundled version
+  ZSTD_PE_CFLAGS
+              C compiler flags for the PE zstd, overriding the bundled
+              version
+  ZSTD_PE_LIBS
+              Linker flags for the PE zstd, overriding the bundled version
   EGL_CFLAGS  C compiler flags for egl, overriding pkg-config
   EGL_LIBS    Linker flags for egl, overriding pkg-config
   XMKMF       Path to xmkmf, Makefile generator for X Window System
@@ -14212,6 +14252,74 @@ fi
 printf "%s\n" "$as_me:${as_lineno-$LINENO}: zlib cflags: $ZLIB_PE_CFLAGS" >&5
 printf "%s\n" "$as_me:${as_lineno-$LINENO}: zlib libs: $ZLIB_PE_LIBS" >&5
 
+if ${ARCHIVE_PE_LIBS:+false} :
+then :
+  ARCHIVE_PE_LIBS="archive \$(BZIP2_PE_LIBS) \$(LZMA_PE_LIBS) \$(ZSTD_PE_LIBS) \$(ZLIB_PE_LIBS)"
+   if ${ARCHIVE_PE_CFLAGS:+false} :
+then :
+  ARCHIVE_PE_CFLAGS="-I\$(top_srcdir)/libs/libarchive/libarchive -DLIBARCHIVE_STATIC"
+else case e in #(
+  e) enable_libarchive=no ;;
+esac
+fi
+else case e in #(
+  e) enable_libarchive=no ;;
+esac
+fi
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: libarchive cflags: $ARCHIVE_PE_CFLAGS" >&5
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: libarchive libs: $ARCHIVE_PE_LIBS" >&5
+
+if ${BZIP2_PE_LIBS:+false} :
+then :
+  BZIP2_PE_LIBS=bz2
+   if ${BZIP2_PE_CFLAGS:+false} :
+then :
+  BZIP2_PE_CFLAGS="-I\$(top_srcdir)/libs/bzip2 -DBZ_NO_STDIO"
+else case e in #(
+  e) enable_bzip2=no ;;
+esac
+fi
+else case e in #(
+  e) enable_bzip2=no ;;
+esac
+fi
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: bzip2 cflags: $BZIP2_PE_CFLAGS" >&5
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: bzip2 libs: $BZIP2_PE_LIBS" >&5
+
+if ${LZMA_PE_LIBS:+false} :
+then :
+  LZMA_PE_LIBS=lzma
+   if ${LZMA_PE_CFLAGS:+false} :
+then :
+  LZMA_PE_CFLAGS="-I\$(top_srcdir)/libs/lzma/src/liblzma/api -DLZMA_API_STATIC"
+else case e in #(
+  e) enable_lzma=no ;;
+esac
+fi
+else case e in #(
+  e) enable_lzma=no ;;
+esac
+fi
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: lzma cflags: $LZMA_PE_CFLAGS" >&5
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: lzma libs: $LZMA_PE_LIBS" >&5
+
+if ${ZSTD_PE_LIBS:+false} :
+then :
+  ZSTD_PE_LIBS=zstd
+   if ${ZSTD_PE_CFLAGS:+false} :
+then :
+  ZSTD_PE_CFLAGS="-I\$(top_srcdir)/libs/zstd/lib"
+else case e in #(
+  e) enable_zstd=no ;;
+esac
+fi
+else case e in #(
+  e) enable_zstd=no ;;
+esac
+fi
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: zstd cflags: $ZSTD_PE_CFLAGS" >&5
+printf "%s\n" "$as_me:${as_lineno-$LINENO}: zstd libs: $ZSTD_PE_LIBS" >&5
+
 
 
 if test "x$with_pthread" = xno
@@ -23358,6 +23466,7 @@ wine_fn_config_makefile dlls/zipfldr enable_zipfldr
 wine_fn_config_makefile fonts enable_fonts
 wine_fn_config_makefile include enable_include
 wine_fn_config_makefile libs/adsiid enable_adsiid
+wine_fn_config_makefile libs/bzip2 enable_bzip2
 wine_fn_config_makefile libs/capstone enable_capstone
 wine_fn_config_makefile libs/compiler-rt enable_compiler_rt
 wine_fn_config_makefile libs/dmoguids enable_dmoguids
@@ -23371,6 +23480,8 @@ wine_fn_config_makefile libs/jpeg enable_jpeg
 wine_fn_config_makefile libs/jxr enable_jxr
 wine_fn_config_makefile libs/lcms2 enable_lcms2
 wine_fn_config_makefile libs/ldap enable_ldap
+wine_fn_config_makefile libs/libarchive enable_libarchive
+wine_fn_config_makefile libs/lzma enable_lzma
 wine_fn_config_makefile libs/mfuuid enable_mfuuid
 wine_fn_config_makefile libs/mpg123 enable_mpg123
 wine_fn_config_makefile libs/musl enable_musl
@@ -23386,6 +23497,7 @@ wine_fn_config_makefile libs/wmcodecdspuuid enable_wmcodecdspuuid
 wine_fn_config_makefile libs/xml2 enable_xml2
 wine_fn_config_makefile libs/xslt enable_xslt
 wine_fn_config_makefile libs/zlib enable_zlib
+wine_fn_config_makefile libs/zstd enable_zstd
 wine_fn_config_makefile loader enable_loader
 wine_fn_config_makefile nls enable_nls
 wine_fn_config_makefile po enable_po
@@ -24509,6 +24621,14 @@ XSLT_PE_CFLAGS = $XSLT_PE_CFLAGS
 XSLT_PE_LIBS = $XSLT_PE_LIBS
 ZLIB_PE_CFLAGS = $ZLIB_PE_CFLAGS
 ZLIB_PE_LIBS = $ZLIB_PE_LIBS
+ARCHIVE_PE_CFLAGS = $ARCHIVE_PE_CFLAGS
+ARCHIVE_PE_LIBS = $ARCHIVE_PE_LIBS
+BZIP2_PE_CFLAGS = $BZIP2_PE_CFLAGS
+BZIP2_PE_LIBS = $BZIP2_PE_LIBS
+LZMA_PE_CFLAGS = $LZMA_PE_CFLAGS
+LZMA_PE_LIBS = $LZMA_PE_LIBS
+ZSTD_PE_CFLAGS = $ZSTD_PE_CFLAGS
+ZSTD_PE_LIBS = $ZSTD_PE_LIBS
 PTHREAD_LIBS = $PTHREAD_LIBS
 EGL_CFLAGS = $EGL_CFLAGS
 EGL_LIBS = $EGL_LIBS

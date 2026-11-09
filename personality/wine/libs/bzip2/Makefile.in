@@ -1,0 +1,11 @@
+EXTLIB    = libbz2.a
+EXTRAINCL = $(BZIP2_PE_CFLAGS)
+
+SOURCES = \
+	blocksort.c \
+	bzlib.c \
+	compress.c \
+	crctable.c \
+	decompress.c \
+	huffman.c \
+	randtable.c
