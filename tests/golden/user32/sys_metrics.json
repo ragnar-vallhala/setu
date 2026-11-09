@@ -158,6 +158,17 @@
       "icon_italic": 0,
       "icon_charset": 1
     },
+    "icon_metrics": {
+      "ret": true,
+      "spacing": 75,
+      "vspacing": 75,
+      "wrap": 1,
+      "iconmetrics_face": "Segoe UI",
+      "iconmetrics_height": -12,
+      "iconmetrics_weight": 400,
+      "iconmetrics_italic": 0,
+      "iconmetrics_charset": 1
+    },
     "flat_menu_gradient_captions": {
       "flat_ret": true,
       "flat": 1,
@@ -478,5 +489,5 @@
     }
   },
   "errors": [],
-  "source_sha256": "417108f27cd3abbf7d0f9cf07f90afb5c21dc9ac050ba3033c3d5059681d4676"
+  "source_sha256": "de5e0b4ed25f812bd3840ade640ea6419b58705bda2eaeb4e8290bb8ec98f933"
 }

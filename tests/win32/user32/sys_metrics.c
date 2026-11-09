@@ -512,6 +512,21 @@ int main(int argc, char **argv)
     }
 
     {
+        ICONMETRICSW im;
+        BOOL ok;
+        memset(&im, 0, sizeof im);
+        im.cbSize = sizeof im;
+        ORACLE_CALL(ok, pSystemParametersInfoW(SPI_GETICONMETRICS, sizeof im, &im, 0));
+        oracle_case("icon_metrics");
+        o_bool("ret", ok);
+        o_i64("spacing", im.iHorzSpacing);
+        o_i64("vspacing", im.iVertSpacing);
+        o_i64("wrap", im.iTitleWrap);
+        font_fields("iconmetrics", &im.lfFont);
+        oracle_case_end();
+    }
+
+    {
         BOOL flat = 2, gradient = 2, ok1, ok2;
         ok1 = pSystemParametersInfoW(SPI_GETFLATMENU, 0, &flat, 0);
         ok2 = pSystemParametersInfoW(SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0);
