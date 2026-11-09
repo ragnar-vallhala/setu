@@ -81,6 +81,13 @@ mkdir -p "$OUT"
 rm -f "$OUT"/*.png "$OUT"/*.txt "$OUT"/*.log
 
 make -s -C "$REPO/shell"
+# A HOME of its own: wine links the prefix's Desktop, Documents, ... to
+# $HOME's XDG folders, so the real HOME would put the developer's own
+# Desktop files on the test desktop. (After make: it finds the toolchain
+# under the real HOME.)
+export HOME="$REPO/build/startmenu-home"
+export XDG_DATA_HOME="$HOME/.local/share" XDG_CONFIG_HOME="$HOME/.config" XDG_CACHE_HOME="$HOME/.cache"
+mkdir -p "$HOME"
 SHELL_EXE="$REPO/build/shell/setu-shell.exe"
 PROBE_EXE="$REPO/build/shell/setu-probe.exe"
 APP_EXE="$REPO/build/shell/setu-testapp.exe"
