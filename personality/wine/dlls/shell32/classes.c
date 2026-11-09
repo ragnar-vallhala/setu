@@ -398,6 +398,46 @@ BOOL HCR_GetClassNameA(REFIID riid, LPSTR szDest, DWORD len)
  *  If queried for an attribute, which is set in the CallForAttributes registry
  *  value, the function binds to the shellfolder objects and queries it.
  */
+/***********************************************************************
+ *  HCR_GetFileFolderClass [internal]
+ *
+ * Whether files with this extension (without the dot) are shell folders,
+ * like archives on Windows ("Compressed (zipped) Folder"): the extension's
+ * ProgID names a CLSID that has a ShellFolder key.
+ */
+BOOL HCR_GetFileFolderClass(LPCWSTR extension, CLSID *clsid)
+{
+    WCHAR ext[MAX_PATH + 1], progid[MAX_PATH], value[39], key_name[64];
+    LONG len;
+    HKEY key;
+
+    if (!extension || !*extension || lstrlenW(extension) >= MAX_PATH) return FALSE;
+    ext[0] = '.';
+    lstrcpyW(ext + 1, extension);
+    len = sizeof(progid);
+    if (RegQueryValueW(HKEY_CLASSES_ROOT, ext, progid, &len) || !*progid) return FALSE;
+    if (lstrlenW(progid) + 7 > MAX_PATH) return FALSE;
+    lstrcatW(progid, L"\\CLSID");
+    len = sizeof(value);
+    if (RegQueryValueW(HKEY_CLASSES_ROOT, progid, value, &len) || FAILED(CLSIDFromString(value, clsid)))
+        return FALSE;
+    swprintf(key_name, ARRAY_SIZE(key_name), L"CLSID\\%s\\ShellFolder", value);
+    if (RegOpenKeyExW(HKEY_CLASSES_ROOT, key_name, 0, KEY_READ, &key)) return FALSE;
+    RegCloseKey(key);
+    return TRUE;
+}
+
+/* The same for the file a simple PIDL names. */
+BOOL HCR_GetFileFolderClassOfPidl(LPCITEMIDLIST pidl, CLSID *clsid)
+{
+    char exta[MAX_PATH];
+    WCHAR ext[MAX_PATH];
+
+    if (!_ILIsValue(pidl) || !_ILGetExtension(pidl, exta, MAX_PATH)) return FALSE;
+    if (!MultiByteToWideChar(CP_ACP, 0, exta, -1, ext, MAX_PATH)) return FALSE;
+    return HCR_GetFileFolderClass(ext, clsid);
+}
+
 BOOL HCR_GetFolderAttributes(LPCITEMIDLIST pidlFolder, LPDWORD pdwAttributes)
 {
     HKEY hSFKey;

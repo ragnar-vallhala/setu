@@ -273,10 +273,30 @@ DWORD_PTR WINAPI SHGetFileInfoW(LPCWSTR path,DWORD dwFileAttributes,
     {
         if (!(flags & SHGFI_USEFILEATTRIBUTES) || (flags & SHGFI_PIDL))
         {
+            /* PKEY_ItemTypeText */
+            static const SHCOLUMNID scid_type =
+                { { 0xb725f130, 0x47ef, 0x101a, { 0xa5, 0xf1, 0x02, 0x60, 0x8c, 0x9e, 0xeb, 0xac } }, 4 };
+            IShellFolder2 *psf2;
+            VARIANT v;
             char ftype[80];
 
-            _ILGetFileType(pidlLast, ftype, 80);
-            MultiByteToWideChar(CP_ACP, 0, ftype, -1, psfi->szTypeName, 80 );
+            /* an item of a namespace extension (a file in a compressed
+             * folder) has its own type text */
+            VariantInit(&v);
+            if (psfParent && !_ILIsValue(pidlLast) && !_ILIsFolder(pidlLast) && !_ILIsDrive(pidlLast) &&
+                !_ILIsSpecialFolder(pidlLast) &&
+                SUCCEEDED(IShellFolder_QueryInterface(psfParent, &IID_IShellFolder2, (void **)&psf2)))
+            {
+                if (SUCCEEDED(IShellFolder2_GetDetailsEx(psf2, pidlLast, &scid_type, &v)) && V_VT(&v) == VT_BSTR)
+                    lstrcpynW(psfi->szTypeName, V_BSTR(&v), ARRAY_SIZE(psfi->szTypeName));
+                VariantClear(&v);
+                IShellFolder2_Release(psf2);
+            }
+            if (!psfi->szTypeName[0])
+            {
+                _ILGetFileType(pidlLast, ftype, 80);
+                MultiByteToWideChar(CP_ACP, 0, ftype, -1, psfi->szTypeName, 80 );
+            }
         }
         else
         {

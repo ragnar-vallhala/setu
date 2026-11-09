@@ -271,8 +271,29 @@ HRESULT SHELL32_BindToChild (LPCITEMIDLIST pidlRoot, const CLSID *clsidChild,
         /* virtual folder */
         hr = SHELL32_CoCreateInitSF (pidlRoot, pathRoot, pidlChild, clsid, (LPVOID *)&pSF);
     } else if (_ILIsValue(pidlChild)) {
-        /* Don't bind to files */
-        hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+        CLSID clsidFile;
+        WCHAR path[MAX_PATH], *tail = path;
+
+        if (pathRoot) {
+            lstrcpynW(path, pathRoot, MAX_PATH);
+            tail = PathAddBackslashW(path);
+        }
+        _ILSimpleGetTextW(pidlChild, tail, MAX_PATH - (int)(tail - path));
+
+        if (_ILIsPidlSimple(pidlComplete) && (IsEqualIID(riid, &IID_IStream) || IsEqualIID(riid, &IID_ISequentialStream))) {
+            /* the file's contents */
+            ILFree(pidlChild);
+            hr = SHCreateStreamOnFileEx(path, STGM_READ | STGM_SHARE_DENY_NONE, FILE_ATTRIBUTE_NORMAL, FALSE,
+                                        NULL, (IStream **)ppvOut);
+            TRACE("-- stream on %s: 0x%08lx\n", debugstr_w(path), hr);
+            return hr;
+        }
+        if (HCR_GetFileFolderClassOfPidl(pidlChild, &clsidFile))
+            /* a file that is a shell folder: an archive */
+            hr = SHELL32_CoCreateInitSF(pidlRoot, pathRoot, pidlChild, &clsidFile, (LPVOID *)&pSF);
+        else
+            /* Don't bind to other files */
+            hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
     } else {
         /* file system folder */
         CLSID clsidFolder = *clsidChild;
@@ -456,8 +477,14 @@ HRESULT SHELL32_GetItemAttributes (IShellFolder2 *psf, LPCITEMIDLIST pidl, LPDWO
         }
 	else
         {
+	    CLSID clsid;
+
 	    *pdwAttributes &= ~(SFGAO_FOLDER | SFGAO_HASSUBFOLDER | SFGAO_FILESYSANCESTOR | SFGAO_STORAGEANCESTOR | SFGAO_STORAGE);
 	    *pdwAttributes |= SFGAO_STREAM;
+            /* Files whose class is a shell folder (archives: "Compressed
+             * (zipped) Folder") are folders that are also streams. */
+            if (HCR_GetFileFolderClassOfPidl(pidl, &clsid))
+                *pdwAttributes |= SFGAO_FOLDER | SFGAO_HASSUBFOLDER | SFGAO_BROWSABLE;
         }
 
 	if (file_attr & FILE_ATTRIBUTE_HIDDEN)

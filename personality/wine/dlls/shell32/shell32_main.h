@@ -66,6 +66,8 @@ BOOL HCR_GetDefaultIconA(LPCSTR szClass, LPSTR szDest, DWORD len, int* picon_idx
 BOOL HCR_GetClassNameA(REFIID riid, LPSTR szDest, DWORD len);
 
 BOOL HCR_GetFolderAttributes(LPCITEMIDLIST pidlFolder, LPDWORD dwAttributes);
+BOOL HCR_GetFileFolderClass(LPCWSTR extension, CLSID *clsid);
+BOOL HCR_GetFileFolderClassOfPidl(LPCITEMIDLIST pidl, CLSID *clsid);
 
 DWORD WINAPI ParseFieldA(LPCSTR src, DWORD nField, LPSTR dst, DWORD len);
 DWORD WINAPI ParseFieldW(LPCWSTR src, DWORD nField, LPWSTR dst, DWORD len);
