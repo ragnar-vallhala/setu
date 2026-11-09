@@ -154,6 +154,13 @@ setu-m3):
   and `unknown msg 10bd`; a second start in the same prefix ended in an
   unhandled Delphi exception (`0x0EEDFADE`). KeePass 2 sends 109d too and
   works, so the listview stub may not be the cause. Reported 2026-11-06.
+- **Firefox 159.0.1** (the table above predates Setu reporting Windows
+  11): as Windows 11 build 26300 it takes its Windows App SDK path and
+  crashes, because the personality has no ALPC (`NtAlpcCreatePort`).
+  Until ALPC lands (todo 271), every prefix reports Windows 10 to
+  firefox.exe only (wine.inf `[SetuAppDefaults]`, a TEMPORARY per-app
+  `HKCU\Software\Wine\AppDefaults\firefox.exe` `Version` = `win10`); see
+  docs/DEFAULT_APPS.md, "Known issues".
 
 Not Setu bugs, but worth knowing:
 

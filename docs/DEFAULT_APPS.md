@@ -280,7 +280,7 @@ top-level window and how long after the start it appeared.
 
 | App | Installed | Window | Notes |
 |---|---|---|---|
-| Firefox 159.0.1 | yes | **no** | crashes at start (access violation), also on the retry; new since 2026-11-08 and also without ICU, so a regression in the merged personality ([Known issues](#known-issues)) |
+| Firefox 159.0.1 | yes | **no** | crashed at start, also on the retry (a regression since 2026-11-08; fixed for now by a per-app Windows 10 version, see [Known issues](#known-issues); tools/apps-xvfb-smoke.sh: window after 15 s on the retry, no crash reporter) |
 | LibreOffice 26.8.2 | yes | yes, 17 s | Writer with sample.txt |
 | SumatraPDF 3.6.1 | yes | yes, 4 s | sample.pdf |
 | Notepad++ 8.9.9 | yes | yes, 7 s | sample.txt |
@@ -292,7 +292,7 @@ top-level window and how long after the start it appeared.
 | KeePassXC 2.8.0 | yes | yes, 2 s | welcome screen, with a warning bar about screenshot blocking ([Known issues](#known-issues)) |
 | PuTTY 0.85 | yes | yes, <1 s | PuTTY Configuration |
 | WinSCP 6.7 | yes | yes, 6 s | Login dialog |
-| ShareX 22.4.0 | yes | **no** | exits at start: its single-instance wait fails, new since 2026-11-08 and also without ICU ([Known issues](#known-issues)) |
+| ShareX 22.4.0 | yes | **no** | exited at start: its single-instance wait failed (a regression since 2026-11-08, fixed by todo 269; tools/apps-xvfb-smoke.sh: window after 4 s) |
 | WordPad (Wine) | built in | yes, 1 s | |
 | Clock (Wine) | built in | yes, 1 s | |
 | Windows Terminal 1.25.2733.0 | **left out** | - | gets past ICU; needs the system XAML framework |
@@ -340,17 +340,20 @@ that ImageGlass has none.
   every later start. Its log also shows sandboxed child processes failing
   to start (`c0000022`), though pages load. Both reported to shell-api.
   The smoke test starts an app a second time when the first start exits
-  without a window, and says so. Since the 2026-11-09 merge of main the
-  second start crashes too (the same access violation at a small address,
-  with or without ICU, in the VM and under Xvfb): a regression in the
-  personality, not yet bisected.
-* **ShareX** exits at start since the 2026-11-09 merge of main, also with
-  ICU disabled: its log (`Documents\ShareX\Logs`) shows it taking itself
-  for a second instance. The trace shows the wait on its single-instance
-  mutex returning `STATUS_USER_APC` after a special user APC
-  (`call_user_apc_dispatcher flags 0x3 are not supported`); the likely
-  cause is "kernel32: Export QueueUserAPC2", which lets .NET use special
-  APCs that the personality does not deliver properly.
+  without a window, and says so.
+* **Firefox and Windows 11 (TEMPORARY per-app Windows 10)**: since Setu
+  reports Windows 11 build 26300 (commit 3a4ea5a4545), Firefox 159 takes
+  its Windows App SDK path, and its CoreMessagingXP aborts in
+  `NtAlpcCreatePort`, because the personality has no ALPC yet; every
+  start then crashed (todo 269). Until ALPC lands (todo 271), wine.inf's
+  `[SetuAppDefaults]` section sets
+  `HKCU\Software\Wine\AppDefaults\firefox.exe`, `Version` = `win10`, so
+  ntdll reports Windows 10 (build 19045) to firefox.exe only, in every new
+  prefix (the image's and the smoke tests'). With it, Firefox starts as
+  before: tools/apps-xvfb-smoke.sh finds its window on the retry, with no
+  crash reporter. When ALPC works, delete the section and its `AddReg`
+  entry, add a `DelReg` for the key so existing prefixes drop it, and
+  check Firefox with tools/apps-xvfb-smoke.sh.
 * **WinSCP** used to show no window under Setu (docs/COMPAT.md); it now
   shows its Login dialog.
 * **Wine's msi** puts `ALLUSERS=1` shortcuts in the per-user Programs
