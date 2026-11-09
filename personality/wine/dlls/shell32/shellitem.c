@@ -236,6 +236,29 @@ static HRESULT WINAPI ShellItem_BindToHandler(IShellItem2 *iface, IBindCtx *pbc,
         return ShellItem_BindToHandler(&This->IShellItem2_iface, pbc, &BHID_SFUIObject,
                                        &IID_IDataObject, ppvOut);
     }
+    else if (IsEqualGUID(rbhid, &BHID_Stream) || IsEqualGUID(rbhid, &BHID_Storage)
+             || IsEqualGUID(rbhid, &BHID_Transfer))
+    {
+        /* The item's contents (BHID_Stream, BHID_Storage) come from its
+         * parent's BindToObject, a transfer source from the parent's
+         * CreateViewObject (learn.microsoft.com, "IShellItem::BindToHandler"). */
+        IShellFolder *psf_parent;
+
+        if (_ILIsDesktop(This->pidl)) return MK_E_NOOBJECT;
+        if (FAILED(ret = ShellItem_get_parent_shellfolder(This, &psf_parent))) return ret;
+        if (IsEqualGUID(rbhid, &BHID_Transfer))
+            ret = IShellFolder_CreateViewObject(psf_parent, NULL, &IID_ITransferSource, ppvOut);
+        else
+            ret = IShellFolder_BindToObject(psf_parent, ILFindLastID(This->pidl), pbc, riid, ppvOut);
+        if (SUCCEEDED(ret) && IsEqualGUID(rbhid, &BHID_Transfer) && !IsEqualIID(riid, &IID_ITransferSource))
+        {
+            IUnknown *unk = *ppvOut;
+            ret = IUnknown_QueryInterface(unk, riid, ppvOut);
+            IUnknown_Release(unk);
+        }
+        IShellFolder_Release(psf_parent);
+        return ret;
+    }
 
     FIXME("Unsupported BHID %s.\n", debugstr_guid(rbhid));
 
