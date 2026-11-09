@@ -70,6 +70,7 @@ AddReg=\
     Printing,\
     Services, \
     SessionMgr,\
+    SetuAppDefaults,\
     SetuFonts,\
     ThemeManager
 
@@ -1011,6 +1012,15 @@ HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","ThemeActive",2,"1
 HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","DllName",2,"%10%\resources\themes\setu\setu.msstyles"
 HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","ColorName",2,"Setu"
 HKCU,"Software\Microsoft\Windows\CurrentVersion\ThemeManager","SizeName",2,"NormalSize"
+
+; Setu: TEMPORARY per-app Windows version overrides (docs/DEFAULT_APPS.md,
+; Firefox "Known issues"). Firefox 159 takes its Windows App SDK path when it
+; sees Windows 11, and CoreMessagingXP then needs ALPC (NtAlpcCreatePort),
+; which isn't implemented yet. Report Windows 10 to firefox.exe only, until
+; ALPC lands (todo 271); then delete this section and its AddReg entry, and
+; add a DelReg for the key so existing prefixes drop the override too.
+[SetuAppDefaults]
+HKCU,Software\Wine\AppDefaults\firefox.exe,"Version",,"win10"
 
 ; Setu: draw the user-interface faces with Inter (docs/DESIGN.md, "Type").
 ; FontSubstitutes only apply to names that aren't installed, and Wine ships
