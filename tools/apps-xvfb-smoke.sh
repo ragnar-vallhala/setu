@@ -11,8 +11,11 @@
 # Both broke once without any other test noticing (todo 269): ShareX
 # exited at once, believing another instance ran (special user APCs), and
 # Firefox crashes in the Windows App SDK path it takes on Windows 11
-# build 26300. It is slow (about three minutes) and needs the staged apps,
-# so it is not part of the other smoke tests.
+# build 26300 (worked around with a per-app Windows 10 version in
+# wine.inf's SetuAppDefaults until ALPC lands, todo 271). A "Crash
+# Reporter" window next to the app's window also counts as a failure.
+# It is slow (about three minutes) and needs the staged apps, so it is
+# not part of the other smoke tests.
 #
 # Usage: tools/apps-xvfb-smoke.sh [--keep] [APP-ID...]   (default: firefox sharex)
 #   --keep  leave the prefix's processes and Xvfb running
@@ -35,7 +38,7 @@ APPS=()
 for a in "$@"; do
   case "$a" in
     --keep) KEEP=1 ;;
-    -h|--help) sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '3,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*) echo "unknown option: $a" >&2; exit 2 ;;
     *) APPS+=("$a") ;;
   esac
@@ -152,7 +155,16 @@ while IFS=$'\x1f' read -r -u 3 id exe args window timeout; do
     fi
     sleep 2
   done
+  # a crash reporter next to the window means a child process crashed
+  crash=
   if [ "$ok" = y ]; then
+    sleep 8
+    crash=$(probe_windows | matches 'Crash Reporter') || crash=
+  fi
+  if [ -n "$crash" ]; then
+    echo "FAIL: $id: $note, but also a crash reporter window '$crash'" >&2
+    failed+=("$id")
+  elif [ "$ok" = y ]; then
     echo "PASS: $id: $note"
   else
     echo "FAIL: $id: no window matching /$window/ in ${timeout}s$again; windows:" \
