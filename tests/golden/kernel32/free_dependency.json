@@ -1,0 +1,39 @@
+{
+  "test": "kernel32/free_dependency",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "pair_found": {
+      "found": true
+    },
+    "handle_from_getmodulehandle": {
+      "same_base": true
+    },
+    "free_dependency_once": {
+      "ret": true,
+      "last_error": "unchanged",
+      "still_loaded": true,
+      "still_mapped": true
+    },
+    "free_dependency_twice": {
+      "ret": true,
+      "last_error": "unchanged",
+      "still_loaded": true,
+      "still_mapped": true
+    },
+    "free_importer": {
+      "ret": true,
+      "importer_unloaded": true,
+      "dependency_unloaded": true
+    },
+    "explicit_load_too": {
+      "found": true,
+      "same_base": true,
+      "after_one_free": true,
+      "after_two_frees": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "523179f94cf1204c332ee2288f6e8c96d26c5b903ec3ddf8c7adea3010c63aa4"
+}

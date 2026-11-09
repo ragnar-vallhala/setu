@@ -4092,6 +4092,34 @@ static NTSTATUS MODULE_DecRefCount( LDR_DDAG_NODE *node, void *context )
     return STATUS_SUCCESS;
 }
 
+/***********************************************************************
+ *           is_held_by_imports
+ *
+ * Whether only the import references of loaded modules hold a module: each
+ * dependency edge holds one reference, and FreeLibrary never drops those,
+ * so a dependency stays loaded as long as a module importing it does
+ * (kernel32/free_dependency oracle test).
+ * The loader_section must be locked while calling this function.
+ */
+static BOOL is_held_by_imports( WINE_MODREF *wm )
+{
+    SINGLE_LIST_ENTRY *entry, *tail = wm->ldr.DdagNode->IncomingDependencies.Tail;
+    LDR_DEPENDENCY *dep;
+    WINE_MODREF *from;
+    LONG count = 0;
+
+    if (wm->ldr.LoadCount <= 0 || !tail) return FALSE;
+    entry = tail;
+    do
+    {
+        entry = entry->Next;
+        dep = CONTAINING_RECORD( entry, LDR_DEPENDENCY, dependency_from_entry );
+        from = CONTAINING_RECORD( dep->dependency_from->Modules.Flink, WINE_MODREF, ldr.NodeModuleLink );
+        if (from->ldr.LoadCount) count++;
+    } while (entry != tail);
+    return wm->ldr.LoadCount <= count;
+}
+
 /******************************************************************
  *		LdrUnloadDll (NTDLL.@)
  *
@@ -4114,7 +4142,10 @@ NTSTATUS WINAPI LdrUnloadDll( HMODULE hModule )
         TRACE("(%s) - START\n", debugstr_w(wm->ldr.BaseDllName.Buffer));
 
         /* Recursively decrement reference counts */
-        MODULE_DecRefCount( wm->ldr.DdagNode, NULL );
+        if (is_held_by_imports( wm ))
+            TRACE("(%s) still imported, kept loaded\n", debugstr_w(wm->ldr.BaseDllName.Buffer));
+        else
+            MODULE_DecRefCount( wm->ldr.DdagNode, NULL );
 
         /* Call process detach notifications */
         if ( free_lib_count <= 1 )
