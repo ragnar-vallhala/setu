@@ -28,11 +28,12 @@ stop_vm() {
 }
 
 # boot_vm IMAGE VNC: boot a throwaway snapshot of IMAGE, wait for SSH and
-# install the guest helper /tmp/setu-env
+# install the guest helper /tmp/setu-env. SETU_VM_MEM (MB) overrides
+# run-qemu.sh's memory default, for hosts with a RAM budget.
 boot_vm() {
     trap stop_vm EXIT
     "$REPO/distro/run-qemu.sh" --image "$1" --vnc "$2" --ssh-port "$SSH_PORT" \
-        --run-dir "$RUN" --snapshot --daemonize
+        --run-dir "$RUN" --snapshot --daemonize ${SETU_VM_MEM:+--mem "$SETU_VM_MEM"}
     local i
     for i in $(seq 90); do gssh true 2>/dev/null && break; sleep 2; done
     gssh true || fail "no SSH on port $SSH_PORT after 3 minutes (serial log: $RUN/serial.log)"
