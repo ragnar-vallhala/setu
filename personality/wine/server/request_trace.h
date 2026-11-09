@@ -3218,6 +3218,130 @@ static void dump_query_completion_reply( const struct query_completion_reply *re
     fprintf( stderr, " depth=%08x", req->depth );
 }
 
+static void dump_create_alpc_port_request( const struct create_alpc_port_request *req )
+{
+    fprintf( stderr, " flags=%08x", req->flags );
+    fprintf( stderr, ", max_len=%u", req->max_len );
+    dump_varargs_object_attributes( ", objattr=", cur_size );
+}
+
+static void dump_create_alpc_port_reply( const struct create_alpc_port_reply *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+}
+
+static void dump_alpc_connect_request( const struct alpc_connect_request *req )
+{
+    fprintf( stderr, " flags=%08x", req->flags );
+    fprintf( stderr, ", max_len=%u", req->max_len );
+    fprintf( stderr, ", qos_level=%08x", req->qos_level );
+    fprintf( stderr, ", security=%d", req->security );
+    dump_varargs_object_attributes( ", objattr=", cur_size );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
+static void dump_alpc_connect_reply( const struct alpc_connect_reply *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    fprintf( stderr, ", wait=%04x", req->wait );
+}
+
+static void dump_alpc_accept_request( const struct alpc_accept_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    dump_uint64( ", context=", &req->context );
+    fprintf( stderr, ", id=%08x", req->id );
+    fprintf( stderr, ", flags=%08x", req->flags );
+    fprintf( stderr, ", max_len=%u", req->max_len );
+    fprintf( stderr, ", accept=%d", req->accept );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
+static void dump_alpc_accept_reply( const struct alpc_accept_reply *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+}
+
+static void dump_alpc_send_request( const struct alpc_send_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    fprintf( stderr, ", flags=%08x", req->flags );
+    fprintf( stderr, ", id=%08x", req->id );
+    fprintf( stderr, ", total=%u", req->total );
+    fprintf( stderr, ", security=%d", req->security );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
+static void dump_alpc_send_reply( const struct alpc_send_reply *req )
+{
+    fprintf( stderr, " wait=%04x", req->wait );
+}
+
+static void dump_alpc_receive_request( const struct alpc_receive_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    fprintf( stderr, ", size=%u", req->size );
+}
+
+static void dump_alpc_receive_reply( const struct alpc_receive_reply *req )
+{
+    dump_uint64( " context=", &req->context );
+    fprintf( stderr, ", pid=%04x", req->pid );
+    fprintf( stderr, ", tid=%04x", req->tid );
+    fprintf( stderr, ", id=%08x", req->id );
+    fprintf( stderr, ", callback_id=%08x", req->callback_id );
+    fprintf( stderr, ", sequence=%08x", req->sequence );
+    fprintf( stderr, ", type=%08x", req->type );
+    fprintf( stderr, ", has_context=%d", req->has_context );
+    fprintf( stderr, ", has_security=%d", req->has_security );
+    fprintf( stderr, ", total=%u", req->total );
+    fprintf( stderr, ", wait=%04x", req->wait );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
+static void dump_alpc_get_reply_request( const struct alpc_get_reply_request *req )
+{
+    fprintf( stderr, " wait=%04x", req->wait );
+    fprintf( stderr, ", size=%u", req->size );
+}
+
+static void dump_alpc_get_reply_reply( const struct alpc_get_reply_reply *req )
+{
+    dump_uint64( " context=", &req->context );
+    fprintf( stderr, ", pid=%04x", req->pid );
+    fprintf( stderr, ", tid=%04x", req->tid );
+    fprintf( stderr, ", id=%08x", req->id );
+    fprintf( stderr, ", callback_id=%08x", req->callback_id );
+    fprintf( stderr, ", sequence=%08x", req->sequence );
+    fprintf( stderr, ", type=%08x", req->type );
+    fprintf( stderr, ", total=%u", req->total );
+    dump_varargs_bytes( ", data=", cur_size );
+}
+
+static void dump_alpc_cancel_request( const struct alpc_cancel_request *req )
+{
+    fprintf( stderr, " wait=%04x", req->wait );
+}
+
+static void dump_alpc_disconnect_request( const struct alpc_disconnect_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+}
+
+static void dump_alpc_query_request( const struct alpc_query_request *req )
+{
+    fprintf( stderr, " handle=%04x", req->handle );
+    fprintf( stderr, ", id=%08x", req->id );
+}
+
+static void dump_alpc_query_reply( const struct alpc_query_reply *req )
+{
+    dump_uint64( " context=", &req->context );
+    fprintf( stderr, ", flags=%08x", req->flags );
+    fprintf( stderr, ", pid=%04x", req->pid );
+    fprintf( stderr, ", qos_level=%08x", req->qos_level );
+}
+
 static void dump_set_completion_info_request( const struct set_completion_info_request *req )
 {
     fprintf( stderr, " handle=%04x", req->handle );
@@ -3907,6 +4031,15 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_remove_completion_request,
     (dump_func)dump_get_thread_completion_request,
     (dump_func)dump_query_completion_request,
+    (dump_func)dump_create_alpc_port_request,
+    (dump_func)dump_alpc_connect_request,
+    (dump_func)dump_alpc_accept_request,
+    (dump_func)dump_alpc_send_request,
+    (dump_func)dump_alpc_receive_request,
+    (dump_func)dump_alpc_get_reply_request,
+    (dump_func)dump_alpc_cancel_request,
+    (dump_func)dump_alpc_disconnect_request,
+    (dump_func)dump_alpc_query_request,
     (dump_func)dump_set_completion_info_request,
     (dump_func)dump_add_fd_completion_request,
     (dump_func)dump_set_fd_completion_mode_request,
@@ -4229,6 +4362,15 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
     (dump_func)dump_remove_completion_reply,
     (dump_func)dump_get_thread_completion_reply,
     (dump_func)dump_query_completion_reply,
+    (dump_func)dump_create_alpc_port_reply,
+    (dump_func)dump_alpc_connect_reply,
+    (dump_func)dump_alpc_accept_reply,
+    (dump_func)dump_alpc_send_reply,
+    (dump_func)dump_alpc_receive_reply,
+    (dump_func)dump_alpc_get_reply_reply,
+    NULL,
+    NULL,
+    (dump_func)dump_alpc_query_reply,
     NULL,
     NULL,
     NULL,
@@ -4551,6 +4693,15 @@ static const char * const req_names[REQ_NB_REQUESTS] =
     "remove_completion",
     "get_thread_completion",
     "query_completion",
+    "create_alpc_port",
+    "alpc_connect",
+    "alpc_accept",
+    "alpc_send",
+    "alpc_receive",
+    "alpc_get_reply",
+    "alpc_cancel",
+    "alpc_disconnect",
+    "alpc_query",
     "set_completion_info",
     "add_fd_completion",
     "set_fd_completion_mode",
@@ -4666,12 +4817,15 @@ static const struct
     { "INVALID_IMAGE_PROTECT",       STATUS_INVALID_IMAGE_PROTECT },
     { "INVALID_IMAGE_WIN_16",        STATUS_INVALID_IMAGE_WIN_16 },
     { "INVALID_IMAGE_WIN_64",        STATUS_INVALID_IMAGE_WIN_64 },
+    { "INVALID_INFO_CLASS",          STATUS_INVALID_INFO_CLASS },
     { "INVALID_LABEL",               STATUS_INVALID_LABEL },
     { "INVALID_LOCK_SEQUENCE",       STATUS_INVALID_LOCK_SEQUENCE },
+    { "INVALID_MESSAGE",             STATUS_INVALID_MESSAGE },
     { "INVALID_OWNER",               STATUS_INVALID_OWNER },
     { "INVALID_PARAMETER",           STATUS_INVALID_PARAMETER },
     { "INVALID_PARAMETER_2",         STATUS_INVALID_PARAMETER_2 },
     { "INVALID_PIPE_STATE",          STATUS_INVALID_PIPE_STATE },
+    { "INVALID_PORT_HANDLE",         STATUS_INVALID_PORT_HANDLE },
     { "INVALID_READ_MODE",           STATUS_INVALID_READ_MODE },
     { "INVALID_SECURITY_DESCR",      STATUS_INVALID_SECURITY_DESCR },
     { "INVALID_SID",                 STATUS_INVALID_SID },
@@ -4681,6 +4835,7 @@ static const struct
     { "IO_TIMEOUT",                  STATUS_IO_TIMEOUT },
     { "KERNEL_APC",                  STATUS_KERNEL_APC },
     { "KEY_DELETED",                 STATUS_KEY_DELETED },
+    { "LPC_REQUESTS_NOT_ALLOWED",    STATUS_LPC_REQUESTS_NOT_ALLOWED },
     { "MAPPED_FILE_SIZE_ZERO",       STATUS_MAPPED_FILE_SIZE_ZERO },
     { "MORE_ENTRIES",                STATUS_MORE_ENTRIES },
     { "MUTANT_NOT_OWNED",            STATUS_MUTANT_NOT_OWNED },
@@ -4722,6 +4877,9 @@ static const struct
     { "PIPE_EMPTY",                  STATUS_PIPE_EMPTY },
     { "PIPE_LISTENING",              STATUS_PIPE_LISTENING },
     { "PIPE_NOT_AVAILABLE",          STATUS_PIPE_NOT_AVAILABLE },
+    { "PORT_CONNECTION_REFUSED",     STATUS_PORT_CONNECTION_REFUSED },
+    { "PORT_DISCONNECTED",           STATUS_PORT_DISCONNECTED },
+    { "PORT_MESSAGE_TOO_LONG",       STATUS_PORT_MESSAGE_TOO_LONG },
     { "PORT_NOT_SET",                STATUS_PORT_NOT_SET },
     { "PREDEFINED_HANDLE",           STATUS_PREDEFINED_HANDLE },
     { "PRIVILEGE_NOT_HELD",          STATUS_PRIVILEGE_NOT_HELD },
@@ -4732,6 +4890,7 @@ static const struct
     { "RANGE_NOT_LOCKED",            STATUS_RANGE_NOT_LOCKED },
     { "REGISTRY_IO_FAILED",          STATUS_REGISTRY_IO_FAILED },
     { "REPARSE_POINT_NOT_RESOLVED",  STATUS_REPARSE_POINT_NOT_RESOLVED },
+    { "REQUEST_CANCELED",            STATUS_REQUEST_CANCELED },
     { "SECTION_TOO_BIG",             STATUS_SECTION_TOO_BIG },
     { "SEMAPHORE_LIMIT_EXCEEDED",    STATUS_SEMAPHORE_LIMIT_EXCEEDED },
     { "SHARING_VIOLATION",           STATUS_SHARING_VIOLATION },

@@ -165,6 +165,7 @@ static struct type_descr *types[] =
     &key_type,
     &apc_reserve_type,
     &completion_reserve_type,
+    &alpc_port_type,
 };
 
 static void object_type_dump( struct object *obj, int verbose )
@@ -373,12 +374,14 @@ void init_directories( struct fd *intl_fd )
     static const WCHAR dir_objtypeW[] = {'O','b','j','e','c','t','T','y','p','e','s'};
     static const WCHAR dir_kernelW[] = {'K','e','r','n','e','l','O','b','j','e','c','t','s'};
     static const WCHAR dir_nlsW[] = {'N','L','S'};
+    static const WCHAR dir_rpcW[] = {'R','P','C',' ','C','o','n','t','r','o','l'};
     static const struct unicode_str dir_global_str = {dir_globalW, sizeof(dir_globalW)};
     static const struct unicode_str dir_driver_str = {dir_driverW, sizeof(dir_driverW)};
     static const struct unicode_str dir_device_str = {dir_deviceW, sizeof(dir_deviceW)};
     static const struct unicode_str dir_objtype_str = {dir_objtypeW, sizeof(dir_objtypeW)};
     static const struct unicode_str dir_kernel_str = {dir_kernelW, sizeof(dir_kernelW)};
     static const struct unicode_str dir_nls_str = {dir_nlsW, sizeof(dir_nlsW)};
+    static const struct unicode_str dir_rpc_str = {dir_rpcW, sizeof(dir_rpcW)};
 
     /* symlinks */
     static const WCHAR link_dosdevW[] = {'D','o','s','D','e','v','i','c','e','s'};
@@ -448,7 +451,7 @@ void init_directories( struct fd *intl_fd )
     static const struct unicode_str user_data_str = {user_dataW, sizeof(user_dataW)};
     static const struct unicode_str session_str = {sessionW, sizeof(sessionW)};
 
-    struct directory *dir_driver, *dir_device, *dir_global, *dir_kernel, *dir_nls;
+    struct directory *dir_driver, *dir_device, *dir_global, *dir_kernel, *dir_nls, *dir_rpc;
     struct object *named_pipe_device, *mailslot_device, *null_device, *atom_table;
     struct mapping *session_mapping;
     unsigned int i;
@@ -460,6 +463,8 @@ void init_directories( struct fd *intl_fd )
     dir_kernel     = create_directory( &root_directory->obj, &dir_kernel_str, OBJ_PERMANENT, HASH_SIZE, NULL );
     dir_global     = create_directory( &root_directory->obj, &dir_global_str, OBJ_PERMANENT, HASH_SIZE, NULL );
     dir_nls        = create_directory( &root_directory->obj, &dir_nls_str, OBJ_PERMANENT, HASH_SIZE, NULL );
+    /* ALPC servers name their connection ports here */
+    dir_rpc        = create_directory( &root_directory->obj, &dir_rpc_str, OBJ_PERMANENT, HASH_SIZE, NULL );
 
     /* devices */
     named_pipe_device = create_named_pipe_device( &dir_device->obj, &named_pipe_str, OBJ_PERMANENT, NULL );
@@ -518,6 +523,7 @@ void init_directories( struct fd *intl_fd )
     release_object( dir_device );
     release_object( dir_objtype );
     release_object( dir_kernel );
+    release_object( dir_rpc );
     release_object( dir_nls );
     release_object( dir_global );
 }

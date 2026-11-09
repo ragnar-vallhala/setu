@@ -5695,6 +5695,175 @@ struct query_completion_reply
 
 
 
+struct create_alpc_port_request
+{
+    struct request_header __header;
+    unsigned int  flags;
+    data_size_t   max_len;
+    /* VARARG(objattr,object_attributes); */
+    char __pad_20[4];
+};
+struct create_alpc_port_reply
+{
+    struct reply_header __header;
+    obj_handle_t  handle;
+    char __pad_12[4];
+};
+
+
+
+struct alpc_connect_request
+{
+    struct request_header __header;
+    unsigned int  flags;
+    data_size_t   max_len;
+    unsigned int  qos_level;
+    int           security;
+    /* VARARG(objattr,object_attributes); */
+    /* VARARG(data,bytes); */
+    char __pad_28[4];
+};
+struct alpc_connect_reply
+{
+    struct reply_header __header;
+    obj_handle_t  handle;
+    obj_handle_t  wait;
+};
+
+
+
+struct alpc_accept_request
+{
+    struct request_header __header;
+    obj_handle_t  handle;
+    client_ptr_t  context;
+    unsigned int  id;
+    unsigned int  flags;
+    data_size_t   max_len;
+    int           accept;
+    /* VARARG(data,bytes); */
+};
+struct alpc_accept_reply
+{
+    struct reply_header __header;
+    obj_handle_t  handle;
+    char __pad_12[4];
+};
+
+
+
+struct alpc_send_request
+{
+    struct request_header __header;
+    obj_handle_t  handle;
+    unsigned int  flags;
+    unsigned int  id;
+    data_size_t   total;
+    int           security;
+    /* VARARG(data,bytes); */
+};
+struct alpc_send_reply
+{
+    struct reply_header __header;
+    obj_handle_t  wait;
+    char __pad_12[4];
+};
+
+
+
+struct alpc_receive_request
+{
+    struct request_header __header;
+    obj_handle_t  handle;
+    data_size_t   size;
+    char __pad_20[4];
+};
+struct alpc_receive_reply
+{
+    struct reply_header __header;
+    client_ptr_t  context;
+    process_id_t  pid;
+    thread_id_t   tid;
+    unsigned int  id;
+    unsigned int  callback_id;
+    unsigned int  sequence;
+    unsigned int  type;
+    int           has_context;
+    int           has_security;
+    data_size_t   total;
+    obj_handle_t  wait;
+    /* VARARG(data,bytes); */
+};
+
+
+
+struct alpc_get_reply_request
+{
+    struct request_header __header;
+    obj_handle_t  wait;
+    data_size_t   size;
+    char __pad_20[4];
+};
+struct alpc_get_reply_reply
+{
+    struct reply_header __header;
+    client_ptr_t  context;
+    process_id_t  pid;
+    thread_id_t   tid;
+    unsigned int  id;
+    unsigned int  callback_id;
+    unsigned int  sequence;
+    unsigned int  type;
+    data_size_t   total;
+    /* VARARG(data,bytes); */
+    char __pad_44[4];
+};
+
+
+
+struct alpc_cancel_request
+{
+    struct request_header __header;
+    obj_handle_t  wait;
+};
+struct alpc_cancel_reply
+{
+    struct reply_header __header;
+};
+
+
+
+struct alpc_disconnect_request
+{
+    struct request_header __header;
+    obj_handle_t  handle;
+};
+struct alpc_disconnect_reply
+{
+    struct reply_header __header;
+};
+
+
+
+struct alpc_query_request
+{
+    struct request_header __header;
+    obj_handle_t  handle;
+    unsigned int  id;
+    char __pad_20[4];
+};
+struct alpc_query_reply
+{
+    struct reply_header __header;
+    client_ptr_t  context;
+    unsigned int  flags;
+    process_id_t  pid;
+    unsigned int  qos_level;
+    char __pad_28[4];
+};
+
+
+
 struct set_completion_info_request
 {
     struct request_header __header;
@@ -6631,6 +6800,15 @@ enum request
     REQ_remove_completion,
     REQ_get_thread_completion,
     REQ_query_completion,
+    REQ_create_alpc_port,
+    REQ_alpc_connect,
+    REQ_alpc_accept,
+    REQ_alpc_send,
+    REQ_alpc_receive,
+    REQ_alpc_get_reply,
+    REQ_alpc_cancel,
+    REQ_alpc_disconnect,
+    REQ_alpc_query,
     REQ_set_completion_info,
     REQ_add_fd_completion,
     REQ_set_fd_completion_mode,
@@ -6956,6 +7134,15 @@ union generic_request
     struct remove_completion_request remove_completion_request;
     struct get_thread_completion_request get_thread_completion_request;
     struct query_completion_request query_completion_request;
+    struct create_alpc_port_request create_alpc_port_request;
+    struct alpc_connect_request alpc_connect_request;
+    struct alpc_accept_request alpc_accept_request;
+    struct alpc_send_request alpc_send_request;
+    struct alpc_receive_request alpc_receive_request;
+    struct alpc_get_reply_request alpc_get_reply_request;
+    struct alpc_cancel_request alpc_cancel_request;
+    struct alpc_disconnect_request alpc_disconnect_request;
+    struct alpc_query_request alpc_query_request;
     struct set_completion_info_request set_completion_info_request;
     struct add_fd_completion_request add_fd_completion_request;
     struct set_fd_completion_mode_request set_fd_completion_mode_request;
@@ -7279,6 +7466,15 @@ union generic_reply
     struct remove_completion_reply remove_completion_reply;
     struct get_thread_completion_reply get_thread_completion_reply;
     struct query_completion_reply query_completion_reply;
+    struct create_alpc_port_reply create_alpc_port_reply;
+    struct alpc_connect_reply alpc_connect_reply;
+    struct alpc_accept_reply alpc_accept_reply;
+    struct alpc_send_reply alpc_send_reply;
+    struct alpc_receive_reply alpc_receive_reply;
+    struct alpc_get_reply_reply alpc_get_reply_reply;
+    struct alpc_cancel_reply alpc_cancel_reply;
+    struct alpc_disconnect_reply alpc_disconnect_reply;
+    struct alpc_query_reply alpc_query_reply;
     struct set_completion_info_reply set_completion_info_reply;
     struct add_fd_completion_reply add_fd_completion_reply;
     struct set_fd_completion_mode_reply set_fd_completion_mode_reply;
@@ -7322,6 +7518,6 @@ union generic_reply
     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
 };
 
-#define SERVER_PROTOCOL_VERSION 943
+#define SERVER_PROTOCOL_VERSION 944
 
 #endif /* __WINE_WINE_SERVER_PROTOCOL_H */

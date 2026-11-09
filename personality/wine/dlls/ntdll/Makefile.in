@@ -13,6 +13,7 @@ x86_64_EXTRADLLFLAGS = -Wl,--image-base,0x170000000
 
 SOURCES = \
 	actctx.c \
+	alpc.c \
 	atom.c \
 	crypt.c \
 	debugbuffer.c \
@@ -47,6 +48,7 @@ SOURCES = \
 	thread.c \
 	threadpool.c \
 	time.c \
+	unix/alpc.c \
 	unix/cdrom.c \
 	unix/debug.c \
 	unix/env.c \

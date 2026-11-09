@@ -3996,6 +3996,118 @@ struct handle_info
 @END
 
 
+/* Create an ALPC port (a connection port, named or not) */
+@REQ(create_alpc_port)
+    unsigned int  flags;          /* ALPC_PORFLG_* port attribute flags */
+    data_size_t   max_len;        /* maximum total message length */
+    VARARG(objattr,object_attributes); /* object attributes */
+@REPLY
+    obj_handle_t  handle;         /* port handle */
+@END
+
+
+/* Connect to an ALPC connection port */
+@REQ(alpc_connect)
+    unsigned int  flags;          /* ALPC_PORFLG_* flags of the client port */
+    data_size_t   max_len;        /* maximum total message length */
+    unsigned int  qos_level;      /* impersonation level the client allows, ~0 for none */
+    int           security;       /* a security attribute comes with the request */
+    VARARG(objattr,object_attributes); /* name of the connection port */
+    VARARG(data,bytes);           /* connection message data */
+@REPLY
+    obj_handle_t  handle;         /* client communication port */
+    obj_handle_t  wait;           /* connection request to wait on */
+@END
+
+
+/* Accept or refuse an ALPC connection request */
+@REQ(alpc_accept)
+    obj_handle_t  handle;         /* connection port */
+    client_ptr_t  context;        /* port context of the new port */
+    unsigned int  id;             /* message id of the connection request */
+    unsigned int  flags;          /* ALPC_PORFLG_* flags of the new port */
+    data_size_t   max_len;        /* maximum total message length */
+    int           accept;         /* accept or refuse */
+    VARARG(data,bytes);           /* connection reply data */
+@REPLY
+    obj_handle_t  handle;         /* server communication port */
+@END
+
+
+/* Send a message (request, datagram or reply) through an ALPC port */
+@REQ(alpc_send)
+    obj_handle_t  handle;         /* port handle */
+    unsigned int  flags;          /* ALPC_MSGFLG_* flags */
+    unsigned int  id;             /* message id, for replies */
+    data_size_t   total;          /* total message length (header and data) */
+    int           security;       /* a security attribute comes with the message */
+    VARARG(data,bytes);           /* message data */
+@REPLY
+    obj_handle_t  wait;           /* synchronous request to wait on */
+@END
+
+
+/* Receive a message from an ALPC port */
+@REQ(alpc_receive)
+    obj_handle_t  handle;         /* port handle */
+    data_size_t   size;           /* room for the message data */
+@REPLY
+    client_ptr_t  context;        /* port context of the port the message came through */
+    process_id_t  pid;            /* sender process */
+    thread_id_t   tid;            /* sender thread */
+    unsigned int  id;             /* message id */
+    unsigned int  callback_id;    /* callback id */
+    unsigned int  sequence;       /* sequence number */
+    unsigned int  type;           /* message type */
+    int           has_context;    /* message came through a communication port */
+    int           has_security;   /* a security attribute came with it */
+    data_size_t   total;          /* length of the message data */
+    obj_handle_t  wait;           /* object to wait on when STATUS_PENDING */
+    VARARG(data,bytes);           /* message data */
+@END
+
+
+/* Get the reply to a synchronous ALPC request or connection request */
+@REQ(alpc_get_reply)
+    obj_handle_t  wait;           /* request object from alpc_send or alpc_connect */
+    data_size_t   size;           /* room for the message data */
+@REPLY
+    client_ptr_t  context;        /* port context */
+    process_id_t  pid;            /* replying process */
+    thread_id_t   tid;            /* replying thread */
+    unsigned int  id;             /* message id */
+    unsigned int  callback_id;    /* callback id */
+    unsigned int  sequence;       /* sequence number */
+    unsigned int  type;           /* message type */
+    data_size_t   total;          /* length of the message data */
+    VARARG(data,bytes);           /* message data */
+@END
+
+
+/* Cancel a synchronous ALPC request whose wait timed out */
+@REQ(alpc_cancel)
+    obj_handle_t  wait;           /* request object */
+@END
+
+
+/* Disconnect an ALPC communication port */
+@REQ(alpc_disconnect)
+    obj_handle_t  handle;         /* port handle */
+@END
+
+
+/* Query an ALPC port, and check a message received through it */
+@REQ(alpc_query)
+    obj_handle_t  handle;         /* port handle */
+    unsigned int  id;             /* message id to check, or 0 */
+@REPLY
+    client_ptr_t  context;        /* port context */
+    unsigned int  flags;          /* ALPC_PORFLG_* flags */
+    process_id_t  pid;            /* sender of the message checked */
+    unsigned int  qos_level;      /* impersonation level its sender allows, ~0 for none */
+@END
+
+
 /* associate object with completion port */
 @REQ(set_completion_info)
     obj_handle_t  handle;         /* object handle */

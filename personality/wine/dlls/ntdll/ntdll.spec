@@ -6,6 +6,10 @@
 @ stdcall A_SHAFinal(ptr ptr)
 @ stdcall A_SHAInit(ptr)
 @ stdcall A_SHAUpdate(ptr ptr long)
+@ stdcall AlpcGetHeaderSize(long)
+@ stdcall AlpcGetMessageAttribute(ptr long)
+@ stdcall AlpcInitializeMessageAttribute(long ptr long ptr)
+@ stdcall AlpcMaxAllowedMessageLength()
 @ stdcall ApiSetQueryApiSetPresence(ptr ptr)
 @ stdcall ApiSetQueryApiSetPresenceEx(ptr ptr ptr)
 @ stub CsrAllocateCaptureBuffer
@@ -152,6 +156,15 @@
 @ stdcall -syscall NtAllocateUuids(ptr ptr ptr ptr)
 @ stdcall -syscall=0x0018 NtAllocateVirtualMemory(long ptr long ptr long long)
 @ stdcall -syscall NtAllocateVirtualMemoryEx(long ptr ptr long long ptr long)
+@ stdcall -arch=win64 -syscall NtAlpcAcceptConnectPort(ptr long long ptr ptr ptr ptr ptr long)
+@ stdcall -arch=win64 -syscall NtAlpcConnectPort(ptr ptr ptr ptr long ptr ptr ptr ptr ptr ptr)
+@ stdcall -arch=win64 -syscall NtAlpcConnectPortEx(ptr ptr ptr ptr long ptr ptr ptr ptr ptr ptr)
+@ stdcall -arch=win64 -syscall NtAlpcCreatePort(ptr ptr ptr)
+@ stdcall -arch=win64 -syscall NtAlpcDisconnectPort(long long)
+@ stdcall -arch=win64 -syscall NtAlpcImpersonateClientOfPort(long ptr ptr)
+@ stdcall -arch=win64 -syscall NtAlpcQueryInformation(long long ptr long ptr)
+@ stdcall -arch=win64 -syscall NtAlpcSendWaitReceivePort(long long ptr ptr ptr ptr ptr ptr)
+@ stdcall -arch=win64 -syscall NtAlpcSetInformation(long long ptr long)
 @ stub -syscall=0x004c NtApphelpCacheControl
 @ stdcall -syscall NtAreMappedFilesTheSame(ptr ptr)
 @ stdcall -syscall NtAssignProcessToJobObject(long long)
@@ -1231,6 +1244,15 @@
 @ stdcall -private ZwAllocateUuids(ptr ptr ptr ptr) NtAllocateUuids
 @ stdcall -private ZwAllocateVirtualMemory(long ptr long ptr long long) NtAllocateVirtualMemory
 @ stdcall -private ZwAllocateVirtualMemoryEx(long ptr ptr long long ptr long) NtAllocateVirtualMemoryEx
+@ stdcall -arch=win64 -private ZwAlpcAcceptConnectPort(ptr long long ptr ptr ptr ptr ptr long) NtAlpcAcceptConnectPort
+@ stdcall -arch=win64 -private ZwAlpcConnectPort(ptr ptr ptr ptr long ptr ptr ptr ptr ptr ptr) NtAlpcConnectPort
+@ stdcall -arch=win64 -private ZwAlpcConnectPortEx(ptr ptr ptr ptr long ptr ptr ptr ptr ptr ptr) NtAlpcConnectPortEx
+@ stdcall -arch=win64 -private ZwAlpcCreatePort(ptr ptr ptr) NtAlpcCreatePort
+@ stdcall -arch=win64 -private ZwAlpcDisconnectPort(long long) NtAlpcDisconnectPort
+@ stdcall -arch=win64 -private ZwAlpcImpersonateClientOfPort(long ptr ptr) NtAlpcImpersonateClientOfPort
+@ stdcall -arch=win64 -private ZwAlpcQueryInformation(long long ptr long ptr) NtAlpcQueryInformation
+@ stdcall -arch=win64 -private ZwAlpcSendWaitReceivePort(long long ptr ptr ptr ptr ptr ptr) NtAlpcSendWaitReceivePort
+@ stdcall -arch=win64 -private ZwAlpcSetInformation(long long ptr long) NtAlpcSetInformation
 @ stdcall -private ZwApphelpCacheControl() NtApphelpCacheControl
 @ stdcall -private ZwAreMappedFilesTheSame(ptr ptr) NtAreMappedFilesTheSame
 @ stdcall -private ZwAssignProcessToJobObject(long long) NtAssignProcessToJobObject
