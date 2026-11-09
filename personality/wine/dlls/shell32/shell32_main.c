@@ -637,11 +637,29 @@ HICON WINAPI ExtractIconW(HINSTANCE hInstance, LPCWSTR lpszFile, UINT nIconIndex
     return NULL;
 }
 
+/* The icon of a file that need not exist, from its name and attributes
+ * (learn.microsoft.com, "SHCreateFileExtractIconW function"). */
 HRESULT WINAPI SHCreateFileExtractIconW(LPCWSTR file, DWORD attribs, REFIID riid, void **ppv)
 {
-  FIXME("%s, %lx, %s, %p\n", debugstr_w(file), attribs, debugstr_guid(riid), ppv);
+  WIN32_FIND_DATAW data;
+  LPITEMIDLIST pidl;
+  IExtractIconW *ei;
+  HRESULT hr;
+
+  TRACE("%s, %lx, %s, %p\n", debugstr_w(file), attribs, debugstr_guid(riid), ppv);
+  if (!ppv) return E_POINTER;
   *ppv = NULL;
-  return E_NOTIMPL;
+  if (!file) return E_INVALIDARG;
+  memset(&data, 0, sizeof(data));
+  data.dwFileAttributes = attribs;
+  lstrcpynW(data.cFileName, PathFindFileNameW(file), MAX_PATH);
+  if (!(pidl = _ILCreateFromFindDataW(&data))) return E_OUTOFMEMORY;
+  ei = IExtractIconW_Constructor(pidl);
+  ILFree(pidl);
+  if (!ei) return E_OUTOFMEMORY;
+  hr = IExtractIconW_QueryInterface(ei, riid, ppv);
+  IExtractIconW_Release(ei);
+  return hr;
 }
 
 /*************************************************************************
