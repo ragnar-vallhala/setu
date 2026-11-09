@@ -183,6 +183,15 @@ are the projects' own archives of the exact releases. If the project
 mirrors them itself later (owner decision), this table and NOTICE are
 where to point.
 
+### Release checklist
+
+- [ ] mirror the corresponding GPL/LGPL sources for each shipped app at public release time
+
+Owner decision 2026-11-09: until then Setu links the upstream archives
+above. The mirror holds the exact releases in apps.toml, on a host the
+project controls; this table, NOTICE section 7 and `LICENSES.txt`
+(written by `distro/apps/stage.py`) then point at it.
+
 ## Updating a pin
 
 1. Find the new release on the app's official page (`homepage` in
