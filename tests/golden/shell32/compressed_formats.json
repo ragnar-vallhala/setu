@@ -1,0 +1,839 @@
+{
+  "test": "shell32/compressed_formats",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "loaded": true
+    },
+    "sfi_7z": {
+      "ret": 1,
+      "display": "a",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_rar": {
+      "ret": 1,
+      "display": "a",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_cab": {
+      "ret": 1,
+      "display": "a",
+      "type": "Cabinet File",
+      "attrs": "0xe8400177"
+    },
+    "sfi_tar_bz2": {
+      "ret": 1,
+      "display": "a.tar",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "sfi_txt_xz": {
+      "ret": 1,
+      "display": "s.txt",
+      "type": "Compressed Archive Folder",
+      "attrs": "0xe8400177"
+    },
+    "tdir": {
+      "bound": true
+    },
+    "7z_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a",
+      "infolder": "a",
+      "infolder_parsing": "a.7z",
+      "forparsing": "<cwd>\\t\\a.7z",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "7z_bind": {
+      "hr": "0x00000000"
+    },
+    "7z_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "docs,readme.txt"
+    },
+    "7z_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\a.7z\\docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "7z_docs_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "inner.txt"
+    },
+    "7z_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\a.7z\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "7z_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.7z\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "7z_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "rar_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a",
+      "infolder": "a",
+      "infolder_parsing": "a.rar",
+      "forparsing": "<cwd>\\t\\a.rar",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "rar_bind": {
+      "hr": "0x00000000"
+    },
+    "rar_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "docs,readme.txt"
+    },
+    "rar_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\a.rar\\docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "rar_docs_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "inner.txt"
+    },
+    "rar_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\a.rar\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "rar_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.rar\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "rar_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "cab_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a",
+      "infolder": "a",
+      "infolder_parsing": "a.cab",
+      "forparsing": "<cwd>\\t\\a.cab",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "cab_bind": {
+      "hr": "0x00000000"
+    },
+    "cab_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "readme.txt,docs\\inner.txt"
+    },
+    "cab_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.cab\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00000001"
+    },
+    "cab_item_docs_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "docs\\inner.txt",
+      "forparsing": "<cwd>\\t\\a.cab\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00000001"
+    },
+    "cab_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "FileContents,FileGroupDescriptorW,OleClipboardPersistOnFlush,cf0,Shell IDList Array",
+      "filedescriptor_hr": "0x00000000",
+      "fd_count": 1,
+      "fd0_name": "readme.txt",
+      "fd0_flags": "0x00004044",
+      "fd0_has_writetime": true,
+      "fd0_attrs": "0x00000020",
+      "fd0_size": 14,
+      "contents_hr": "0x00000000",
+      "contents_tymed": 4,
+      "contents_read_hr": "0x00000000",
+      "contents_data": "hello archive\n",
+      "stream_hr": "0x80004001"
+    },
+    "cpio_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a",
+      "infolder": "a",
+      "infolder_parsing": "a.cpio",
+      "forparsing": "<cwd>\\t\\a.cpio",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "cpio_bind": {
+      "hr": "0x00000000"
+    },
+    "cpio_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "docs,readme.txt"
+    },
+    "cpio_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\a.cpio\\docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "cpio_docs_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "inner.txt"
+    },
+    "cpio_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\a.cpio\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "cpio_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.cpio\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "cpio_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "tar_bz2_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a.tar",
+      "infolder": "a.tar",
+      "infolder_parsing": "a.tar.bz2",
+      "forparsing": "<cwd>\\t\\a.tar.bz2",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "tar_bz2_bind": {
+      "hr": "0x00000000"
+    },
+    "tar_bz2_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "docs,readme.txt"
+    },
+    "tar_bz2_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\a.tar.bz2\\docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "tar_bz2_docs_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "inner.txt"
+    },
+    "tar_bz2_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\a.tar.bz2\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tar_bz2_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.tar.bz2\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tar_bz2_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "tar_xz_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a.tar",
+      "infolder": "a.tar",
+      "infolder_parsing": "a.tar.xz",
+      "forparsing": "<cwd>\\t\\a.tar.xz",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "tar_xz_bind": {
+      "hr": "0x00000000"
+    },
+    "tar_xz_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "docs,readme.txt"
+    },
+    "tar_xz_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\a.tar.xz\\docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "tar_xz_docs_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "inner.txt"
+    },
+    "tar_xz_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\a.tar.xz\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tar_xz_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.tar.xz\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tar_xz_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "tar_zst_item": {
+      "parse_hr": "0x00000000",
+      "normal": "a.tar",
+      "infolder": "a.tar",
+      "infolder_parsing": "a.tar.zst",
+      "forparsing": "<cwd>\\t\\a.tar.zst",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "tar_zst_bind": {
+      "hr": "0x00000000"
+    },
+    "tar_zst_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "docs,readme.txt"
+    },
+    "tar_zst_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\a.tar.zst\\docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "tar_zst_docs_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "inner.txt"
+    },
+    "tar_zst_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\a.tar.zst\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tar_zst_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\a.tar.zst\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tar_zst_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "txt_bz2_item": {
+      "parse_hr": "0x00000000",
+      "normal": "s.txt",
+      "infolder": "s.txt",
+      "infolder_parsing": "s.txt.bz2",
+      "forparsing": "<cwd>\\t\\s.txt.bz2",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "txt_bz2_bind": {
+      "hr": "0x00000000"
+    },
+    "txt_bz2_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "s.txt"
+    },
+    "txt_bz2_item_s_txt": {
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s.txt",
+      "forparsing": "<cwd>\\t\\s.txt.bz2\\s.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "bz2_item": {
+      "parse_hr": "0x00000000",
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s.bz2",
+      "forparsing": "<cwd>\\t\\s.bz2",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "bz2_bind": {
+      "hr": "0x00000000"
+    },
+    "bz2_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "s"
+    },
+    "bz2_item_s": {
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s",
+      "forparsing": "<cwd>\\t\\s.bz2\\s",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "tbz2_item": {
+      "parse_hr": "0x00000000",
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s.tbz2",
+      "forparsing": "<cwd>\\t\\s.tbz2",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "tbz2_bind": {
+      "hr": "0x00000000"
+    },
+    "tbz2_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "s"
+    },
+    "tbz2_item_s": {
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s",
+      "forparsing": "<cwd>\\t\\s.tbz2\\s",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "txt_xz_item": {
+      "parse_hr": "0x00000000",
+      "normal": "s.txt",
+      "infolder": "s.txt",
+      "infolder_parsing": "s.txt.xz",
+      "forparsing": "<cwd>\\t\\s.txt.xz",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "txt_xz_bind": {
+      "hr": "0x00000000"
+    },
+    "txt_xz_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "s.txt"
+    },
+    "txt_xz_item_s_txt": {
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s.txt",
+      "forparsing": "<cwd>\\t\\s.txt.xz\\s.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "xz_item": {
+      "parse_hr": "0x00000000",
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s.xz",
+      "forparsing": "<cwd>\\t\\s.xz",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "xz_bind": {
+      "hr": "0x00000000"
+    },
+    "xz_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "s"
+    },
+    "xz_item_s": {
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s",
+      "forparsing": "<cwd>\\t\\s.xz\\s",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "txt_zst_item": {
+      "parse_hr": "0x00000000",
+      "normal": "s.txt",
+      "infolder": "s.txt",
+      "infolder_parsing": "s.txt.zst",
+      "forparsing": "<cwd>\\t\\s.txt.zst",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "txt_zst_bind": {
+      "hr": "0x00000000"
+    },
+    "txt_zst_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "s.txt"
+    },
+    "txt_zst_item_s_txt": {
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s.txt",
+      "forparsing": "<cwd>\\t\\s.txt.zst\\s.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "zst_item": {
+      "parse_hr": "0x00000000",
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s.zst",
+      "forparsing": "<cwd>\\t\\s.zst",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "zst_bind": {
+      "hr": "0x00000000"
+    },
+    "zst_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "s"
+    },
+    "zst_item_s": {
+      "normal": "s",
+      "infolder": "s",
+      "infolder_parsing": "s",
+      "forparsing": "<cwd>\\t\\s.zst\\s",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "txt_bz2_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "txt_xz_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "txt_zst_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "7z_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "hello archive\n",
+      "copied_time_from_archive": true
+    },
+    "7z_transfer_nested": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "inner text",
+      "copied_time_from_archive": true
+    },
+    "rar_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "hello archive\n",
+      "copied_time_from_archive": true
+    },
+    "cab_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": true,
+      "copied": false
+    },
+    "cpio_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "hello archive\n",
+      "copied_time_from_archive": true
+    },
+    "tar_bz2_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "hello archive\n",
+      "copied_time_from_archive": true
+    },
+    "tar_xz_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "inner text",
+      "copied_time_from_archive": true
+    },
+    "tar_zst_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "hello archive\n",
+      "copied_time_from_archive": true
+    },
+    "txt_bz2_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "single stream text\n",
+      "copied_time_from_archive": false
+    },
+    "txt_xz_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "single stream text\n",
+      "copied_time_from_archive": false
+    },
+    "txt_zst_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": false,
+      "copied": true,
+      "copied_data": "single stream text\n",
+      "copied_time_from_archive": false
+    },
+    "transfer_ui": {
+      "window_closed": false
+    },
+    "enc_rar_item": {
+      "parse_hr": "0x00000000",
+      "normal": "enc",
+      "infolder": "enc",
+      "infolder_parsing": "enc.rar",
+      "forparsing": "<cwd>\\t\\enc.rar",
+      "attrs_hr": "0x00000000",
+      "attrs": "0xe8400177"
+    },
+    "enc_rar_bind": {
+      "hr": "0x00000000"
+    },
+    "enc_rar_enum": {
+      "hr": "0x00000000",
+      "count": 2,
+      "names": "docs,readme.txt"
+    },
+    "enc_rar_item_docs": {
+      "normal": "docs",
+      "infolder": "docs",
+      "infolder_parsing": "docs",
+      "forparsing": "<cwd>\\t\\enc.rar\\docs",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x20000009"
+    },
+    "enc_rar_docs_enum": {
+      "hr": "0x00000000",
+      "count": 1,
+      "names": "inner.txt"
+    },
+    "enc_rar_docs_item_inner_txt": {
+      "normal": "inner",
+      "infolder": "inner",
+      "infolder_parsing": "inner.txt",
+      "forparsing": "<cwd>\\t\\enc.rar\\docs\\inner.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "enc_rar_item_readme_txt": {
+      "normal": "readme",
+      "infolder": "readme",
+      "infolder_parsing": "readme.txt",
+      "forparsing": "<cwd>\\t\\enc.rar\\readme.txt",
+      "attrs_hr": "0x00000000",
+      "attrs": "0x00400001"
+    },
+    "enc_rar_copyout": {
+      "parse_hr": "0x00000000",
+      "dataobject_hr": "0x00000000",
+      "formats": "Shell IDList Array",
+      "filedescriptor_hr": "0x80040064",
+      "stream_hr": "0x80004002"
+    },
+    "enc_rar_transfer": {
+      "create_hr": "0x00000000",
+      "transfer_hr": "0x00000000",
+      "openitem_hr": "0x00000001",
+      "fileop_hr": "0x00000000",
+      "copyitem_hr": "0x00000000",
+      "perform_hr": "0x00000000",
+      "aborted": true,
+      "copied": false
+    },
+    "enc_rar_ui": {
+      "window_closed": false
+    },
+    "verbs_7z": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,extract,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties"
+    },
+    "verbs_rar": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,extract,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties"
+    },
+    "verbs_tar_xz": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,extract,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties"
+    },
+    "verbs_txt_zst": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,extract,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties"
+    },
+    "verbs_cpio": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,extract,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties"
+    },
+    "verbs_cab": {
+      "hr": "0x00000000",
+      "query_ok": true,
+      "verbs": "open,pintohomefile,PinToStartScreen,openas,copyaspath,Windows.ModernShare,PreviousVersions,cut,copy,link,delete,properties"
+    }
+  },
+  "errors": [],
+  "source_sha256": "295f2a54e252120d2c5c2814dc54629efaf4307f17e28dabd496112ee0a33b82"
+}
