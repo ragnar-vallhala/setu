@@ -1757,6 +1757,9 @@ NTSTATUS WINAPI NtQueueApcThreadEx2( HANDLE handle, HANDLE reserve_handle, ULONG
 
     TRACE( "%p %p %#x %p %p %p %p.\n", handle, reserve_handle, flags, func, (void *)arg1, (void *)arg2, (void *)arg3 );
 
+    if (flags & ~(QUEUE_USER_APC_FLAGS_SPECIAL_USER_APC | QUEUE_USER_APC_CALLBACK_DATA_CONTEXT))
+        return STATUS_INVALID_PARAMETER;
+
     SERVER_START_REQ( queue_apc )
     {
         req->handle = wine_server_obj_handle( handle );
@@ -1788,7 +1791,7 @@ NTSTATUS WINAPI NtQueueApcThreadEx( HANDLE handle, HANDLE reserve_handle, PNTAPC
 {
     ULONG flags = 0;
 
-    flags = (ULONG_PTR)reserve_handle & (ULONG_PTR)3;
+    flags = (ULONG_PTR)reserve_handle & QUEUE_USER_APC_FLAGS_SPECIAL_USER_APC;
     reserve_handle = (HANDLE)((ULONG_PTR)reserve_handle & ~(ULONG_PTR)3);
     return NtQueueApcThreadEx2( handle, reserve_handle, flags, func, arg1, arg2, arg3 );
 }

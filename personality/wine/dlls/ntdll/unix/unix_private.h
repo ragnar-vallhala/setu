@@ -165,6 +165,7 @@ extern void *pDbgUiRemoteBreakin;
 extern void *pKiRaiseUserExceptionDispatcher;
 extern void *pKiUserExceptionDispatcher;
 extern void *pKiUserApcDispatcher;
+extern void *p__wine_special_apc_stub;
 extern void *pKiUserCallbackDispatcher;
 extern void *pKiUserEmulationDispatcher;
 extern void *pLdrInitializeThunk;
@@ -229,6 +230,10 @@ extern unsigned int server_select( const union select_op *select_op, data_size_t
 extern unsigned int server_wait( const union select_op *select_op, data_size_t size, UINT flags,
                                  const LARGE_INTEGER *timeout );
 extern unsigned int server_wait_for_object( HANDLE handle, BOOL alertable, const LARGE_INTEGER *timeout );
+extern BOOL get_special_apc( struct user_apc *apc );
+#ifdef __x86_64__
+extern BOOL called_from_special_apc_stub(void);
+#endif
 extern unsigned int server_queue_process_apc( HANDLE process, const union apc_call *call,
                                               union apc_result *result );
 extern int server_get_unix_fd( HANDLE handle, unsigned int wanted_access, int *unix_fd,

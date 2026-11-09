@@ -110,6 +110,7 @@ void *pKiUserEmulationDispatcher = NULL;
 void *pLdrInitializeThunk = NULL;
 void *pRtlUserThreadStart = NULL;
 void *p__wine_ctrl_routine = NULL;
+void *p__wine_special_apc_stub = NULL;
 SYSTEM_DLL_INIT_BLOCK *pLdrSystemDllInitBlock = NULL;
 
 static void stub_syscall( const char *name )
@@ -1628,6 +1629,9 @@ static void load_ntdll_functions( HMODULE module )
     GET_FUNC( LdrSystemDllInitBlock );
     GET_FUNC( RtlUserThreadStart );
     GET_FUNC( __wine_ctrl_routine );
+#ifdef __x86_64__
+    if (!is_arm64ec()) GET_FUNC( __wine_special_apc_stub );
+#endif
     GET_FUNC( __wine_syscall_dispatcher );
     GET_FUNC( __wine_unix_call_dispatcher );
     GET_FUNC( __wine_unixlib_handle );

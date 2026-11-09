@@ -826,6 +826,18 @@ unsigned int server_wait( const union select_op *select_op, data_size_t size, UI
 }
 
 
+/***********************************************************************
+ *              get_special_apc
+ *
+ * Fetch a pending special user APC without waiting; regular APCs are left
+ * queued.
+ */
+BOOL get_special_apc( struct user_apc *apc )
+{
+    return server_select( NULL, 0, SELECT_INTERRUPTIBLE | SELECT_SPECIAL_APC, 0, NULL, apc ) == STATUS_USER_APC;
+}
+
+
 /* helper function to perform a server-side wait on an internal handle without
  * using the fast synchronization path */
 unsigned int server_wait_for_object( HANDLE handle, BOOL alertable, const LARGE_INTEGER *timeout )
@@ -866,8 +878,13 @@ NTSTATUS WINAPI NtContinueEx( CONTEXT *context, KCONTINUE_ARGUMENT *args )
 
     if (alertable)
     {
-        status = server_select( NULL, 0, SELECT_INTERRUPTIBLE | SELECT_ALERTABLE, 0, NULL, &apc );
+        status = server_select( NULL, 0, SELECT_INTERRUPTIBLE | SELECT_ALERTABLE | SELECT_SPECIAL_APC, 0, NULL, &apc );
         if (status == STATUS_USER_APC) return invoke_user_apc( context, &apc, status );
+    }
+    else if ((UINT_PTR)args > 0xff && (args->ContinueFlags & KCONTINUE_FLAG_DELIVER_APC))
+    {
+        /* returning from a special user APC: deliver the next one, if any */
+        if (get_special_apc( &apc )) return invoke_user_apc( context, &apc, STATUS_SUCCESS );
     }
     return signal_set_full_context( context );
 }
@@ -880,8 +897,14 @@ NTSTATUS WINAPI NtTestAlert(void)
 {
     struct user_apc apc;
     NTSTATUS status;
+    UINT flags = SELECT_INTERRUPTIBLE | SELECT_ALERTABLE | SELECT_SPECIAL_APC;
 
-    status = server_select( NULL, 0, SELECT_INTERRUPTIBLE | SELECT_ALERTABLE, 0, NULL, &apc );
+#ifdef __x86_64__
+    /* called from __wine_special_apc_stub at the end of a system call that a
+     * special user APC interrupted: only special APCs may run there */
+    if (called_from_special_apc_stub()) flags = SELECT_INTERRUPTIBLE | SELECT_SPECIAL_APC;
+#endif
+    status = server_select( NULL, 0, flags, 0, NULL, &apc );
     if (status == STATUS_USER_APC) invoke_user_apc( NULL, &apc, STATUS_SUCCESS );
     return STATUS_SUCCESS;
 }

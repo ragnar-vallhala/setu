@@ -439,6 +439,7 @@ static inline void init_thread_structure( struct thread *thread )
     list_init( &thread->d3dkmt_mutexes );
     list_init( &thread->system_apc );
     list_init( &thread->user_apc );
+    list_init( &thread->special_apc );
     list_init( &thread->kernel_object );
 
     for (i = 0; i < MAX_INFLIGHT_FDS; i++)
@@ -622,6 +623,7 @@ static void cleanup_thread( struct thread *thread )
     }
     clear_apc_queue( &thread->system_apc );
     clear_apc_queue( &thread->user_apc );
+    clear_apc_queue( &thread->special_apc );
     free( thread->req_data );
     free( thread->reply_data );
     if (thread->request_fd) release_object( thread->request_fd );
@@ -1216,8 +1218,11 @@ static int check_wait( struct thread *thread )
     /* Suspended threads may not acquire locks, but they can run system APCs */
     if (is_thread_suspended( thread )) return -1;
 
-    /* pending user APCs end an alertable wait even if the objects are signaled */
+    /* pending user APCs end an alertable wait even if the objects are signaled;
+     * special user APCs also end it, and are delivered whenever the client can */
     if ((wait->flags & SELECT_ALERTABLE) && !list_empty(&thread->user_apc)) return STATUS_USER_APC;
+    if ((wait->flags & (SELECT_ALERTABLE | SELECT_SPECIAL_APC)) && !list_empty(&thread->special_apc))
+        return STATUS_USER_APC;
 
     if (wait->select == SELECT_WAIT_ALL)
     {
@@ -1461,6 +1466,20 @@ static inline struct list *get_apc_queue( struct thread *thread, enum apc_type t
     }
 }
 
+/* return the apc queue to use for a given apc */
+static inline struct list *get_queue_for_apc( struct thread *thread, const struct thread_apc *apc )
+{
+    if (apc->call.type == APC_USER && (apc->call.user.flags & SERVER_USER_APC_SPECIAL))
+        return &thread->special_apc;
+    return get_apc_queue( thread, apc->call.type );
+}
+
+/* check if thread is currently in an alertable wait */
+static inline int is_in_alertable_wait( struct thread *thread )
+{
+    return thread->wait && (thread->wait->flags & SELECT_ALERTABLE);
+}
+
 /* check if thread is currently waiting for a (system) apc */
 static inline int is_in_apc_wait( struct thread *thread )
 {
@@ -1502,14 +1521,20 @@ static int queue_apc( struct process *process, struct thread *thread, struct thr
             }
         }
         if (!thread) return 0;  /* nothing found */
-        if (!(queue = get_apc_queue( thread, apc->call.type ))) return 1;
+        if (!(queue = get_queue_for_apc( thread, apc ))) return 1;
     }
     else
     {
         if (thread->state == TERMINATED) return 0;
-        if (!(queue = get_apc_queue( thread, apc->call.type ))) return 1;
+        if (!(queue = get_queue_for_apc( thread, apc ))) return 1;
         /* send signal for system APCs if needed */
         if (queue == &thread->system_apc && list_empty( queue ) && !is_in_apc_wait( thread ))
+        {
+            if (!send_thread_signal( thread, SIGUSR1 )) return 0;
+        }
+        /* special user APCs interrupt user-mode code, and are delivered at the end of
+         * a system call or non-alertable wait; only an alertable wait is woken up */
+        if (queue == &thread->special_apc && !is_in_alertable_wait( thread ))
         {
             if (!send_thread_signal( thread, SIGUSR1 )) return 0;
         }
@@ -1556,7 +1581,7 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
         apc->executed = 1;
         signal_sync( apc->sync );
         release_object( apc );
-        if (list_empty( &thread->user_apc ) && thread->alert_sync)
+        if (list_empty( &thread->user_apc ) && list_empty( &thread->special_apc ) && thread->alert_sync)
             reset_inproc_sync( thread->alert_sync );
         return;
     }
@@ -1566,13 +1591,15 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
 static struct thread_apc *thread_dequeue_apc( struct thread *thread, int system )
 {
     struct thread_apc *apc = NULL;
-    struct list *ptr = list_head( system ? &thread->system_apc : &thread->user_apc );
+    struct list *ptr = list_head( system ? &thread->system_apc : &thread->special_apc );
 
+    /* special user APCs go first */
+    if (!ptr && !system) ptr = list_head( &thread->user_apc );
     if (ptr)
     {
         apc = LIST_ENTRY( ptr, struct thread_apc, entry );
         list_remove( ptr );
-        if (list_empty( &thread->user_apc ) && thread->alert_sync)
+        if (list_empty( &thread->user_apc ) && list_empty( &thread->special_apc ) && thread->alert_sync)
             reset_inproc_sync( thread->alert_sync );
     }
     return apc;

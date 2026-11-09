@@ -1751,6 +1751,7 @@
 # Unix interface
 @ stdcall __wine_unix_spawnvp(long ptr)
 @ stdcall __wine_ctrl_routine(ptr)
+@ stdcall -private -norelay -arch=x86_64 __wine_special_apc_stub()
 @ extern -private __wine_syscall_dispatcher
 @ extern -private __wine_unix_call_dispatcher
 @ extern -private -arch=arm64ec __wine_unix_call_dispatcher_arm64ec

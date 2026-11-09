@@ -416,6 +416,36 @@ __ASM_GLOBAL_FUNC( KiUserApcDispatcher,
 
 
 /*******************************************************************
+ *		__wine_special_apc_stub
+ *
+ * A system call interrupted by a special user APC returns here instead of
+ * to its caller (whose address is on the stack): NtTestAlert, called from
+ * here, runs the pending special APCs only, then the call's return value
+ * is handed back to the caller.
+ */
+__ASM_GLOBAL_FUNC( __wine_special_apc_stub,
+                   "pushq %rbp\n\t"
+                   __ASM_SEH(".seh_pushreg %rbp\n\t")
+                   __ASM_CFI(".cfi_adjust_cfa_offset 8\n\t")
+                   __ASM_CFI(".cfi_rel_offset %rbp,0\n\t")
+                   "movq %rsp,%rbp\n\t"
+                   __ASM_SEH(".seh_setframe %rbp,0\n\t")
+                   __ASM_SEH(".seh_endprologue\n\t")
+                   __ASM_CFI(".cfi_def_cfa_register %rbp\n\t")
+                   "andq $~15,%rsp\n\t"
+                   "subq $0x30,%rsp\n\t"
+                   "movq %rax,0x28(%rsp)\n\t"
+                   "call " __ASM_NAME("NtTestAlert") "\n\t"
+                   "movq 0x28(%rsp),%rax\n\t"
+                   "movq %rbp,%rsp\n\t"
+                   __ASM_CFI(".cfi_def_cfa_register %rsp\n\t")
+                   "popq %rbp\n\t"
+                   __ASM_CFI(".cfi_adjust_cfa_offset -8\n\t")
+                   __ASM_CFI(".cfi_same_value %rbp\n\t")
+                   "ret" )
+
+
+/*******************************************************************
  *		KiUserCallbackDispatcher (NTDLL.@)
  */
 __ASM_GLOBAL_FUNC( KiUserCallbackDispatcher,

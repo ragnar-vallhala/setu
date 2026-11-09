@@ -1,0 +1,70 @@
+{
+  "test": "kernel32/special_user_apc",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "export_present": {
+      "present": true
+    },
+    "self_runs_when_call_returns": {
+      "ret": true,
+      "last_error": "unchanged",
+      "log": "s|",
+      "same_thread": true
+    },
+    "self_then_alertable_sleep": {
+      "ret": "WAIT_OBJECT_0",
+      "log": "s|"
+    },
+    "regular_then_special_order": {
+      "ret": "WAIT_IO_COMPLETION",
+      "log": "s|r"
+    },
+    "flags_none_is_regular": {
+      "ret": true,
+      "wait": "WAIT_IO_COMPLETION",
+      "log": "|n"
+    },
+    "special_callback_data": {
+      "ret": true,
+      "last_error": "unchanged",
+      "log": "d",
+      "parameter_is_data": true,
+      "context_control": true,
+      "reserved0_zero": true,
+      "reserved1_zero": true
+    },
+    "regular_callback_data": {
+      "wait": "WAIT_IO_COMPLETION",
+      "log": "d",
+      "parameter_is_data": true,
+      "context_control": true
+    },
+    "unknown_flag": {
+      "ret": false,
+      "last_error": 87
+    },
+    "other_thread_user_code": {
+      "ret": true,
+      "interrupted": true,
+      "log": "sw"
+    },
+    "other_thread_alertable_wait": {
+      "ran_during_wait": true,
+      "wait": "WAIT_IO_COMPLETION",
+      "log": "sw"
+    },
+    "other_thread_nonalertable_wait": {
+      "ran_during_wait": false,
+      "wait": "WAIT_OBJECT_0",
+      "log": "|sw"
+    },
+    "other_thread_regular_and_special_nonalertable": {
+      "wait": "WAIT_OBJECT_0",
+      "log": "|sw"
+    }
+  },
+  "errors": [],
+  "source_sha256": "e8d56f9d68350a3e4a17fda1e585b60820a20ccc3aac05c1a1042b42e260ee49"
+}

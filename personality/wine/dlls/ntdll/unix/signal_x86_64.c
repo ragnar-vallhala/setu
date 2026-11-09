@@ -1656,6 +1656,117 @@ static void setup_exception( ucontext_t *sigcontext, EXCEPTION_RECORD *rec )
 
 
 /***********************************************************************
+ *           init_apc_stack
+ *
+ * Fill the KiUserApcDispatcher arguments; the context is already set.
+ */
+static void init_apc_stack( struct apc_stack_layout *stack, unsigned int flags, ULONG_PTR arg1,
+                            ULONG_PTR arg2, ULONG_PTR arg3, PNTAPCFUNC func )
+{
+    memset( &stack->continue_arg, 0, sizeof(stack->continue_arg) );
+    stack->continue_arg.ContinueType = KCONTINUE_RESUME;
+    /* a regular APC runs in an alertable wait and lets the next one run after it;
+     * a special one may interrupt anything, so only special ones may follow it */
+    if (flags & SERVER_USER_APC_SPECIAL)
+        stack->continue_arg.ContinueFlags = KCONTINUE_FLAG_DELIVER_APC;
+    else
+        stack->continue_arg.ContinueFlags = KCONTINUE_FLAG_TEST_ALERT | KCONTINUE_FLAG_DELIVER_APC;
+    stack->context.P1Home = arg1;
+    if (flags & SERVER_USER_APC_CALLBACK_DATA_CONTEXT)
+    {
+        stack->callback_data.ContextRecord = &stack->context;
+        stack->callback_data.Parameter = arg2;
+        stack->callback_data.Reserved0 = 0;
+        stack->callback_data.Reserved1 = 0;
+        stack->context.P2Home = (ULONG_PTR)&stack->callback_data;
+    }
+    else stack->context.P2Home = arg2;
+    stack->context.P3Home    = arg3;
+    stack->context.P4Home    = (ULONG64)func;
+    stack->machine_frame.rip = stack->context.Rip;
+    stack->machine_frame.rsp = stack->context.Rsp;
+}
+
+
+/***********************************************************************
+ *           setup_special_apc
+ *
+ * Interrupt user-mode code for a special user APC: modify the sigcontext so
+ * that the return from the signal handler calls KiUserApcDispatcher with
+ * the interrupted context, which NtContinue resumes afterwards.
+ */
+static void setup_special_apc( ucontext_t *sigcontext, struct xcontext *xcontext, const struct user_apc *apc )
+{
+    CONTEXT *context = &xcontext->c;
+    struct apc_stack_layout *stack;
+    XSAVE_AREA_HEADER *src_xs;
+    ULONG_PTR rsp = context->Rsp & ~(ULONG_PTR)15, base;
+
+    base = (rsp - sizeof(*stack) - xstate_size - 64) & ~(ULONG_PTR)63;
+    stack = (struct apc_stack_layout *)base;
+    stack->context = *context;
+    stack->context.ContextFlags = CONTEXT_FULL | CONTEXT_SEGMENTS;
+    if ((src_xs = xstate_from_context( context )))
+    {
+        XSAVE_AREA_HEADER *dst_xs = (XSAVE_AREA_HEADER *)(((ULONG_PTR)(stack + 1) + 63) & ~(ULONG_PTR)63);
+        context_init_xstate( &stack->context, dst_xs );
+        memset( dst_xs, 0, sizeof(*dst_xs) );
+        dst_xs->CompactionMask = user_shared_data->XState.CompactionEnabled ? 0x8000000000000000 | xstate_extended_features : 0;
+        copy_xstate( dst_xs, src_xs, src_xs->Mask );
+    }
+    else context_init_xstate( &stack->context, NULL );
+
+    init_apc_stack( stack, apc->flags, apc->args[0], apc->args[1], apc->args[2],
+                    wine_server_get_ptr( apc->func ));
+    CS_sig(sigcontext)  = cs64_sel;
+    RIP_sig(sigcontext) = (ULONG_PTR)pKiUserApcDispatcher;
+    RSP_sig(sigcontext) = (ULONG_PTR)stack;
+    /* clear single-step, direction, and align check flag */
+    EFL_sig(sigcontext) &= ~(0x100|0x400|0x40000);
+}
+
+
+/***********************************************************************
+ *           arm_special_apc_stub
+ *
+ * A signal arrived during a system call: make the call return through
+ * __wine_special_apc_stub instead of the thunk's return instruction; the stub
+ * keeps the return value and lets a pending special user APC run before going
+ * back to the caller.
+ */
+static void arm_special_apc_stub( struct syscall_frame *frame, BOOL unix_call )
+{
+    if (!p__wine_special_apc_stub || is_wow64()) return;
+    if (frame->rip == (ULONG64)p__wine_special_apc_stub) return;  /* already armed */
+    if (unix_call)
+    {
+        /* frame->rip is the caller's return address: the stub returns there */
+        frame->rsp -= sizeof(ULONG64);
+        *(ULONG64 *)frame->rsp = frame->rip;
+    }
+    /* else frame->rip is the system call thunk's return instruction and
+     * frame->rsp points to the caller's return address: the stub takes the
+     * thunk's place */
+    frame->rip = (ULONG64)p__wine_special_apc_stub;
+    frame->restore_flags |= CONTEXT_CONTROL;
+}
+
+
+/***********************************************************************
+ *           called_from_special_apc_stub
+ *
+ * Whether the current system call was made by __wine_special_apc_stub.
+ */
+BOOL called_from_special_apc_stub(void)
+{
+    struct syscall_frame *frame = get_syscall_frame();
+    ULONG_PTR ret = *(ULONG_PTR *)frame->rsp;  /* the thunk's return address */
+
+    return p__wine_special_apc_stub && ret - (ULONG_PTR)p__wine_special_apc_stub < 0x40;
+}
+
+
+/***********************************************************************
  *           call_user_apc_dispatcher
  */
 NTSTATUS call_user_apc_dispatcher( CONTEXT *context, unsigned int flags, ULONG_PTR arg1, ULONG_PTR arg2, ULONG_PTR arg3,
@@ -1665,7 +1776,6 @@ NTSTATUS call_user_apc_dispatcher( CONTEXT *context, unsigned int flags, ULONG_P
     ULONG64 rsp = context ? context->Rsp : frame->rsp;
     struct apc_stack_layout *stack;
 
-    if (flags & ~SERVER_USER_APC_CALLBACK_DATA_CONTEXT) FIXME( "flags %#x are not supported.\n", flags );
 
     rsp &= ~15;
     stack = (struct apc_stack_layout *)rsp - 1;
@@ -1680,23 +1790,7 @@ NTSTATUS call_user_apc_dispatcher( CONTEXT *context, unsigned int flags, ULONG_P
         NtGetContextThread( GetCurrentThread(), &stack->context );
         stack->context.Rax = status;
     }
-    memset( &stack->continue_arg, 0, sizeof(stack->continue_arg) );
-    stack->continue_arg.ContinueType = KCONTINUE_RESUME;
-    stack->continue_arg.ContinueFlags = KCONTINUE_FLAG_TEST_ALERT | KCONTINUE_FLAG_DELIVER_APC;
-    stack->context.P1Home    = arg1;
-    if (flags & SERVER_USER_APC_CALLBACK_DATA_CONTEXT)
-    {
-        stack->callback_data.ContextRecord = &stack->context;
-        stack->callback_data.Parameter = arg2;
-        stack->callback_data.Reserved0 = 0;
-        stack->callback_data.Reserved1 = 0;
-        stack->context.P2Home = (ULONG_PTR)&stack->callback_data;
-    }
-    else stack->context.P2Home = arg2;
-    stack->context.P3Home    = arg3;
-    stack->context.P4Home    = (ULONG64)func;
-    stack->machine_frame.rip = stack->context.Rip;
-    stack->machine_frame.rsp = stack->context.Rsp;
+    init_apc_stack( stack, flags, arg1, arg2, arg3, func );
     frame->rbp = stack->context.Rbp;
     frame->rsp = (ULONG64)stack;
     frame->rip = (ULONG64)pKiUserApcDispatcher;
@@ -2629,6 +2723,8 @@ static void usr1_handler( int signal, siginfo_t *siginfo, void *sigcontext )
         ULONG64 saved_compaction = 0;
         I386_CONTEXT *wow_context;
         struct xcontext *context;
+        /* only unix calls leave the frame context incomplete */
+        BOOL unix_call = !!(frame->restore_flags & RESTORE_FLAGS_INCOMPLETE_FRAME_CONTEXT);
 
         context = (struct xcontext *)(((ULONG_PTR)RSP_sig(ucontext) - 128 /* red zone */ - sizeof(*context)) & ~15);
         if ((char *)context < (char *)ntdll_get_thread_data()->kernel_stack)
@@ -2637,7 +2733,7 @@ static void usr1_handler( int signal, siginfo_t *siginfo, void *sigcontext )
             return;
         }
         context->c.ContextFlags = CONTEXT_FULL | CONTEXT_SEGMENTS | CONTEXT_EXCEPTION_REQUEST;
-        if (frame->restore_flags & RESTORE_FLAGS_INCOMPLETE_FRAME_CONTEXT)
+        if (unix_call)
         {
             frame->restore_flags &= ~RESTORE_FLAGS_INCOMPLETE_FRAME_CONTEXT;
             frame->eflags = 0x200;
@@ -2667,16 +2763,21 @@ static void usr1_handler( int signal, siginfo_t *siginfo, void *sigcontext )
             cpu->Flags |= WOW64_CPURESERVED_FLAG_RESET_STATE;
         }
         NtSetContextThread( GetCurrentThread(), &context->c );
+        /* a special user APC runs when the system call returns */
+        arm_special_apc_stub( frame, unix_call );
     }
     else
     {
         struct xcontext context;
+        struct user_apc apc;
 
         save_context( &context, ucontext );
         context.c.ContextFlags |= CONTEXT_EXCEPTION_REPORTING;
         if (is_wow64() && context.c.SegCs == cs64_sel) context.c.ContextFlags |= CONTEXT_EXCEPTION_ACTIVE;
         wait_suspend( &context.c );
         restore_context( &context, ucontext );
+        /* user-mode code is interrupted at once for a special user APC */
+        if (!is_wow64() && get_special_apc( &apc )) setup_special_apc( ucontext, &context, &apc );
     }
 }
 
