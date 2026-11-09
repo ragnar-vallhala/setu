@@ -17,6 +17,10 @@
 #   5. Properties shows type/size/location and changes attributes;
 #   6. Open with: choosing a program saves it per user in
 #      HKCU\Software\Classes and opens the file with it; Enter opens folders;
+#   6b. compressed folders: Enter on a .zip browses into it (address bar
+#      shows C:\...\test.zip\docs), a file and a folder copy out of it, a
+#      path typed inside a .tar.gz opens and copies out, Up leaves it, and
+#      Extract All extracts it next to the archive;
 #   7. the shell's launcher "Files" entry starts setu-files.exe.
 # Screenshots go to build/shell/files-smoke/files-*.png; with --update-docs
 # they are also copied to shell/docs/.
@@ -377,6 +381,56 @@ wait_state '^location=fs\|C:\\files-smoke\\sub$' 10 || fail "Enter on a folder d
 probe key Back >/dev/null
 wait_state '^location=fs\|C:\\files-smoke$' 10 || fail "Backspace did not go back"
 pass "Enter opens folders, Backspace goes back"
+
+# --- 6b. compressed folders --------------------------------------------------
+# archives browse like folders (zipfldr), copy out, and Extract All
+python3 -c '
+import io, sys, tarfile, zipfile
+d = sys.argv[1]
+with zipfile.ZipFile(d + "/test.zip", "w", zipfile.ZIP_DEFLATED) as z:
+    z.writestr("top.txt", "top level\r\n")
+    z.writestr("docs/readme.txt", "inside the zip\r\n" * 50)
+    z.writestr("docs/deep/x.txt", "deep\r\n")
+with tarfile.open(d + "/bundle.tar.gz", "w:gz") as t:
+    data = b"from a tarball\r\n"
+    info = tarfile.TarInfo("pkg/hello.txt"); info.size = len(data)
+    t.addfile(info, io.BytesIO(data))
+' "$D"
+send --cmd refresh
+wait_state '^item=test.zip\|file\|[^|]*\|Compressed \(zipped\) Folder\|' 10 || fail "test.zip is not a Compressed (zipped) Folder: $(st | grep '^item=test.zip')"
+send --select test.zip --focus
+probe key Return >/dev/null
+wait_state '^location=archive\|C:\\files-smoke\\test.zip$' 10 || fail "Enter on test.zip did not browse into it"
+st | grep -q '^address=C:\\files-smoke\\test.zip$' || fail "address bar: $(st | grep ^address=)"
+st | grep -q '^item=docs|dir|' && st | grep -q '^item=top.txt|file|' || fail "test.zip lists: $(st | grep ^item= | cut -d'|' -f1-2 | tr '\n' ' ')"
+send --select docs --cmd open
+wait_state '^location=archive\|C:\\files-smoke\\test.zip\\docs$' 10 || fail "docs in test.zip did not open"
+st | grep -q '^item=deep|dir|' && st | grep -q '^item=readme.txt|file|' || fail "docs lists: $(st | grep ^item= | cut -d'|' -f1-2 | tr '\n' ' ')"
+sleep 0.5
+shot files-08-compressed-folder
+pass "browsing test.zip: $(st | grep ^address=)"
+send --select readme.txt --cmd copy
+wait_state '^clipboard=items\|' 5 || fail "copy in a compressed folder did not put items on the clipboard"
+send --go 'C:\files-smoke\Projects' --cmd paste
+wait_state '^item=readme.txt\|file' 10 || fail "paste from test.zip"
+[ "$(tr -d '\r' < "$D/Projects/readme.txt" | sort -u)" = "inside the zip" ] || fail "readme.txt copied out wrong"
+send --go 'C:\files-smoke\test.zip' --select docs --cmd copy --go 'C:\files-smoke\Projects' --cmd paste
+wait_state '^item=docs\|dir' 10 || fail "paste of a folder from test.zip"
+[ -f "$D/Projects/docs/deep/x.txt" ] || fail "the folder copied out of test.zip is missing docs/deep/x.txt"
+pass "copy out of test.zip: a file and a folder (recursive)"
+send --go 'C:\files-smoke\bundle.tar.gz\pkg'
+wait_state '^location=archive\|C:\\files-smoke\\bundle.tar.gz\\pkg$' 10 || fail "typing a path inside bundle.tar.gz did not open it"
+send --select hello.txt --cmd copy --go 'C:\files-smoke\sub' --cmd paste
+wait_state '^item=hello.txt\|file' 10 || fail "paste from bundle.tar.gz"
+cmp -s <(printf 'from a tarball\r\n') "$D/sub/hello.txt" || fail "hello.txt copied out wrong"
+pass "browsing and copying out of bundle.tar.gz"
+send --go 'C:\files-smoke\test.zip' --cmd up
+wait_state '^location=fs\|C:\\files-smoke$' 10 || fail "Up from test.zip"
+wait_state '^selected=test.zip$' 5 || fail "Up from test.zip did not select it"
+send --select test.zip --cmd extract-all
+for _ in $(seq 50); do [ -f "$D/test/docs/deep/x.txt" ] && break; sleep 0.1; done
+[ -f "$D/test/top.txt" ] && [ -f "$D/test/docs/deep/x.txt" ] || fail "Extract All did not extract test.zip into test: $(st | grep -E '^(last_op|status)=')"
+pass "Extract All: test.zip -> test\\"
 
 # icons view, and the drives
 send --cmd icons

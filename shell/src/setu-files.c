@@ -27,6 +27,9 @@
  *   - SHChangeNotifyRegister, FindFirstChangeNotificationW,
  *     MsgWaitForMultipleObjectsEx
  *   - GetFileAttributesExW, SetFileAttributesW, GetVolumeInformationW
+ *   - Compressed folders: IShellFolder::ParseDisplayName/EnumObjects,
+ *     IShellFolder2::GetDetailsEx, SFGAO_FOLDER | SFGAO_STREAM,
+ *     ITransferSource::OpenItem, CFSTR_SHELLIDLIST, OleSetClipboard
  *
  * Command line:
  *   setu-files [PATH]        open PATH (a folder, "Drives" or "Recycle Bin")
@@ -86,7 +89,7 @@ enum
     IDM_BACK = 1000, IDM_FORWARD, IDM_UP, IDM_REFRESH, IDM_NEWFOLDER, IDM_VIEW_DETAILS, IDM_VIEW_ICONS,
     IDM_OPEN, IDM_RENAME, IDM_COPY, IDM_CUT, IDM_PASTE, IDM_DELETE, IDM_DELETE_PERM, IDM_PROPERTIES,
     IDM_SELECT_ALL, IDM_EMPTY_RB, IDM_SHOW_HIDDEN, IDM_CHOOSE_PROGRAM, IDM_ADDRESS, IDM_NEW_WINDOW,
-    IDM_COPY_PATH,
+    IDM_COPY_PATH, IDM_EXTRACT_ALL,
 };
 #define IDM_SORT_BASE      1100
 #define IDM_OPENWITH_BASE  1200
@@ -110,7 +113,7 @@ enum
 /* ------------------------------------------------------------------ */
 /* State                                                                */
 
-enum loc { LOC_FS, LOC_DRIVES, LOC_RECYCLE };
+enum loc { LOC_FS, LOC_DRIVES, LOC_RECYCLE, LOC_ARCHIVE };  /* LOC_ARCHIVE: inside a compressed folder */
 
 struct item
 {
@@ -654,6 +657,243 @@ static BOOL load_fs(const WCHAR *dir)
     return TRUE;
 }
 
+/* ------------------------------------------------------------------ */
+/* Compressed folders                                                   */
+
+/* The shell shows an archive (.zip, .tar, .gz...) whose type has a shell
+ * folder class (zipfldr's "Compressed (zipped) Folder" and "Compressed
+ * Archive Folder") as a folder that is also a stream: SFGAO_FOLDER |
+ * SFGAO_STREAM. Inside it, paths like C:\x\a.zip\sub parse with
+ * IShellFolder::ParseDisplayName, the folders enumerate with EnumObjects,
+ * and files come out as IStreams (IShellFolder::BindToObject, or the
+ * folder's ITransferSource::OpenItem). Archives can't be written to.
+ * References: IShellFolder, IShellFolder2::GetDetailsEx (PKEY_Size,
+ * PKEY_DateModified), ITransferSource, SFGAO flags, CFSTR_SHELLIDLIST. */
+
+static IShellFolder2 *arc_folder;  /* the archive folder shown (LOC_ARCHIVE) */
+static UINT cf_idlist;             /* CFSTR_SHELLIDLIST */
+static IDataObject *clip_obj;      /* what we put on the clipboard from an archive */
+
+static const SHCOLUMNID scid_size = { { 0xb725f130, 0x47ef, 0x101a, { 0xa5, 0xf1, 0x02, 0x60, 0x8c, 0x9e, 0xeb, 0xac } }, 12 };
+static const SHCOLUMNID scid_mtime = { { 0xb725f130, 0x47ef, 0x101a, { 0xa5, 0xf1, 0x02, 0x60, 0x8c, 0x9e, 0xeb, 0xac } }, 14 };
+
+static LPITEMIDLIST parse_shell_path(const WCHAR *path, SFGAOF *attrs)
+{
+    IShellFolder *desk;
+    LPITEMIDLIST pidl = NULL;
+    ULONG eaten = 0;
+    SFGAOF a = SFGAO_FOLDER | SFGAO_STREAM | SFGAO_FILESYSTEM;
+    WCHAR buf[MAX_PATH];
+
+    *attrs = 0;
+    lstrcpynW(buf, path, ARRAYSIZE(buf));
+    if (FAILED(SHGetDesktopFolder(&desk))) return NULL;
+    if (FAILED(IShellFolder_ParseDisplayName(desk, NULL, NULL, buf, &eaten, &pidl, &a))) pidl = NULL;
+    IShellFolder_Release(desk);
+    if (pidl) *attrs = a;
+    return pidl;
+}
+
+static IShellFolder *bind_folder(LPCITEMIDLIST pidl)
+{
+    IShellFolder *desk, *sf = NULL;
+    if (FAILED(SHGetDesktopFolder(&desk))) return NULL;
+    if (!pidl || !pidl->mkid.cb) return desk;
+    if (FAILED(IShellFolder_BindToObject(desk, pidl, NULL, &IID_IShellFolder, (void **)&sf))) sf = NULL;
+    IShellFolder_Release(desk);
+    return sf;
+}
+
+/* Is PATH an archive the shell can browse (a folder that lists)? */
+static BOOL archive_browsable(const WCHAR *path)
+{
+    SFGAOF a;
+    LPITEMIDLIST pidl = parse_shell_path(path, &a);
+    IShellFolder *sf;
+    IEnumIDList *e = NULL;
+    BOOL ok = FALSE;
+
+    if (!pidl) return FALSE;
+    if ((a & (SFGAO_FOLDER | SFGAO_STREAM)) == (SFGAO_FOLDER | SFGAO_STREAM) && (sf = bind_folder(pidl)))
+    {
+        ok = IShellFolder_EnumObjects(sf, NULL, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS, &e) == S_OK && e;
+        if (e) IEnumIDList_Release(e);
+        IShellFolder_Release(sf);
+    }
+    CoTaskMemFree(pidl);
+    return ok;
+}
+
+/* The archive file a path inside an archive belongs to. */
+static BOOL archive_file_of(const WCHAR *path, WCHAR *out)
+{
+    DWORD a;
+    lstrcpynW(out, path, MAX_PATH);
+    for (;;)
+    {
+        a = GetFileAttributesW(out);
+        if (a != INVALID_FILE_ATTRIBUTES) return !(a & FILE_ATTRIBUTE_DIRECTORY);
+        if (!PathRemoveFileSpecW(out) || !out[0] || is_root(out)) return FALSE;
+    }
+}
+
+static void strret_text(LPCITEMIDLIST pidl, STRRET *sr, WCHAR *buf, UINT len)
+{
+    if (FAILED(StrRetToBufW(sr, pidl, buf, len))) buf[0] = 0;
+}
+
+static void copy_name(const WCHAR *dir, const WCHAR *name, BOOL is_dir, WCHAR *out);
+
+static BOOL load_archive(const WCHAR *path)
+{
+    SFGAOF a;
+    LPITEMIDLIST pidl = parse_shell_path(path, &a), child;
+    IShellFolder *sf;
+    IEnumIDList *e = NULL;
+    ULONG got;
+
+    if (arc_folder) IShellFolder2_Release(arc_folder);
+    arc_folder = NULL;
+    if (!pidl) return FALSE;
+    sf = bind_folder(pidl);
+    CoTaskMemFree(pidl);
+    if (!sf) return FALSE;
+    IShellFolder_QueryInterface(sf, &IID_IShellFolder2, (void **)&arc_folder);
+    IShellFolder_Release(sf);
+    if (!arc_folder) return FALSE;
+    if (IShellFolder2_EnumObjects(arc_folder, NULL, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS |
+                                  (show_hidden ? SHCONTF_INCLUDEHIDDEN : 0), &e) != S_OK || !e)
+    {
+        SetLastError(ERROR_BAD_FORMAT);
+        return FALSE;
+    }
+    while (IEnumIDList_Next(e, 1, &child, &got) == S_OK && got)
+    {
+        struct item *it;
+        SFGAOF ia = SFGAO_FOLDER | SFGAO_STREAM | SFGAO_HIDDEN;
+        STRRET sr;
+        VARIANT v;
+        LPCITEMIDLIST c = child;
+
+        IShellFolder2_GetAttributesOf(arc_folder, 1, &c, &ia);
+        if (!show_hidden && (ia & SFGAO_HIDDEN)) { CoTaskMemFree(child); continue; }
+        if (!(it = new_item())) { CoTaskMemFree(child); break; }
+        if (SUCCEEDED(IShellFolder2_GetDisplayNameOf(arc_folder, child, SHGDN_INFOLDER | SHGDN_FORPARSING, &sr)))
+            strret_text(child, &sr, it->name, ARRAYSIZE(it->name));
+        PathCombineW(it->path, path, it->name);
+        it->dir = (ia & SFGAO_FOLDER) && !(ia & SFGAO_STREAM);
+        it->attrs = (it->dir ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_ARCHIVE) | ((ia & SFGAO_HIDDEN) ? FILE_ATTRIBUTE_HIDDEN : 0);
+        VariantInit(&v);
+        if (SUCCEEDED(IShellFolder2_GetDetailsEx(arc_folder, child, &scid_size, &v)) && V_VT(&v) == VT_UI8)
+            it->size = V_UI8(&v);
+        VariantClear(&v);
+        if (SUCCEEDED(IShellFolder2_GetDetailsEx(arc_folder, child, &scid_mtime, &v)) && V_VT(&v) == VT_DATE)
+        {
+            SYSTEMTIME st;
+            FILETIME local;
+            if (VariantTimeToSystemTime(V_DATE(&v), &st) && SystemTimeToFileTime(&st, &local))
+                LocalFileTimeToFileTime(&local, &it->mtime);
+        }
+        VariantClear(&v);
+        it->pidl = child;
+        file_type_and_icon(it);
+    }
+    IEnumIDList_Release(e);
+    return TRUE;
+}
+
+/* Make NAME safe as one file name component. */
+static void safe_name(WCHAR *name)
+{
+    WCHAR *p;
+    for (p = name; *p; p++)
+        if (*p < 32 || wcschr(L"\\/:*?\"<>|", *p)) *p = L'_';
+    if (!name[0] || !wcscmp(name, L".") || !wcscmp(name, L"..")) lstrcpyW(name, L"_");
+}
+
+static HRESULT open_item_stream(IShellFolder *parent, LPCITEMIDLIST child, IStream **out)
+{
+    IShellItem *si;
+    ITransferSource *ts;
+    HRESULT hr;
+
+    *out = NULL;
+    if (SUCCEEDED(hr = IShellFolder_BindToObject(parent, child, NULL, &IID_IStream, (void **)out))) return hr;
+    /* tar archives only hand their files out through ITransferSource */
+    if (FAILED(hr = IShellFolder_CreateViewObject(parent, NULL, &IID_ITransferSource, (void **)&ts))) return hr;
+    if (SUCCEEDED(hr = SHCreateItemWithParent(NULL, parent, child, &IID_IShellItem, (void **)&si)))
+    {
+        hr = ITransferSource_OpenItem(ts, si, TSF_NORMAL, &IID_IStream, (void **)out);
+        IShellItem_Release(si);
+    }
+    ITransferSource_Release(ts);
+    return hr;
+}
+
+/* Copy one item of a shell folder (a file or a folder, recursively) into
+ * the file system folder DEST. */
+static HRESULT copy_out_item(IShellFolder *parent, LPCITEMIDLIST child, const WCHAR *dest, int *count)
+{
+    SFGAOF a = SFGAO_FOLDER | SFGAO_STREAM;
+    STRRET sr;
+    WCHAR name[MAX_PATH] = L"", target[MAX_PATH];
+    HRESULT hr;
+
+    IShellFolder_GetAttributesOf(parent, 1, &child, &a);
+    if (SUCCEEDED(IShellFolder_GetDisplayNameOf(parent, child, SHGDN_INFOLDER | SHGDN_FORPARSING, &sr)))
+        strret_text(child, &sr, name, ARRAYSIZE(name));
+    if (PathFindFileNameW(name) != name) memmove(name, PathFindFileNameW(name), (wcslen(PathFindFileNameW(name)) + 1) * sizeof(WCHAR));
+    safe_name(name);
+    PathCombineW(target, dest, name);
+    if ((a & SFGAO_FOLDER) && !(a & SFGAO_STREAM))
+    {
+        IShellFolder *sub;
+        IEnumIDList *e = NULL;
+        LPITEMIDLIST c;
+        ULONG got;
+
+        if (!CreateDirectoryW(target, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) return HRESULT_FROM_WIN32(GetLastError());
+        if (FAILED(hr = IShellFolder_BindToObject(parent, child, NULL, &IID_IShellFolder, (void **)&sub))) return hr;
+        if (IShellFolder_EnumObjects(sub, NULL, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &e) == S_OK && e)
+        {
+            while (SUCCEEDED(hr) && IEnumIDList_Next(e, 1, &c, &got) == S_OK && got)
+            {
+                hr = copy_out_item(sub, c, target, count);
+                CoTaskMemFree(c);
+            }
+            IEnumIDList_Release(e);
+        }
+        IShellFolder_Release(sub);
+        if (SUCCEEDED(hr)) (*count)++;
+        return hr;
+    }
+    else
+    {
+        IStream *stm;
+        STATSTG stat;
+        HANDLE h;
+        BYTE buf[65536];
+        ULONG got;
+        DWORD done;
+
+        if (GetFileAttributesW(target) != INVALID_FILE_ATTRIBUTES) copy_name(dest, name, FALSE, target);
+        if (FAILED(hr = open_item_stream(parent, child, &stm))) return hr;
+        h = CreateFileW(target, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h == INVALID_HANDLE_VALUE) { IStream_Release(stm); return HRESULT_FROM_WIN32(GetLastError()); }
+        while (SUCCEEDED(hr = IStream_Read(stm, buf, sizeof(buf), &got)) && got)
+            if (!WriteFile(h, buf, got, &done, NULL) || done != got) { hr = HRESULT_FROM_WIN32(GetLastError()); break; }
+        if (SUCCEEDED(hr)) hr = S_OK;
+        if (SUCCEEDED(hr) && SUCCEEDED(IStream_Stat(stm, &stat, STATFLAG_NONAME)) &&
+            (stat.mtime.dwLowDateTime || stat.mtime.dwHighDateTime))
+            SetFileTime(h, NULL, NULL, &stat.mtime);
+        CloseHandle(h);
+        IStream_Release(stm);
+        if (FAILED(hr)) DeleteFileW(target);
+        else (*count)++;
+        return hr;
+    }
+}
+
 static const WCHAR *drive_type_name(UINT t)
 {
     switch (t)
@@ -817,14 +1057,15 @@ static int recycle_count(void)
 /* ------------------------------------------------------------------ */
 /* The list                                                             */
 
-static const WCHAR *const col_names[3][4] =
+static const WCHAR *const col_names[4][4] =
 {
     { L"Name", L"Size", L"Type", L"Modified" },
     { L"Name", L"Type", L"Total size", L"Free space" },
     { L"Name", L"Original location", L"Deleted", L"Size" },
+    { L"Name", L"Size", L"Type", L"Modified" },
 };
-static const BOOL col_right[3][4] = { { 0, 1, 0, 0 }, { 0, 0, 1, 1 }, { 0, 0, 0, 1 } };
-static const int col_base_w[3][4] = { { 0, 100, 170, 150 }, { 0, 140, 110, 110 }, { 0, 230, 150, 100 } };
+static const BOOL col_right[4][4] = { { 0, 1, 0, 0 }, { 0, 0, 1, 1 }, { 0, 0, 0, 1 }, { 0, 1, 0, 0 } };
+static const int col_base_w[4][4] = { { 0, 100, 170, 150 }, { 0, 140, 110, 110 }, { 0, 230, 150, 100 }, { 0, 100, 170, 150 } };
 
 static void cell_text(const struct item *it, int col, WCHAR *buf, int len)
 {
@@ -833,6 +1074,7 @@ static void cell_text(const struct item *it, int col, WCHAR *buf, int len)
     switch (cur_loc)
     {
     case LOC_FS:
+    case LOC_ARCHIVE:
         if (col == 1 && !it->dir) format_bytes(it->size, buf, len);
         else if (col == 2) lstrcpynW(buf, it->type, len);
         else if (col == 3) format_time(&it->mtime, buf, len);
@@ -856,7 +1098,7 @@ static int CALLBACK compare_items(LPARAM a, LPARAM b, LPARAM unused)
     int r = 0;
 
     if (cur_loc != LOC_DRIVES && x->dir != y->dir) return x->dir ? -1 : 1; /* folders first, both ways */
-    switch (cur_loc == LOC_FS ? sort_col : cur_loc == LOC_DRIVES ? sort_col + 10 : sort_col + 20)
+    switch (cur_loc == LOC_FS || cur_loc == LOC_ARCHIVE ? sort_col : cur_loc == LOC_DRIVES ? sort_col + 10 : sort_col + 20)
     {
     case 1: r = x->size < y->size ? -1 : x->size > y->size; break;
     case 2: case 11: r = lstrcmpiW(x->type, y->type); break;
@@ -998,6 +1240,7 @@ static void reload(void)
 
     free_items();
     if (cur_loc == LOC_FS) load_fs(cur_path);
+    else if (cur_loc == LOC_ARCHIVE) load_archive(cur_path);
     else if (cur_loc == LOC_DRIVES) load_drives();
     else load_recycle();
     fill_list(keep, keep ? n : 0, focus_name);
@@ -1327,7 +1570,7 @@ enum { NAV_NEW, NAV_BACK, NAV_FORWARD, NAV_UP };
 static void update_title(void)
 {
     WCHAR title[MAX_PATH + 32];
-    const WCHAR *name = cur_loc == LOC_FS ? PathFindFileNameW(cur_path) : loc_display();
+    const WCHAR *name = cur_loc == LOC_FS || cur_loc == LOC_ARCHIVE ? PathFindFileNameW(cur_path) : loc_display();
     WCHAR tmp[MAX_PATH];
     if (cur_loc == LOC_FS && is_root(cur_path))
     {
@@ -1377,7 +1620,7 @@ static int resolve(const WCHAR *in, enum loc *loc, WCHAR *path)
         }
     }
     ExpandEnvironmentStringsW(buf, exp, ARRAYSIZE(exp));
-    if (cur_loc == LOC_FS && PathIsRelativeW(exp) && !(exp[0] && exp[1] == L':'))
+    if ((cur_loc == LOC_FS || cur_loc == LOC_ARCHIVE) && PathIsRelativeW(exp) && !(exp[0] && exp[1] == L':'))
     {
         WCHAR joined[MAX_PATH];
         PathCombineW(joined, cur_path, exp);
@@ -1385,11 +1628,28 @@ static int resolve(const WCHAR *in, enum loc *loc, WCHAR *path)
     }
     if (exp[0] && exp[1] == L':' && !exp[2]) wcscat(exp, L"\\"); /* "C:" means the root */
     if (!GetFullPathNameW(exp, ARRAYSIZE(full), full, NULL)) return 0;
-    attrs = GetFileAttributesW(full);
-    if (attrs == INVALID_FILE_ATTRIBUTES) return 0;
     if (!is_root(full)) PathRemoveBackslashW(full);
+    attrs = GetFileAttributesW(full);
+    if (attrs == INVALID_FILE_ATTRIBUTES)
+    {
+        /* a folder inside a compressed folder? */
+        SFGAOF a;
+        LPITEMIDLIST pidl;
+        WCHAR arc[MAX_PATH];
+        if (!archive_file_of(full, arc) || !(pidl = parse_shell_path(full, &a))) return 0;
+        CoTaskMemFree(pidl);
+        if (!(a & SFGAO_FOLDER) || (a & SFGAO_STREAM)) return 0;
+        lstrcpynW(path, full, MAX_PATH);
+        *loc = LOC_ARCHIVE;
+        return 1;
+    }
     lstrcpynW(path, full, MAX_PATH);
     *loc = LOC_FS;
+    if (!(attrs & FILE_ATTRIBUTE_DIRECTORY) && archive_browsable(full))
+    {
+        *loc = LOC_ARCHIVE;
+        return 1;
+    }
     return (attrs & FILE_ATTRIBUTE_DIRECTORY) ? 1 : 2;
 }
 
@@ -1424,9 +1684,9 @@ static void navigate(const WCHAR *target, int mode)
         return;
     }
     loc_string(prev, ARRAYSIZE(prev));
-    if (mode == NAV_UP && cur_loc == LOC_FS) lstrcpyW(came_from, PathFindFileNameW(cur_path));
+    if (mode == NAV_UP && (cur_loc == LOC_FS || cur_loc == LOC_ARCHIVE)) lstrcpyW(came_from, PathFindFileNameW(cur_path));
     if (mode == NAV_UP && cur_loc == LOC_FS && is_root(cur_path)) drive_label(cur_path, came_from, ARRAYSIZE(came_from), NULL);
-    if (loc == cur_loc && (loc != LOC_FS || !lstrcmpiW(path, cur_path)) && mode == NAV_NEW && nitems)
+    if (loc == cur_loc && ((loc != LOC_FS && loc != LOC_ARCHIVE) || !lstrcmpiW(path, cur_path)) && mode == NAV_NEW && nitems)
     {
         reload();
         return;
@@ -1451,6 +1711,8 @@ static void navigate(const WCHAR *target, int mode)
     free_items();
     if (cur_loc == LOC_FS && !load_fs(cur_path))
         set_error(L"Can't open this folder: error %lu.", GetLastError());
+    else if (cur_loc == LOC_ARCHIVE && !load_archive(cur_path))
+        set_error(L"Can't open this compressed folder: error %lu.", GetLastError());
     else
     {
         if (cur_loc == LOC_DRIVES) load_drives();
@@ -1488,12 +1750,12 @@ static void go_forward(void)
     navigate(t, NAV_FORWARD);
 }
 
-static BOOL can_go_up(void) { return cur_loc == LOC_FS; }
+static BOOL can_go_up(void) { return cur_loc == LOC_FS || cur_loc == LOC_ARCHIVE; }
 
 static void go_up(void)
 {
     WCHAR t[MAX_PATH];
-    if (cur_loc != LOC_FS) return;
+    if (cur_loc != LOC_FS && cur_loc != LOC_ARCHIVE) return;
     if (is_root(cur_path)) { navigate(L"::drives", NAV_UP); return; }
     lstrcpyW(t, cur_path);
     PathRemoveFileSpecW(t);
@@ -1582,6 +1844,83 @@ static void open_file(const WCHAR *path)
     report_error(L"Couldn't open \"%ls\": error %lu.", PathFindFileNameW(path), GetLastError());
 }
 
+/* Run VERB of the archive folder's context menu on items IDX[0..n-1]. */
+static BOOL arc_folder_verb(const int *idx, int n, const char *verb)
+{
+    LPCITEMIDLIST pidls[256];
+    IContextMenu *cm;
+    CMINVOKECOMMANDINFO ci = { sizeof(ci) };
+    HRESULT hr;
+    int i;
+
+    if (!arc_folder || n <= 0 || n > (int)ARRAYSIZE(pidls)) return FALSE;
+    for (i = 0; i < n; i++) if (!(pidls[i] = items[idx[i]].pidl)) return FALSE;
+    if (FAILED(IShellFolder2_GetUIObjectOf(arc_folder, main_wnd, n, pidls, &IID_IContextMenu, NULL, (void **)&cm)))
+        return FALSE;
+    ci.hwnd = main_wnd;
+    ci.lpVerb = verb;
+    ci.nShow = SW_SHOWNORMAL;
+    if (automation) ci.fMask |= CMIC_MASK_FLAG_NO_UI;
+    hr = IContextMenu_InvokeCommand(cm, &ci);
+    IContextMenu_Release(cm);
+    if (FAILED(hr)) report_error(L"Couldn't %hs \"%ls\": error %#lx.", verb, items[idx[0]].name, hr);
+    return SUCCEEDED(hr);
+}
+
+/* "Extract All": the archive's "extract" verb (zipfldr's context menu
+ * handler, registered under the CompressedFolder and ArchiveFolder
+ * ProgIDs), run on the archive file. */
+static void extract_all(const WCHAR *archive)
+{
+    SFGAOF a;
+    LPITEMIDLIST pidl = parse_shell_path(archive, &a);
+    LPCITEMIDLIST child;
+    IShellFolder *parent;
+    IContextMenu *cm = NULL;
+    CMINVOKECOMMANDINFO ci = { sizeof(ci) };
+    HMENU m;
+    HRESULT hr = E_FAIL;
+
+    if (!pidl) { report_error(L"Can't find \"%ls\".", archive); return; }
+    if (SUCCEEDED(SHBindToParent(pidl, &IID_IShellFolder, (void **)&parent, &child)))
+    {
+        if (SUCCEEDED(hr = IShellFolder_GetUIObjectOf(parent, main_wnd, 1, &child, &IID_IContextMenu, NULL, (void **)&cm)))
+        {
+            m = CreatePopupMenu();
+            IContextMenu_QueryContextMenu(cm, m, 0, SHELLMENU_FIRST, SHELLMENU_LAST, CMF_NORMAL);
+            ci.hwnd = main_wnd;
+            ci.lpVerb = "extract";
+            ci.nShow = SW_SHOWNORMAL;
+            if (automation) ci.fMask |= CMIC_MASK_FLAG_NO_UI;
+            hr = IContextMenu_InvokeCommand(cm, &ci);
+            DestroyMenu(m);
+            IContextMenu_Release(cm);
+        }
+        IShellFolder_Release(parent);
+    }
+    CoTaskMemFree(pidl);
+    _snwprintf(last_op, ARRAYSIZE(last_op), L"extract|1|0x%lx|0", hr);
+    if (FAILED(hr)) report_error(L"Couldn't extract \"%ls\": error %#lx.", PathFindFileNameW(archive), hr);
+    else
+    {
+        set_status(L"Extracted %ls", PathFindFileNameW(archive));
+    }
+}
+
+/* The archive "Extract All" applies to: the selected archive file, or the
+ * compressed folder shown. */
+static BOOL extract_target(WCHAR *out)
+{
+    int it = focused_item();
+    if (cur_loc == LOC_ARCHIVE) return archive_file_of(cur_path, out);
+    if (cur_loc == LOC_FS && it >= 0 && selection_count() == 1 && !items[it].dir && archive_browsable(items[it].path))
+    {
+        lstrcpynW(out, items[it].path, MAX_PATH);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static void open_item(int it)
 {
     if (it < 0) return;
@@ -1590,7 +1929,13 @@ static void open_item(int it)
         set_status(L"\"%ls\" is in the Recycle Bin. Restore it to open it.", items[it].name);
         return;
     }
-    if (items[it].dir) navigate(items[it].path, NAV_NEW);
+    if (cur_loc == LOC_ARCHIVE && !items[it].dir)
+    {
+        /* the archive's own "open" verb: extracts to a temporary folder and opens it from there */
+        if (arc_folder_verb(&it, 1, "open")) set_status(L"Opened %ls", items[it].name);
+        return;
+    }
+    if (items[it].dir || (cur_loc == LOC_FS && archive_browsable(items[it].path))) navigate(items[it].path, NAV_NEW);
     else open_file(items[it].path);
 }
 
@@ -2057,13 +2402,40 @@ static void set_cut_paths(const WCHAR *m)
 static void clipboard_put(BOOL cut)
 {
     int n;
-    WCHAR *m = selected_paths(&n);
+    WCHAR *m;
     const WCHAR *p;
     size_t chars = 1;
     HGLOBAL g, ge;
     DROPFILES *df;
 
-    if (!m) return;
+    if (cur_loc == LOC_ARCHIVE)
+    {
+        /* the archive folder's data object (CFSTR_SHELLIDLIST, and for zip
+         * files the file descriptors and contents): copy only */
+        LPCITEMIDLIST pidls[1024];
+        int sel[1024], i;
+        IDataObject *obj;
+        HRESULT hr;
+        n = get_selection(sel, ARRAYSIZE(sel));
+        if (!n || !arc_folder) return;
+        for (i = 0; i < n; i++) pidls[i] = items[sel[i]].pidl;
+        if (FAILED(hr = IShellFolder2_GetUIObjectOf(arc_folder, main_wnd, n, pidls, &IID_IDataObject, NULL, (void **)&obj)))
+        {
+            report_error(L"Can't copy from this compressed folder: error %#lx.", hr);
+            return;
+        }
+        hr = OleSetClipboard(obj);
+        if (clip_obj) IDataObject_Release(clip_obj);
+        clip_obj = SUCCEEDED(hr) ? obj : NULL;
+        if (clip_obj) IDataObject_AddRef(clip_obj);
+        IDataObject_Release(obj);
+        if (FAILED(hr)) { report_error(L"The clipboard is busy."); return; }
+        our_clip_seq = GetClipboardSequenceNumber();
+        set_cut_paths(NULL);
+        set_status(L"Copied %d item%ls.", n, n == 1 ? L"" : L"s");
+        return;
+    }
+    if (!(m = selected_paths(&n))) return;
     for (p = m; *p; p += wcslen(p) + 1) chars += wcslen(p) + 1;
     g = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, sizeof(DROPFILES) + chars * sizeof(WCHAR));
     ge = GlobalAlloc(GMEM_MOVEABLE, sizeof(DWORD));
@@ -2117,11 +2489,75 @@ static WCHAR *clipboard_get(BOOL *move)
     return m;
 }
 
+/* Copy the items of a CFSTR_SHELLIDLIST data object (items in a compressed
+ * folder) into DEST. */
+static BOOL copy_out_idlist(IDataObject *obj, const WCHAR *dest)
+{
+    FORMATETC fmt = { (CLIPFORMAT)cf_idlist, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    STGMEDIUM med;
+    CIDA *cida;
+    IShellFolder *parent;
+    HRESULT hr = S_OK;
+    int count = 0;
+    UINT i;
+
+    if (FAILED(IDataObject_GetData(obj, &fmt, &med))) return FALSE;
+    if ((cida = GlobalLock(med.hGlobal)))
+    {
+        if ((parent = bind_folder((LPCITEMIDLIST)((BYTE *)cida + cida->aoffset[0]))))
+        {
+            SetCursor(LoadCursorW(NULL, IDC_WAIT));
+            for (i = 0; SUCCEEDED(hr) && i < cida->cidl; i++)
+                hr = copy_out_item(parent, (LPCITEMIDLIST)((BYTE *)cida + cida->aoffset[i + 1]), dest, &count);
+            SetCursor(LoadCursorW(NULL, IDC_ARROW));
+            IShellFolder_Release(parent);
+        }
+        else hr = E_FAIL;
+        GlobalUnlock(med.hGlobal);
+    }
+    ReleaseStgMedium(&med);
+    _snwprintf(last_op, ARRAYSIZE(last_op), L"copy-out|%d|0x%lx|0", count, hr);
+    if (FAILED(hr)) report_error(L"Couldn't copy out of the compressed folder: error %#lx.", hr);
+    else set_status(L"Copied %d item%ls.", count, count == 1 ? L"" : L"s");
+    reload();
+    return SUCCEEDED(hr);
+}
+
+/* Something to paste: file paths, or shell items (from a compressed folder). */
+static BOOL clipboard_has_items(void)
+{
+    return IsClipboardFormatAvailable(CF_HDROP) || IsClipboardFormatAvailable(cf_idlist);
+}
+
+static void paste_to(const WCHAR *dest)
+{
+    BOOL move;
+    WCHAR *m;
+    if (!IsClipboardFormatAvailable(CF_HDROP) && IsClipboardFormatAvailable(cf_idlist))
+    {
+        IDataObject *obj;
+        if (SUCCEEDED(OleGetClipboard(&obj)))
+        {
+            copy_out_idlist(obj, dest);
+            IDataObject_Release(obj);
+        }
+        return;
+    }
+    if (!(m = clipboard_get(&move)) || !m[0]) { set_status(L"Nothing to paste."); free(m); return; }
+    if (transfer(m, dest, move) && move)
+    {
+        if (OpenClipboard(main_wnd)) { EmptyClipboard(); CloseClipboard(); }
+        set_cut_paths(NULL);
+    }
+    free(m);
+}
+
 static void paste(void)
 {
     BOOL move;
     WCHAR *m;
     if (cur_loc != LOC_FS) { set_error(L"Can't paste here."); return; }
+    if (!IsClipboardFormatAvailable(CF_HDROP) && IsClipboardFormatAvailable(cf_idlist)) { paste_to(cur_path); return; }
     if (!(m = clipboard_get(&move)) || !m[0]) { set_status(L"Nothing to paste."); free(m); return; }
     if (transfer(m, cur_path, move) && move)
     {
@@ -2136,6 +2572,11 @@ static void delete_selection(BOOL permanent)
 {
     int n;
     WCHAR *m;
+    if (cur_loc == LOC_ARCHIVE)
+    {
+        set_error(L"Compressed folders are read-only here: extract the files to change them.");
+        return;
+    }
     if (cur_loc == LOC_RECYCLE)
     {
         set_status(L"Use the Recycle Bin's menu (right-click) to restore or delete items.");
@@ -2743,6 +3184,7 @@ static void show_properties(void)
     int sel[1024], n, i;
     WCHAR **paths;
 
+    if (cur_loc == LOC_ARCHIVE) return;
     if (cur_loc == LOC_RECYCLE)
     {
         int it = focused_item();
@@ -2778,7 +3220,7 @@ static void show_item_menu(POINT pt)
 {
     HMENU m, ow, view;
     int it = focused_item(), n = selection_count(), i;
-    BOOL paste_ok = IsClipboardFormatAvailable(CF_HDROP);
+    BOOL paste_ok = clipboard_has_items();
 
     if (cur_loc == LOC_RECYCLE && n)
     {
@@ -2809,6 +3251,8 @@ static void show_item_menu(POINT pt)
             AppendMenuW(m, MF_POPUP, (UINT_PTR)ow, L"Open &with");
         }
         if (items[it].dir) AppendMenuW(m, MF_STRING, IDM_NEW_WINDOW, L"Open in new &window");
+        if (cur_loc == LOC_FS && n == 1 && !items[it].dir && archive_browsable(items[it].path))
+            AppendMenuW(m, MF_STRING, IDM_EXTRACT_ALL, L"E&xtract All...");
         AppendMenuW(m, MF_SEPARATOR, 0, NULL);
         if (cur_loc == LOC_FS)
         {
@@ -2821,7 +3265,13 @@ static void show_item_menu(POINT pt)
             AppendMenuW(m, MF_STRING, IDM_DELETE, L"&Delete\tDel");
             AppendMenuW(m, MF_SEPARATOR, 0, NULL);
         }
-        AppendMenuW(m, MF_STRING, IDM_PROPERTIES, L"P&roperties\tAlt+Enter");
+        if (cur_loc == LOC_ARCHIVE)
+        {
+            AppendMenuW(m, MF_STRING, IDM_COPY, L"&Copy\tCtrl+C");
+            AppendMenuW(m, MF_SEPARATOR, 0, NULL);
+            AppendMenuW(m, MF_STRING, IDM_EXTRACT_ALL, L"E&xtract All...");
+        }
+        else AppendMenuW(m, MF_STRING, IDM_PROPERTIES, L"P&roperties\tAlt+Enter");
     }
     else
     {
@@ -2847,6 +3297,8 @@ static void show_item_menu(POINT pt)
             AppendMenuW(m, MF_SEPARATOR, 0, NULL);
             AppendMenuW(m, MF_STRING, IDM_PROPERTIES, L"P&roperties");
         }
+        else if (cur_loc == LOC_ARCHIVE)
+            AppendMenuW(m, MF_STRING, IDM_EXTRACT_ALL, L"E&xtract All...");
         else if (cur_loc == LOC_RECYCLE)
             AppendMenuW(m, MF_STRING | (nitems ? 0 : MF_GRAYED), IDM_EMPTY_RB, L"&Empty Recycle Bin");
     }
@@ -2907,7 +3359,7 @@ static int drop_target_at(POINT screen, int *place)
     if (ListView_HitTest(lv, &ht) >= 0 && (ht.flags & LVHT_ONITEM))
     {
         int it = item_of(ht.iItem);
-        if (it >= 0 && items[it].dir && cur_loc != LOC_RECYCLE &&
+        if (it >= 0 && items[it].dir && cur_loc != LOC_RECYCLE && cur_loc != LOC_ARCHIVE &&
             !(ListView_GetItemState(lv, ht.iItem, LVIS_SELECTED) & LVIS_SELECTED)) return it;
     }
     return -1;
@@ -2933,7 +3385,7 @@ static void begin_drag(int lv_index, POINT pt)
 {
     POINT origin;
     HIMAGELIST img;
-    if (cur_loc != LOC_FS || !selection_count()) return;
+    if ((cur_loc != LOC_FS && cur_loc != LOC_ARCHIVE) || !selection_count()) return;
     dragging = TRUE;
     drag_target = drag_place = -1;
     drag_image = FALSE;
@@ -2972,6 +3424,25 @@ static void end_drag(BOOL drop)
     if (target >= 0) lstrcpyW(dest, items[target].path);
     else if (place >= 0) lstrcpyW(dest, places[place].target);
     if (!dest[0]) { set_status(L""); return; }
+    if (cur_loc == LOC_ARCHIVE)
+    {
+        /* out of a compressed folder: always a copy, into a real folder */
+        LPCITEMIDLIST pidls[1024];
+        int sel[1024], i;
+        IDataObject *obj;
+        if (dest[0] == L':' || !(n = get_selection(sel, ARRAYSIZE(sel))) || !arc_folder)
+        {
+            set_error(L"Items in a compressed folder can only be copied to a folder.");
+            return;
+        }
+        for (i = 0; i < n; i++) pidls[i] = items[sel[i]].pidl;
+        if (SUCCEEDED(IShellFolder2_GetUIObjectOf(arc_folder, main_wnd, n, pidls, &IID_IDataObject, NULL, (void **)&obj)))
+        {
+            copy_out_idlist(obj, dest);
+            IDataObject_Release(obj);
+        }
+        return;
+    }
     if (!(m = selected_paths(&n))) return;
     if (!wcscmp(dest, L"::recycle"))
         file_op(FO_DELETE, m, NULL, FOF_ALLOWUNDO | FOF_NOCONFIRMATION, L"recycle", L"Moved to the Recycle Bin:", L"Deleting");
@@ -3021,9 +3492,10 @@ static void update_toolbar(void)
             break;
         case IDM_VIEW_DETAILS: b->toggled = !view_icons; b->enabled = TRUE; break;
         case IDM_VIEW_ICONS: b->toggled = view_icons; b->enabled = TRUE; break;
-        case IDM_CUT: case IDM_COPY: case IDM_DELETE: b->enabled = fs && nsel > 0; break;
+        case IDM_CUT: case IDM_DELETE: b->enabled = fs && nsel > 0; break;
+        case IDM_COPY: b->enabled = (fs || cur_loc == LOC_ARCHIVE) && nsel > 0; break;
         case IDM_RENAME: b->enabled = fs && nsel == 1; break;
-        case IDM_PASTE: b->enabled = fs && IsClipboardFormatAvailable(CF_HDROP); break;
+        case IDM_PASTE: b->enabled = fs && clipboard_has_items(); break;
         case IDM_PROPERTIES: b->enabled = fs || nsel > 0; break;
         default: b->enabled = TRUE; break;
         }
@@ -3198,7 +3670,7 @@ static void build_crumbs(struct setu_canvas *cv, int *icon)
     else
     {
         add_crumb(L"Drives", L"::drives");
-        if (cur_loc == LOC_FS && cur_path[0])
+        if ((cur_loc == LOC_FS || cur_loc == LOC_ARCHIVE) && cur_path[0])
         {
             WCHAR acc[MAX_PATH], part[MAX_PATH];
             const WCHAR *p = cur_path, *e;
@@ -3498,7 +3970,7 @@ static void write_state(void)
 #define EMIT(...) do { int room_ = (int)ARRAYSIZE(buf) - len - 1; if (room_ > 0) { int n_ = _snwprintf(buf + len, room_, __VA_ARGS__); len += n_ >= 0 ? n_ : room_; } } while (0)
     GetWindowRect(main_wnd, &wr);
     EMIT(L"seq=%ld\r\n", cmd_seq);
-    EMIT(L"location=%ls|%ls\r\n", cur_loc == LOC_FS ? L"fs" : cur_loc == LOC_DRIVES ? L"drives" : L"recycle", cur_path);
+    EMIT(L"location=%ls|%ls\r\n", cur_loc == LOC_FS ? L"fs" : cur_loc == LOC_DRIVES ? L"drives" : cur_loc == LOC_ARCHIVE ? L"archive" : L"recycle", cur_path);
     EMIT(L"address=");
     { WCHAR a[MAX_PATH]; GetWindowTextW(addr, a, ARRAYSIZE(a)); EMIT(L"%ls\r\n", a); }
     { WCHAR t[MAX_PATH]; GetWindowTextW(main_wnd, t, ARRAYSIZE(t)); EMIT(L"title=%ls\r\n", t); }
@@ -3512,7 +3984,7 @@ static void write_state(void)
     EMIT(L"recycle_count=%d\r\n", recycle_count());
     EMIT(L"theme=%ls\r\n", setu_theme.id);
     EMIT(L"theme_reloads=%d\r\n", theme_reloads);
-    EMIT(L"clipboard=%ls|%d\r\n", cut_paths ? L"cut" : IsClipboardFormatAvailable(CF_HDROP) ? L"files" : L"none",
+    EMIT(L"clipboard=%ls|%d\r\n", cut_paths ? L"cut" : IsClipboardFormatAvailable(CF_HDROP) ? L"files" : IsClipboardFormatAvailable(cf_idlist) ? L"items" : L"none",
          cut_paths ? multi_count(cut_paths) : 0);
     EMIT(L"count=%d\r\n", nitems);
     for (i = 0; i < ListView_GetItemCount(lv) && i < 400; i++)
@@ -3665,7 +4137,14 @@ static void on_command(int id)
     case IDM_RENAME:
         if (cur_loc == LOC_FS && (it = focused_item()) >= 0) select_only(it, TRUE);
         break;
-    case IDM_COPY: if (cur_loc == LOC_FS) clipboard_put(FALSE); break;
+    case IDM_COPY: if (cur_loc == LOC_FS || cur_loc == LOC_ARCHIVE) clipboard_put(FALSE); break;
+    case IDM_EXTRACT_ALL:
+    {
+        WCHAR arc[MAX_PATH];
+        if (extract_target(arc)) extract_all(arc);
+        else set_error(L"Select a compressed folder to extract.");
+        break;
+    }
     case IDM_CUT: if (cur_loc == LOC_FS) clipboard_put(TRUE); break;
     case IDM_COPY_PATH: copy_path_text(); break;
     case IDM_PASTE:
@@ -3674,16 +4153,7 @@ static void on_command(int id)
         int sel[2];
         if (cur_loc == LOC_FS && get_selection(sel, 2) == 1 && items[sel[0]].dir && GetFocus() == lv &&
             ListView_GetSelectedCount(lv) == 1)
-        {
-            BOOL move;
-            WCHAR *m = clipboard_get(&move);
-            if (m && m[0] && transfer(m, items[sel[0]].path, move) && move)
-            {
-                if (OpenClipboard(main_wnd)) { EmptyClipboard(); CloseClipboard(); }
-                set_cut_paths(NULL);
-            }
-            free(m);
-        }
+            paste_to(items[sel[0]].path);
         else paste();
         break;
     }
@@ -3712,7 +4182,7 @@ static const struct { const WCHAR *name; int id; } command_names[] =
     { L"open", IDM_OPEN }, { L"rename", IDM_RENAME }, { L"copy", IDM_COPY }, { L"cut", IDM_CUT },
     { L"paste", IDM_PASTE }, { L"delete", IDM_DELETE }, { L"delete-permanent", IDM_DELETE_PERM },
     { L"properties", IDM_PROPERTIES }, { L"select-all", IDM_SELECT_ALL }, { L"empty-recycle-bin", IDM_EMPTY_RB },
-    { L"hidden", IDM_SHOW_HIDDEN }, { L"address", IDM_ADDRESS },
+    { L"hidden", IDM_SHOW_HIDDEN }, { L"address", IDM_ADDRESS }, { L"extract-all", IDM_EXTRACT_ALL },
 };
 
 /*
@@ -4344,6 +4814,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
     panel_brush = CreateSolidBrush(C_PANEL);
     bar_brush = CreateSolidBrush(C_BAR);
     cf_effect = RegisterClipboardFormatW(CFSTR_PREFERREDDROPEFFECT);
+    cf_idlist = RegisterClipboardFormatW(CFSTR_SHELLIDLIST);
     app_icon_big = make_app_icon(GetSystemMetrics(SM_CXICON));
     app_icon_small = make_app_icon(GetSystemMetrics(SM_CXSMICON));
 
@@ -4483,6 +4954,10 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show)
 done:
     if (change_handle != INVALID_HANDLE_VALUE) FindCloseChangeNotification(change_handle);
     free_items();
+    if (arc_folder) IShellFolder2_Release(arc_folder);
+    arc_folder = NULL;
+    if (clip_obj && OleIsCurrentClipboard(clip_obj) == S_OK) OleFlushClipboard();
+    if (clip_obj) IDataObject_Release(clip_obj);
     OleUninitialize();
     CoUninitialize();
     return (int)msg.wParam;

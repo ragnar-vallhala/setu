@@ -315,6 +315,15 @@ starts it. It's plain Win32, drawn with `src/setu-style.h` like the shell.
   to the Recycle Bin (`FOF_ALLOWUNDO`) and Shift+Del to delete for good.
   Progress and errors appear in the status bar. In the Recycle Bin view you
   can restore, delete or empty.
+- **Compressed folders**: archives that the shell shows as folders
+  (zipfldr in the personality: `.zip`, `.tar`, `.tar.gz`/`.tgz`, `.gz`)
+  open in place like folders, and the address bar shows paths inside them
+  (`C:\x\a.zip\docs`), which you can also type. Copy (Ctrl+C, then paste in
+  a folder) or drag items onto a folder or a sidebar place to copy them out;
+  folders copy recursively. **Extract All…** (on the archive, or inside it)
+  runs the archive's `extract` verb. Archives are read-only here: no cut,
+  rename, delete or paste into them. Types the personality can't read yet
+  (7z, rar, bz2, xz, zst) open with their program instead.
 - **Properties** (Alt+Enter) is our own window. It shows type, location, size
   (folders are counted in the background), the dates, and the read-only,
   hidden and archive attributes, which you can change.
@@ -330,6 +339,7 @@ Ctrl+H (show hidden files) and Tab (moves between sidebar, list and address).
 | ![Operations](docs/files-02-operations.png) | ![Recycle Bin](docs/files-03-recycle-bin.png) |
 | ![Properties](docs/files-04-properties.png) | ![Open with](docs/files-05-open-with.png) |
 | ![Icons](docs/files-06-icons.png) | ![Drives](docs/files-07-drives.png) |
+| ![Compressed folder](docs/files-08-compressed-folder.png) | |
 
 **Test**: `tools/files-smoke.sh [--update-docs] [--keep]` runs under its own
 Xvfb with a fresh prefix (`build/files-prefix`). It sets `HOME`/`XDG_*` to
@@ -340,7 +350,8 @@ drives the window with real keys and mouse (`setu-files-probe.exe`) and with
 `WM_COPYDATA` commands, then reads the window's state file. It covers
 browsing, sorting, new folder, rename, copy/paste, cut/paste, drag and drop, an
 outside change, delete, restoring from the Recycle Bin, Shift+Del,
-Properties, Open with and saving a choice, the icons and Drives views, and
+Properties, Open with and saving a choice, browsing, copying out of and
+extracting compressed folders, the icons and Drives views, and
 the launcher entry. Exit code 0 is PASS.
 
 Personality gaps found (BUG-FOR shell-api, worked around here):

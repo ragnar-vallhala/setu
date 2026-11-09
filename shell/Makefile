@@ -16,7 +16,7 @@ LDFLAGS := -static-libgcc -s
 SHELL_LIBS := -luser32 -lgdi32 -lcomctl32 -lshell32 -lole32 -luuid -ladvapi32 -lkernel32
 PROBE_LIBS := -lshell32 -lole32 -luuid -luser32
 XPROC_LIBS := -luser32 -lgdi32
-FILES_LIBS := -luser32 -lgdi32 -lcomctl32 -lcomdlg32 -lshell32 -lshlwapi -lole32 -luuid -ladvapi32 -lkernel32
+FILES_LIBS := -luser32 -lgdi32 -lcomctl32 -lcomdlg32 -lshell32 -lshlwapi -lole32 -loleaut32 -luuid -ladvapi32 -lkernel32
 FPROBE_LIBS := -luser32 -lshell32 -lshlwapi
 
 all: $(OUT)/setu-shell.exe $(OUT)/setu-probe.exe $(OUT)/setu-xproc.exe $(OUT)/setu-testapp.exe \
