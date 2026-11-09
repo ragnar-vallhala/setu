@@ -553,9 +553,9 @@ GLOBALS = """\
 "SMCaptionBarHeight = 17\\r\\n"
 "SMCaptionBarWidth = 17\\r\\n"
 "MenuFont = Tahoma, 9\\r\\n"
-"StatusFont = Tahoma, 8\\r\\n"
-"MsgBoxFont = Tahoma, 8\\r\\n"
-"IconTitleFont = Tahoma, 8\\r\\n"
+"StatusFont = Tahoma, 9\\r\\n"
+"MsgBoxFont = Tahoma, 9\\r\\n"
+"IconTitleFont = Tahoma, 9\\r\\n"
 
 "\\r\\n; Flat menus\\r\\n"
 "FlatMenus = true\\r\\n"
