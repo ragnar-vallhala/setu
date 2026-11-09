@@ -3149,7 +3149,7 @@ static int forward_to_running_shell(int argc, WCHAR **argv)
 static void register_folder_handler(void)
 {
     static const WCHAR *const verbs[] = { L"Folder\\shell\\open\\command", L"Folder\\shell\\explore\\command" };
-    static const WCHAR *const archive_progids[] = { L"CompressedFolder", L"ArchiveFolder" };
+    static const WCHAR *const archive_progids[] = { L"CompressedFolder", L"ArchiveFolder", L"CABFolder" };
     WCHAR exe[MAX_PATH], cmd[MAX_PATH + 16];
     unsigned int i;
     HKEY key;
