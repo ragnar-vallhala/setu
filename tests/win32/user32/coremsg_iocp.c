@@ -72,17 +72,21 @@ static LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     return DefWindowProcW(hwnd, msg, wp, lp);
 }
 
+/* Registered once by child_main before any thread starts. A lazy
+ * registration raced between the main thread and other_thread, and the
+ * loser's CreateWindowExW could fail (ERROR_CANNOT_FIND_WND_CLASS), leaving
+ * other_hwnd NULL. */
+static void register_class(void)
+{
+    WNDCLASSW wc = {0};
+    wc.lpfnWndProc = wndproc;
+    wc.hInstance = GetModuleHandleW(NULL);
+    wc.lpszClassName = L"SetuCoreMsg";
+    RegisterClassW(&wc);
+}
+
 static HWND make_window(void)
 {
-    static int registered;
-    if (!registered) {
-        WNDCLASSW wc = {0};
-        wc.lpfnWndProc = wndproc;
-        wc.hInstance = GetModuleHandleW(NULL);
-        wc.lpszClassName = L"SetuCoreMsg";
-        RegisterClassW(&wc);
-        registered = 1;
-    }
     return CreateWindowExW(0, L"SetuCoreMsg", L"coremsg", WS_OVERLAPPEDWINDOW,
                            0, 0, 100, 100, NULL, NULL, GetModuleHandleW(NULL), NULL);
 }
@@ -240,6 +244,8 @@ static int child_main(const wchar_t *what)
     fn4 init2 = get_ord(2669), drain2 = get_ord(2670), init1 = get_ord(2612), drain1 = get_ord(2613);
     ULONG_PTR r;
     DWORD err;
+
+    register_class();
 
 #define CALL(f, a, b, c, d) do { SetLastError(ORACLE_SENTINEL); r = (f)((ULONG_PTR)(a), (ULONG_PTR)(b), (ULONG_PTR)(c), (ULONG_PTR)(d)); err = GetLastError(); } while (0)
 #define REPORT(tag) do { classify(tag, r); if (err == ORACLE_SENTINEL) put("err=unchanged "); else put("err=%lu ", err); } while (0)
