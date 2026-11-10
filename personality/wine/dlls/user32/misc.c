@@ -581,3 +581,17 @@ BOOL WINAPI DrainThreadCoreMessagingCompletions2( HWND hwnd )
 {
     return NtUserDrainThreadCoreMessagingCompletions2( hwnd );
 }
+
+/***********************************************************************
+ *		User32Ordinal2557 (USER32.2557)
+ *
+ * Exported by ordinal only and undocumented. Microsoft.UI.Windowing.Core
+ * calls it as (buffer, 0x12, -4, 0x30001) and (buffer, -4, 0x12, 0x30001);
+ * Windows 11 returns 1 for that without writing the buffer or changing the
+ * last error (oracle test combase/composition_private: ord2557_call).
+ */
+UINT_PTR WINAPI User32Ordinal2557( void *buffer, UINT_PTR arg2, UINT_PTR arg3, UINT_PTR arg4 )
+{
+    TRACE( "%p, %#Ix, %#Ix, %#Ix\n", buffer, arg2, arg3, arg4 );
+    return 1;
+}

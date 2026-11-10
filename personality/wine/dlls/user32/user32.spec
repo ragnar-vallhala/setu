@@ -68,7 +68,7 @@
 2554 stub @
 2555 stub @
 2556 stub -noname SetActivationFilter  # NtUserSetActivationFilter
-2557 stub @
+2557 stdcall -noname User32Ordinal2557(ptr ptr ptr ptr)
 2558 stub @
 2559 stub -noname GetOwnerTransformedMonitorRect  # NtUserGetOwnerTransformedMonitorRect
 2560 stub @
