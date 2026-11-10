@@ -1,7 +1,10 @@
 MODULE    = dcomp.dll
-
-EXTRADLLFLAGS = -Wb,--prefer-native
+IMPORTS   = dxguid uuid user32 gdi32
 
 SOURCES = \
+	compose.c \
 	device.c \
+	objects.c \
+	surface.c \
+	visual.c \
 	version.rc
