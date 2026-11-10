@@ -396,7 +396,12 @@ static const struct sid creator_group_sid = { SID_REVISION, 1, SECURITY_CREATOR_
 
 static struct token *current_token(void)
 {
-    return current->token ? current->token : current->process->token;
+    if (current->token) return current->token;
+    /* a new process whose token was given by its creator opens its image,
+     * before the initial thread impersonates anything, as the creator would */
+    if (current->process->startup_token && current->process->startup_state == STARTUP_IN_PROGRESS)
+        return current->process->startup_token;
+    return current->process->token;
 }
 
 static int privilege_enabled( struct token *token, struct luid luid )

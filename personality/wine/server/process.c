@@ -697,6 +697,7 @@ struct process *create_process( int fd, struct process *parent, unsigned int fla
     process->winstation      = 0;
     process->desktop         = 0;
     process->token           = NULL;
+    process->startup_token   = NULL;
     process->trace_data      = 0;
     process->rawinput_devices = NULL;
     process->rawinput_device_count = 0;
@@ -750,6 +751,10 @@ struct process *create_process( int fd, struct process *parent, unsigned int fla
         /* Note: for security reasons, starting a new process does not attempt
          * to use the current impersonation token for the new process */
         process->token = token_duplicate( token ? token : parent->token, TRUE, 0, NULL, NULL, 0, NULL, 0 );
+        /* Windows maps the image with the creator's access: the new process
+         * must be able to open its image even when its own token is too
+         * restricted for that (a sandbox's lockdown token). */
+        if (token) process->startup_token = (struct token *)grab_object( current->token ? current->token : parent->token );
         process->affinity = parent->affinity;
     }
     if (!process->handles || !process->token) goto error;
@@ -799,6 +804,7 @@ static void process_destroy( struct object *obj )
     if (process->idle_event) release_object( process->idle_event );
     if (process->id) free_ptid( process->id );
     if (process->token) release_object( process->token );
+    if (process->startup_token) release_object( process->startup_token );
     if (process->sync) release_object( process->sync );
     list_remove( &process->rawinput_entry );
     free( process->rawinput_devices );

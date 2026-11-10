@@ -1,0 +1,56 @@
+{
+  "test": "advapi32/CreateProcessAsUser_restricted",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "unrestricted_copy": {
+      "token_restricted": false,
+      "ret": true,
+      "last_error": 0,
+      "set_thread_token": true,
+      "wait": "signaled",
+      "child_flags": 2
+    },
+    "restricted_all_sids": {
+      "token_restricted": true,
+      "ret": true,
+      "last_error": 0,
+      "set_thread_token": true,
+      "wait": "signaled",
+      "child_flags": 3
+    },
+    "restricted_all_sids_low": {
+      "token_restricted": true,
+      "ret": true,
+      "last_error": 0,
+      "set_thread_token": true,
+      "wait": "signaled",
+      "child_flags": 3
+    },
+    "restricted_null_sid": {
+      "token_restricted": true,
+      "ret": true,
+      "last_error": 0,
+      "set_thread_token": true,
+      "wait": "signaled"
+    },
+    "restricted_null_sid_low": {
+      "token_restricted": true,
+      "ret": true,
+      "last_error": 0,
+      "set_thread_token": true,
+      "wait": "signaled"
+    },
+    "lockdown_with_initial_thread_token": {
+      "token_restricted": true,
+      "ret": true,
+      "last_error": 0,
+      "set_thread_token": true,
+      "wait": "signaled",
+      "child_flags": 7
+    }
+  },
+  "errors": [],
+  "source_sha256": "c2e6bd3b728944208b933dc9b9936a9a2db9fcca831f86a192b841317e8b972a"
+}
