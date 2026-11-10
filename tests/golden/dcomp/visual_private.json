@@ -1,0 +1,331 @@
+{
+  "test": "dcomp/visual_private",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "create": "0x00000000",
+      "qi_device3": "0x00000000"
+    },
+    "baseline": {
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s36_0": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s36_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s36_64": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s37_0": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s37_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s37_64": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s38_0": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s38_0p5": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "100,20,132,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "s38_1": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "none",
+      "red_count": 0,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "s38_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "none",
+      "red_count": 0,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "s40_0": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s40_0p5": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s40_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s40_64": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s41_0": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s41_0p5": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s41_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s36_8_s37_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "hr2": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s36_64_s37_64": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "hr2": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s38_0_s36_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "hr2": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s38_1_s36_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "hr2": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "none",
+      "red_count": 0,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "s40_8_s41_8": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "hr2": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "s38_m0p25": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "0,20,12,52",
+      "red_count": 384,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "s39_0p5": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,80,52,112",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "s39_0p25": {
+      "qi": "0x00000000",
+      "hr": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,50,52,82",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "child_s38_0p5": {
+      "add": "0x00000000",
+      "hr_child": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,20,52,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    },
+    "child_s38_0p5_root_s36_40": {
+      "add": "0x00000000",
+      "hr_root": "0x00000000",
+      "hr_child": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "40,20,72,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "child_s38_0p5_root_s40_0p25": {
+      "add": "0x00000000",
+      "hr_root": "0x00000000",
+      "hr_child": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "40,20,72,52",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "child_s39_0p5_root_s37_40": {
+      "add": "0x00000000",
+      "hr_root": "0x00000000",
+      "hr_child": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,40,52,72",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ffffff"
+    },
+    "child_s39_0p5_root_s41_0p25": {
+      "add": "0x00000000",
+      "hr_root": "0x00000000",
+      "hr_child": "0x00000000",
+      "commit": "0x00000000",
+      "red_box": "20,35,52,67",
+      "red_count": 1024,
+      "tinted_box": "none",
+      "tinted_count": 0,
+      "center": "0x00ff0000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "5691bfab51c9f8936b567da8a7ca42fd23b49b94d05f3ef59075ca924fbd7f07"
+}

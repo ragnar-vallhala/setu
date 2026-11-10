@@ -1,0 +1,67 @@
+{
+  "test": "dcomp/desktop_private",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "create": "0x00000000",
+      "qi_a": "0x00000000"
+    },
+    "hwnd_5a": {
+      "raised": false,
+      "hr": "0x00000000",
+      "a_written": "0",
+      "b_written": "none",
+      "a0_qi": "IUnknown=self IDCompositionTarget=self"
+    },
+    "hwnd_5a_again": {
+      "raised": false,
+      "hr": "0x88980800",
+      "a_written": "none",
+      "b_written": "none"
+    },
+    "hwnd_0": {
+      "raised": false,
+      "hr": "0x00000000",
+      "a_written": "0",
+      "b_written": "none",
+      "a0_qi": "IUnknown=self IDCompositionTarget=self"
+    },
+    "hwnd_1": {
+      "raised": false,
+      "hr": "0x00000000",
+      "a_written": "0",
+      "b_written": "none",
+      "a0_qi": "IUnknown=self IDCompositionTarget=self"
+    },
+    "child_5a": {
+      "raised": false,
+      "hr": "0x00000000",
+      "a_written": "0",
+      "b_written": "none",
+      "a0_qi": "IUnknown=self IDCompositionTarget=self"
+    },
+    "null_5a": {
+      "raised": false,
+      "hr": "0x80070057",
+      "a_written": "none",
+      "b_written": "none"
+    },
+    "destroyed_5a": {
+      "raised": false,
+      "hr": "0x80070057",
+      "a_written": "none",
+      "b_written": "none"
+    },
+    "other_thread_5a": {
+      "raised": false,
+      "hr": "0x00000000",
+      "a_written": "0",
+      "b_written": "none",
+      "a0_qi": "IUnknown=self IDCompositionTarget=self"
+    }
+  },
+  "errors": [],
+  "source_sha256": "57a97b60fecbb8f6ed8f8652984cdfebc8c94294c2b9b07422e5da7f851d1f27"
+}

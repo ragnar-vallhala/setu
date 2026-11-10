@@ -1,0 +1,115 @@
+{
+  "test": "dcomp/surface_gdi",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "device": true,
+      "create": "0x00000000"
+    },
+    "bgra_premul": {
+      "create": "0x00000000",
+      "begin": "0x00000000",
+      "getdc": "0x00000000",
+      "hdc": "set",
+      "fill": true,
+      "pixel": "0x00563412",
+      "releasedc": "0x00000000",
+      "end": "0x00000000"
+    },
+    "bgra_premul_partial": {
+      "create": "0x00000000",
+      "begin": "0x80070057"
+    },
+    "bgra_ignore": {
+      "create": "0x00000000",
+      "begin": "0x00000000",
+      "getdc": "0x00000000",
+      "hdc": "set",
+      "fill": true,
+      "pixel": "0x00563412",
+      "releasedc": "0x00000000",
+      "end": "0x00000000"
+    },
+    "bgra_ignore_partial": {
+      "create": "0x00000000",
+      "begin": "0x80070057"
+    },
+    "bgrx_ignore": {
+      "create": "0x80070057"
+    },
+    "bgrx_ignore_partial": {
+      "create": "0x80070057"
+    },
+    "bgra_srgb": {
+      "create": "0x80070057"
+    },
+    "bgra_srgb_partial": {
+      "create": "0x80070057"
+    },
+    "rgba_premul": {
+      "create": "0x00000000",
+      "begin": "0x00000000",
+      "getdc": "0x887a0001",
+      "hdc": "untouched",
+      "end": "0x00000000"
+    },
+    "rgba_premul_partial": {
+      "create": "0x00000000",
+      "begin": "0x80070057"
+    },
+    "rgba16f_premul": {
+      "create": "0x00000000",
+      "begin": "0x00000000",
+      "getdc": "0x887a0001",
+      "hdc": "untouched",
+      "end": "0x00000000"
+    },
+    "rgba16f_premul_partial": {
+      "create": "0x00000000",
+      "begin": "0x80070057"
+    },
+    "getdc_discard": {
+      "getdc": "0x00000000",
+      "fill": true,
+      "pixel": "0x00563412",
+      "releasedc": "0x00000000",
+      "end": "0x00000000"
+    },
+    "getdc_twice": {
+      "first": "0x00000000",
+      "second": "0x887a0001",
+      "second_hdc": "untouched",
+      "end_with_dc": "0x00000000",
+      "releasedc_after_end": "0x00000000"
+    },
+    "texture_bgra": {
+      "create": "0x00000000",
+      "bind": "0x00000020",
+      "gdi_compatible": true,
+      "misc": "0x00008200",
+      "end": "0x00000000"
+    },
+    "texture_bgrx": {
+      "create": "0x80070057",
+      "begin": "0x80070057"
+    },
+    "texture_rgba": {
+      "create": "0x00000000",
+      "bind": "0x00000020",
+      "gdi_compatible": false,
+      "misc": "0x00008000",
+      "end": "0x00000000"
+    },
+    "texture_rgba16f": {
+      "create": "0x00000000",
+      "bind": "0x00000020",
+      "gdi_compatible": false,
+      "misc": "0x00008000",
+      "end": "0x00000000"
+    }
+  },
+  "errors": [],
+  "source_sha256": "1ef12873b1d6f3e3fb70429073ff318457d4c053795ad12dc44755b497cf185c"
+}
