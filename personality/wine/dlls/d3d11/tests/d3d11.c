@@ -17767,7 +17767,7 @@ static void test_getdc(void)
     ok(hr == S_OK, "Got unexpected hr %#lx.\n", hr);
 
     hr = IDXGISurface1_GetDC(surface, FALSE, &dc);
-    todo_wine ok(hr == DXGI_ERROR_INVALID_CALL, "Got unexpected hr %#lx.\n", hr);
+    ok(hr == DXGI_ERROR_INVALID_CALL, "Got unexpected hr %#lx.\n", hr);
 
     IDXGISurface1_Release(surface);
     ID3D11Texture2D_Release(texture);

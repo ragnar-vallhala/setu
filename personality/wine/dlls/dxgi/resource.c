@@ -230,6 +230,8 @@ static HRESULT STDMETHODCALLTYPE dxgi_surface_GetDC(IDXGISurface2 *iface, BOOL d
 
     if (SUCCEEDED(hr))
        resource->dc = *hdc;
+    else if (hr == WINED3DERR_INVALIDCALL)
+       hr = DXGI_ERROR_INVALID_CALL;
 
     return hr;
 }
@@ -249,6 +251,8 @@ static HRESULT STDMETHODCALLTYPE dxgi_surface_ReleaseDC(IDXGISurface2 *iface, RE
             resource->subresource_idx, resource->dc);
     wined3d_mutex_unlock();
 
+    if (hr == WINED3DERR_INVALIDCALL)
+        hr = DXGI_ERROR_INVALID_CALL;
     return hr;
 }
 
