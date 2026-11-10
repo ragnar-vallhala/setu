@@ -21,6 +21,7 @@ import "d2dbasetypes.h";
 import "dcommon.idl";
 import "dcompanimation.idl";
 import "dcomptypes.idl";
+import "d2d1_1.idl";
 import "unknwn.idl";
 
 typedef struct _D3DMATRIX
@@ -440,5 +441,112 @@ interface IDCompositionDesktopDevice : IDCompositionDevice2
     HRESULT CreateSurfaceFromHwnd([in] HWND hwnd, [out] IUnknown **surface);
 }
 
+[
+    object,
+    uuid(a1a3c64a-224f-4a81-9773-4f03a89d3c6c),
+    local,
+    pointer_default(unique)
+]
+interface IDCompositionDeviceDebug : IUnknown
+{
+    HRESULT EnableDebugCounters();
+    HRESULT DisableDebugCounters();
+}
+
+[
+    object,
+    uuid(fed2b808-5eb4-43a0-aea3-35f65280f91b),
+    local,
+    pointer_default(unique)
+]
+interface IDCompositionVisualDebug : IDCompositionVisual2
+{
+    /* C++ method: HRESULT EnableHeatMap(const D2D1_COLOR_F &color); Use pointer instead of reference */
+    HRESULT EnableHeatMap([in] const D2D1_COLOR_F *color);
+    HRESULT DisableHeatMap();
+    HRESULT EnableRedrawRegions();
+    HRESULT DisableRedrawRegions();
+}
+
+[
+    object,
+    uuid(2775f462-b6c1-4015-b0be-b3e7d6a4976d),
+    local,
+    pointer_default(unique)
+]
+interface IDCompositionVisual3 : IDCompositionVisualDebug
+{
+    HRESULT SetDepthMode([in] enum DCOMPOSITION_DEPTH_MODE mode);
+    HRESULT SetOffsetZAnimation([in] IDCompositionAnimation *animation);
+    HRESULT SetOffsetZ([in] float offset_z);
+    HRESULT SetOpacityAnimation([in] IDCompositionAnimation *animation);
+    HRESULT SetOpacity([in] float opacity);
+    HRESULT SetTransform3DObject([in] IDCompositionTransform3D *transform);
+    /* C++ method: HRESULT SetTransform(const D2D_MATRIX_4X4_F &matrix); Use pointer instead of reference */
+    HRESULT SetTransform3D([in] const D2D_MATRIX_4X4_F *matrix);
+    HRESULT SetVisible([in] BOOL visible);
+}
+
+[
+    object,
+    uuid(30c421d5-8cb2-4e9f-b133-37be270d4ac2),
+    local,
+    pointer_default(unique)
+]
+interface IDCompositionFilterEffect : IDCompositionEffect
+{
+    HRESULT SetInput([in] UINT index, [in] IUnknown *input, [in] UINT flags);
+}
+
+[
+    object,
+    uuid(45d4d0b7-1bd4-454e-8894-2bfa68443033),
+    local,
+    pointer_default(unique)
+]
+interface IDCompositionGaussianBlurEffect : IDCompositionFilterEffect
+{
+    HRESULT SetStandardDeviationAnimation([in] IDCompositionAnimation *animation);
+    HRESULT SetStandardDeviation([in] float amount);
+    HRESULT SetBorderMode([in] D2D1_BORDER_MODE mode);
+}
+
+[
+    object,
+    uuid(a08debda-3258-4fa4-9f16-9174d3fe93b1),
+    local,
+    pointer_default(unique)
+]
+interface IDCompositionSaturationEffect : IDCompositionFilterEffect
+{
+    HRESULT SetSaturationAnimation([in] IDCompositionAnimation *animation);
+    HRESULT SetSaturation([in] float ratio);
+}
+
+[
+    object,
+    uuid(0987cb06-f916-48bf-8d35-ce7641781bd9),
+    local,
+    pointer_default(unique)
+]
+interface IDCompositionDevice3 : IDCompositionDevice2
+{
+    HRESULT CreateGaussianBlurEffect([out] IDCompositionGaussianBlurEffect **effect);
+    HRESULT CreateBrightnessEffect([out] void **effect);
+    HRESULT CreateColorMatrixEffect([out] void **effect);
+    HRESULT CreateShadowEffect([out] void **effect);
+    HRESULT CreateHueRotationEffect([out] void **effect);
+    HRESULT CreateSaturationEffect([out] IDCompositionSaturationEffect **effect);
+    HRESULT CreateTurbulenceEffect([out] void **effect);
+    HRESULT CreateLinearTransferEffect([out] void **effect);
+    HRESULT CreateTableTransferEffect([out] void **effect);
+    HRESULT CreateCompositeEffect([out] void **effect);
+    HRESULT CreateBlendEffect([out] void **effect);
+    HRESULT CreateArithmeticCompositeEffect([out] void **effect);
+    HRESULT CreateAffineTransform2DEffect([out] void **effect);
+}
+
 cpp_quote("STDAPI DCompositionCreateDevice(IDXGIDevice *dxgi_device, REFIID iid, void **device);")
 cpp_quote("STDAPI DCompositionCreateDevice2(IUnknown *rendering_device, REFIID iid, void **device);")
+cpp_quote("STDAPI DCompositionCreateDevice3(IUnknown *rendering_device, REFIID iid, void **device);")
+cpp_quote("STDAPI DCompositionCreateSurfaceHandle(DWORD access, SECURITY_ATTRIBUTES *security, HANDLE *handle);")
