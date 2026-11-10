@@ -155,12 +155,14 @@ setu-m3):
   unhandled Delphi exception (`0x0EEDFADE`). KeePass 2 sends 109d too and
   works, so the listview stub may not be the cause. Reported 2026-11-06.
 - **Firefox 159.0.1** (the table above predates Setu reporting Windows
-  11): as Windows 11 build 26300 it takes its Windows App SDK path and
-  crashes, because the personality has no ALPC (`NtAlpcCreatePort`).
-  Until ALPC lands (todo 271), every prefix reports Windows 10 to
-  firefox.exe only (wine.inf `[SetuAppDefaults]`, a TEMPORARY per-app
-  `HKCU\Software\Wine\AppDefaults\firefox.exe` `Version` = `win10`); see
-  docs/DEFAULT_APPS.md, "Known issues".
+  11): as Windows 11 build 26300 it takes its Windows App SDK path
+  (CoreMessagingXP, Microsoft.UI.Windowing, Windows.UI.Composition and
+  DirectComposition). Until 2026-11-10 that crashed and prefixes reported
+  Windows 10 to firefox.exe only; with ALPC, the Compositor activation
+  factory, the private DirectComposition device and visual methods it
+  calls and GDI-compatible DirectComposition surfaces, it now starts as
+  Windows 11, and wine.inf removes the old per-app override
+  (`[SetuAppDefaults.Del]`); see docs/DEFAULT_APPS.md, "Known issues".
 
 Not Setu bugs, but worth knowing:
 

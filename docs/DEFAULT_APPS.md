@@ -280,7 +280,7 @@ top-level window and how long after the start it appeared.
 
 | App | Installed | Window | Notes |
 |---|---|---|---|
-| Firefox 159.0.1 | yes | **no** | crashed at start, also on the retry (a regression since 2026-11-08; fixed for now by a per-app Windows 10 version, see [Known issues](#known-issues); tools/apps-xvfb-smoke.sh: window after 15 s on the retry, no crash reporter) |
+| Firefox 159.0.1 | yes | **no** | crashed at start, also on the retry (a regression since 2026-11-08, fixed 2026-11-10: it now starts as Windows 11, see [Known issues](#known-issues); tools/apps-xvfb-smoke.sh: window after 23 s on the retry, no crash reporter) |
 | LibreOffice 26.8.2 | yes | yes, 17 s | Writer with sample.txt |
 | SumatraPDF 3.6.1 | yes | yes, 4 s | sample.pdf |
 | Notepad++ 8.9.9 | yes | yes, 7 s | sample.txt |
@@ -341,19 +341,19 @@ that ImageGlass has none.
   to start (`c0000022`), though pages load. Both reported to shell-api.
   The smoke test starts an app a second time when the first start exits
   without a window, and says so.
-* **Firefox and Windows 11 (TEMPORARY per-app Windows 10)**: since Setu
-  reports Windows 11 build 26300 (commit 3a4ea5a4545), Firefox 159 takes
-  its Windows App SDK path, and its CoreMessagingXP aborts in
-  `NtAlpcCreatePort`, because the personality has no ALPC yet; every
-  start then crashed (todo 269). Until ALPC lands (todo 271), wine.inf's
-  `[SetuAppDefaults]` section sets
-  `HKCU\Software\Wine\AppDefaults\firefox.exe`, `Version` = `win10`, so
-  ntdll reports Windows 10 (build 19045) to firefox.exe only, in every new
-  prefix (the image's and the smoke tests'). With it, Firefox starts as
-  before: tools/apps-xvfb-smoke.sh finds its window on the retry, with no
-  crash reporter. When ALPC works, delete the section and its `AddReg`
-  entry, add a `DelReg` for the key so existing prefixes drop it, and
-  check Firefox with tools/apps-xvfb-smoke.sh.
+* **Firefox and Windows 11**: since Setu reports Windows 11 build 26300
+  (commit 3a4ea5a4545), Firefox 159 takes its Windows App SDK path. That
+  first crashed in `NtAlpcCreatePort` (todo 269), so from 2026-11-08
+  wine.inf reported Windows 10 to firefox.exe only. The path now works:
+  ALPC (todo 271), CoreMessaging, the Windows.UI.Composition Compositor
+  (activated through dcomp.dll), the undocumented DirectComposition device
+  and visual methods Microsoft.UI.Windowing.Core calls (see
+  tests/win32/dcomp/desktop_private.c and visual_private.c) and
+  GDI-compatible DirectComposition surfaces. The override is gone, and
+  wine.inf's `[SetuAppDefaults.Del]` deletes
+  `HKCU\Software\Wine\AppDefaults\firefox.exe` from existing prefixes
+  when they update. tools/apps-xvfb-smoke.sh finds Firefox's window on the
+  retry, as Windows 11, with no crash reporter.
 * **WinSCP** used to show no window under Setu (docs/COMPAT.md); it now
   shows its Login dialog.
 * **Wine's msi** puts `ALLUSERS=1` shortcuts in the per-user Programs
