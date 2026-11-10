@@ -975,6 +975,17 @@ HRESULT d3d_texture2d_create(struct d3d_device *device, const D3D11_TEXTURE2D_DE
         return E_INVALIDARG;
     }
 
+    /* Keyed mutexes and NT handle sharing are not implemented. Failing the
+     * creation lets applications that probe for sharing support (such as the
+     * Firefox GPU process) fall back instead of using a texture whose
+     * IDXGIKeyedMutex interface is missing. */
+    if (!wined3d_texture
+            && (desc->MiscFlags & (D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX | D3D11_RESOURCE_MISC_SHARED_NTHANDLE)))
+    {
+        FIXME("Keyed mutex and NT handle sharing are not supported, misc flags %#x.\n", desc->MiscFlags);
+        return E_NOTIMPL;
+    }
+
     if (!(texture = calloc(1, sizeof(*texture))))
         return E_OUTOFMEMORY;
 
