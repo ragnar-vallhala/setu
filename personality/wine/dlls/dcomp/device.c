@@ -50,14 +50,37 @@ static inline struct composition_device *impl_from_IDCompositionDeviceDebug(IDCo
     return CONTAINING_RECORD(iface, struct composition_device, IDCompositionDeviceDebug_iface);
 }
 
+/* The two device interfaces Microsoft.UI.Windowing.Core asks for; neither
+ * has a public name or documentation (combase/composition_activation:
+ * device3_*, combase/composition_private: b_versions). */
+static const GUID IID_IDCompositionDevicePrivateA =
+        { 0xca67b562, 0x1c32, 0x4017, { 0x9d, 0xd9, 0x3d, 0x4b, 0x7e, 0x25, 0x10, 0xaa } };
+static const GUID IID_IDCompositionDevicePrivateB =
+        { 0x6b556968, 0x2d25, 0x11e2, { 0x99, 0xf6, 0x8b, 0xc3, 0x60, 0x88, 0x70, 0x9b } };
+
 /* dcomp/device_create: dev*_qi. A device made by DCompositionCreateDevice
  * only answers IUnknown and IDCompositionDevice; one made by
  * DCompositionCreateDevice2 or 3 also answers IDCompositionDevice2 and
  * IDCompositionDesktopDevice (one pointer, separate from the IUnknown) and
  * IDCompositionDeviceDebug, and IDCompositionDevice3 when made by
- * DCompositionCreateDevice3. */
-static HRESULT device_query_interface(struct composition_device *device, REFIID iid, void **out)
+ * DCompositionCreateDevice3. Every version answers the two private
+ * interfaces: {ca67b562-...} is the IDCompositionDesktopDevice pointer,
+ * {6b556968-...} a pointer of its own (combase/composition_activation:
+ * device3_*; combase/composition_private: b_versions). A compositor answers
+ * its WinRT interfaces, and its IUnknown is the compositor's. */
+HRESULT device_query_interface(struct composition_device *device, REFIID iid, void **out)
 {
+    if (!out) return E_POINTER;
+    if (device->compositor)
+    {
+        if (SUCCEEDED(compositor_query_interface(device->compositor, iid, out))) return S_OK;
+        if (!device->version)
+        {
+            WARN("%s not implemented.\n", debugstr_guid(iid));
+            *out = NULL;
+            return E_NOINTERFACE;
+        }
+    }
     if (IsEqualGUID(iid, &IID_IUnknown) || IsEqualGUID(iid, &IID_IDCompositionDevice))
         *out = &device->IDCompositionDevice_iface;
     else if (device->version >= 2 && (IsEqualGUID(iid, &IID_IDCompositionDevice2)
@@ -67,6 +90,10 @@ static HRESULT device_query_interface(struct composition_device *device, REFIID 
         *out = &device->IDCompositionDevice3_iface;
     else if (device->version >= 2 && IsEqualGUID(iid, &IID_IDCompositionDeviceDebug))
         *out = &device->IDCompositionDeviceDebug_iface;
+    else if (IsEqualGUID(iid, &IID_IDCompositionDevicePrivateA))
+        *out = &device->IDCompositionDesktopDevice_iface;
+    else if (IsEqualGUID(iid, &IID_IDCompositionDevicePrivateB))
+        *out = &device->device_private_iface;
     else
     {
         WARN("%s not implemented.\n", debugstr_guid(iid));
@@ -77,14 +104,14 @@ static HRESULT device_query_interface(struct composition_device *device, REFIID 
     return S_OK;
 }
 
-static ULONG device_addref(struct composition_device *device)
+ULONG device_addref(struct composition_device *device)
 {
     ULONG refcount = InterlockedIncrement(&device->refcount);
     TRACE("%p increasing refcount to %lu.\n", device, refcount);
     return refcount;
 }
 
-static ULONG device_release(struct composition_device *device)
+ULONG device_release(struct composition_device *device)
 {
     ULONG refcount = InterlockedDecrement(&device->refcount);
 
@@ -94,6 +121,7 @@ static ULONG device_release(struct composition_device *device)
     {
         if (device->d3d_device) ID3D11Device_Release(device->d3d_device);
         if (device->d2d_device) ID2D1Device_Release(device->d2d_device);
+        if (device->compositor) compositor_destroy(device->compositor);
         free(device);
     }
     return refcount;
@@ -381,8 +409,37 @@ static HRESULT STDMETHODCALLTYPE desktop_CreateSurfaceFromHwnd(IDCompositionDesk
     return create_surface_from_hwnd(impl_from_IDCompositionDesktopDevice(iface), hwnd, surface);
 }
 
-static const IDCompositionDesktopDeviceVtbl desktop_vtbl =
+/* The {ca67b562-...} interface is the IDCompositionDesktopDevice pointer
+ * with more methods after CreateSurfaceFromHwnd. Microsoft.UI.Windowing.Core
+ * calls method 71 once per top-level window, as (window, &target, 0x5a,
+ * pointer); on Windows that creates an IDCompositionTarget for the window,
+ * under the same rules as CreateTargetForHwnd: E_INVALIDARG for a NULL or
+ * destroyed window, DCOMPOSITION_ERROR_WINDOW_ALREADY_COMPOSED the second
+ * time, child windows and windows of other threads allowed; the fourth
+ * argument is left alone (dcomp/desktop_private). Methods 27 to 70 haven't
+ * been seen called. */
+static HRESULT STDMETHODCALLTYPE desktop_private_unknown(IDCompositionDesktopDevice *iface)
 {
+    FIXME("iface %p, unknown private method, stub!\n", iface);
+    return E_NOTIMPL;
+}
+
+static HRESULT STDMETHODCALLTYPE desktop_private_CreateTargetForHwnd(IDCompositionDesktopDevice *iface,
+        HWND hwnd, IDCompositionTarget **target, UINT_PTR flags, void *unknown)
+{
+    TRACE("iface %p, hwnd %p, target %p, flags %#Ix, unknown %p.\n", iface, hwnd, target, flags, unknown);
+    return create_target(impl_from_IDCompositionDesktopDevice(iface), hwnd, FALSE, target);
+}
+
+static const struct
+{
+    IDCompositionDesktopDeviceVtbl base;
+    HRESULT (STDMETHODCALLTYPE *unknown[44])(IDCompositionDesktopDevice *iface);
+    HRESULT (STDMETHODCALLTYPE *CreateTargetForHwnd)(IDCompositionDesktopDevice *iface, HWND hwnd,
+            IDCompositionTarget **target, UINT_PTR flags, void *unknown);
+} desktop_vtbl =
+{
+  {
     desktop_QueryInterface,
     desktop_AddRef,
     desktop_Release,
@@ -397,6 +454,21 @@ static const IDCompositionDesktopDeviceVtbl desktop_vtbl =
     desktop_CreateTargetForHwnd,
     desktop_CreateSurfaceFromHandle,
     desktop_CreateSurfaceFromHwnd,
+  },
+  {
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+    desktop_private_unknown, desktop_private_unknown, desktop_private_unknown, desktop_private_unknown,
+  },
+  desktop_private_CreateTargetForHwnd,
 };
 
 /* ---- IDCompositionDevice3 ----------------------------------------------- */
@@ -553,6 +625,55 @@ static const IDCompositionDeviceDebugVtbl debug_vtbl =
     debug_DisableDebugCounters,
 };
 
+/* ---- the private {6b556968-...} interface -------------------------------- */
+
+struct device_private_vtbl
+{
+    HRESULT (STDMETHODCALLTYPE *QueryInterface)(struct device_private *iface, REFIID iid, void **out);
+    ULONG (STDMETHODCALLTYPE *AddRef)(struct device_private *iface);
+    ULONG (STDMETHODCALLTYPE *Release)(struct device_private *iface);
+    HRESULT (STDMETHODCALLTYPE *Method3)(struct device_private *iface, UINT_PTR id, UINT_PTR size, void *data);
+};
+
+static inline struct composition_device *impl_from_device_private(struct device_private *iface)
+{
+    return CONTAINING_RECORD(iface, struct composition_device, device_private_iface);
+}
+
+static HRESULT STDMETHODCALLTYPE device_private_QueryInterface(struct device_private *iface, REFIID iid, void **out)
+{
+    TRACE("iface %p, iid %s, out %p.\n", iface, debugstr_guid(iid), out);
+    return device_query_interface(impl_from_device_private(iface), iid, out);
+}
+
+static ULONG STDMETHODCALLTYPE device_private_AddRef(struct device_private *iface)
+{
+    return device_addref(impl_from_device_private(iface));
+}
+
+static ULONG STDMETHODCALLTYPE device_private_Release(struct device_private *iface)
+{
+    return device_release(impl_from_device_private(iface));
+}
+
+/* combase/composition_private: b_slot3_*, b_slot3_ids. Windows returns S_OK
+ * for every id (0 to 0x3f) and size tried (0, 0x10, 0x17 to 0x20) and
+ * leaves the buffer alone. */
+static HRESULT STDMETHODCALLTYPE device_private_Method3(struct device_private *iface, UINT_PTR id,
+        UINT_PTR size, void *data)
+{
+    TRACE("iface %p, id %#Ix, size %#Ix, data %p.\n", iface, id, size, data);
+    return S_OK;
+}
+
+static const struct device_private_vtbl device_private_vtbl =
+{
+    device_private_QueryInterface,
+    device_private_AddRef,
+    device_private_Release,
+    device_private_Method3,
+};
+
 /* ---- creation ----------------------------------------------------------- */
 
 /* The Direct3D device under a Direct2D device: the surface of a bitmap
@@ -609,11 +730,40 @@ HRESULT get_rendering_device(IUnknown *rendering_device, ID3D11Device **d3d, ID2
     return E_NOINTERFACE;
 }
 
-static HRESULT create_device(int version, IUnknown *rendering_device, REFIID iid, void **out)
+HRESULT device_create(int version, IUnknown *rendering_device, struct compositor *compositor,
+        struct composition_device **out)
 {
     struct composition_device *device;
     ID3D11Device *d3d;
     ID2D1Device *d2d;
+    HRESULT hr;
+
+    if (FAILED(hr = get_rendering_device(rendering_device, &d3d, &d2d))) return hr;
+
+    if (!(device = calloc(1, sizeof(*device))))
+    {
+        if (d3d) ID3D11Device_Release(d3d);
+        if (d2d) ID2D1Device_Release(d2d);
+        return E_OUTOFMEMORY;
+    }
+    device->IDCompositionDevice_iface.lpVtbl = &device_vtbl;
+    device->IDCompositionDesktopDevice_iface.lpVtbl = &desktop_vtbl.base;
+    device->IDCompositionDevice3_iface.lpVtbl = &device3_vtbl;
+    device->IDCompositionDeviceDebug_iface.lpVtbl = &debug_vtbl;
+    device->device_private_iface.lpVtbl = &device_private_vtbl;
+    device->refcount = 1;
+    device->version = version;
+    device->compositor = compositor;
+    device->d3d_device = d3d;
+    device->d2d_device = d2d;
+    list_init(&device->targets);
+    *out = device;
+    return S_OK;
+}
+
+static HRESULT create_device(int version, IUnknown *rendering_device, REFIID iid, void **out)
+{
+    struct composition_device *device;
     HRESULT hr;
 
     if (!out) return E_INVALIDARG;
@@ -629,24 +779,7 @@ static HRESULT create_device(int version, IUnknown *rendering_device, REFIID iid
         return E_NOINTERFACE;
     }
 
-    if (FAILED(hr = get_rendering_device(rendering_device, &d3d, &d2d))) return hr;
-
-    if (!(device = calloc(1, sizeof(*device))))
-    {
-        if (d3d) ID3D11Device_Release(d3d);
-        if (d2d) ID2D1Device_Release(d2d);
-        return E_OUTOFMEMORY;
-    }
-    device->IDCompositionDevice_iface.lpVtbl = &device_vtbl;
-    device->IDCompositionDesktopDevice_iface.lpVtbl = &desktop_vtbl;
-    device->IDCompositionDevice3_iface.lpVtbl = &device3_vtbl;
-    device->IDCompositionDeviceDebug_iface.lpVtbl = &debug_vtbl;
-    device->refcount = 1;
-    device->version = version;
-    device->d3d_device = d3d;
-    device->d2d_device = d2d;
-    list_init(&device->targets);
-
+    if (FAILED(hr = device_create(version, rendering_device, NULL, &device))) return hr;
     hr = device_query_interface(device, iid, out);
     device_release(device);
     TRACE("Created device %p, version %d.\n", device, version);

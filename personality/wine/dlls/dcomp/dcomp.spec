@@ -19,7 +19,7 @@
 @ stub DCompositionCreateSurfaceHandle
 @ stub DeserializeEffectDescription
 @ stdcall -private DllCanUnloadNow()
-@ stub DllGetActivationFactory
+@ stdcall -private DllGetActivationFactory(ptr ptr)
 @ stub DllGetClassObject
 @ stub DwmEnableMMCSS
 @ stub DwmFlush

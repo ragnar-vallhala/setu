@@ -131,14 +131,26 @@ struct composition_visual
     BOOL walking; /* compositor cycle guard */
 };
 
+struct compositor;
+
+/* the device's {6b556968-...} interface, which has no public name or
+ * documentation (combase/composition_private: b_*) */
+struct device_private
+{
+    const struct device_private_vtbl *lpVtbl;
+};
+
 struct composition_device
 {
     IDCompositionDevice IDCompositionDevice_iface; /* also the IUnknown */
     IDCompositionDesktopDevice IDCompositionDesktopDevice_iface; /* also IDCompositionDevice2 */
     IDCompositionDevice3 IDCompositionDevice3_iface;
     IDCompositionDeviceDebug IDCompositionDeviceDebug_iface;
+    struct device_private device_private_iface;
     LONG refcount;
-    int version; /* 1, 2 or 3: which DCompositionCreateDevice made it */
+    int version; /* 1, 2 or 3: which DCompositionCreateDevice made it; 0 for a
+                  * compositor that is not a device */
+    struct compositor *compositor; /* a Windows.UI.Composition compositor */
     ID3D11Device *d3d_device;
     ID2D1Device *d2d_device;
     struct composition_surface *drawing; /* the surface being drawn, if any */
@@ -148,6 +160,16 @@ struct composition_device
 
 /* device.c */
 extern CRITICAL_SECTION dcomp_cs;
+HRESULT device_create(int version, IUnknown *rendering_device, struct compositor *compositor,
+        struct composition_device **out);
+HRESULT device_query_interface(struct composition_device *device, REFIID iid, void **out);
+ULONG device_addref(struct composition_device *device);
+ULONG device_release(struct composition_device *device);
+
+/* compositor.c */
+HRESULT compositor_query_interface(struct compositor *compositor, REFIID iid, void **out);
+IUnknown *compositor_identity(struct compositor *compositor);
+void compositor_destroy(struct compositor *compositor);
 
 /* objects.c */
 void dcomp_object_init(struct dcomp_object *obj, struct composition_device *device,

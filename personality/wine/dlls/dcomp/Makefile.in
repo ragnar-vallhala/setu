@@ -1,8 +1,10 @@
 MODULE    = dcomp.dll
-IMPORTS   = dxguid uuid user32 gdi32
+IMPORTS   = combase dxguid uuid user32 gdi32
 
 SOURCES = \
+	classes.idl \
 	compose.c \
+	compositor.c \
 	device.c \
 	objects.c \
 	surface.c \
