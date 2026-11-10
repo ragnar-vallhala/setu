@@ -527,7 +527,7 @@
 @ stdcall -import FlsSetValue(long ptr)
 @ stdcall -import FlushConsoleInputBuffer(long)
 @ stdcall -import FlushFileBuffers(long)
-@ stdcall -import FlushInstructionCache(long long long)
+@ stdcall FlushInstructionCache(long long long) early_FlushInstructionCache
 @ stdcall FlushProcessWriteBuffers() NTDLL.NtFlushProcessWriteBuffers
 @ stdcall -import FlushViewOfFile(ptr long)
 @ stdcall FoldStringA(long str long ptr long)
@@ -740,7 +740,7 @@
 @ stdcall -import GetModuleHandleA(str)
 @ stdcall -import GetModuleHandleExA(long ptr ptr)
 @ stdcall -import GetModuleHandleExW(long ptr ptr)
-@ stdcall -import GetModuleHandleW(wstr)
+@ stdcall GetModuleHandleW(wstr) early_GetModuleHandleW
 @ stdcall -import GetNLSVersion(long long ptr)
 @ stdcall -import GetNLSVersionEx(long wstr ptr)
 # @ stub GetNamedPipeAttribute
@@ -850,7 +850,7 @@
 @ stdcall GetSystemDirectoryA(ptr long)
 @ stdcall GetSystemDirectoryW(ptr long)
 @ stdcall -import GetSystemFirmwareTable(long long ptr long)
-@ stdcall -import GetSystemInfo(ptr)
+@ stdcall GetSystemInfo(ptr) early_GetSystemInfo
 @ stdcall GetSystemPowerStatus(ptr)
 @ stdcall -import GetSystemPreferredUILanguages(long ptr ptr ptr)
 @ stdcall GetSystemRegistryQuota(ptr ptr)
@@ -1611,7 +1611,7 @@
 @ stdcall -import VirtualFree(ptr long long)
 @ stdcall -import VirtualFreeEx(long ptr long long)
 @ stdcall -import VirtualLock(ptr long)
-@ stdcall -import VirtualProtect(ptr long long ptr)
+@ stdcall VirtualProtect(ptr long long ptr) early_VirtualProtect
 @ stdcall -import VirtualProtectEx(long ptr long long ptr)
 @ stdcall -import VirtualQuery(ptr ptr long)
 @ stdcall -import VirtualQueryEx(long ptr ptr long)

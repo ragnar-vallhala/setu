@@ -1,0 +1,49 @@
+{
+  "test": "kernel32/export_code",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "flush_instruction_cache": {
+      "found": true,
+      "forwarded": false,
+      "same_as_getprocaddress": true,
+      "in_image": true,
+      "executable": true
+    },
+    "get_module_handle_w": {
+      "found": true,
+      "forwarded": false,
+      "same_as_getprocaddress": true,
+      "in_image": true,
+      "executable": true
+    },
+    "get_system_info": {
+      "found": true,
+      "forwarded": false,
+      "same_as_getprocaddress": true,
+      "in_image": true,
+      "executable": true
+    },
+    "virtual_protect": {
+      "found": true,
+      "forwarded": false,
+      "same_as_getprocaddress": true,
+      "in_image": true,
+      "executable": true
+    },
+    "call_through_rva": {
+      "module_handle_null_is_exe": true,
+      "module_handle_named_is_kernel32": true,
+      "system_info_equal": true,
+      "page_size": 4096,
+      "allocation_granularity": 65536,
+      "virtual_protect_ok": true,
+      "virtual_protect_old": 4,
+      "virtual_protect_applied": true,
+      "flush_ok": true
+    }
+  },
+  "errors": [],
+  "source_sha256": "eeff33362295ee2181346496f8d720f120f5faa7de0869cb41395d287fabef06"
+}

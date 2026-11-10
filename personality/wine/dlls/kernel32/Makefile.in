@@ -13,6 +13,7 @@ SOURCES = \
 	computername.c \
 	console.c \
 	debugger.c \
+	early.c \
 	file.c \
 	heap.c \
 	kernel_main.c \
