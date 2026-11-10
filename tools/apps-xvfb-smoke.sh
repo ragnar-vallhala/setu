@@ -12,7 +12,9 @@
 # exited at once, believing another instance ran (special user APCs), and
 # Firefox crashes in the Windows App SDK path it takes on Windows 11
 # build 26300 (worked around with a per-app Windows 10 version in
-# wine.inf's SetuAppDefaults until ALPC lands, todo 271). A "Crash
+# wine.inf's SetuAppDefaults until ALPC lands, todo 271). Firefox's first
+# start used to exit without a window too (todo 88) and passed only on the
+# retry; the summary now names any app that needed the retry. A "Crash
 # Reporter" window next to the app's window also counts as a failure.
 # It is slow (about three minutes) and needs the staged apps, so it is
 # not part of the other smoke tests.
@@ -130,6 +132,7 @@ sys.exit(1)' "$1"
 probe_windows() { "$WINE" "$PROBE_EXE" windows 2>/dev/null | tr -d '\r'; }
 
 failed=()
+retried=()
 while IFS=$'\x1f' read -r -u 3 id exe args window timeout; do
   # copy the app's folder from the staging C: drive
   dir=${exe#[Cc]:\\}; dir=${dir%%\\*}            # "Program Files"
@@ -166,6 +169,7 @@ while IFS=$'\x1f' read -r -u 3 id exe args window timeout; do
     failed+=("$id")
   elif [ "$ok" = y ]; then
     echo "PASS: $id: $note"
+    [ -z "$again" ] || retried+=("$id")
   else
     echo "FAIL: $id: no window matching /$window/ in ${timeout}s$again; windows:" \
       "$(probe_windows | sed -n 's/^window=[^|]*|\([^|]*|[^|]*\)|.*/\1/p' | head -3 | xargs -d '\n' | cut -c1-160 || true)" >&2
@@ -177,6 +181,11 @@ while IFS=$'\x1f' read -r -u 3 id exe args window timeout; do
 done 3< <(apps_list)
 
 echo "total $(( $(date +%s) - T0 ))s; logs in $OUT"
+# the retry stays (a first start can legitimately exit), but it is not free:
+# an app that needs it is a first-start bug the retry hides
+if [ ${#retried[@]} -gt 0 ]; then
+  echo "NOTE: needed the retry (first start exited without a window): ${retried[*]}" >&2
+fi
 if [ ${#failed[@]} -gt 0 ]; then
   echo "FAIL: ${failed[*]}" >&2
   exit 1

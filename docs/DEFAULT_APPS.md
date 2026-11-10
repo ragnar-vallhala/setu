@@ -335,12 +335,27 @@ that ImageGlass has none.
   the personality implements only in part. Reported to shell-api. It stays
   installed but is hidden from the Start menu, and the common image types
   open in SumatraPDF; .ico and .avif still point at it.
-* **Firefox**: its first start after login crashes (an access violation
-  within two seconds, no window); clicking it again works, and so does
-  every later start. Its log also shows sandboxed child processes failing
-  to start (`c0000022`), though pages load. Both reported to shell-api.
-  The smoke test starts an app a second time when the first start exits
-  without a window, and says so.
+* **Firefox** starts on the first try. It used to crash on its first start
+  after login and to log `c0000022` for its sandboxed child processes.
+  Two causes, both fixed: the launcher process records the addresses of
+  four kernel32 exports for the browser process and calls them before
+  kernel32's imports are bound, and kernel32 exported them as thunks
+  through those unbound imports (tests/win32/kernel32/export_code.c);
+  and a child created with a restricted token (its restricting SID the
+  Null SID) could not open its own .exe, because the server checked that
+  open against the child's token instead of the creator's
+  (tests/win32/advapi32/CreateProcessAsUser_restricted.c). With both
+  fixed the GPU process started and crashed in
+  `D3D11Checks::DoesTextureSharingWork`, which does not check that
+  `IDXGIKeyedMutex` exists; d3d11 now refuses to create textures that ask
+  for keyed-mutex or NT-handle sharing, so Firefox falls back to its
+  software compositor (the log has `FEATURE_FAILURE_D3D11_OBJ_SYNC`).
+  Still missing for the real sandbox: `NtSetInformationJobObject` limits,
+  process mitigation policies (`SetProcessMitigationPolicy` is a stub) and
+  the `0x2001a` and `0x2000e` process attributes; the children run
+  without those restrictions. tools/apps-xvfb-smoke.sh still retries an
+  app whose first start exits without a window, and says so; Firefox no
+  longer needs it.
 * **Firefox and Windows 11**: since Setu reports Windows 11 build 26300
   (commit 3a4ea5a4545), Firefox 159 takes its Windows App SDK path. That
   first crashed in `NtAlpcCreatePort` (todo 269), so from 2026-11-08
@@ -353,7 +368,7 @@ that ImageGlass has none.
   wine.inf's `[SetuAppDefaults.Del]` deletes
   `HKCU\Software\Wine\AppDefaults\firefox.exe` from existing prefixes
   when they update. tools/apps-xvfb-smoke.sh finds Firefox's window on the
-  retry, as Windows 11, with no crash reporter.
+  first start, as Windows 11, with no crash reporter.
 * **WinSCP** used to show no window under Setu (docs/COMPAT.md); it now
   shows its Login dialog.
 * **Wine's msi** puts `ALLUSERS=1` shortcuts in the per-user Programs

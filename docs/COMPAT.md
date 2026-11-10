@@ -163,6 +163,9 @@ setu-m3):
   calls and GDI-compatible DirectComposition surfaces, it now starts as
   Windows 11, and wine.inf removes the old per-app override
   (`[SetuAppDefaults.Del]`); see docs/DEFAULT_APPS.md, "Known issues".
+  Its first start after login no longer crashes and its sandboxed child
+  processes start (no more `c0000022`); the sandbox's job-object limits and
+  process mitigation policies are still stubs.
 
 Not Setu bugs, but worth knowing:
 
