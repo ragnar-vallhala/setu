@@ -1,0 +1,557 @@
+{
+  "test": "dcomp/surface_draw",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "setup": {
+      "create": true,
+      "d3d11": true,
+      "d2d": true
+    },
+    "nodev_bgra_premul": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_bgra_ignore": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_bgra_straight": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_bgra_unspecified": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_bgra_alpha_bad": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_rgba_premul": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_rgba16f_premul": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_rgb10a2_premul": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_bgrx_ignore": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_bgra_srgb": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_a8_premul": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_r32f": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_unknown_format": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_zero_width": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_zero_both": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_one": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_w16384": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_w16385": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "nodev_huge": {
+      "hr": "0x8000000e",
+      "out": "null"
+    },
+    "dxgi_bgra_premul": {
+      "hr": "0x00000000",
+      "out": "set",
+      "qi": "IUnknown=self Surface=self"
+    },
+    "dxgi_bgra_ignore": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_bgra_straight": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_bgra_unspecified": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_bgra_alpha_bad": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_rgba_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_rgba16f_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_rgb10a2_premul": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_bgrx_ignore": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_bgra_srgb": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_a8_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_r32f": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_unknown_format": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_zero_width": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_zero_both": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_one": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_w16384": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_w16385": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_huge": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_bgra_premul": {
+      "hr": "0x00000000",
+      "out": "set",
+      "qi": "IUnknown=self Surface=self VirtualSurface=self"
+    },
+    "dxgi_virtual_bgra_ignore": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_bgra_straight": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_bgra_unspecified": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_bgra_alpha_bad": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_rgba_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_rgba16f_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_rgb10a2_premul": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_bgrx_ignore": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_bgra_srgb": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_a8_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_r32f": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_unknown_format": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_virtual_zero_width": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_zero_both": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_one": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_w16384": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_w16385": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "dxgi_virtual_huge": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "dxgi_begin_dxgi_surface": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "drawn.format": 87,
+      "drawn.w_ge64": true,
+      "drawn.h_ge32": true,
+      "end": "0x00000000"
+    },
+    "dxgi_begin_dxgi_surface1": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "end": "0x00000000"
+    },
+    "dxgi_begin_texture2d": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "drawn.format": 87,
+      "drawn.usage": 0,
+      "drawn.bind": "0x00000020",
+      "drawn.cpu": "0x00000000",
+      "drawn.mips": 1,
+      "drawn.array": 1,
+      "drawn.samples": 1,
+      "drawn.w_ge64": true,
+      "drawn.h_ge32": true,
+      "end": "0x00000000"
+    },
+    "dxgi_begin_resource": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "end": "0x00000000"
+    },
+    "dxgi_begin_d2d_context": {
+      "hr": "0x80004002",
+      "out": "null",
+      "offset_untouched": false,
+      "offset_nonneg": true
+    },
+    "dxgi_begin_unknown": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "end": "0x00000000"
+    },
+    "dxgi_begin_surface_iid": {
+      "hr": "0x80004002",
+      "out": "null",
+      "offset_untouched": false,
+      "offset_nonneg": true
+    },
+    "dxgi_rules": {
+      "end_not_drawing": "0x88980802",
+      "suspend_not_drawing": "0x88980802",
+      "resume_not_drawing": "0x88980802",
+      "first_partial": "0x80070057",
+      "begin_null_out": "0x80070057",
+      "begin_null_offset": "0x80070057",
+      "begin_outside": "0x80070057",
+      "begin_empty": "0x80070057",
+      "begin_negative": "0x80070057",
+      "begin_swapped": "0x80070057",
+      "begin_full": "0x00000000",
+      "begin_twice": "0x00000000",
+      "begin_other_surface": "0x88980801",
+      "commit_while_drawing": "0x00000000",
+      "scroll_while_drawing": "0x80070057",
+      "suspend": "0x00000000",
+      "suspend_again": "0x88980801",
+      "begin_while_suspended": "0x00000000",
+      "end_while_suspended": "0x00000000",
+      "resume": "0x88980802",
+      "resume_again": "0x88980802",
+      "end": "0x88980802",
+      "end_again": "0x88980802",
+      "scroll": "0x00000000",
+      "scroll_rect": "0x00000000",
+      "scroll_outside": "0x80070057",
+      "commit": "0x00000000",
+      "visual_set_content": "0x00000000",
+      "visual_set_content_null": "0x00000000"
+    },
+    "dxgi_virtual": {
+      "create_empty": "0x00000000",
+      "qi": "IUnknown=self Surface=self VirtualSurface=self",
+      "begin_on_empty": "0x80070057",
+      "resize": "0x00000000",
+      "begin_partial": "0x00000000",
+      "resize_while_drawing": "0x88980801",
+      "end": "0x00000000",
+      "begin_outside": "0x80070057",
+      "trim_null": "0x00000000",
+      "trim_rect": "0x00000000",
+      "resize_huge": "0x80070057",
+      "resize_zero": "0x00000000",
+      "commit": "0x00000000"
+    },
+    "d2d_device": {
+      "ok": true
+    },
+    "d2d_begin_dxgi_surface": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "drawn.format": 87,
+      "drawn.w_ge64": true,
+      "drawn.h_ge32": true,
+      "end": "0x00000000"
+    },
+    "d2d_begin_dxgi_surface1": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "end": "0x00000000"
+    },
+    "d2d_begin_texture2d": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "drawn.format": 87,
+      "drawn.usage": 0,
+      "drawn.bind": "0x00000020",
+      "drawn.cpu": "0x00000000",
+      "drawn.mips": 1,
+      "drawn.array": 1,
+      "drawn.samples": 1,
+      "drawn.w_ge64": true,
+      "drawn.h_ge32": true,
+      "end": "0x00000000"
+    },
+    "d2d_begin_resource": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "end": "0x00000000"
+    },
+    "d2d_begin_d2d_context": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "end": "0x00000000"
+    },
+    "d2d_begin_unknown": {
+      "hr": "0x00000000",
+      "out": "set",
+      "offset_untouched": false,
+      "offset_nonneg": true,
+      "end": "0x00000000"
+    },
+    "d2d_begin_surface_iid": {
+      "hr": "0x80004002",
+      "out": "null",
+      "offset_untouched": false,
+      "offset_nonneg": true
+    },
+    "d2d_rules": {
+      "end_not_drawing": "0x88980802",
+      "suspend_not_drawing": "0x88980802",
+      "resume_not_drawing": "0x88980802",
+      "first_partial": "0x80070057",
+      "begin_null_out": "0x80070057",
+      "begin_null_offset": "0x80070057",
+      "begin_outside": "0x80070057",
+      "begin_empty": "0x80070057",
+      "begin_negative": "0x80070057",
+      "begin_swapped": "0x80070057",
+      "begin_full": "0x00000000",
+      "begin_twice": "0x00000000",
+      "begin_other_surface": "0x88980801",
+      "commit_while_drawing": "0x00000000",
+      "scroll_while_drawing": "0x80070057",
+      "suspend": "0x00000000",
+      "suspend_again": "0x88980801",
+      "begin_while_suspended": "0x00000000",
+      "end_while_suspended": "0x00000000",
+      "resume": "0x88980802",
+      "resume_again": "0x88980802",
+      "end": "0x88980802",
+      "end_again": "0x88980802",
+      "scroll": "0x00000000",
+      "scroll_rect": "0x00000000",
+      "scroll_outside": "0x80070057",
+      "commit": "0x00000000",
+      "visual_set_content": "0x00000000",
+      "visual_set_content_null": "0x00000000"
+    },
+    "d2d_virtual": {
+      "create_empty": "0x00000000",
+      "qi": "IUnknown=self Surface=self VirtualSurface=self",
+      "begin_on_empty": "0x80070057",
+      "resize": "0x00000000",
+      "begin_partial": "0x00000000",
+      "resize_while_drawing": "0x88980801",
+      "end": "0x00000000",
+      "begin_outside": "0x80070057",
+      "trim_null": "0x00000000",
+      "trim_rect": "0x00000000",
+      "resize_huge": "0x80070057",
+      "resize_zero": "0x00000000",
+      "commit": "0x00000000"
+    },
+    "v1_bgra_premul": {
+      "hr": "0x00000000",
+      "out": "set",
+      "qi": "IUnknown=self Surface=self"
+    },
+    "v1_bgra_ignore": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_bgra_straight": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_bgra_unspecified": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_bgra_alpha_bad": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_rgba_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_rgba16f_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_rgb10a2_premul": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_bgrx_ignore": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_bgra_srgb": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_a8_premul": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_r32f": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_unknown_format": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_zero_width": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_zero_both": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "v1_one": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_w16384": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_w16385": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "v1_huge": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "factory": {
+      "hr": "0x00000000",
+      "qi": "IUnknown=self SurfaceFactory=self",
+      "surface": "0x00000000",
+      "surface.qi": "IUnknown=self Surface=self",
+      "begin": "0x00000000",
+      "end": "0x00000000",
+      "set_content": "0x00000000",
+      "virtual": "0x00000000"
+    },
+    "content_other_device": {
+      "hr": "0x80070057"
+    },
+    "from_handle": {
+      "null_handle": "0x00000000",
+      "null_handle_out_null": false,
+      "bogus_handle": "0x80070006",
+      "hwnd": "0x00000000",
+      "hwnd.qi": "IUnknown=self Surface=80004002:out_untouched VirtualSurface=80004002:out_untouched SurfaceFactory=80004002:out_untouched Visual=80004002:out_untouched IDXGISurface=80004002:out_untouched ID3D11Texture2D=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "null_hwnd": "0x80070057"
+    }
+  },
+  "errors": [],
+  "source_sha256": "b94e6c958ffb8e05b6b91f8dc9e14dc7caff9b2426461cef1b68d4f596be3228"
+}

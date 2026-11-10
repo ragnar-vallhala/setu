@@ -1,0 +1,285 @@
+{
+  "test": "dcomp/target_visual",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "device": {
+      "hr": "0x00000000"
+    },
+    "visual_create": {
+      "ok": true,
+      "qi": "IUnknown=self Visual=self Visual2=self Visual3=self VisualDebug=self",
+      "refs": 1
+    },
+    "visual_create_v1_device": {
+      "hr": "0x00000000",
+      "qi": "IUnknown=self Visual=self"
+    },
+    "visual_tree": {
+      "c_refs": 1,
+      "add": "0x00000000",
+      "c_refs_added": 1,
+      "add_again": "0x80070057",
+      "add_self": "0x00000000",
+      "add_null": "0x80070057",
+      "add_parent_to_child": "0x80070057",
+      "add_other_device": "0x00000000",
+      "add_ref_not_child": "0x80070057",
+      "add_above_ref": "0x00000000",
+      "add_below_ref": "0x00000000",
+      "add_child_of_other_parent": "0x80070057",
+      "add_ref_self": "0x80070057",
+      "remove_not_child": "0x80070057",
+      "remove_null": "0x80070057",
+      "remove": "0x00000000",
+      "c_refs_removed": 1,
+      "remove_again": "0x80070057",
+      "readd_to_child": "0x00000000",
+      "remove_all": "0x00000000",
+      "c2_refs_removed_all": 1,
+      "c_refs_grandchild": 1,
+      "remove_all_empty": "0x00000000",
+      "add_after_remove_all": "0x00000000",
+      "commit": "0x00000000"
+    },
+    "visual_setters": {
+      "offset_x": "0x00000000",
+      "offset_x_nan": "0x80070057",
+      "offset_x_inf": "0x80070057",
+      "offset_x_null_anim": "0x80070057",
+      "transform_matrix": "0x00000000",
+      "transform_null_obj": "0x00000000",
+      "transform_parent_null": "0x00000000",
+      "transform_parent_child": "0x00000000",
+      "transform_parent_self": "0x00000000",
+      "transform_parent_other_device": "0x80070057",
+      "effect_null": "0x00000000",
+      "interpolation_-1": "0x00000000",
+      "border_-1": "0x00000000",
+      "interpolation_0": "0x00000000",
+      "border_0": "0x00000000",
+      "interpolation_1": "0x00000000",
+      "border_1": "0x00000000",
+      "interpolation_2": "0x80070057",
+      "border_2": "0x80070057",
+      "composite_-1": "0x00000000",
+      "opacity_mode_-1": "0x00000000",
+      "backface_-1": "0x00000000",
+      "composite_0": "0x00000000",
+      "opacity_mode_0": "0x00000000",
+      "backface_0": "0x00000000",
+      "composite_1": "0x00000000",
+      "opacity_mode_1": "0x00000000",
+      "backface_1": "0x00000000",
+      "composite_2": "0x00000000",
+      "opacity_mode_2": "0x80070057",
+      "backface_2": "0x80070057",
+      "composite_3": "0x80070057",
+      "opacity_mode_3": "0x80070057",
+      "backface_3": "0x80070057",
+      "clip_rect": "0x00000000",
+      "clip_null_obj": "0x00000000",
+      "content_null": "0x00000000",
+      "content_visual": "0x80070057",
+      "content_device": "0x80070057",
+      "commit": "0x00000000"
+    },
+    "objects": {
+      "translate": "0x00000000",
+      "translate.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=self Translate=self Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "scale": "0x00000000",
+      "scale.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=self Translate=80004002:out_untouched Scale=self Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "rotate": "0x00000000",
+      "rotate.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=self Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=self Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "skew": "0x00000000",
+      "skew.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=self Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=self Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "matrix": "0x00000000",
+      "matrix.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=self Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=self Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "translate3d": "0x00000000",
+      "translate3d.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=80004002:out_untouched Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=self Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "scale3d": "0x00000000",
+      "scale3d.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=80004002:out_untouched Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=self Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "rotate3d": "0x00000000",
+      "rotate3d.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=80004002:out_untouched Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=self Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "matrix3d": "0x00000000",
+      "matrix3d.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=80004002:out_untouched Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=self EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "group": "0x00000000",
+      "group.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=self Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "visual_set_group": "0x00000000",
+      "group_empty": "0x00000000",
+      "group_empty_out_null": false,
+      "group3d": "0x00000000",
+      "group3d.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=self Transform=80004002:out_untouched Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "visual_set_transform": "0x00000000",
+      "visual_set_effect_3d": "0x00000000",
+      "visual_set_effect_2d": "0x00000000",
+      "effect_group": "0x00000000",
+      "effect_group.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=self Transform3D=80004002:out_untouched Transform=80004002:out_untouched Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=self Clip=80004002:out_untouched RectangleClip=80004002:out_untouched Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "visual_set_effect_group": "0x00000000",
+      "clip": "0x00000000",
+      "clip.qi": "IUnknown=self Visual=80004002:out_untouched Visual2=80004002:out_untouched Visual3=80004002:out_untouched VisualDebug=80004002:out_untouched Target=80004002:out_untouched Effect=80004002:out_untouched Transform3D=80004002:out_untouched Transform=80004002:out_untouched Translate=80004002:out_untouched Scale=80004002:out_untouched Rotate=80004002:out_untouched Skew=80004002:out_untouched Matrix=80004002:out_untouched Translate3D=80004002:out_untouched Scale3D=80004002:out_untouched Rotate3D=80004002:out_untouched Matrix3D=80004002:out_untouched EffectGroup=80004002:out_untouched Clip=self RectangleClip=self Animation=80004002:out_untouched FilterEffect=80004002:out_untouched Saturation=80004002:out_untouched GaussianBlur=80004002:out_untouched Device=80004002:out_untouched Device2=80004002:out_untouched IMarshal=80004002:out_untouched IAgileObject=80004002:out_untouched",
+      "visual_set_clip": "0x00000000",
+      "animation": "0x00000000",
+      "animation.qi": "IUnknown=self Animation=self",
+      "visual_offset_anim_empty": "0x80070057",
+      "commit": "0x00000000"
+    },
+    "effects": {
+      "gaussian_blur": "0x00000000",
+      "gaussian_blur.qi": "IUnknown=unknown Effect=self FilterEffect=self GaussianBlur=self",
+      "gaussian_blur.set_effect": "0x00000000",
+      "brightness": "0x00000000",
+      "brightness.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "brightness.set_effect": "0x00000000",
+      "color_matrix": "0x00000000",
+      "color_matrix.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "color_matrix.set_effect": "0x00000000",
+      "shadow": "0x00000000",
+      "shadow.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "shadow.set_effect": "0x00000000",
+      "hue_rotation": "0x00000000",
+      "hue_rotation.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "hue_rotation.set_effect": "0x00000000",
+      "saturation": "0x00000000",
+      "saturation.qi": "IUnknown=unknown Effect=self FilterEffect=self Saturation=self",
+      "saturation.set_effect": "0x00000000",
+      "turbulence": "0x00000000",
+      "turbulence.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "turbulence.set_effect": "0x00000000",
+      "linear_transfer": "0x00000000",
+      "linear_transfer.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "linear_transfer.set_effect": "0x00000000",
+      "table_transfer": "0x00000000",
+      "table_transfer.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "table_transfer.set_effect": "0x00000000",
+      "composite": "0x00000000",
+      "composite.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "composite.set_effect": "0x00000000",
+      "blend": "0x00000000",
+      "blend.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "blend.set_effect": "0x00000000",
+      "arithmetic_composite": "0x00000000",
+      "arithmetic_composite.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "arithmetic_composite.set_effect": "0x00000000",
+      "affine_transform_2d": "0x00000000",
+      "affine_transform_2d.qi": "IUnknown=unknown Effect=self FilterEffect=self",
+      "affine_transform_2d.set_effect": "0x00000000"
+    },
+    "release_parent": {
+      "child_refs": 1,
+      "parent_final": 0,
+      "child_refs_after": 1,
+      "add_to_new_parent": "0x00000000"
+    },
+    "release_device_first": {
+      "device_final": 1,
+      "visual_refs": 1,
+      "visual_offset": "0x00000000"
+    },
+    "target_own_topmost": {
+      "hr": "0x00000000",
+      "qi": "IUnknown=self Target=self",
+      "refs": 1
+    },
+    "target_own_topmost_again": {
+      "hr": "0x88980800",
+      "out": "null"
+    },
+    "target_own_topmost_other_device": {
+      "hr": "0x88980800",
+      "out": "null"
+    },
+    "target_own_bottom": {
+      "hr": "0x00000000"
+    },
+    "target_own_bottom_again": {
+      "hr": "0x88980800",
+      "out": "null"
+    },
+    "target_own_bottom_after_release": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_own_bottom_after_release_other_device": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_own_topmost_after_release": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_null_hwnd": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "target_bogus_hwnd": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "target_desktop_window": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "target_hidden_window": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_child_window": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_message_only": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_layered": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_noredirection": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_destroyed_window": {
+      "hr": "0x80070057",
+      "out": "null"
+    },
+    "target_other_thread": {
+      "hr": "0x00000000",
+      "out": "set"
+    },
+    "target_other_process": {
+      "hr": "0x80070005",
+      "out": "null"
+    },
+    "target_v1_device": {
+      "hr": "0x00000000"
+    },
+    "target_v1_then_desktop_same_window": {
+      "hr": "0x88980800",
+      "out": "null"
+    },
+    "setroot": {
+      "null_first": "0x00000000",
+      "va_refs_before": 1,
+      "visual": "0x00000000",
+      "va_refs_after": 1,
+      "same_again": "0x00000000",
+      "root_of_other_target": "0x80070057",
+      "add_root_as_child": "0x80070057",
+      "child_add": "0x00000000",
+      "child_as_root": "0x80070057",
+      "other_device_visual": "0x80070057",
+      "replace": "0x00000000",
+      "va_refs_replaced": 1,
+      "old_root_elsewhere": "0x00000000",
+      "null": "0x00000000",
+      "commit": "0x00000000",
+      "vb_refs": 1,
+      "vb_refs_target_released": 1
+    }
+  },
+  "errors": [],
+  "source_sha256": "91f79e5b131a21de895a29ccf53b8dc8e3c0ecc45a219e2267ccadc9a894a60f"
+}

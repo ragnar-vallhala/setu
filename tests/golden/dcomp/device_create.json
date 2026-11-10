@@ -1,0 +1,858 @@
+{
+  "test": "dcomp/device_create",
+  "schema": 1,
+  "exit_code": 0,
+  "complete": true,
+  "cases": {
+    "load": {
+      "dcomp": true,
+      "create1": true,
+      "create2": true,
+      "create3": true,
+      "d3d11_device": true
+    },
+    "dev1_null_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "80004002",
+      "qi.DesktopDevice": "80004002",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "80004002",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev1_null_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_null_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_null_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_null_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_null_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_null_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3d11_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "80004002",
+      "qi.DesktopDevice": "80004002",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "80004002",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev1_d3d11_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3d11_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3d11_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3d11_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3d11_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3d11_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgi_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "80004002",
+      "qi.DesktopDevice": "80004002",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "80004002",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev1_dxgi_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgi_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgi_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgi_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgi_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgi_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3dctx_Device": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3dctx_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3dctx_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3dctx_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3dctx_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3dctx_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_d3dctx_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgifactory_Device": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgifactory_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgifactory_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgifactory_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgifactory_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgifactory_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev1_dxgifactory_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_null_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev2_null_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_null_DesktopDevice": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:self",
+      "qi.DesktopDevice": "ok:self",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev2_null_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_null_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_null_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_null_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3d11_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev2_d3d11_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3d11_DesktopDevice": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:self",
+      "qi.DesktopDevice": "ok:self",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev2_d3d11_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3d11_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3d11_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3d11_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgi_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev2_dxgi_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgi_DesktopDevice": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:self",
+      "qi.DesktopDevice": "ok:self",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev2_dxgi_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgi_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgi_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgi_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3dctx_Device": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3dctx_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3dctx_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3dctx_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3dctx_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3dctx_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_d3dctx_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgifactory_Device": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgifactory_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgifactory_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgifactory_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgifactory_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgifactory_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev2_dxgifactory_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_null_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "ok:other",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev3_null_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_null_DesktopDevice": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:self",
+      "qi.DesktopDevice": "ok:self",
+      "qi.Device3": "ok:other",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev3_null_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_null_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_null_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_null_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3d11_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "ok:other",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev3_d3d11_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3d11_DesktopDevice": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:self",
+      "qi.DesktopDevice": "ok:self",
+      "qi.Device3": "ok:other",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev3_d3d11_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3d11_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3d11_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3d11_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgi_Device": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "ok:self",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "ok:other",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev3_dxgi_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgi_DesktopDevice": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:self",
+      "qi.DesktopDevice": "ok:self",
+      "qi.Device3": "ok:other",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "dev3_dxgi_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgi_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgi_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgi_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3dctx_Device": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3dctx_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3dctx_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3dctx_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3dctx_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3dctx_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_d3dctx_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgifactory_Device": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgifactory_Device2": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgifactory_DesktopDevice": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgifactory_Device3": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgifactory_IUnknown": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgifactory_DeviceDebug": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "dev3_dxgifactory_Visual": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "methods_dev1_null": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true,
+      "check_state": "0x00000000",
+      "check_state.valid": 1
+    },
+    "methods_dev1_d3d11": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true,
+      "check_state": "0x00000000",
+      "check_state.valid": 1
+    },
+    "methods_dev1_dxgi": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true,
+      "check_state": "0x00000000",
+      "check_state.valid": 1
+    },
+    "methods_dev2_null": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true
+    },
+    "methods_dev2_d3d11": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true
+    },
+    "methods_dev2_dxgi": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true
+    },
+    "methods_dev3_null": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true
+    },
+    "methods_dev3_d3d11": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true
+    },
+    "methods_dev3_dxgi": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true
+    },
+    "methods_v1_from_dev2": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true,
+      "check_state": "0x00000000",
+      "check_state.valid": 1
+    },
+    "methods_v1_from_dev3": {
+      "commit": "0x00000000",
+      "commit_again": "0x00000000",
+      "wait": "0x00000000",
+      "stats": "0x00000000",
+      "stats.freq_is_qpc": true,
+      "stats.current_nonzero": true,
+      "stats.rate_nonzero": true,
+      "check_state": "0x00000000",
+      "check_state.valid": 1
+    },
+    "surface_factory_null": {
+      "hr": "0x80070057",
+      "out_null": true
+    },
+    "surface_factory_d3d11": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "80004002",
+      "qi.Device2": "80004002",
+      "qi.DesktopDevice": "80004002",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "80004002",
+      "qi.SurfaceFactory": "ok:self",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "surface_factory_dxgi": {
+      "hr": "0x00000000",
+      "out_null": false,
+      "qi.IUnknown": "ok:self",
+      "qi.Device": "80004002",
+      "qi.Device2": "80004002",
+      "qi.DesktopDevice": "80004002",
+      "qi.Device3": "80004002",
+      "qi.DeviceDebug": "80004002",
+      "qi.SurfaceFactory": "ok:self",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "surface_factory_d3dctx": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "surface_factory_dxgifactory": {
+      "hr": "0x80004002",
+      "out_null": true
+    },
+    "device_debug": {
+      "qi": "0x00000000",
+      "enable": "0x00000000",
+      "enable_again": "0x00000000",
+      "disable": "0x00000000",
+      "disable_again": "0x00000000"
+    },
+    "qi_from_device3": {
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "ok:self",
+      "qi.DeviceDebug": "ok:other",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "qi_from_debug": {
+      "qi.IUnknown": "ok:unknown",
+      "qi.Device": "ok:unknown",
+      "qi.Device2": "ok:other",
+      "qi.DesktopDevice": "ok:other",
+      "qi.Device3": "ok:other",
+      "qi.DeviceDebug": "ok:self",
+      "qi.SurfaceFactory": "80004002",
+      "qi.Visual": "80004002",
+      "qi.Target": "80004002",
+      "qi.IMarshal": "80004002",
+      "qi.IAgileObject": "80004002",
+      "qi.IInspectable": "80004002",
+      "qi.ID3D11Device": "80004002",
+      "qi.IDXGIDevice": "80004002"
+    },
+    "refcount": {
+      "addref": 2,
+      "release": 1,
+      "after_qi_release": 1,
+      "final_release": 0
+    },
+    "dev1_null_out": {
+      "hr": "0x80070057"
+    },
+    "dev2_null_out": {
+      "hr": "0x80070057"
+    },
+    "dev3_null_out": {
+      "hr": "0x80070057"
+    }
+  },
+  "errors": [],
+  "source_sha256": "420945fa7cc1ed76e5aad49e4da0a529da4aa99625f0d6bd912886d975aa970f"
+}
