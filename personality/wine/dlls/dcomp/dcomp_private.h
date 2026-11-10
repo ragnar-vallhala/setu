@@ -118,6 +118,8 @@ struct composition_visual
     struct list children; /* bottom to top */
     struct list entry;
     float offset_x, offset_y;
+    float size_x, size_y; /* the {2c4eef28-...} interface's properties */
+    float relative_offset_x, relative_offset_y, relative_size_x, relative_size_y;
     D2D_MATRIX_3X2_F transform;
     IDCompositionTransform *transform_object;
     IDCompositionEffect *effect;

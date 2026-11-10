@@ -24,7 +24,14 @@ WINE_DEFAULT_DEBUG_CHANNEL(dcomp);
 
 static struct list all_targets = LIST_INIT(all_targets);
 
-static const IDCompositionVisual3Vtbl visual_vtbl;
+/* the visual's {2c4eef28-...} interface: IDCompositionVisual3 and more
+ * methods; it has no public name or documentation
+ * (combase/composition_private: visual_x) */
+static const GUID IID_IDCompositionVisualPrivate =
+        { 0x2c4eef28, 0x1bc0, 0x4736, { 0xb7, 0xdd, 0xb6, 0x26, 0x92, 0xf9, 0xbd, 0x67 } };
+
+struct visual_private_vtbl;
+static const struct visual_private_vtbl visual_vtbl;
 
 /* with dcomp_cs held */
 struct list *target_list(void)
@@ -52,7 +59,8 @@ static HRESULT STDMETHODCALLTYPE visual_QueryInterface(IDCompositionVisual3 *ifa
 
     if (IsEqualGUID(iid, &IID_IUnknown) || IsEqualGUID(iid, &IID_IDCompositionVisual)
             || (!visual->v1 && (IsEqualGUID(iid, &IID_IDCompositionVisual2)
-            || IsEqualGUID(iid, &IID_IDCompositionVisualDebug) || IsEqualGUID(iid, &IID_IDCompositionVisual3))))
+            || IsEqualGUID(iid, &IID_IDCompositionVisualDebug) || IsEqualGUID(iid, &IID_IDCompositionVisual3)
+            || IsEqualGUID(iid, &IID_IDCompositionVisualPrivate))))
     {
         IDCompositionVisual3_AddRef(iface);
         *out = iface;
@@ -474,8 +482,75 @@ static HRESULT STDMETHODCALLTYPE visual_SetVisible(IDCompositionVisual3 *iface, 
     return S_OK;
 }
 
-static const IDCompositionVisual3Vtbl visual_vtbl =
+/* Methods 36 to 41 of the {2c4eef28-...} interface each take one float.
+ * Black box (dcomp/visual_private), they behave like the Size,
+ * RelativeOffsetAdjustment and RelativeSizeAdjustment properties of a
+ * Windows.UI.Composition Visual: 38 and 39 move the visual by that fraction
+ * of its parent's width and height, where a target's root has the window's
+ * client area as its parent; 36 and 37 set the visual's own width and
+ * height, and 40 and 41 add that fraction of the parent's, which is what
+ * its children's relative offsets are relative to. None of them changes
+ * how the visual's content is drawn. Microsoft.UI.Windowing.Core calls
+ * all six for the visuals of each Windows 11 window. Methods 34, 35 and
+ * 42 to 45 haven't been seen called. */
+static HRESULT STDMETHODCALLTYPE visual_private_unknown(IDCompositionVisual3 *iface)
 {
+    FIXME("iface %p, unknown private method, stub!\n", iface);
+    return E_NOTIMPL;
+}
+
+static HRESULT STDMETHODCALLTYPE visual_private_SetSizeX(IDCompositionVisual3 *iface, float value)
+{
+    TRACE("iface %p, value %.8e.\n", iface, value);
+    return set_float(&impl_from_IDCompositionVisual3(iface)->size_x, value);
+}
+
+static HRESULT STDMETHODCALLTYPE visual_private_SetSizeY(IDCompositionVisual3 *iface, float value)
+{
+    TRACE("iface %p, value %.8e.\n", iface, value);
+    return set_float(&impl_from_IDCompositionVisual3(iface)->size_y, value);
+}
+
+static HRESULT STDMETHODCALLTYPE visual_private_SetRelativeOffsetX(IDCompositionVisual3 *iface, float value)
+{
+    TRACE("iface %p, value %.8e.\n", iface, value);
+    return set_float(&impl_from_IDCompositionVisual3(iface)->relative_offset_x, value);
+}
+
+static HRESULT STDMETHODCALLTYPE visual_private_SetRelativeOffsetY(IDCompositionVisual3 *iface, float value)
+{
+    TRACE("iface %p, value %.8e.\n", iface, value);
+    return set_float(&impl_from_IDCompositionVisual3(iface)->relative_offset_y, value);
+}
+
+static HRESULT STDMETHODCALLTYPE visual_private_SetRelativeSizeX(IDCompositionVisual3 *iface, float value)
+{
+    TRACE("iface %p, value %.8e.\n", iface, value);
+    return set_float(&impl_from_IDCompositionVisual3(iface)->relative_size_x, value);
+}
+
+static HRESULT STDMETHODCALLTYPE visual_private_SetRelativeSizeY(IDCompositionVisual3 *iface, float value)
+{
+    TRACE("iface %p, value %.8e.\n", iface, value);
+    return set_float(&impl_from_IDCompositionVisual3(iface)->relative_size_y, value);
+}
+
+struct visual_private_vtbl
+{
+    IDCompositionVisual3Vtbl base;
+    HRESULT (STDMETHODCALLTYPE *unknown34[2])(IDCompositionVisual3 *iface);
+    HRESULT (STDMETHODCALLTYPE *SetSizeX)(IDCompositionVisual3 *iface, float value);
+    HRESULT (STDMETHODCALLTYPE *SetSizeY)(IDCompositionVisual3 *iface, float value);
+    HRESULT (STDMETHODCALLTYPE *SetRelativeOffsetX)(IDCompositionVisual3 *iface, float value);
+    HRESULT (STDMETHODCALLTYPE *SetRelativeOffsetY)(IDCompositionVisual3 *iface, float value);
+    HRESULT (STDMETHODCALLTYPE *SetRelativeSizeX)(IDCompositionVisual3 *iface, float value);
+    HRESULT (STDMETHODCALLTYPE *SetRelativeSizeY)(IDCompositionVisual3 *iface, float value);
+    HRESULT (STDMETHODCALLTYPE *unknown42[4])(IDCompositionVisual3 *iface);
+};
+
+static const struct visual_private_vtbl visual_vtbl =
+{
+  {
     visual_QueryInterface,
     visual_AddRef,
     visual_Release,
@@ -510,6 +585,15 @@ static const IDCompositionVisual3Vtbl visual_vtbl =
     visual_SetTransform3DObject,
     visual_SetTransform3D,
     visual_SetVisible,
+  },
+  { visual_private_unknown, visual_private_unknown },
+  visual_private_SetSizeX,
+  visual_private_SetSizeY,
+  visual_private_SetRelativeOffsetX,
+  visual_private_SetRelativeOffsetY,
+  visual_private_SetRelativeSizeX,
+  visual_private_SetRelativeSizeY,
+  { visual_private_unknown, visual_private_unknown, visual_private_unknown, visual_private_unknown },
 };
 
 /* with dcomp_cs held */
@@ -538,7 +622,7 @@ HRESULT create_visual(struct composition_device *device, BOOL v1, IDCompositionV
     if (!out) return E_INVALIDARG;
     *out = NULL;
     if (!(visual = calloc(1, sizeof(*visual)))) return E_OUTOFMEMORY;
-    visual->IDCompositionVisual3_iface.lpVtbl = &visual_vtbl;
+    visual->IDCompositionVisual3_iface.lpVtbl = &visual_vtbl.base;
     visual->v1 = v1;
     list_init(&visual->children);
     visual->transform._11 = visual->transform._22 = 1.0f;

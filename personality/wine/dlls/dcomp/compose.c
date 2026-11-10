@@ -154,10 +154,16 @@ static void draw_surface(struct canvas *canvas, struct composition_surface *surf
     }
 }
 
+/* parent_w and parent_h: the parent's size (for a root, the window's client
+ * area), which the visual's relative offset and size are fractions of */
 static void draw_visual(struct canvas *canvas, struct composition_visual *visual, const D2D_MATRIX_3X2_F *parent,
-        const RECT *parent_clip, float parent_opacity)
+        const RECT *parent_clip, float parent_opacity, float parent_w, float parent_h)
 {
-    D2D_MATRIX_3X2_F local, world, offset = { { { 1.0f, 0.0f, 0.0f, 1.0f, visual->offset_x, visual->offset_y } } };
+    D2D_MATRIX_3X2_F local, world, offset = { { { 1.0f, 0.0f, 0.0f, 1.0f,
+            visual->offset_x + visual->relative_offset_x * parent_w,
+            visual->offset_y + visual->relative_offset_y * parent_h } } };
+    float width = visual->size_x + visual->relative_size_x * parent_w;
+    float height = visual->size_y + visual->relative_size_y * parent_h;
     struct composition_visual *child;
     struct composition_surface *surface;
     D2D_RECT_F clip_rect;
@@ -190,7 +196,7 @@ static void draw_visual(struct canvas *canvas, struct composition_visual *visual
             draw_surface(canvas, surface, &world, &clip, (unsigned int)(opacity * 255.0f + 0.5f));
 
         LIST_FOR_EACH_ENTRY(child, &visual->children, struct composition_visual, entry)
-            draw_visual(canvas, child, &world, &clip, opacity);
+            draw_visual(canvas, child, &world, &clip, opacity, width, height);
     }
     visual->walking = FALSE;
 }
@@ -227,7 +233,7 @@ static void compose_window(HWND hwnd, struct list *targets)
         LIST_FOR_EACH_ENTRY(target, targets, struct composition_target, entry)
         {
             if (target->hwnd != hwnd || target->topmost != topmost || !target->root) continue;
-            draw_visual(&canvas, target->root, &identity, &rect, 1.0f);
+            draw_visual(&canvas, target->root, &identity, &rect, 1.0f, rect.right, rect.bottom);
         }
     }
 
