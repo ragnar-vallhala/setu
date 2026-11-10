@@ -275,7 +275,11 @@ static HRESULT surface_prepare_texture(struct composition_surface *surface, UINT
     desc.Usage = D3D11_USAGE_DEFAULT;
     desc.BindFlags = D3D11_BIND_RENDER_TARGET;
     desc.CPUAccessFlags = 0;
-    desc.MiscFlags = 0;
+    /* dcomp/surface_gdi: texture_*; a B8G8R8A8 surface can be drawn with
+     * GDI through IDXGISurface1::GetDC */
+    desc.MiscFlags = D3D11_RESOURCE_MISC_GUARDED;
+    if (surface->format == DXGI_FORMAT_B8G8R8A8_UNORM)
+        desc.MiscFlags |= D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
     if (FAILED(hr = ID3D11Device_CreateTexture2D(surface->d3d_device, &desc, NULL, &surface->texture)))
         ERR("Failed to create a %ux%u texture, hr %#lx.\n", width, height, hr);
     return hr;
