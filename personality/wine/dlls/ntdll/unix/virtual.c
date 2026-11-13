@@ -3055,6 +3055,117 @@ static IMAGE_BASE_RELOCATION *process_relocation_block( char *page, IMAGE_BASE_R
 
 
 /***********************************************************************
+ *           image section cache
+ *
+ * Setu: an image whose file alignment is below the page size (every
+ * MSVC and lld-link default of 0x200) has sections at file offsets that
+ * mmap() cannot map, so map_file_into_view() copies them with read() into
+ * private anonymous memory.  Every process that loads such a DLL then
+ * holds its own copy: Firefox's xul.dll is 130 MB of code, and ten
+ * Firefox processes need over a gigabyte for it alone, which the kernel
+ * OOM killer ended in a 3 GB guest.  For the read-only sections of large
+ * images we write the bytes once, page-aligned, to a cache file in the
+ * prefix and map that file instead, so all processes share its page cache.
+ *
+ * The file is named after the image's device, inode, size and mtime and is
+ * written under a temporary name and renamed, so a reader never sees a
+ * partial cache.  If anything fails the caller falls back to read().
+ */
+#define IMAGE_CACHE_MIN_TOTAL   0x100000
+#define IMAGE_CACHE_MIN_SECTION 0x10000
+
+static BOOL image_cache_section( const IMAGE_SECTION_HEADER *sec, SIZE_T align_mask, SIZE_T *file_start,
+                                 SIZE_T *file_size, const struct stat *st )
+{
+    static const SIZE_T sector_align = 0x1ff;
+    SIZE_T map_size;
+
+    if (sec->Characteristics & (IMAGE_SCN_MEM_WRITE | IMAGE_SCN_MEM_SHARED)) return FALSE;
+    if (!sec->PointerToRawData || !sec->SizeOfRawData) return FALSE;
+    if (!sec->Misc.VirtualSize) map_size = ROUND_SIZE( 0, sec->SizeOfRawData, align_mask );
+    else map_size = ROUND_SIZE( 0, sec->Misc.VirtualSize, align_mask );
+    *file_start = sec->PointerToRawData & ~sector_align;
+    *file_size = ROUND_SIZE( sec->PointerToRawData, sec->SizeOfRawData, sector_align );
+    if (*file_size > map_size) *file_size = map_size;
+    if (!(*file_start & page_mask)) return FALSE;  /* mmap() works already */
+    if (*file_size < IMAGE_CACHE_MIN_SECTION) return FALSE;
+    if (*file_start + *file_size > (SIZE_T)((st->st_size + sector_align) & ~sector_align)) return FALSE;
+    return TRUE;
+}
+
+/* Returns an fd of the cache or -1; offsets[i] is where section i's copy starts in it (-1: none). */
+static int open_image_cache( int fd, const struct stat *st, const IMAGE_SECTION_HEADER *sec, int count,
+                             SIZE_T align_mask, off_t *offsets )
+{
+    SIZE_T start, size, total = 0;
+    char *dir = NULL, *path = NULL, *tmp = NULL;
+    int i, cfd = -1;
+    void *buf = NULL;
+
+    for (i = 0; i < count; i++)
+    {
+        offsets[i] = -1;
+        if (!image_cache_section( &sec[i], align_mask, &start, &size, st )) continue;
+        offsets[i] = total;
+        total += ROUND_SIZE( 0, size, page_mask );
+    }
+    if (total < IMAGE_CACHE_MIN_TOTAL || !config_dir) goto fail;
+
+    if (asprintf( &dir, "%s/.setu-image-cache", config_dir ) < 0) { dir = NULL; goto fail; }
+    if (asprintf( &path, "%s/%llx-%llx-%llx-%llx-%lx", dir, (unsigned long long)st->st_dev,
+                  (unsigned long long)st->st_ino, (unsigned long long)st->st_size,
+                  (unsigned long long)st->st_mtim.tv_sec, (unsigned long)st->st_mtim.tv_nsec ) < 0)
+    {
+        path = NULL;
+        goto fail;
+    }
+
+    if ((cfd = open( path, O_RDONLY | O_CLOEXEC )) != -1)
+    {
+        struct stat cst;
+        if (!fstat( cfd, &cst ) && (SIZE_T)cst.st_size == total) goto done;
+        close( cfd );
+        cfd = -1;
+    }
+
+    mkdir( dir, 0700 );
+    if (asprintf( &tmp, "%s.%u.tmp", path, (unsigned int)getpid() ) < 0) { tmp = NULL; goto fail; }
+    if ((cfd = open( tmp, O_RDWR | O_CREAT | O_TRUNC | O_CLOEXEC, 0600 )) == -1) goto fail;
+    if (!(buf = malloc( 0x100000 ))) goto fail;
+    for (i = 0; i < count; i++)
+    {
+        SIZE_T done;
+        if (offsets[i] == -1) continue;
+        image_cache_section( &sec[i], align_mask, &start, &size, st );
+        for (done = 0; done < size; )
+        {
+            ssize_t n = pread( fd, buf, min( size - done, 0x100000 ), start + done );
+            if (n <= 0) break;
+            if (pwrite( cfd, buf, n, offsets[i] + done ) != n) goto fail;
+            done += n;
+        }
+    }
+    if (ftruncate( cfd, total ) || rename( tmp, path )) goto fail;
+    close( cfd );
+    cfd = open( path, O_RDONLY | O_CLOEXEC );
+    free( tmp );
+    tmp = NULL;
+    goto done;
+
+fail:
+    if (cfd != -1) close( cfd );
+    if (tmp) unlink( tmp );
+    cfd = -1;
+done:
+    free( buf );
+    free( dir );
+    free( path );
+    free( tmp );
+    return cfd;
+}
+
+
+/***********************************************************************
  *           map_image_into_view
  *
  * Map an executable (PE format) image into an existing view.
@@ -3077,6 +3188,8 @@ static NTSTATUS map_image_into_view( struct file_view *view, const UNICODE_STRIN
     SIZE_T header_size, header_map_size, total_size = view->size;
     SIZE_T align_mask = max( image_info->alignment - 1, page_mask );
     INT_PTR delta;
+    off_t *cache_offsets = NULL;
+    int cache_fd = -1;
 
     TRACE_(module)( "mapping PE file %s at %p-%p\n", debugstr_us(nt_name), ptr, ptr + total_size );
 
@@ -3135,6 +3248,9 @@ static NTSTATUS map_image_into_view( struct file_view *view, const UNICODE_STRIN
 
 
     /* map all the sections */
+
+    if (!removable && (cache_offsets = malloc( sizeof(*cache_offsets) * nt->FileHeader.NumberOfSections )))
+        cache_fd = open_image_cache( fd, &st, sec, nt->FileHeader.NumberOfSections, align_mask, cache_offsets );
 
     for (i = pos = 0; i < nt->FileHeader.NumberOfSections; i++)
     {
@@ -3204,7 +3320,9 @@ static NTSTATUS map_image_into_view( struct file_view *view, const UNICODE_STRIN
         if (sec[i].PointerToRawData >= st.st_size ||
             end > ((st.st_size + sector_align) & ~sector_align) ||
             end < file_start ||
-            map_file_into_view( view, fd, sec[i].VirtualAddress, file_size, file_start,
+            map_file_into_view( view, (cache_fd != -1 && cache_offsets[i] != -1) ? cache_fd : fd,
+                                sec[i].VirtualAddress, file_size,
+                                (cache_fd != -1 && cache_offsets[i] != -1) ? cache_offsets[i] : file_start,
                                 VPROT_COMMITTED | VPROT_READ | VPROT_WRITECOPY,
                                 removable ) != STATUS_SUCCESS)
         {
@@ -3296,6 +3414,8 @@ static NTSTATUS map_image_into_view( struct file_view *view, const UNICODE_STRIN
     status = STATUS_SUCCESS;
 
 done:
+    if (cache_fd != -1) close( cache_fd );
+    free( cache_offsets );
     free( sections );
     return status;
 }

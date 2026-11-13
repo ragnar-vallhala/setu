@@ -15,7 +15,11 @@
 # wine.inf's SetuAppDefaults until ALPC lands, todo 271). Firefox's first
 # start used to exit without a window too (todo 88) and passed only on the
 # retry; the summary now names any app that needed the retry. A "Crash
-# Reporter" window next to the app's window also counts as a failure.
+# Reporter" window next to the app's window also counts as a failure. The
+# window must still be there 30 s later and the app's private memory must
+# stay under 1500 MB: Firefox opened and was then OOM-killed in the 3 GB
+# image because each of its ten processes held a private 130 MB copy of
+# xul.dll (todo 268), which Windows shares between processes.
 # It is slow (about three minutes) and needs the staged apps, so it is
 # not part of the other smoke tests.
 #
@@ -28,6 +32,8 @@
 #   SETU_APPS_STAGE  staging dir (default: build/distro/apps-stage, falling
 #                    back to the main checkout's)
 #   SETU_PREFIX      Wine prefix (default: build/apps-xvfb-prefix; recreated)
+#   SETU_APPS_STAY   seconds an app's window must stay open (default 30)
+#   SETU_APPS_MAX_MB limit for the app's private memory (default 1500)
 #
 # Exit: 0 all windows seen, 1 a failure, 77 the staged apps are missing.
 set -euo pipefail
@@ -40,7 +46,7 @@ APPS=()
 for a in "$@"; do
   case "$a" in
     --keep) KEEP=1 ;;
-    -h|--help) sed -n '3,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '3,40p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*) echo "unknown option: $a" >&2; exit 2 ;;
     *) APPS+=("$a") ;;
   esac
@@ -69,6 +75,8 @@ export HOME="$REPO/build/apps-xvfb-home"
 export XDG_DATA_HOME="$HOME/.local/share" XDG_CONFIG_HOME="$HOME/.config" XDG_CACHE_HOME="$HOME/.cache"
 export USER=setu LOGNAME=setu TZ=UTC
 export WINEDEBUG="${WINEDEBUG:--all}"
+STAY="${SETU_APPS_STAY:-30}"       # seconds a window must stay open
+MAX_MB="${SETU_APPS_MAX_MB:-1500}" # limit for an app's private memory
 export WINEDLLOVERRIDES="mshtml=;winemenubuilder.exe=d"
 unset WAYLAND_DISPLAY XAUTHORITY
 mkdir -p "$HOME"
@@ -129,6 +137,16 @@ for l in sys.stdin.read().replace("\r", "").splitlines():
             print(f[1] + "|" + f[2]); sys.exit(0)
 sys.exit(1)' "$1"
 }
+# app_mem_mb DIRNAME: MB of anonymous (private) memory in the processes whose
+# command line names DIRNAME (the app's folder under Program Files)
+app_mem_mb() {
+  local kb=0 p v
+  for p in $(pgrep -u "$(id -u)" -f "$1" 2>/dev/null); do
+    v=$(awk '/^Anonymous:/{print $2}' "/proc/$p/smaps_rollup" 2>/dev/null) || v=
+    kb=$(( kb + ${v:-0} ))
+  done
+  echo $(( kb / 1024 ))
+}
 probe_windows() { "$WINE" "$PROBE_EXE" windows 2>/dev/null | tr -d '\r'; }
 
 failed=()
@@ -159,13 +177,32 @@ while IFS=$'\x1f' read -r -u 3 id exe args window timeout; do
     sleep 2
   done
   # a crash reporter next to the window means a child process crashed
-  crash=
+  crash= gone= mem=
   if [ "$ok" = y ]; then
     sleep 8
     crash=$(probe_windows | matches 'Crash Reporter') || crash=
+    # the window must stay: Firefox once opened and was then killed by the
+    # kernel's OOM killer in a 3 GB guest (todo 268), which a window check
+    # right after the start cannot see
+    shown=$(date +%s)
+    while [ -z "$crash" ] && (( $(date +%s) - shown < STAY - 8 )); do
+      sleep 3
+      probe_windows | matches "$window" > /dev/null || { gone=y; break; }
+    done
+    [ -n "$gone" ] || probe_windows | matches "$window" > /dev/null || gone=y
+    # private memory of the app's processes (their command lines carry the
+    # app's folder): the guest has 3 GB for everything
+    mem=$(app_mem_mb "$sub")
+    note="$note, still open after ${STAY}s, ${mem} MB private memory"
   fi
-  if [ -n "$crash" ]; then
+  if [ -n "$gone" ]; then
+    echo "FAIL: $id: $note, but the window was gone before ${STAY}s" >&2
+    failed+=("$id")
+  elif [ -n "$crash" ]; then
     echo "FAIL: $id: $note, but also a crash reporter window '$crash'" >&2
+    failed+=("$id")
+  elif [ -n "$mem" ] && (( mem > MAX_MB )); then
+    echo "FAIL: $id: $note, over the ${MAX_MB} MB limit" >&2
     failed+=("$id")
   elif [ "$ok" = y ]; then
     echo "PASS: $id: $note"
