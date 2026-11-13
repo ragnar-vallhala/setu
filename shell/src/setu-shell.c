@@ -396,13 +396,26 @@ static void flush_icon_cache(void)
 static HICON cached_icon(const WCHAR *file, int index, int size)
 {
     HICON icon = NULL;
-    int i;
+    int i, src;
 
     if (!file || !file[0]) return NULL;
     for (i = 0; i < nicon_cache; i++)
         if (icon_cache[i].index == index && icon_cache[i].size == size && !lstrcmpiW(icon_cache[i].file, file))
             return icon_cache[i].icon;
-    if (SHDefExtractIconW(file, index, 0, &icon, NULL, MAKELONG(size, size)) != S_OK) icon = NULL;
+    /* Ask for the size the file's icons come in at or above SIZE, and scale
+     * down smoothly: asking for 24 got the 16 pixel image stretched up
+     * (blocky), and user32 stretches by dropping pixels. */
+    src = st_icon_source_size(size);
+    if (SHDefExtractIconW(file, index, 0, &icon, NULL, MAKELONG(src, src)) != S_OK) icon = NULL;
+    if (icon && src != size)
+    {
+        HICON scaled = st_icon_resized(icon, src, size);
+        if (scaled)
+        {
+            DestroyIcon(icon);
+            icon = scaled;
+        }
+    }
     if (nicon_cache == icon_cache_cap)
     {
         int cap = icon_cache_cap ? icon_cache_cap * 2 : 64;
@@ -1174,7 +1187,7 @@ static HICON exe_icon(HWND hwnd)
 /* The button's icon. The program's own icon, read from its file at the
  * button's size, stays sharp at 24 px; a window icon (WM_GETICON, the
  * class icon) is the fallback, the big one first since it scales better. */
-static HICON window_icon(HWND hwnd)
+static HICON window_icon_raw(HWND hwnd)
 {
     static const WPARAM kinds[] = { ICON_BIG, ICON_SMALL2, ICON_SMALL };
     DWORD_PTR r;
@@ -1192,6 +1205,40 @@ static HICON window_icon(HWND hwnd)
     if (icon_usable(icon = (HICON)GetClassLongPtrW(hwnd, GCLP_HICON))) return icon;
     if (icon_usable(icon = (HICON)GetClassLongPtrW(hwnd, GCLP_HICONSM))) return icon;
     return LoadIconW(NULL, IDI_APPLICATION);
+}
+
+/* A window's own icon (WM_GETICON, the class icon) is whatever size the
+ * program made it; drawn at the button's size GDI would drop rows and
+ * columns. Scaled once, smoothly, and kept: the same copy comes back for the
+ * same icon so the buttons do not look changed every time. */
+static struct { HICON src; int size; HICON icon; } fit_cache[256];
+static int nfit_cache;
+
+static HICON icon_fit(HICON icon, int size)
+{
+    ICONINFO ii;
+    BITMAP bm;
+    int i, have = 0;
+
+    if (!icon) return NULL;
+    for (i = 0; i < nfit_cache; i++)
+        if (fit_cache[i].src == icon && fit_cache[i].size == size) return fit_cache[i].icon;
+    if (!GetIconInfo(icon, &ii)) return icon;
+    memset(&bm, 0, sizeof(bm));
+    if (GetObjectW(ii.hbmColor ? ii.hbmColor : ii.hbmMask, sizeof(bm), &bm)) have = bm.bmWidth;
+    if (ii.hbmMask) DeleteObject(ii.hbmMask);
+    if (ii.hbmColor) DeleteObject(ii.hbmColor);
+    if (have == size || have < 1 || nfit_cache == (int)ARRAYSIZE(fit_cache)) return icon;
+    fit_cache[nfit_cache].src = icon;
+    fit_cache[nfit_cache].size = size;
+    fit_cache[nfit_cache].icon = st_icon_resized(icon, have, size);
+    if (!fit_cache[nfit_cache].icon) fit_cache[nfit_cache].icon = icon;
+    return fit_cache[nfit_cache++].icon;
+}
+
+static HICON window_icon(HWND hwnd)
+{
+    return icon_fit(window_icon_raw(hwnd), S(ST_TASK_ICON));
 }
 
 struct enum_ctx { HWND found[MAX_TASKS]; int n; };

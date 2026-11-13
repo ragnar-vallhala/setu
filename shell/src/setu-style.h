@@ -511,6 +511,159 @@ static inline const BYTE *st_glyph_mask(int icon, int size)
 }
 
 /* ------------------------------------------------------------------ */
+/* Icons at a size the file does not have                               */
+
+/* The icon sizes that program icons usually carry, smallest first (24 is
+ * left out: few files have it, and a 24 pixel request is better served by
+ * scaling the 32 pixel image down). */
+static const int st_icon_sizes[] = { 16, 32, 48, 64, 128, 256 };
+
+/* The size to ask a file for when SIZE pixels are wanted: SIZE itself when
+ * icons come in that size, else the next larger one. An image is scaled down
+ * with st_icon_resized(); scaled up it looks blocky. */
+static inline int st_icon_source_size(int size)
+{
+    int i;
+    for (i = 0; i < (int)ARRAYSIZE(st_icon_sizes); i++)
+        if (st_icon_sizes[i] >= size) return st_icon_sizes[i];
+    return size;
+}
+
+/* A copy of ICON, FROM pixels square, at TO pixels square, or NULL. The
+ * icon is drawn over black and over white to recover its colour and alpha
+ * (whatever form its bitmaps are in), then resampled with an area average
+ * when shrinking and bilinearly when growing, in premultiplied colour, so
+ * edges stay smooth and soft instead of stepped (GDI stretches icons by
+ * dropping rows and columns). The caller destroys the copy. */
+static inline HICON st_icon_resized(HICON icon, int from, int to)
+{
+    struct setu_canvas black, white;
+    float *pm = NULL;          /* premultiplied RGB (0..255) and alpha, from*from*4 */
+    DWORD *out = NULL;
+    HBITMAP color = NULL, mask = NULL;
+    HICON ret = NULL;
+    ICONINFO ii;
+    BITMAPINFO bi;
+    int x, y, i, n = from * from;
+    BOOL have_black = FALSE, have_white = FALSE;
+
+    if (!icon || from < 1 || to < 1 || from > 512 || to > 512) return NULL;
+    memset(&black, 0, sizeof(black));
+    memset(&white, 0, sizeof(white));
+    have_black = st_canvas_begin(&black, from, from);
+    have_white = st_canvas_begin(&white, from, from);
+    if (!have_black || !have_white) goto done;
+    {
+        RECT r = { 0, 0, from, from };
+        HBRUSH bk = CreateSolidBrush(RGB(0, 0, 0)), wh = CreateSolidBrush(RGB(255, 255, 255));
+        FillRect(black.dc, &r, bk);
+        FillRect(white.dc, &r, wh);
+        DeleteObject(bk);
+        DeleteObject(wh);
+    }
+    DrawIconEx(black.dc, 0, 0, icon, from, from, 0, NULL, DI_NORMAL);
+    DrawIconEx(white.dc, 0, 0, icon, from, from, 0, NULL, DI_NORMAL);
+    GdiFlush();
+    pm = malloc((size_t)n * 4 * sizeof(float));
+    out = malloc((size_t)to * to * sizeof(DWORD));
+    if (!pm || !out) goto done;
+    for (i = 0; i < n; i++)
+    {
+        DWORD k = black.bits[i], w = white.bits[i];
+        int dr = (int)((w >> 16) & 0xff) - (int)((k >> 16) & 0xff);
+        int dg = (int)((w >> 8) & 0xff) - (int)((k >> 8) & 0xff);
+        int db = (int)(w & 0xff) - (int)(k & 0xff);
+        int al = 255 - max(dr, max(dg, db));
+        if (al < 0) al = 0;
+        if (al > 255) al = 255;
+        pm[i * 4 + 0] = (float)((k >> 16) & 0xff);
+        pm[i * 4 + 1] = (float)((k >> 8) & 0xff);
+        pm[i * 4 + 2] = (float)(k & 0xff);
+        pm[i * 4 + 3] = (float)al;
+    }
+    for (y = 0; y < to; y++)
+        for (x = 0; x < to; x++)
+        {
+            float acc[4] = { 0, 0, 0, 0 };
+            float a, r, g, b;
+            int c;
+            if (to < from)
+            {
+                /* area average over [x*from/to, (x+1)*from/to) */
+                float x0 = (float)x * from / to, x1 = (float)(x + 1) * from / to;
+                float y0 = (float)y * from / to, y1 = (float)(y + 1) * from / to, wsum = 0;
+                int sx, sy;
+                for (sy = (int)y0; sy < from && sy < y1; sy++)
+                {
+                    float wy = min(y1, (float)sy + 1) - max(y0, (float)sy);
+                    for (sx = (int)x0; sx < from && sx < x1; sx++)
+                    {
+                        float wx = min(x1, (float)sx + 1) - max(x0, (float)sx), wgt = wx * wy;
+                        for (c = 0; c < 4; c++) acc[c] += pm[(sy * from + sx) * 4 + c] * wgt;
+                        wsum += wgt;
+                    }
+                }
+                if (wsum > 0) for (c = 0; c < 4; c++) acc[c] /= wsum;
+            }
+            else
+            {
+                /* bilinear, pixel centres aligned */
+                float fx = ((float)x + 0.5f) * from / to - 0.5f, fy = ((float)y + 0.5f) * from / to - 0.5f;
+                int ix = (int)floorf(fx), iy = (int)floorf(fy);
+                float tx = fx - ix, ty = fy - iy;
+                int ix1 = min(ix + 1, from - 1), iy1 = min(iy + 1, from - 1);
+                ix = max(ix, 0);
+                iy = max(iy, 0);
+                for (c = 0; c < 4; c++)
+                    acc[c] = (pm[(iy * from + ix) * 4 + c] * (1 - tx) + pm[(iy * from + ix1) * 4 + c] * tx) * (1 - ty) +
+                             (pm[(iy1 * from + ix) * 4 + c] * (1 - tx) + pm[(iy1 * from + ix1) * 4 + c] * tx) * ty;
+            }
+            a = acc[3];
+            if (a < 0.5f) { out[y * to + x] = 0; continue; }
+            /* back to straight colour, as icon bitmaps hold it */
+            r = acc[0] * 255.0f / a;
+            g = acc[1] * 255.0f / a;
+            b = acc[2] * 255.0f / a;
+            out[y * to + x] = ((DWORD)(a + 0.5f) << 24) | ((DWORD)min(255.0f, r + 0.5f) << 16) |
+                              ((DWORD)min(255.0f, g + 0.5f) << 8) | (DWORD)min(255.0f, b + 0.5f);
+        }
+    memset(&bi, 0, sizeof(bi));
+    bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bi.bmiHeader.biWidth = to;
+    bi.bmiHeader.biHeight = -to;
+    bi.bmiHeader.biPlanes = 1;
+    bi.bmiHeader.biBitCount = 32;
+    bi.bmiHeader.biCompression = BI_RGB;
+    {
+        void *bits = NULL;
+        color = CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, &bits, NULL, 0);
+        if (!color || !bits) goto done;
+        memcpy(bits, out, (size_t)to * to * sizeof(DWORD));
+    }
+    {
+        /* an all-zero mask: the alpha channel does the cutting out */
+        int stride = ((to + 31) / 32) * 4;
+        BYTE *zero = calloc(1, (size_t)stride * to);
+        if (zero) mask = CreateBitmap(to, to, 1, 1, zero);
+        free(zero);
+    }
+    if (!mask) goto done;
+    memset(&ii, 0, sizeof(ii));
+    ii.fIcon = TRUE;
+    ii.hbmColor = color;
+    ii.hbmMask = mask;
+    ret = CreateIconIndirect(&ii);
+done:
+    if (color) DeleteObject(color);
+    if (mask) DeleteObject(mask);
+    free(pm);
+    free(out);
+    if (have_black) st_canvas_end(&black);
+    if (have_white) st_canvas_end(&white);
+    return ret;
+}
+
+/* ------------------------------------------------------------------ */
 /* Named icons (setu-theme.h, distro/themes/ICONS.md)                   */
 
 /* the built-in Lucide glyph of each name */

@@ -466,7 +466,44 @@ static int CURSORICON_FindBestIcon( LPCVOID dir, DWORD size, fnGetCIEntry get_en
         iTotalDiff = 0;
     }
 
-    for ( i = 0; iTotalDiff && get_entry( dir, size, i, &cx, &cy, &bits ); i++ )
+    if (iTotalDiff == 0xFFFFFFFF && width > 0 && height > 0)
+    {
+        /* Windows picks the image whose size is closest to the request in
+         * ratio, not in pixels: with 16, 32 and 48 pixel images, 24 gets the
+         * 32 pixel one (scaled down) and 20 the 16 pixel one, and with 16 and
+         * 48, 28 gets the 48 pixel one. Scaling an image down looks better
+         * than scaling a smaller one up, and the pixel-difference rule
+         * picked the 16 pixel image for the 24 pixel icons of the taskbar
+         * and start menu. A tie goes to the first image in the directory,
+         * except that for requests that are not square the larger one wins.
+         * The score is the product of the two axes' ratios, compared exactly
+         * as fractions. */
+        unsigned long long best_num = 0, best_den = 1;
+        int best_area = 0, found = 0;
+
+        for ( i = 0; get_entry( dir, size, i, &cx, &cy, &bits ); i++ )
+        {
+            unsigned long long num, den;
+            int area = cx * cy;
+
+            if (cx <= 0 || cy <= 0) continue;
+            num = (unsigned long long)max( width, cx ) * max( height, cy );
+            den = (unsigned long long)min( width, cx ) * min( height, cy );
+            if (!found || num * best_den < best_num * den ||
+                (num * best_den == best_num * den && width != height && area > best_area))
+            {
+                best_num = num;
+                best_den = den;
+                best_area = area;
+                iXDiff = abs(width - cx);
+                iYDiff = abs(height - cy);
+                found = 1;
+            }
+        }
+        if (found) iTotalDiff = iXDiff + iYDiff;
+    }
+
+    for ( i = 0; iTotalDiff == 0xFFFFFFFF && get_entry( dir, size, i, &cx, &cy, &bits ); i++ )
     {
         iTempXDiff = abs(width - cx);
         iTempYDiff = abs(height - cy);
